@@ -1,22 +1,27 @@
+using System;
+using System.Collections.Generic;
 using DG.Tweening;
 using GameControl;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace CameraControl
+namespace PlayerControl
 {
-    public class CameraMovement : MonoBehaviour
+    public class PlayerManager : MonoBehaviour
     {
-        private Vector2 _delta, _camMove, _camRotate, _mousePos;
+        private Vector2 _camMove, _camRotate, _mousePos;
         private Vector3 _rotVec;
 
-        private bool _isMoving, _isRotating, _isSpawning;
+        private bool _isMoving, _isRotating;
 
         private Tweener _rotateTween;
         private Camera _cam;
         private Vector3 _cursorPos;
 
         private Ray _camRay;
+        private RaycastHit _hit;
+
+        private readonly List<GameObject> _towerList = new();
 
         [SerializeField] private Transform cursorObj;
 
@@ -32,11 +37,6 @@ namespace CameraControl
                 .SetAutoKill(false)
                 .SetEase(rotateEase)
                 .OnComplete(() => _isRotating = false);
-        }
-
-        public void OnLook(InputAction.CallbackContext context)
-        {
-            _delta = context.ReadValue<Vector2>();
         }
 
         public void OnMove(InputAction.CallbackContext context)
@@ -57,19 +57,12 @@ namespace CameraControl
         {
             _mousePos = context.ReadValue<Vector2>();
             _camRay = _cam.ScreenPointToRay(_mousePos);
-            if (!Physics.Raycast(_camRay, out var hit, Mathf.Infinity)) return;
-            if (!hit.collider.CompareTag("Ground")) return;
-            _cursorPos.x = Mathf.Round(hit.point.x);
-            _cursorPos.y = Mathf.Round(hit.point.y);
-            _cursorPos.z = Mathf.Round(hit.point.z);
-
-            cursorObj.position = _cursorPos;
+            MoveCursor();
         }
 
         public void OnSpawn(InputAction.CallbackContext context)
         {
-            _isSpawning = context.started;
-            if (_isSpawning)
+            if (context.started)
             {
                 TowerSpawn();
             }
@@ -94,21 +87,33 @@ namespace CameraControl
             _rotateTween.ChangeEndValue(_rotVec, rotateDuration, true).Restart();
         }
 
-        private void TowerSpawn()
+        private void MoveCursor()
         {
-            _camRay = _cam.ScreenPointToRay(_mousePos);
-            if (!Physics.Raycast(_camRay, out var hit, Mathf.Infinity)) return;
-            if (hit.collider.CompareTag("Ground"))
-            {
-                var position = cursorObj.position;
-                var t = StackObjectPool.Get("Tower", position);
-                t.transform.position = position + new Vector3(0, hit.transform.localScale.y * 0.5f, 0) +
-                                       new Vector3(0, t.transform.localScale.y * 0.5f, 0);
-            }
-            else if (hit.transform.CompareTag("Tower"))
-                print("Already Placed Tower!");
+            if (!Physics.Raycast(_camRay, out _hit, Mathf.Infinity)) return;
+            _cursorPos.x = Mathf.Round(_hit.point.x);
+            _cursorPos.y = Mathf.Round(_hit.point.y);
+            _cursorPos.z = Mathf.Round(_hit.point.z);
+
+            cursorObj.position = _cursorPos;
         }
 
+        private void TowerSpawn()
+        {
+            if (_hit.collider.CompareTag("Ground"))
+            {
+                _towerList.Add(StackObjectPool.Get("Tower", cursorObj.position));
+            }
+            else
+                print("Wrong Place");
+        }
+
+        public void TowerReset()
+        {
+            foreach (var t in _towerList)
+            {
+                t.SetActive(false);
+            }
+        }
 
         private void LateUpdate()
         {

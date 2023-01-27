@@ -1,6 +1,7 @@
 using System;
 using GameControl;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 namespace PerlinNoiseControl
@@ -8,17 +9,16 @@ namespace PerlinNoiseControl
     public class Tree : MonoBehaviour
     {
         [SerializeField] private MeshFilter[] treeMeshFilter;
-        [SerializeField] private MeshFilter _meshFilter;
-
+        [SerializeField] private MeshFilter meshFilter;
         private void Awake()
         {
-            _meshFilter = GetComponent<MeshFilter>();
+            meshFilter = GetComponentInChildren<MeshFilter>();
         }
 
         private void OnEnable()
         {
             var randomTree = Random.Range(0, treeMeshFilter.Length);
-            _meshFilter.sharedMesh = treeMeshFilter[randomTree].sharedMesh;
+            meshFilter.sharedMesh = treeMeshFilter[randomTree].sharedMesh;
         }
 
         private void OnDisable()

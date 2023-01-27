@@ -6,52 +6,53 @@ namespace PerlinNoiseControl
 {
     public class Grid : MonoBehaviour
     {
-        [SerializeField] private MeshFilter thisMeshFilter;
-        [SerializeField] private MeshRenderer thisMeshRenderer;
+        [SerializeField] private Material terrainMat;
+        [SerializeField] private MeshFilter terrainMeshFilter;
+        [SerializeField] private MeshRenderer terrainMeshRenderer;
 
         [SerializeField] private Material edgeMat;
         [SerializeField] private MeshFilter edgeMeshFilter;
         [SerializeField] private MeshRenderer edgeMeshRenderer;
 
-        [SerializeField] private Material terrainMat;
-
-        [SerializeField] private GameObject[] treePrefabs;
+        [SerializeField] private GameObject[] trees;
+        [Range(0, 500)] [SerializeField] private int gridSize = 100;
         [Range(0, 1)] [SerializeField] private float waterLevel = 0.4f;
-        [Range(0, 1)] [SerializeField] private float scale = 0.1f;
-        [Range(0, 1)] [SerializeField] private float treeNoiseScale = 0.04f;
+        [Range(0, 1)] [SerializeField] private float noiseScale = 0.1f;
+        [Range(0, 5)] [SerializeField] private float treeNoiseScale = 0.04f;
         [Range(0, 1)] [SerializeField] private float treeDensity = 0.5f;
-        [Range(0, 500)] [SerializeField] private int size = 100;
-
+        [SerializeField] private Transform crystal;
+        
         private Cell[][] _grid;
+        private readonly List<Vector3> _notTreeMap = new();
 
         public bool drawGizmos;
 
         private void Start()
         {
-            thisMeshFilter = GetComponent<MeshFilter>();
-            thisMeshRenderer = GetComponent<MeshRenderer>();
-            treePrefabs = new GameObject[size];
-            for (var i = 0; i < size; i++)
+            terrainMeshFilter = GetComponent<MeshFilter>();
+            terrainMeshRenderer = GetComponent<MeshRenderer>();
+            trees = new GameObject[gridSize];
+            for (var i = 0; i < gridSize; i++)
             {
-                treePrefabs[i] = StackObjectPool.Get("Tree", transform.position);
-                treePrefabs[i].SetActive(false);
+                trees[i] = StackObjectPool.Get("Tree", transform.position);
+                trees[i].SetActive(false);
             }
         }
 
 
         public void GenerateMap()
         {
-            _grid = new Cell[size][];
-            for (var i = 0; i < size; i++)
+            _grid = new Cell[gridSize][];
+            for (var i = 0; i < gridSize; i++)
             {
-                _grid[i] = new Cell[size]; //_grid Init
+                _grid[i] = new Cell[gridSize]; //_grid Init
             }
 
             var noiseMap = MakeNoiseMap(); //랜덤 값 뽑아서 
             var fallOffMap = MakeFallOffMap();
-            for (var y = 0; y < size; y++)
+            for (var y = 0; y < gridSize; y++)
             {
-                for (var x = 0; x < size; x++)
+                for (var x = 0; x < gridSize; x++)
                 {
                     var cell = new Cell();
                     var noiseValue = noiseMap[x][y];
@@ -61,29 +62,31 @@ namespace PerlinNoiseControl
                 }
             }
 
+
             DrawTerrainMesh(_grid);
             DrawEdgeMesh(_grid);
             DrawTexture(_grid);
             GenerateTrees(_grid);
+            GenerateCrystal();
         }
 
         #region MakeMap
 
         private float[][] MakeNoiseMap()
         {
-            var noiseMap = new float[size][];
-            for (var i = 0; i < size; i++)
+            var noiseMap = new float[gridSize][];
+            for (var i = 0; i < gridSize; i++)
             {
-                noiseMap[i] = new float[size]; //noiseMap Init
+                noiseMap[i] = new float[gridSize]; //noiseMap Init
             }
 
-            var (xOffset, yOffset) = (Random.Range(-10000f, 10000), Random.Range(-10000f, 10000));
+            var (xOffset, yOffset) = (Random.Range(-10000, 10000), Random.Range(-10000, 10000));
 
-            for (var y = 0; y < size; y++)
+            for (var y = 0; y < gridSize; y++)
             {
-                for (var x = 0; x < size; x++)
+                for (var x = 0; x < gridSize; x++)
                 {
-                    noiseMap[x][y] = Mathf.PerlinNoise(x * scale + xOffset, y * scale + yOffset);
+                    noiseMap[x][y] = Mathf.PerlinNoise(x * noiseScale + xOffset, y * noiseScale + yOffset);
                 }
             }
 
@@ -92,18 +95,18 @@ namespace PerlinNoiseControl
 
         private float[][] MakeFallOffMap()
         {
-            var fallOffMap = new float[size][];
-            for (var i = 0; i < size; i++)
+            var fallOffMap = new float[gridSize][];
+            for (var i = 0; i < gridSize; i++)
             {
-                fallOffMap[i] = new float[size];
+                fallOffMap[i] = new float[gridSize];
             }
 
-            for (var y = 0; y < size; y++)
+            for (var y = 0; y < gridSize; y++)
             {
-                for (var x = 0; x < size; x++)
+                for (var x = 0; x < gridSize; x++)
                 {
-                    var xv = x / (float)size * 2 - 1;
-                    var yv = y / (float)size * 2 - 1;
+                    var xv = x / (float)gridSize * 2 - 1;
+                    var yv = y / (float)gridSize * 2 - 1;
                     var v = Mathf.Max(Mathf.Abs(xv), Mathf.Abs(yv));
                     fallOffMap[x][y] = Mathf.Pow(v, 3f) / (Mathf.Pow(v, 3f) + Mathf.Pow(2.2f * (1 - v), 3f));
                 }
@@ -120,9 +123,9 @@ namespace PerlinNoiseControl
             var vertices = new List<Vector3>();
             var triangles = new List<int>();
             var uvs = new List<Vector2>();
-            for (var y = 0; y < size; y++)
+            for (var y = 0; y < gridSize; y++)
             {
-                for (var x = 0; x < size; x++)
+                for (var x = 0; x < gridSize; x++)
                 {
                     var cell = grid[x][y];
                     if (cell.IsWater) continue;
@@ -130,10 +133,10 @@ namespace PerlinNoiseControl
                     var b = new Vector3(x + 0.5f, 0, y + 0.5f);
                     var c = new Vector3(x - 0.5f, 0, y - 0.5f);
                     var d = new Vector3(x + 0.5f, 0, y - 0.5f);
-                    var uvA = new Vector2Int(x / size, y / size);
-                    var uvB = new Vector2Int((x + 1) / size, y / size);
-                    var uvC = new Vector2Int(x / size, (y + 1) / size);
-                    var uvD = new Vector2Int((x + 1) / size, (y + 1) / size);
+                    var uvA = new Vector2Int(x / gridSize, y / gridSize);
+                    var uvB = new Vector2Int((x + 1) / gridSize, y / gridSize);
+                    var uvC = new Vector2Int(x / gridSize, (y + 1) / gridSize);
+                    var uvD = new Vector2Int((x + 1) / gridSize, (y + 1) / gridSize);
                     var v = new[] { a, b, c, b, d, c };
                     var uv = new[] { uvA, uvB, uvC, uvB, uvD, uvC };
                     for (var k = 0; k < 6; k++)
@@ -150,7 +153,7 @@ namespace PerlinNoiseControl
             mesh.uv = uvs.ToArray();
             mesh.RecalculateNormals();
 
-            thisMeshFilter.mesh = mesh;
+            terrainMeshFilter.mesh = mesh;
             if (!gameObject.TryGetComponent<MeshCollider>(out _))
                 gameObject.AddComponent<MeshCollider>();
             else
@@ -165,9 +168,9 @@ namespace PerlinNoiseControl
             var mesh = new Mesh();
             var vertices = new List<Vector3>();
             var triangles = new List<int>();
-            for (var y = 0; y < size; y++)
+            for (var y = 0; y < gridSize; y++)
             {
-                for (var x = 0; x < size; x++)
+                for (var x = 0; x < gridSize; x++)
                 {
                     var cell = grid[x][y];
                     if (cell.IsWater) continue;
@@ -189,7 +192,7 @@ namespace PerlinNoiseControl
                         }
                     }
 
-                    if (x < size - 1)
+                    if (x < gridSize - 1)
                     {
                         var right = grid[x + 1][y];
                         if (right.IsWater)
@@ -225,7 +228,7 @@ namespace PerlinNoiseControl
                         }
                     }
 
-                    if (y < size - 1)
+                    if (y < gridSize - 1)
                     {
                         var up = grid[x][y + 1];
                         if (!up.IsWater) continue;
@@ -270,63 +273,79 @@ namespace PerlinNoiseControl
             // texture.SetPixels(colorMap);
             // texture.Apply();
 
-            thisMeshRenderer.material = terrainMat;
+            terrainMeshRenderer.material = terrainMat;
             // thisMeshRenderer.material.mainTexture = texture;
         }
 
         private void GenerateTrees(IReadOnlyList<Cell[]> grid)
         {
-            var noiseMap = new float[size][];
-            for (var i = 0; i < size; i++)
+            var noiseMap = new float[gridSize][];
+            for (var i = 0; i < gridSize; i++) //noiseMap Init
             {
-                noiseMap[i] = new float[size]; //noiseMap Init
+                noiseMap[i] = new float[gridSize];
             }
 
-            var (xOffset, yOffset) = (Random.Range(-10000f, 10000), Random.Range(-10000f, 10000));
-            for (var y = 0; y < size; y++)
+            var (xOffset, yOffset) = (Random.Range(-10000, 10000), Random.Range(-10000, 10000));
+            for (var y = 0; y < gridSize; y++)
             {
-                for (var x = 0; x < size; x++)
+                for (var x = 0; x < gridSize; x++)
                 {
                     var noiseValue = Mathf.PerlinNoise(x * treeNoiseScale + xOffset, y * treeNoiseScale + yOffset);
                     noiseMap[x][y] = noiseValue;
                 }
             }
 
-            if (treePrefabs[0].activeSelf)
+            if (trees[0].activeSelf)
             {
-                for (var i = 0; i < size; i++)
+                for (var i = 0; i < gridSize; i++)
                 {
-                    treePrefabs[i].SetActive(false);
+                    trees[i].SetActive(false);
                 }
             }
 
+
             var treeIndex = -1;
-            for (var y = 0; y < size; y++)
+            _notTreeMap.Clear();
+
+            for (var y = 0; y < gridSize; y++)
             {
-                for (var x = 0; x < size; x++)
+                for (var x = 0; x < gridSize; x++)
                 {
                     var cell = grid[x][y];
                     if (cell.IsWater) continue;
                     var v = Random.Range(0, treeDensity);
                     if (noiseMap[x][y] < v)
                     {
-                        if (treeIndex >= size - 1) break;
+                        if (treeIndex >= gridSize - 1) break;
                         treeIndex++;
-                        treePrefabs[treeIndex] = StackObjectPool.Get("Tree", new Vector3(x, 0, y),
-                            Quaternion.Euler(0, Random.Range(0, 360), 0));
-                        treePrefabs[treeIndex].transform.localScale = Vector3.one * Random.Range(0.3f, 0.8f);
+
+                        var rotation = Random.Range(1, 5);
+                        trees[treeIndex] = StackObjectPool.Get("Tree", new Vector3(x, 0, y),
+                            Quaternion.Euler(0, rotation * 90, 0));
+                    }
+                    else
+                    {
+                        _notTreeMap.Add(new Vector3(x, 0, y));
                     }
                 }
             }
+
+        }
+
+
+        private void GenerateCrystal()
+        {
+            var ranPos = _notTreeMap[Random.Range(0, _notTreeMap.Count)];
+            crystal.position = ranPos;
         }
 
 
         private void OnDrawGizmos()
         {
             if (!drawGizmos) return;
-            for (var y = 0; y < size; y++)
+            for (var y = 0; y < gridSize; y++)
             {
-                for (var x = 0; x < size; x++)
+                for (var x = 0; x < gridSize; x++)
                 {
                     var cell = _grid[x][y];
                     Gizmos.color = cell.IsWater ? Color.blue : Color.green;

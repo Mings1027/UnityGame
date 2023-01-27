@@ -1,19 +1,10 @@
 {
-    "name": "CameraInput",
+    "name": "GameInput",
     "maps": [
         {
-            "name": "CameraInput",
+            "name": "Input",
             "id": "ba74c39c-9bc4-44b0-b528-c269b4537aa9",
             "actions": [
-                {
-                    "name": "Look",
-                    "type": "PassThrough",
-                    "id": "9cc7c71f-a8a2-4568-89f4-3d5f697b8c9e",
-                    "expectedControlType": "Vector2",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
                 {
                     "name": "Move",
                     "type": "Value",
@@ -61,17 +52,6 @@
                 }
             ],
             "bindings": [
-                {
-                    "name": "",
-                    "id": "40b2f8d1-046f-493f-9410-22e7394793b3",
-                    "path": "<Mouse>/delta",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Look",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
                 {
                     "name": "2D Vector",
                     "id": "36e24a10-e0f9-4152-9b71-f2d915461a2d",
@@ -140,8 +120,8 @@
                 },
                 {
                     "name": "left",
-                    "id": "cd3211f5-a308-471d-ad9a-628f07ae4333",
-                    "path": "<Keyboard>/q",
+                    "id": "bb5a9545-ac86-4697-8e53-dffb7160c277",
+                    "path": "<Keyboard>/e",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -151,8 +131,8 @@
                 },
                 {
                     "name": "right",
-                    "id": "bb5a9545-ac86-4697-8e53-dffb7160c277",
-                    "path": "<Keyboard>/e",
+                    "id": "cd3211f5-a308-471d-ad9a-628f07ae4333",
+                    "path": "<Keyboard>/q",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -190,6 +170,34 @@
                     "processors": "",
                     "groups": "",
                     "action": "Wheel",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "Menu",
+            "id": "6420055d-3572-4c29-8fd1-727d151128a2",
+            "actions": [
+                {
+                    "name": "MenuButton",
+                    "type": "Button",
+                    "id": "e964d2d4-c31f-431b-948f-5036024f80cf",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "dd738b58-5580-4f01-9816-7124effc0611",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MenuButton",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
