@@ -1,37 +1,52 @@
+using System;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using GameControl;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace PerlinNoiseControl
 {
     public class Grid : MonoBehaviour
     {
-        [SerializeField] private Material terrainMat;
-        [SerializeField] private MeshFilter terrainMeshFilter;
-        [SerializeField] private MeshRenderer terrainMeshRenderer;
-
-        [SerializeField] private Material edgeMat;
-        [SerializeField] private MeshFilter edgeMeshFilter;
-        [SerializeField] private MeshRenderer edgeMeshRenderer;
-
-        [SerializeField] private GameObject[] trees;
-        [Range(0, 500)] [SerializeField] private int gridSize = 100;
-        [Range(0, 1)] [SerializeField] private float waterLevel = 0.4f;
-        [Range(0, 1)] [SerializeField] private float noiseScale = 0.1f;
-        [Range(0, 5)] [SerializeField] private float treeNoiseScale = 0.04f;
-        [Range(0, 1)] [SerializeField] private float treeDensity = 0.5f;
-        [SerializeField] private Transform crystal;
-        
         private Cell[][] _grid;
         private readonly List<Vector3> _notTreeMap = new();
 
         public bool drawGizmos;
 
-        private void Start()
+        private MeshFilter terrainMeshFilter;
+        private MeshRenderer terrainMeshRenderer;
+        private GameObject[] trees;
+        private Sequence _generateCrystalSequence;
+
+        [SerializeField] private Material terrainMat;
+
+        [SerializeField] private Material edgeMat;
+        [SerializeField] private MeshFilter edgeMeshFilter;
+        [SerializeField] private MeshRenderer edgeMeshRenderer;
+
+        [Range(0, 500)] [SerializeField] private int gridSize = 100;
+        [Range(0, 1)] [SerializeField] private float waterLevel = 0.4f;
+        [Range(0, 1)] [SerializeField] private float noiseScale = 0.1f;
+        [Range(0, 5)] [SerializeField] private float treeNoiseScale = 0.04f;
+        [Range(0, 1)] [SerializeField] private float treeDensity = 0.5f;
+        [SerializeField] private GameObject crystal;
+
+        private void Awake()
         {
             terrainMeshFilter = GetComponent<MeshFilter>();
             terrainMeshRenderer = GetComponent<MeshRenderer>();
             trees = new GameObject[gridSize];
+            _generateCrystalSequence = DOTween.Sequence()
+                .SetAutoKill(false)
+                .Append(crystal.transform.DOLocalMoveY(0, 1.5f)
+                    .From(3)
+                    .SetEase(Ease.InOutQuad));
+        }
+
+        private void Start()
+        {
             for (var i = 0; i < gridSize; i++)
             {
                 trees[i] = StackObjectPool.Get("Tree", transform.position);
@@ -62,12 +77,11 @@ namespace PerlinNoiseControl
                 }
             }
 
-
             DrawTerrainMesh(_grid);
             DrawEdgeMesh(_grid);
             DrawTexture(_grid);
             GenerateTrees(_grid);
-            GenerateCrystal();
+            GenerateCrystal().Forget();
         }
 
         #region MakeMap
@@ -329,14 +343,17 @@ namespace PerlinNoiseControl
                     }
                 }
             }
-
         }
 
 
-        private void GenerateCrystal()
+        private async UniTaskVoid GenerateCrystal()
         {
-            var ranPos = _notTreeMap[Random.Range(0, _notTreeMap.Count)];
-            crystal.position = ranPos;
+            crystal.SetActive(false);
+            await UniTask.Delay(TimeSpan.FromSeconds(1));
+            crystal.SetActive(true);
+            var pos = _notTreeMap[_notTreeMap.Count / 2];
+            crystal.transform.position = pos;
+            _generateCrystalSequence.Restart();
         }
 
 

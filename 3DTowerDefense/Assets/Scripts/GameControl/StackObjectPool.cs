@@ -26,7 +26,7 @@ namespace GameControl
         [Serializable]
         public class Pool
         {
-            // public string tag;
+            public string tag;
             public GameObject prefab;
             public int size;
         }
@@ -46,17 +46,17 @@ namespace GameControl
             //미리 생성
             foreach (var pool in pools)
             {
-                _poolDictionary.Add(pool.prefab.name, new Stack<GameObject>());
+                _poolDictionary.Add(pool.tag, new Stack<GameObject>());
                 for (var i = 0; i < pool.size; i++)
                 {
-                    var obj = CreateNewObject(pool.prefab.name, pool.prefab);
+                    var obj = CreateNewObject(pool.tag, pool.prefab);
                     SortObject(obj);
                 }
 
-                if (_poolDictionary[pool.prefab.name].Count <= 0)
-                    print($"{pool.prefab.name}{_info}");
-                else if (_poolDictionary[pool.prefab.name].Count != pool.size)
-                    print($"{pool.prefab.name}에 ReturnToPool이 중복됩니다.");
+                if (_poolDictionary[pool.tag].Count <= 0)
+                    print($"{pool.tag}{_info}");
+                else if (_poolDictionary[pool.tag].Count != pool.size)
+                    print($"{pool.tag}에 ReturnToPool이 중복됩니다.");
             }
         }
 
@@ -99,8 +99,8 @@ namespace GameControl
             var poolStack = _poolDictionary[objTag];
             if (poolStack.Count <= 0)
             {
-                var pool = Array.Find(pools, x => x.prefab.name == objTag);
-                var obj = CreateNewObject(pool.prefab.name, pool.prefab);
+                var pool = Array.Find(pools, x => x.tag == objTag);
+                var obj = CreateNewObject(pool.tag, pool.prefab);
                 SortObject(obj);
             }
 

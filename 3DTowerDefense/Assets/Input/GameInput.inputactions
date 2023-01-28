@@ -18,13 +18,13 @@
                     "name": "Rotate",
                     "type": "Value",
                     "id": "c2654ce5-136a-4a84-9a6c-3ff1a8aaed4f",
-                    "expectedControlType": "Vector2",
+                    "expectedControlType": "Axis",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
                 },
                 {
-                    "name": "CursorPosition",
+                    "name": "MoveCursorPosition",
                     "type": "Value",
                     "id": "12d2ef39-e3ec-4651-85ce-951d40886c6d",
                     "expectedControlType": "Vector2",
@@ -33,7 +33,7 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Spawn",
+                    "name": "Build",
                     "type": "Button",
                     "id": "2121c35b-923a-456e-a5e5-98aaba715d66",
                     "expectedControlType": "Button",
@@ -108,9 +108,9 @@
                     "isPartOfComposite": true
                 },
                 {
-                    "name": "2D Vector",
-                    "id": "784107d4-a2d2-4ebb-8810-115c4c2a395e",
-                    "path": "2DVector",
+                    "name": "1D Axis",
+                    "id": "a23d2e96-16a3-4066-91c4-d010104e4f2b",
+                    "path": "1DAxis",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -119,8 +119,8 @@
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "left",
-                    "id": "bb5a9545-ac86-4697-8e53-dffb7160c277",
+                    "name": "negative",
+                    "id": "b155eb3c-5514-4199-951d-cf7ba7f6b8d6",
                     "path": "<Keyboard>/e",
                     "interactions": "",
                     "processors": "",
@@ -130,8 +130,8 @@
                     "isPartOfComposite": true
                 },
                 {
-                    "name": "right",
-                    "id": "cd3211f5-a308-471d-ad9a-628f07ae4333",
+                    "name": "positive",
+                    "id": "fe29ec8f-4b6d-4e22-8005-275d670efee8",
                     "path": "<Keyboard>/q",
                     "interactions": "",
                     "processors": "",
@@ -147,7 +147,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "CursorPosition",
+                    "action": "MoveCursorPosition",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -158,7 +158,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Spawn",
+                    "action": "Build",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
