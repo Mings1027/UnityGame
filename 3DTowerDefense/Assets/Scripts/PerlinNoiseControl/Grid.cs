@@ -15,10 +15,9 @@ namespace PerlinNoiseControl
 
         public bool drawGizmos;
 
-        private MeshFilter terrainMeshFilter;
-        private MeshRenderer terrainMeshRenderer;
-        private GameObject[] trees;
-        private Sequence _generateCrystalSequence;
+        private MeshFilter _terrainMeshFilter;
+        private MeshRenderer _terrainMeshRenderer;
+        private GameObject[] _trees;
 
         [SerializeField] private Material terrainMat;
 
@@ -35,22 +34,17 @@ namespace PerlinNoiseControl
 
         private void Awake()
         {
-            terrainMeshFilter = GetComponent<MeshFilter>();
-            terrainMeshRenderer = GetComponent<MeshRenderer>();
-            trees = new GameObject[gridSize];
-            _generateCrystalSequence = DOTween.Sequence()
-                .SetAutoKill(false)
-                .Append(crystal.transform.DOLocalMoveY(0, 1.5f)
-                    .From(3)
-                    .SetEase(Ease.InOutQuad));
+            _terrainMeshFilter = GetComponent<MeshFilter>();
+            _terrainMeshRenderer = GetComponent<MeshRenderer>();
+            _trees = new GameObject[gridSize];
         }
 
         private void Start()
         {
             for (var i = 0; i < gridSize; i++)
             {
-                trees[i] = StackObjectPool.Get("Tree", transform.position);
-                trees[i].SetActive(false);
+                _trees[i] = StackObjectPool.Get("Tree", transform.position);
+                _trees[i].SetActive(false);
             }
         }
 
@@ -167,7 +161,7 @@ namespace PerlinNoiseControl
             mesh.uv = uvs.ToArray();
             mesh.RecalculateNormals();
 
-            terrainMeshFilter.mesh = mesh;
+            _terrainMeshFilter.mesh = mesh;
             if (!gameObject.TryGetComponent<MeshCollider>(out _))
                 gameObject.AddComponent<MeshCollider>();
             else
@@ -287,7 +281,7 @@ namespace PerlinNoiseControl
             // texture.SetPixels(colorMap);
             // texture.Apply();
 
-            terrainMeshRenderer.material = terrainMat;
+            _terrainMeshRenderer.material = terrainMat;
             // thisMeshRenderer.material.mainTexture = texture;
         }
 
@@ -309,11 +303,11 @@ namespace PerlinNoiseControl
                 }
             }
 
-            if (trees[0].activeSelf)
+            if (_trees[0].activeSelf)
             {
                 for (var i = 0; i < gridSize; i++)
                 {
-                    trees[i].SetActive(false);
+                    _trees[i].SetActive(false);
                 }
             }
 
@@ -334,7 +328,7 @@ namespace PerlinNoiseControl
                         treeIndex++;
 
                         var rotation = Random.Range(1, 5);
-                        trees[treeIndex] = StackObjectPool.Get("Tree", new Vector3(x, 0, y),
+                        _trees[treeIndex] = StackObjectPool.Get("Tree", new Vector3(x, 0, y),
                             Quaternion.Euler(0, rotation * 90, 0));
                     }
                     else
@@ -353,7 +347,6 @@ namespace PerlinNoiseControl
             crystal.SetActive(true);
             var pos = _notTreeMap[_notTreeMap.Count / 2];
             crystal.transform.position = pos;
-            _generateCrystalSequence.Restart();
         }
 
 

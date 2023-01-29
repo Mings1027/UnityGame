@@ -5,16 +5,13 @@ using UnityEngine;
 
 public class Test : MonoBehaviour
 {
-    public float size;
+   [SerializeField] private MeshRenderer _meshRenderer;
 
-    private void Start()
+    private void Awake()
     {
-        for (int x = 0; x < 10; x++)
-        {
-            for (int y = 0; y < 10; y++)
-            {
-                print($"x : {x} y : {y} perlin : {Mathf.PerlinNoise(x + size, y + size)}");
-            }
-        }
+        _meshRenderer = GetComponent<MeshRenderer>();
+        var materialColor = _meshRenderer.material.color;
+        materialColor.a = 0;
+        _meshRenderer.material.color = materialColor;
     }
 }

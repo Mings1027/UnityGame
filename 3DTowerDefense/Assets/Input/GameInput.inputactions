@@ -1,12 +1,12 @@
 {
-    "name": "GameInput",
+    "name": "CameraInput",
     "maps": [
         {
-            "name": "Input",
+            "name": "CameraInput",
             "id": "ba74c39c-9bc4-44b0-b528-c269b4537aa9",
             "actions": [
                 {
-                    "name": "Move",
+                    "name": "CameraMove",
                     "type": "Value",
                     "id": "ff740347-9c58-471c-9bbb-12beeebe2dca",
                     "expectedControlType": "Vector2",
@@ -15,40 +15,13 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Rotate",
+                    "name": "CameraRotate",
                     "type": "Value",
                     "id": "c2654ce5-136a-4a84-9a6c-3ff1a8aaed4f",
                     "expectedControlType": "Axis",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
-                },
-                {
-                    "name": "MoveCursorPosition",
-                    "type": "Value",
-                    "id": "12d2ef39-e3ec-4651-85ce-951d40886c6d",
-                    "expectedControlType": "Vector2",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": true
-                },
-                {
-                    "name": "Build",
-                    "type": "Button",
-                    "id": "2121c35b-923a-456e-a5e5-98aaba715d66",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Wheel",
-                    "type": "PassThrough",
-                    "id": "2bff9686-30a8-4cba-a39a-5e59bebaf5d3",
-                    "expectedControlType": "Vector2",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -59,7 +32,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Move",
+                    "action": "CameraMove",
                     "isComposite": true,
                     "isPartOfComposite": false
                 },
@@ -70,7 +43,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Move",
+                    "action": "CameraMove",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
@@ -81,7 +54,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Move",
+                    "action": "CameraMove",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
@@ -92,7 +65,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Move",
+                    "action": "CameraMove",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
@@ -103,7 +76,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Move",
+                    "action": "CameraMove",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
@@ -114,7 +87,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Rotate",
+                    "action": "CameraRotate",
                     "isComposite": true,
                     "isPartOfComposite": false
                 },
@@ -125,7 +98,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Rotate",
+                    "action": "CameraRotate",
                     "isComposite": false,
                     "isPartOfComposite": true
                 },
@@ -136,42 +109,9 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Rotate",
+                    "action": "CameraRotate",
                     "isComposite": false,
                     "isPartOfComposite": true
-                },
-                {
-                    "name": "",
-                    "id": "4cd98d60-b267-4a43-9d46-ed6862bb4c9d",
-                    "path": "<Mouse>/position",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "MoveCursorPosition",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "5266d084-dbf5-4835-80a5-dbabcbb88088",
-                    "path": "<Mouse>/leftButton",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Build",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "ad69613a-4216-410f-9635-bfd3f4f9be1e",
-                    "path": "<Mouse>/scroll",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Wheel",
-                    "isComposite": false,
-                    "isPartOfComposite": false
                 }
             ]
         },
@@ -198,6 +138,54 @@
                     "processors": "",
                     "groups": "",
                     "action": "MenuButton",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "CursorInput",
+            "id": "67daa483-0447-4525-8b91-b44ee75c7493",
+            "actions": [
+                {
+                    "name": "MoveCursorPosition",
+                    "type": "Value",
+                    "id": "4db3dcda-ff95-4687-b6a2-e7b047487638",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Build",
+                    "type": "Button",
+                    "id": "20a79399-681a-4f5a-8b14-5d8e6e671600",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "51f4f91a-56d1-44e6-a7a3-fc5c5dafc723",
+                    "path": "<Mouse>/position",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "MoveCursorPosition",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "0be935b4-8c4f-498a-b50a-4fa58eb60d90",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Build",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
