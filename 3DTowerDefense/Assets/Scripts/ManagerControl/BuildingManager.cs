@@ -9,17 +9,17 @@ namespace ManagerControl
     {
         private Camera _cam;
         private readonly List<GameObject> _towerList = new();
-        [SerializeField] private string[] objects;
         private GameObject _pendingObject;
-        public bool _isBuilding;
-        public bool canPlace;
+        private bool _isBuilding;
 
         private Ray _camRay;
         private Vector3 _cursorPos;
         private RaycastHit _hit;
-
+        
+        public bool canPlace;
+        
+        [SerializeField] private string[] objects;
         [SerializeField] private LayerMask cursorMoveLayer;
-
         [SerializeField] private Transform cursorObj;
 
         private void Awake()
@@ -68,7 +68,8 @@ namespace ManagerControl
         {
             if (_isBuilding && canPlace)
             {
-                if (hit.collider.CompareTag("Ground"))
+                print(hit.collider.name);
+                if (hit.collider.CompareTag("TowerBuild"))
                 {
                     _isBuilding = false;
                     _pendingObject = null;

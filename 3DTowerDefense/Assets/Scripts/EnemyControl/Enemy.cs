@@ -1,56 +1,39 @@
+using System;
 using GameControl;
-using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.AI;
 
 namespace EnemyControl
 {
     public class Enemy : MonoBehaviour
     {
-        [SerializeField] private int speed;
-        [Range(0, 1)] [SerializeField] private float turnSpeed;
+        public event Action<Enemy> OnMoveNexPoint;
+        private NavMeshAgent _agent;
+        public int WayPointIndex { get; set; }
 
-        private Transform _target;
-        private int _wayPointIndex;
+        private void Awake()
+        {
+            _agent = GetComponent<NavMeshAgent>();
+        }
 
         private void Update()
         {
-            MoveToWayPoint();
-            if (Vector3.Distance(transform.position, _target.position) <= 0.4f)
+            if (_agent.remainingDistance <= 0.2f)
             {
-                MoveToNextWayPoint();
+                OnMoveNexPoint?.Invoke(this);
             }
+        }
+
+        public void SetMovePoint(Vector3 pos)
+        {
+            _agent.SetDestination(pos);
         }
 
         private void OnDisable()
         {
-            _wayPointIndex = 0;
-            _target = WaveSpawner.WayPoints[_wayPointIndex];
+            WayPointIndex = 0;
             StackObjectPool.ReturnToPool(gameObject);
-        }
-
-        private void MoveToWayPoint()
-        {
-            var dir = (_target.position - transform.position).normalized;
-            if (dir == Vector3.zero) return;
-            transform.rotation = Quaternion.LookRotation(dir);
-            transform.Translate(Vector3.forward * (speed * Time.deltaTime));
-        }
-
-        private void MoveToNextWayPoint()
-        {
-            if (_wayPointIndex >= WaveSpawner.WayPoints.Length - 1)
-            {
-                gameObject.SetActive(false);
-                return;
-            }
-
-            _wayPointIndex++;
-            _target = WaveSpawner.WayPoints[_wayPointIndex];
-        }
-
-        private void OnDrawGizmos()
-        {
-            Gizmos.DrawRay(transform.position, _target.position - transform.position);
+            OnMoveNexPoint = null;
         }
     }
 }

@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
-using DG.Tweening;
 using GameControl;
+using GD.MinMaxSlider;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -24,6 +24,9 @@ namespace PerlinNoiseControl
         [SerializeField] private Material edgeMat;
         [SerializeField] private MeshFilter edgeMeshFilter;
         [SerializeField] private MeshRenderer edgeMeshRenderer;
+
+        [MinMaxSlider(0, 20000)] [SerializeField]
+        private Vector2Int randomRange;
 
         [Range(0, 500)] [SerializeField] private int gridSize = 100;
         [Range(0, 1)] [SerializeField] private float waterLevel = 0.4f;
@@ -78,6 +81,7 @@ namespace PerlinNoiseControl
             GenerateCrystal().Forget();
         }
 
+
         #region MakeMap
 
         private float[][] MakeNoiseMap()
@@ -88,13 +92,13 @@ namespace PerlinNoiseControl
                 noiseMap[i] = new float[gridSize]; //noiseMap Init
             }
 
-            var (xOffset, yOffset) = (Random.Range(-10000, 10000), Random.Range(-10000, 10000));
+            var r = Random.Range(randomRange.x, randomRange.y);
 
             for (var y = 0; y < gridSize; y++)
             {
                 for (var x = 0; x < gridSize; x++)
                 {
-                    noiseMap[x][y] = Mathf.PerlinNoise(x * noiseScale + xOffset, y * noiseScale + yOffset);
+                    noiseMap[x][y] = Mathf.PerlinNoise(x * noiseScale + r, y * noiseScale + r);
                 }
             }
 
@@ -293,12 +297,12 @@ namespace PerlinNoiseControl
                 noiseMap[i] = new float[gridSize];
             }
 
-            var (xOffset, yOffset) = (Random.Range(-10000, 10000), Random.Range(-10000, 10000));
+            var r = Random.Range(randomRange.x, randomRange.y);
             for (var y = 0; y < gridSize; y++)
             {
                 for (var x = 0; x < gridSize; x++)
                 {
-                    var noiseValue = Mathf.PerlinNoise(x * treeNoiseScale + xOffset, y * treeNoiseScale + yOffset);
+                    var noiseValue = Mathf.PerlinNoise(x * treeNoiseScale + r, y * treeNoiseScale + r);
                     noiseMap[x][y] = noiseValue;
                 }
             }
@@ -324,6 +328,7 @@ namespace PerlinNoiseControl
                     var v = Random.Range(0, treeDensity);
                     if (noiseMap[x][y] < v)
                     {
+                        //바닥이 물이 아니면서 나무의density(밀도)보다 작을 때 나무 생성
                         if (treeIndex >= gridSize - 1) break;
                         treeIndex++;
 
@@ -333,6 +338,8 @@ namespace PerlinNoiseControl
                     }
                     else
                     {
+                        //바닥이 물이 아니고 나무가 없는 위치를 저장
+                        //이 리스트는 크리스탈 생성 위치를 정하기 위해 사용
                         _notTreeMap.Add(new Vector3(x, 0, y));
                     }
                 }
@@ -349,6 +356,9 @@ namespace PerlinNoiseControl
             crystal.transform.position = pos;
         }
 
+        private void GenerateEnemyPath()
+        {
+        }
 
         private void OnDrawGizmos()
         {

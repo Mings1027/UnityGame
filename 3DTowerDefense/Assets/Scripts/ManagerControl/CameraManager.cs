@@ -12,7 +12,7 @@ namespace ManagerControl
         //OnRotate
         private Vector3 _rotateVec;
         private Quaternion _camRotQuaternion;
-        public float rotLerp;
+        private float _rotLerp;
 
         [SerializeField] private Transform cameraArm;
         [SerializeField] private int rotationSpeed;
@@ -20,7 +20,7 @@ namespace ManagerControl
 
         private void Awake()
         {
-            rotLerp = 1;
+            _rotLerp = 1;
             cameraArm.rotation = Quaternion.Euler(0, 45, 0);
             _camRotQuaternion = cameraArm.rotation;
         }
@@ -33,9 +33,9 @@ namespace ManagerControl
 
         public void OnCameraRotate(InputAction.CallbackContext context)
         {
-            if (context.started && rotLerp >= 1)
+            if (context.started)
             {
-                rotLerp = 0;
+                _rotLerp = 0;
                 _camRotQuaternion *= Quaternion.AngleAxis(90 * context.ReadValue<float>(), Vector3.up);
             }
         }
@@ -52,10 +52,10 @@ namespace ManagerControl
                 cameraArm.Translate(moveVec * (Time.deltaTime * moveSpeed), Space.World);
             }
 
-            if (rotLerp < 1)
+            if (_rotLerp < 1)
             {
-                rotLerp += Time.deltaTime * rotationSpeed;
-                cameraArm.rotation = Quaternion.Lerp(cameraArm.rotation, _camRotQuaternion, rotLerp);
+                _rotLerp += Time.deltaTime * rotationSpeed;
+                cameraArm.rotation = Quaternion.Lerp(cameraArm.rotation, _camRotQuaternion, _rotLerp);
             }
         }
     }

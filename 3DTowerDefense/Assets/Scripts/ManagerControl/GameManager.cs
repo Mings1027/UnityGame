@@ -5,7 +5,7 @@ namespace ManagerControl
 {
     public class GameManager : MonoBehaviour
     {
-        public static bool IsPause { get; private set; }
+        private static bool isPause;
 
         [SerializeField] private PlayerInput buildingManagerInput;
         [SerializeField] private GameObject menuPanel;
@@ -14,10 +14,10 @@ namespace ManagerControl
         {
             if (context.started) //눌렀을때 정지 재생
             {
-                IsPause = !IsPause;
-                menuPanel.SetActive(IsPause);
-                Time.timeScale = IsPause ? 0 : 1;
-                buildingManagerInput.enabled = !IsPause; //정지면 마우스인풋 안받음
+                isPause = !isPause;
+                menuPanel.SetActive(isPause);
+                Time.timeScale = isPause ? 0 : 1;
+                buildingManagerInput.enabled = !isPause; //정지면 마우스인풋 안받음
             }
         }
     }
