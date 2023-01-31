@@ -5,7 +5,7 @@ namespace ManagerControl
 {
     public class UiManager : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
-        public bool OnPointer { get; private set; }
+        public static bool OnPointer { get; private set; }
 
 
         public void OnPointerEnter(PointerEventData eventData)

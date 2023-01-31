@@ -1,8 +1,8 @@
 {
-    "name": "CameraInput",
+    "name": "GameInput",
     "maps": [
         {
-            "name": "CameraInput",
+            "name": "GamePlay",
             "id": "ba74c39c-9bc4-44b0-b528-c269b4537aa9",
             "actions": [
                 {
@@ -22,6 +22,33 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": true
+                },
+                {
+                    "name": "CursorPosition",
+                    "type": "Value",
+                    "id": "aa0ab78f-3af8-4756-ac27-bbf968be0047",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "TowerBuild",
+                    "type": "Button",
+                    "id": "a2b41a4f-4c02-496d-96ad-77b6e9cd39d8",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Pause",
+                    "type": "Button",
+                    "id": "9bdbdafb-f876-422a-a990-140594028adf",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -112,80 +139,65 @@
                     "action": "CameraRotate",
                     "isComposite": false,
                     "isPartOfComposite": true
-                }
-            ]
-        },
-        {
-            "name": "Menu",
-            "id": "6420055d-3572-4c29-8fd1-727d151128a2",
-            "actions": [
-                {
-                    "name": "MenuButton",
-                    "type": "Button",
-                    "id": "e964d2d4-c31f-431b-948f-5036024f80cf",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                }
-            ],
-            "bindings": [
-                {
-                    "name": "",
-                    "id": "dd738b58-5580-4f01-9816-7124effc0611",
-                    "path": "<Keyboard>/escape",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "MenuButton",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                }
-            ]
-        },
-        {
-            "name": "CursorInput",
-            "id": "67daa483-0447-4525-8b91-b44ee75c7493",
-            "actions": [
-                {
-                    "name": "MoveCursorPosition",
-                    "type": "Value",
-                    "id": "4db3dcda-ff95-4687-b6a2-e7b047487638",
-                    "expectedControlType": "Vector2",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": true
                 },
                 {
-                    "name": "Build",
-                    "type": "Button",
-                    "id": "20a79399-681a-4f5a-8b14-5d8e6e671600",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                }
-            ],
-            "bindings": [
-                {
                     "name": "",
-                    "id": "51f4f91a-56d1-44e6-a7a3-fc5c5dafc723",
+                    "id": "af8dedc9-4528-456b-b78e-49a425c30c23",
                     "path": "<Mouse>/position",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "MoveCursorPosition",
+                    "action": "CursorPosition",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "0be935b4-8c4f-498a-b50a-4fa58eb60d90",
+                    "id": "07bc62d0-3ec9-4ac3-851c-35506de6045e",
                     "path": "<Mouse>/leftButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Build",
+                    "action": "TowerBuild",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ba8e3eda-c260-4d81-9202-408814cff7df",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Pause",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        },
+        {
+            "name": "UI",
+            "id": "b4cc9d02-b1b9-4df0-a4f4-a32a49462b08",
+            "actions": [
+                {
+                    "name": "Resume",
+                    "type": "Button",
+                    "id": "a9acbcc2-e96e-4233-a627-4c9c8708f54b",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "f8c06e28-d08e-4926-bc72-cb89ba36ef2f",
+                    "path": "<Keyboard>/escape",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Resume",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

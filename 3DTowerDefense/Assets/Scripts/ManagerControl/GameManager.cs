@@ -1,24 +1,36 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 namespace ManagerControl
 {
     public class GameManager : MonoBehaviour
     {
-        private static bool isPause;
+        private bool isPause;
 
-        [SerializeField] private PlayerInput buildingManagerInput;
+        [SerializeField] private InputManager input;
+
         [SerializeField] private GameObject menuPanel;
 
-        public void OnMenuButton(InputAction.CallbackContext context)
+        private void Awake()
         {
-            if (context.started) //눌렀을때 정지 재생
-            {
-                isPause = !isPause;
-                menuPanel.SetActive(isPause);
-                Time.timeScale = isPause ? 0 : 1;
-                buildingManagerInput.enabled = !isPause; //정지면 마우스인풋 안받음
-            }
+            input.OnPauseEvent += Pause;
+            input.OnResumeEvent += Resume;
+        }
+
+        private void Pause()
+        {
+            isPause = true;
+            menuPanel.SetActive(true);
+            Time.timeScale = 0;
+        }
+
+        private void Resume()
+        {
+            isPause = false;
+            menuPanel.SetActive(false);
+            Time.timeScale = 1;
         }
     }
 }

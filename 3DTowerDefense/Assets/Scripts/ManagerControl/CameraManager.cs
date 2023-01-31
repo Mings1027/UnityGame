@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 namespace ManagerControl
 {
@@ -14,32 +15,31 @@ namespace ManagerControl
         private Quaternion _camRotQuaternion;
         private float _rotLerp;
 
+        [SerializeField] private InputManager input;
         [SerializeField] private Transform cameraArm;
         [SerializeField] private int rotationSpeed;
         [SerializeField] private int moveSpeed;
 
         private void Awake()
         {
+            input.OnCameraMoveEvent += CameraMove;
+            input.OnCameraRotateEvent += CameraRotate;
             _rotLerp = 1;
             cameraArm.rotation = Quaternion.Euler(0, 45, 0);
             _camRotQuaternion = cameraArm.rotation;
         }
 
-        public void OnCameraMove(InputAction.CallbackContext context)
+        private void CameraMove(Vector2 moveVec)
         {
-            _camMoveVec = context.ReadValue<Vector2>();
+            _camMoveVec = moveVec;
             _isMoving = _camMoveVec.sqrMagnitude > 0;
         }
 
-        public void OnCameraRotate(InputAction.CallbackContext context)
+        private void CameraRotate(float rotValue)
         {
-            if (context.started)
-            {
-                _rotLerp = 0;
-                _camRotQuaternion *= Quaternion.AngleAxis(90 * context.ReadValue<float>(), Vector3.up);
-            }
+            _rotLerp = 0;
+            _camRotQuaternion *= Quaternion.AngleAxis(90 * rotValue, Vector3.up);
         }
-
 
         private void LateUpdate()
         {
