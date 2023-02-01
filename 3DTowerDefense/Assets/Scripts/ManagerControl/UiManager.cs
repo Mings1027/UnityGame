@@ -11,13 +11,11 @@ namespace ManagerControl
         public void OnPointerEnter(PointerEventData eventData)
         {
             OnPointer = true;
-            Debug.Log("ON!");
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
             OnPointer = false;
-            Debug.Log("OFF!");
         }
 
 

@@ -9,26 +9,26 @@ namespace ManagerControl
     public class InputManager : ScriptableObject, GameInput.IGamePlayActions, GameInput.IUIActions
     {
         private GameInput _gameInput;
+        private bool _isCheckTag;
 
         public event Action<Vector2> OnCameraMoveEvent;
         public event Action<float> OnCameraRotateEvent;
 
         public event Action<Vector2> OnCursorPositionEvent;
 
-        public event Action OnActiveBuildModeEvent;
+        public event Action OnCheckTagEvent, OnCancelModeEvent;
 
         public event Action OnPauseEvent, OnResumeEvent;
 
         private void OnEnable()
         {
-            if (_gameInput == null)
-            {
-                _gameInput = new GameInput();
-                _gameInput.GamePlay.SetCallbacks(this);
-                _gameInput.UI.SetCallbacks(this);
+            if (_gameInput != null) return;
 
-                SetGamePlay();
-            }
+            _gameInput = new GameInput();
+            _gameInput.GamePlay.SetCallbacks(this);
+            _gameInput.UI.SetCallbacks(this);
+
+            SetGamePlay();
         }
 
         private void SetGamePlay()
@@ -59,20 +59,38 @@ namespace ManagerControl
             OnCursorPositionEvent?.Invoke(context.ReadValue<Vector2>());
         }
 
-        public void OnBuildMode(InputAction.CallbackContext context)
+        public void OnLeftClick(InputAction.CallbackContext context)
         {
             if (context.started)
             {
-                OnActiveBuildModeEvent?.Invoke();
+                _isCheckTag = true;
+                OnCheckTagEvent?.Invoke();
             }
         }
+
+        // public void OnCheckingTag(InputAction.CallbackContext context)
+        // {
+        //     if (context.started)
+        //     {
+        //         _isCheckTag = true;
+        //         OnCheckTagEvent?.Invoke();
+        //     }
+        // }
 
         public void OnPause(InputAction.CallbackContext context)
         {
             if (context.started)
             {
-                OnPauseEvent?.Invoke();
-                SetUI();
+                if (_isCheckTag)
+                {
+                    _isCheckTag = false;
+                    OnCancelModeEvent?.Invoke();
+                }
+                else
+                {
+                    OnPauseEvent?.Invoke();
+                    SetUI();
+                }
             }
         }
 

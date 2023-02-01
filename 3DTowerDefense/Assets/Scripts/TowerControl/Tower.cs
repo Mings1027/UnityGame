@@ -4,6 +4,8 @@ namespace TowerControl
 {
     public abstract class Tower : MonoBehaviour
     {
+        public bool built;
+        
         [SerializeField] private float range;
         [SerializeField] private LayerMask enemyLayer;
         [SerializeField] private Collider[] targets;

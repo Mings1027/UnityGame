@@ -1,9 +1,9 @@
-using System;
 using System.Collections.Generic;
+using DG.Tweening;
 using GameControl;
+using TMPro;
+using TowerControl;
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
@@ -14,8 +14,9 @@ namespace ManagerControl
         private Camera _cam;
 
         private readonly List<GameObject> _towerList = new();
-        private GameObject _pendingObject;
-        private bool _isBuilding;
+        private readonly float YHeight = 0.51f;
+
+        private bool _isBuildMode, _isEditMode;
 
         private Ray _camRay;
         private Vector3 _cursorPos;
@@ -24,30 +25,31 @@ namespace ManagerControl
         private Vector3 _buildPos;
         public bool canPlace;
 
+        private Tower _tower;
+        private int _towerNum;
+
         [SerializeField] private InputManager input;
         [SerializeField] private LayerMask cursorMoveLayer;
-        [SerializeField] private string[] towerName;
+        [SerializeField] private GameObject[] towerName;
+        [SerializeField] private Button[] towerButtons;
 
         [SerializeField] private Transform cursorObj;
 
         [SerializeField] private GameObject buildModePanel;
-        [SerializeField] private Button[] towerBuildButtons;
-
         [SerializeField] private GameObject editModePanel;
 
         private void Awake()
         {
-            input.OnCursorPositionEvent += CursorPosition;
-            input.OnActiveBuildModeEvent += InvokeByTag;
-
             _cam = Camera.main;
+            input.OnCursorPositionEvent += CursorPosition;
+            input.OnCheckTagEvent += CheckTag;
+            input.OnCancelModeEvent += CancelBuildMode;
+            input.OnCancelModeEvent += CancelEditMode;
 
-            towerBuildButtons = new Button[buildModePanel.transform.childCount];
-            for (var i = 0; i < towerBuildButtons.Length; i++)
+            towerButtons = new Button[towerName.Length];
+            for (var i = 0; i < towerButtons.Length; i++)
             {
-                towerBuildButtons[i] = buildModePanel.transform.GetChild(i).GetComponent<Button>();
-                var i1 = i;
-                towerBuildButtons[i].onClick.AddListener(() => PressTowerButton(i1));
+                towerButtons[i] = buildModePanel.transform.GetChild(i).GetComponent<Button>();
             }
         }
 
@@ -57,65 +59,79 @@ namespace ManagerControl
             if (Physics.Raycast(_camRay, out _hit, Mathf.Infinity, cursorMoveLayer))
             {
                 _cursorPos.x = Mathf.Round(_hit.point.x);
-                _cursorPos.y = Mathf.Round(_hit.point.y) + .51f;
+                _cursorPos.y = Mathf.Round(_hit.point.y) + YHeight;
                 _cursorPos.z = Mathf.Round(_hit.point.z);
 
                 cursorObj.position = _cursorPos;
             }
         }
 
-        private void InvokeByTag()
+        private void CheckTag()
         {
-            if (UiManager.OnPointer) return;
-
-            _pendingObject = null;
-
-            if (_hit.collider.CompareTag("BuildGround"))
+            if (UiManager.OnPointer is false)
             {
-                ActiveBuildMode();
-            }
-            else if (_hit.collider.CompareTag("Ground"))
-            {
-                CancelBuildMode();
-                CancelEditMode();
-            }
-            else if (_hit.collider.CompareTag("Tower"))
-            {
-                _pendingObject = _hit.collider.gameObject;
-                ActiveEditMode();
+                if (_hit.collider.CompareTag("BuildGround"))
+                {
+                    ActiveBuildMode();
+                }
+                else if (_hit.collider.CompareTag("Tower"))
+                {
+                    ActiveEditMode();
+                }
+                else
+                {
+                    CancelBuildMode();
+                    CancelEditMode();
+                }
             }
         }
 
         //buildModePanel ON
         private void ActiveBuildMode()
         {
-            if (!_isBuilding) _isBuilding = true;
+            if (_isEditMode is false && _tower is { built: false }) // !isEditMode && _tower != null && !_tower.built
+            {
+                _tower.gameObject.SetActive(false);
+            }
+
+            if (!_isBuildMode) _isBuildMode = true;
+            if (_isEditMode) _isEditMode = false;
+            _tower = null;
             if (!buildModePanel.activeSelf) buildModePanel.SetActive(true);
             if (editModePanel.activeSelf) editModePanel.SetActive(false);
             buildModePanel.transform.position = _cam.WorldToScreenPoint(_cursorPos);
             _buildPos = _cursorPos;
         }
 
-        //buildModePanel OFF BuildModePanel => Cancel Button
-        public void CancelBuildMode()
-        {
-            if (_isBuilding) _isBuilding = false;
-            if (buildModePanel.activeSelf) buildModePanel.SetActive(false);
-            if (editModePanel.activeSelf) editModePanel.SetActive(false);
-            if (_pendingObject != null) _pendingObject.SetActive(false);
-        }
-
         //EditModePanel ON
         private void ActiveEditMode()
         {
+            _tower = _hit.collider.GetComponent<Tower>();
+
+            if (!_isEditMode) _isEditMode = true;
+            if (_isBuildMode) _isBuildMode = false;
             if (!editModePanel.activeSelf) editModePanel.SetActive(true);
             if (buildModePanel.activeSelf) buildModePanel.SetActive(false);
             editModePanel.transform.position = _cam.WorldToScreenPoint(_cursorPos);
+            print(_cursorPos);
+        }
+
+        //BuildModePanel OFF BuildModePanel => Cancel Button
+        private void CancelBuildMode()
+        {
+            if (_isBuildMode) _isBuildMode = false;
+            if (buildModePanel.activeSelf) buildModePanel.SetActive(false);
+            if (editModePanel.activeSelf) editModePanel.SetActive(false);
+            if (_tower is { built: false }) //_tower is not null && !_tower.built
+            {
+                _tower.gameObject.SetActive(false);
+            }
         }
 
         //EditModePanel OFF
         private void CancelEditMode()
         {
+            if (_isEditMode) _isEditMode = false;
             if (editModePanel.activeSelf) editModePanel.SetActive(false);
             if (buildModePanel.activeSelf) buildModePanel.SetActive(false);
         }
@@ -123,7 +139,9 @@ namespace ManagerControl
         public void SellTower()
         {
             print("Sell Tower!!");
-            _pendingObject.SetActive(false);
+            _tower.gameObject.SetActive(false);
+            _tower = null;
+            CancelEditMode();
         }
 
         public void UpgradeTower()
@@ -131,26 +149,32 @@ namespace ManagerControl
             print("Upgrade Tower!!");
         }
 
-        private void PressTowerButton(int index)
+        public void ShowTower(int index) // Short Press
         {
-            if (_pendingObject != null)
+            _towerNum = index;
+            if (_tower is null)
             {
-                _pendingObject.SetActive(false);
-                _pendingObject = null;
+                _tower = StackObjectPool.Get<Tower>(towerName[index].name, _buildPos);
             }
-
-            _pendingObject = StackObjectPool.Get(towerName[index], _buildPos);
-
-            towerBuildButtons[index].onClick.RemoveAllListeners();
-            towerBuildButtons[index].onClick.AddListener(() => SpawnTower(index));
+            else
+            {
+                _tower.gameObject.SetActive(false);
+                _tower = StackObjectPool.Get<Tower>(towerName[index].name, _buildPos);
+            }
         }
 
-        private void SpawnTower(int index)
-        {
-            _towerList.Add(_pendingObject);
+        public float duration;
+        public float strength;
 
-            towerBuildButtons[index].onClick.RemoveAllListeners();
-            towerBuildButtons[index].onClick.AddListener(() => PressTowerButton(index));
+        public void SpawnTower(int index) // Long Press
+        {
+            if (_tower is null || _towerNum != index) return;
+            _tower.built = true;
+            _towerList.Add(_tower.gameObject);
+            _tower = null;
+            print("Built!");
+            _cam.DOShakePosition(duration, strength, randomness: 180);
+            CancelBuildMode();
         }
 
         //OnClick Event GenerateNewMap Button Object
