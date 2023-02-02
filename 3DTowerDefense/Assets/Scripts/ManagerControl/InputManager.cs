@@ -2,6 +2,7 @@ using System;
 using TowerDefenseInput;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 namespace ManagerControl
 {
@@ -9,14 +10,16 @@ namespace ManagerControl
     public class InputManager : ScriptableObject, GameInput.IGamePlayActions, GameInput.IUIActions
     {
         private GameInput _gameInput;
-        private bool _isCheckTag;
+        public bool isDoSomething;
 
         public event Action<Vector2> OnCameraMoveEvent;
         public event Action<float> OnCameraRotateEvent;
 
         public event Action<Vector2> OnCursorPositionEvent;
 
-        public event Action OnCheckTagEvent, OnCancelModeEvent;
+        public event Action OnBuildModeEvent;
+
+        public event Action OnLeftClickEvent, OnCancelModeEvent;
 
         public event Action OnPauseEvent, OnResumeEvent;
 
@@ -61,29 +64,27 @@ namespace ManagerControl
 
         public void OnLeftClick(InputAction.CallbackContext context)
         {
+            if (UiManager.OnPointer) return;
             if (context.started)
             {
-                _isCheckTag = true;
-                OnCheckTagEvent?.Invoke();
+                OnLeftClickEvent?.Invoke();
             }
         }
 
-        // public void OnCheckingTag(InputAction.CallbackContext context)
-        // {
-        //     if (context.started)
-        //     {
-        //         _isCheckTag = true;
-        //         OnCheckTagEvent?.Invoke();
-        //     }
-        // }
+        public void OnBuildMode(InputAction.CallbackContext context)
+        {
+            if (context.started)
+            {
+                OnBuildModeEvent?.Invoke();
+            }
+        }
 
         public void OnPause(InputAction.CallbackContext context)
         {
             if (context.started)
             {
-                if (_isCheckTag)
+                if (isDoSomething)
                 {
-                    _isCheckTag = false;
                     OnCancelModeEvent?.Invoke();
                 }
                 else

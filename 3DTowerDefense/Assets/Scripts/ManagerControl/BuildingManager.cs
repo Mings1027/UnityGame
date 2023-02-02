@@ -1,10 +1,8 @@
 using System.Collections.Generic;
 using DG.Tweening;
 using GameControl;
-using TMPro;
 using TowerControl;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace ManagerControl
@@ -26,8 +24,7 @@ namespace ManagerControl
         public bool canPlace;
 
         private Tower _tower;
-        private int _towerNum;
-
+        
         [SerializeField] private InputManager input;
         [SerializeField] private LayerMask cursorMoveLayer;
         [SerializeField] private GameObject[] towerName;
@@ -42,7 +39,8 @@ namespace ManagerControl
         {
             _cam = Camera.main;
             input.OnCursorPositionEvent += CursorPosition;
-            input.OnCheckTagEvent += CheckTag;
+            input.OnLeftClickEvent += LeftClick;
+            input.OnBuildModeEvent += ActiveBuildMode;
             input.OnCancelModeEvent += CancelBuildMode;
             input.OnCancelModeEvent += CancelEditMode;
 
@@ -50,8 +48,11 @@ namespace ManagerControl
             for (var i = 0; i < towerButtons.Length; i++)
             {
                 towerButtons[i] = buildModePanel.transform.GetChild(i).GetComponent<Button>();
+                var i1 = i;
+                towerButtons[i].onClick.AddListener(() => SpawnTower(i1));
             }
         }
+
 
         private void CursorPosition(Vector2 cursorPos)
         {
@@ -66,15 +67,11 @@ namespace ManagerControl
             }
         }
 
-        private void CheckTag()
+        private void LeftClick()
         {
             if (UiManager.OnPointer is false)
             {
-                if (_hit.collider.CompareTag("BuildGround"))
-                {
-                    ActiveBuildMode();
-                }
-                else if (_hit.collider.CompareTag("Tower"))
+                if (_hit.collider.CompareTag("Tower"))
                 {
                     ActiveEditMode();
                 }
@@ -89,10 +86,10 @@ namespace ManagerControl
         //buildModePanel ON
         private void ActiveBuildMode()
         {
-            if (_isEditMode is false && _tower is { built: false }) // !isEditMode && _tower != null && !_tower.built
-            {
-                _tower.gameObject.SetActive(false);
-            }
+            // if (_isEditMode is false && _tower is { built: false }) // !isEditMode && _tower != null && !_tower.built
+            // {
+            //     _tower.gameObject.SetActive(false);
+            // }
 
             if (!_isBuildMode) _isBuildMode = true;
             if (_isEditMode) _isEditMode = false;
@@ -149,26 +146,26 @@ namespace ManagerControl
             print("Upgrade Tower!!");
         }
 
-        public void ShowTower(int index) // Short Press
-        {
-            _towerNum = index;
-            if (_tower is null)
-            {
-                _tower = StackObjectPool.Get<Tower>(towerName[index].name, _buildPos);
-            }
-            else
-            {
-                _tower.gameObject.SetActive(false);
-                _tower = StackObjectPool.Get<Tower>(towerName[index].name, _buildPos);
-            }
-        }
+        // public void ShowTower(int index) // Short Press
+        // {
+        //     if (_tower is null)
+        //     {
+        //         _tower = StackObjectPool.Get<Tower>(towerName[index].name, _buildPos);
+        //     }
+        //     else
+        //     {
+        //         _tower.gameObject.SetActive(false);
+        //         _tower = StackObjectPool.Get<Tower>(towerName[index].name, _buildPos);
+        //     }
+        // }
 
         public float duration;
         public float strength;
 
         public void SpawnTower(int index) // Long Press
         {
-            if (_tower is null || _towerNum != index) return;
+            // if (_tower is null || _towerNum != index) return;
+            _tower = StackObjectPool.Get<Tower>(towerName[index].name, _buildPos);
             _tower.built = true;
             _towerList.Add(_tower.gameObject);
             _tower = null;

@@ -12,6 +12,8 @@ GameObject:
   - component: {fileID: 2209613887357362467}
   - component: {fileID: 8518495867989949159}
   - component: {fileID: 2830817089920374102}
+  - component: {fileID: -7223472795735557912}
+  - component: {fileID: -6215590663022570027}
   m_Layer: 5
   m_Name: TowerButton
   m_TagString: Untagged
@@ -134,6 +136,37 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &-7223472795735557912
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4314560622077029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76a949ff403474d91b329fc081abf076, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  towerSprite: {fileID: 0}
+  towerName: 
+  towerDescription: 
+  towerAtk: 0
+  towerDef: 0
+--- !u!114 &-6215590663022570027
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4314560622077029}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6030250d0d55f4236adcbc22aa50410a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  toolTipManager: {fileID: 0}
+  towerInfo: {fileID: -7223472795735557912}
 --- !u!1 &6090565488376986175
 GameObject:
   m_ObjectHideFlags: 0

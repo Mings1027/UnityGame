@@ -1,3 +1,5 @@
+using System;
+using ManagerControl;
 using UnityEngine;
 
 namespace TowerControl
@@ -5,7 +7,7 @@ namespace TowerControl
     public abstract class Tower : MonoBehaviour
     {
         public bool built;
-        
+
         [SerializeField] private float range;
         [SerializeField] private LayerMask enemyLayer;
         [SerializeField] private Collider[] targets;
@@ -39,6 +41,12 @@ namespace TowerControl
             {
                 target = null;
             }
+        }
+
+        private void OnMouseUp()
+        {
+            BuildingController.inst.ActiveEditMode();
+            BuildingController.inst.SelectTower(gameObject);
         }
 
         private void OnDrawGizmos()

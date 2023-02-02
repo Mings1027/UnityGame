@@ -73,6 +73,15 @@ namespace TowerDefenseInput
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""BuildMode"",
+                    ""type"": ""Button"",
+                    ""id"": ""8bab8ce9-15bc-4d19-9d68-a37d1dc323b3"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -196,6 +205,17 @@ namespace TowerDefenseInput
                     ""action"": ""Pause"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""3215cf88-e07a-40cc-9d51-00635fc06da2"",
+                    ""path"": ""<Keyboard>/b"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""BuildMode"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -237,6 +257,7 @@ namespace TowerDefenseInput
             m_GamePlay_CursorPosition = m_GamePlay.FindAction("CursorPosition", throwIfNotFound: true);
             m_GamePlay_LeftClick = m_GamePlay.FindAction("LeftClick", throwIfNotFound: true);
             m_GamePlay_Pause = m_GamePlay.FindAction("Pause", throwIfNotFound: true);
+            m_GamePlay_BuildMode = m_GamePlay.FindAction("BuildMode", throwIfNotFound: true);
             // UI
             m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
             m_UI_Resume = m_UI.FindAction("Resume", throwIfNotFound: true);
@@ -304,6 +325,7 @@ namespace TowerDefenseInput
         private readonly InputAction m_GamePlay_CursorPosition;
         private readonly InputAction m_GamePlay_LeftClick;
         private readonly InputAction m_GamePlay_Pause;
+        private readonly InputAction m_GamePlay_BuildMode;
         public struct GamePlayActions
         {
             private @GameInput m_Wrapper;
@@ -313,6 +335,7 @@ namespace TowerDefenseInput
             public InputAction @CursorPosition => m_Wrapper.m_GamePlay_CursorPosition;
             public InputAction @LeftClick => m_Wrapper.m_GamePlay_LeftClick;
             public InputAction @Pause => m_Wrapper.m_GamePlay_Pause;
+            public InputAction @BuildMode => m_Wrapper.m_GamePlay_BuildMode;
             public InputActionMap Get() { return m_Wrapper.m_GamePlay; }
             public void Enable() { Get().Enable(); }
             public void Disable() { Get().Disable(); }
@@ -337,6 +360,9 @@ namespace TowerDefenseInput
                     @Pause.started -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnPause;
                     @Pause.performed -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnPause;
                     @Pause.canceled -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnPause;
+                    @BuildMode.started -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnBuildMode;
+                    @BuildMode.performed -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnBuildMode;
+                    @BuildMode.canceled -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnBuildMode;
                 }
                 m_Wrapper.m_GamePlayActionsCallbackInterface = instance;
                 if (instance != null)
@@ -356,6 +382,9 @@ namespace TowerDefenseInput
                     @Pause.started += instance.OnPause;
                     @Pause.performed += instance.OnPause;
                     @Pause.canceled += instance.OnPause;
+                    @BuildMode.started += instance.OnBuildMode;
+                    @BuildMode.performed += instance.OnBuildMode;
+                    @BuildMode.canceled += instance.OnBuildMode;
                 }
             }
         }
@@ -400,6 +429,7 @@ namespace TowerDefenseInput
             void OnCursorPosition(InputAction.CallbackContext context);
             void OnLeftClick(InputAction.CallbackContext context);
             void OnPause(InputAction.CallbackContext context);
+            void OnBuildMode(InputAction.CallbackContext context);
         }
         public interface IUIActions
         {
