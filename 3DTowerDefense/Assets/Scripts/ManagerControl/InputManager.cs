@@ -2,7 +2,6 @@ using System;
 using TowerDefenseInput;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Serialization;
 
 namespace ManagerControl
 {
@@ -10,16 +9,13 @@ namespace ManagerControl
     public class InputManager : ScriptableObject, GameInput.IGamePlayActions, GameInput.IUIActions
     {
         private GameInput _gameInput;
-        public bool isDoSomething;
 
         public event Action<Vector2> OnCameraMoveEvent;
         public event Action<float> OnCameraRotateEvent;
 
         public event Action<Vector2> OnCursorPositionEvent;
 
-        public event Action OnBuildModeEvent;
-
-        public event Action OnLeftClickEvent, OnCancelModeEvent;
+        public event Action OnLeftClickEvent, OnRightClickEvent, OnCancelModeEvent;
 
         public event Action OnPauseEvent, OnResumeEvent;
 
@@ -32,6 +28,8 @@ namespace ManagerControl
             _gameInput.UI.SetCallbacks(this);
 
             SetGamePlay();
+            OnPauseEvent += SetUI;
+            OnResumeEvent += SetGamePlay;
         }
 
         private void SetGamePlay()
@@ -64,18 +62,17 @@ namespace ManagerControl
 
         public void OnLeftClick(InputAction.CallbackContext context)
         {
-            if (UiManager.OnPointer) return;
-            if (context.started)
+            if (context.started && !UiManager.OnPointer)
             {
                 OnLeftClickEvent?.Invoke();
             }
         }
 
-        public void OnBuildMode(InputAction.CallbackContext context)
+        public void OnRightClick(InputAction.CallbackContext context)
         {
             if (context.started)
             {
-                OnBuildModeEvent?.Invoke();
+                OnRightClickEvent?.Invoke();
             }
         }
 
@@ -83,24 +80,21 @@ namespace ManagerControl
         {
             if (context.started)
             {
-                if (isDoSomething)
-                {
-                    OnCancelModeEvent?.Invoke();
-                }
-                else
-                {
-                    OnPauseEvent?.Invoke();
-                    SetUI();
-                }
+                Debug.Log("pause");
+                
+                OnPauseEvent?.Invoke();
+                // SetUI();
             }
         }
+
 
         public void OnResume(InputAction.CallbackContext context)
         {
             if (context.started)
             {
+                Debug.Log("re");
                 OnResumeEvent?.Invoke();
-                SetGamePlay();
+                // SetGamePlay();
             }
         }
     }

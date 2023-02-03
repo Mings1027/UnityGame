@@ -10,7 +10,6 @@ namespace TowerControl
             InvokeRepeating(nameof(UpdateTarget), 0f, 0.5f);
         }
 
-
         private void OnDisable()
         {
             StackObjectPool.ReturnToPool(gameObject);

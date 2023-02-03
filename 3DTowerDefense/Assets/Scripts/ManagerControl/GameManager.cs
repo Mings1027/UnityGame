@@ -1,7 +1,4 @@
-using System;
 using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.Serialization;
 
 namespace ManagerControl
 {
@@ -19,14 +16,14 @@ namespace ManagerControl
             input.OnResumeEvent += Resume;
         }
 
-        private void Pause()
+        public void Pause()
         {
             isPause = true;
             menuPanel.SetActive(true);
             Time.timeScale = 0;
         }
 
-        private void Resume()
+        public void Resume()
         {
             isPause = false;
             menuPanel.SetActive(false);

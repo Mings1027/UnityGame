@@ -1,53 +1,62 @@
 using System;
 using ManagerControl;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace TowerControl
 {
     public class CheckPlacement : MonoBehaviour
     {
-        private BuildingController _buildingController;
+        private BuildingManager _buildingManager;
         private MeshRenderer _meshRenderer;
-        private Material _defaultMaterial;
-        private bool _isPlaced;
+       [SerializeField] private bool _isPlaced;
 
+        [SerializeField] private int canPlaceRadius;
+        [SerializeField] private Collider[] overlapColliders;
         [SerializeField] private Material[] materials; // 0: can't Place  1: can Place
+        [SerializeField] private LayerMask placeCheckLayer;
 
         private void Awake()
         {
-            _buildingController = GameObject.Find("BuildingManager").GetComponent<BuildingController>();
+            _buildingManager = GameObject.Find("BuildingManager").GetComponent<BuildingManager>();
             _meshRenderer = GetComponent<MeshRenderer>();
-            _defaultMaterial = _meshRenderer.material;
+
+            overlapColliders = new Collider[3];
         }
 
         private void OnEnable()
         {
-            _meshRenderer.material = materials[1];
             _isPlaced = false;
-        }
-
-        private void OnTriggerEnter(Collider other)
-        {
-            if (_isPlaced) return;
-            if (!other.CompareTag("Tower")) return;
-
-            _buildingController.canPlace = false;
-            _meshRenderer.material = materials[0];
-        }
-
-        private void OnTriggerExit(Collider other)
-        {
-            if (_isPlaced) return;
-            if (!other.CompareTag("Tower")) return;
-
-            _buildingController.canPlace = true;
+            _meshRenderer.enabled = true;
             _meshRenderer.material = materials[1];
         }
 
-        public void SetPlaceTower()
+        private void Update()
         {
+            if (_isPlaced) return;
+            var count = Physics.OverlapSphereNonAlloc(transform.position, canPlaceRadius, overlapColliders, placeCheckLayer);
+            if (overlapColliders.Equals(gameObject)) return;
+            _meshRenderer.material = count > 1 ? materials[0] : materials[1];
+            _buildingManager.canPlace = count <= 1;
+        }
+
+        private void OnMouseUp()
+        {
+            if (UiManager.OnPointer) return;
+            SetPlaceTower();
+        }
+
+        private void SetPlaceTower()
+        {
+            if (!_buildingManager.canPlace) return;
             _isPlaced = true;
-            _meshRenderer.material = _defaultMaterial;
+            _meshRenderer.enabled = false;
+        }
+
+        private void OnDrawGizmos()
+        {
+            if (_isPlaced) return;
+            Gizmos.DrawWireSphere(transform.position, canPlaceRadius);
         }
     }
 }

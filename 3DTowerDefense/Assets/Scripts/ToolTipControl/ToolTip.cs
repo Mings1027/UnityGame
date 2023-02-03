@@ -1,3 +1,5 @@
+using System;
+using ManagerControl;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -5,43 +7,49 @@ using UnityEngine.UI;
 
 namespace ToolTipControl
 {
+    [ExecuteInEditMode]
     public class ToolTip : MonoBehaviour
     {
-        private float _canvasHalfWidth;
-        private RectTransform _rectTransform;
+        [SerializeField] private InputManager input;
+        [SerializeField] private TextMeshProUGUI headerField;
+        [SerializeField] private TextMeshProUGUI contentField;
 
-        [SerializeField] private Image towerImage;
-        [SerializeField] private TextMeshProUGUI towerName, towerDescription;
-        [SerializeField] private TextMeshProUGUI towerAtk, towerDef;
+        [SerializeField] private LayoutElement layoutElement;
+
+        [SerializeField] private int wrapLimit;
+
+        private RectTransform _rectTransform;
 
         private void Awake()
         {
-            _canvasHalfWidth = GetComponentInParent<CanvasScaler>().referenceResolution.x * 0.5f;
             _rectTransform = GetComponent<RectTransform>();
-            gameObject.SetActive(false);
         }
 
-        private void OnEnable()
+        public void SetText(string content, string header = "")
         {
-            transform.position = Mouse.current.position.ReadValue();
-            _rectTransform.pivot = _rectTransform.anchoredPosition.x + _rectTransform.sizeDelta.x > _canvasHalfWidth
-                ? new Vector2(1, 1)
-                : new Vector2(0, 1);
-        }
+            var pos = Mouse.current.position.ReadValue();
+            var x = pos.x / Screen.width;
+            var y = pos.y / Screen.height;
+            
+            _rectTransform.pivot = new Vector2(x, y);
+            transform.position = pos;
 
-        public void ShowToolTip(TowerToolTipController toolTipController)
-        {
-            gameObject.SetActive(true);
-            towerImage.sprite = toolTipController.towerSprite;
-            towerName.text = toolTipController.towerName;
-            towerDescription.text = toolTipController.towerDescription;
-            towerAtk.text = toolTipController.towerAtk.ToString();
-            towerDef.text = toolTipController.towerDef.ToString();
-        }
+            if (string.IsNullOrEmpty(header))
+            {
+                headerField.gameObject.SetActive(false);
+            }
+            else
+            {
+                headerField.gameObject.SetActive(true);
+                headerField.text = header;
+            }
 
-        public void HideToolTip()
-        {
-            gameObject.SetActive(false);
+            contentField.text = content;
+
+            var headerLength = headerField.text.Length;
+            var contentLength = contentField.text.Length;
+
+            layoutElement.enabled = headerLength > wrapLimit || contentLength > wrapLimit;
         }
     }
 }
