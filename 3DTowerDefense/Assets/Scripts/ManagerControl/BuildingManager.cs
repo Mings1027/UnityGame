@@ -1,8 +1,6 @@
-using System;
 using DG.Tweening;
 using GameControl;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace ManagerControl
@@ -19,24 +17,19 @@ namespace ManagerControl
         private GameObject _tower;
         private GameObject _selectedObject;
 
-        private bool _isBuilding, _isEditMode;
-
-        private Button[] _towerButtons;
+        private bool _isBuilding, _isEditMode, _isGridMove;
 
         public bool canPlace;
 
         [SerializeField] private InputManager input;
-        [SerializeField] private GameManager gameManager;
 
-        [SerializeField] private LayerMask layer;
-        [SerializeField] private LayerMask towerLayer;
+        [SerializeField] private LayerMask groundLayer, towerLayer;
 
         [SerializeField] private GameObject buildModePanel;
         [SerializeField] private GameObject editModePanel;
 
         [SerializeField] private GameObject[] towerName;
-
-        [SerializeField] private bool gridMove;
+        [SerializeField] private Button[] towerButtons;
 
         [Space(10)] [Header("Camera Tween")] [SerializeField]
         private float duration;
@@ -47,28 +40,30 @@ namespace ManagerControl
         {
             _cam = Camera.main;
             input.OnCursorPositionEvent += CursorPosition;
-            input.OnCursorPositionEvent += CheckMousePosition;
+            // input.OnCursorPositionEvent += CheckCursorOutOfScreen;
 
-            input.OnLeftClickEvent += LeftClick;
+            input.OnBuildTowerEvent += BuildTower;
+            input.OnBuildCancelEvent += CancelBuildMode;
 
-            input.OnRightClickEvent += CancelEditMode;
-            input.OnRightClickEvent += DeSelect;
+            input.OnSelectTowerEvent += LefClick;
+            input.OnSelectCancelEvent += CancelEditMode;
+            input.OnSelectCancelEvent += DeSelect;
 
-            _towerButtons = new Button[towerName.Length];
-            for (var i = 0; i < _towerButtons.Length; i++)
+            towerButtons = new Button[towerName.Length];
+            for (var i = 0; i < towerButtons.Length; i++)
             {
-                _towerButtons[i] = buildModePanel.transform.GetChild(i).GetComponent<Button>();
-                var i1 = i;
-                _towerButtons[i].onClick.AddListener(() => SpawnTower(i1));
+                towerButtons[i] = buildModePanel.transform.GetChild(i).GetComponent<Button>();
+                var ii = i;
+                towerButtons[i].onClick.AddListener(() => ActiveBuildMode(ii));
             }
         }
 
         private void CursorPosition(Vector2 cursorPos)
         {
             _camRay = _cam.ScreenPointToRay(cursorPos);
-            if (Physics.Raycast(_camRay, out _hit, 1000, layer))
+            if (Physics.Raycast(_camRay, out _hit, 1000, groundLayer))
             {
-                if (gridMove)
+                if (_isGridMove)
                 {
                     GridCursor();
                 }
@@ -78,18 +73,18 @@ namespace ManagerControl
                 }
             }
 
-            if (_tower is not null && _isBuilding) _tower.transform.position = _cursorPos;
+            if (_tower != null && _isBuilding) _tower.transform.position = _cursorPos;
         }
 
-        private void CheckMousePosition(Vector2 cursorPos)
-        {
-            var pos = _cam.ScreenToViewportPoint(cursorPos);
-
-            if (_isBuilding && (pos.x < 0 || pos.y < 0 || pos.x > 1 || pos.y > 1))
-            {
-                gameManager.Pause();
-            }
-        }
+        // private void CheckCursorOutOfScreen(Vector2 cursorPos)
+        // {
+        //     var c = _cam.ScreenToViewportPoint(cursorPos);
+        //
+        //     if (c.x is < 0 or > 1 || c.y is < 0 or > 1)
+        //     {
+        //         input.OutOfMouse();     //고쳐야 할수도
+        //     }
+        // }
 
         private void GridCursor()
         {
@@ -98,78 +93,78 @@ namespace ManagerControl
             _cursorPos.z = Mathf.Round(_hit.point.z);
         }
 
-        private void LeftClick()
+        private void LefClick()
         {
-            if (_isBuilding)
+            if (!Physics.Raycast(_camRay, out var t, 1000, towerLayer)) return;
+            ActiveEditMode(t);
+            SelectedTower(t);
+        }
+
+        private void ActiveBuildMode(int index)
+        {
+            if (_tower == null)
             {
-                PlaceTower();
+                _tower = StackObjectPool.Get(towerName[index].name, _cursorPos);
             }
             else
-            {
-                if (!Physics.Raycast(_camRay, out var t, 1000, towerLayer)) return;
-                ActiveEditMode(t);
-                SelectTower(t);
-            }
-        }
-
-        // //EditModePanel ON
-        private void ActiveEditMode(RaycastHit t)
-        {
-            _tower = t.collider.gameObject;
-            if (!_isEditMode) _isEditMode = true;
-            if (!editModePanel.activeSelf) editModePanel.SetActive(true);
-            editModePanel.transform.position = _cam.WorldToScreenPoint(_cursorPos);
-        }
-
-        // //EditModePanel OFF
-        private void CancelEditMode()
-        {
-            if (_isEditMode) _isEditMode = false;
-            if (editModePanel.activeSelf) editModePanel.SetActive(false);
-            _tower = null;
-        }
-
-        public void SpawnTower(int index)
-        {
-            if (_isEditMode) return;
-            _isBuilding = true;
-            if (_tower != null)
             {
                 _tower.gameObject.SetActive(false);
                 _tower = StackObjectPool.Get(towerName[index].name, _cursorPos);
             }
-            else
-            {
-                _tower = StackObjectPool.Get(towerName[index].name, _cursorPos);
-            }
+
+            if (_isBuilding) return;
+            input.ActiveBuildMode();
+            _isBuilding = true;
+            DeSelect();
         }
 
-        private void PlaceTower()
+        private void CancelBuildMode()
         {
-            if (canPlace && _tower != null)
-            {
-                _isBuilding = false;
-                _tower = null;
-                _cam.DOShakePosition(duration, strength, randomness: 180);
-            }
+            if (_isBuilding) _isBuilding = false;
+            if (_tower != null) _tower.SetActive(false);
         }
 
-        private void SelectTower(RaycastHit raycastHit)
+        private void BuildTower()
         {
-            var obj = raycastHit.collider.gameObject;
-            if (obj == _selectedObject) return;
-            if (_selectedObject is not null) DeSelect();
+            if (!canPlace || _tower == null) return;
+            _isBuilding = false;
+            _tower = null;
+            _cam.DOShakePosition(duration, strength, randomness: 180);
+        }
+
+        private void ActiveEditMode(RaycastHit tower)
+        {
+            if (_isEditMode) return;
+            input.ActiveEditMode();
+            _isEditMode = true;
+            _tower = tower.collider.gameObject;
+        }
+
+        private void CancelEditMode()
+        {
+            if (_isEditMode) _isEditMode = false;
+            _tower = null;
+        }
+
+        private void SelectedTower(RaycastHit tower)
+        {
+            var obj = tower.collider.gameObject;
+            if (_selectedObject == obj) return;
+            if (_selectedObject != null) DeSelect();
             var outLine = obj.GetComponent<Outline>();
-            if (outLine is null) obj.AddComponent<Outline>();
+            if (outLine == null) obj.AddComponent<Outline>();
             else outLine.enabled = true;
             _selectedObject = obj;
+            if (!editModePanel.activeSelf) editModePanel.SetActive(true);
+            editModePanel.transform.position = _cam.WorldToScreenPoint(_cursorPos);
         }
 
         private void DeSelect()
         {
-            if (_selectedObject is null) return;
+            if (_selectedObject == null) return;
             _selectedObject.GetComponent<Outline>().enabled = false;
             _selectedObject = null;
+            if (editModePanel.activeSelf) editModePanel.SetActive(false);
         }
     }
 }

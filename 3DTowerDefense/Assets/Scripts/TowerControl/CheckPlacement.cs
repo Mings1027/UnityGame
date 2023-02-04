@@ -9,7 +9,7 @@ namespace TowerControl
     {
         private BuildingManager _buildingManager;
         private MeshRenderer _meshRenderer;
-       [SerializeField] private bool _isPlaced;
+        [SerializeField] private bool _isPlaced;
 
         [SerializeField] private int canPlaceRadius;
         [SerializeField] private Collider[] overlapColliders;
@@ -34,13 +34,14 @@ namespace TowerControl
         private void Update()
         {
             if (_isPlaced) return;
-            var count = Physics.OverlapSphereNonAlloc(transform.position, canPlaceRadius, overlapColliders, placeCheckLayer);
+            var count = Physics.OverlapSphereNonAlloc(transform.position, canPlaceRadius, overlapColliders,
+                placeCheckLayer);
             if (overlapColliders.Equals(gameObject)) return;
             _meshRenderer.material = count > 1 ? materials[0] : materials[1];
             _buildingManager.canPlace = count <= 1;
         }
 
-        private void OnMouseUp()
+        private void OnMouseDown()
         {
             if (UiManager.OnPointer) return;
             SetPlaceTower();

@@ -11,13 +11,13 @@ namespace ManagerControl
         public void OnPointerEnter(PointerEventData eventData)
         {
             OnPointer = true;
-            print("On");
+            // print("On");
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
             OnPointer = false;
-            print("Off");
+            // print("Off");
         }
 
 

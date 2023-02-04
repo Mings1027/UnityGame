@@ -57,15 +57,6 @@ namespace TowerDefenseInput
                     ""initialStateCheck"": true
                 },
                 {
-                    ""name"": ""LeftClick"",
-                    ""type"": ""Button"",
-                    ""id"": ""a2b41a4f-4c02-496d-96ad-77b6e9cd39d8"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
                     ""name"": ""Pause"",
                     ""type"": ""Button"",
                     ""id"": ""9bdbdafb-f876-422a-a990-140594028adf"",
@@ -75,9 +66,9 @@ namespace TowerDefenseInput
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""RightClick"",
+                    ""name"": ""SelectTower"",
                     ""type"": ""Button"",
-                    ""id"": ""7c29d4d4-589e-4806-9652-172c8b18c915"",
+                    ""id"": ""8c2c2d58-f6f7-497d-b021-ab8129ee3307"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """",
@@ -186,17 +177,6 @@ namespace TowerDefenseInput
                 },
                 {
                     ""name"": """",
-                    ""id"": ""07bc62d0-3ec9-4ac3-851c-35506de6045e"",
-                    ""path"": ""<Mouse>/leftButton"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""LeftClick"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
                     ""id"": ""ba8e3eda-c260-4d81-9202-408814cff7df"",
                     ""path"": ""<Keyboard>/escape"",
                     ""interactions"": """",
@@ -208,12 +188,12 @@ namespace TowerDefenseInput
                 },
                 {
                     ""name"": """",
-                    ""id"": ""ec39312a-9afa-417d-9c80-bbcd860178cf"",
-                    ""path"": ""<Mouse>/rightButton"",
+                    ""id"": ""f1508c37-2e94-4a00-9807-3fd59a844f0e"",
+                    ""path"": ""<Mouse>/leftButton"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""RightClick"",
+                    ""action"": ""SelectTower"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -246,6 +226,102 @@ namespace TowerDefenseInput
                     ""isPartOfComposite"": false
                 }
             ]
+        },
+        {
+            ""name"": ""BuildMode"",
+            ""id"": ""0f71615b-1c7f-4e8a-a5f3-a537af2d0ff5"",
+            ""actions"": [
+                {
+                    ""name"": ""BuildTower"",
+                    ""type"": ""Button"",
+                    ""id"": ""aae39e56-d50d-47eb-a76a-69116ad0ccdd"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""BuildCancel"",
+                    ""type"": ""Button"",
+                    ""id"": ""50023439-416e-4f80-b855-8f8628ffe315"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""449c402c-c879-465d-9874-ca7050c24916"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""BuildTower"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""0abb62e5-3d20-4979-b461-d450585f2a66"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""BuildCancel"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
+        },
+        {
+            ""name"": ""EditMode"",
+            ""id"": ""d3018488-04c1-4530-a8a6-13d5fb86d30c"",
+            ""actions"": [
+                {
+                    ""name"": ""SelectTower"",
+                    ""type"": ""Button"",
+                    ""id"": ""61c78dd6-b78f-4f51-948b-c0a4ad94f3cc"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""SelectCancel"",
+                    ""type"": ""Button"",
+                    ""id"": ""bb94de50-ba27-4547-87f6-bf9ef1377767"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": """",
+                    ""id"": ""a1c4ef0e-67e0-4111-ad81-f28ee583e236"",
+                    ""path"": ""<Mouse>/leftButton"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SelectTower"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""ff3ca109-2592-44f6-9cc7-52034ec61b06"",
+                    ""path"": ""<Keyboard>/escape"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""SelectCancel"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
         }
     ],
     ""controlSchemes"": []
@@ -255,12 +331,19 @@ namespace TowerDefenseInput
             m_GamePlay_CameraMove = m_GamePlay.FindAction("CameraMove", throwIfNotFound: true);
             m_GamePlay_CameraRotate = m_GamePlay.FindAction("CameraRotate", throwIfNotFound: true);
             m_GamePlay_CursorPosition = m_GamePlay.FindAction("CursorPosition", throwIfNotFound: true);
-            m_GamePlay_LeftClick = m_GamePlay.FindAction("LeftClick", throwIfNotFound: true);
             m_GamePlay_Pause = m_GamePlay.FindAction("Pause", throwIfNotFound: true);
-            m_GamePlay_RightClick = m_GamePlay.FindAction("RightClick", throwIfNotFound: true);
+            m_GamePlay_SelectTower = m_GamePlay.FindAction("SelectTower", throwIfNotFound: true);
             // UI
             m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
             m_UI_Resume = m_UI.FindAction("Resume", throwIfNotFound: true);
+            // BuildMode
+            m_BuildMode = asset.FindActionMap("BuildMode", throwIfNotFound: true);
+            m_BuildMode_BuildTower = m_BuildMode.FindAction("BuildTower", throwIfNotFound: true);
+            m_BuildMode_BuildCancel = m_BuildMode.FindAction("BuildCancel", throwIfNotFound: true);
+            // EditMode
+            m_EditMode = asset.FindActionMap("EditMode", throwIfNotFound: true);
+            m_EditMode_SelectTower = m_EditMode.FindAction("SelectTower", throwIfNotFound: true);
+            m_EditMode_SelectCancel = m_EditMode.FindAction("SelectCancel", throwIfNotFound: true);
         }
 
         public void Dispose()
@@ -323,9 +406,8 @@ namespace TowerDefenseInput
         private readonly InputAction m_GamePlay_CameraMove;
         private readonly InputAction m_GamePlay_CameraRotate;
         private readonly InputAction m_GamePlay_CursorPosition;
-        private readonly InputAction m_GamePlay_LeftClick;
         private readonly InputAction m_GamePlay_Pause;
-        private readonly InputAction m_GamePlay_RightClick;
+        private readonly InputAction m_GamePlay_SelectTower;
         public struct GamePlayActions
         {
             private @GameInput m_Wrapper;
@@ -333,9 +415,8 @@ namespace TowerDefenseInput
             public InputAction @CameraMove => m_Wrapper.m_GamePlay_CameraMove;
             public InputAction @CameraRotate => m_Wrapper.m_GamePlay_CameraRotate;
             public InputAction @CursorPosition => m_Wrapper.m_GamePlay_CursorPosition;
-            public InputAction @LeftClick => m_Wrapper.m_GamePlay_LeftClick;
             public InputAction @Pause => m_Wrapper.m_GamePlay_Pause;
-            public InputAction @RightClick => m_Wrapper.m_GamePlay_RightClick;
+            public InputAction @SelectTower => m_Wrapper.m_GamePlay_SelectTower;
             public InputActionMap Get() { return m_Wrapper.m_GamePlay; }
             public void Enable() { Get().Enable(); }
             public void Disable() { Get().Disable(); }
@@ -354,15 +435,12 @@ namespace TowerDefenseInput
                     @CursorPosition.started -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnCursorPosition;
                     @CursorPosition.performed -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnCursorPosition;
                     @CursorPosition.canceled -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnCursorPosition;
-                    @LeftClick.started -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnLeftClick;
-                    @LeftClick.performed -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnLeftClick;
-                    @LeftClick.canceled -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnLeftClick;
                     @Pause.started -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnPause;
                     @Pause.performed -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnPause;
                     @Pause.canceled -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnPause;
-                    @RightClick.started -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnRightClick;
-                    @RightClick.performed -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnRightClick;
-                    @RightClick.canceled -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnRightClick;
+                    @SelectTower.started -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnSelectTower;
+                    @SelectTower.performed -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnSelectTower;
+                    @SelectTower.canceled -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnSelectTower;
                 }
                 m_Wrapper.m_GamePlayActionsCallbackInterface = instance;
                 if (instance != null)
@@ -376,15 +454,12 @@ namespace TowerDefenseInput
                     @CursorPosition.started += instance.OnCursorPosition;
                     @CursorPosition.performed += instance.OnCursorPosition;
                     @CursorPosition.canceled += instance.OnCursorPosition;
-                    @LeftClick.started += instance.OnLeftClick;
-                    @LeftClick.performed += instance.OnLeftClick;
-                    @LeftClick.canceled += instance.OnLeftClick;
                     @Pause.started += instance.OnPause;
                     @Pause.performed += instance.OnPause;
                     @Pause.canceled += instance.OnPause;
-                    @RightClick.started += instance.OnRightClick;
-                    @RightClick.performed += instance.OnRightClick;
-                    @RightClick.canceled += instance.OnRightClick;
+                    @SelectTower.started += instance.OnSelectTower;
+                    @SelectTower.performed += instance.OnSelectTower;
+                    @SelectTower.canceled += instance.OnSelectTower;
                 }
             }
         }
@@ -422,18 +497,109 @@ namespace TowerDefenseInput
             }
         }
         public UIActions @UI => new UIActions(this);
+
+        // BuildMode
+        private readonly InputActionMap m_BuildMode;
+        private IBuildModeActions m_BuildModeActionsCallbackInterface;
+        private readonly InputAction m_BuildMode_BuildTower;
+        private readonly InputAction m_BuildMode_BuildCancel;
+        public struct BuildModeActions
+        {
+            private @GameInput m_Wrapper;
+            public BuildModeActions(@GameInput wrapper) { m_Wrapper = wrapper; }
+            public InputAction @BuildTower => m_Wrapper.m_BuildMode_BuildTower;
+            public InputAction @BuildCancel => m_Wrapper.m_BuildMode_BuildCancel;
+            public InputActionMap Get() { return m_Wrapper.m_BuildMode; }
+            public void Enable() { Get().Enable(); }
+            public void Disable() { Get().Disable(); }
+            public bool enabled => Get().enabled;
+            public static implicit operator InputActionMap(BuildModeActions set) { return set.Get(); }
+            public void SetCallbacks(IBuildModeActions instance)
+            {
+                if (m_Wrapper.m_BuildModeActionsCallbackInterface != null)
+                {
+                    @BuildTower.started -= m_Wrapper.m_BuildModeActionsCallbackInterface.OnBuildTower;
+                    @BuildTower.performed -= m_Wrapper.m_BuildModeActionsCallbackInterface.OnBuildTower;
+                    @BuildTower.canceled -= m_Wrapper.m_BuildModeActionsCallbackInterface.OnBuildTower;
+                    @BuildCancel.started -= m_Wrapper.m_BuildModeActionsCallbackInterface.OnBuildCancel;
+                    @BuildCancel.performed -= m_Wrapper.m_BuildModeActionsCallbackInterface.OnBuildCancel;
+                    @BuildCancel.canceled -= m_Wrapper.m_BuildModeActionsCallbackInterface.OnBuildCancel;
+                }
+                m_Wrapper.m_BuildModeActionsCallbackInterface = instance;
+                if (instance != null)
+                {
+                    @BuildTower.started += instance.OnBuildTower;
+                    @BuildTower.performed += instance.OnBuildTower;
+                    @BuildTower.canceled += instance.OnBuildTower;
+                    @BuildCancel.started += instance.OnBuildCancel;
+                    @BuildCancel.performed += instance.OnBuildCancel;
+                    @BuildCancel.canceled += instance.OnBuildCancel;
+                }
+            }
+        }
+        public BuildModeActions @BuildMode => new BuildModeActions(this);
+
+        // EditMode
+        private readonly InputActionMap m_EditMode;
+        private IEditModeActions m_EditModeActionsCallbackInterface;
+        private readonly InputAction m_EditMode_SelectTower;
+        private readonly InputAction m_EditMode_SelectCancel;
+        public struct EditModeActions
+        {
+            private @GameInput m_Wrapper;
+            public EditModeActions(@GameInput wrapper) { m_Wrapper = wrapper; }
+            public InputAction @SelectTower => m_Wrapper.m_EditMode_SelectTower;
+            public InputAction @SelectCancel => m_Wrapper.m_EditMode_SelectCancel;
+            public InputActionMap Get() { return m_Wrapper.m_EditMode; }
+            public void Enable() { Get().Enable(); }
+            public void Disable() { Get().Disable(); }
+            public bool enabled => Get().enabled;
+            public static implicit operator InputActionMap(EditModeActions set) { return set.Get(); }
+            public void SetCallbacks(IEditModeActions instance)
+            {
+                if (m_Wrapper.m_EditModeActionsCallbackInterface != null)
+                {
+                    @SelectTower.started -= m_Wrapper.m_EditModeActionsCallbackInterface.OnSelectTower;
+                    @SelectTower.performed -= m_Wrapper.m_EditModeActionsCallbackInterface.OnSelectTower;
+                    @SelectTower.canceled -= m_Wrapper.m_EditModeActionsCallbackInterface.OnSelectTower;
+                    @SelectCancel.started -= m_Wrapper.m_EditModeActionsCallbackInterface.OnSelectCancel;
+                    @SelectCancel.performed -= m_Wrapper.m_EditModeActionsCallbackInterface.OnSelectCancel;
+                    @SelectCancel.canceled -= m_Wrapper.m_EditModeActionsCallbackInterface.OnSelectCancel;
+                }
+                m_Wrapper.m_EditModeActionsCallbackInterface = instance;
+                if (instance != null)
+                {
+                    @SelectTower.started += instance.OnSelectTower;
+                    @SelectTower.performed += instance.OnSelectTower;
+                    @SelectTower.canceled += instance.OnSelectTower;
+                    @SelectCancel.started += instance.OnSelectCancel;
+                    @SelectCancel.performed += instance.OnSelectCancel;
+                    @SelectCancel.canceled += instance.OnSelectCancel;
+                }
+            }
+        }
+        public EditModeActions @EditMode => new EditModeActions(this);
         public interface IGamePlayActions
         {
             void OnCameraMove(InputAction.CallbackContext context);
             void OnCameraRotate(InputAction.CallbackContext context);
             void OnCursorPosition(InputAction.CallbackContext context);
-            void OnLeftClick(InputAction.CallbackContext context);
             void OnPause(InputAction.CallbackContext context);
-            void OnRightClick(InputAction.CallbackContext context);
+            void OnSelectTower(InputAction.CallbackContext context);
         }
         public interface IUIActions
         {
             void OnResume(InputAction.CallbackContext context);
+        }
+        public interface IBuildModeActions
+        {
+            void OnBuildTower(InputAction.CallbackContext context);
+            void OnBuildCancel(InputAction.CallbackContext context);
+        }
+        public interface IEditModeActions
+        {
+            void OnSelectTower(InputAction.CallbackContext context);
+            void OnSelectCancel(InputAction.CallbackContext context);
         }
     }
 }

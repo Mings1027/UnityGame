@@ -6,18 +6,22 @@ using UnityEngine.InputSystem;
 namespace ManagerControl
 {
     [CreateAssetMenu(menuName = "InputManager")]
-    public class InputManager : ScriptableObject, GameInput.IGamePlayActions, GameInput.IUIActions
+    public class InputManager : ScriptableObject, GameInput.IGamePlayActions, GameInput.IUIActions,
+        GameInput.IBuildModeActions, GameInput.IEditModeActions
     {
         private GameInput _gameInput;
+
+        private bool isBuild, isEdit;
 
         public event Action<Vector2> OnCameraMoveEvent;
         public event Action<float> OnCameraRotateEvent;
 
         public event Action<Vector2> OnCursorPositionEvent;
 
-        public event Action OnLeftClickEvent, OnRightClickEvent, OnCancelModeEvent;
-
         public event Action OnPauseEvent, OnResumeEvent;
+
+        public event Action OnBuildTowerEvent, OnSelectTowerEvent;
+        public event Action OnBuildCancelEvent, OnSelectCancelEvent;
 
         private void OnEnable()
         {
@@ -26,22 +30,50 @@ namespace ManagerControl
             _gameInput = new GameInput();
             _gameInput.GamePlay.SetCallbacks(this);
             _gameInput.UI.SetCallbacks(this);
+            _gameInput.BuildMode.SetCallbacks(this);
+            _gameInput.EditMode.SetCallbacks(this);
 
             SetGamePlay();
             OnPauseEvent += SetUI;
             OnResumeEvent += SetGamePlay;
+            OnBuildCancelEvent += CancelBuildMode;
+            OnSelectCancelEvent += CancelEditMode;
         }
 
         private void SetGamePlay()
         {
-            _gameInput.GamePlay.Enable();
             _gameInput.UI.Disable();
+            _gameInput.GamePlay.Enable();
         }
 
         private void SetUI()
         {
             _gameInput.GamePlay.Disable();
             _gameInput.UI.Enable();
+        }
+
+        public void ActiveBuildMode()
+        {
+            isBuild = true;
+            _gameInput.BuildMode.Enable();
+        }
+
+        private void CancelBuildMode()
+        {
+            isBuild = false;
+            _gameInput.BuildMode.Disable();
+        }
+
+        public void ActiveEditMode()
+        {
+            isEdit = true;
+            _gameInput.EditMode.Enable();
+        }
+
+        private void CancelEditMode()
+        {
+            isEdit = false;
+            _gameInput.EditMode.Disable();
         }
 
         public void OnCameraMove(InputAction.CallbackContext context)
@@ -60,41 +92,59 @@ namespace ManagerControl
             OnCursorPositionEvent?.Invoke(context.ReadValue<Vector2>());
         }
 
-        public void OnLeftClick(InputAction.CallbackContext context)
-        {
-            if (context.started && !UiManager.OnPointer)
-            {
-                OnLeftClickEvent?.Invoke();
-            }
-        }
-
-        public void OnRightClick(InputAction.CallbackContext context)
-        {
-            if (context.started)
-            {
-                OnRightClickEvent?.Invoke();
-            }
-        }
-
         public void OnPause(InputAction.CallbackContext context)
         {
             if (context.started)
             {
-                Debug.Log("pause");
-                
+                if (isBuild || isEdit) return;
                 OnPauseEvent?.Invoke();
-                // SetUI();
             }
         }
 
+        public void OutOfMouse()
+        {
+            OnPauseEvent?.Invoke();
+        }
 
         public void OnResume(InputAction.CallbackContext context)
         {
             if (context.started)
             {
-                Debug.Log("re");
                 OnResumeEvent?.Invoke();
-                // SetGamePlay();
+            }
+        }
+
+        public void OnBuildTower(InputAction.CallbackContext context)
+        {
+            if (context.started)
+            {
+                if (UiManager.OnPointer) return;
+                OnBuildTowerEvent?.Invoke();
+            }
+        }
+
+        public void OnBuildCancel(InputAction.CallbackContext context)
+        {
+            if (context.started)
+            {
+                OnBuildCancelEvent?.Invoke();
+            }
+        }
+
+        public void OnSelectTower(InputAction.CallbackContext context)
+        {
+            if (context.started)
+            {
+                if (UiManager.OnPointer) return;
+                OnSelectTowerEvent?.Invoke();
+            }
+        }
+
+        public void OnSelectCancel(InputAction.CallbackContext context)
+        {
+            if (context.started)
+            {
+                OnSelectCancelEvent?.Invoke();
             }
         }
     }
