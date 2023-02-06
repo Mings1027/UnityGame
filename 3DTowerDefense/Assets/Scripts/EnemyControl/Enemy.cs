@@ -26,6 +26,7 @@ namespace EnemyControl
 
         public void SetMovePoint(Vector3 pos)
         {
+            
             _agent.SetDestination(pos);
         }
 

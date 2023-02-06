@@ -4,6 +4,7 @@ public class IKController : MonoBehaviour
 {
     [SerializeField] private LayerMask groundLayer;
     [SerializeField] private Transform legTarget;
+    [SerializeField] private IKController otherLeg;
 
     [SerializeField] private float moveSpeed;
     [SerializeField] private AnimationCurve legCurve;
@@ -31,7 +32,7 @@ public class IKController : MonoBehaviour
         var r = Physics.Raycast(legTarget.position, Vector3.down, out _hit, 10, groundLayer);
         if (r)
         {
-            if (Vector3.Distance(_newPos, _hit.point) > radius * 0.5f)
+            if (Vector3.Distance(_newPos, _hit.point) > radius * 0.5f && !otherLeg.IsMoving())
             {
                 lerp = 0;
                 _newPos = _hit.point;
@@ -48,6 +49,8 @@ public class IKController : MonoBehaviour
             lerp += Time.deltaTime * moveSpeed;
         }
     }
+
+    private bool IsMoving() => lerp < 1;
 
     private void OnDrawGizmos()
     {
