@@ -1,25 +1,21 @@
+using DG.Tweening;
 using UnityEngine;
 
 public class IKMover : MonoBehaviour
 {
-    [SerializeField] private LayerMask groundLayer;
-    [SerializeField] private Transform legSensor;
-    [SerializeField] private Transform rigTarget;
+    private Vector3 _prevPos, _curPos, _nextPos;
+    private float _lerp;
 
     [SerializeField] private float moveSpeed;
+    [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private Transform sensor;
     [SerializeField] private AnimationCurve legCurve;
-    [SerializeField] private float lerp;
+    [SerializeField] [Range(0, 10)] private float radius;
 
-    [SerializeField] private float radius;
-
-    private Vector3 _oldPos, _curPos, _newPos;
-
-    private RaycastHit _hit;
 
     private void Start()
     {
-        lerp = 1;
-        _oldPos = _curPos = _newPos = legSensor.position;
+        _lerp = 1;
     }
 
     private void Update()
@@ -29,43 +25,41 @@ public class IKMover : MonoBehaviour
 
     private void Move()
     {
-        var r = Physics.Raycast(legSensor.position, Vector3.down, out _hit, 10, groundLayer);
-        if (r)
+        if (Physics.Raycast(sensor.position, Vector3.down, out var _hit, 100, groundLayer))
         {
-            if (Vector3.Distance(_newPos, _hit.point) > radius)
+            if (Vector3.Distance(_nextPos, _hit.point) > radius)
             {
-                _oldPos = rigTarget.position;
-                _newPos = _hit.point;
-                lerp = 0;
+                _lerp = 0;
+                _nextPos = _hit.point;
+                _prevPos = transform.position;
             }
             else
             {
-                rigTarget.position = _newPos;
+                transform.position = _curPos;
             }
         }
 
-        if (lerp < 1) LegMove();
-    }
-
-    private void LegMove()
-    {
-        if (lerp >= 1) return;
-        _curPos = Vector3.Lerp(_oldPos, _newPos, lerp);
-        _curPos.y = legCurve.Evaluate(lerp);
-        lerp += Time.deltaTime * moveSpeed;
-        rigTarget.position = _curPos;
+        if (_lerp < 1)
+        {
+            _curPos = Vector3.Lerp(_prevPos, _nextPos, _lerp);
+            _curPos.y = legCurve.Evaluate(_lerp);
+            _lerp += Time.deltaTime * moveSpeed;
+        }
+        else
+        {
+            _prevPos = _nextPos;
+        }
     }
 
 
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.magenta;
-        Gizmos.DrawSphere(_oldPos, 0.1f);
-        Gizmos.color = Color.green;
-        Gizmos.DrawSphere(_curPos, 0.1f);
-        Gizmos.color = Color.red;
-        Gizmos.DrawSphere(_newPos, 0.1f);
         Gizmos.color = Color.white;
-        Gizmos.DrawWireSphere(_hit.point, radius * 2);
+        Gizmos.DrawSphere(_prevPos, 0.1f);
+        Gizmos.color = Color.gray;
+        Gizmos.DrawSphere(_curPos, 0.1f);
+        Gizmos.color = Color.black;
+        Gizmos.DrawSphere(_nextPos, 0.1f);
+        Gizmos.DrawRay(sensor.position, Vector3.down);
     }
 }

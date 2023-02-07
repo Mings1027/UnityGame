@@ -1,40 +1,47 @@
 using System;
-using EnemyControl;
+using DG.Tweening;
 using GameControl;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class ClampEnemy : MonoBehaviour
+namespace EnemyControl
 {
-    public event Action<ClampEnemy> OnMoveNexPoint;
-    private NavMeshAgent _agent;
-    public int WayPointIndex { get; set; }
-
-    [SerializeField] private Transform crystal;
-
-    private void Awake()
+    public class ClampEnemy : MonoBehaviour
     {
-        _agent = GetComponent<NavMeshAgent>();
-    }
+        public event Action<ClampEnemy> OnMoveNexPoint;
 
-    private void Update()
-    {
-        _agent.SetDestination(crystal.position);
-        // if (_agent.remainingDistance <= 0.2f)
-        // {
-        //     OnMoveNexPoint?.Invoke(this);
-        // }
-    }
+        private NavMeshAgent _agent;
+        public int WayPointIndex { get; set; }
 
-    public void SetMovePoint(Vector3 pos)
-    {
-        _agent.SetDestination(pos);
-    }
+        [SerializeField] private Transform crystal;
+        private void Awake()
+        {
+            _agent = GetComponent<NavMeshAgent>();
+            _agent.SetDestination(crystal.position);
+        }
 
-    private void OnDisable()
-    {
-        WayPointIndex = 0;
-        StackObjectPool.ReturnToPool(gameObject);
-        OnMoveNexPoint = null;
+        private void Update()
+        {
+            // if (_agent.remainingDistance > _agent.stoppingDistance)
+            // {
+            //     _agent.SetDestination(crystal.position);
+            // }
+            // if (_agent.remainingDistance <= 0.2f)
+            // {
+            //     OnMoveNexPoint?.Invoke(this);
+            // }
+        }
+
+        public void SetMovePoint(Vector3 pos)
+        {
+            _agent.SetDestination(pos);
+        }
+
+        private void OnDisable()
+        {
+            WayPointIndex = 0;
+            StackObjectPool.ReturnToPool(gameObject);
+            OnMoveNexPoint = null;
+        }
     }
 }

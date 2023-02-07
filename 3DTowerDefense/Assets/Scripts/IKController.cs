@@ -32,7 +32,7 @@ public class IKController : MonoBehaviour
         var r = Physics.Raycast(legTarget.position, Vector3.down, out _hit, 10, groundLayer);
         if (r)
         {
-            if (Vector3.Distance(_newPos, _hit.point) > radius * 0.5f && !otherLeg.IsMoving())
+            if (Vector3.Distance(_newPos, _hit.point) > radius * 0.5f)
             {
                 lerp = 0;
                 _newPos = _hit.point;
