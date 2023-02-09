@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace InterpolationCurves
@@ -8,15 +7,14 @@ namespace InterpolationCurves
         public Transform target;
         public float speed, rotationSpeed;
         [SerializeField] [Range(0, 1)] private float bounce;
-        [SerializeField] private AnimationCurve curve;
-        public Vector3 oldPos;
-
+        private Vector3 _oldPos;
+        private Vector3 _curPos;
         private Vector3 _nextPos;
 
         private void FixedUpdate()
         {
-            OrderSystem();
-            // test();
+            // OrderSystem();
+            Second();
         }
 
         private void OrderSystem()
@@ -25,24 +23,28 @@ namespace InterpolationCurves
             var curPos = transformPosition;
             transformPosition = Vector3.Lerp(transformPosition, target.position,
                 (1 - bounce) * speed * Time.fixedDeltaTime);
-            transformPosition += bounce * (transformPosition - oldPos);
-            oldPos = curPos;
+            transformPosition += bounce * (transformPosition - _oldPos);
+            _oldPos = curPos;
             transform.SetPositionAndRotation(transformPosition,
                 Quaternion.Slerp(transform.rotation, target.rotation, rotationSpeed * Time.fixedDeltaTime));
         }
 
-        private void test()
+        private void Second()
         {
-            var thisTransform = transform;
-            var transformPosition = thisTransform.position;
-            var transformRotation = thisTransform.rotation;
+            _curPos = transform.position;
+            _nextPos = _curPos;
+            _curPos = Vector3.Lerp(_curPos, target.position,
+                (1 - bounce) * speed * Time.fixedDeltaTime);
 
-            var curPos = Vector3.Lerp(transformPosition, target.position, (1 - bounce) * speed * Time.fixedDeltaTime);
-            var curRot = Quaternion.Slerp(transformRotation, target.rotation, rotationSpeed * Time.fixedDeltaTime);
+            _curPos = (1 + bounce) * _curPos - bounce * _oldPos;
+            transform.position = _curPos;
+            _oldPos = _nextPos;
+        }
 
-            curPos += bounce * (transformPosition - oldPos);
-            oldPos = transformPosition;
-            transform.SetPositionAndRotation(curPos, curRot);
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawSphere(_curPos, 0.1f);
         }
     }
 }

@@ -7,36 +7,49 @@ namespace InterpolationCurves
 {
     public class FirstOrder : MonoBehaviour
     {
+        private Vector3 _curPos, _nextPos, _oldPos;
+
+        public Transform target;
         public float lerp;
-        private Vector3 prevPos, curPos, nextPos;
-        private RaycastHit _hit;
-        private Sequence _legSequence;
+        public float speed;
+        public AnimationCurve legCurve;
+        public float stepDistance;
+        public float stopDistance;
+        public bool isMoving;
 
-        [SerializeField] private LayerMask groundLayer;
-        [SerializeField] private Transform leg;
-        [SerializeField] private Transform sensor;
-        [SerializeField] private float radius;
-        [SerializeField] private float jumpPower;
-        [SerializeField] private float duration;
-
-        private void Update()
+        private void Start()
         {
-            if (Physics.Raycast(sensor.position, Vector3.down, out _hit, 100, groundLayer))
-            {
-                if (Vector3.Distance(nextPos, _hit.point) > radius)
-                {
-                    nextPos = _hit.point;
-                    prevPos = leg.position;
-                    leg.DOJump(nextPos, jumpPower, 1, duration);
-                }
+            lerp = 1;
+        }
 
-                leg.position = prevPos;
+        private void FixedUpdate()
+        {
+            if (!isMoving && Vector3.Distance(target.position, transform.position) > stepDistance)
+            {
+                lerp = 0;
+                isMoving = true;
+            }
+            else if (Vector3.Distance(target.position, transform.position) < stopDistance)
+            {
+                isMoving = false;
+            }
+
+            if (isMoving || lerp < 1)
+            {
+                _oldPos = transform.position;
+                _curPos = Vector3.Lerp(_oldPos, target.position, lerp);
+                _curPos.y = legCurve.Evaluate(lerp);
+                lerp += Time.fixedDeltaTime * speed;
+                transform.position = _curPos;
             }
         }
 
         private void OnDrawGizmos()
         {
-            Gizmos.DrawSphere(nextPos, 0.1f);
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(transform.position, stepDistance);
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(transform.position, stopDistance);
         }
     }
 }
