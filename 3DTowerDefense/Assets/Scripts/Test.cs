@@ -6,9 +6,5 @@ using UnityEngine;
 
 public class Test : MonoBehaviour
 {
-
-    public void Click()
-    {
-        print("kkkkk");
-    }
+    
 }
