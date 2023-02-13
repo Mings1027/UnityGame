@@ -21,7 +21,7 @@ namespace ManagerControl
 
         public bool canPlace;
 
-        [SerializeField] private InputManager input;
+        [SerializeField] private InputController input;
 
         [SerializeField] private LayerMask groundLayer, towerLayer;
 
@@ -40,14 +40,11 @@ namespace ManagerControl
         {
             _cam = Camera.main;
             input.OnCursorPositionEvent += CursorPosition;
-            // input.OnCursorPositionEvent += CheckCursorOutOfScreen;
+
+            input.OnClickTowerEvent += SelectTower;
 
             input.OnBuildTowerEvent += BuildTower;
             input.OnBuildCancelEvent += CancelBuildMode;
-
-            input.OnSelectTowerEvent += LefClick;
-            input.OnSelectCancelEvent += CancelEditMode;
-            input.OnSelectCancelEvent += DeSelect;
 
             towerButtons = new Button[towerName.Length];
             for (var i = 0; i < towerButtons.Length; i++)
@@ -76,16 +73,6 @@ namespace ManagerControl
             if (_tower != null && _isBuilding) _tower.transform.position = _cursorPos;
         }
 
-        // private void CheckCursorOutOfScreen(Vector2 cursorPos)
-        // {
-        //     var c = _cam.ScreenToViewportPoint(cursorPos);
-        //
-        //     if (c.x is < 0 or > 1 || c.y is < 0 or > 1)
-        //     {
-        //         input.OutOfMouse();     //고쳐야 할수도
-        //     }
-        // }
-
         private void GridCursor()
         {
             _cursorPos.x = Mathf.Round(_hit.point.x);
@@ -93,15 +80,16 @@ namespace ManagerControl
             _cursorPos.z = Mathf.Round(_hit.point.z);
         }
 
-        private void LefClick()
+        private void SelectTower()
         {
-            if (!Physics.Raycast(_camRay, out var t, 1000, towerLayer)) return;
+            if (!Physics.Raycast(_camRay, out var t, 1000, towerLayer) || _tower != null) return;
             ActiveEditMode(t);
-            SelectedTower(t);
+            OutLineTower(t);
         }
 
         private void ActiveBuildMode(int index)
         {
+            print("clickkkkkk");
             if (_tower == null)
             {
                 _tower = StackObjectPool.Get(towerName[index].name, _cursorPos);
@@ -113,8 +101,8 @@ namespace ManagerControl
             }
 
             if (_isBuilding) return;
-            input.ActiveBuildMode();
             _isBuilding = true;
+            input.OnBuildMode();
             DeSelect();
         }
 
@@ -127,6 +115,7 @@ namespace ManagerControl
         private void BuildTower()
         {
             if (!canPlace || _tower == null) return;
+            print("build!");
             _isBuilding = false;
             _tower = null;
             _cam.DOShakePosition(duration, strength, randomness: 180);
@@ -135,7 +124,6 @@ namespace ManagerControl
         private void ActiveEditMode(RaycastHit tower)
         {
             if (_isEditMode) return;
-            input.ActiveEditMode();
             _isEditMode = true;
             _tower = tower.collider.gameObject;
         }
@@ -146,7 +134,7 @@ namespace ManagerControl
             _tower = null;
         }
 
-        private void SelectedTower(RaycastHit tower)
+        private void OutLineTower(RaycastHit tower)
         {
             var obj = tower.collider.gameObject;
             if (_selectedObject == obj) return;

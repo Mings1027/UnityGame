@@ -15,7 +15,7 @@ namespace ManagerControl
         private Quaternion _camRotQuaternion;
         private float _rotLerp;
 
-        [SerializeField] private InputManager input;
+        [SerializeField] private InputController input;
         [SerializeField] private Transform cameraArm;
         [SerializeField] private int rotationSpeed;
         [SerializeField] private int moveSpeed;

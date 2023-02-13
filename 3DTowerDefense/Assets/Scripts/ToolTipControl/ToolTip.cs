@@ -10,7 +10,6 @@ namespace ToolTipControl
     [ExecuteInEditMode]
     public class ToolTip : MonoBehaviour
     {
-        [SerializeField] private InputManager input;
         [SerializeField] private TextMeshProUGUI headerField;
         [SerializeField] private TextMeshProUGUI contentField;
 
@@ -23,6 +22,7 @@ namespace ToolTipControl
         private void Awake()
         {
             _rectTransform = GetComponent<RectTransform>();
+            gameObject.SetActive(false);
         }
 
         public void SetText(string content, string header = "")

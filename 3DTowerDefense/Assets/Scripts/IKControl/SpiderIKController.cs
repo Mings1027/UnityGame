@@ -9,14 +9,14 @@ namespace IKControl
     {
         private RaycastHit[] _hit;
 
-        // private Vector3 oldBodyPos, curBodyPos, nextBodyPos;
+        private Vector3 oldBodyPos, curBodyPos, nextBodyPos;
         private Vector3[] _oldLegPos, _curLegPos, _nextLegPos;
         private float _lerp;
         private int _legIndex;
 
-        // [SerializeField] [Range(0, 1)] private float bounce;
-        // [SerializeField] private float speed, rotationSpeed;
-        // [SerializeField] private Transform body;
+        [SerializeField] [Range(0, 1)] private float bounce;
+        [SerializeField] private float speed, rotationSpeed;
+        [SerializeField] private Transform body;
 
         [SerializeField] private LayerMask walkableLayer;
         [SerializeField] private Transform[] legs;
@@ -41,8 +41,8 @@ namespace IKControl
         private void FixedUpdate()
         {
             Check();
-            // LegControl();
-            // BodyMove();
+
+            BodyMove();
         }
 
 
@@ -53,30 +53,22 @@ namespace IKControl
                 legs[i].position = _curLegPos[i];
             }
 
-            if (_lerp > 0)
+            if (Physics.Raycast(sensor[_legIndex].position, Vector3.down, out _hit[_legIndex], 100, walkableLayer))
             {
-                if (Physics.Raycast(sensor[_legIndex].position, Vector3.down, out _hit[_legIndex], 100, walkableLayer))
+                if (Vector3.Distance(_nextLegPos[_legIndex], _hit[_legIndex].point) > stepDistance)
                 {
-                    if (Vector3.Distance(_nextLegPos[_legIndex], _hit[_legIndex].point) > stepDistance)
-                    {
-                        _lerp = 0;
-                        _oldLegPos[_legIndex] = legs[_legIndex].position;
-                        _nextLegPos[_legIndex] = _hit[_legIndex].point;
-                    }
-                    // else
-                    // {
-                    //     _lerp = 2;
-                    // }
+                    _lerp = 0;
+                    _oldLegPos[_legIndex] = legs[_legIndex].position;
+                    _nextLegPos[_legIndex] = _hit[_legIndex].point;
                 }
             }
 
             if (_lerp < 1)
             {
                 _curLegPos[_legIndex] = Vector3.Lerp(_oldLegPos[_legIndex], _nextLegPos[_legIndex], _lerp);
-                _lerp += Time.fixedDeltaTime * stepTime;
+                _curLegPos[_legIndex].y += Mathf.Sin(_lerp * stepHeight);
 
-                // if (body.position != transform.position)
-                //     _curLegPos[_legIndex].y += Mathf.Sin(_lerp * Mathf.PI * stepHeight);
+                _lerp += Time.fixedDeltaTime * stepTime;
             }
             else
             {
@@ -84,16 +76,16 @@ namespace IKControl
             }
         }
 
-        // private void BodyMove()
-        // {
-        //     var bodyPos = body.position;
-        //     curBodyPos = Vector3.Lerp(bodyPos, transform.position, (1 - bounce) * speed * Time.fixedDeltaTime);
-        //     curBodyPos += bounce * (curBodyPos - oldBodyPos);
-        //     oldBodyPos = bodyPos;
-        //     body.SetPositionAndRotation(curBodyPos,
-        //         Quaternion.Slerp(body.rotation, transform.rotation,
-        //             (1 - bounce) * rotationSpeed * Time.fixedDeltaTime));
-        // }
+        private void BodyMove()
+        {
+            var bodyPos = body.position;
+            curBodyPos = Vector3.Lerp(bodyPos, transform.position, (1 - bounce) * speed * Time.fixedDeltaTime);
+            curBodyPos += bounce * (curBodyPos - oldBodyPos);
+            oldBodyPos = bodyPos;
+            body.SetPositionAndRotation(curBodyPos,
+                Quaternion.Slerp(body.rotation, transform.rotation,
+                    (1 - bounce) * rotationSpeed * Time.fixedDeltaTime));
+        }
 
 
         private void OnDrawGizmos()

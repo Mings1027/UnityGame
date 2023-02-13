@@ -6,7 +6,7 @@ namespace ManagerControl
     {
         private bool isPause;
 
-        [SerializeField] private InputManager input;
+        [SerializeField] private InputController input;
 
         [SerializeField] private GameObject menuPanel;
 
