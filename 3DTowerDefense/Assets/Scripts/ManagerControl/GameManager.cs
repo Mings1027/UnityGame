@@ -28,6 +28,7 @@ namespace ManagerControl
             isPause = false;
             menuPanel.SetActive(false);
             Time.timeScale = 1;
+            input.Resume();
         }
     }
 }

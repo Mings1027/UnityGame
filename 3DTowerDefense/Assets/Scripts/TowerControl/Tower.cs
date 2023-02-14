@@ -7,7 +7,7 @@ namespace TowerControl
         [SerializeField] private float range;
         [SerializeField] private LayerMask enemyLayer;
         [SerializeField] private Collider[] targets;
-        [SerializeField] private Transform target;
+        public Transform target;
 
         private void Start()
         {
@@ -44,7 +44,7 @@ namespace TowerControl
             Gizmos.color = Color.magenta;
             Gizmos.DrawWireSphere(transform.position, range);
             if (target == null) return;
-            Gizmos.DrawSphere(target.position, 1);
+            Gizmos.DrawSphere(target.position, .5f);
         }
     }
 }

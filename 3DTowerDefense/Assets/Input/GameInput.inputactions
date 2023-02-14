@@ -33,18 +33,18 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Pause",
+                    "name": "Click",
                     "type": "Button",
-                    "id": "9bdbdafb-f876-422a-a990-140594028adf",
+                    "id": "8c2c2d58-f6f7-497d-b021-ab8129ee3307",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
                 },
                 {
-                    "name": "ClickTower",
+                    "name": "Pause",
                     "type": "Button",
-                    "id": "8c2c2d58-f6f7-497d-b021-ab8129ee3307",
+                    "id": "9bdbdafb-f876-422a-a990-140594028adf",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": "",
@@ -169,7 +169,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "ClickTower",
+                    "action": "Click",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
@@ -706,54 +706,6 @@
                     "processors": "",
                     "groups": "",
                     "action": "Resume",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                }
-            ]
-        },
-        {
-            "name": "BuildMode",
-            "id": "09905ae4-06e8-4cbd-b050-7d95e57aff3d",
-            "actions": [
-                {
-                    "name": "BuildCancel",
-                    "type": "Button",
-                    "id": "4ac5ce48-d6e9-47e6-8a62-4600bd38b38d",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "BuildTower",
-                    "type": "Button",
-                    "id": "61c158c3-96c6-4d95-9b2e-228373892c83",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                }
-            ],
-            "bindings": [
-                {
-                    "name": "",
-                    "id": "560b97aa-2444-460f-a487-58a37c23e994",
-                    "path": "<Keyboard>/escape",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "BuildCancel",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "bdd70dc5-d5b0-4906-a589-7bc3abd1d942",
-                    "path": "<Mouse>/leftButton",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "BuildTower",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

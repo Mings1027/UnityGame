@@ -1,5 +1,6 @@
 using DG.Tweening;
 using GameControl;
+using ToolTipControl;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -15,7 +16,7 @@ namespace ManagerControl
         private Vector3 _cursorPos;
 
         private GameObject _tower;
-        private GameObject _selectedObject;
+        // private GameObject _selectedObject;
 
         private bool _isBuilding, _isEditMode, _isGridMove;
 
@@ -41,10 +42,11 @@ namespace ManagerControl
             _cam = Camera.main;
             input.OnCursorPositionEvent += CursorPosition;
 
-            input.OnClickTowerEvent += SelectTower;
-
             input.OnBuildTowerEvent += BuildTower;
-            input.OnBuildCancelEvent += CancelBuildMode;
+            input.OnClickTowerEvent += ClickTower;
+
+            input.OnCancelBuildEvent += CancelBuildMode;
+            input.OnCancelEditEvent += CancelEditMode;
 
             towerButtons = new Button[towerName.Length];
             for (var i = 0; i < towerButtons.Length; i++)
@@ -80,16 +82,15 @@ namespace ManagerControl
             _cursorPos.z = Mathf.Round(_hit.point.z);
         }
 
-        private void SelectTower()
-        {
-            if (!Physics.Raycast(_camRay, out var t, 1000, towerLayer) || _tower != null) return;
-            ActiveEditMode(t);
-            OutLineTower(t);
-        }
-
         private void ActiveBuildMode(int index)
         {
-            print("clickkkkkk");
+            if (_isEditMode)
+            {
+                _isEditMode = false;
+                DeSelect();
+                _tower = null;
+            }
+
             if (_tower == null)
             {
                 _tower = StackObjectPool.Get(towerName[index].name, _cursorPos);
@@ -102,8 +103,23 @@ namespace ManagerControl
 
             if (_isBuilding) return;
             _isBuilding = true;
-            input.OnBuildMode();
-            DeSelect();
+            input.isBuild = true;
+        }
+
+        private void BuildTower()
+        {
+            if (!canPlace || _tower == null) return;
+            _isBuilding = false;
+            input.isBuild = false;
+            _tower = null;
+            _cam.DOShakePosition(duration, strength, randomness: 180);
+        }
+
+        private void ClickTower()
+        {
+            if (!Physics.Raycast(_camRay, out var t, 1000, towerLayer)) return;
+            ActiveEditMode();
+            OutLineTower(t.collider.gameObject);
         }
 
         private void CancelBuildMode()
@@ -112,46 +128,36 @@ namespace ManagerControl
             if (_tower != null) _tower.SetActive(false);
         }
 
-        private void BuildTower()
-        {
-            if (!canPlace || _tower == null) return;
-            print("build!");
-            _isBuilding = false;
-            _tower = null;
-            _cam.DOShakePosition(duration, strength, randomness: 180);
-        }
-
-        private void ActiveEditMode(RaycastHit tower)
+        private void ActiveEditMode()
         {
             if (_isEditMode) return;
             _isEditMode = true;
-            _tower = tower.collider.gameObject;
+            input.isEdit = true;
         }
 
         private void CancelEditMode()
         {
             if (_isEditMode) _isEditMode = false;
-            _tower = null;
+            input.isEdit = false;
+            DeSelect();
         }
 
-        private void OutLineTower(RaycastHit tower)
+        private void OutLineTower(GameObject t)
         {
-            var obj = tower.collider.gameObject;
-            if (_selectedObject == obj) return;
-            if (_selectedObject != null) DeSelect();
-            var outLine = obj.GetComponent<Outline>();
-            if (outLine == null) obj.AddComponent<Outline>();
+            if (t == _tower) return;
+            if (_tower != null) DeSelect();
+            var outLine = t.GetComponent<Outline>();
+            if (outLine == null) t.AddComponent<Outline>();
             else outLine.enabled = true;
-            _selectedObject = obj;
+            _tower = t;
             if (!editModePanel.activeSelf) editModePanel.SetActive(true);
             editModePanel.transform.position = _cam.WorldToScreenPoint(_cursorPos);
         }
 
         private void DeSelect()
         {
-            if (_selectedObject == null) return;
-            _selectedObject.GetComponent<Outline>().enabled = false;
-            _selectedObject = null;
+            _tower.GetComponent<Outline>().enabled = false;
+            _tower = null;
             if (editModePanel.activeSelf) editModePanel.SetActive(false);
         }
     }

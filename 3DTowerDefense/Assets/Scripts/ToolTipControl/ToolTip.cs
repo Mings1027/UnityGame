@@ -22,7 +22,6 @@ namespace ToolTipControl
         private void Awake()
         {
             _rectTransform = GetComponent<RectTransform>();
-            gameObject.SetActive(false);
         }
 
         public void SetText(string content, string header = "")

@@ -7,8 +7,7 @@ using UnityEngine.InputSystem;
 namespace ManagerControl
 {
     [CreateAssetMenu(menuName = "InputReader")]
-    public class InputController : ScriptableObject, GameInput.IGamePlayActions, GameInput.IUIActions,
-        GameInput.IBuildModeActions
+    public class InputController : ScriptableObject, GameInput.IGamePlayActions, GameInput.IUIActions
     {
         private GameInput _gameInput;
         private event Action<InputActionMap> OnActionMapChange;
@@ -19,15 +18,16 @@ namespace ManagerControl
         public event Action<Vector2> OnCameraMoveEvent;
         public event Action<float> OnCameraRotateEvent;
         public event Action<Vector2> OnCursorPositionEvent;
+
         public event Action OnPauseEvent;
         public event Action OnClickTowerEvent;
 
+        public event Action OnBuildTowerEvent, OnCancelBuildEvent;
+
+        public event Action OnCancelEditEvent;
+
 //=======================================UI===========================================
         public event Action OnResumeEvent;
-        public event Action OnClickUIEvent;
-
-//===================================Build Mode===========================================
-        public event Action OnBuildTowerEvent, OnBuildCancelEvent;
 
         private void OnEnable()
         {
@@ -36,7 +36,6 @@ namespace ManagerControl
                 _gameInput = new GameInput();
                 _gameInput.GamePlay.SetCallbacks(this);
                 _gameInput.UI.SetCallbacks(this);
-                _gameInput.BuildMode.SetCallbacks(this);
             }
 
             Init();
@@ -57,12 +56,8 @@ namespace ManagerControl
             inputActionMap.Enable();
         }
 
-        public void OnBuildMode()
-        {
-            ToggleActionMap(_gameInput.BuildMode);
-        }
+        //==================================Game Player Action Map=============================================
 
-//==================================Game Player Action Map=============================================
         public void OnCameraMove(InputAction.CallbackContext context)
         {
             OnCameraMoveEvent?.Invoke(context.ReadValue<Vector2>());
@@ -81,50 +76,55 @@ namespace ManagerControl
             OnCursorPositionEvent?.Invoke(context.ReadValue<Vector2>());
         }
 
+        public void OnClick(InputAction.CallbackContext context)
+        {
+            if (context.started && !UiManager.OnPointer)
+            {
+                if (isBuild)
+                {
+                    OnBuildTowerEvent?.Invoke();
+                    Debug.Log("buidltower");
+                }
+                else
+                {
+                    OnClickTowerEvent?.Invoke();
+                    Debug.Log("clickTower");
+                }
+            }
+        }
+
         public void OnPause(InputAction.CallbackContext context)
         {
             if (context.started)
             {
-                Debug.Log("Pause");
-                ToggleActionMap(_gameInput.UI);
-                OnPauseEvent?.Invoke();
+                if (isBuild)
+                {
+                    OnCancelBuildEvent?.Invoke();
+                }
+                else if (isEdit)
+                {
+                    OnCancelEditEvent?.Invoke();
+                }
+                else
+                {
+                    OnPauseEvent?.Invoke();
+                    ToggleActionMap(_gameInput.UI);
+                }
             }
         }
 
-        public void OnClickTower(InputAction.CallbackContext context)
+        //==================================UI Action Map=============================================
+
+        public void Resume()
         {
-            if (context.started && !UiManager.OnPointer)
-            {
-                OnClickTowerEvent?.Invoke();
-            }
+            ToggleActionMap(_gameInput.GamePlay);
         }
-
-
-//==================================BuildMode Action Map=============================================
-
-        public void OnBuildTower(InputAction.CallbackContext context)
-        {
-            if (context.started)
-            {
-                OnBuildTowerEvent?.Invoke();
-            }
-        }
-
-        public void OnBuildCancel(InputAction.CallbackContext context)
-        {
-            if (context.started)
-            {
-                OnBuildCancelEvent?.Invoke();
-            }
-        }
-//==================================UI Action Map=============================================
-
         public void OnResume(InputAction.CallbackContext context)
         {
             if (context.started)
             {
-                ToggleActionMap(_gameInput.GamePlay);
                 OnResumeEvent?.Invoke();
+                ToggleActionMap(_gameInput.GamePlay);
             }
         }
 
@@ -147,12 +147,7 @@ namespace ManagerControl
         {
             throw new NotImplementedException();
         }
-
-        public void OnClick(InputAction.CallbackContext context)
-        {
-            throw new NotImplementedException();
-        }
-
+        
         public void OnScrollWheel(InputAction.CallbackContext context)
         {
             throw new NotImplementedException();

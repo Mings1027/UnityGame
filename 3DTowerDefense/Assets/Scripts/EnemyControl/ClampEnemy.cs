@@ -32,6 +32,11 @@ namespace EnemyControl
             // }
         }
 
+        private void FixedUpdate()
+        {
+            _agent.SetDestination(crystal.position);
+        }
+
         public void SetMovePoint(Vector3 pos)
         {
             _agent.SetDestination(pos);
