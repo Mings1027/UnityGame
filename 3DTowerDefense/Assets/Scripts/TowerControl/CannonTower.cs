@@ -2,7 +2,7 @@ using GameControl;
 
 namespace TowerControl
 {
-    public class DefenseTower : Tower
+    public class CannonTower : Tower
     {
         private void OnEnable()
         {

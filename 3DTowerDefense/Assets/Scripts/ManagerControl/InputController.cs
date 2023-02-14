@@ -82,13 +82,7 @@ namespace ManagerControl
             {
                 if (isBuild)
                 {
-                    OnBuildTowerEvent?.Invoke();
-                    Debug.Log("buidltower");
-                }
-                else
-                {
-                    OnClickTowerEvent?.Invoke();
-                    Debug.Log("clickTower");
+                    OnCancelBuildEvent?.Invoke();
                 }
             }
         }

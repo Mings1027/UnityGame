@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 4092121444575608}
   - component: {fileID: 33717473347477462}
   - component: {fileID: 23585630126484214}
+  - component: {fileID: -5113981340122094224}
+  - component: {fileID: 4414955650457358320}
   m_Layer: 0
   m_Name: TB_Barracks_Lvl1
   m_TagString: Untagged
@@ -85,6 +87,42 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &-5113981340122094224
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1337083809761150}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3d03e352d5564638ab7aa5086ea3f81, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  range: 0
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  targets: []
+  target: {fileID: 0}
+  atkEase: 0
+  _cooldown:
+    cooldownTime: 0
+  tipTarget: {fileID: 0}
+  atkDelay: 0
+--- !u!65 &4414955650457358320
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1337083809761150}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 6.46482, y: 5.664141, z: 7.04165}
+  m_Center: {x: 0.00006580353, y: 2.831587, z: -0.28841472}
 --- !u!1 &1688958778820728
 GameObject:
   m_ObjectHideFlags: 0

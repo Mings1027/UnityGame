@@ -2,7 +2,7 @@ using GameControl;
 
 namespace TowerControl
 {
-    public class RangeTower : Tower
+    public class ArcherTower : Tower
     {
         private void OnEnable()
         {
