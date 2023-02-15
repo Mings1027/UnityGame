@@ -4,15 +4,24 @@ namespace TowerControl
 {
     public class ArcherTower : Tower
     {
-        private void OnEnable()
+        public override void OnEnable()
         {
-            InvokeRepeating(nameof(UpdateTarget), 0f, 0.5f);
+            base.OnEnable();
         }
 
-
-        private void OnDisable()
+        public override void OnDisable()
         {
-            StackObjectPool.ReturnToPool(gameObject);
+            base.OnDisable();
         }
+        // private void OnEnable()
+        // {
+        //     InvokeRepeating(nameof(UpdateTarget), 0f, 0.5f);
+        // }
+
+
+        // private void OnDisable()
+        // {
+        //     StackObjectPool.ReturnToPool(gameObject);
+        // }
     }
 }

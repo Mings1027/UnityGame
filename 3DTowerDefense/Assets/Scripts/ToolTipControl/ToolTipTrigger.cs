@@ -6,7 +6,7 @@ namespace ToolTipControl
     public class ToolTipTrigger : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         [SerializeField] private string header;
-        [SerializeField] private string content;
+        [SerializeField] [Multiline] private string content;
 
         public void OnPointerEnter(PointerEventData eventData)
         {

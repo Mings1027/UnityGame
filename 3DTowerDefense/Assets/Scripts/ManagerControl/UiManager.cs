@@ -5,19 +5,19 @@ namespace ManagerControl
 {
     public class UiManager : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
-        public static bool OnPointer { get; private set; }
+        public static bool Pointer { get; private set; }
 
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            OnPointer = true;
-            // print("On");
+            Pointer = true;
+            print("On");
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            OnPointer = false;
-            // print("Off");
+            Pointer = false;
+            print("Off");
         }
 
 

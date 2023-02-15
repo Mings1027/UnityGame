@@ -7,34 +7,56 @@ namespace EnemyControl
 {
     public class Enemy : MonoBehaviour
     {
-        public event Action<Enemy> OnMoveNexPoint;
         private NavMeshAgent _agent;
-        public int WayPointIndex { get; set; }
+        private Transform _target;
+
+        [SerializeField] private float range;
+        [SerializeField] private LayerMask attackAbleLayer;
+        [SerializeField] private Collider[] targets;
+        public Transform destination;
 
         private void Awake()
         {
             _agent = GetComponent<NavMeshAgent>();
+            targets = new Collider[5];
         }
 
-        private void Update()
+        private void OnEnable()
         {
-            if (_agent.remainingDistance <= 0.2f)
-            {
-                OnMoveNexPoint?.Invoke(this);
-            }
-        }
-
-        public void SetMovePoint(Vector3 pos)
-        {
-            
-            _agent.SetDestination(pos);
+            InvokeRepeating(nameof(UpdateTarget), 0f, 0.5f);
         }
 
         private void OnDisable()
         {
-            WayPointIndex = 0;
+            CancelInvoke();
             StackObjectPool.ReturnToPool(gameObject);
-            OnMoveNexPoint = null;
+        }
+
+        private void UpdateTarget()
+        {
+            var size = Physics.OverlapSphereNonAlloc(transform.position, range, targets, attackAbleLayer);
+            var shortestDistance = Mathf.Infinity;
+            Transform nearestTarget = null;
+            for (int i = 0; i < size; i++)
+            {
+                var distanceToUnit = Vector3.Distance(transform.position, targets[i].transform.position);
+                if (distanceToUnit < shortestDistance)
+                {
+                    shortestDistance = distanceToUnit;
+                    nearestTarget = targets[i].transform;
+                }
+            }
+
+            _target = nearestTarget != null && shortestDistance <= range ? nearestTarget : null;
+        }
+
+        private void Update()
+        {
+            _agent.SetDestination(destination.position);
+            if (Vector3.Distance(transform.position, destination.position) <= 0.2f)
+            {
+                gameObject.SetActive(false);
+            }
         }
     }
 }

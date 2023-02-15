@@ -13,6 +13,15 @@ namespace TowerControl
         [SerializeField] private Transform tipTarget;
         [SerializeField] private float atkDelay;
 
+        public override void OnEnable()
+        {
+            base.OnEnable();
+        }
+
+        public override void OnDisable()
+        {
+            base.OnDisable();
+        }
         // private void Awake()
         // {
         //     _attackTween = tipTarget.DOMove(tipTarget.position, atkDelay).SetAutoKill(false)
@@ -20,10 +29,10 @@ namespace TowerControl
         //         .SetEase(atkEase);
         // }
 
-        private void OnEnable()
-        {
-            InvokeRepeating(nameof(UpdateTarget), 0f, 0.5f);
-        }
+        // private void OnEnable()
+        // {
+        //     InvokeRepeating(nameof(UpdateTarget), 0f, 0.5f);
+        // }
 
         // private void FixedUpdate()
         // {
@@ -32,9 +41,9 @@ namespace TowerControl
         //     _cooldown.StartCoolDown();
         // }
 
-        private void OnDisable()
-        {
-            StackObjectPool.ReturnToPool(gameObject);
-        }
+        // private void OnDisable()
+        // {
+        //     StackObjectPool.ReturnToPool(gameObject);
+        // }
     }
 }
