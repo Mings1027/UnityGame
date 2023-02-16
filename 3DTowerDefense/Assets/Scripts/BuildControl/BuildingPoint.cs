@@ -5,7 +5,6 @@ namespace BuildControl
 {
     public class BuildingPoint : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler
     {
-        // private Camera _cam;
         private Outline _outline;
         private BuildController _towerController;
         private Vector3 _buildPos;
@@ -15,7 +14,6 @@ namespace BuildControl
 
         private void Awake()
         {
-            // _cam = Camera.main;
             _outline = GetComponent<Outline>();
             _towerController = BuildController.Instance;
             _outline.enabled = false;
@@ -36,8 +34,7 @@ namespace BuildControl
         public void OnPointerDown(PointerEventData eventData)
         {
             _towerController.numOfBuildingPoint = index;
-            _towerController.OpenBuildPanel(_buildPos + Vector3.up * 10);
-            _towerController.SetBuildPoint(_buildPos, _buildRot);
+            _towerController.OpenBuildPanel(_buildPos, _buildRot);
         }
     }
 }

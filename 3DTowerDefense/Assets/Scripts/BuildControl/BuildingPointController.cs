@@ -20,6 +20,11 @@ namespace TowerControl
             }
         }
 
+        public void ActiveBuildingPoint(int index)
+        {
+            print(index);
+            buildingPositions[index].gameObject.SetActive(true);
+        }
         //When Built Tower
         public void DeActiveBuildingPoint(int index)
         {

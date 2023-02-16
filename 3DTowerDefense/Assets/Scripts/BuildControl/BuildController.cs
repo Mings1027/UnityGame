@@ -7,11 +7,12 @@ namespace BuildControl
 {
     public class BuildController : Singleton<BuildController>
     {
-        private GameObject _tower;
         private Vector3 _buildPosition;
         private Quaternion _buildRotation;
 
         public int numOfBuildingPoint;
+
+        public Tower Tower { get; set; }
 
         [SerializeField] private InputManager input;
 
@@ -26,19 +27,15 @@ namespace BuildControl
             input.OnCancelPanelEvent += CloseBuildPanel;
         }
 
-        public void OpenBuildPanel(Vector3 pos)
+        public void OpenBuildPanel(Vector3 pos, Quaternion rot)
         {
             CloseBuildPanel();
             if (buildPanel.activeSelf) return;
+            _buildPosition = pos;
+            _buildRotation = rot;
             buildPanel.SetActive(true);
             input.isBuild = true;
-            buildPanel.transform.position = pos;
-        }
-
-        public void SetBuildPoint(Vector3 buildPos, Quaternion buildRot)
-        {
-            _buildPosition = buildPos;
-            _buildRotation = buildRot;
+            buildPanel.transform.position = pos + Vector3.up * 10;
         }
 
         private void CloseBuildPanel()
@@ -46,21 +43,30 @@ namespace BuildControl
             if (!buildPanel.activeSelf) return;
             input.isBuild = false;
             buildPanel.SetActive(false);
+            Tower = null;
         }
 
-        public void BuildTower(int index)
+        public void BuildTowerButton(int index)
         {
-            CloseBuildPanel();
             buildingPointController.DeActiveBuildingPoint(numOfBuildingPoint);
-            if (_tower == null)
+
+            if (Tower == null)
             {
-                _tower = StackObjectPool.Get(towers[index], _buildPosition, _buildRotation);
+                Tower = StackObjectPool.Get<Tower>(towers[index], _buildPosition, _buildRotation);
             }
             else
             {
-                _tower = null;
-                _tower = StackObjectPool.Get(towers[index], _buildPosition, _buildRotation);
+                Tower.gameObject.SetActive(false);
+                Tower = null;
+                Tower = StackObjectPool.Get<Tower>(towers[index], _buildPosition, _buildRotation);
             }
+
+            CloseBuildPanel();
+        }
+
+        public void UpgradeTower()
+        {
+            Tower.UpgradeTower();
         }
     }
 }

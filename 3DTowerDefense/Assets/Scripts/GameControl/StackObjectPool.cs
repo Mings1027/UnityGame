@@ -2,25 +2,25 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-#if UNITY_EDITOR
-using UnityEditor;
+// #if UNITY_EDITOR
+// using UnityEditor;
 
 namespace GameControl
 {
-    [CustomEditor(typeof(StackObjectPool))]
-    public class StackObjectPoolingEditor : Editor
-    {
-        private const string Info = "풀링한 오브젝트에 다음을 적으세요 \nvoid OnDisable()\n{\n" +
-                                    "    StackObjectPooler.ReturnToPool(gameObject);    // 한 객체에 한번만 \n" +
-                                    "    CancelInvoke();    // Monobehaviour에 Invoke가 있다면 \n}";
-
-        public override void OnInspectorGUI()
-        {
-            EditorGUILayout.HelpBox(Info, MessageType.Info);
-            base.OnInspectorGUI();
-        }
-    }
-#endif
+//     [CustomEditor(typeof(StackObjectPool))]
+//     public class StackObjectPoolingEditor : Editor
+//     {
+//         private const string Info = "풀링한 오브젝트에 다음을 적으세요 \nvoid OnDisable()\n{\n" +
+//                                     "    StackObjectPooler.ReturnToPool(gameObject);    // 한 객체에 한번만 \n" +
+//                                     "    CancelInvoke();    // Monobehaviour에 Invoke가 있다면 \n}";
+//
+//         public override void OnInspectorGUI()
+//         {
+//             EditorGUILayout.HelpBox(Info, MessageType.Info);
+//             base.OnInspectorGUI();
+//         }
+//     }
+// #endif
     public class StackObjectPool : MonoBehaviour
     {
         [Serializable]

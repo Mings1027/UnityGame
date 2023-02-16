@@ -1,38 +1,94 @@
 using System;
+using System.Threading;
 using BuildControl;
+using Cysharp.Threading.Tasks;
 using GameControl;
+using InfoControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 
 namespace TowerControl
 {
     public abstract class Tower : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler
     {
         private Outline _outline;
-        private EditController _editController;
+        private MeshFilter _meshFilter;
+        private BuildController _buildController;
+        private TowerInfoSystem _towerInfoSystem;
+        private Transform _target;
+        private bool _isTargeting;
+        private int _towerLevel;
+        private CancellationTokenSource _cts;
+
+        [SerializeField] private TowerLevelManager towerLevelManager;
+        [SerializeField] private Cooldown cooldown;
         [SerializeField] private float range;
         [SerializeField] private LayerMask enemyLayer;
         [SerializeField] private Collider[] targets;
 
-        [SerializeField] private Transform editPanelTransform;
-        public Transform target;
+        [SerializeField] private Transform infoPanelTransform;
+
 
         private void Awake()
         {
             _outline = GetComponent<Outline>();
-            _editController = EditController.Instance;
+            _meshFilter = GetComponent<MeshFilter>();
+            _buildController = BuildController.Instance;
+            _towerInfoSystem = TowerInfoSystem.Instance;
             targets = new Collider[5];
         }
 
-        public virtual void OnEnable()
+        //==================================Event Method=====================================================
+        private void OnEnable()
         {
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
             InvokeRepeating(nameof(UpdateTarget), 0f, 0.5f);
+            UpgradeTower();
         }
 
-        public virtual void OnDisable()
+        private void OnDisable()
         {
+            _cts.Cancel();
+            CancelInvoke();
             StackObjectPool.ReturnToPool(gameObject);
+            _towerLevel = 0;
+            _meshFilter.mesh = towerLevelManager.towerLevels[0].towerMesh;
         }
+
+        private void Update()
+        {
+            if (cooldown.IsCoolingDown || !_isTargeting) return;
+            Attack();
+            cooldown.StartCoolDown();
+        }
+
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            _buildController.Tower = this;
+            OpenTowerInfo();
+        }
+
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            _outline.enabled = true;
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            _outline.enabled = false;
+        }
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(transform.position, range);
+        }
+
+        //==================================Event Method=====================================================
+        //==================================Custom Method====================================================
+        protected abstract void Attack();
 
         private void UpdateTarget()
         {
@@ -51,35 +107,37 @@ namespace TowerControl
 
             if (nearestEnemy != null && shortestDistance <= range)
             {
-                target = nearestEnemy;
+                _target = nearestEnemy;
+                _isTargeting = true;
             }
             else
             {
-                target = null;
+                _target = null;
+                _isTargeting = false;
             }
         }
 
-        private void OnDrawGizmos()
+        public void UpgradeTower()
         {
-            Gizmos.color = Color.magenta;
-            Gizmos.DrawWireSphere(transform.position, range);
-            if (target == null) return;
-            Gizmos.DrawSphere(target.position, .5f);
+            if (_towerLevel >= towerLevelManager.towerLevels.Length - 1) return;
+            Upgrade().Forget();
         }
 
-        public void OnPointerDown(PointerEventData eventData)
+        private async UniTaskVoid Upgrade()
         {
-            _editController.OpenEditPanel(editPanelTransform.position);
+            _cts.Cancel();
+            _towerLevel++;
+            _meshFilter.mesh = towerLevelManager.towerLevels[_towerLevel].consMesh;
+            await UniTask.Delay(TimeSpan.FromSeconds(towerLevelManager.towerLevels[_towerLevel].constructionTime));
+            _meshFilter.mesh = towerLevelManager.towerLevels[_towerLevel].towerMesh;
         }
 
-        public void OnPointerEnter(PointerEventData eventData)
+        private void OpenTowerInfo()
         {
-            _outline.enabled = true;
+            _towerInfoSystem.OpenInfo(infoPanelTransform.position,
+                towerLevelManager.towerLevels[_towerLevel].towerInfo,
+                towerLevelManager.towerLevels[_towerLevel].towerName);
         }
-
-        public void OnPointerExit(PointerEventData eventData)
-        {
-            _outline.enabled = false;
-        }
+        //==================================Custom Method====================================================
     }
 }

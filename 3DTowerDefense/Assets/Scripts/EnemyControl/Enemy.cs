@@ -37,7 +37,7 @@ namespace EnemyControl
             var size = Physics.OverlapSphereNonAlloc(transform.position, range, targets, attackAbleLayer);
             var shortestDistance = Mathf.Infinity;
             Transform nearestTarget = null;
-            for (int i = 0; i < size; i++)
+            for (var i = 0; i < size; i++)
             {
                 var distanceToUnit = Vector3.Distance(transform.position, targets[i].transform.position);
                 if (distanceToUnit < shortestDistance)

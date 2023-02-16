@@ -84,14 +84,6 @@ namespace ManagerControl
             if (context.started)
             {
                 OnCancelPanelEvent?.Invoke();
-                // if (isBuild)
-                // {
-                //     OnCancelBuildEvent?.Invoke();
-                // }
-                // else if (isEdit)
-                // {
-                //     OnCancelEditEvent?.Invoke();
-                // }
             }
         }
 
