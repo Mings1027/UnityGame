@@ -86,7 +86,7 @@ public class Outline : MonoBehaviour
     private static readonly int ZTest = Shader.PropertyToID("_ZTest");
     private static readonly int Width = Shader.PropertyToID("_OutlineWidth");
 
-    void Awake()
+    private void Awake()
     {
         // Cache renderers
         _renderers = GetComponentsInChildren<Renderer>();
@@ -200,7 +200,7 @@ public class Outline : MonoBehaviour
 
             // Retrieve or generate smooth normals
             var index = bakeKeys.IndexOf(meshFilter.sharedMesh);
-            var smoothNormals = (index >= 0) ? bakeValues[index].data : SmoothNormals(meshFilter.sharedMesh);
+            var smoothNormals = index >= 0 ? bakeValues[index].data : SmoothNormals(meshFilter.sharedMesh);
 
             // Store smooth normals in UV3
             meshFilter.sharedMesh.SetUVs(3, smoothNormals);
@@ -251,12 +251,7 @@ public class Outline : MonoBehaviour
             }
 
             // Calculate the average normal
-            var smoothNormal = Vector3.zero;
-
-            foreach (var pair in group)
-            {
-                smoothNormal += smoothNormals[pair.Value];
-            }
+            var smoothNormal = group.Aggregate(Vector3.zero, (current, pair) => current + smoothNormals[pair.Value]);
 
             smoothNormal.Normalize();
 

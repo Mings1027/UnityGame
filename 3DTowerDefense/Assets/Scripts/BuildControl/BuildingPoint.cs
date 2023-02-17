@@ -33,8 +33,7 @@ namespace BuildControl
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            _towerController.numOfBuildingPoint = index;
-            _towerController.OpenBuildPanel(_buildPos, _buildRot);
+            _towerController.OpenBuildPanel(index, _buildPos, _buildRot);
         }
     }
 }

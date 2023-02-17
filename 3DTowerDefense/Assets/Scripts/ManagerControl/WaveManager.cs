@@ -13,8 +13,6 @@ namespace ManagerControl
         public class Wave
         {
             public string name;
-
-            // public Transform enemyTransform;
             public int enemyCount;
             public float rate;
         }

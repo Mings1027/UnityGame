@@ -6,5 +6,13 @@ using UnityEngine;
 
 public class Test : MonoBehaviour
 {
-    
+    public GameObject aaa;
+
+    private void FixedUpdate()
+    {
+        if (!aaa)
+        {
+            print(aaa);
+        }
+    }
 }

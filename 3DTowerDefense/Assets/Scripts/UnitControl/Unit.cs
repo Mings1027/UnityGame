@@ -1,18 +1,13 @@
-using System.Collections;
-using System.Collections.Generic;
+using GameControl;
 using UnityEngine;
 
-public class Unit : MonoBehaviour
+namespace UnitControl
 {
-    // Start is called before the first frame update
-    void Start()
+    public class Unit : MonoBehaviour
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        private void OnDisable()
+        {
+            StackObjectPool.ReturnToPool(gameObject);
+        }
     }
 }

@@ -24,9 +24,9 @@ namespace ManagerControl
 
         public event Action OnCancelPanelEvent;
 
-        // public event Action OnBuildTowerEvent, OnCancelBuildEvent;
-        //
-        // public event Action OnCancelEditEvent;
+        public event Action OnBuildTowerEvent, OnCancelBuildEvent;
+
+        public event Action OnCancelEditEvent;
 
 //=======================================UI===========================================
         public event Action OnResumeEvent;
@@ -81,7 +81,7 @@ namespace ManagerControl
         public void OnClick(InputAction.CallbackContext context)
         {
             if (UiManager.Pointer) return;
-            if (context.started)
+            if (context.started && (isBuild || isEdit))
             {
                 OnCancelPanelEvent?.Invoke();
             }
@@ -91,21 +91,15 @@ namespace ManagerControl
         {
             if (context.started)
             {
-                OnPauseEvent?.Invoke();
-                ToggleActionMap(_gameInput.UI);
-                // if (isBuild)
-                // {
-                //     OnCancelBuildEvent?.Invoke();
-                // }
-                // else if (isEdit)
-                // {
-                //     OnCancelEditEvent?.Invoke();
-                // }
-                // else
-                // {
-                //     OnPauseEvent?.Invoke();
-                //     ToggleActionMap(_gameInput.UI);
-                // }
+                if (isBuild || isEdit)
+                {
+                    OnCancelPanelEvent?.Invoke();
+                }
+                else
+                {
+                    OnPauseEvent?.Invoke();
+                    ToggleActionMap(_gameInput.UI);
+                }
             }
         }
 
@@ -127,7 +121,7 @@ namespace ManagerControl
 
         public void OnNavigate(InputAction.CallbackContext context)
         {
-            throw new NotImplementedException();
+            
         }
 
         public void OnSubmit(InputAction.CallbackContext context)

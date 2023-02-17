@@ -16,19 +16,21 @@ namespace TowerControl
         private MeshFilter _meshFilter;
         private BuildController _buildController;
         private TowerInfoSystem _towerInfoSystem;
-        private Transform _target;
+        private MeshFilter _towerChildMeshFilter;
         private bool _isTargeting;
-        private int _towerLevel;
+        private bool _isChild;
         private CancellationTokenSource _cts;
 
-        [SerializeField] private TowerLevelManager towerLevelManager;
+        public TowerLevelManager towerLevelManager;
+
+        protected Transform Target;
+        protected int TowerLevel;
+
         [SerializeField] private Cooldown cooldown;
         [SerializeField] private float range;
         [SerializeField] private LayerMask enemyLayer;
         [SerializeField] private Collider[] targets;
-
         [SerializeField] private Transform infoPanelTransform;
-
 
         private void Awake()
         {
@@ -36,10 +38,11 @@ namespace TowerControl
             _meshFilter = GetComponent<MeshFilter>();
             _buildController = BuildController.Instance;
             _towerInfoSystem = TowerInfoSystem.Instance;
+            _isChild = transform.GetChild(0).TryGetComponent(out _towerChildMeshFilter);
             targets = new Collider[5];
         }
 
-        //==================================Event Method=====================================================
+        //==================================Event function=====================================================
         private void OnEnable()
         {
             _cts?.Dispose();
@@ -48,16 +51,16 @@ namespace TowerControl
             UpgradeTower();
         }
 
-        private void OnDisable()
+        protected virtual void OnDisable()
         {
-            _cts.Cancel();
+            _cts?.Cancel();
             CancelInvoke();
             StackObjectPool.ReturnToPool(gameObject);
-            _towerLevel = 0;
+            TowerLevel = -1;
             _meshFilter.mesh = towerLevelManager.towerLevels[0].towerMesh;
         }
 
-        private void Update()
+        private void FixedUpdate()
         {
             if (cooldown.IsCoolingDown || !_isTargeting) return;
             Attack();
@@ -86,8 +89,8 @@ namespace TowerControl
             Gizmos.DrawWireSphere(transform.position, range);
         }
 
-        //==================================Event Method=====================================================
-        //==================================Custom Method====================================================
+        //==================================Event function=====================================================
+        //==================================Custom function====================================================
         protected abstract void Attack();
 
         private void UpdateTarget()
@@ -107,37 +110,48 @@ namespace TowerControl
 
             if (nearestEnemy != null && shortestDistance <= range)
             {
-                _target = nearestEnemy;
+                Target = nearestEnemy;
                 _isTargeting = true;
             }
             else
             {
-                _target = null;
+                Target = null;
                 _isTargeting = false;
             }
         }
 
         public void UpgradeTower()
         {
-            if (_towerLevel >= towerLevelManager.towerLevels.Length - 1) return;
+            if (TowerLevel >= towerLevelManager.towerLevels.Length - 1) return;
             Upgrade().Forget();
         }
 
         private async UniTaskVoid Upgrade()
         {
-            _cts.Cancel();
-            _towerLevel++;
-            _meshFilter.mesh = towerLevelManager.towerLevels[_towerLevel].consMesh;
-            await UniTask.Delay(TimeSpan.FromSeconds(towerLevelManager.towerLevels[_towerLevel].constructionTime));
-            _meshFilter.mesh = towerLevelManager.towerLevels[_towerLevel].towerMesh;
+            if (_isChild) _towerChildMeshFilter.mesh = null;
+            TowerLevel++;
+            _meshFilter.mesh = towerLevelManager.towerLevels[TowerLevel].consMesh;
+
+            await UniTask.Delay(TimeSpan.FromSeconds(towerLevelManager.towerLevels[TowerLevel].constructionTime),
+                cancellationToken: _cts.Token);
+            BatchUnit();
+        }
+
+        protected virtual void BatchUnit()
+        {
+            _meshFilter.mesh = towerLevelManager.towerLevels[TowerLevel].towerMesh;
+            if (_isChild)
+            {
+                _towerChildMeshFilter.mesh = towerLevelManager.towerLevels[TowerLevel].childMesh;
+            }
         }
 
         private void OpenTowerInfo()
         {
             _towerInfoSystem.OpenInfo(infoPanelTransform.position,
-                towerLevelManager.towerLevels[_towerLevel].towerInfo,
-                towerLevelManager.towerLevels[_towerLevel].towerName);
+                towerLevelManager.towerLevels[TowerLevel].towerInfo,
+                towerLevelManager.towerLevels[TowerLevel].towerName);
         }
-        //==================================Custom Method====================================================
+        //==================================Custom function====================================================
     }
 }

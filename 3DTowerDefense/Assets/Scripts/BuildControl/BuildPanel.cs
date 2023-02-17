@@ -9,7 +9,6 @@ namespace BuildControl
         private void Awake()
         {
             _cam = Camera.main;
-            gameObject.SetActive(false);
         }
 
         private void Update()

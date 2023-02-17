@@ -1,7 +1,6 @@
-using BuildControl;
 using UnityEngine;
 
-namespace TowerControl
+namespace BuildControl
 {
     public class BuildingPointController : MonoBehaviour
     {

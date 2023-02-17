@@ -1,7 +1,9 @@
+using System.ComponentModel;
 using GameControl;
 using ManagerControl;
 using TowerControl;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace BuildControl
 {
@@ -10,7 +12,10 @@ namespace BuildControl
         private Vector3 _buildPosition;
         private Quaternion _buildRotation;
 
-        public int numOfBuildingPoint;
+        private int _towerIndex;
+        private GameObject _selectedTower;
+
+        private int _numOfBuildingPoint;
 
         public Tower Tower { get; set; }
 
@@ -19,48 +24,61 @@ namespace BuildControl
         [SerializeField] private BuildingPointController buildingPointController;
 
         [SerializeField] private GameObject buildPanel;
+        [SerializeField] private GameObject buildOkButton;
 
-        [SerializeField] private string[] towers;
+        [SerializeField] private string[] towersName;
+
+        [SerializeField] private GameObject[] towerButtons;
+        [SerializeField] private GameObject[] towerPrefabs;
 
         private void Start()
         {
+            towerButtons = new GameObject[buildPanel.transform.childCount];
+            for (var i = 0; i < towerButtons.Length; i++)
+            {
+                towerButtons[i] = buildPanel.transform.GetChild(i).gameObject;
+            }
+
             input.OnCancelPanelEvent += CloseBuildPanel;
+            buildPanel.SetActive(false);
+            buildOkButton.SetActive(false);
         }
 
-        public void OpenBuildPanel(Vector3 pos, Quaternion rot)
+        public void OpenBuildPanel(int index, Vector3 pos, Quaternion rot)
         {
-            CloseBuildPanel();
             if (buildPanel.activeSelf) return;
+            _numOfBuildingPoint = index;
             _buildPosition = pos;
             _buildRotation = rot;
-            buildPanel.SetActive(true);
             input.isBuild = true;
             buildPanel.transform.position = pos + Vector3.up * 10;
+            buildPanel.SetActive(true);
         }
 
         private void CloseBuildPanel()
         {
-            if (!buildPanel.activeSelf) return;
             input.isBuild = false;
             buildPanel.SetActive(false);
-            Tower = null;
+            buildOkButton.SetActive(false);
+            if (!_selectedTower) return;
+            _selectedTower.SetActive(false);
         }
 
         public void BuildTowerButton(int index)
         {
-            buildingPointController.DeActiveBuildingPoint(numOfBuildingPoint);
+            if (_selectedTower) _selectedTower.SetActive(false);
+            _selectedTower = towerPrefabs[index];
+            _selectedTower.transform.SetPositionAndRotation(_buildPosition, _buildRotation);
+            _selectedTower.SetActive(true);
+            _towerIndex = index;
+            buildOkButton.transform.position = towerButtons[index].transform.position;
+            buildOkButton.SetActive(true);
+        }
 
-            if (Tower == null)
-            {
-                Tower = StackObjectPool.Get<Tower>(towers[index], _buildPosition, _buildRotation);
-            }
-            else
-            {
-                Tower.gameObject.SetActive(false);
-                Tower = null;
-                Tower = StackObjectPool.Get<Tower>(towers[index], _buildPosition, _buildRotation);
-            }
-
+        public void BuildOkButton()
+        {
+            StackObjectPool.Get(towersName[_towerIndex], _buildPosition, _buildRotation);
+            buildingPointController.DeActiveBuildingPoint(_numOfBuildingPoint);
             CloseBuildPanel();
         }
 
