@@ -1,4 +1,3 @@
-using Cysharp.Threading.Tasks;
 using GameControl;
 using UnityEngine;
 using WeaponControl;
@@ -18,9 +17,15 @@ namespace TowerControl
             _archerUnit.SetActive(false);
         }
 
-        protected override void BatchUnit()
+        protected override void LevelUpStart()
         {
-            base.BatchUnit();
+            base.LevelUpStart();
+            if (_archerUnit) _archerUnit.SetActive(false);
+        }
+
+        protected override void LevelUpEnd()
+        {
+            base.LevelUpEnd();
             _archerUnit = StackObjectPool.Get("ArcherUnit", archerPos[TowerLevel].position);
         }
 
@@ -28,6 +33,7 @@ namespace TowerControl
         {
             var p = StackObjectPool.Get<Projectile>("ArcherArrow", archerPos[TowerLevel].position);
             p.dir = Target.position - archerPos[TowerLevel].position;
+            p.lookVec = Target.position;
         }
     }
 }

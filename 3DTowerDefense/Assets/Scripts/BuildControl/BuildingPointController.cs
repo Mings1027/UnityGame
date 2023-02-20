@@ -8,12 +8,11 @@ namespace BuildControl
 
         private void Awake()
         {
-            var thisChild = transform.GetChild(0);
-            buildingPositions = new BuildingPoint[thisChild.transform.childCount];
+            buildingPositions = new BuildingPoint[transform.childCount];
 
             for (var i = 0; i < buildingPositions.Length; i++)
             {
-                var t = thisChild.transform.GetChild(i).GetComponent<BuildingPoint>();
+                var t = transform.GetChild(i).GetComponent<BuildingPoint>();
                 buildingPositions[i] = t;
                 t.index = i;
             }
@@ -21,7 +20,6 @@ namespace BuildControl
 
         public void ActiveBuildingPoint(int index)
         {
-            print(index);
             buildingPositions[index].gameObject.SetActive(true);
         }
         //When Built Tower

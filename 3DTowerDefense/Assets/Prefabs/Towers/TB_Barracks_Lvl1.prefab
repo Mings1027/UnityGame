@@ -14,9 +14,9 @@ GameObject:
   - component: {fileID: 4414955650457358320}
   - component: {fileID: -5113981340122094224}
   - component: {fileID: -5004388481573280869}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: TB_Barracks_Lvl1
-  m_TagString: Untagged
+  m_TagString: Tower
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -114,10 +114,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d3d03e352d5564638ab7aa5086ea3f81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  towerLevelManager: {fileID: 11400000, guid: 15c549c511dc145db8c8e37552d8213a, type: 2}
-  cooldown:
-    cooldownTime: 0
-  range: 20
+  towerManager: {fileID: 11400000, guid: 15c549c511dc145db8c8e37552d8213a, type: 2}
+  range: 0
   enemyLayer:
     serializedVersion: 2
     m_Bits: 256

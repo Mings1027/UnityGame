@@ -3,7 +3,6 @@ using System.Threading;
 using BuildControl;
 using Cysharp.Threading.Tasks;
 using GameControl;
-using InfoControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Serialization;
@@ -12,43 +11,41 @@ namespace TowerControl
 {
     public abstract class Tower : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler
     {
+        private Camera _cam;
         private Outline _outline;
         private MeshFilter _meshFilter;
-        private BuildController _buildController;
-        private TowerInfoSystem _towerInfoSystem;
-        private MeshFilter _towerChildMeshFilter;
+        private EditCanvasController _editCanvasController;
+
         private bool _isTargeting;
-        private bool _isChild;
+        private bool _isUpgrading;
         private CancellationTokenSource _cts;
 
-        public TowerLevelManager towerLevelManager;
+        public TowerManager towerManager;
 
         protected Transform Target;
         protected int TowerLevel;
 
-        [SerializeField] private Cooldown cooldown;
         [SerializeField] private float range;
         [SerializeField] private LayerMask enemyLayer;
         [SerializeField] private Collider[] targets;
-        [SerializeField] private Transform infoPanelTransform;
 
-        private void Awake()
+        protected virtual void Awake()
         {
+            _cam = Camera.main;
             _outline = GetComponent<Outline>();
             _meshFilter = GetComponent<MeshFilter>();
-            _buildController = BuildController.Instance;
-            _towerInfoSystem = TowerInfoSystem.Instance;
-            _isChild = transform.GetChild(0).TryGetComponent(out _towerChildMeshFilter);
+            _editCanvasController = EditCanvasController.Instance as EditCanvasController;
             targets = new Collider[5];
         }
 
         //==================================Event function=====================================================
         private void OnEnable()
         {
+            _isUpgrading = false;
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
             InvokeRepeating(nameof(UpdateTarget), 0f, 0.5f);
-            UpgradeTower();
+            Upgrade();
         }
 
         protected virtual void OnDisable()
@@ -57,20 +54,20 @@ namespace TowerControl
             CancelInvoke();
             StackObjectPool.ReturnToPool(gameObject);
             TowerLevel = -1;
-            _meshFilter.mesh = towerLevelManager.towerLevels[0].towerMesh;
+            _meshFilter.mesh = towerManager.towerLevels[0].towerMesh;
         }
 
         private void FixedUpdate()
         {
-            if (cooldown.IsCoolingDown || !_isTargeting) return;
+            if (towerManager.towerLevels[TowerLevel].IsCoolingDown || !_isTargeting) return;
             Attack();
-            cooldown.StartCoolDown();
+            towerManager.towerLevels[TowerLevel].StartCoolDown();
         }
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            _buildController.Tower = this;
-            OpenTowerInfo();
+            _editCanvasController.SelectedTower = this;
+            OpenEditPanel();
         }
 
         public void OnPointerEnter(PointerEventData eventData)
@@ -120,37 +117,56 @@ namespace TowerControl
             }
         }
 
-        public void UpgradeTower()
+        public void Upgrade()
         {
-            if (TowerLevel >= towerLevelManager.towerLevels.Length - 1) return;
-            Upgrade().Forget();
+            if (_isUpgrading) return;
+            if (TowerLevel >= 3) return;
+            UpgradeAsync().Forget();
         }
 
-        private async UniTaskVoid Upgrade()
+        public void UniqueUpgrade()
         {
-            if (_isChild) _towerChildMeshFilter.mesh = null;
-            TowerLevel++;
-            _meshFilter.mesh = towerLevelManager.towerLevels[TowerLevel].consMesh;
+            if (_isUpgrading) return;
+            UniqueUpgradeAsync().Forget();
+        }
 
-            await UniTask.Delay(TimeSpan.FromSeconds(towerLevelManager.towerLevels[TowerLevel].constructionTime),
+        private async UniTaskVoid UpgradeAsync()
+        {
+            LevelUpStart();
+            await UniTask.Delay(TimeSpan.FromSeconds(towerManager.towerLevels[TowerLevel].constructionTime),
                 cancellationToken: _cts.Token);
-            BatchUnit();
+            LevelUpEnd();
+            range = towerManager.towerLevels[TowerLevel].attackRange;
         }
 
-        protected virtual void BatchUnit()
+        private async UniTaskVoid UniqueUpgradeAsync()
         {
-            _meshFilter.mesh = towerLevelManager.towerLevels[TowerLevel].towerMesh;
-            if (_isChild)
-            {
-                _towerChildMeshFilter.mesh = towerLevelManager.towerLevels[TowerLevel].childMesh;
-            }
+            TowerLevel += 2;
+            _meshFilter.mesh = towerManager.towerLevels[TowerLevel].consMesh;
+            _isUpgrading = true;
+            await UniTask.Delay(TimeSpan.FromSeconds(towerManager.towerLevels[TowerLevel].constructionTime),
+                cancellationToken: _cts.Token);
+            _meshFilter.mesh = towerManager.towerLevels[TowerLevel].towerMesh;
         }
 
-        private void OpenTowerInfo()
+        protected virtual void LevelUpStart()
         {
-            _towerInfoSystem.OpenInfo(infoPanelTransform.position,
-                towerLevelManager.towerLevels[TowerLevel].towerInfo,
-                towerLevelManager.towerLevels[TowerLevel].towerName);
+            TowerLevel++;
+            _meshFilter.mesh = towerManager.towerLevels[TowerLevel].consMesh;
+            _isUpgrading = true;
+        }
+
+        protected virtual void LevelUpEnd()
+        {
+            _meshFilter.mesh = towerManager.towerLevels[TowerLevel].towerMesh;
+            _isUpgrading = false;
+        }
+
+        private void OpenEditPanel()
+        {
+            _editCanvasController.OpenEditPanel(_cam.WorldToScreenPoint(transform.position),
+                towerManager.towerLevels[TowerLevel].towerInfo,
+                towerManager.towerLevels[TowerLevel].towerName);
         }
         //==================================Custom function====================================================
     }

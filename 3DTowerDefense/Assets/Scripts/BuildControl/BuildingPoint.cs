@@ -1,24 +1,23 @@
+using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace BuildControl
 {
+    [DisallowMultipleComponent]
     public class BuildingPoint : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler
     {
+        private Camera _cam;
         private Outline _outline;
-        private BuildController _towerController;
-        private Vector3 _buildPos;
-        private Quaternion _buildRot;
+        private BuildCanvasController _buildCanvasController;
 
         public int index;
-
         private void Awake()
         {
+            _cam = Camera.main;
             _outline = GetComponent<Outline>();
-            _towerController = BuildController.Instance;
+            _buildCanvasController = BuildCanvasController.Instance as BuildCanvasController;
             _outline.enabled = false;
-            _buildPos = transform.position;
-            _buildRot = transform.rotation;
         }
 
         public void OnPointerEnter(PointerEventData eventData)
@@ -33,7 +32,8 @@ namespace BuildControl
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            _towerController.OpenBuildPanel(index, _buildPos, _buildRot);
+            _buildCanvasController.OpenBuildPanel(index, transform.position, transform.rotation,
+                _cam.WorldToScreenPoint(transform.position));
         }
     }
 }

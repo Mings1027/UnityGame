@@ -14,9 +14,9 @@ GameObject:
   - component: {fileID: 1872915683752037941}
   - component: {fileID: 257579659460338588}
   - component: {fileID: -803015980330714584}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: TB_ArcherTower_Lvl1
-  m_TagString: Untagged
+  m_TagString: Tower
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -37,6 +37,9 @@ Transform:
   - {fileID: 7428876066775252955}
   - {fileID: 8815011735178142878}
   - {fileID: 3762561589860380840}
+  - {fileID: 8617033886228509307}
+  - {fileID: 2558234381573794877}
+  - {fileID: 8777622172752934866}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -68,7 +71,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: b2673566e99346e4ea8cff329f970a5e, type: 2}
+  - {fileID: 2100000, guid: c717fb89e24ff384785039c0f1169eee, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -115,11 +118,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8c0e8b4472094397b18e2edefc60b4b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackSpeed: 2
-  cooldown:
-    cooldownTime: 2
-  towerLevelManager: {fileID: 11400000, guid: 3ec0532382c2144d3924e4e6eb3132e2, type: 2}
-  range: 10
+  towerManager: {fileID: 11400000, guid: 3ec0532382c2144d3924e4e6eb3132e2, type: 2}
+  range: 0
   enemyLayer:
     serializedVersion: 2
     m_Bits: 256
@@ -129,6 +129,9 @@ MonoBehaviour:
   - {fileID: 7428876066775252955}
   - {fileID: 8815011735178142878}
   - {fileID: 3762561589860380840}
+  - {fileID: 8617033886228509307}
+  - {fileID: 2558234381573794877}
+  - {fileID: 8777622172752934866}
 --- !u!114 &-803015980330714584
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -147,6 +150,37 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
+--- !u!1 &976307064279364372
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8777622172752934866}
+  m_Layer: 0
+  m_Name: ArcherLv5Right
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8777622172752934866
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 976307064279364372}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -3, y: 8, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4950992620309586}
+  m_RootOrder: 6
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3786260501025931528
 GameObject:
   m_ObjectHideFlags: 0
@@ -208,6 +242,68 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4950992620309586}
   m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3849273687499913805
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8617033886228509307}
+  m_Layer: 0
+  m_Name: ArcherLv4
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8617033886228509307
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3849273687499913805}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 6, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4950992620309586}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &4095047810091613558
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2558234381573794877}
+  m_Layer: 0
+  m_Name: ArcherLv5Left
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2558234381573794877
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4095047810091613558}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 3, y: 8, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4950992620309586}
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6827121555186465808
 GameObject:

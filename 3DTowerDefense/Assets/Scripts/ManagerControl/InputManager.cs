@@ -17,16 +17,10 @@ namespace ManagerControl
 //===================================Game Play===========================================
         public event Action<Vector2> OnCameraMoveEvent;
         public event Action<float> OnCameraRotateEvent;
-        public event Action<Vector2> OnCursorPositionEvent;
-
+        
         public event Action OnPauseEvent;
-        public event Action OnClickTowerEvent;
 
         public event Action OnCancelPanelEvent;
-
-        public event Action OnBuildTowerEvent, OnCancelBuildEvent;
-
-        public event Action OnCancelEditEvent;
 
 //=======================================UI===========================================
         public event Action OnResumeEvent;
@@ -73,14 +67,9 @@ namespace ManagerControl
             }
         }
 
-        public void OnCursorPosition(InputAction.CallbackContext context)
-        {
-            OnCursorPositionEvent?.Invoke(context.ReadValue<Vector2>());
-        }
-
         public void OnClick(InputAction.CallbackContext context)
         {
-            if (UiManager.Pointer) return;
+            if (UIManager.Pointer) return;
             if (context.started && (isBuild || isEdit))
             {
                 OnCancelPanelEvent?.Invoke();
@@ -121,7 +110,6 @@ namespace ManagerControl
 
         public void OnNavigate(InputAction.CallbackContext context)
         {
-            
         }
 
         public void OnSubmit(InputAction.CallbackContext context)

@@ -1,6 +1,7 @@
 using System;
 using GameControl;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace WeaponControl
 {
@@ -8,6 +9,7 @@ namespace WeaponControl
     {
         private Rigidbody _rigid;
         public Vector3 dir;
+        public Vector3 lookVec;
         private void Awake()
         {
             _rigid = GetComponent<Rigidbody>();
@@ -16,6 +18,7 @@ namespace WeaponControl
         private void FixedUpdate()
         {
             _rigid.velocity = dir * 7;
+            _rigid.transform.LookAt(lookVec);
         }
 
         private void OnDisable()

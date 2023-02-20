@@ -8,11 +8,8 @@ public class Test : MonoBehaviour
 {
     public GameObject aaa;
 
-    private void FixedUpdate()
+    public class Test1
     {
-        if (!aaa)
-        {
-            print(aaa);
-        }
+        
     }
 }

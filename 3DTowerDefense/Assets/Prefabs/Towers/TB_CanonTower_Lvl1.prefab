@@ -97,9 +97,9 @@ GameObject:
   - component: {fileID: 6155863095182987901}
   - component: {fileID: 1366716070623012466}
   - component: {fileID: -5043054271866721879}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: TB_CanonTower_Lvl1
-  m_TagString: Untagged
+  m_TagString: Tower
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -196,10 +196,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e06d155895ce4590bcd418c6cd3dba5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  towerLevelManager: {fileID: 11400000, guid: 90e784d2230af4510b514d2e99204734, type: 2}
-  cooldown:
-    cooldownTime: 0
-  range: 15
+  towerManager: {fileID: 11400000, guid: 90e784d2230af4510b514d2e99204734, type: 2}
+  range: 0
   enemyLayer:
     serializedVersion: 2
     m_Bits: 256
