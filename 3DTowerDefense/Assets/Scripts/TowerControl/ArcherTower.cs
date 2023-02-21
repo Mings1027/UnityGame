@@ -26,13 +26,13 @@ namespace TowerControl
         protected override void LevelUpEnd()
         {
             base.LevelUpEnd();
-            _archerUnit = StackObjectPool.Get("ArcherUnit", archerPos[TowerLevel].position);
+            _archerUnit = StackObjectPool.Get("ArcherUnit", archerPos[towerLevel].position);
         }
 
         protected override void Attack()
         {
-            var p = StackObjectPool.Get<Projectile>("ArcherArrow", archerPos[TowerLevel].position);
-            p.dir = Target.position - archerPos[TowerLevel].position;
+            var p = StackObjectPool.Get<Projectile>("ArcherArrow", archerPos[towerLevel].position);
+            p.dir = Target.position - archerPos[towerLevel].position;
             p.lookVec = Target.position;
         }
     }

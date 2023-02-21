@@ -24,7 +24,7 @@ namespace TowerControl
         protected override void LevelUpEnd()
         {
             base.LevelUpEnd();
-            _canonMeshFilter.mesh = towerManager.towerLevels[TowerLevel].childMesh;
+            _canonMeshFilter.mesh = towerManager.towerLevels[towerLevel].childMesh;
         }
 
         protected override void Attack()

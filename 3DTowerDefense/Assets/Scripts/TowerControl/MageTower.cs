@@ -22,7 +22,7 @@ namespace TowerControl
         protected override void LevelUpEnd()
         {
             base.LevelUpEnd();
-            _crystalMeshFilter.mesh = towerManager.towerLevels[TowerLevel].childMesh;
+            _crystalMeshFilter.mesh = towerManager.towerLevels[towerLevel].childMesh;
         }
 
         protected override void Attack()
