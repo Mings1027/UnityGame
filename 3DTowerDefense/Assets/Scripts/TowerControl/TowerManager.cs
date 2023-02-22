@@ -1,4 +1,6 @@
 using UnityEngine;
+using UnityEngine.ProBuilder;
+using UnityEngine.Serialization;
 
 namespace TowerControl
 {
@@ -13,10 +15,9 @@ namespace TowerControl
         {
             public float constructionTime;
             public float attackCoolDown;
+            public MeshFilter towerMesh;
+            public MeshFilter consMesh;
             public float attackRange;
-            public Mesh consMesh;
-            public Mesh towerMesh;
-            public Mesh childMesh;
             public string towerName;
             public string towerInfo;
 
@@ -24,4 +25,5 @@ namespace TowerControl
             public void StartCoolDown() => nextFireTime = Time.time + attackCoolDown;
         }
     }
+    
 }

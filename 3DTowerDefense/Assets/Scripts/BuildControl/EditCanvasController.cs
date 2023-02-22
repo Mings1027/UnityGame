@@ -89,18 +89,5 @@ namespace BuildControl
             infoPanel.SetActive(true);
         }
 
-        public void UpgradeOkButton()
-        {
-            if (isUnique)
-            {
-                selectedTower.UniqueUpgrade();
-            }
-            else
-            {
-                selectedTower.Upgrade();
-            }
-
-            CloseEditPanel();
-        }
     }
 }

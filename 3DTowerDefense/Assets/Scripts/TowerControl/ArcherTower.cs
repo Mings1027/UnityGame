@@ -17,17 +17,6 @@ namespace TowerControl
             _archerUnit.SetActive(false);
         }
 
-        protected override void LevelUpStart()
-        {
-            base.LevelUpStart();
-            if (_archerUnit) _archerUnit.SetActive(false);
-        }
-
-        protected override void LevelUpEnd()
-        {
-            base.LevelUpEnd();
-            _archerUnit = StackObjectPool.Get("ArcherUnit", archerPos[towerLevel].position);
-        }
 
         protected override void Attack()
         {

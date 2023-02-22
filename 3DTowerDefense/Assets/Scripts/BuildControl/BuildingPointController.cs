@@ -16,7 +16,19 @@ namespace BuildControl
                 buildingPositions[i] = t;
                 t.index = i;
             }
+
+            for (var i = 0; i < buildingPositions.Length; i++)
+            {
+                buildingPositions[i] = transform.GetChild(i).GetComponent<BuildingPoint>();
+                buildingPositions[i].OnOpenTowerSelectPanelEvent += OpenTowerSelectPanel;
+            }
         }
+
+        private void OpenTowerSelectPanel(BuildingPoint bp,Transform t,Quaternion r)
+        {
+            
+        }
+
 
         public void ActiveBuildingPoint(int index)
         {

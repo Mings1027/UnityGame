@@ -5,11 +5,12 @@ using UnityEngine.EventSystems;
 namespace BuildControl
 {
     [DisallowMultipleComponent]
-    public class BuildingPoint : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+    public class BuildingPoint : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler
     {
         private Outline _outline;
 
         public int index;
+        public event Action<BuildingPoint,Transform,Quaternion> OnOpenTowerSelectPanelEvent;
 
         private void Awake()
         {
@@ -25,6 +26,11 @@ namespace BuildControl
         public void OnPointerExit(PointerEventData eventData)
         {
             _outline.enabled = false;
+        }
+
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            OnOpenTowerSelectPanelEvent?.Invoke(this,transform,transform.rotation);
         }
     }
 }

@@ -45,18 +45,6 @@ namespace BuildControl
                     hit.transform.rotation, _cam.WorldToScreenPoint(position));
             }
 
-//============================================If Tower===========================================================
-
-            if (Physics.Raycast(r, out hit, 1000, towerLayer))
-            {
-                _editCanvasController.selectedTower = hit.transform.GetComponent<Tower>();
-                var s = _editCanvasController.selectedTower;
-                _editCanvasController.isUnique = s.towerLevel >= 2;
-                _editCanvasController.OpenEditPanel(_cam.WorldToScreenPoint(hit.transform.position),
-                    s.towerManager.towerLevels[s.towerLevel + 1].towerInfo,
-                    s.towerManager.towerLevels[s.towerLevel + 1].towerName);
-                print(s.towerLevel);
-            }
         }
     }
 }

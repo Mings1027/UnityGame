@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using DG.Tweening;
 using GameControl;
 using UnityEngine;
+using UnityEngine.ProBuilder;
 
-public class Test : Singleton<Test>
+public class Test :MonoBehaviour
 {
-    public GameObject aaa;
-
+    public ProBuilderMesh proBuilderMesh;
     
 }
