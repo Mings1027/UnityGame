@@ -7,6 +7,11 @@ namespace TowerControl
 {
     public class BarracksTower : Tower
     {
+        protected override void SpawnUnit()
+        {
+            throw new NotImplementedException();
+        }
+
         protected override void Attack()
         {
             

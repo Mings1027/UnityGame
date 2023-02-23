@@ -1,4 +1,6 @@
 using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using GameControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -7,21 +9,33 @@ namespace TowerControl
 {
     public abstract class Tower : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler
     {
+        public enum TowerType
+        {
+            Archer,
+            Barracks,
+            Canon,
+            Mage
+        }
+
+        private CancellationTokenSource _cts;
         private Outline _outline;
 
         private bool _isBuilt;
         private bool _isTargeting;
         private bool _isUpgrading;
+        private bool _isCoolingDown;
 
-        public int towerLevel;
-        public int towerNum;
-        public event Action<Tower> OnGetTowerInfoEvent;
+        public TowerType towerType;
         public MeshFilter meshFilter;
-        public Cooldown cooldown;
+        public float atkDelay;
+        public int towerLevel;
+        public float atkRange;
+
+        public event Action<Tower> OnGetTowerInfoEvent;
+        public event Action<Vector3> OnOpenTowerEditPanelEvent;
 
         protected Transform Target;
 
-        public float atkRange;
         [SerializeField] private LayerMask enemyLayer;
         [SerializeField] private Collider[] targets;
 
@@ -33,9 +47,15 @@ namespace TowerControl
         }
 
         //==================================Event function=====================================================
+        private void OnEnable()
+        {
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
+        }
 
         protected virtual void OnDisable()
         {
+            _cts.Cancel();
             _isBuilt = false;
             CancelInvoke();
             StackObjectPool.ReturnToPool(gameObject);
@@ -46,9 +66,11 @@ namespace TowerControl
         private void FixedUpdate()
         {
             if (!_isBuilt || !_isTargeting || _isUpgrading) return;
-            if (cooldown.IsCoolingDown) return;
+            if (_isCoolingDown) return;
+            _isCoolingDown = true;
+            UpdateTarget();
             Attack();
-            cooldown.StartCoolDown();
+            StartCoolDown().Forget();
         }
 
         public void OnPointerEnter(PointerEventData eventData)
@@ -64,6 +86,13 @@ namespace TowerControl
         public void OnPointerDown(PointerEventData eventData)
         {
             OnGetTowerInfoEvent?.Invoke(this);
+            OnOpenTowerEditPanelEvent?.Invoke(transform.position);
+        }
+
+        private void OnDestroy()
+        {
+            OnGetTowerInfoEvent = null;
+            OnOpenTowerEditPanelEvent = null;
         }
 
         private void OnDrawGizmos()
@@ -78,9 +107,21 @@ namespace TowerControl
         {
             _isBuilt = true;
             _isUpgrading = false;
-            InvokeRepeating(nameof(UpdateTarget), 0f, 0.5f);
+            SpawnUnit();
+            if (towerLevel >= 3)
+            {
+                OnGetTowerInfoEvent = null;
+                OnOpenTowerEditPanelEvent = null;
+            }
         }
 
+        private async UniTaskVoid StartCoolDown()
+        {
+            await UniTask.Delay(TimeSpan.FromSeconds(atkDelay));
+            _isCoolingDown = false;
+        }
+
+        protected abstract void SpawnUnit();
         protected abstract void Attack();
 
         private void UpdateTarget()

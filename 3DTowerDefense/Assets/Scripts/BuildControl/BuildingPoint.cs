@@ -9,8 +9,7 @@ namespace BuildControl
     {
         private Outline _outline;
 
-        public int index;
-        public event Action<BuildingPoint,Transform,Quaternion> OnOpenTowerSelectPanelEvent;
+        public event Action<GameObject,Transform,Quaternion> OnOpenTowerSelectPanelEvent;
 
         private void Awake()
         {
@@ -30,7 +29,12 @@ namespace BuildControl
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            OnOpenTowerSelectPanelEvent?.Invoke(this,transform,transform.rotation);
+            OnOpenTowerSelectPanelEvent?.Invoke(gameObject,transform,transform.rotation);
+        }
+
+        private void OnDestroy()
+        {
+            OnOpenTowerSelectPanelEvent = null;
         }
     }
 }

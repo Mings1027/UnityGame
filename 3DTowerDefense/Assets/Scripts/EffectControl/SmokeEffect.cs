@@ -1,11 +1,10 @@
 using GameControl;
 using UnityEngine;
 
-namespace UnitControl
+namespace EffectControl
 {
-    public class Unit : MonoBehaviour
+    public class SmokeEffect : MonoBehaviour
     {
-        
         private void OnDisable()
         {
             StackObjectPool.ReturnToPool(gameObject);

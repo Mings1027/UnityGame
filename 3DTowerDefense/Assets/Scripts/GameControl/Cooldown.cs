@@ -5,7 +5,7 @@ namespace GameControl
     [System.Serializable]
     public class Cooldown
     {
-        public float cooldownTime;
+        [SerializeField] private float cooldownTime;
         private float _nextFireTime;
 
         public bool IsCoolingDown => Time.time < _nextFireTime;
