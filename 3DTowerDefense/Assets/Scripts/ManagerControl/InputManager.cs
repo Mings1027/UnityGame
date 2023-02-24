@@ -17,10 +17,7 @@ namespace ManagerControl
 //===================================Game Play===========================================
         public event Action<Vector2> OnCameraMoveEvent;
         public event Action<float> OnCameraRotateEvent;
-        public event Action<Vector2> OnCursorPositionEvent;
-        public event Action OnClickEvent;
-
-        public event Action OnPauseEvent;
+        public event Action OnPauseEvent; //OnClickEvent, 
 
         public event Action OnCancelPanelEvent;
 
@@ -69,7 +66,7 @@ namespace ManagerControl
             }
         }
 
-        public void OnClick(InputAction.CallbackContext context)
+        public void OnGamePlayClick(InputAction.CallbackContext context)
         {
             if (UIManager.Pointer) return;
             if (context.started)
@@ -78,16 +75,11 @@ namespace ManagerControl
                 {
                     OnCancelPanelEvent?.Invoke();
                 }
-                else
-                {
-                    OnClickEvent?.Invoke();
-                }
+                // else
+                // {
+                //     OnClickEvent?.Invoke();
+                // }
             }
-        }
-
-        public void OnCursorPosition(InputAction.CallbackContext context)
-        {
-            OnCursorPositionEvent?.Invoke(context.ReadValue<Vector2>());
         }
 
         public void OnPause(InputAction.CallbackContext context)
@@ -141,6 +133,12 @@ namespace ManagerControl
         {
             throw new NotImplementedException();
         }
+
+        public void OnUIClick(InputAction.CallbackContext context)
+        {
+            throw new NotImplementedException();
+        }
+
 
         public void OnScrollWheel(InputAction.CallbackContext context)
         {

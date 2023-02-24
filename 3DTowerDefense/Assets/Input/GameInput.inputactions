@@ -24,7 +24,7 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Click",
+                    "name": "GamePlayClick",
                     "type": "Button",
                     "id": "8c2c2d58-f6f7-497d-b021-ab8129ee3307",
                     "expectedControlType": "Button",
@@ -40,15 +40,6 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
-                },
-                {
-                    "name": "CursorPosition",
-                    "type": "Value",
-                    "id": "94e636ad-755b-449d-8108-a4233ff5db3e",
-                    "expectedControlType": "Vector2",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -158,18 +149,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Click",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "a276ed39-2796-4c95-8d2d-30a9bcf738ef",
-                    "path": "<Mouse>/position",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "CursorPosition",
+                    "action": "GamePlayClick",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
@@ -225,7 +205,7 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Click",
+                    "name": "UIClick",
                     "type": "PassThrough",
                     "id": "22490d37-281f-4351-b356-60096b2efc4e",
                     "expectedControlType": "Button",
@@ -606,7 +586,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Click",
+                    "action": "UIClick",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -617,7 +597,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Click",
+                    "action": "UIClick",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -628,7 +608,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Click",
+                    "action": "UIClick",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -639,7 +619,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Click",
+                    "action": "UIClick",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

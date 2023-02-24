@@ -5,6 +5,8 @@ using TowerControl;
 using TowerControl.TowerControlFolder;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 namespace ManagerControl
 {
@@ -15,6 +17,9 @@ namespace ManagerControl
         private Tower _tempTower;
         private int _towerIndex;
         private GameObject _buildingPoint;
+        private EventSystem _eventSystem;
+        private bool _isUniqueUpgrade;
+        private bool _isTower;
 
         public static bool Pointer { get; private set; }
 
@@ -22,18 +27,22 @@ namespace ManagerControl
         [SerializeField] private TowerLeveling towerLeveling;
 
         [SerializeField] private InputManager input;
-        [SerializeField] private TowerLevelManager[] towerManagers;
+
+        [SerializeField] private TowerLevelManager[] towerLevelManagers;
 
         [SerializeField] private GameObject towerSelectPanel;
-        [SerializeField] private GameObject[] towerButtons;
-        [SerializeField] private GameObject towerBuildButton;
         [SerializeField] private GameObject towerEditPanel;
         [SerializeField] private GameObject towerInfoPanel;
+
+        [SerializeField] private Button[] towerButtons;
+        [SerializeField] private string[] towerNames;
+
         [SerializeField] private GameObject upgradeButton;
-        [SerializeField] private GameObject aUpgradeButton, bUpgradeButton;
-        [SerializeField] private GameObject upgradeOkButton;
+        [SerializeField] private GameObject uniqueUpgradeButtons;
+
+        [SerializeField] private GameObject okButton;
+
         [SerializeField] private GameObject sellButton;
-        [SerializeField] private string[] towersName;
 
         [Header("Tower Info")] [Space(10)] [SerializeField]
         private TextMeshProUGUI headerField;
@@ -43,16 +52,17 @@ namespace ManagerControl
         private void Awake()
         {
             _cam = Camera.main;
+            _eventSystem = EventSystem.current;
 
             input.OnCancelPanelEvent += CloseTowerSelectPanel;
             input.OnCancelPanelEvent += CloseTowerEditPanel;
 
-            towerButtons = new GameObject[towerSelectPanel.transform.childCount];
-            towersName = new string[towerButtons.Length];
+            towerButtons = new Button[towerSelectPanel.transform.childCount];
+            towerNames = new string[towerButtons.Length];
             for (var i = 0; i < towerButtons.Length; i++)
             {
-                towerButtons[i] = towerSelectPanel.transform.GetChild(i).gameObject;
-                towersName[i] = towerButtons[i].name.Replace("Button", "");
+                towerButtons[i] = towerSelectPanel.transform.GetChild(i).GetComponent<Button>();
+                towerNames[i] = towerButtons[i].name.Replace("Button", "");
             }
         }
 
@@ -61,10 +71,10 @@ namespace ManagerControl
             input.isBuild = false;
             input.isEdit = false;
             towerSelectPanel.SetActive(false);
-            towerBuildButton.SetActive(false);
+            okButton.SetActive(false);
             towerEditPanel.SetActive(false);
             towerInfoPanel.SetActive(false);
-            upgradeOkButton.SetActive(false);
+            okButton.SetActive(false);
         }
 
         public void OnPointerEnter(PointerEventData eventData)
@@ -79,118 +89,133 @@ namespace ManagerControl
             print("Off");
         }
 
-        public void OpenTowerSelectPanel(GameObject bp)
+        public void OpenTowerSelectPanel(GameObject buildPoint)
         {
             if (towerSelectPanel.activeSelf) return;
             input.isBuild = true;
-            _buildingPoint = bp;
-            towerSelectPanel.transform.position = _cam.WorldToScreenPoint(bp.transform.position);
+            _buildingPoint = buildPoint;
+            towerSelectPanel.transform.position = _cam.WorldToScreenPoint(buildPoint.transform.position);
             towerSelectPanel.SetActive(true);
+        }
+
+        public void TowerSelectButton(int index)
+        {
+            okButton.transform.position = _eventSystem.currentSelectedGameObject.transform.position;
+            okButton.SetActive(true);
+
+            if (_tempTower) _tempTower.gameObject.SetActive(false);
+            _tempTower = towerManager.SpawnTower(towerNames[index]);
+
+            var tempTowerLevel = towerLevelManagers[index].towerLevels[0];
+            TowerInfoSetText(tempTowerLevel.towerInfo, tempTowerLevel.towerName);
+            towerInfoPanel.SetActive(true);
+            _towerIndex = index;
+        }
+
+        public void UpgradeButton()
+        {
+            var towerLevel = towerLevelManagers[(int)_selectedTower.Type].towerLevels[_selectedTower.towerLevel + 1];
+            ActiveOkButton(towerLevel.towerInfo, towerLevel.towerName);
+        }
+
+        public void UniqueUpgradeButton(int index)
+        {
+            towerLeveling.typeA = index == 1;
+            var towerLevel = towerLevelManagers[(int)_selectedTower.Type].towerLevels[index == 1 ? 3 : 4];
+            ActiveOkButton(towerLevel.towerInfo, towerLevel.towerName);
+        }
+
+        public void OkButton()
+        {
+            if (_isTower)
+            {
+                towerLeveling.TowerUpgrade(_selectedTower, towerLevelManagers[(int)_selectedTower.Type]);
+            }
+            else
+            {
+                TowerBuild();
+            }
+
+            CloseTowerEditPanel();
+        }
+
+        public void SellButton()
+        {
+            _selectedTower.gameObject.SetActive(false);
         }
 
         private void CloseTowerSelectPanel()
         {
             input.isBuild = false;
             towerSelectPanel.SetActive(false);
-            towerBuildButton.SetActive(false);
+            okButton.SetActive(false);
             if (!_tempTower) return;
             _tempTower.gameObject.SetActive(false);
             _tempTower = null;
         }
 
-        public void TowerSelectButton(int index)
-        {
-            if (_tempTower) _tempTower.gameObject.SetActive(false);
-            _tempTower = towerManager.ShowTempTower(towersName[index]);
-            towerBuildButton.transform.position = towerButtons[index].transform.position;
-            towerBuildButton.SetActive(true);
-
-            var tempTowerLevel = towerManagers[index].towerLevels[0];
-            TowerInfoSetText(tempTowerLevel.towerInfo, tempTowerLevel.towerName);
-            towerInfoPanel.SetActive(true);
-            _towerIndex = index;
-        }
-
-        public void TowerBuildButton()
+        private void TowerBuild()
         {
             input.isBuild = false;
             towerSelectPanel.SetActive(false);
-            towerBuildButton.SetActive(false);
+            okButton.SetActive(false);
             _selectedTower = _tempTower;
             _tempTower = null;
             _selectedTower.gameObject.SetActive(false);
-            _selectedTower = towerManager.BuildTower(towersName[_towerIndex]);
+            _selectedTower = towerManager.SpawnTower(towerNames[_towerIndex]);
             _selectedTower.OnGetTowerInfoEvent += GetTowerInfo;
             _selectedTower.OnOpenTowerEditPanelEvent += OpenTowerEditPanel;
 
             _buildingPoint.SetActive(false);
             towerInfoPanel.SetActive(false);
-            towerLeveling.TowerUpgrade(_selectedTower, towerManagers).Forget();
+            towerLeveling.TowerUpgrade(_selectedTower, towerLevelManagers[(int)_selectedTower.Type]);
         }
 
         private void GetTowerInfo(Tower t)
         {
+            _isTower = true;
             _selectedTower = t;
-            if (t.towerLevel >= towerManagers.Length - 1)
+            switch (t.towerLevel)
             {
-                sellButton.SetActive(true);
-                aUpgradeButton.SetActive(false);
-                bUpgradeButton.SetActive(false);
-                upgradeButton.SetActive(false);
-                return;
+                case >= 3:
+                    upgradeButton.SetActive(false);
+                    uniqueUpgradeButtons.SetActive(false);
+                    break;
+                case 2:
+                    upgradeButton.SetActive(false);
+                    uniqueUpgradeButtons.SetActive(true);
+                    break;
+                default:
+                    upgradeButton.SetActive(true);
+                    uniqueUpgradeButtons.SetActive(false);
+                    break;
             }
-
-            towerLeveling.isUnique = t.towerLevel >= 2;
-            var towerState = towerManagers[(int)t.towerType].towerLevels[t.towerLevel + 1];
-            TowerInfoSetText(towerState.towerInfo, towerState.towerName);
         }
 
         private void OpenTowerEditPanel(Vector3 pos)
         {
+            if (_selectedTower.isUpgrading) return;
             if (towerEditPanel.activeSelf) return;
             input.isEdit = true;
             towerEditPanel.transform.position = _cam.WorldToScreenPoint(pos);
             towerEditPanel.SetActive(true);
-
-            aUpgradeButton.SetActive(towerLeveling.isUnique);
-            bUpgradeButton.SetActive(towerLeveling.isUnique);
-            upgradeButton.SetActive(!towerLeveling.isUnique);
         }
 
         private void CloseTowerEditPanel()
         {
+            _isTower = false;
             input.isEdit = false;
             towerEditPanel.SetActive(false);
             towerInfoPanel.SetActive(false);
-            upgradeOkButton.SetActive(false);
+            okButton.SetActive(false);
         }
 
-        public void UpgradeButton()
+        private void ActiveOkButton(string info, string towerName)
         {
-            upgradeOkButton.transform.position = upgradeButton.transform.position;
-            upgradeOkButton.SetActive(true);
+            okButton.transform.position = _eventSystem.currentSelectedGameObject.transform.position;
+            okButton.SetActive(true);
+            TowerInfoSetText(info, towerName);
             towerInfoPanel.SetActive(true);
-        }
-
-        public void UniqueUpgradeButton(int index)
-        {
-            upgradeOkButton.transform.position =
-                index == 1 ? aUpgradeButton.transform.position : bUpgradeButton.transform.position;
-            upgradeOkButton.SetActive(true);
-            var towerLv = index == 1 ? _selectedTower.towerLevel + 1 : _selectedTower.towerLevel + 2;
-            towerLeveling.typeA = index == 1;
-            var towerState = towerManagers[(int)_selectedTower.towerType].towerLevels[towerLv];
-            TowerInfoSetText(towerState.towerInfo, towerState.towerName);
-
-            towerInfoPanel.SetActive(true);
-        }
-
-        public void UpgradeOkButton()
-        {
-            if (towerLeveling.isUpgrade) return;
-            towerLeveling.TowerUpgrade(_selectedTower, towerManagers).Forget();
-
-            CloseTowerEditPanel();
         }
 
         private void TowerInfoSetText(string content, string header = "")

@@ -1,7 +1,5 @@
-using System;
 using GameControl;
 using UnityEngine;
-using WeaponControl;
 
 namespace TowerControl
 {
@@ -14,7 +12,13 @@ namespace TowerControl
 
         protected override void SpawnUnit()
         {
-            if(_archerUnit1)_archerUnit1.SetActive(false);
+            if (towerLevel == 4)
+            {
+                if (_archerUnit2) _archerUnit2.SetActive(false);
+                _archerUnit2 = StackObjectPool.Get("ArcherUnit", archerPos[towerLevel + 1].position);
+            }
+
+            if (_archerUnit1) _archerUnit1.SetActive(false);
             _archerUnit1 = StackObjectPool.Get("ArcherUnit", archerPos[towerLevel].position);
         }
 
@@ -29,7 +33,6 @@ namespace TowerControl
 
         protected override void Attack()
         {
-            
         }
     }
 }

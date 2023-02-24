@@ -9,6 +9,22 @@ namespace TowerControl
 {
     public abstract class Tower : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler
     {
+        private enum TowerState
+        {
+            FirstLevel,
+            MiddleLevel,
+            MaxLevel
+        }
+
+        private CancellationTokenSource _cts;
+        private Outline _outline;
+
+        private bool _isBuilt;
+        private bool _isTargeting;
+        private bool _isCoolingDown;
+
+        private TowerState _state;
+
         public enum TowerType
         {
             Archer,
@@ -17,25 +33,19 @@ namespace TowerControl
             Mage
         }
 
-        private CancellationTokenSource _cts;
-        private Outline _outline;
-
-        private bool _isBuilt;
-        private bool _isTargeting;
-        private bool _isUpgrading;
-        private bool _isCoolingDown;
-
-        public TowerType towerType;
+        public TowerType Type => towerType;
         public MeshFilter meshFilter;
         public float atkDelay;
         public int towerLevel;
         public float atkRange;
+        public bool isUpgrading;
 
         public event Action<Tower> OnGetTowerInfoEvent;
         public event Action<Vector3> OnOpenTowerEditPanelEvent;
 
-        protected Transform Target;
+        protected Transform target;
 
+        [SerializeField] private TowerType towerType;
         [SerializeField] private LayerMask enemyLayer;
         [SerializeField] private Collider[] targets;
 
@@ -65,7 +75,7 @@ namespace TowerControl
 
         private void FixedUpdate()
         {
-            if (!_isBuilt || !_isTargeting || _isUpgrading) return;
+            if (!_isBuilt || !_isTargeting || isUpgrading) return;
             if (_isCoolingDown) return;
             _isCoolingDown = true;
             UpdateTarget();
@@ -85,6 +95,13 @@ namespace TowerControl
 
         public void OnPointerDown(PointerEventData eventData)
         {
+            _state = towerLevel switch
+            {
+                < 2 => TowerState.FirstLevel,
+                2 => TowerState.MiddleLevel,
+                _ => TowerState.MaxLevel
+            };
+
             OnGetTowerInfoEvent?.Invoke(this);
             OnOpenTowerEditPanelEvent?.Invoke(transform.position);
         }
@@ -106,13 +123,7 @@ namespace TowerControl
         public void Init()
         {
             _isBuilt = true;
-            _isUpgrading = false;
             SpawnUnit();
-            if (towerLevel >= 3)
-            {
-                OnGetTowerInfoEvent = null;
-                OnOpenTowerEditPanelEvent = null;
-            }
         }
 
         private async UniTaskVoid StartCoolDown()
@@ -141,12 +152,12 @@ namespace TowerControl
 
             if (nearestEnemy != null && shortestDistance <= atkRange)
             {
-                Target = nearestEnemy;
+                target = nearestEnemy;
                 _isTargeting = true;
             }
             else
             {
-                Target = null;
+                target = null;
                 _isTargeting = false;
             }
         }

@@ -7,8 +7,6 @@ namespace TowerControl.TowerControlFolder
 {
     public class TowerManager : MonoBehaviour
     {
-        private UIManager _uiManager;
-
         private Vector3 _buildPosition;
         private Quaternion _buildRotation;
 
@@ -18,7 +16,6 @@ namespace TowerControl.TowerControlFolder
 
         private void Awake()
         {
-            _uiManager = UIManager.Instance;
             buildingPoints = new BuildingPoint[buildingPoint.childCount];
             for (var i = 0; i < buildingPoints.Length; i++)
             {
@@ -27,19 +24,14 @@ namespace TowerControl.TowerControlFolder
             }
         }
 
-        private void OpenTowerSelectPanel(GameObject bp, Transform t, Quaternion r)
+        private void OpenTowerSelectPanel(GameObject buildPoint, Transform t, Quaternion r)
         {
             _buildPosition = t.position;
             _buildRotation = r;
-            _uiManager.OpenTowerSelectPanel(bp);
+            UIManager.Instance.OpenTowerSelectPanel(buildPoint);
         }
 
-        public Tower ShowTempTower(string n)
-        {
-            return StackObjectPool.Get<Tower>(n, _buildPosition, _buildRotation);
-        }
-
-        public Tower BuildTower(string n)
+        public Tower SpawnTower(string n)
         {
             return StackObjectPool.Get<Tower>(n, _buildPosition, _buildRotation);
         }

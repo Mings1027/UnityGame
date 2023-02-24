@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameControl;
@@ -10,9 +11,7 @@ namespace TowerControl.TowerControlFolder
     {
         private CancellationTokenSource _cts;
 
-        public bool isUnique;
         public bool typeA;
-        public bool isUpgrade;
 
         private void Awake()
         {
@@ -25,19 +24,21 @@ namespace TowerControl.TowerControlFolder
             _cts.Cancel();
         }
 
-        public async UniTask TowerUpgrade(Tower selectedTower, TowerLevelManager[] towerLevelManager)
+        public void TowerUpgrade(Tower selectedTower, TowerLevelManager towerLevelManager)
         {
-            isUpgrade = true;
-            selectedTower.towerLevel++;
-            var index = 0;
-            if (isUnique)
-            {
-                index = typeA ? 3 : 4;
-            }
+            Upgrade(selectedTower, towerLevelManager).Forget();
+        }
 
-            StackObjectPool.Get("BuildSmoke", selectedTower.transform.position + new Vector3(0, 6, 0));
-            var towerIndexLevel = towerLevelManager[(int)selectedTower.towerType]
-                .towerLevels[isUnique ? index : selectedTower.towerLevel];
+        private async UniTaskVoid Upgrade(Tower selectedTower, TowerLevelManager towerLevelManager)
+        {
+            if (selectedTower.towerLevel < 2) selectedTower.towerLevel++;
+            else
+            {
+                selectedTower.towerLevel = typeA ? 3 : 4;
+            }
+            selectedTower.isUpgrading = true;
+            StackObjectPool.Get("BuildSmoke", selectedTower.transform.position + new Vector3(0, 7, 0));
+            var towerIndexLevel = towerLevelManager.towerLevels[selectedTower.towerLevel];
 
             selectedTower.meshFilter.sharedMesh = towerIndexLevel.consMesh.sharedMesh;
 
@@ -47,8 +48,7 @@ namespace TowerControl.TowerControlFolder
 
             selectedTower.atkRange = towerIndexLevel.attackRange;
             selectedTower.atkDelay = towerIndexLevel.attackDelay;
-            isUpgrade = false;
-            isUnique = false;
+            selectedTower.isUpgrading = false;
             typeA = false;
             selectedTower.Init();
         }
