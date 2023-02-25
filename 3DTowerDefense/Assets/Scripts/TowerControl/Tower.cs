@@ -16,7 +16,7 @@ namespace TowerControl
             MaxLevel
         }
 
-        private CancellationTokenSource _cts;
+        protected CancellationTokenSource Cts;
         private Outline _outline;
 
         private bool _isBuilt;
@@ -40,8 +40,7 @@ namespace TowerControl
         public float atkRange;
         public bool isUpgrading;
 
-        public event Action<Tower> OnGetTowerInfoEvent;
-        public event Action<Vector3> OnOpenTowerEditPanelEvent;
+        public event Action<Tower, Vector3> OnOpenTowerEditPanelEvent;
 
         protected Transform target;
 
@@ -59,18 +58,19 @@ namespace TowerControl
         //==================================Event function=====================================================
         private void OnEnable()
         {
-            _cts?.Dispose();
-            _cts = new CancellationTokenSource();
+            Cts?.Dispose();
+            Cts = new CancellationTokenSource();
+            InvokeRepeating(nameof(UpdateTarget), 0f, 0.5f);
         }
 
         protected virtual void OnDisable()
         {
-            _cts.Cancel();
             _isBuilt = false;
+            towerLevel = -1;
+            OnOpenTowerEditPanelEvent = null;
+            Cts.Cancel();
             CancelInvoke();
             StackObjectPool.ReturnToPool(gameObject);
-            towerLevel = -1;
-            OnGetTowerInfoEvent = null;
         }
 
         private void FixedUpdate()
@@ -78,7 +78,6 @@ namespace TowerControl
             if (!_isBuilt || !_isTargeting || isUpgrading) return;
             if (_isCoolingDown) return;
             _isCoolingDown = true;
-            UpdateTarget();
             Attack();
             StartCoolDown().Forget();
         }
@@ -102,16 +101,9 @@ namespace TowerControl
                 _ => TowerState.MaxLevel
             };
 
-            OnGetTowerInfoEvent?.Invoke(this);
-            OnOpenTowerEditPanelEvent?.Invoke(transform.position);
+            OnOpenTowerEditPanelEvent?.Invoke(this, transform.position);
         }
-
-        private void OnDestroy()
-        {
-            OnGetTowerInfoEvent = null;
-            OnOpenTowerEditPanelEvent = null;
-        }
-
+        
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.red;
@@ -120,10 +112,10 @@ namespace TowerControl
 
         //==================================Event function=====================================================
         //==================================Custom function====================================================
-        public void Init()
+        public virtual void Init()
         {
+            _outline.enabled = false;
             _isBuilt = true;
-            SpawnUnit();
         }
 
         private async UniTaskVoid StartCoolDown()
@@ -132,8 +124,10 @@ namespace TowerControl
             _isCoolingDown = false;
         }
 
-        protected abstract void SpawnUnit();
-        protected abstract void Attack();
+        protected virtual void Attack()
+        {
+            
+        }
 
         private void UpdateTarget()
         {

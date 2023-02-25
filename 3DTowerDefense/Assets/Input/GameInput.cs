@@ -48,15 +48,6 @@ namespace TowerDefenseInput
                     ""initialStateCheck"": true
                 },
                 {
-                    ""name"": ""GamePlayClick"",
-                    ""type"": ""Button"",
-                    ""id"": ""8c2c2d58-f6f7-497d-b021-ab8129ee3307"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
                     ""name"": ""Pause"",
                     ""type"": ""Button"",
                     ""id"": ""9bdbdafb-f876-422a-a990-140594028adf"",
@@ -163,17 +154,6 @@ namespace TowerDefenseInput
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Pause"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""f1508c37-2e94-4a00-9807-3fd59a844f0e"",
-                    ""path"": ""<Mouse>/leftButton"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""GamePlayClick"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -722,7 +702,6 @@ namespace TowerDefenseInput
             m_GamePlay = asset.FindActionMap("GamePlay", throwIfNotFound: true);
             m_GamePlay_CameraMove = m_GamePlay.FindAction("CameraMove", throwIfNotFound: true);
             m_GamePlay_CameraRotate = m_GamePlay.FindAction("CameraRotate", throwIfNotFound: true);
-            m_GamePlay_GamePlayClick = m_GamePlay.FindAction("GamePlayClick", throwIfNotFound: true);
             m_GamePlay_Pause = m_GamePlay.FindAction("Pause", throwIfNotFound: true);
             // UI
             m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
@@ -798,7 +777,6 @@ namespace TowerDefenseInput
         private IGamePlayActions m_GamePlayActionsCallbackInterface;
         private readonly InputAction m_GamePlay_CameraMove;
         private readonly InputAction m_GamePlay_CameraRotate;
-        private readonly InputAction m_GamePlay_GamePlayClick;
         private readonly InputAction m_GamePlay_Pause;
         public struct GamePlayActions
         {
@@ -806,7 +784,6 @@ namespace TowerDefenseInput
             public GamePlayActions(@GameInput wrapper) { m_Wrapper = wrapper; }
             public InputAction @CameraMove => m_Wrapper.m_GamePlay_CameraMove;
             public InputAction @CameraRotate => m_Wrapper.m_GamePlay_CameraRotate;
-            public InputAction @GamePlayClick => m_Wrapper.m_GamePlay_GamePlayClick;
             public InputAction @Pause => m_Wrapper.m_GamePlay_Pause;
             public InputActionMap Get() { return m_Wrapper.m_GamePlay; }
             public void Enable() { Get().Enable(); }
@@ -823,9 +800,6 @@ namespace TowerDefenseInput
                     @CameraRotate.started -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnCameraRotate;
                     @CameraRotate.performed -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnCameraRotate;
                     @CameraRotate.canceled -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnCameraRotate;
-                    @GamePlayClick.started -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnGamePlayClick;
-                    @GamePlayClick.performed -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnGamePlayClick;
-                    @GamePlayClick.canceled -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnGamePlayClick;
                     @Pause.started -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnPause;
                     @Pause.performed -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnPause;
                     @Pause.canceled -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnPause;
@@ -839,9 +813,6 @@ namespace TowerDefenseInput
                     @CameraRotate.started += instance.OnCameraRotate;
                     @CameraRotate.performed += instance.OnCameraRotate;
                     @CameraRotate.canceled += instance.OnCameraRotate;
-                    @GamePlayClick.started += instance.OnGamePlayClick;
-                    @GamePlayClick.performed += instance.OnGamePlayClick;
-                    @GamePlayClick.canceled += instance.OnGamePlayClick;
                     @Pause.started += instance.OnPause;
                     @Pause.performed += instance.OnPause;
                     @Pause.canceled += instance.OnPause;
@@ -966,7 +937,6 @@ namespace TowerDefenseInput
         {
             void OnCameraMove(InputAction.CallbackContext context);
             void OnCameraRotate(InputAction.CallbackContext context);
-            void OnGamePlayClick(InputAction.CallbackContext context);
             void OnPause(InputAction.CallbackContext context);
         }
         public interface IUIActions

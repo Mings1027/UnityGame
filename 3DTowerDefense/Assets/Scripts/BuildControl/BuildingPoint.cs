@@ -1,4 +1,5 @@
 using System;
+using GameControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -9,12 +10,17 @@ namespace BuildControl
     {
         private Outline _outline;
 
-        public event Action<GameObject,Transform,Quaternion> OnOpenTowerSelectPanelEvent;
+        public event Action<GameObject, Transform, Quaternion> OnOpenTowerSelectPanelEvent;
 
         private void Awake()
         {
             _outline = GetComponent<Outline>();
             _outline.enabled = false;
+        }
+
+        private void OnDisable()
+        {
+            StackObjectPool.ReturnToPool(gameObject);
         }
 
         public void OnPointerEnter(PointerEventData eventData)
@@ -29,7 +35,7 @@ namespace BuildControl
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            OnOpenTowerSelectPanelEvent?.Invoke(gameObject,transform,transform.rotation);
+            OnOpenTowerSelectPanelEvent?.Invoke(gameObject, transform, transform.rotation);
         }
 
         private void OnDestroy()

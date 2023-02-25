@@ -1,11 +1,9 @@
-using Cysharp.Threading.Tasks;
 using GameControl;
 using TMPro;
 using TowerControl;
 using TowerControl.TowerControlFolder;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace ManagerControl
@@ -18,6 +16,7 @@ namespace ManagerControl
         private int _towerIndex;
         private GameObject _buildingPoint;
         private EventSystem _eventSystem;
+        private bool _isPause;
         private bool _isUniqueUpgrade;
         private bool _isTower;
 
@@ -30,10 +29,11 @@ namespace ManagerControl
 
         [SerializeField] private TowerLevelManager[] towerLevelManagers;
 
+        [SerializeField] private GameObject menuPanel;
+        [SerializeField] private GameObject closePanelButton;
         [SerializeField] private GameObject towerSelectPanel;
         [SerializeField] private GameObject towerEditPanel;
         [SerializeField] private GameObject towerInfoPanel;
-
         [SerializeField] private Button[] towerButtons;
         [SerializeField] private string[] towerNames;
 
@@ -54,9 +54,6 @@ namespace ManagerControl
             _cam = Camera.main;
             _eventSystem = EventSystem.current;
 
-            input.OnCancelPanelEvent += CloseTowerSelectPanel;
-            input.OnCancelPanelEvent += CloseTowerEditPanel;
-
             towerButtons = new Button[towerSelectPanel.transform.childCount];
             towerNames = new string[towerButtons.Length];
             for (var i = 0; i < towerButtons.Length; i++)
@@ -68,8 +65,12 @@ namespace ManagerControl
 
         private void Start()
         {
+            input.OnPauseEvent += Pause;
+            input.OnResumeEvent += Resume;
             input.isBuild = false;
             input.isEdit = false;
+            menuPanel.SetActive(false);
+            closePanelButton.SetActive(false);
             towerSelectPanel.SetActive(false);
             okButton.SetActive(false);
             towerEditPanel.SetActive(false);
@@ -89,6 +90,21 @@ namespace ManagerControl
             print("Off");
         }
 
+
+        private void Pause()
+        {
+            _isPause = true;
+            menuPanel.SetActive(true);
+            Time.timeScale = 0;
+        }
+
+        private void Resume()
+        {
+            _isPause = false;
+            menuPanel.SetActive(false);
+            Time.timeScale = 1;
+        }
+
         public void OpenTowerSelectPanel(GameObject buildPoint)
         {
             if (towerSelectPanel.activeSelf) return;
@@ -96,6 +112,7 @@ namespace ManagerControl
             _buildingPoint = buildPoint;
             towerSelectPanel.transform.position = _cam.WorldToScreenPoint(buildPoint.transform.position);
             towerSelectPanel.SetActive(true);
+            closePanelButton.SetActive(true);
         }
 
         public void TowerSelectButton(int index)
@@ -104,7 +121,7 @@ namespace ManagerControl
             okButton.SetActive(true);
 
             if (_tempTower) _tempTower.gameObject.SetActive(false);
-            _tempTower = towerManager.SpawnTower(towerNames[index]);
+            _tempTower = towerManager.BuildTower(towerNames[index]);
 
             var tempTowerLevel = towerLevelManagers[index].towerLevels[0];
             TowerInfoSetText(tempTowerLevel.towerInfo, tempTowerLevel.towerName);
@@ -142,12 +159,16 @@ namespace ManagerControl
         public void SellButton()
         {
             _selectedTower.gameObject.SetActive(false);
+            var towerTransform = _selectedTower.transform;
+            StackObjectPool.Get("BuildingPoint", towerTransform.position, towerTransform.rotation);
+            CloseTowerEditPanel();
         }
 
-        private void CloseTowerSelectPanel()
+        public void CloseTowerSelectPanel()
         {
             input.isBuild = false;
             towerSelectPanel.SetActive(false);
+            closePanelButton.SetActive(false);
             okButton.SetActive(false);
             if (!_tempTower) return;
             _tempTower.gameObject.SetActive(false);
@@ -162,8 +183,7 @@ namespace ManagerControl
             _selectedTower = _tempTower;
             _tempTower = null;
             _selectedTower.gameObject.SetActive(false);
-            _selectedTower = towerManager.SpawnTower(towerNames[_towerIndex]);
-            _selectedTower.OnGetTowerInfoEvent += GetTowerInfo;
+            _selectedTower = towerManager.BuildTower(towerNames[_towerIndex]);
             _selectedTower.OnOpenTowerEditPanelEvent += OpenTowerEditPanel;
 
             _buildingPoint.SetActive(false);
@@ -171,7 +191,7 @@ namespace ManagerControl
             towerLeveling.TowerUpgrade(_selectedTower, towerLevelManagers[(int)_selectedTower.Type]);
         }
 
-        private void GetTowerInfo(Tower t)
+        private void OpenTowerEditPanel(Tower t, Vector3 pos)
         {
             _isTower = true;
             _selectedTower = t;
@@ -190,10 +210,7 @@ namespace ManagerControl
                     uniqueUpgradeButtons.SetActive(false);
                     break;
             }
-        }
 
-        private void OpenTowerEditPanel(Vector3 pos)
-        {
             if (_selectedTower.isUpgrading) return;
             if (towerEditPanel.activeSelf) return;
             input.isEdit = true;
@@ -201,7 +218,7 @@ namespace ManagerControl
             towerEditPanel.SetActive(true);
         }
 
-        private void CloseTowerEditPanel()
+        public void CloseTowerEditPanel()
         {
             _isTower = false;
             input.isEdit = false;

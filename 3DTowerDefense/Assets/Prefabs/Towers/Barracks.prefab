@@ -130,7 +130,7 @@ BoxCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Size: {x: 6.46482, y: 5.664142, z: 7.04165}
-  m_Center: {x: 0.00006604195, y: 2.831587, z: -0.28841507}
+  m_Center: {x: 0, y: 2.831587, z: 0}
 --- !u!114 &3762357825832611403
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -143,11 +143,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d3d03e352d5564638ab7aa5086ea3f81, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  towerType: 1
   meshFilter: {fileID: 0}
   atkDelay: 0
   towerLevel: 0
   atkRange: 0
+  isUpgrading: 0
+  towerType: 1
   enemyLayer:
     serializedVersion: 2
     m_Bits: 256

@@ -17,9 +17,7 @@ namespace ManagerControl
 //===================================Game Play===========================================
         public event Action<Vector2> OnCameraMoveEvent;
         public event Action<float> OnCameraRotateEvent;
-        public event Action OnPauseEvent; //OnClickEvent, 
-
-        public event Action OnCancelPanelEvent;
+        public event Action OnPauseEvent;
 
 //=======================================UI===========================================
         public event Action OnResumeEvent;
@@ -66,53 +64,18 @@ namespace ManagerControl
             }
         }
 
-        public void OnGamePlayClick(InputAction.CallbackContext context)
-        {
-            if (UIManager.Pointer) return;
-            if (context.started)
-            {
-                if (isBuild || isEdit)
-                {
-                    OnCancelPanelEvent?.Invoke();
-                }
-                // else
-                // {
-                //     OnClickEvent?.Invoke();
-                // }
-            }
-        }
-
         public void OnPause(InputAction.CallbackContext context)
         {
-            if (context.started)
-            {
-                if (isBuild || isEdit)
-                {
-                    OnCancelPanelEvent?.Invoke();
-                }
-                else
-                {
-                    OnPauseEvent?.Invoke();
-                    ToggleActionMap(_gameInput.UI);
-                }
-            }
+            OnPauseEvent?.Invoke();
+            ToggleActionMap(_gameInput.UI);
         }
-
-
+        
         //==================================UI Action Map=============================================
-
-        public void Resume()
-        {
-            ToggleActionMap(_gameInput.GamePlay);
-        }
 
         public void OnResume(InputAction.CallbackContext context)
         {
-            if (context.started)
-            {
-                OnResumeEvent?.Invoke();
-                ToggleActionMap(_gameInput.GamePlay);
-            }
+            OnResumeEvent?.Invoke();
+            ToggleActionMap(_gameInput.GamePlay);
         }
 
         public void OnNavigate(InputAction.CallbackContext context)

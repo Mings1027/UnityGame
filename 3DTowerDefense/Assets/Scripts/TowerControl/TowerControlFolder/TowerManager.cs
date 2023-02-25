@@ -11,16 +11,14 @@ namespace TowerControl.TowerControlFolder
         private Quaternion _buildRotation;
 
         [SerializeField] private Transform buildingPoint;
-
-        [SerializeField] private BuildingPoint[] buildingPoints;
-
+        
         private void Awake()
         {
-            buildingPoints = new BuildingPoint[buildingPoint.childCount];
-            for (var i = 0; i < buildingPoints.Length; i++)
+            for (var i = 0; i < buildingPoint.childCount; i++)
             {
-                buildingPoints[i] = buildingPoint.GetChild(i).GetComponent<BuildingPoint>();
-                buildingPoints[i].OnOpenTowerSelectPanelEvent += OpenTowerSelectPanel;
+                var child = buildingPoint.GetChild(i);
+                StackObjectPool.Get<BuildingPoint>("BuildingPoint", child.position, child.rotation)
+                    .OnOpenTowerSelectPanelEvent += OpenTowerSelectPanel;
             }
         }
 
@@ -31,7 +29,7 @@ namespace TowerControl.TowerControlFolder
             UIManager.Instance.OpenTowerSelectPanel(buildPoint);
         }
 
-        public Tower SpawnTower(string n)
+        public Tower BuildTower(string n)
         {
             return StackObjectPool.Get<Tower>(n, _buildPosition, _buildRotation);
         }
