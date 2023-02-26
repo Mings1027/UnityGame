@@ -9,21 +9,14 @@ namespace TowerControl
 {
     public abstract class Tower : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler
     {
-        private enum TowerState
-        {
-            FirstLevel,
-            MiddleLevel,
-            MaxLevel
-        }
-
         protected CancellationTokenSource Cts;
         private Outline _outline;
+        private MeshFilter _meshFilter;
 
+        private float _atkRange;
         private bool _isBuilt;
         private bool _isTargeting;
         private bool _isCoolingDown;
-
-        private TowerState _state;
 
         public enum TowerType
         {
@@ -34,13 +27,14 @@ namespace TowerControl
         }
 
         public TowerType Type => towerType;
-        public MeshFilter meshFilter;
-        public float atkDelay;
+
+        protected float atkDelay;
+        
         public int towerLevel;
-        public float atkRange;
         public bool isUpgrading;
 
         public event Action<Tower, Vector3> OnOpenTowerEditPanelEvent;
+        public event Action<MeshFilter> OnResetMeshEvent;
 
         protected Transform target;
 
@@ -51,12 +45,12 @@ namespace TowerControl
         protected virtual void Awake()
         {
             _outline = GetComponent<Outline>();
-            meshFilter = GetComponentInChildren<MeshFilter>();
+            _meshFilter = GetComponentInChildren<MeshFilter>();
             targets = new Collider[5];
         }
 
         //==================================Event function=====================================================
-        private void OnEnable()
+        protected virtual void OnEnable()
         {
             Cts?.Dispose();
             Cts = new CancellationTokenSource();
@@ -71,6 +65,7 @@ namespace TowerControl
             Cts.Cancel();
             CancelInvoke();
             StackObjectPool.ReturnToPool(gameObject);
+            OnResetMeshEvent?.Invoke(_meshFilter);
         }
 
         private void FixedUpdate()
@@ -94,28 +89,30 @@ namespace TowerControl
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            _state = towerLevel switch
-            {
-                < 2 => TowerState.FirstLevel,
-                2 => TowerState.MiddleLevel,
-                _ => TowerState.MaxLevel
-            };
-
             OnOpenTowerEditPanelEvent?.Invoke(this, transform.position);
         }
-        
+
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(transform.position, atkRange);
+            Gizmos.DrawWireSphere(transform.position, _atkRange);
         }
 
         //==================================Event function=====================================================
         //==================================Custom function====================================================
-        public virtual void Init()
+       
+        public virtual void SetUp(float attackRange, float attackDelay)
         {
             _outline.enabled = false;
             _isBuilt = true;
+            _atkRange = attackRange;
+            atkDelay = attackDelay;
+            isUpgrading = false;
+        }
+
+        public void SetUpMesh(MeshFilter meshFilter)
+        {
+            _meshFilter.sharedMesh = meshFilter.sharedMesh;
         }
 
         private async UniTaskVoid StartCoolDown()
@@ -126,12 +123,11 @@ namespace TowerControl
 
         protected virtual void Attack()
         {
-            
         }
 
         private void UpdateTarget()
         {
-            var size = Physics.OverlapSphereNonAlloc(transform.position, atkRange, targets, enemyLayer);
+            var size = Physics.OverlapSphereNonAlloc(transform.position, _atkRange, targets, enemyLayer);
             var shortestDistance = Mathf.Infinity;
             Transform nearestEnemy = null;
             for (var i = 0; i < size; i++)
@@ -144,7 +140,7 @@ namespace TowerControl
                 }
             }
 
-            if (nearestEnemy != null && shortestDistance <= atkRange)
+            if (nearestEnemy != null && shortestDistance <= _atkRange)
             {
                 target = nearestEnemy;
                 _isTargeting = true;

@@ -9,8 +9,19 @@ namespace TowerControl
 {
     public class BarracksTower : Tower
     {
-        private GameObject _unit1, _unit2, _unit3;
+        private readonly BarracksUnit[] _units = new BarracksUnit[3];
         private int _deadCount;
+
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            SpawnUnit().Forget();
+        }
+
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+        }
 
         private async UniTaskVoid SpawnUnit()
         {
@@ -20,7 +31,9 @@ namespace TowerControl
 
             for (var i = 0; i < _deadCount; i++)
             {
-                StackObjectPool.Get<BarracksUnit>(unitName, transform.position).OnDeadEvent += DeadCount;
+                _units[i] = StackObjectPool.Get<BarracksUnit>(unitName, transform.position);
+                _units[i].UnitSetUp(target, atkDelay);
+                _units[i].OnDeadEvent += DeadCount;
             }
         }
 

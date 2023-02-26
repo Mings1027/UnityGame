@@ -4,6 +4,7 @@ using TowerControl;
 using TowerControl.TowerControlFolder;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace ManagerControl
@@ -17,10 +18,10 @@ namespace ManagerControl
         private GameObject _buildingPoint;
         private EventSystem _eventSystem;
         private bool _isPause;
-        private bool _isUniqueUpgrade;
         private bool _isTower;
+        private int _uniqueLevel;
 
-        public static bool Pointer { get; private set; }
+        public bool Pointer { get; private set; }
 
         [SerializeField] private TowerManager towerManager;
         [SerializeField] private TowerLeveling towerLeveling;
@@ -30,12 +31,12 @@ namespace ManagerControl
         [SerializeField] private TowerLevelManager[] towerLevelManagers;
 
         [SerializeField] private GameObject menuPanel;
+        [SerializeField] private string[] towerNames;
+
         [SerializeField] private GameObject closePanelButton;
         [SerializeField] private GameObject towerSelectPanel;
         [SerializeField] private GameObject towerEditPanel;
         [SerializeField] private GameObject towerInfoPanel;
-        [SerializeField] private Button[] towerButtons;
-        [SerializeField] private string[] towerNames;
 
         [SerializeField] private GameObject upgradeButton;
         [SerializeField] private GameObject uniqueUpgradeButtons;
@@ -54,12 +55,11 @@ namespace ManagerControl
             _cam = Camera.main;
             _eventSystem = EventSystem.current;
 
-            towerButtons = new Button[towerSelectPanel.transform.childCount];
-            towerNames = new string[towerButtons.Length];
-            for (var i = 0; i < towerButtons.Length; i++)
+            towerNames = new string[towerSelectPanel.transform.childCount];
+            for (var i = 0; i < towerNames.Length; i++)
             {
-                towerButtons[i] = towerSelectPanel.transform.GetChild(i).GetComponent<Button>();
-                towerNames[i] = towerButtons[i].name.Replace("Button", "");
+                towerNames[i] = towerSelectPanel.transform.GetChild(i).GetComponent<Button>().name
+                    .Replace("Button", "");
             }
         }
 
@@ -89,7 +89,6 @@ namespace ManagerControl
             Pointer = false;
             print("Off");
         }
-
 
         private void Pause()
         {
@@ -135,10 +134,11 @@ namespace ManagerControl
             ActiveOkButton(towerLevel.towerInfo, towerLevel.towerName);
         }
 
+        //index should be 3 or 4 Cuz It's Unique Tower Upgrade 
         public void UniqueUpgradeButton(int index)
         {
-            towerLeveling.typeA = index == 1;
-            var towerLevel = towerLevelManagers[(int)_selectedTower.Type].towerLevels[index == 1 ? 3 : 4];
+            _uniqueLevel = index;
+            var towerLevel = towerLevelManagers[(int)_selectedTower.Type].towerLevels[index];
             ActiveOkButton(towerLevel.towerInfo, towerLevel.towerName);
         }
 
@@ -146,6 +146,8 @@ namespace ManagerControl
         {
             if (_isTower)
             {
+                if (_selectedTower.towerLevel < 2) _selectedTower.towerLevel++;
+                else _selectedTower.towerLevel = _uniqueLevel;
                 towerLeveling.TowerUpgrade(_selectedTower, towerLevelManagers[(int)_selectedTower.Type]);
             }
             else
@@ -168,7 +170,6 @@ namespace ManagerControl
         {
             input.isBuild = false;
             towerSelectPanel.SetActive(false);
-            closePanelButton.SetActive(false);
             okButton.SetActive(false);
             if (!_tempTower) return;
             _tempTower.gameObject.SetActive(false);
@@ -185,10 +186,17 @@ namespace ManagerControl
             _selectedTower.gameObject.SetActive(false);
             _selectedTower = towerManager.BuildTower(towerNames[_towerIndex]);
             _selectedTower.OnOpenTowerEditPanelEvent += OpenTowerEditPanel;
+            _selectedTower.OnResetMeshEvent += ResetMesh;
 
             _buildingPoint.SetActive(false);
             towerInfoPanel.SetActive(false);
+            _selectedTower.towerLevel++;
             towerLeveling.TowerUpgrade(_selectedTower, towerLevelManagers[(int)_selectedTower.Type]);
+        }
+
+        private void ResetMesh(MeshFilter meshFilter)
+        {
+            meshFilter.sharedMesh = towerLevelManagers[_towerIndex].towerLevels[0].towerMesh.sharedMesh;
         }
 
         private void OpenTowerEditPanel(Tower t, Vector3 pos)
@@ -216,6 +224,7 @@ namespace ManagerControl
             input.isEdit = true;
             towerEditPanel.transform.position = _cam.WorldToScreenPoint(pos);
             towerEditPanel.SetActive(true);
+            closePanelButton.SetActive(true);
         }
 
         public void CloseTowerEditPanel()
@@ -225,6 +234,7 @@ namespace ManagerControl
             towerEditPanel.SetActive(false);
             towerInfoPanel.SetActive(false);
             okButton.SetActive(false);
+            closePanelButton.SetActive(false);
         }
 
         private void ActiveOkButton(string info, string towerName)

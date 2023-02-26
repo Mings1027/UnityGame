@@ -1,14 +1,25 @@
+using System;
+using System.Threading;
 using GameControl;
 using UnityEngine;
 
 namespace UnitControl
 {
-    public class Unit : MonoBehaviour
+    public abstract class Unit : MonoBehaviour
     {
-        
-        
-        private void OnDisable()
+        protected CancellationTokenSource Cts;
+        protected bool attackable;
+
+        protected virtual void OnEnable()
         {
+            attackable = true;
+            Cts?.Dispose();
+            Cts = new CancellationTokenSource();
+        }
+
+        protected virtual void OnDisable()
+        {
+            Cts.Cancel();
             StackObjectPool.ReturnToPool(gameObject);
         }
     }
