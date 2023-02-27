@@ -22,12 +22,7 @@ namespace TowerControl.TowerControlFolder
             _cts.Cancel();
         }
 
-        public void TowerUpgrade(Tower selectedTower, TowerLevelManager towerLevelManager)
-        {
-            Upgrade(selectedTower, towerLevelManager).Forget();
-        }
-
-        private async UniTaskVoid Upgrade(Tower selectedTower, TowerLevelManager towerLevelManager)
+        public async UniTaskVoid TowerUpgrade(Tower selectedTower, TowerLevelManager towerLevelManager)
         {
             selectedTower.isUpgrading = true;
             StackObjectPool.Get("BuildSmoke", selectedTower.transform.position + new Vector3(0, 7, 0));

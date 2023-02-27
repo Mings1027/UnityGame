@@ -7,6 +7,7 @@ namespace TowerControl
     {
         protected override void Attack()
         {
+            
         }
     }
 }

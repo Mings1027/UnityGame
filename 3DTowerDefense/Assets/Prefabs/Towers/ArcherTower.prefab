@@ -66,12 +66,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8c0e8b4472094397b18e2edefc60b4b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  meshFilter: {fileID: 0}
-  atkDelay: 0
-  towerLevel: 0
-  atkRange: 0
-  isUpgrading: 0
   towerType: 0
+  towerLevel: 0
+  isUpgrading: 0
   enemyLayer:
     serializedVersion: 2
     m_Bits: 256
@@ -83,6 +80,8 @@ MonoBehaviour:
   - {fileID: 3571317663935815008}
   - {fileID: 763635319175391135}
   - {fileID: 3225943289773441040}
+  projectileHeight: 2
+  projectileSpeed: 0.5
 --- !u!114 &9152204915855636318
 MonoBehaviour:
   m_ObjectHideFlags: 0

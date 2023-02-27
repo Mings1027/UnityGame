@@ -21,6 +21,17 @@ namespace TowerControl
         protected override void OnDisable()
         {
             base.OnDisable();
+            foreach (var t in _units)
+            {
+                if (t == null) continue;
+                if (t.gameObject.activeSelf)
+                    t.gameObject.SetActive(false);
+            }
+        }
+
+        protected override void Attack()
+        {
+            
         }
 
         private async UniTaskVoid SpawnUnit()
@@ -32,7 +43,6 @@ namespace TowerControl
             for (var i = 0; i < _deadCount; i++)
             {
                 _units[i] = StackObjectPool.Get<BarracksUnit>(unitName, transform.position);
-                _units[i].UnitSetUp(target, atkDelay);
                 _units[i].OnDeadEvent += DeadCount;
             }
         }

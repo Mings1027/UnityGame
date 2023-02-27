@@ -5,18 +5,16 @@ using UnityEngine;
 
 namespace TowerControl.TowerControlFolder
 {
-    public class TowerManager : MonoBehaviour
+    public class TowerBuildPointManager : MonoBehaviour
     {
         private Vector3 _buildPosition;
         private Quaternion _buildRotation;
 
-        [SerializeField] private Transform buildingPoint;
-        
         private void Awake()
         {
-            for (var i = 0; i < buildingPoint.childCount; i++)
+            for (var i = 0; i < transform.childCount; i++)
             {
-                var child = buildingPoint.GetChild(i);
+                var child = transform.GetChild(i);
                 StackObjectPool.Get<BuildingPoint>("BuildingPoint", child.position, child.rotation)
                     .OnOpenTowerSelectPanelEvent += OpenTowerSelectPanel;
             }
