@@ -23,20 +23,17 @@ namespace TowerControl
             base.OnDisable();
             foreach (var t in _units)
             {
-                if (t == null) continue;
-                if (t.gameObject.activeSelf)
-                    t.gameObject.SetActive(false);
+                if (t != null && t.gameObject.activeSelf) t.gameObject.SetActive(false);
             }
         }
 
         protected override void Attack()
         {
-            
         }
 
         private async UniTaskVoid SpawnUnit()
         {
-            await UniTask.Delay(3000, cancellationToken: Cts.Token);
+            await UniTask.Delay(millisecondsDelay: 3000, cancellationToken: cts.Token);
             _deadCount = 3;
             var unitName = towerLevel == 4 ? "SpearManUnit" : "SwordManUnit";
 

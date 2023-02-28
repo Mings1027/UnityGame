@@ -12,5 +12,10 @@ namespace UnitControl
             OnDeadEvent?.Invoke();
             OnDeadEvent = null;
         }
+
+        protected override void Attack()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

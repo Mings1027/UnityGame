@@ -240,8 +240,8 @@ namespace ManagerControl
             _selectedTower.gameObject.SetActive(false);
             _selectedTower = towerBuildPointManager.BuildTower(towerNames[_towerIndex]);
 
-            _selectedTower.OnOpenTowerEditPanelEvent += OpenTowerEditPanel;
-            _selectedTower.OnResetMeshEvent += ResetMesh;
+            _selectedTower.onOpenTowerEditPanelEvent += OpenTowerEditPanel;
+            _selectedTower.onResetMeshEvent += ResetMesh;
 
             _buildingPoint.SetActive(false);
             towerInfoPanel.SetActive(false);

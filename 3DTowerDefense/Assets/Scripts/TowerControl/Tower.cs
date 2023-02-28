@@ -2,27 +2,24 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameControl;
-using InterfaceControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace TowerControl
 {
-    public abstract class Tower : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
-        IPointerDownHandler
+    public abstract class Tower : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler
     {
-        protected CancellationTokenSource Cts;
         private Outline _outline;
         private MeshFilter _meshFilter;
 
-        private bool _isBuilt;
+        private bool _attackAble;
+        private float _atkRange;
+        private Vector3 _checkRangePoint;
 
-        protected Vector3 direction;
-        private bool isTargeting;
-        private bool attackAble;
-        private float atkRange;
+        protected bool isTargeting;
         protected float atkDelay;
         protected Transform target;
+        protected CancellationTokenSource cts;
 
         public enum TowerType
         {
@@ -33,14 +30,16 @@ namespace TowerControl
         }
 
         public TowerType Type => towerType;
-        [SerializeField] private TowerType towerType;
 
         public int towerLevel;
+        
         public bool isUpgrading;
 
-        public event Action<Tower, Vector3> OnOpenTowerEditPanelEvent;
-        public event Action<MeshFilter> OnResetMeshEvent;
+        public event Action<Tower, Vector3> onOpenTowerEditPanelEvent;
+        public event Action<MeshFilter> onResetMeshEvent;
 
+        [SerializeField] private TowerType towerType;
+        [SerializeField] private LayerMask groundLayer;
         [SerializeField] private LayerMask enemyLayer;
         [SerializeField] private Collider[] targets;
 
@@ -54,29 +53,29 @@ namespace TowerControl
         //==================================Event function=====================================================
         protected virtual void OnEnable()
         {
-            Cts?.Dispose();
-            Cts = new CancellationTokenSource();
+            cts?.Dispose();
+            cts = new CancellationTokenSource();
             InvokeRepeating(nameof(UpdateTarget), 0f, 0.5f);
-            attackAble = true;
+            _attackAble = true;
+            CheckGround();
         }
 
         protected virtual void OnDisable()
         {
-            _isBuilt = false;
             towerLevel = -1;
-            Cts.Cancel();
+            cts.Cancel();
             CancelInvoke();
             StackObjectPool.ReturnToPool(gameObject);
-            OnResetMeshEvent?.Invoke(_meshFilter);
-            OnOpenTowerEditPanelEvent = null;
-            OnResetMeshEvent = null;
+            onResetMeshEvent?.Invoke(_meshFilter);
+            onOpenTowerEditPanelEvent = null;
+            onResetMeshEvent = null;
         }
 
-        private void Update()
+        private void FixedUpdate()
         {
-            if (!isTargeting || !attackAble) return;
-            attackAble = false;
+            if (!_attackAble || isUpgrading) return;
             Attack();
+            if (!isTargeting) return;
             StartCoolDown().Forget();
         }
 
@@ -92,23 +91,23 @@ namespace TowerControl
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            OnOpenTowerEditPanelEvent?.Invoke(this, transform.position);
+            onOpenTowerEditPanelEvent?.Invoke(this, transform.position);
         }
 
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(transform.position, atkRange);
+            Gizmos.DrawWireSphere(_checkRangePoint, _atkRange);
         }
 
         //==================================Event function=====================================================
+
         //==================================Custom function====================================================
 
         public virtual void SetUp(float attackRange, float attackDelay)
         {
             _outline.enabled = false;
-            _isBuilt = true;
-            atkRange = attackRange;
+            _atkRange = attackRange;
             atkDelay = attackDelay;
             isUpgrading = false;
         }
@@ -122,13 +121,14 @@ namespace TowerControl
 
         private async UniTaskVoid StartCoolDown()
         {
-            await UniTask.Delay(TimeSpan.FromSeconds(atkDelay));
-            attackAble = true;
+            _attackAble = false;
+            await UniTask.Delay(TimeSpan.FromSeconds(atkDelay), cancellationToken: cts.Token);
+            _attackAble = true;
         }
 
         private void UpdateTarget()
         {
-            var size = Physics.OverlapSphereNonAlloc(transform.position, atkRange, targets, enemyLayer);
+            var size = Physics.OverlapSphereNonAlloc(_checkRangePoint, _atkRange, targets, enemyLayer);
             var shortestDistance = Mathf.Infinity;
             Transform nearestEnemy = null;
             for (var i = 0; i < size; i++)
@@ -141,7 +141,7 @@ namespace TowerControl
                 }
             }
 
-            if (nearestEnemy != null && shortestDistance <= atkRange)
+            if (nearestEnemy != null && shortestDistance <= _atkRange)
             {
                 target = nearestEnemy;
                 isTargeting = true;
@@ -150,6 +150,14 @@ namespace TowerControl
             {
                 target = null;
                 isTargeting = false;
+            }
+        }
+
+        private void CheckGround()
+        {
+            if (Physics.Raycast(transform.position, Vector3.down, out var hit, 100, groundLayer))
+            {
+                _checkRangePoint = hit.point;
             }
         }
 

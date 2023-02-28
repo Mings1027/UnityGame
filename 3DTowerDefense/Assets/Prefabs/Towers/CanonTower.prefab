@@ -143,11 +143,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e06d155895ce4590bcd418c6cd3dba5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  towerType: 2
-  meshFilter: {fileID: 0}
-  atkDelay: 0
   towerLevel: 0
-  atkRange: 0
+  isUpgrading: 0
+  towerType: 2
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 128
   enemyLayer:
     serializedVersion: 2
     m_Bits: 256

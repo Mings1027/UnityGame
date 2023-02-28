@@ -25,6 +25,10 @@ namespace ManagerControl
         [SerializeField] private Transform spawnPoint;
         [SerializeField] private Transform destinationPoint;
 
+        private void Awake()
+        {
+            _nextWave = -1;
+        }
 
         public void StartGame()
         {
