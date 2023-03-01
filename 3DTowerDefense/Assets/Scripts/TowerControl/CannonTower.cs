@@ -7,9 +7,10 @@ namespace TowerControl
 {
     public class CannonTower : Tower
     {
-        protected override void Attack()
+        protected override void Targeting()
         {
             
         }
+
     }
 }

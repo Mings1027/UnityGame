@@ -1,8 +1,6 @@
 using GameControl;
 using UnitControl;
-using Unity.Mathematics;
 using UnityEngine;
-using WeaponControl;
 
 namespace TowerControl
 {
@@ -23,33 +21,30 @@ namespace TowerControl
             _archerUnit2.gameObject.SetActive(false);
         }
 
-        public override void SetUp(float attackRange, float attackDelay)
+        public override void Init(MeshFilter consMeshFilter)
         {
-            base.SetUp(attackRange, attackDelay);
-            SpawnUnit();
+            base.Init(consMeshFilter);
+            if (_archerUnit1) _archerUnit1.gameObject.SetActive(false);
+            if (_archerUnit2) _archerUnit2.gameObject.SetActive(false);
         }
 
-        private void SpawnUnit()
+        public override void SetUp(MeshFilter towerMeshFilter, float attackRange, float attackDelay)
         {
-            if (_archerUnit1) _archerUnit1.gameObject.SetActive(false);
+            base.SetUp(towerMeshFilter, attackRange, attackDelay);
             _archerUnit1 = StackObjectPool.Get<ArcherUnit>("ArcherUnit", archerPos[towerLevel].position);
             _archerUnit1.Init(atkDelay);
             if (towerLevel != 4) return;
-            if (_archerUnit2) _archerUnit2.gameObject.SetActive(false);
             _archerUnit2 = StackObjectPool.Get<ArcherUnit>("ArcherUnit", archerPos[5].position);
             _archerUnit2.Init(atkDelay);
         }
 
-        protected override void Attack()
+        protected override void Targeting()
         {
-            if (!isTargeting) return;
-            var targetPos = target.position + target.forward;
-
-            _archerUnit1.UpdateTarget(isTargeting, isTargeting ? targetPos : transform.position);
-
+            _archerUnit1.IsTargeting = isTargeting;
+            _archerUnit1.TargetPos = target;
             if (!_archerUnit2) return;
-
-            _archerUnit2.UpdateTarget(isTargeting, isTargeting ? targetPos : transform.position);
+            _archerUnit2.IsTargeting = isTargeting;
+            _archerUnit2.TargetPos = target;
         }
     }
 }

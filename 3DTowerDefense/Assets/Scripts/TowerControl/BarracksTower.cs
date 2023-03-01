@@ -27,9 +27,10 @@ namespace TowerControl
             }
         }
 
-        protected override void Attack()
+        protected override void Targeting()
         {
         }
+
 
         private async UniTaskVoid SpawnUnit()
         {

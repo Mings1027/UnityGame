@@ -5,9 +5,10 @@ namespace TowerControl
 {
     public class MageTower : Tower
     {
-        protected override void Attack()
+        protected override void Targeting()
         {
             
         }
+
     }
 }

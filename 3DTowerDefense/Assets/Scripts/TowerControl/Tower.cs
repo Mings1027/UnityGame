@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameControl;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -12,13 +13,14 @@ namespace TowerControl
         private Outline _outline;
         private MeshFilter _meshFilter;
 
-        private bool _attackAble;
         private float _atkRange;
+        private bool _attackAble;
+        private bool _isBuilt;
         private Vector3 _checkRangePoint;
 
         protected bool isTargeting;
-        protected float atkDelay;
         protected Transform target;
+        protected float atkDelay;
         protected CancellationTokenSource cts;
 
         public enum TowerType
@@ -32,7 +34,7 @@ namespace TowerControl
         public TowerType Type => towerType;
 
         public int towerLevel;
-        
+
         public bool isUpgrading;
 
         public event Action<Tower, Vector3> onOpenTowerEditPanelEvent;
@@ -56,14 +58,15 @@ namespace TowerControl
             cts?.Dispose();
             cts = new CancellationTokenSource();
             InvokeRepeating(nameof(UpdateTarget), 0f, 0.5f);
-            _attackAble = true;
             CheckGround();
+            _attackAble = true;
         }
 
         protected virtual void OnDisable()
         {
+            _isBuilt = false;
             towerLevel = -1;
-            cts.Cancel();
+            cts?.Cancel();
             CancelInvoke();
             StackObjectPool.ReturnToPool(gameObject);
             onResetMeshEvent?.Invoke(_meshFilter);
@@ -71,13 +74,13 @@ namespace TowerControl
             onResetMeshEvent = null;
         }
 
-        private void FixedUpdate()
-        {
-            if (!_attackAble || isUpgrading) return;
-            Attack();
-            if (!isTargeting) return;
-            StartCoolDown().Forget();
-        }
+        // private void FixedUpdate()
+        // {
+        //     if (!_attackAble || isUpgrading) return;
+        //     Attack();
+        //     if (!isTargeting) return;
+        //     StartCoolDown().Forget();
+        // }
 
         public void OnPointerEnter(PointerEventData eventData)
         {
@@ -104,20 +107,22 @@ namespace TowerControl
 
         //==================================Custom function====================================================
 
-        public virtual void SetUp(float attackRange, float attackDelay)
+        public virtual void Init(MeshFilter consMeshFilter)
         {
+            _meshFilter.sharedMesh = consMeshFilter.sharedMesh;
+        }
+
+        public virtual void SetUp(MeshFilter towerMeshFilter, float attackRange, float attackDelay)
+        {
+            _isBuilt = true;
             _outline.enabled = false;
             _atkRange = attackRange;
             atkDelay = attackDelay;
             isUpgrading = false;
+            _meshFilter.sharedMesh = towerMeshFilter.sharedMesh;
         }
 
-        public void SetUpMesh(MeshFilter meshFilter)
-        {
-            _meshFilter.sharedMesh = meshFilter.sharedMesh;
-        }
-
-        protected abstract void Attack();
+        protected abstract void Targeting();
 
         private async UniTaskVoid StartCoolDown()
         {
@@ -151,6 +156,9 @@ namespace TowerControl
                 target = null;
                 isTargeting = false;
             }
+
+            if (!_isBuilt) return;
+            Targeting();
         }
 
         private void CheckGround()

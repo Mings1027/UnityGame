@@ -8,29 +8,36 @@ namespace UnitControl
 {
     public abstract class Unit : MonoBehaviour
     {
-        private CancellationTokenSource _cts;
         private float _atkDelay;
         private bool _attackAble;
-        private bool _isTargeting;
+        private Transform _targetPos;
 
-        protected Vector3 targetPos;
+        public bool IsTargeting { get; set; }
+
+        public Transform TargetPos
+        {
+            get => _targetPos;
+            set => _targetPos = IsTargeting ? value : null;
+        }
+
+        protected CancellationTokenSource cts;
 
         private void OnEnable()
         {
             _attackAble = true;
-            _cts?.Dispose();
-            _cts = new CancellationTokenSource();
+            cts?.Dispose();
+            cts = new CancellationTokenSource();
         }
 
         protected virtual void OnDisable()
         {
-            _cts?.Cancel();
+            cts?.Cancel();
             StackObjectPool.ReturnToPool(gameObject);
         }
 
         private void FixedUpdate()
         {
-            if (!_attackAble || !_isTargeting) return;
+            if (!_attackAble || !IsTargeting) return;
             Attack();
             StartCoolDown().Forget();
         }
@@ -40,18 +47,12 @@ namespace UnitControl
             _atkDelay = atkDelay;
         }
 
-        public void UpdateTarget(bool isTargeting, Vector3 t)
-        {
-            _isTargeting = isTargeting;
-            targetPos = t;
-        }
-
         protected abstract void Attack();
 
         private async UniTaskVoid StartCoolDown()
         {
             _attackAble = false;
-            await UniTask.Delay(TimeSpan.FromSeconds(_atkDelay), cancellationToken: _cts.Token);
+            await UniTask.Delay(TimeSpan.FromSeconds(_atkDelay), cancellationToken: cts.Token);
             _attackAble = true;
         }
     }

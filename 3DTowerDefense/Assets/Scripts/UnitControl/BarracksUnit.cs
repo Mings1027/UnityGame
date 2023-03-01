@@ -15,7 +15,7 @@ namespace UnitControl
 
         protected override void Attack()
         {
-            throw new NotImplementedException();
+            
         }
     }
 }
