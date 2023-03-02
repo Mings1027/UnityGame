@@ -32,7 +32,8 @@ namespace TowerControl.TowerControlFolder
 
             await UniTask.Delay(TimeSpan.FromSeconds(towerIndexLevel.constructionTime), cancellationToken: _cts.Token);
 
-            selectedTower.SetUp(towerIndexLevel.towerMesh, towerIndexLevel.attackRange, towerIndexLevel.attackDelay);
+            selectedTower.SetUp(towerIndexLevel.towerMesh, towerIndexLevel.health, towerIndexLevel.attackRange,
+                towerIndexLevel.attackDelay);
         }
     }
 }

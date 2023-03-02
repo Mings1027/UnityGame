@@ -2,7 +2,9 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using EnemyControl;
 using GameControl;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace WeaponControl
@@ -13,6 +15,8 @@ namespace WeaponControl
         private CancellationTokenSource _cts;
         private float _lerp;
         private Vector3 _curPos;
+
+        public int damage;
         
         [SerializeField] private float lifeTime;
         [SerializeField] private AnimationCurve curve;
@@ -41,6 +45,10 @@ namespace WeaponControl
         private void OnTriggerEnter(Collider other)
         {
             if (other.CompareTag("Enemy") || other.CompareTag("Ground")) DestroyProjectile();
+            if (other.TryGetComponent(out Health h))
+            {
+                h.GetHit(damage,other.gameObject).Forget();
+            }
         }
 
         public async UniTaskVoid Parabola(Transform startPos, Vector3 endPos)

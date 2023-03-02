@@ -3,7 +3,7 @@ using Cysharp.Threading.Tasks;
 using EnemyControl;
 using GameControl;
 using UnityEngine;
-using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 namespace ManagerControl
 {
@@ -14,6 +14,8 @@ namespace ManagerControl
         {
             public string name;
             public int enemyCount;
+            public int health;
+            public int damage;
             public float rate;
         }
 
@@ -21,6 +23,7 @@ namespace ManagerControl
         private int _nextWave;
         private int _count;
 
+        [SerializeField] private Button startWaveButton;
         [SerializeField] private Wave[] waves;
         [SerializeField] private Transform spawnPoint;
         [SerializeField] private Transform destinationPoint;
@@ -30,9 +33,15 @@ namespace ManagerControl
             _nextWave = -1;
         }
 
-        public void StartGame()
+        private void Start()
+        {
+            startWaveButton.onClick.AddListener(StartGame);
+        }
+
+        private void StartGame()
         {
             WaveStart().Forget();
+            startWaveButton.gameObject.SetActive(false);
         }
 
         private async UniTaskVoid WaveStart()
@@ -48,12 +57,17 @@ namespace ManagerControl
                 SpawnEnemy();
             }
 
+            startWaveButton.gameObject.SetActive(true);
+
             _startGame = false;
         }
 
         private void SpawnEnemy()
         {
-            StackObjectPool.Get<Enemy>(waves[_nextWave].name, spawnPoint.position).destination = destinationPoint;
+            var e = StackObjectPool.Get<Enemy>(waves[_nextWave].name, spawnPoint.position);
+            e.GetComponent<Health>().InitializeHealth(waves[_nextWave].health);
+            e.destination = destinationPoint;
+            e.damage = waves[_nextWave].damage;
         }
     }
 }

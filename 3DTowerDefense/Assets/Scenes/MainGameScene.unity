@@ -234,15 +234,15 @@ MonoBehaviour:
       type: 3}
     size: 10
   - tag: SwordManUnit
-    prefab: {fileID: 6820695697525584036, guid: f54b13a6fbc3d47ff8bc260b5e9f0a64,
+    prefab: {fileID: 7901291658597421272, guid: f54b13a6fbc3d47ff8bc260b5e9f0a64,
       type: 3}
     size: 10
   - tag: SpearManUnit
-    prefab: {fileID: 3537334534253999294, guid: e65f00d669a55f74eb6840c849c657e1,
+    prefab: {fileID: 4417539079662013206, guid: e65f00d669a55f74eb6840c849c657e1,
       type: 3}
     size: 10
   - tag: MageUnit
-    prefab: {fileID: 8333830179656983582, guid: 5af01b46a9dd1b746afcf9f3e182e3d3,
+    prefab: {fileID: 2797710162398575740, guid: 5af01b46a9dd1b746afcf9f3e182e3d3,
       type: 3}
     size: 10
   - tag: BuildingPoint
@@ -1508,7 +1508,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 9
+  m_RootOrder: 10
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &663597980
 GameObject:
@@ -1749,7 +1749,6 @@ GameObject:
   - component: {fileID: 891965419}
   - component: {fileID: 891965418}
   - component: {fileID: 891965417}
-  - component: {fileID: 891965420}
   m_Layer: 5
   m_Name: StartWaveButton
   m_TagString: Untagged
@@ -1821,19 +1820,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 891965418}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 891965420}
-        m_TargetAssemblyTypeName: ManagerControl.WaveManager, Assembly-CSharp
-        m_MethodName: StartGame
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &891965418
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1872,33 +1859,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 891965415}
   m_CullTransparentMesh: 1
---- !u!114 &891965420
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 891965415}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f1c72e29ee56744efa7b755f41c9978d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  waves:
-  - name: ArcherEnemy
-    enemyCount: 10
-    rate: 3
-  - name: MageEnemy
-    enemyCount: 20
-    rate: 2
-  - name: SpearManEnemy
-    enemyCount: 30
-    rate: 1
-  - name: SwordManEnemy
-    enemyCount: 40
-    rate: 0.5
-  spawnPoint: {fileID: 912944062}
-  destinationPoint: {fileID: 320900669}
 --- !u!1 &912944061
 GameObject:
   m_ObjectHideFlags: 0
@@ -1959,7 +1919,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1005381158
 GameObject:
@@ -2037,6 +1997,74 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1005381158}
   m_CullTransparentMesh: 1
+--- !u!1 &1152211202
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1152211204}
+  - component: {fileID: 1152211203}
+  m_Layer: 0
+  m_Name: WaveManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1152211203
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1152211202}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1c72e29ee56744efa7b755f41c9978d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  startWaveButton: {fileID: 891965417}
+  waves:
+  - name: ArcherEnemy
+    enemyCount: 10
+    health: 30
+    damage: 1
+    rate: 3
+  - name: MageEnemy
+    enemyCount: 20
+    health: 35
+    damage: 2
+    rate: 2
+  - name: SpearManEnemy
+    enemyCount: 30
+    health: 40
+    damage: 3
+    rate: 1
+  - name: SwordManEnemy
+    enemyCount: 40
+    health: 45
+    damage: 4
+    rate: 0.5
+  spawnPoint: {fileID: 912944062}
+  destinationPoint: {fileID: 320900669}
+--- !u!4 &1152211204
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1152211202}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1253569520
 GameObject:
   m_ObjectHideFlags: 0
@@ -2377,7 +2405,7 @@ RectTransform:
   - {fileID: 1593064646}
   - {fileID: 891965416}
   m_Father: {fileID: 0}
-  m_RootOrder: 10
+  m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -4826,7 +4854,7 @@ PrefabInstance:
     - target: {fileID: 1918877429391717105, guid: f3daaf608a34b4268879bdf500f738a5,
         type: 3}
       propertyPath: m_RootOrder
-      value: 8
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 1918877429391717105, guid: f3daaf608a34b4268879bdf500f738a5,
         type: 3}

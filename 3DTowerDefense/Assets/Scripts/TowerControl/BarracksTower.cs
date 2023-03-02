@@ -29,12 +29,18 @@ namespace TowerControl
 
         protected override void Targeting()
         {
+            for (var i = 0; i < 3; i++)
+            {
+                if (_units[i] == null || !_units[i].gameObject.activeSelf) continue;
+                _units[i].IsTargeting = isTargeting;
+                _units[i].Target = target;
+            }
         }
 
 
         private async UniTaskVoid SpawnUnit()
         {
-            await UniTask.Delay(millisecondsDelay: 3000, cancellationToken: cts.Token);
+            await UniTask.Delay(3000, cancellationToken: cts.Token);
             _deadCount = 3;
             var unitName = towerLevel == 4 ? "SpearManUnit" : "SwordManUnit";
 
@@ -42,6 +48,8 @@ namespace TowerControl
             {
                 _units[i] = StackObjectPool.Get<BarracksUnit>(unitName, transform.position);
                 _units[i].OnDeadEvent += DeadCount;
+                _units[i].Init(atkDelay);
+                _units[i].GetComponent<Health>().InitializeHealth(health);
             }
         }
 

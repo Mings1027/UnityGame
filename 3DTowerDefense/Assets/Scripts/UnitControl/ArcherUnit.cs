@@ -6,22 +6,29 @@ namespace UnitControl
 {
     public class ArcherUnit : Unit
     {
+        private void Update()
+        {
+            if (!attackAble || !IsTargeting) return;
+            Attack();
+            StartCoolDown().Forget();
+        }
+
         protected override void Attack()
         {
-            SpawnArrow(transform, TargetPos);
-            transform.rotation = Look(transform, TargetPos);
+            var t = Target.position + Target.forward * 2;
+            SpawnArrow(t);
+            transform.rotation = Look(t);
+        }   
+
+        private void SpawnArrow(Vector3 endPos)
+        {
+            StackObjectPool.Get<Projectile>("ArcherArrow", transform.position, Quaternion.Euler(-90, 0, 0))
+                .Parabola(transform, endPos).Forget();
         }
 
-        private void SpawnArrow(Transform startPos, Transform endPos)
+        private Quaternion Look(Vector3 direction)
         {
-            StackObjectPool.Get<Projectile>("ArcherArrow", startPos.position, Quaternion.Euler(-90, 0, 0))
-                .Parabola(startPos, endPos.position + endPos.forward * 2).Forget();
-        }
-
-        private Quaternion Look(Transform start, Transform direction)
-        {
-            var dir = direction.position + direction.forward * 2 - start.position;
-            start.forward = dir.normalized;
+            var dir = direction - transform.position;
             var yRot = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
             return Quaternion.Euler(0, yRot, 0);
         }

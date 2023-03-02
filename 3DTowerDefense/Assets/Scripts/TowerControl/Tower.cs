@@ -18,10 +18,11 @@ namespace TowerControl
         private bool _isBuilt;
         private Vector3 _checkRangePoint;
 
-        protected bool isTargeting;
         protected Transform target;
-        protected float atkDelay;
         protected CancellationTokenSource cts;
+        protected bool isTargeting;
+        protected int health;
+        protected float atkDelay;
 
         public enum TowerType
         {
@@ -112,10 +113,11 @@ namespace TowerControl
             _meshFilter.sharedMesh = consMeshFilter.sharedMesh;
         }
 
-        public virtual void SetUp(MeshFilter towerMeshFilter, float attackRange, float attackDelay)
+        public virtual void SetUp(MeshFilter towerMeshFilter, int unitHealth, float attackRange, float attackDelay)
         {
             _isBuilt = true;
             _outline.enabled = false;
+            health = unitHealth;
             _atkRange = attackRange;
             atkDelay = attackDelay;
             isUpgrading = false;
@@ -146,16 +148,8 @@ namespace TowerControl
                 }
             }
 
-            if (nearestEnemy != null && shortestDistance <= _atkRange)
-            {
-                target = nearestEnemy;
-                isTargeting = true;
-            }
-            else
-            {
-                target = null;
-                isTargeting = false;
-            }
+            target = nearestEnemy != null && shortestDistance <= _atkRange ? nearestEnemy : null;
+            isTargeting = target != null;
 
             if (!_isBuilt) return;
             Targeting();

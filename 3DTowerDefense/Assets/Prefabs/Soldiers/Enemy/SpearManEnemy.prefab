@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 6965371322595520464}
   - component: {fileID: 6965371322595520467}
   - component: {fileID: 919741542511358481}
+  - component: {fileID: 615191486289149194}
   m_Layer: 8
   m_Name: SpearManEnemy
   m_TagString: Enemy
@@ -62,8 +63,8 @@ NavMeshAgent:
   m_Speed: 3.5
   m_Acceleration: 8
   avoidancePriority: 50
-  m_AngularSpeed: 120
-  m_StoppingDistance: 0
+  m_AngularSpeed: 360
+  m_StoppingDistance: 2
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
@@ -83,12 +84,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1b10cca5edc246c591d2b831865c073, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  destination: {fileID: 0}
+  damage: 0
+  atkDelay: 0
   range: 0
   attackAbleLayer:
     serializedVersion: 2
-    m_Bits: 512
+    m_Bits: 4096
   targets: []
-  destination: {fileID: 0}
+--- !u!114 &615191486289149194
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6965371322595520466}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99c5ef611137640f29c97f4e7f8bd65d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  curHealth: 0
+  maxHealth: 50
+  hitWithReference:
+    m_PersistentCalls:
+      m_Calls: []
+  deathWithReference:
+    m_PersistentCalls:
+      m_Calls: []
+  isDead: 0
+  disappearTime: 0
 --- !u!1 &6966369655745383371
 GameObject:
   m_ObjectHideFlags: 0

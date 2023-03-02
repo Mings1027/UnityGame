@@ -15,10 +15,12 @@ namespace TowerControl
             public MeshFilter towerMesh;
             public MeshFilter consMesh;
             public float constructionTime;
-            public float attackDelay;
-            public float attackRange;
             public string towerName;
             public string towerInfo;
+            public int health;
+            public int damage;
+            public float attackDelay;
+            public float attackRange;
         }
     }
 }
