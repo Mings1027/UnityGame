@@ -9,10 +9,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7712616592404947845}
-  - component: {fileID: 7712616592404947844}
   - component: {fileID: 7712616592404947847}
   - component: {fileID: 7885068562626139811}
   - component: {fileID: 832268650158483848}
+  - component: {fileID: 5198208533031153745}
   m_Layer: 8
   m_Name: MageEnemy
   m_TagString: Enemy
@@ -36,20 +36,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!136 &7712616592404947844
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7712616592404947846}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  m_Radius: 1.2
-  m_Height: 4
-  m_Direction: 1
-  m_Center: {x: 0, y: 2, z: 0}
 --- !u!195 &7712616592404947847
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -114,6 +100,20 @@ MonoBehaviour:
       m_Calls: []
   isDead: 0
   disappearTime: 0
+--- !u!136 &5198208533031153745
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7712616592404947846}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 1.3
+  m_Height: 4
+  m_Direction: 1
+  m_Center: {x: 0, y: 2, z: 0}
 --- !u!1 &7713676065723812958
 GameObject:
   m_ObjectHideFlags: 0

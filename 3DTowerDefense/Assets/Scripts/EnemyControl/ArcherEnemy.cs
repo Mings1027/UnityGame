@@ -15,16 +15,9 @@ namespace EnemyControl
 
         private void SpawnArrow(Vector3 t)
         {
-            var p = StackObjectPool.Get<Projectile>("ArcherArrow", transform.position, Quaternion.Euler(-90, 0, 0));
+            var p = StackObjectPool.Get<EnemyProjectile>("ArcherEnemyArrow", transform.up, Quaternion.Euler(-90, 0, 0));
             p.Parabola(transform, t).Forget();
             p.damage = damage;
-        }
-
-        protected override async UniTaskVoid StartCoolDown()
-        {
-            attackAble = false;
-            await UniTask.Delay(TimeSpan.FromSeconds(AtkDelay), cancellationToken: cts.Token);
-            attackAble = true;
         }
     }
 }

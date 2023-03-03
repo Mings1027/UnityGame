@@ -7,6 +7,11 @@ namespace TowerControl
 {
     public class CannonTower : Tower
     {
+        public override void SetUp()
+        {
+            
+        }
+
         protected override void Targeting()
         {
             

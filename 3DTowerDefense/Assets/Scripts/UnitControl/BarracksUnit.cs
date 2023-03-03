@@ -1,6 +1,6 @@
 using System;
-using Cysharp.Threading.Tasks;
-using DG.Tweening;
+using System.Collections.Generic;
+using GameControl;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -9,45 +9,51 @@ namespace UnitControl
     public class BarracksUnit : Unit
     {
         private NavMeshAgent _nav;
-        private SphereCollider _sphereCollider;
+        private Animator _anim;
+        private static readonly int AttackAble = Animator.StringToHash("AttackAble");
+    
+        public event Action onDeadEvent;
 
-        public event Action OnDeadEvent;
+        [SerializeField] private Transform weapon;
 
+        [SerializeField] private float atkRadius;
         private void Awake()
         {
             _nav = GetComponent<NavMeshAgent>();
-            _sphereCollider = GetComponentInChildren<SphereCollider>();
+            _anim = GetComponent<Animator>();
         }
 
         private void Update()
         {
             if (!IsTargeting) return;
             _nav.SetDestination(Target.position);
-            if (_nav.remainingDistance <= _nav.stoppingDistance)
-            {
-                if (!attackAble) return;
-                Attack();
-                StartCoolDown().Forget();
-            }
+            if (Vector3.Distance(transform.position, Target.position) > _nav.stoppingDistance) return;
+            if (!attackAble) return;
+            transform.LookAt(Target.position);
+            Attack();
+            StartCoolDown().Forget();
         }
 
         protected override void OnDisable()
         {
             base.OnDisable();
-            OnDeadEvent?.Invoke();
-            OnDeadEvent = null;
+            onDeadEvent?.Invoke();
+            onDeadEvent = null;
+        }
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(weapon.position, atkRadius);
         }
 
         protected override void Attack()
         {
-            AutoAttack().Forget();
-        }
-
-        private async UniTaskVoid AutoAttack()
-        {
-            _sphereCollider.enabled = true;
-            await UniTask.Delay(100, cancellationToken: cts.Token);
-            _sphereCollider.enabled = false;
+            _anim.SetTrigger(AttackAble);
+            if (Target.TryGetComponent(out Health h))
+            {
+                h.GetHit(damage, gameObject).Forget();
+            }
         }
     }
 }

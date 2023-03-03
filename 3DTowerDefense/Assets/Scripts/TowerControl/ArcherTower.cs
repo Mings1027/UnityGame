@@ -15,29 +15,23 @@ namespace TowerControl
         protected override void OnDisable()
         {
             base.OnDisable();
-            if (!_archerUnit1) return;
-            _archerUnit1.gameObject.SetActive(false);
-            if (!_archerUnit2) return;
-            _archerUnit2.gameObject.SetActive(false);
+            SetUp();
         }
 
-        public override void Init(MeshFilter consMeshFilter)
+        public override void SetUp()
         {
-            base.Init(consMeshFilter);
             if (_archerUnit1) _archerUnit1.gameObject.SetActive(false);
             if (_archerUnit2) _archerUnit2.gameObject.SetActive(false);
         }
 
-        public override void SetUp(MeshFilter towerMeshFilter, int unitHealth, float attackRange, float attackDelay)
+        public override void Init(int unitHealth, int unitDamage, float attackRange, float attackDelay)
         {
-            base.SetUp(towerMeshFilter, unitHealth, attackRange, attackDelay);
+            base.Init(unitHealth, unitDamage, attackRange, attackDelay);
             _archerUnit1 = StackObjectPool.Get<ArcherUnit>("ArcherUnit", archerPos[towerLevel].position);
-            _archerUnit1.Init(atkDelay);
-            _archerUnit1.GetComponent<Health>().InitializeHealth(health);
+            _archerUnit1.Init(damage, atkDelay);
             if (towerLevel != 4) return;
             _archerUnit2 = StackObjectPool.Get<ArcherUnit>("ArcherUnit", archerPos[5].position);
-            _archerUnit2.Init(atkDelay);
-            _archerUnit2.GetComponent<Health>().InitializeHealth(health);
+            _archerUnit2.Init(damage, atkDelay);
         }
 
         protected override void Targeting()

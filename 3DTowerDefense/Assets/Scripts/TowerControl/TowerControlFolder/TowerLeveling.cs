@@ -28,12 +28,17 @@ namespace TowerControl.TowerControlFolder
             StackObjectPool.Get("BuildSmoke", selectedTower.transform.position + new Vector3(0, 7, 0));
             var towerIndexLevel = towerLevelManager.towerLevels[selectedTower.towerLevel];
 
-            selectedTower.Init(towerIndexLevel.consMesh);
+            selectedTower.Init(towerIndexLevel.health,
+                towerIndexLevel.damage,
+                towerIndexLevel.attackRange,
+                towerIndexLevel.attackDelay);
+            selectedTower.ChangeMesh(towerIndexLevel.consMesh);
 
             await UniTask.Delay(TimeSpan.FromSeconds(towerIndexLevel.constructionTime), cancellationToken: _cts.Token);
 
-            selectedTower.SetUp(towerIndexLevel.towerMesh, towerIndexLevel.health, towerIndexLevel.attackRange,
-                towerIndexLevel.attackDelay);
+            selectedTower.ChangeMesh(towerIndexLevel.towerMesh);
+
+            selectedTower.SetUp();
         }
     }
 }

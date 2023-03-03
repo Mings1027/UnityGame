@@ -22,6 +22,7 @@ namespace TowerControl
         protected CancellationTokenSource cts;
         protected bool isTargeting;
         protected int health;
+        protected int damage;
         protected float atkDelay;
 
         public enum TowerType
@@ -108,21 +109,24 @@ namespace TowerControl
 
         //==================================Custom function====================================================
 
-        public virtual void Init(MeshFilter consMeshFilter)
+        public virtual void ChangeMesh(MeshFilter consMeshFilter)
         {
             _meshFilter.sharedMesh = consMeshFilter.sharedMesh;
         }
 
-        public virtual void SetUp(MeshFilter towerMeshFilter, int unitHealth, float attackRange, float attackDelay)
+        public virtual void Init(int unitHealth, int unitDamage, float attackRange, float attackDelay)
         {
             _isBuilt = true;
             _outline.enabled = false;
             health = unitHealth;
+            damage = unitDamage;
             _atkRange = attackRange;
             atkDelay = attackDelay;
             isUpgrading = false;
-            _meshFilter.sharedMesh = towerMeshFilter.sharedMesh;
         }
+
+        public abstract void SetUp();
+
 
         protected abstract void Targeting();
 

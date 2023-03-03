@@ -18,12 +18,14 @@ namespace UnitControl
             var t = Target.position + Target.forward * 2;
             SpawnArrow(t);
             transform.rotation = Look(t);
-        }   
+        }
 
         private void SpawnArrow(Vector3 endPos)
         {
-            StackObjectPool.Get<Projectile>("ArcherArrow", transform.position, Quaternion.Euler(-90, 0, 0))
-                .Parabola(transform, endPos).Forget();
+            var p = StackObjectPool.Get<UnitProjectile>("ArcherUnitArrow", transform.position,
+                Quaternion.Euler(-90, 0, 0));
+            p.Parabola(transform, endPos).Forget();
+            p.damage = damage;
         }
 
         private Quaternion Look(Vector3 direction)

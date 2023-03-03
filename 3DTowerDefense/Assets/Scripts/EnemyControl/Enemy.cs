@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameControl;
@@ -22,6 +23,8 @@ namespace EnemyControl
             set => atkDelay = value;
         }
 
+        protected LayerMask AtkLayer => attackAbleLayer;
+
         public Transform destination;
         public int damage;
 
@@ -34,7 +37,7 @@ namespace EnemyControl
         private void Awake()
         {
             _nav = GetComponent<NavMeshAgent>();
-            targets = new Collider[5];
+            targets = new Collider[1];
         }
 
         private void OnEnable()
@@ -57,16 +60,16 @@ namespace EnemyControl
             if (_isTargeting)
             {
                 _nav.SetDestination(target.position);
-                if (_nav.remainingDistance <= _nav.stoppingDistance)
-                {
-                    if (!attackAble) return;
-                    Attack();
-                    StartCoolDown().Forget();
-                }
+                if (!attackAble || _nav.remainingDistance > _nav.stoppingDistance) return;
+                transform.LookAt(target.position);
+                Attack();
+                StartCoolDown().Forget();
             }
             else
             {
                 _nav.SetDestination(destination.position);
+                if (Vector3.Distance(transform.position, destination.position) <= 0.2f)
+                    gameObject.SetActive(false);
             }
         }
 
@@ -78,8 +81,11 @@ namespace EnemyControl
 
         protected abstract void Attack();
 
-        protected virtual async UniTaskVoid StartCoolDown()
+        private async UniTaskVoid StartCoolDown()
         {
+            attackAble = false;
+            await UniTask.Delay(TimeSpan.FromSeconds(AtkDelay), cancellationToken: cts.Token);
+            attackAble = true;
         }
 
         private void UpdateTarget()
