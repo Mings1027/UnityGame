@@ -15,6 +15,7 @@ namespace UnitControl
 
         protected override void Attack()
         {
+            if (!Target.gameObject.activeSelf) return;
             var t = Target.position + Target.forward * 2;
             SpawnArrow(t);
             transform.rotation = Look(t);

@@ -13,17 +13,19 @@ namespace TowerControl
         private Outline _outline;
         private MeshFilter _meshFilter;
 
-        private float _atkRange;
         private bool _attackAble;
         private bool _isBuilt;
+        private bool _isUpgrading;
         private Vector3 _checkRangePoint;
 
-        protected Transform target;
+        // protected Transform target;
         protected CancellationTokenSource cts;
         protected bool isTargeting;
         protected int health;
         protected int damage;
+        protected float atkRange;
         protected float atkDelay;
+        protected int targetCount;
 
         public enum TowerType
         {
@@ -37,7 +39,6 @@ namespace TowerControl
 
         public int towerLevel;
 
-        public bool isUpgrading;
 
         public event Action<Tower, Vector3> onOpenTowerEditPanelEvent;
         public event Action<MeshFilter> onResetMeshEvent;
@@ -45,13 +46,17 @@ namespace TowerControl
         [SerializeField] private TowerType towerType;
         [SerializeField] private LayerMask groundLayer;
         [SerializeField] private LayerMask enemyLayer;
-        [SerializeField] private Collider[] targets;
+        protected Collider[] targets;
 
         protected virtual void Awake()
         {
             _outline = GetComponent<Outline>();
             _meshFilter = GetComponentInChildren<MeshFilter>();
-            targets = new Collider[5];
+        }
+
+        protected virtual void Start()
+        {
+            targets = new Collider[targetCount];
         }
 
         //==================================Event function=====================================================
@@ -59,8 +64,8 @@ namespace TowerControl
         {
             cts?.Dispose();
             cts = new CancellationTokenSource();
-            InvokeRepeating(nameof(UpdateTarget), 0f, 0.5f);
             CheckGround();
+            InvokeRepeating(nameof(CheckTarget), 0f, 0.5f);
             _attackAble = true;
         }
 
@@ -96,39 +101,40 @@ namespace TowerControl
 
         public void OnPointerDown(PointerEventData eventData)
         {
+            if (_isUpgrading) return;
             onOpenTowerEditPanelEvent?.Invoke(this, transform.position);
         }
 
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(_checkRangePoint, _atkRange);
+            Gizmos.DrawWireSphere(_checkRangePoint, atkRange);
         }
 
         //==================================Event function=====================================================
 
         //==================================Custom function====================================================
 
-        public virtual void ChangeMesh(MeshFilter consMeshFilter)
+        public void ChangeMesh(MeshFilter consMeshFilter)
         {
             _meshFilter.sharedMesh = consMeshFilter.sharedMesh;
         }
 
         public virtual void Init(int unitHealth, int unitDamage, float attackRange, float attackDelay)
         {
-            _isBuilt = true;
+            _isUpgrading = true;
             _outline.enabled = false;
             health = unitHealth;
             damage = unitDamage;
-            _atkRange = attackRange;
+            atkRange = attackRange;
             atkDelay = attackDelay;
-            isUpgrading = false;
         }
 
-        public abstract void SetUp();
-
-
-        protected abstract void Targeting();
+        public virtual void SetUp()
+        {
+            _isUpgrading = false;
+            _isBuilt = true;
+        }
 
         private async UniTaskVoid StartCoolDown()
         {
@@ -137,27 +143,16 @@ namespace TowerControl
             _attackAble = true;
         }
 
-        private void UpdateTarget()
+        private void CheckTarget()
         {
-            var size = Physics.OverlapSphereNonAlloc(_checkRangePoint, _atkRange, targets, enemyLayer);
-            var shortestDistance = Mathf.Infinity;
-            Transform nearestEnemy = null;
-            for (var i = 0; i < size; i++)
-            {
-                var distanceToEnemy = Vector3.Distance(transform.position, targets[i].transform.position);
-                if (distanceToEnemy < shortestDistance)
-                {
-                    shortestDistance = distanceToEnemy;
-                    nearestEnemy = targets[i].transform;
-                }
-            }
-
-            target = nearestEnemy != null && shortestDistance <= _atkRange ? nearestEnemy : null;
-            isTargeting = target != null;
-
             if (!_isBuilt) return;
-            Targeting();
+            var size = Physics.OverlapSphereNonAlloc(_checkRangePoint, atkRange, targets, enemyLayer);
+            if (size <= 0 || _isUpgrading) return;
+            isTargeting = true;
+            UpdateTarget();
         }
+
+        protected abstract void UpdateTarget();
 
         private void CheckGround()
         {

@@ -25,6 +25,7 @@ namespace EnemyControl
 
         protected LayerMask AtkLayer => attackAbleLayer;
 
+        public bool attacking;
         public Transform destination;
         public int damage;
 
@@ -32,7 +33,6 @@ namespace EnemyControl
         [SerializeField] private float range;
         [SerializeField] private LayerMask attackAbleLayer;
         [SerializeField] private Collider[] targets;
-
 
         private void Awake()
         {
@@ -59,16 +59,18 @@ namespace EnemyControl
         {
             if (_isTargeting)
             {
-                _nav.SetDestination(target.position);
-                if (!attackAble || _nav.remainingDistance > _nav.stoppingDistance) return;
-                transform.LookAt(target.position);
-                Attack();
-                StartCoolDown().Forget();
+                if (attackAble && Vector3.Distance(transform.position, target.position) <= range)
+                {
+                    _nav.SetDestination(target.position);
+                    // transform.LookAt(target.position);
+                    Attack();
+                    StartCoolDown().Forget();
+                }
             }
             else
             {
                 _nav.SetDestination(destination.position);
-                if (Vector3.Distance(transform.position, destination.position) <= 0.2f)
+                if (Vector3.Distance(transform.position, destination.position) <= _nav.stoppingDistance)
                     gameObject.SetActive(false);
             }
         }

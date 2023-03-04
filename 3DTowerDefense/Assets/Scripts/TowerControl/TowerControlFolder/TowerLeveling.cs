@@ -24,7 +24,6 @@ namespace TowerControl.TowerControlFolder
 
         public async UniTaskVoid TowerUpgrade(Tower selectedTower, TowerLevelManager towerLevelManager)
         {
-            selectedTower.isUpgrading = true;
             StackObjectPool.Get("BuildSmoke", selectedTower.transform.position + new Vector3(0, 7, 0));
             var towerIndexLevel = towerLevelManager.towerLevels[selectedTower.towerLevel];
 

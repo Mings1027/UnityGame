@@ -9,10 +9,9 @@ namespace TowerControl
         {
         }
 
-        protected override void Targeting()
+        protected override void UpdateTarget()
         {
             
         }
-
     }
 }

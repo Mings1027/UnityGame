@@ -6,41 +6,79 @@ namespace TowerControl
 {
     public class ArcherTower : Tower
     {
-        private Unit _archerUnit1;
-        private Unit _archerUnit2;
+        private ArcherUnit[] _archerUnit;
         private Vector3 _targetDirection;
 
         [SerializeField] private Transform[] archerPos;
 
+        protected override void Awake()
+        {
+            base.Awake();
+            targetCount = 3;
+            _archerUnit = new ArcherUnit[2];
+        }
+
         protected override void OnDisable()
         {
             base.OnDisable();
-            SetUp();
+            ArcherUnitSetUp();
         }
 
-        public override void SetUp()
+        private void ArcherUnitSetUp()
         {
-            if (_archerUnit1) _archerUnit1.gameObject.SetActive(false);
-            if (_archerUnit2) _archerUnit2.gameObject.SetActive(false);
+            for (var i = 0; i < _archerUnit.Length; i++)
+            {
+                if (_archerUnit[i] != null && _archerUnit[i].gameObject.activeSelf)
+                {
+                    print("1");
+                    _archerUnit[i].gameObject.SetActive(false);
+                }
+            }
         }
 
         public override void Init(int unitHealth, int unitDamage, float attackRange, float attackDelay)
         {
             base.Init(unitHealth, unitDamage, attackRange, attackDelay);
-            _archerUnit1 = StackObjectPool.Get<ArcherUnit>("ArcherUnit", archerPos[towerLevel].position);
-            _archerUnit1.Init(damage, atkDelay);
-            if (towerLevel != 4) return;
-            _archerUnit2 = StackObjectPool.Get<ArcherUnit>("ArcherUnit", archerPos[5].position);
-            _archerUnit2.Init(damage, atkDelay);
+            ArcherUnitSetUp();
         }
 
-        protected override void Targeting()
+        public override void SetUp()
         {
-            _archerUnit1.IsTargeting = isTargeting;
-            _archerUnit1.Target = target;
-            if (!_archerUnit2) return;
-            _archerUnit2.IsTargeting = isTargeting;
-            _archerUnit2.Target = target;
+            base.SetUp();
+            var count = towerLevel == 4 ? 2 : 1;
+            for (var i = 0; i < count; i++)
+            {
+                print("2");
+                _archerUnit[i] = StackObjectPool.Get<ArcherUnit>("ArcherUnit", archerPos[towerLevel + i].position);
+                _archerUnit[i].UnitSetup(damage, atkDelay);
+            }
+        }
+
+        protected override void UpdateTarget()
+        {
+            var shortestDistance = Mathf.Infinity;
+            Collider nearestEnemy = null;
+            for (var i = 0; i < targetCount; i++)
+            {
+                if (targets[i] == null) continue;
+                var distanceToEnemy = Vector3.Distance(transform.position, targets[i].transform.position);
+                if (distanceToEnemy < shortestDistance)
+                {
+                    shortestDistance = distanceToEnemy;
+                    nearestEnemy = targets[i];
+                }
+            }
+
+            targets[0] = nearestEnemy != null && shortestDistance <= atkRange ? nearestEnemy : null;
+            isTargeting = targets[0] != null;
+
+            var count = towerLevel == 4 ? 2 : 1;
+            for (var i = 0; i < count; i++)
+            {
+                if (!isTargeting) return;
+                _archerUnit[i].IsTargeting = isTargeting;
+                _archerUnit[i].Target = targets[0].transform;
+            }
         }
     }
 }

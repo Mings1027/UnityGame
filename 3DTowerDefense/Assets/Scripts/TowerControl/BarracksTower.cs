@@ -1,88 +1,78 @@
-using System;
 using Cysharp.Threading.Tasks;
 using GameControl;
 using UnitControl;
-using UnityEngine;
+using UnityEngine.AI;
 
 namespace TowerControl
 {
     public class BarracksTower : Tower
     {
         private BarracksUnit[] _units;
-        private bool _isSpawned;
-        
-        [SerializeField] private int unitCount;
+        private bool _isUnitSpawned;
+
+        protected override void Awake()
+        {
+            base.Awake();
+            targetCount = 3;
+        }
 
         protected override void OnEnable()
         {
             base.OnEnable();
-            _units = new BarracksUnit[unitCount];
+            _units = new BarracksUnit[targetCount];
         }
 
         protected override void OnDisable()
         {
             base.OnDisable();
-            _isSpawned = false;
+            _isUnitSpawned = false;
         }
 
         public override void Init(int unitHealth, int unitDamage, float attackRange, float attackDelay)
         {
             base.Init(unitHealth, unitDamage, attackRange, attackDelay);
-            SpawnUnit(unitCount).Forget();
+            SpawnUnit().Forget();
         }
 
-        public override void SetUp()
+        protected override void UpdateTarget()
         {
-        }
-
-        protected override void Targeting()
-        {
-            if (!_isSpawned) return;
-            for (var i = 0; i < unitCount; i++)
+            for (var i = 0; i < targetCount; i++)
             {
-                if (!_units[i].gameObject.activeSelf) continue;
-                _units[i].IsTargeting = isTargeting;
-                _units[i].Target = target;
+                if (targets[i] == null) continue;
+                _units[i].IsTargeting = true;
+                _units[i].Target = targets[i].transform;
             }
         }
 
-        private async UniTaskVoid SpawnUnit(int count)
+        private async UniTaskVoid SpawnUnit()
         {
-            await UniTask.Delay(1000, cancellationToken: cts.Token);
             var unitName = towerLevel == 4 ? "SpearManUnit" : "SwordManUnit";
 
-            for (var i = 0; i < count; i++)
+            for (var i = 0; i < targetCount; i++)
             {
-                _units[i] = StackObjectPool.Get<BarracksUnit>(unitName, transform.position);
-                _units[i].onDeadEvent += DeadCount;
-                _units[i].Init(damage, atkDelay);
+                await UniTask.Delay(1000, cancellationToken: cts.Token);
+                if (NavMesh.SamplePosition(transform.position, out var hit, 10, NavMesh.AllAreas))
+                {
+                    if (_units[i] != null && _units[i].gameObject.activeSelf)
+                    {print("off");
+                        _units[i].gameObject.SetActive(false);
+                    }
+
+                    _units[i] = StackObjectPool.Get<BarracksUnit>(unitName, hit.position);
+                    _units[i].onDeadEvent += DeadCount;
+                }
+
+                _units[i].UnitSetup(damage, atkDelay);
                 _units[i].GetComponent<Health>().InitializeHealth(health);
             }
 
-            _isSpawned = true;
-        }
-
-        private async UniTaskVoid ReSpawnUnit()
-        {
-            var unitName = towerLevel == 4 ? "SpearManUnit" : "SwordManUnit";
-
-            for (int i = 0; i < unitCount; i++)
-            {
-                if (!_units[i].gameObject.activeSelf)
-                {
-                    await UniTask.Delay(1000, cancellationToken: cts.Token);
-
-                    _units[i] = StackObjectPool.Get<BarracksUnit>(unitName, transform.position);
-                    _units[i].onDeadEvent += DeadCount;
-                    _units[i].Init(damage, atkDelay);
-                    _units[i].GetComponent<Health>().InitializeHealth(health);
-                }
-            }
+            if (_isUnitSpawned) return;
+            _isUnitSpawned = true;
         }
 
         private void DeadCount()
         {
-            ReSpawnUnit().Forget();
+            SpawnUnit().Forget();
         }
     }
 }

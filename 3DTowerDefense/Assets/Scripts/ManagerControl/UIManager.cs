@@ -4,7 +4,6 @@ using TowerControl;
 using TowerControl.TowerControlFolder;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace ManagerControl
@@ -24,11 +23,8 @@ namespace ManagerControl
 
         private bool _pointer;
 
-        [FormerlySerializedAs("towerManager")] [SerializeField]
-        private TowerBuildPointManager towerBuildPointManager;
-
+        [SerializeField] private TowerBuildPointManager towerBuildPointManager;
         [SerializeField] private TowerLeveling towerLeveling;
-
         [SerializeField] private InputManager input;
 
         [SerializeField] private TowerLevelManager[] towerLevelManagers;
@@ -83,13 +79,13 @@ namespace ManagerControl
         public void OnPointerEnter(PointerEventData eventData)
         {
             _pointer = true;
-            print("On");
+            // print("On");
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
             _pointer = false;
-            print("Off");
+            // print("Off");
         }
 
         private void Pause()
@@ -146,7 +142,6 @@ namespace ManagerControl
                     break;
             }
 
-            if (_selectedTower.isUpgrading) return;
             if (towerEditPanel.activeSelf) return;
             input.isEdit = true;
             towerEditPanel.transform.position = _cam.WorldToScreenPoint(pos);

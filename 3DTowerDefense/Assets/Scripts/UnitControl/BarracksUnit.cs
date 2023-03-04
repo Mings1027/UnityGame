@@ -55,5 +55,10 @@ namespace UnitControl
                 h.GetHit(damage, gameObject).Forget();
             }
         }
+
+        public void ChangeAnimator(RuntimeAnimatorController animatorController)
+        {
+            _anim.runtimeAnimatorController = animatorController;
+        }
     }
 }

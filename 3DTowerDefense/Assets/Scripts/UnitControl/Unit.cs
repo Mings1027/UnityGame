@@ -3,14 +3,13 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameControl;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace UnitControl
 {
     public abstract class Unit : MonoBehaviour
     {
+        private float _atkRange;
         private float _atkDelay;
-        private Transform _target;
 
         protected bool attackAble;
         protected int damage;
@@ -18,11 +17,7 @@ namespace UnitControl
 
         public bool IsTargeting { get; set; }
 
-        public Transform Target
-        {
-            get => _target;
-            set => _target = IsTargeting ? value : null;
-        }
+        public Transform Target { get; set; }
 
         protected LayerMask EnemyLayer => enemyLayer;
 
@@ -41,8 +36,8 @@ namespace UnitControl
             StackObjectPool.ReturnToPool(gameObject);
         }
 
-
-        public void Init(int unitDamage, float atkDelay)
+        public virtual void UnitSetup(int unitDamage, float atkDelay,
+            RuntimeAnimatorController runtimeAnimatorController = null)
         {
             damage = unitDamage;
             _atkDelay = atkDelay;
