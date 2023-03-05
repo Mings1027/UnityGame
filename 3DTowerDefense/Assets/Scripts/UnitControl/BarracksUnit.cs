@@ -10,13 +10,17 @@ namespace UnitControl
     {
         private NavMeshAgent _nav;
         private Animator _anim;
+
         private static readonly int AttackAble = Animator.StringToHash("AttackAble");
-    
+
         public event Action onDeadEvent;
 
         [SerializeField] private Transform weapon;
+        [SerializeField] private MeshFilter bodyMeshFilter;
+        [SerializeField] private MeshFilter weaponMeshFilter;
 
         [SerializeField] private float atkRadius;
+
         private void Awake()
         {
             _nav = GetComponent<NavMeshAgent>();
@@ -54,11 +58,6 @@ namespace UnitControl
             {
                 h.GetHit(damage, gameObject).Forget();
             }
-        }
-
-        public void ChangeAnimator(RuntimeAnimatorController animatorController)
-        {
-            _anim.runtimeAnimatorController = animatorController;
         }
     }
 }

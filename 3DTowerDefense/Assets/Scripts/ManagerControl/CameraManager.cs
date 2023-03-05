@@ -22,7 +22,7 @@ namespace ManagerControl
             input.OnCameraMoveEvent += CameraMove;
             input.OnCameraRotateEvent += CameraRotate;
             _rotLerp = 1;
-            _camRotQuaternion = Quaternion.Euler(0, 45, 0);
+            _camRotQuaternion = Quaternion.Euler(0, 0, 0);
             transform.rotation = _camRotQuaternion;
         }
 

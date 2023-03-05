@@ -24,18 +24,6 @@ namespace TowerControl
             ArcherUnitSetUp();
         }
 
-        private void ArcherUnitSetUp()
-        {
-            for (var i = 0; i < _archerUnit.Length; i++)
-            {
-                if (_archerUnit[i] != null && _archerUnit[i].gameObject.activeSelf)
-                {
-                    print("1");
-                    _archerUnit[i].gameObject.SetActive(false);
-                }
-            }
-        }
-
         public override void Init(int unitHealth, int unitDamage, float attackRange, float attackDelay)
         {
             base.Init(unitHealth, unitDamage, attackRange, attackDelay);
@@ -48,9 +36,19 @@ namespace TowerControl
             var count = towerLevel == 4 ? 2 : 1;
             for (var i = 0; i < count; i++)
             {
-                print("2");
                 _archerUnit[i] = StackObjectPool.Get<ArcherUnit>("ArcherUnit", archerPos[towerLevel + i].position);
                 _archerUnit[i].UnitSetup(damage, atkDelay);
+            }
+        }
+
+        private void ArcherUnitSetUp()
+        {
+            foreach (var t in _archerUnit)
+            {
+                if (t != null && t.gameObject.activeSelf)
+                {
+                    t.gameObject.SetActive(false);
+                }
             }
         }
 

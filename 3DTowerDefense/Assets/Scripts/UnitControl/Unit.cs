@@ -23,7 +23,7 @@ namespace UnitControl
 
         [SerializeField] private LayerMask enemyLayer;
 
-        private void OnEnable()
+        protected virtual void OnEnable()
         {
             attackAble = true;
             cts?.Dispose();
@@ -36,8 +36,7 @@ namespace UnitControl
             StackObjectPool.ReturnToPool(gameObject);
         }
 
-        public virtual void UnitSetup(int unitDamage, float atkDelay,
-            RuntimeAnimatorController runtimeAnimatorController = null)
+        public void UnitSetup(int unitDamage, float atkDelay)
         {
             damage = unitDamage;
             _atkDelay = atkDelay;

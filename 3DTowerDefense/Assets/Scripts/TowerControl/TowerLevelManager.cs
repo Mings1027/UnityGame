@@ -1,6 +1,5 @@
 using UnityEngine;
-using UnityEngine.ProBuilder;
-using UnityEngine.Serialization;
+using GD.MinMaxSlider;
 
 namespace TowerControl
 {
@@ -18,7 +17,10 @@ namespace TowerControl
             public string towerName;
             public string towerInfo;
             public int health;
-            public int damage;
+
+            [SerializeField] private int minDamage, maxDamage;
+
+            public int Damage => Random.Range(minDamage, maxDamage);
             public float attackDelay;
             public float attackRange;
         }

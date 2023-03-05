@@ -28,7 +28,7 @@ namespace TowerControl.TowerControlFolder
             var towerIndexLevel = towerLevelManager.towerLevels[selectedTower.towerLevel];
 
             selectedTower.Init(towerIndexLevel.health,
-                towerIndexLevel.damage,
+                towerIndexLevel.Damage,
                 towerIndexLevel.attackRange,
                 towerIndexLevel.attackDelay);
             selectedTower.ChangeMesh(towerIndexLevel.consMesh);

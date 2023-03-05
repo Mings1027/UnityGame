@@ -38,8 +38,7 @@ namespace TowerControl
         public TowerType Type => towerType;
 
         public int towerLevel;
-
-
+        
         public event Action<Tower, Vector3> onOpenTowerEditPanelEvent;
         public event Action<MeshFilter> onResetMeshEvent;
 

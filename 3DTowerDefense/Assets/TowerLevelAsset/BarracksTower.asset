@@ -20,7 +20,8 @@ MonoBehaviour:
     towerName: "\uCD08\uAE09\uAE30\uC0AC \uD6C8\uB828\uC18C"
     towerInfo: "\uBCD1\uC0AC\uB4E4\uC774 \uC801\uC744 \uAC00\uB85C\uB9C9\uACE0 \uACF5\uACA9\uD55C\uB2E4."
     health: 30
-    damage: 1
+    minDamage: 1
+    maxDamage: 3
     attackDelay: 1
     attackRange: 10
   - towerMesh: {fileID: 9092536998056213738, guid: c72fe99ba15384d4193576eaf7947b76,
@@ -30,7 +31,8 @@ MonoBehaviour:
     towerName: "\uC911\uAE09\uAE30\uC0AC \uD6C8\uB828\uC18C"
     towerInfo: "\uB354 \uC88B\uC740 \uC7A5\uBE44\uB85C \uC801\uC744 \uACF5\uACA9\uD55C\uB2E4."
     health: 40
-    damage: 2
+    minDamage: 3
+    maxDamage: 4
     attackDelay: 0.9
     attackRange: 12
   - towerMesh: {fileID: -1999333922511586390, guid: 8427ffa3fa4a94751906c3e53754ba95,
@@ -40,7 +42,8 @@ MonoBehaviour:
     towerName: "\uACE0\uAE09\uAE30\uC0AC \uD6C8\uB828\uC18C"
     towerInfo: "\uC544\uC8FC \uC88B\uC740 \uC7A5\uBE44\uB85C \uC801\uC744 \uACF5\uACA9\uD55C\uB2E4."
     health: 45
-    damage: 3
+    minDamage: 6
+    maxDamage: 10
     attackDelay: 0.8
     attackRange: 15
   - towerMesh: {fileID: -426320489398859270, guid: 40ee85cb8870f432789fc1431de702c5,
@@ -48,10 +51,11 @@ MonoBehaviour:
     consMesh: {fileID: 3300000, guid: ea663d94af17f204bab2138fd6d7529a, type: 3}
     constructionTime: 1.1
     towerName: "\uBC30\uB7ED Lv.A"
-    towerInfo: "\uBC29\uC5B4\uB825\uC740 \uB0AE\uC544\uC9C0\uC9C0\uB9CC \uACF5\uACA9\uB825\uC774
-      \uC0C1\uC2B9\uD55C\uB2E4."
-    health: 40
-    damage: 7
+    towerInfo: "\uACF5\uACA9\uB825\uC740 \uB0AE\uC9C0\uB9CC \uBC29\uC5B4\uB825\uC774
+      \uC0C1\uC2B9\uD55C\uB2E4"
+    health: 80
+    minDamage: 12
+    maxDamage: 18
     attackDelay: 1
     attackRange: 17
   - towerMesh: {fileID: -5633524149999515002, guid: b0b5c88a7cbf545d281007250280e4f3,
@@ -59,9 +63,10 @@ MonoBehaviour:
     consMesh: {fileID: 3300000, guid: 4e01b3fe89dac0f459cbebcdf668a784, type: 3}
     constructionTime: 1
     towerName: "\uBC30\uB7ED Lv.B"
-    towerInfo: "\uACF5\uACA9\uB825\uC740 \uB0AE\uC544\uC9C0\uC9C0\uB9CC \uBC29\uC5B4\uB825\uC774
-      \uC0C1\uC2B9\uD55C\uB2E4"
-    health: 80
-    damage: 4
+    towerInfo: "\uBC29\uC5B4\uB825\uC740 \uB0AE\uC9C0\uB9CC \uACF5\uACA9\uB825\uC774
+      \uC0C1\uC2B9\uD55C\uB2E4."
+    health: 40
+    minDamage: 16
+    maxDamage: 24
     attackDelay: 1
     attackRange: 15

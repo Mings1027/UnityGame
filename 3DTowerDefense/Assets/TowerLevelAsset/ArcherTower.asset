@@ -20,7 +20,8 @@ MonoBehaviour:
     towerName: "\uAD81\uC218 \uD0C0\uC6CC"
     towerInfo: "\uAD81\uC218\uAC00 \uC801\uC744 \uACF5\uACA9\uD55C\uB2E4."
     health: 0
-    damage: 1
+    minDamage: 4
+    maxDamage: 6
     attackDelay: 1
     attackRange: 10
   - towerMesh: {fileID: 6101466543135179747, guid: 7abd4cb9ee41546019ef4403bdcc7c6d,
@@ -30,7 +31,8 @@ MonoBehaviour:
     towerName: "\uC7A5\uAD81\uBCD1 \uD0C0\uC6CC"
     towerInfo: "\uAD81\uC218\uAC00 \uBA40\uB9AC \uC801\uC744 \uACF5\uACA9\uD55C\uB2E4."
     health: 0
-    damage: 2
+    minDamage: 7
+    maxDamage: 11
     attackDelay: 0.8
     attackRange: 12
   - towerMesh: {fileID: 373839224369909540, guid: 3cc0db9a63b8342be971b1e1e82f78ad,
@@ -40,7 +42,8 @@ MonoBehaviour:
     towerName: "\uBA85\uC0AC\uC218 \uD0C0\uC6CC"
     towerInfo: "\uAD81\uC218\uAC00 \uBA40\uB9AC \uBE60\uB974\uAC8C \uC801\uC744 \uACF5\uACA9\uD55C\uB2E4."
     health: 0
-    damage: 3
+    minDamage: 10
+    maxDamage: 16
     attackDelay: 0.5
     attackRange: 13
   - towerMesh: {fileID: -921210417987824202, guid: 14458b90d46524d48821d00f6b578e3e,
@@ -51,8 +54,9 @@ MonoBehaviour:
     towerInfo: "\uC801 \uD558\uB098\uB97C \uACA8\uB0E5\uD574 \uB9E4\uC6B0 \uAC15\uD558\uAC8C
       \uACF5\uACA9\uD55C\uB2E4."
     health: 0
-    damage: 9
-    attackDelay: 1
+    minDamage: 35
+    maxDamage: 65
+    attackDelay: 2
     attackRange: 30
   - towerMesh: {fileID: 9035024281202366042, guid: 2b586cb870b1f4fcf95c8a399cf512bf,
       type: 3}
@@ -62,6 +66,7 @@ MonoBehaviour:
     towerInfo: "\uB450\uBA85\uC758 \uAD81\uC218\uAC00 \uBE60\uB974\uAC8C \uC801\uC744
       \uACF5\uACA9\uD55C\uB2E4."
     health: 0
-    damage: 4
+    minDamage: 13
+    maxDamage: 19
     attackDelay: 0.5
     attackRange: 15
