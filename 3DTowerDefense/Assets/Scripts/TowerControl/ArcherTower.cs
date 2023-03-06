@@ -6,7 +6,7 @@ namespace TowerControl
 {
     public class ArcherTower : Tower
     {
-        private ArcherUnit[] _archerUnit;
+        private ArcherUnit[] _archerUnits;
         private Vector3 _targetDirection;
 
         [SerializeField] private Transform[] archerPos;
@@ -15,7 +15,7 @@ namespace TowerControl
         {
             base.Awake();
             targetCount = 3;
-            _archerUnit = new ArcherUnit[2];
+            _archerUnits = new ArcherUnit[2];
         }
 
         protected override void OnDisable()
@@ -24,9 +24,9 @@ namespace TowerControl
             ArcherUnitSetUp();
         }
 
-        public override void Init(int unitHealth, int unitDamage, float attackRange, float attackDelay)
+        public override void Init(int unitHealth, int unitDamage, float attackDelay, float attackRange)
         {
-            base.Init(unitHealth, unitDamage, attackRange, attackDelay);
+            base.Init(unitHealth, unitDamage, attackDelay, attackRange);
             ArcherUnitSetUp();
         }
 
@@ -36,14 +36,14 @@ namespace TowerControl
             var count = towerLevel == 4 ? 2 : 1;
             for (var i = 0; i < count; i++)
             {
-                _archerUnit[i] = StackObjectPool.Get<ArcherUnit>("ArcherUnit", archerPos[towerLevel + i].position);
-                _archerUnit[i].UnitSetup(damage, atkDelay);
+                _archerUnits[i] = StackObjectPool.Get<ArcherUnit>("ArcherUnit", archerPos[towerLevel + i].position);
+                _archerUnits[i].UnitSetup(damage, atkDelay, atkRange);
             }
         }
 
         private void ArcherUnitSetUp()
         {
-            foreach (var t in _archerUnit)
+            foreach (var t in _archerUnits)
             {
                 if (t != null && t.gameObject.activeSelf)
                 {
@@ -54,29 +54,6 @@ namespace TowerControl
 
         protected override void UpdateTarget()
         {
-            var shortestDistance = Mathf.Infinity;
-            Collider nearestEnemy = null;
-            for (var i = 0; i < targetCount; i++)
-            {
-                if (targets[i] == null) continue;
-                var distanceToEnemy = Vector3.Distance(transform.position, targets[i].transform.position);
-                if (distanceToEnemy < shortestDistance)
-                {
-                    shortestDistance = distanceToEnemy;
-                    nearestEnemy = targets[i];
-                }
-            }
-
-            targets[0] = nearestEnemy != null && shortestDistance <= atkRange ? nearestEnemy : null;
-            isTargeting = targets[0] != null;
-
-            var count = towerLevel == 4 ? 2 : 1;
-            for (var i = 0; i < count; i++)
-            {
-                if (!isTargeting) return;
-                _archerUnit[i].IsTargeting = isTargeting;
-                _archerUnit[i].Target = targets[0].transform;
-            }
         }
     }
 }

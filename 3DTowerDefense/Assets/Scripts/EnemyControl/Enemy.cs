@@ -11,60 +11,51 @@ namespace EnemyControl
     public abstract class Enemy : MonoBehaviour
     {
         private NavMeshAgent _nav;
-        private bool _isTargeting;
+        private CancellationTokenSource _cts;
+        private bool _attackAble;
+        private RaycastHit[] _hits;
 
-        protected Transform target;
-        protected CancellationTokenSource cts;
-        protected bool attackAble;
-
-        protected float AtkDelay
-        {
-            get => atkDelay;
-            set => atkDelay = value;
-        }
-
-        protected LayerMask AtkLayer => attackAbleLayer;
-
-        public bool attacking;
+        public bool isTargeting;
+        public Transform target;
         public Transform destination;
         public int damage;
 
         [SerializeField] private float atkDelay;
-        [SerializeField] private float range;
-        [SerializeField] private LayerMask attackAbleLayer;
-        [SerializeField] private Collider[] targets;
+        [SerializeField] private float atkRange;
 
         private void Awake()
         {
             _nav = GetComponent<NavMeshAgent>();
-            targets = new Collider[1];
+            _nav.stoppingDistance = atkRange;
         }
 
         private void OnEnable()
         {
-            cts?.Dispose();
-            cts = new CancellationTokenSource();
-            attackAble = true;
-            InvokeRepeating(nameof(UpdateTarget), 0f, 0.5f);
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
+            _attackAble = true;
         }
 
         private void OnDisable()
         {
-            cts?.Cancel();
+            isTargeting = false;
+            _cts?.Cancel();
             CancelInvoke();
             StackObjectPool.ReturnToPool(gameObject);
         }
 
         protected virtual void Update()
         {
-            if (_isTargeting)
+            if (isTargeting)
             {
-                if (attackAble && Vector3.Distance(transform.position, target.position) <= range)
+                if (_attackAble && _nav.remainingDistance <= _nav.stoppingDistance)
                 {
-                    _nav.SetDestination(target.position);
-                    // transform.LookAt(target.position);
                     Attack();
                     StartCoolDown().Forget();
+                }
+                else
+                {
+                    _nav.SetDestination(target.position);
                 }
             }
             else
@@ -78,35 +69,18 @@ namespace EnemyControl
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(transform.position, range);
+            Gizmos.DrawWireSphere(transform.position, atkRange);
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(transform.position + transform.forward * 1, 1);
         }
 
         protected abstract void Attack();
 
         private async UniTaskVoid StartCoolDown()
         {
-            attackAble = false;
-            await UniTask.Delay(TimeSpan.FromSeconds(AtkDelay), cancellationToken: cts.Token);
-            attackAble = true;
-        }
-
-        private void UpdateTarget()
-        {
-            var size = Physics.OverlapSphereNonAlloc(transform.position, range, targets, attackAbleLayer);
-            var shortestDistance = Mathf.Infinity;
-            Transform nearestTarget = null;
-            for (var i = 0; i < size; i++)
-            {
-                var distanceToUnit = Vector3.Distance(transform.position, targets[i].transform.position);
-                if (distanceToUnit < shortestDistance)
-                {
-                    shortestDistance = distanceToUnit;
-                    nearestTarget = targets[i].transform;
-                }
-            }
-
-            target = nearestTarget != null && shortestDistance <= range ? nearestTarget : null;
-            _isTargeting = target != null;
+            _attackAble = false;
+            await UniTask.Delay(TimeSpan.FromSeconds(atkDelay), cancellationToken: _cts.Token);
+            _attackAble = true;
         }
     }
 }

@@ -29,8 +29,7 @@ namespace TowerControl.TowerControlFolder
 
             selectedTower.Init(towerIndexLevel.health,
                 towerIndexLevel.Damage,
-                towerIndexLevel.attackRange,
-                towerIndexLevel.attackDelay);
+                towerIndexLevel.attackDelay, towerIndexLevel.attackRange);
             selectedTower.ChangeMesh(towerIndexLevel.consMesh);
 
             await UniTask.Delay(TimeSpan.FromSeconds(towerIndexLevel.constructionTime), cancellationToken: _cts.Token);

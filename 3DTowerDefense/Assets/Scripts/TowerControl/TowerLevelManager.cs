@@ -1,6 +1,4 @@
 using UnityEngine;
-using GD.MinMaxSlider;
-
 namespace TowerControl
 {
     [CreateAssetMenu]

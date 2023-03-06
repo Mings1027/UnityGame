@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
@@ -9,6 +10,7 @@ namespace GameControl
 {
     public class Health : MonoBehaviour
     {
+        private Renderer _renderer;
         private CancellationTokenSource _cts;
         [SerializeField] private int curHealth, maxHealth;
 
@@ -19,6 +21,8 @@ namespace GameControl
 
         private void OnEnable()
         {
+            _renderer = GetComponentInChildren<Renderer>();
+            _renderer.material.color = Color.white;
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
         }
@@ -39,6 +43,7 @@ namespace GameControl
         {
             if (isDead) return;
             curHealth -= amount;
+            HitEffect().Forget();
             if (curHealth > 0)
             {
                 hitWithReference?.Invoke(sender);
@@ -50,6 +55,13 @@ namespace GameControl
                 await UniTask.Delay(TimeSpan.FromSeconds(disappearTime), cancellationToken: _cts.Token);
                 gameObject.SetActive(false);
             }
+        }
+
+        private async UniTaskVoid HitEffect()
+        {
+            _renderer.material.color = Color.red;
+            await UniTask.Delay(500, cancellationToken: _cts.Token);
+            _renderer.material.color = Color.white;
         }
     }
 }

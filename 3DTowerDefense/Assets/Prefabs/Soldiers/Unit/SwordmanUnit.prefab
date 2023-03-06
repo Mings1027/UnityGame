@@ -416,23 +416,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 288b7560274594a4db9715d259f1eead, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  target: {fileID: 0}
   enemyLayer:
     serializedVersion: 2
     m_Bits: 256
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 128
   weapon: {fileID: 4157851805686730097}
-  bodyMeshFilter: {fileID: 4756928269554687009}
-  weaponMeshFilter: {fileID: 4757702531302941925}
-  runtimeAnim:
-  - {fileID: 9100000, guid: 172bab5d9f2584746a3f09664de9d215, type: 2}
-  - {fileID: 9100000, guid: cf5ec89c30162408c8751981d1b23646, type: 2}
-  animOverride: {fileID: 0}
-  bodyMeshes:
-  - {fileID: 3300000, guid: 24abc5cc9ec100d4e9468a7da08d77b8, type: 3}
-  - {fileID: 3300000, guid: bebef20717bf2cb42adfe83c7edc5a06, type: 3}
-  weaponMeshes:
-  - {fileID: 3300002, guid: 24abc5cc9ec100d4e9468a7da08d77b8, type: 3}
-  - {fileID: 3300002, guid: bebef20717bf2cb42adfe83c7edc5a06, type: 3}
-  atkRadius: 2
+  weaponRadius: 3
 --- !u!114 &-4982384831364881312
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -464,7 +456,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 7901291658597421272}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 1
+  m_Radius: 1.3
   m_Speed: 3.5
   m_Acceleration: 8
   avoidancePriority: 50

@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using AttackControl;
 using Cysharp.Threading.Tasks;
 using GameControl;
 using Unity.VisualScripting;
@@ -12,20 +13,20 @@ namespace TowerControl
     {
         private Outline _outline;
         private MeshFilter _meshFilter;
+        private RaycastHit _hit;
 
         private bool _attackAble;
         private bool _isBuilt;
         private bool _isUpgrading;
         private Vector3 _checkRangePoint;
 
-        // protected Transform target;
         protected CancellationTokenSource cts;
-        protected bool isTargeting;
         protected int health;
         protected int damage;
         protected float atkRange;
         protected float atkDelay;
         protected int targetCount;
+        protected Collider[] targets;
 
         public enum TowerType
         {
@@ -38,14 +39,14 @@ namespace TowerControl
         public TowerType Type => towerType;
 
         public int towerLevel;
-        
+
         public event Action<Tower, Vector3> onOpenTowerEditPanelEvent;
         public event Action<MeshFilter> onResetMeshEvent;
 
         [SerializeField] private TowerType towerType;
         [SerializeField] private LayerMask groundLayer;
         [SerializeField] private LayerMask enemyLayer;
-        protected Collider[] targets;
+
 
         protected virtual void Awake()
         {
@@ -63,7 +64,7 @@ namespace TowerControl
         {
             cts?.Dispose();
             cts = new CancellationTokenSource();
-            CheckGround();
+
             InvokeRepeating(nameof(CheckTarget), 0f, 0.5f);
             _attackAble = true;
         }
@@ -104,12 +105,6 @@ namespace TowerControl
             onOpenTowerEditPanelEvent?.Invoke(this, transform.position);
         }
 
-        private void OnDrawGizmos()
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(_checkRangePoint, atkRange);
-        }
-
         //==================================Event function=====================================================
 
         //==================================Custom function====================================================
@@ -119,14 +114,14 @@ namespace TowerControl
             _meshFilter.sharedMesh = consMeshFilter.sharedMesh;
         }
 
-        public virtual void Init(int unitHealth, int unitDamage, float attackRange, float attackDelay)
+        public virtual void Init(int unitHealth, int unitDamage, float attackDelay, float attackRange)
         {
             _isUpgrading = true;
             _outline.enabled = false;
             health = unitHealth;
             damage = unitDamage;
-            atkRange = attackRange;
             atkDelay = attackDelay;
+            atkRange = attackRange;
         }
 
         public virtual void SetUp()
@@ -145,21 +140,15 @@ namespace TowerControl
         private void CheckTarget()
         {
             if (!_isBuilt) return;
-            var size = Physics.OverlapSphereNonAlloc(_checkRangePoint, atkRange, targets, enemyLayer);
-            if (size <= 0 || _isUpgrading) return;
-            isTargeting = true;
+            Physics.OverlapSphereNonAlloc(_checkRangePoint, atkRange, targets, enemyLayer);
+            if (_isUpgrading) return;
             UpdateTarget();
         }
 
-        protected abstract void UpdateTarget();
-
-        private void CheckGround()
+        protected virtual void UpdateTarget()
         {
-            if (Physics.Raycast(transform.position, Vector3.down, out var hit, 100, groundLayer))
-            {
-                _checkRangePoint = hit.point;
-            }
         }
+
 
         //==================================Custom function====================================================
     }
