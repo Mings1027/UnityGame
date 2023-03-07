@@ -10,9 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 6965371322595520465}
   - component: {fileID: 6965371322595520467}
+  - component: {fileID: 5208955922669421524}
   - component: {fileID: 919741542511358481}
   - component: {fileID: 615191486289149194}
-  - component: {fileID: 5208955922669421524}
   - component: {fileID: 6614397972571029523}
   m_Layer: 8
   m_Name: SpearManEnemy
@@ -59,6 +59,20 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!136 &5208955922669421524
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6965371322595520466}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 1.3
+  m_Height: 3
+  m_Direction: 1
+  m_Center: {x: 0, y: 1.8617955, z: 0}
 --- !u!114 &919741542511358481
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -71,15 +85,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1b10cca5edc246c591d2b831865c073, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isTargeting: 0
-  target: {fileID: 0}
   destination: {fileID: 0}
   damage: 0
   unitLayer:
     serializedVersion: 2
     m_Bits: 4096
   atkDelay: 0
-  range: 0
+  atkRange: 0
 --- !u!114 &615191486289149194
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -102,20 +114,6 @@ MonoBehaviour:
       m_Calls: []
   isDead: 0
   disappearTime: 0
---- !u!136 &5208955922669421524
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6965371322595520466}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  m_Radius: 1.3
-  m_Height: 3
-  m_Direction: 1
-  m_Center: {x: 0, y: 1.8617955, z: 0}
 --- !u!95 &6614397972571029523
 Animator:
   serializedVersion: 5

@@ -14,19 +14,10 @@ namespace TowerControl
         private Outline _outline;
         private MeshFilter _meshFilter;
         private RaycastHit _hit;
-
-        private bool _attackAble;
-        private bool _isBuilt;
         private bool _isUpgrading;
         private Vector3 _checkRangePoint;
 
         protected CancellationTokenSource cts;
-        protected int health;
-        protected int damage;
-        protected float atkRange;
-        protected float atkDelay;
-        protected int targetCount;
-        protected Collider[] targets;
 
         public enum TowerType
         {
@@ -44,9 +35,8 @@ namespace TowerControl
         public event Action<MeshFilter> onResetMeshEvent;
 
         [SerializeField] private TowerType towerType;
-        [SerializeField] private LayerMask groundLayer;
-        [SerializeField] private LayerMask enemyLayer;
 
+//==================================Event function=====================================================
 
         protected virtual void Awake()
         {
@@ -54,24 +44,14 @@ namespace TowerControl
             _meshFilter = GetComponentInChildren<MeshFilter>();
         }
 
-        protected virtual void Start()
-        {
-            targets = new Collider[targetCount];
-        }
-
-        //==================================Event function=====================================================
         protected virtual void OnEnable()
         {
             cts?.Dispose();
             cts = new CancellationTokenSource();
-
-            InvokeRepeating(nameof(CheckTarget), 0f, 0.5f);
-            _attackAble = true;
         }
 
         protected virtual void OnDisable()
         {
-            _isBuilt = false;
             towerLevel = -1;
             cts?.Cancel();
             CancelInvoke();
@@ -80,14 +60,6 @@ namespace TowerControl
             onOpenTowerEditPanelEvent = null;
             onResetMeshEvent = null;
         }
-
-        // private void FixedUpdate()
-        // {
-        //     if (!_attackAble || isUpgrading) return;
-        //     Attack();
-        //     if (!isTargeting) return;
-        //     StartCoolDown().Forget();
-        // }
 
         public void OnPointerEnter(PointerEventData eventData)
         {
@@ -114,41 +86,16 @@ namespace TowerControl
             _meshFilter.sharedMesh = consMeshFilter.sharedMesh;
         }
 
-        public virtual void Init(int unitHealth, int unitDamage, float attackDelay, float attackRange)
+        public virtual void UnitInit()
         {
             _isUpgrading = true;
             _outline.enabled = false;
-            health = unitHealth;
-            damage = unitDamage;
-            atkDelay = attackDelay;
-            atkRange = attackRange;
         }
 
-        public virtual void SetUp()
+        public virtual void SetUp(int unitHealth, int unitDamage, float attackDelay, float attackRange)
         {
             _isUpgrading = false;
-            _isBuilt = true;
         }
-
-        private async UniTaskVoid StartCoolDown()
-        {
-            _attackAble = false;
-            await UniTask.Delay(TimeSpan.FromSeconds(atkDelay), cancellationToken: cts.Token);
-            _attackAble = true;
-        }
-
-        private void CheckTarget()
-        {
-            if (!_isBuilt) return;
-            Physics.OverlapSphereNonAlloc(_checkRangePoint, atkRange, targets, enemyLayer);
-            if (_isUpgrading) return;
-            UpdateTarget();
-        }
-
-        protected virtual void UpdateTarget()
-        {
-        }
-
 
         //==================================Custom function====================================================
     }

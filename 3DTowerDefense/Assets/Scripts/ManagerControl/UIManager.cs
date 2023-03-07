@@ -197,9 +197,7 @@ namespace ManagerControl
                 }
                 else
                 {
-                    if (_selectedTower.towerLevel < 2) _selectedTower.towerLevel++;
-                    else _selectedTower.towerLevel = _uniqueLevel;
-                    towerLeveling.TowerUpgrade(_selectedTower, towerLevelManagers[(int)_selectedTower.Type]).Forget();
+                    towerLeveling.TowerUpgrade(_uniqueLevel,_selectedTower, towerLevelManagers[(int)_selectedTower.Type]).Forget();
                 }
             }
             else
@@ -240,8 +238,7 @@ namespace ManagerControl
 
             _buildingPoint.SetActive(false);
             towerInfoPanel.SetActive(false);
-            _selectedTower.towerLevel++;
-            towerLeveling.TowerUpgrade(_selectedTower, towerLevelManagers[(int)_selectedTower.Type]).Forget();
+            towerLeveling.TowerUpgrade(0,_selectedTower, towerLevelManagers[(int)_selectedTower.Type]).Forget();
         }
 
         private void ResetMesh(MeshFilter meshFilter)

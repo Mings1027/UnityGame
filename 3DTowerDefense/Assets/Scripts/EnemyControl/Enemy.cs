@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using AttackControl;
 using Cysharp.Threading.Tasks;
 using GameControl;
 using UnityEngine;
@@ -13,13 +14,15 @@ namespace EnemyControl
         private NavMeshAgent _nav;
         private CancellationTokenSource _cts;
         private bool _attackAble;
-        private RaycastHit[] _hits;
+        private Collider[] _hits;
+        private bool _isTargeting;
 
-        public bool isTargeting;
-        public Transform target;
+        protected Transform target;
+
         public Transform destination;
         public int damage;
 
+        [SerializeField] private LayerMask unitLayer;
         [SerializeField] private float atkDelay;
         [SerializeField] private float atkRange;
 
@@ -27,6 +30,7 @@ namespace EnemyControl
         {
             _nav = GetComponent<NavMeshAgent>();
             _nav.stoppingDistance = atkRange;
+            _hits = new Collider[3];
         }
 
         private void OnEnable()
@@ -34,11 +38,13 @@ namespace EnemyControl
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
             _attackAble = true;
+
+            InvokeRepeating(nameof(FindUnit), 0, 1f);
         }
 
         private void OnDisable()
         {
-            isTargeting = false;
+            _isTargeting = false;
             _cts?.Cancel();
             CancelInvoke();
             StackObjectPool.ReturnToPool(gameObject);
@@ -46,7 +52,7 @@ namespace EnemyControl
 
         protected virtual void Update()
         {
-            if (isTargeting)
+            if (_isTargeting)
             {
                 if (_attackAble && _nav.remainingDistance <= _nav.stoppingDistance)
                 {
@@ -70,8 +76,6 @@ namespace EnemyControl
         {
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(transform.position, atkRange);
-            Gizmos.color = Color.cyan;
-            Gizmos.DrawWireSphere(transform.position + transform.forward * 1, 1);
         }
 
         protected abstract void Attack();
@@ -81,6 +85,13 @@ namespace EnemyControl
             _attackAble = false;
             await UniTask.Delay(TimeSpan.FromSeconds(atkDelay), cancellationToken: _cts.Token);
             _attackAble = true;
+        }
+
+        private void FindUnit()
+        {
+            var t = ObjectFinder.FindClosestObject(transform.position, atkRange, _hits, unitLayer);
+            target = t.Item1;
+            _isTargeting = t.Item2;
         }
     }
 }

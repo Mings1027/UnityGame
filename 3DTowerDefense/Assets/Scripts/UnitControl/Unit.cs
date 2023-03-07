@@ -4,73 +4,75 @@ using AttackControl;
 using Cysharp.Threading.Tasks;
 using GameControl;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace UnitControl
 {
     public abstract class Unit : MonoBehaviour
     {
         private float _atkDelay;
+        private CancellationTokenSource _cts;
 
-        protected RaycastHit hit;
-        protected float atkRange;
-        protected Collider[] hitCollider;
-        protected Vector3 checkRangePoint;
+        private float _atkRange;
+        private Collider[] _hitCollider;
+        private Vector3 _checkRangePoint;
         protected bool attackAble;
         protected int damage;
-        protected CancellationTokenSource cts;
 
-        public bool IsTargeting { get; set; }
+        protected bool isTargeting;
 
         public Transform target;
-
-        protected LayerMask EnemyLayer => enemyLayer;
-        protected LayerMask GroundLayer => groundLayer;
 
         [SerializeField] private LayerMask enemyLayer;
         [SerializeField] private LayerMask groundLayer;
 
         protected virtual void Awake()
         {
-            hitCollider = new Collider[3];
+            _hitCollider = new Collider[3];
         }
 
         protected virtual void OnEnable()
         {
             attackAble = true;
             var r = ObjectFinder.HitObject(transform.position, Vector3.down, groundLayer);
-            checkRangePoint = r.point;
+            _checkRangePoint = r.point;
 
-            cts?.Dispose();
-            cts = new CancellationTokenSource();
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
+
+            InvokeRepeating(nameof(FindEnemy), 0, 1f);
         }
 
         protected virtual void OnDisable()
         {
             CancelInvoke();
-            cts?.Cancel();
+            _cts?.Cancel();
             StackObjectPool.ReturnToPool(gameObject);
         }
-
-        private void OnDrawGizmos()
+        protected virtual void OnDrawGizmos()
         {
             Gizmos.color = Color.cyan;
-            Gizmos.DrawWireSphere(checkRangePoint, atkRange);
+            Gizmos.DrawWireSphere(_checkRangePoint, _atkRange);
         }
-
-        public void UnitSetup(int unitDamage, float atkDelay, float attackRange = 2)
+        public void UnitSetup(int unitDamage, float atkDelay, float attackRange)
         {
             damage = unitDamage;
             _atkDelay = atkDelay;
-            atkRange = attackRange;
+            _atkRange = attackRange;
         }
 
         protected abstract void Attack();
 
+        private void FindEnemy()
+        {
+            var t = ObjectFinder.FindClosestObject(_checkRangePoint, _atkRange, _hitCollider, enemyLayer);
+            target = t.Item1;
+            isTargeting = t.Item2;
+        }
+
         protected async UniTaskVoid StartCoolDown()
         {
             attackAble = false;
-            await UniTask.Delay(TimeSpan.FromSeconds(_atkDelay), cancellationToken: cts.Token);
+            await UniTask.Delay(TimeSpan.FromSeconds(_atkDelay), cancellationToken: _cts.Token);
             attackAble = true;
         }
     }

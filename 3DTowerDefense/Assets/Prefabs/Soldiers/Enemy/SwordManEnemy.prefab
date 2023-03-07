@@ -345,9 +345,9 @@ GameObject:
   m_Component:
   - component: {fileID: 10859800051177606}
   - component: {fileID: 10859800051177604}
+  - component: {fileID: 6269060457891663113}
   - component: {fileID: 4243633212556056026}
   - component: {fileID: 7433286837059750528}
-  - component: {fileID: 6269060457891663113}
   - component: {fileID: -3692400187074213520}
   m_Layer: 8
   m_Name: SwordManEnemy
@@ -394,6 +394,20 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!136 &6269060457891663113
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 10859800051177605}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 1.3
+  m_Height: 4
+  m_Direction: 1
+  m_Center: {x: 0, y: 2.5, z: 0}
 --- !u!114 &4243633212556056026
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -406,15 +420,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 558000a852120469fbe16d74920b59c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isTargeting: 0
-  target: {fileID: 0}
   destination: {fileID: 0}
   damage: 0
   unitLayer:
     serializedVersion: 2
     m_Bits: 4096
   atkDelay: 0
-  range: 0
+  atkRange: 0
 --- !u!114 &7433286837059750528
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -437,20 +449,6 @@ MonoBehaviour:
       m_Calls: []
   isDead: 0
   disappearTime: 0
---- !u!136 &6269060457891663113
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 10859800051177605}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  m_Radius: 1.3
-  m_Height: 4
-  m_Direction: 1
-  m_Center: {x: 0, y: 2.5, z: 0}
 --- !u!95 &-3692400187074213520
 Animator:
   serializedVersion: 5

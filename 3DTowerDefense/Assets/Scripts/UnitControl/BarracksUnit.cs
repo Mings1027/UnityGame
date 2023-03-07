@@ -1,10 +1,7 @@
 using System;
-using System.Collections.Generic;
-using AttackControl;
 using GameControl;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.Serialization;
 
 namespace UnitControl
 {
@@ -26,18 +23,11 @@ namespace UnitControl
             base.Awake();
             _nav = GetComponent<NavMeshAgent>();
             _anim = GetComponent<Animator>();
-            atkRange = 2;
         }
-
-        protected override void OnEnable()
-        {
-            base.OnEnable();
-            InvokeRepeating(nameof(FindObj), 0, 0.5f);
-        }
-
+        
         private void Update()
         {
-            if (!IsTargeting) return;
+            if (!isTargeting) return;
             _nav.SetDestination(target.position);
             if (Vector3.Distance(transform.position, target.position) > _nav.stoppingDistance) return;
             if (!attackAble) return;
@@ -53,14 +43,6 @@ namespace UnitControl
             onDeadEvent = null;
         }
 
-        private void OnDrawGizmos()
-        {
-            Gizmos.color = Color.cyan;
-            Gizmos.DrawWireSphere(checkRangePoint, atkRange);
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(weapon.position, weaponRadius);
-        }
-
         protected override void Attack()
         {
             _anim.SetTrigger(AttackAble);
@@ -68,13 +50,6 @@ namespace UnitControl
             {
                 h.GetHit(damage, gameObject).Forget();
             }
-        }
-
-        private void FindObj()
-        {
-            var t = ObjectFinder.FindClosestObject(transform.position, atkRange, hitCollider, EnemyLayer);
-            target = t.Item1;
-            IsTargeting = t.Item2;
         }
     }
 }

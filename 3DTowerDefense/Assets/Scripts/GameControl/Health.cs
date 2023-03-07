@@ -25,6 +25,7 @@ namespace GameControl
             _renderer.material.color = Color.white;
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
+            curHealth = maxHealth;
         }
 
         private void OnDisable()

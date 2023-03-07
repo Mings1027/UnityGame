@@ -14,7 +14,6 @@ namespace TowerControl
         protected override void Awake()
         {
             base.Awake();
-            targetCount = 3;
             _archerUnits = new ArcherUnit[2];
         }
 
@@ -24,20 +23,19 @@ namespace TowerControl
             ArcherUnitSetUp();
         }
 
-        public override void Init(int unitHealth, int unitDamage, float attackDelay, float attackRange)
+        public override void UnitInit()
         {
-            base.Init(unitHealth, unitDamage, attackDelay, attackRange);
+            base.UnitInit();
             ArcherUnitSetUp();
         }
-
-        public override void SetUp()
+        
+        public override void SetUp(int unitHealth, int unitDamage, float attackDelay, float attackRange)
         {
-            base.SetUp();
-            var count = towerLevel == 4 ? 2 : 1;
+            base.SetUp(unitHealth, unitDamage, attackDelay, attackRange);var count = towerLevel == 4 ? 2 : 1;
             for (var i = 0; i < count; i++)
             {
                 _archerUnits[i] = StackObjectPool.Get<ArcherUnit>("ArcherUnit", archerPos[towerLevel + i].position);
-                _archerUnits[i].UnitSetup(damage, atkDelay, atkRange);
+                _archerUnits[i].UnitSetup(unitDamage, attackDelay, attackRange);
             }
         }
 
@@ -50,10 +48,6 @@ namespace TowerControl
                     t.gameObject.SetActive(false);
                 }
             }
-        }
-
-        protected override void UpdateTarget()
-        {
         }
     }
 }
