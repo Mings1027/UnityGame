@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using AttackControl;
 using Cysharp.Threading.Tasks;
 using GameControl;
 using UnityEngine;
@@ -30,6 +31,7 @@ namespace TowerControl.TowerControlFolder
             var towerIndexLevel = towerLevelManager.towerLevels[selectedTower.towerLevel];
 
             selectedTower.UnitInit();
+            selectedTower.GetComponent<TargetFinder>().range = towerIndexLevel.attackRange;
 
             selectedTower.ChangeMesh(towerIndexLevel.consMesh);
 
@@ -37,8 +39,8 @@ namespace TowerControl.TowerControlFolder
 
             selectedTower.ChangeMesh(towerIndexLevel.towerMesh);
 
-            selectedTower.SetUp(towerIndexLevel.health, towerIndexLevel.Damage,
-                towerIndexLevel.attackDelay, towerIndexLevel.attackRange);
+            selectedTower.SetUp(towerIndexLevel.attackDelay,
+                towerIndexLevel.Damage, towerIndexLevel.health);
         }
     }
 }

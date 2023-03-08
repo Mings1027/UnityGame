@@ -1,12 +1,15 @@
 using System;
+using AttackControl;
 using GameControl;
+using InterfaceControl;
 using UnityEngine;
 using UnityEngine.AI;
 
 namespace UnitControl
 {
-    public class BarracksUnit : Unit
+    public class BarracksUnit : Unit, IFindObject
     {
+        private TargetFinder _targetFinder;
         private NavMeshAgent _nav;
         private Animator _anim;
 
@@ -18,22 +21,11 @@ namespace UnitControl
 
         [SerializeField] private float weaponRadius;
 
-        protected override void Awake()
+        private void Awake()
         {
-            base.Awake();
+            _targetFinder = GetComponent<TargetFinder>();
             _nav = GetComponent<NavMeshAgent>();
             _anim = GetComponent<Animator>();
-        }
-        
-        private void Update()
-        {
-            if (!isTargeting) return;
-            _nav.SetDestination(target.position);
-            if (Vector3.Distance(transform.position, target.position) > _nav.stoppingDistance) return;
-            if (!attackAble) return;
-            transform.LookAt(target.position);
-            Attack();
-            StartCoolDown().Forget();
         }
 
         protected override void OnDisable()
@@ -43,13 +35,30 @@ namespace UnitControl
             onDeadEvent = null;
         }
 
-        protected override void Attack()
+        private void Update()
+        {
+            if (!isTargeting) return;
+            _nav.SetDestination(target.position);
+            if (!attackAble) return;
+            Attack();
+            StartCoolDown().Forget();
+        }
+
+        public override void Attack()
         {
             _anim.SetTrigger(AttackAble);
             if (target.TryGetComponent(out Health h))
             {
-                h.GetHit(damage, gameObject).Forget();
+                h.GetHit(damage, target.gameObject).Forget();
             }
+        }
+
+
+        public void FindTarget()
+        {
+            var t = _targetFinder.FindClosestTarget();
+            target = t.Item1;
+            isTargeting = t.Item2;
         }
     }
 }

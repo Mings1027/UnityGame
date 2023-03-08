@@ -95,6 +95,7 @@ GameObject:
   - component: {fileID: 8150312539247346278}
   - component: {fileID: 3795578651295203901}
   - component: {fileID: 5167640490288243998}
+  - component: {fileID: -7498453590935730405}
   m_Layer: 9
   m_Name: MageTower
   m_TagString: Tower
@@ -144,15 +145,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   towerLevel: 0
-  isUpgrading: 0
+  target: {fileID: 0}
+  isTargeting: 0
   towerType: 3
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 128
-  enemyLayer:
-    serializedVersion: 2
-    m_Bits: 256
-  targets: []
 --- !u!114 &5167640490288243998
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -171,3 +166,19 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
+--- !u!114 &-7498453590935730405
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6505191089890531792}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89d816a991c314199b1c8f830e9a9e16, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  range: 0
+  targetLayer:
+    serializedVersion: 2
+    m_Bits: 256

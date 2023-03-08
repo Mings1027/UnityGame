@@ -29,9 +29,9 @@ namespace TowerControl
             BarrackUnitSetUp();
         }
 
-        public override void SetUp(int unitHealth, int unitDamage, float attackDelay, float attackRange)
+        public override void SetUp(float attackDelay, int unitDamage, int unitHealth)
         {
-            base.SetUp(unitHealth, unitDamage, attackDelay, attackRange);
+            base.SetUp(attackDelay, unitDamage, unitHealth);
             UpgradeUnit(unitHealth, unitDamage, attackDelay).Forget();
         }
 
@@ -72,7 +72,7 @@ namespace TowerControl
                     }
 
                     _barracksUnits[i].GetComponent<Health>().InitializeHealth(unitHealth);
-                    _barracksUnits[i].UnitSetup(unitDamage, attackDelay, 7);
+                    _barracksUnits[i].UnitSetUp(damage);
                 }
             }
         }
@@ -95,6 +95,11 @@ namespace TowerControl
         {
             if (_isSold) return;
             ReSpawnTask().Forget();
+        }
+
+        protected override void UnitControl()
+        {
+            
         }
     }
 }

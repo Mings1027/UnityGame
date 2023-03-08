@@ -13,7 +13,7 @@ namespace EnemyControl
 
         private void SpawnArrow(Vector3 t)
         {
-            var p = StackObjectPool.Get<EnemyProjectile>("ArcherEnemyArrow", transform.up, Quaternion.Euler(-90, 0, 0));
+            var p = StackObjectPool.Get<Projectile>("EnemyProjectile", transform.up, Quaternion.Euler(-90, 0, 0));
             p.Parabola(transform, t).Forget();
             p.damage = damage;
         }

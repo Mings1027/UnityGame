@@ -6,23 +6,16 @@ namespace UnitControl
 {
     public class ArcherUnit : Unit
     {
-        private void Update()
+        public override void Attack()
         {
-            if (!attackAble || !isTargeting) return;
-            Attack();
-            StartCoolDown().Forget();
-        }
-
-        protected override void Attack()
-        {
-            var t = target.position + target.forward * 2;
+            var t = target.position + target.forward;
             SpawnArrow(t);
             transform.rotation = Look(t);
         }
 
         private void SpawnArrow(Vector3 endPos)
         {
-            var p = StackObjectPool.Get<UnitProjectile>("ArcherUnitArrow", transform.position,
+            var p = StackObjectPool.Get<Projectile>("UnitProjectile", transform.position,
                 Quaternion.Euler(-90, 0, 0));
             p.Parabola(transform, endPos).Forget();
             p.damage = damage;

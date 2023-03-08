@@ -1,8 +1,10 @@
+using UnityEngine;
+
 namespace UnitControl
 {
     public class MageUnit : Unit
     {
-        protected override void Attack()
+        public override void Attack()
         {
             
         }

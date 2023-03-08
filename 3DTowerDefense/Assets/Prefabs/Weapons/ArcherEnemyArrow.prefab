@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 2722865382803578379}
   - component: {fileID: 2722865382803578378}
   - component: {fileID: 2055120198703303145}
-  m_Layer: 11
+  m_Layer: 6
   m_Name: ArcherEnemyArrow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -77,6 +77,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 0
+  attackTargetLayer:
+    serializedVersion: 2
+    m_Bits: 4096
   lifeTime: 1
   curve:
     serializedVersion: 2

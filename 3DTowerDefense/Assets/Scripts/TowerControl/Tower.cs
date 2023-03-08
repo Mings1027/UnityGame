@@ -3,19 +3,25 @@ using System.Threading;
 using AttackControl;
 using Cysharp.Threading.Tasks;
 using GameControl;
+using InterfaceControl;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace TowerControl
 {
-    public abstract class Tower : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler
+    public abstract class Tower : MonoBehaviour, IFindObject, IPointerEnterHandler, IPointerExitHandler,
+        IPointerDownHandler
     {
+        private TargetFinder _targetFinder;
         private Outline _outline;
         private MeshFilter _meshFilter;
         private RaycastHit _hit;
         private bool _isUpgrading;
-        private Vector3 _checkRangePoint;
+        private bool _attackAble;
+
+        private float atkDelay;
+        protected int damage;
 
         protected CancellationTokenSource cts;
 
@@ -30,6 +36,8 @@ namespace TowerControl
         public TowerType Type => towerType;
 
         public int towerLevel;
+        public Transform target;
+        public bool isTargeting;
 
         public event Action<Tower, Vector3> onOpenTowerEditPanelEvent;
         public event Action<MeshFilter> onResetMeshEvent;
@@ -40,6 +48,7 @@ namespace TowerControl
 
         protected virtual void Awake()
         {
+            _targetFinder = GetComponent<TargetFinder>();
             _outline = GetComponent<Outline>();
             _meshFilter = GetComponentInChildren<MeshFilter>();
         }
@@ -48,17 +57,26 @@ namespace TowerControl
         {
             cts?.Dispose();
             cts = new CancellationTokenSource();
+            _attackAble = true;
+            InvokeRepeating(nameof(FindTarget), 0, 1f);
         }
 
         protected virtual void OnDisable()
         {
             towerLevel = -1;
             cts?.Cancel();
-            CancelInvoke();
             StackObjectPool.ReturnToPool(gameObject);
             onResetMeshEvent?.Invoke(_meshFilter);
             onOpenTowerEditPanelEvent = null;
             onResetMeshEvent = null;
+            CancelInvoke();
+        }
+
+        private void Update()
+        {
+            if (!_attackAble || !isTargeting) return;
+            UnitControl();
+            StartCoolDown().Forget();
         }
 
         public void OnPointerEnter(PointerEventData eventData)
@@ -92,11 +110,28 @@ namespace TowerControl
             _outline.enabled = false;
         }
 
-        public virtual void SetUp(int unitHealth, int unitDamage, float attackDelay, float attackRange)
+        public virtual void SetUp(float attackDelay, int unitDamage, int unitHealth)
         {
             _isUpgrading = false;
+            atkDelay = attackDelay;
+            damage = unitDamage;
+        }
+
+        protected abstract void UnitControl();
+
+        private async UniTaskVoid StartCoolDown()
+        {
+            _attackAble = false;
+            await UniTask.Delay(TimeSpan.FromSeconds(atkDelay), cancellationToken: cts.Token);
+            _attackAble = true;
         }
 
         //==================================Custom function====================================================
+        public void FindTarget()
+        {
+            var t = _targetFinder.FindClosestTarget();
+            target = t.Item1;
+            isTargeting = t.Item2;
+        }
     }
 }

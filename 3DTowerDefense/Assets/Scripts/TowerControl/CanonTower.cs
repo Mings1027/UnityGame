@@ -1,9 +1,6 @@
-using GameControl;
-using UnityEngine;
-
 namespace TowerControl
 {
-    public class MageTower : Tower
+    public class CanonTower : Tower
     {
         protected override void UnitControl()
         {

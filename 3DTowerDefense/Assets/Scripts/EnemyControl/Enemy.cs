@@ -5,7 +5,6 @@ using Cysharp.Threading.Tasks;
 using GameControl;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.Serialization;
 
 namespace EnemyControl
 {
@@ -39,7 +38,7 @@ namespace EnemyControl
             _cts = new CancellationTokenSource();
             _attackAble = true;
 
-            InvokeRepeating(nameof(FindUnit), 0, 1f);
+            InvokeRepeating(nameof(FindUnit), 0, 2f);
         }
 
         private void OnDisable()

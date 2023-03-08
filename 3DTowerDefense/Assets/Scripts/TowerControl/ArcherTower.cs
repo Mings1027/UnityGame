@@ -1,3 +1,4 @@
+using AttackControl;
 using GameControl;
 using UnitControl;
 using UnityEngine;
@@ -28,14 +29,15 @@ namespace TowerControl
             base.UnitInit();
             ArcherUnitSetUp();
         }
-        
-        public override void SetUp(int unitHealth, int unitDamage, float attackDelay, float attackRange)
+
+        public override void SetUp(float attackDelay, int unitDamage, int unitHealth)
         {
-            base.SetUp(unitHealth, unitDamage, attackDelay, attackRange);var count = towerLevel == 4 ? 2 : 1;
+            base.SetUp(attackDelay, unitDamage, unitHealth);
+            var count = towerLevel == 4 ? 2 : 1;
             for (var i = 0; i < count; i++)
             {
                 _archerUnits[i] = StackObjectPool.Get<ArcherUnit>("ArcherUnit", archerPos[towerLevel + i].position);
-                _archerUnits[i].UnitSetup(unitDamage, attackDelay, attackRange);
+                _archerUnits[i].UnitSetUp(damage);
             }
         }
 
@@ -47,6 +49,16 @@ namespace TowerControl
                 {
                     t.gameObject.SetActive(false);
                 }
+            }
+        }
+
+        protected override void UnitControl()
+        {
+            var count = towerLevel == 4 ? 2 : 1;
+            for (var i = 0; i < count; i++)
+            {
+                _archerUnits[i].target = target;
+                _archerUnits[i].Attack();
             }
         }
     }
