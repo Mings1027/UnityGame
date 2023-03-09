@@ -19,8 +19,8 @@ namespace ManagerControl
 
         private void Awake()
         {
-            input.OnCameraMoveEvent += CameraMove;
-            input.OnCameraRotateEvent += CameraRotate;
+            input.onCameraMoveEvent += CameraMove;
+            input.onCameraRotateEvent += CameraRotate;
             _rotLerp = 1;
             _camRotQuaternion = Quaternion.Euler(0, 0, 0);
             transform.rotation = _camRotQuaternion;

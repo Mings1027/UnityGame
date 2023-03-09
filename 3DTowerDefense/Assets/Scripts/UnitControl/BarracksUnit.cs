@@ -10,11 +10,11 @@ namespace UnitControl
     public class BarracksUnit : Unit, IFindObject
     {
         private TargetFinder _targetFinder;
-        private NavMeshAgent _nav;
         private Animator _anim;
 
-        private static readonly int AttackAble = Animator.StringToHash("AttackAble");
+        private static readonly int IsAttack = Animator.StringToHash("isAttack");
 
+        public NavMeshAgent _nav;
         public event Action onDeadEvent;
 
         [SerializeField] private Transform weapon;
@@ -38,15 +38,20 @@ namespace UnitControl
         private void Update()
         {
             if (!isTargeting) return;
-            _nav.SetDestination(target.position);
+            // _nav.SetDestination(target.position);
             if (!attackAble) return;
             Attack();
             StartCoolDown().Forget();
         }
 
+        // public void MoveToTarget(Vector3 t)
+        // {
+        //     _nav.SetDestination(t);
+        // }
+
         public override void Attack()
         {
-            _anim.SetTrigger(AttackAble);
+            _anim.SetTrigger(IsAttack);
             if (target.TryGetComponent(out Health h))
             {
                 h.GetHit(damage, target.gameObject).Forget();

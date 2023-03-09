@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using TowerDefenseInput;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -12,15 +11,16 @@ namespace ManagerControl
         private GameInput _gameInput;
         private event Action<InputActionMap> OnActionMapChange;
 
-        public bool isBuild, isEdit;
-
 //===================================Game Play===========================================
-        public event Action<Vector2> OnCameraMoveEvent;
-        public event Action<float> OnCameraRotateEvent;
-        public event Action OnPauseEvent;
+        public event Action<Vector2> onCameraMoveEvent;
+        public event Action<float> onCameraRotateEvent;
+        public event Action onPauseEvent;
+        public event Action onClosePanelEvent;
+        public event Action<Vector2> onGetMousePositionEvent;
+        public event Action onClickEvent; 
 
 //=======================================UI===========================================
-        public event Action OnResumeEvent;
+        public event Action onResumeEvent;
 
         private void OnEnable()
         {
@@ -37,8 +37,6 @@ namespace ManagerControl
         private void Init()
         {
             ToggleActionMap(_gameInput.GamePlay);
-            isBuild = false;
-            isEdit = false;
         }
 
         private void ToggleActionMap(InputActionMap inputActionMap)
@@ -53,28 +51,46 @@ namespace ManagerControl
 
         public void OnCameraMove(InputAction.CallbackContext context)
         {
-            OnCameraMoveEvent?.Invoke(context.ReadValue<Vector2>());
+            onCameraMoveEvent?.Invoke(context.ReadValue<Vector2>());
         }
 
         public void OnCameraRotate(InputAction.CallbackContext context)
         {
             if (context.started)
             {
-                OnCameraRotateEvent?.Invoke(context.ReadValue<float>());
+                onCameraRotateEvent?.Invoke(context.ReadValue<float>());
             }
         }
 
         public void OnPause(InputAction.CallbackContext context)
         {
-            OnPauseEvent?.Invoke();
+            onPauseEvent?.Invoke();
             ToggleActionMap(_gameInput.UI);
         }
-        
+
+        public void OnMousePosition(InputAction.CallbackContext context)
+        {
+            onGetMousePositionEvent?.Invoke(context.ReadValue<Vector2>());
+        }
+
+        public void OnClick(InputAction.CallbackContext context)
+        {
+            if (context.started)
+            {
+                onClickEvent?.Invoke();
+            }
+        }
+
+        public void OnRightClick(InputAction.CallbackContext context)
+        {
+            onClosePanelEvent?.Invoke();
+        }
+
         //==================================UI Action Map=============================================
 
         public void OnResume(InputAction.CallbackContext context)
         {
-            OnResumeEvent?.Invoke();
+            onResumeEvent?.Invoke();
             ToggleActionMap(_gameInput.GamePlay);
         }
 
@@ -113,10 +129,11 @@ namespace ManagerControl
             throw new NotImplementedException();
         }
 
-        public void OnRightClick(InputAction.CallbackContext context)
+        public void OnUIRightClick(InputAction.CallbackContext context)
         {
             throw new NotImplementedException();
         }
+
 
         public void OnTrackedDevicePosition(InputAction.CallbackContext context)
         {

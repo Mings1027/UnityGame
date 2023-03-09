@@ -31,7 +31,7 @@ namespace TowerControl.TowerControlFolder
             var towerIndexLevel = towerLevelManager.towerLevels[selectedTower.towerLevel];
 
             selectedTower.UnitInit();
-            selectedTower.GetComponent<TargetFinder>().range = towerIndexLevel.attackRange;
+            selectedTower.GetComponent<TargetFinder>().RangeSetUp(towerIndexLevel.attackRange);
 
             selectedTower.ChangeMesh(towerIndexLevel.consMesh);
 

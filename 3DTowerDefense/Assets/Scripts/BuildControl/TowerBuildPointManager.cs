@@ -1,9 +1,9 @@
-using BuildControl;
 using GameControl;
 using ManagerControl;
+using TowerControl;
 using UnityEngine;
 
-namespace TowerControl.TowerControlFolder
+namespace BuildControl
 {
     public class TowerBuildPointManager : MonoBehaviour
     {

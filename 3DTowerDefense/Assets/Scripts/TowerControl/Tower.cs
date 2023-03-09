@@ -10,17 +10,18 @@ using UnityEngine.EventSystems;
 
 namespace TowerControl
 {
-    public abstract class Tower : MonoBehaviour, IFindObject, IPointerEnterHandler, IPointerExitHandler,
+    public abstract class Tower : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         IPointerDownHandler
     {
-        private TargetFinder _targetFinder;
         private Outline _outline;
         private MeshFilter _meshFilter;
         private RaycastHit _hit;
         private bool _isUpgrading;
         private bool _attackAble;
-
         private float atkDelay;
+
+        protected TargetFinder targetFinder;
+        protected bool isSold;
         protected int damage;
 
         protected CancellationTokenSource cts;
@@ -48,7 +49,7 @@ namespace TowerControl
 
         protected virtual void Awake()
         {
-            _targetFinder = GetComponent<TargetFinder>();
+            targetFinder = GetComponent<TargetFinder>();
             _outline = GetComponent<Outline>();
             _meshFilter = GetComponentInChildren<MeshFilter>();
         }
@@ -72,7 +73,7 @@ namespace TowerControl
             CancelInvoke();
         }
 
-        private void Update()
+        protected virtual void Update()
         {
             if (!_attackAble || !isTargeting) return;
             UnitControl();
@@ -89,10 +90,15 @@ namespace TowerControl
             _outline.enabled = false;
         }
 
-        public void OnPointerDown(PointerEventData eventData)
+        public virtual void OnPointerDown(PointerEventData eventData)
         {
             if (_isUpgrading) return;
             onOpenTowerEditPanelEvent?.Invoke(this, transform.position);
+        }
+
+        protected virtual void OnDrawGizmos()
+        {
+            
         }
 
         //==================================Event function=====================================================
@@ -127,9 +133,9 @@ namespace TowerControl
         }
 
         //==================================Custom function====================================================
-        public void FindTarget()
+        protected virtual void FindTarget()
         {
-            var t = _targetFinder.FindClosestTarget();
+            var t = targetFinder.FindClosestTarget();
             target = t.Item1;
             isTargeting = t.Item2;
         }

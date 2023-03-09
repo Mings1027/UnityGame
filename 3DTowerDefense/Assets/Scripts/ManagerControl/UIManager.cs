@@ -1,3 +1,4 @@
+using BuildControl;
 using GameControl;
 using TMPro;
 using TowerControl;
@@ -32,7 +33,6 @@ namespace ManagerControl
         [SerializeField] private GameObject menuPanel;
         [SerializeField] private string[] towerNames;
 
-        [SerializeField] private GameObject closePanelButton;
         [SerializeField] private GameObject towerSelectPanel;
         [SerializeField] private GameObject towerEditPanel;
         [SerializeField] private GameObject towerInfoPanel;
@@ -63,12 +63,11 @@ namespace ManagerControl
 
         private void Start()
         {
-            input.OnPauseEvent += Pause;
-            input.OnResumeEvent += Resume;
-            input.isBuild = false;
-            input.isEdit = false;
+            input.onPauseEvent += Pause;
+            input.onResumeEvent += Resume;
+            input.onClosePanelEvent += CloseTowerSelectPanel;
+            input.onClosePanelEvent += CloseTowerEditPanel;
             menuPanel.SetActive(false);
-            closePanelButton.SetActive(false);
             towerSelectPanel.SetActive(false);
             okButton.SetActive(false);
             towerEditPanel.SetActive(false);
@@ -104,17 +103,15 @@ namespace ManagerControl
 
         public void OpenTowerSelectPanel(GameObject buildPoint)
         {
-            if (towerSelectPanel.activeSelf) return;
-            input.isBuild = true;
+            CloseTowerEditPanel();
+            // if (towerSelectPanel.activeSelf) return;
             _buildingPoint = buildPoint;
             towerSelectPanel.transform.position = _cam.WorldToScreenPoint(buildPoint.transform.position);
             towerSelectPanel.SetActive(true);
-            closePanelButton.SetActive(true);
         }
 
-        public void CloseTowerSelectPanel()
+        private void CloseTowerSelectPanel()
         {
-            input.isBuild = false;
             towerSelectPanel.SetActive(false);
             okButton.SetActive(false);
             if (!_tempTower) return;
@@ -124,6 +121,7 @@ namespace ManagerControl
 
         private void OpenTowerEditPanel(Tower t, Vector3 pos)
         {
+            CloseTowerSelectPanel();
             _isTower = true;
             _selectedTower = t;
             switch (t.towerLevel)
@@ -142,21 +140,17 @@ namespace ManagerControl
                     break;
             }
 
-            if (towerEditPanel.activeSelf) return;
-            input.isEdit = true;
+            // if (towerEditPanel.activeSelf) return;
             towerEditPanel.transform.position = _cam.WorldToScreenPoint(pos);
             towerEditPanel.SetActive(true);
-            closePanelButton.SetActive(true);
         }
 
-        public void CloseTowerEditPanel()
+        private void CloseTowerEditPanel()
         {
             _isTower = false;
-            input.isEdit = false;
             towerEditPanel.SetActive(false);
             towerInfoPanel.SetActive(false);
             okButton.SetActive(false);
-            closePanelButton.SetActive(false);
         }
 
         public void TowerSelectButton(int index)
@@ -225,7 +219,6 @@ namespace ManagerControl
 
         private void TowerBuild()
         {
-            input.isBuild = false;
             towerSelectPanel.SetActive(false);
             okButton.SetActive(false);
             _selectedTower = _tempTower;
