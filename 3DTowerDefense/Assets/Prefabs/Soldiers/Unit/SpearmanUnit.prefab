@@ -346,6 +346,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4417539079662013202}
   - component: {fileID: 4417539079662013201}
+  - component: {fileID: 8678424500145534307}
   - component: {fileID: 1187569668635173033}
   - component: {fileID: 4417539079662013207}
   - component: {fileID: 7138177142404566708}
@@ -386,14 +387,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 0}
-  enemyLayer:
+  damage: 0
+  weapon: {fileID: 9180591292847906816}
+  weaponRadius: 2
+--- !u!114 &8678424500145534307
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4417539079662013206}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 89d816a991c314199b1c8f830e9a9e16, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetLayer:
     serializedVersion: 2
     m_Bits: 256
   groundLayer:
     serializedVersion: 2
     m_Bits: 128
-  weapon: {fileID: 9180591292847906816}
-  weaponRadius: 2
 --- !u!114 &1187569668635173033
 MonoBehaviour:
   m_ObjectHideFlags: 0

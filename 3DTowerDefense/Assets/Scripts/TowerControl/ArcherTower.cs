@@ -5,10 +5,10 @@ using UnityEngine;
 
 namespace TowerControl
 {
-    public class ArcherTower : Tower
+    public class ArcherTower : TowerBase
     {
-        private ArcherUnit[] _archerUnits;
         private Vector3 _targetDirection;
+        private ArcherUnit[] _archerUnits;
 
         [SerializeField] private Transform[] archerPos;
 
@@ -24,20 +24,20 @@ namespace TowerControl
             ArcherUnitSetUp();
         }
 
-        public override void UnitInit()
+        public override void ReadyToBuild(MeshFilter consMeshFilter)
         {
-            base.UnitInit();
+            base.ReadyToBuild(consMeshFilter);
             ArcherUnitSetUp();
         }
 
-        public override void SetUp(float attackDelay, int unitDamage, int unitHealth)
+        public override void Building(float delay, float range, int damage, int health, MeshFilter towerMeshFilter)
         {
-            base.SetUp(attackDelay, unitDamage, unitHealth);
+            base.Building(delay, range, damage, health, towerMeshFilter);
             var count = towerLevel == 4 ? 2 : 1;
             for (var i = 0; i < count; i++)
             {
                 _archerUnits[i] = StackObjectPool.Get<ArcherUnit>("ArcherUnit", archerPos[towerLevel + i].position);
-                _archerUnits[i].UnitSetUp(damage);
+                _archerUnits[i].GetComponent<TargetFinder>().SetUp(delay, range, damage);
             }
         }
 
@@ -52,14 +52,14 @@ namespace TowerControl
             }
         }
 
-        protected override void UnitControl()
-        {
-            var count = towerLevel == 4 ? 2 : 1;
-            for (var i = 0; i < count; i++)
-            {
-                _archerUnits[i].target = target;
-                _archerUnits[i].Attack();
-            }
-        }
+        // protected override void UnitControl()
+        // {
+        //     var count = towerLevel == 4 ? 2 : 1;
+        //     for (var i = 0; i < count; i++)
+        //     {
+        //         _archerUnits[i].target = target;
+        //         _archerUnits[i].Attack();
+        //     }
+        // }
     }
 }

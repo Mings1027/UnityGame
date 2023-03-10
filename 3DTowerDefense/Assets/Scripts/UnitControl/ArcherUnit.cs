@@ -6,7 +6,7 @@ namespace UnitControl
 {
     public class ArcherUnit : Unit
     {
-        public override void Attack()
+        protected override void Attack()
         {
             var t = target.position + target.forward;
             SpawnArrow(t);
@@ -18,7 +18,7 @@ namespace UnitControl
             var p = StackObjectPool.Get<Projectile>("UnitProjectile", transform.position,
                 Quaternion.Euler(-90, 0, 0));
             p.Parabola(transform, endPos).Forget();
-            p.damage = damage;
+            p.damage = targetFinder.Damage;
         }
 
         private Quaternion Look(Vector3 direction)

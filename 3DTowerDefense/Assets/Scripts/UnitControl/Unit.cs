@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using AttackControl;
 using Cysharp.Threading.Tasks;
 using GameControl;
 using UnityEngine;
@@ -10,16 +11,21 @@ namespace UnitControl
     {
         private CancellationTokenSource _cts;
 
+        protected TargetFinder targetFinder;
         protected bool isTargeting;
-        protected bool attackAble;
-        
         public Transform target;
-        public int damage;
+
+
+        protected virtual void Awake()
+        {
+            targetFinder = GetComponent<TargetFinder>();
+        }
 
         protected virtual void OnEnable()
         {
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
+            InvokeRepeating(nameof(FoundTarget), 0, 1f);
         }
 
         protected virtual void OnDisable()
@@ -29,18 +35,20 @@ namespace UnitControl
             StackObjectPool.ReturnToPool(gameObject);
         }
 
-        public abstract void Attack();
-
-        protected async UniTaskVoid StartCoolDown()
+        protected virtual void Update()
         {
-            attackAble = false;
-            await UniTask.Delay(1000, cancellationToken: _cts.Token);
-            attackAble = true;
+            if (!isTargeting || !targetFinder.attackAble) return;
+            Attack();
+            targetFinder.StartCoolDown().Forget();
         }
 
-        public void UnitSetUp(int amount)
+        protected abstract void Attack();
+
+        private void FoundTarget()
         {
-            damage = amount;
+            var t = targetFinder.FindClosestTarget();
+            target = t.Item1;
+            isTargeting = t.Item2;
         }
     }
 }

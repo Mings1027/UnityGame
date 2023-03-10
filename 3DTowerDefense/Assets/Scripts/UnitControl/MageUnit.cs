@@ -4,7 +4,7 @@ namespace UnitControl
 {
     public class MageUnit : Unit
     {
-        public override void Attack()
+        protected override void Attack()
         {
             
         }

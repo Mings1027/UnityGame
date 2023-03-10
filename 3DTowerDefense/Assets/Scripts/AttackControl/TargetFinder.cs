@@ -1,73 +1,76 @@
 using System;
-using ManagerControl;
-using TowerControl;
+using System.Threading;
+using Cysharp.Threading.Tasks;
+using GameControl;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 namespace AttackControl
 {
-    public class TargetFinder : MonoBehaviour, IPointerDownHandler
+    public class TargetFinder : MonoBehaviour
     {
         private Vector3 _checkRangePoint;
         private Collider[] _results;
-        private MeshRenderer _meshRenderer;
-        private float _range;
+        private float _atkDelay, _atkRange;
+        private CancellationTokenSource _cts;
+        private Transform _target;
 
-        [SerializeField] private InputManager input;
+        public int Damage { get; private set; }
+        public bool attackAble;
         [SerializeField] private LayerMask targetLayer;
-        [SerializeField] private GameObject towerRangeGameObject;
-
+        
         private void Awake()
         {
             _results = new Collider[3];
-            _meshRenderer = towerRangeGameObject.GetComponent<MeshRenderer>();
-        }
-
-        private void Start()
-        {
-            input.onClosePanelEvent += OffRange;
         }
 
         private void OnEnable()
         {
-            _meshRenderer.enabled = false;
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
+            attackAble = true;
         }
 
         private void OnDisable()
         {
+            _cts.Cancel();
             CancelInvoke();
         }
 
-        public void OnPointerDown(PointerEventData eventData)
-        {
-            _meshRenderer.enabled = true;
-        }
+        // private void Update()
+        // {
+        //     if (!_attackAble || !_isTargeting) return;
+        //     Attack();
+        //     StartCoolDown().Forget();
+        // }
 
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(transform.position, _range);
+            Gizmos.DrawWireSphere(transform.position, _atkRange);
         }
 
-        private void OffRange()
+        public void SetUp(float attackDelay, float attackRange, int unitDamage, int unitHealth = 0)
         {
-            _meshRenderer.enabled = false;
+            _atkDelay = attackDelay;
+            _atkRange = attackRange;
+            Damage = unitDamage;
+            if (TryGetComponent(out Health h)) h.InitializeHealth(unitHealth);
         }
 
-        public void RangeSetUp(float atkRange)
+        public async UniTaskVoid StartCoolDown()
         {
-            _range = atkRange;
-            towerRangeGameObject.transform.localScale = new Vector3(_range * 2, 0.1f, _range * 2);
+            attackAble = false;
+            await UniTask.Delay(TimeSpan.FromSeconds(_atkDelay), cancellationToken: _cts.Token);
+            attackAble = true;
         }
 
         public (Transform, bool) FindClosestTarget()
         {
-            var size = Physics.OverlapSphereNonAlloc(transform.position, _range, _results, targetLayer);
+            var size = Physics.OverlapSphereNonAlloc(transform.position, _atkRange, _results, targetLayer);
             var shortestDistance = Mathf.Infinity;
             Transform nearestEnemy = null;
 
             if (size <= 0) return (null, false);
-
             for (var i = 0; i < size; i++)
             {
                 var distanceToResult = Vector3.SqrMagnitude(transform.position - _results[i].transform.position);

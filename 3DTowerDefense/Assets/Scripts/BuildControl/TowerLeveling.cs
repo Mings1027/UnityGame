@@ -1,46 +1,25 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
 using AttackControl;
 using Cysharp.Threading.Tasks;
 using GameControl;
+using TowerControl;
 using UnityEngine;
 
-namespace TowerControl.TowerControlFolder
+namespace BuildControl
 {
-    public class TowerLeveling : MonoBehaviour
+    public abstract class TowerLeveling 
     {
-        private CancellationTokenSource _cts;
-
-        private void Awake()
+        public static async UniTaskVoid TowerUpgrade(int uniqueLevel, TowerBase selectedTower,
+            TowerLevelManager towerLevelManager)
         {
-            _cts?.Dispose();
-            _cts = new CancellationTokenSource();
-        }
-
-        private void OnDestroy()
-        {
-            _cts.Cancel();
-        }
-
-        public async UniTaskVoid TowerUpgrade(int uniqueLevel, Tower selectedTower, TowerLevelManager towerLevelManager)
-        {
-            if (selectedTower.towerLevel < 2) selectedTower.towerLevel++;
-            else if (uniqueLevel > 0) selectedTower.towerLevel = uniqueLevel;
+            selectedTower.TowerLevelUp(uniqueLevel);
             StackObjectPool.Get("BuildSmoke", selectedTower.transform.position + new Vector3(0, 7, 0));
-            var towerIndexLevel = towerLevelManager.towerLevels[selectedTower.towerLevel];
+            var t = towerLevelManager.towerLevels[selectedTower.TowerLevel];
 
-            selectedTower.UnitInit();
-            selectedTower.GetComponent<TargetFinder>().RangeSetUp(towerIndexLevel.attackRange);
-
-            selectedTower.ChangeMesh(towerIndexLevel.consMesh);
-
-            await UniTask.Delay(TimeSpan.FromSeconds(towerIndexLevel.constructionTime), cancellationToken: _cts.Token);
-
-            selectedTower.ChangeMesh(towerIndexLevel.towerMesh);
-
-            selectedTower.SetUp(towerIndexLevel.attackDelay,
-                towerIndexLevel.Damage, towerIndexLevel.health);
+            selectedTower.ReadyToBuild(t.consMesh);
+            
+            await UniTask.Delay(1000);
+            
+            selectedTower.Building(t.attackDelay, t.attackRange, t.Damage, t.health, t.towerMesh);
         }
     }
 }

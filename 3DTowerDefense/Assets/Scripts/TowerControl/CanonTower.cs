@@ -1,10 +1,6 @@
 namespace TowerControl
 {
-    public class CanonTower : Tower
+    public class CanonTower : TowerBase
     {
-        protected override void UnitControl()
-        {
-            
-        }
     }
 }

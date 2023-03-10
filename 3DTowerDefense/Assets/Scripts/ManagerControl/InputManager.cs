@@ -17,7 +17,7 @@ namespace ManagerControl
         public event Action onPauseEvent;
         public event Action onClosePanelEvent;
         public event Action<Vector2> onGetMousePositionEvent;
-        public event Action onClickEvent; 
+        public event Action onClickEvent;
 
 //=======================================UI===========================================
         public event Action onResumeEvent;
@@ -83,7 +83,10 @@ namespace ManagerControl
 
         public void OnRightClick(InputAction.CallbackContext context)
         {
-            onClosePanelEvent?.Invoke();
+            if (context.started)
+            {
+                onClosePanelEvent?.Invoke();
+            }
         }
 
         //==================================UI Action Map=============================================

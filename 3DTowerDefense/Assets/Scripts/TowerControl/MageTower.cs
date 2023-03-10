@@ -3,11 +3,7 @@ using UnityEngine;
 
 namespace TowerControl
 {
-    public class MageTower : Tower
+    public class MageTower : TowerBase
     {
-        protected override void UnitControl()
-        {
-            
-        }
     }
 }

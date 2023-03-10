@@ -1,4 +1,5 @@
 using System;
+using AttackControl;
 using Cysharp.Threading.Tasks;
 using GameControl;
 using ManagerControl;
@@ -9,19 +10,18 @@ using UnityEngine.EventSystems;
 
 namespace TowerControl
 {
-    public class BarracksTower : Tower
+    public class BarracksTower : TowerBase
     {
         private Camera _cam;
         private Vector3 _arrivalPos;
-        private BarracksUnit[] _barracksUnits;
         private Ray _ray;
         private RaycastHit _hit;
+        private BarracksUnit[] _barracksUnits;
 
         private bool _getUnitDestination;
-        private bool _unitMove;
+        private bool _isMovingUnit;
 
         [SerializeField] private InputManager input;
-        [SerializeField] private LayerMask groundLayer;
         [SerializeField] private float unitMoveRange;
 
         protected override void Awake()
@@ -34,16 +34,9 @@ namespace TowerControl
             input.onClosePanelEvent += () => _getUnitDestination = false;
         }
 
-        protected override void OnEnable()
-        {
-            base.OnEnable();
-            isSold = false;
-        }
-
         protected override void OnDisable()
         {
             base.OnDisable();
-            isSold = true;
             BarrackUnitSetUp();
         }
 
@@ -53,17 +46,14 @@ namespace TowerControl
             _getUnitDestination = true;
         }
 
-        protected override void Update()
+        private void Update()
         {
-            if (!_unitMove) return;
-            UnitControl();
+            if (!_isMovingUnit) return;
+            for (var i = 0; i < _barracksUnits.Length; i++)
+            {
+                _barracksUnits[i].MovingUnit(_arrivalPos);
+            }
         }
-
-        protected override void OnDrawGizmos()
-        {
-            Gizmos.DrawWireSphere(transform.position, unitMoveRange);
-        }
-
         //==================================Custom Function====================================================
         //==================================Custom Function====================================================
 
@@ -76,20 +66,21 @@ namespace TowerControl
         private void MoveUnit()
         {
             if (!_getUnitDestination) return;
-            _unitMove = true;
-            if (Physics.Raycast(_ray, out _hit, groundLayer))
+    
+            if (!Physics.Raycast(_ray, out _hit)) return;
+            if (!_hit.collider.CompareTag("Ground")) return;
+ 
+            if (Vector3.Distance(transform.position, _hit.point) < unitMoveRange)
             {
-                if (Vector3.Distance(transform.position, _hit.point) < unitMoveRange)
-                {
-                    _arrivalPos = _hit.point;
-                }
+                _arrivalPos = _hit.point;
+                _isMovingUnit = true;
             }
         }
 
-        public override void SetUp(float attackDelay, int unitDamage, int unitHealth)
+        public override void Building(float delay, float range, int damage, int health, MeshFilter towerMeshFilter)
         {
-            base.SetUp(attackDelay, unitDamage, unitHealth);
-            UpgradeUnit(unitHealth, unitDamage, attackDelay).Forget();
+            base.Building(delay, range, damage, health, towerMeshFilter);
+            UpgradeUnit(delay, range, damage, health).Forget();
         }
 
         private void BarrackUnitSetUp()
@@ -103,7 +94,7 @@ namespace TowerControl
             }
         }
 
-        private async UniTaskVoid UpgradeUnit(int unitHealth, int unitDamage, float attackDelay)
+        private async UniTaskVoid UpgradeUnit(float delay, float range, int damage, int health)
         {
             var unitName = towerLevel == 4 ? "SpearManUnit" : "SwordManUnit";
 
@@ -111,7 +102,7 @@ namespace TowerControl
             {
                 for (var i = 0; i < _barracksUnits.Length; i++)
                 {
-                    await UniTask.Delay(1000, cancellationToken: cts.Token);
+                    await UniTask.Delay(100, cancellationToken: cts.Token);
 
                     if (_barracksUnits[i] != null && towerLevel == 4) //이미 스폰됨 && level = 4
                     {
@@ -128,8 +119,8 @@ namespace TowerControl
                         _barracksUnits[i].onDeadEvent += ReSpawn;
                     }
 
-                    _barracksUnits[i].GetComponent<Health>().InitializeHealth(unitHealth);
-                    _barracksUnits[i].UnitSetUp(damage);
+                    _barracksUnits[i].GetComponent<TargetFinder>().SetUp(delay, range, damage);
+                    _barracksUnits[i].GetComponent<Health>().InitializeHealth(health);
                 }
             }
         }
@@ -154,31 +145,27 @@ namespace TowerControl
             ReSpawnTask().Forget();
         }
 
-        protected override void FindTarget()
-        {
-        }
-
-        protected override void UnitControl()
-        {
-            var count = 0;
-            for (var i = 0; i < _barracksUnits.Length; i++)
-            {
-                if (_barracksUnits[i].gameObject.activeSelf)
-                {
-                    count++;
-                }
-            }
-
-            var angle = 360 / count;
-
-            for (var i = 0; i < count; i++)
-            {
-                var theta = i * angle * Mathf.Deg2Rad;
-                var x = Mathf.Sin(theta);
-                var y = Mathf.Cos(theta);
-                var pos = new Vector3(x, 0, y);
-                _barracksUnits[i]._nav.SetDestination(_arrivalPos + pos);
-            }
-        }
+        // private void UnitControl()
+        // {
+        //     var count = 0;
+        //     for (var i = 0; i < _barracksUnits.Length; i++)
+        //     {
+        //         if (_barracksUnits[i].gameObject.activeSelf)
+        //         {
+        //             count++;
+        //         }
+        //     }
+        //
+        //     var angle = 360 / count;
+        //
+        //     for (var i = 0; i < count; i++)
+        //     {
+        //         var theta = i * angle * Mathf.Deg2Rad;
+        //         var x = Mathf.Sin(theta);
+        //         var y = Mathf.Cos(theta);
+        //         var pos = new Vector3(x, 0, y);
+        //         _barracksUnits[i].MoveUnit(_arrivalPos + pos);
+        //     }
+        // }
     }
 }

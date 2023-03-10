@@ -2,7 +2,6 @@ using BuildControl;
 using GameControl;
 using TMPro;
 using TowerControl;
-using TowerControl.TowerControlFolder;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -12,8 +11,8 @@ namespace ManagerControl
     public class UIManager : Singleton<UIManager>, IPointerEnterHandler, IPointerExitHandler
     {
         private Camera _cam;
-        private Tower _selectedTower;
-        private Tower _tempTower;
+        private TowerBase _selectedTower;
+        private TowerBase _tempTower;
         private int _towerIndex;
         private GameObject _buildingPoint;
         private EventSystem _eventSystem;
@@ -21,8 +20,8 @@ namespace ManagerControl
         private bool _isTower;
         private bool _isSell;
         private int _uniqueLevel;
-
         private bool _pointer;
+        private GameObject _curOpenPanel;
 
         [SerializeField] private TowerBuildPointManager towerBuildPointManager;
         [SerializeField] private TowerLeveling towerLeveling;
@@ -47,6 +46,8 @@ namespace ManagerControl
         private TextMeshProUGUI headerField;
 
         [SerializeField] private TextMeshProUGUI contentField;
+
+        [SerializeField] private GameObject towerRangeObject;
 
         private void Awake()
         {
@@ -104,7 +105,6 @@ namespace ManagerControl
         public void OpenTowerSelectPanel(GameObject buildPoint)
         {
             CloseTowerEditPanel();
-            // if (towerSelectPanel.activeSelf) return;
             _buildingPoint = buildPoint;
             towerSelectPanel.transform.position = _cam.WorldToScreenPoint(buildPoint.transform.position);
             towerSelectPanel.SetActive(true);
@@ -119,12 +119,17 @@ namespace ManagerControl
             _tempTower = null;
         }
 
-        private void OpenTowerEditPanel(Tower t, Vector3 pos)
+        private void OpenTowerEditPanel(TowerBase t, Vector3 pos)
         {
             CloseTowerSelectPanel();
             _isTower = true;
             _selectedTower = t;
-            switch (t.towerLevel)
+            towerRangeObject.transform.position = _selectedTower.transform.position;
+            towerRangeObject.transform.localScale =
+                new Vector3(_selectedTower.TowerRange * 2, 0.1f, _selectedTower.TowerRange * 2);
+            towerRangeObject.SetActive(true);
+
+            switch (t.TowerLevel)
             {
                 case >= 3:
                     upgradeButton.SetActive(false);
@@ -140,7 +145,6 @@ namespace ManagerControl
                     break;
             }
 
-            // if (towerEditPanel.activeSelf) return;
             towerEditPanel.transform.position = _cam.WorldToScreenPoint(pos);
             towerEditPanel.SetActive(true);
         }
@@ -151,6 +155,7 @@ namespace ManagerControl
             towerEditPanel.SetActive(false);
             towerInfoPanel.SetActive(false);
             okButton.SetActive(false);
+            towerRangeObject.SetActive(false);
         }
 
         public void TowerSelectButton(int index)
@@ -169,7 +174,7 @@ namespace ManagerControl
 
         public void UpgradeButton()
         {
-            var towerLevel = towerLevelManagers[(int)_selectedTower.Type].towerLevels[_selectedTower.towerLevel + 1];
+            var towerLevel = towerLevelManagers[(int)_selectedTower.Type].towerLevels[_selectedTower.TowerLevel + 1];
             ActiveOkButton(towerLevel.towerInfo, towerLevel.towerName);
         }
 
@@ -191,7 +196,8 @@ namespace ManagerControl
                 }
                 else
                 {
-                    towerLeveling.TowerUpgrade(_uniqueLevel,_selectedTower, towerLevelManagers[(int)_selectedTower.Type]).Forget();
+                    TowerLeveling.TowerUpgrade(_uniqueLevel, _selectedTower,
+                        towerLevelManagers[(int)_selectedTower.Type]).Forget();
                 }
             }
             else
@@ -214,7 +220,10 @@ namespace ManagerControl
             _isSell = false;
             _selectedTower.gameObject.SetActive(false);
             var towerTransform = _selectedTower.transform;
-            StackObjectPool.Get("BuildingPoint", towerTransform.position, towerTransform.rotation);
+            var position = towerTransform.position;
+
+            StackObjectPool.Get("BuildSmoke", position);
+            StackObjectPool.Get("BuildingPoint", position, towerTransform.rotation);
         }
 
         private void TowerBuild()
@@ -231,7 +240,7 @@ namespace ManagerControl
 
             _buildingPoint.SetActive(false);
             towerInfoPanel.SetActive(false);
-            towerLeveling.TowerUpgrade(0,_selectedTower, towerLevelManagers[(int)_selectedTower.Type]).Forget();
+            TowerLeveling.TowerUpgrade(0, _selectedTower, towerLevelManagers[(int)_selectedTower.Type]).Forget();
         }
 
         private void ResetMesh(MeshFilter meshFilter)
