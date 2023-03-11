@@ -37,7 +37,7 @@ namespace TowerControl
             for (var i = 0; i < count; i++)
             {
                 _archerUnits[i] = StackObjectPool.Get<ArcherUnit>("ArcherUnit", archerPos[towerLevel + i].position);
-                _archerUnits[i].GetComponent<TargetFinder>().SetUp(delay, range, damage);
+                _archerUnits[i].GetComponent<TargetFinder>().SetUp(delay, damage, range);
             }
         }
 

@@ -1,10 +1,8 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Serialization;
 
 namespace GameControl
 {

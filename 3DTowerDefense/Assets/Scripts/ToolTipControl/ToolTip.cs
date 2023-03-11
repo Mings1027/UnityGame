@@ -1,5 +1,3 @@
-using System;
-using ManagerControl;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;

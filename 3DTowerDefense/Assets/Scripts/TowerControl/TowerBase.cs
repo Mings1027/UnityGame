@@ -1,10 +1,7 @@
 using System;
 using System.Threading;
 using AttackControl;
-using Cysharp.Threading.Tasks;
-using DG.Tweening;
 using GameControl;
-using UnitControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -19,9 +16,9 @@ namespace TowerControl
 
         protected bool isSold;
         protected CancellationTokenSource cts;
-        
+
         public event Action<MeshFilter> onResetMeshEvent;
-        public event Action<TowerBase, Vector3> onOpenTowerEditPanelEvent;
+        public event Action<TowerBase, Transform> onOpenTowerEditPanelEvent;
 
         public enum TowerType
         {
@@ -40,6 +37,7 @@ namespace TowerControl
 
         [SerializeField] private TowerType towerType;
         [SerializeField] private bool hasUnit;
+
         protected virtual void Awake()
         {
             _outline = GetComponent<Outline>();
@@ -77,7 +75,7 @@ namespace TowerControl
         public virtual void OnPointerDown(PointerEventData eventData)
         {
             if (_isUpgrading) return;
-            onOpenTowerEditPanelEvent?.Invoke(this, transform.position);
+            onOpenTowerEditPanelEvent?.Invoke(this, transform);
         }
 
         //==================================Custom function====================================================
@@ -103,7 +101,7 @@ namespace TowerControl
             TowerRange = range;
             if (hasUnit) return;
 
-            GetComponent<TargetFinder>().SetUp(delay, range, damage, health);
+            GetComponent<TargetFinder>().SetUp(delay, damage, range, health);
         }
     }
 }

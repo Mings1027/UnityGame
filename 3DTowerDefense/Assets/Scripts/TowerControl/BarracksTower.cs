@@ -1,4 +1,3 @@
-using System;
 using AttackControl;
 using Cysharp.Threading.Tasks;
 using GameControl;
@@ -66,10 +65,10 @@ namespace TowerControl
         private void MoveUnit()
         {
             if (!_getUnitDestination) return;
-    
+
             if (!Physics.Raycast(_ray, out _hit)) return;
             if (!_hit.collider.CompareTag("Ground")) return;
- 
+
             if (Vector3.Distance(transform.position, _hit.point) < unitMoveRange)
             {
                 _arrivalPos = _hit.point;
@@ -119,7 +118,7 @@ namespace TowerControl
                         _barracksUnits[i].onDeadEvent += ReSpawn;
                     }
 
-                    _barracksUnits[i].GetComponent<TargetFinder>().SetUp(delay, range, damage);
+                    _barracksUnits[i].GetComponent<TargetFinder>().SetUp(delay, damage);
                     _barracksUnits[i].GetComponent<Health>().InitializeHealth(health);
                 }
             }

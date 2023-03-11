@@ -17,7 +17,7 @@ namespace AttackControl
         public int Damage { get; private set; }
         public bool attackAble;
         [SerializeField] private LayerMask targetLayer;
-        
+
         private void Awake()
         {
             _results = new Collider[3];
@@ -49,11 +49,11 @@ namespace AttackControl
             Gizmos.DrawWireSphere(transform.position, _atkRange);
         }
 
-        public void SetUp(float attackDelay, float attackRange, int unitDamage, int unitHealth = 0)
+        public void SetUp(float attackDelay, int unitDamage, float attackRange = 2, int unitHealth = 0)
         {
             _atkDelay = attackDelay;
-            _atkRange = attackRange;
             Damage = unitDamage;
+            _atkRange = attackRange;
             if (TryGetComponent(out Health h)) h.InitializeHealth(unitHealth);
         }
 

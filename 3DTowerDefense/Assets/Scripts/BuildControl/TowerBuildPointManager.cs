@@ -16,14 +16,14 @@ namespace BuildControl
             {
                 var child = transform.GetChild(i);
                 StackObjectPool.Get<BuildingPoint>("BuildingPoint", child.position, child.rotation)
-                    .OnOpenTowerSelectPanelEvent += OpenTowerSelectPanel;
+                    .onOpenTowerSelectPanelEvent += OpenTowerSelectPanel;
             }
         }
 
-        private void OpenTowerSelectPanel(GameObject buildPoint, Transform t, Quaternion r)
+        private void OpenTowerSelectPanel(Transform buildPoint)
         {
-            _buildPosition = t.position;
-            _buildRotation = r;
+            _buildPosition = buildPoint.position;
+            _buildRotation = buildPoint.rotation;
             UIManager.Instance.OpenTowerSelectPanel(buildPoint);
         }
 

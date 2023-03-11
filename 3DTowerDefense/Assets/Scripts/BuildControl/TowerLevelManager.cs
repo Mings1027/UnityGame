@@ -11,7 +11,7 @@ namespace TowerControl
         {
             public MeshFilter towerMesh;
             public MeshFilter consMesh;
-            public float constructionTime;
+            public int coin;
             public string towerName;
             public string towerInfo;
             public int health;

@@ -4,6 +4,7 @@ using TMPro;
 using TowerControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace ManagerControl
@@ -14,7 +15,7 @@ namespace ManagerControl
         private TowerBase _selectedTower;
         private TowerBase _tempTower;
         private int _towerIndex;
-        private GameObject _buildingPoint;
+        private Transform _buildingPoint;
         private EventSystem _eventSystem;
         private bool _isPause;
         private bool _isTower;
@@ -24,22 +25,22 @@ namespace ManagerControl
         private GameObject _curOpenPanel;
 
         [SerializeField] private TowerBuildPointManager towerBuildPointManager;
-        [SerializeField] private TowerLeveling towerLeveling;
         [SerializeField] private InputManager input;
 
         [SerializeField] private TowerLevelManager[] towerLevelManagers;
 
-        [SerializeField] private GameObject menuPanel;
         [SerializeField] private string[] towerNames;
 
+        [SerializeField] private GameObject towerInfoPanel;
+        [SerializeField] private FollowWorld towerPanels;
         [SerializeField] private GameObject towerSelectPanel;
         [SerializeField] private GameObject towerEditPanel;
-        [SerializeField] private GameObject towerInfoPanel;
+        [SerializeField] private GameObject okButton;
+        [SerializeField] private GameObject menuPanel;
 
         [SerializeField] private GameObject upgradeButton;
         [SerializeField] private GameObject uniqueUpgradeButtons;
 
-        [SerializeField] private GameObject okButton;
         [SerializeField] private GameObject sellButton;
 
         [Header("Tower Info")] [Space(10)] [SerializeField]
@@ -47,7 +48,7 @@ namespace ManagerControl
 
         [SerializeField] private TextMeshProUGUI contentField;
 
-        [SerializeField] private GameObject towerRangeObject;
+        [SerializeField] private GameObject towerRangeIndicator;
 
         private void Awake()
         {
@@ -68,12 +69,13 @@ namespace ManagerControl
             input.onResumeEvent += Resume;
             input.onClosePanelEvent += CloseTowerSelectPanel;
             input.onClosePanelEvent += CloseTowerEditPanel;
-            menuPanel.SetActive(false);
-            towerSelectPanel.SetActive(false);
-            okButton.SetActive(false);
-            towerEditPanel.SetActive(false);
+            input.onClosePanelEvent += () => okButton.SetActive(false);
             towerInfoPanel.SetActive(false);
+            towerSelectPanel.SetActive(false);
+            towerEditPanel.SetActive(false);
             okButton.SetActive(false);
+            towerPanels.target = transform;
+            menuPanel.SetActive(false);
         }
 
         public void OnPointerEnter(PointerEventData eventData)
@@ -102,32 +104,33 @@ namespace ManagerControl
             Time.timeScale = 1;
         }
 
-        public void OpenTowerSelectPanel(GameObject buildPoint)
+        public void OpenTowerSelectPanel(Transform buildPoint)
         {
+            CloseTowerSelectPanel();
             CloseTowerEditPanel();
+            okButton.SetActive(false);
             _buildingPoint = buildPoint;
-            towerSelectPanel.transform.position = _cam.WorldToScreenPoint(buildPoint.transform.position);
+            towerPanels.target = _buildingPoint;
             towerSelectPanel.SetActive(true);
         }
 
         private void CloseTowerSelectPanel()
         {
             towerSelectPanel.SetActive(false);
-            okButton.SetActive(false);
             if (!_tempTower) return;
             _tempTower.gameObject.SetActive(false);
             _tempTower = null;
         }
 
-        private void OpenTowerEditPanel(TowerBase t, Vector3 pos)
+        private void OpenTowerEditPanel(TowerBase t, Transform pos)
         {
             CloseTowerSelectPanel();
             _isTower = true;
             _selectedTower = t;
-            towerRangeObject.transform.position = _selectedTower.transform.position;
-            towerRangeObject.transform.localScale =
+            towerRangeIndicator.transform.position = _selectedTower.transform.position;
+            towerRangeIndicator.transform.localScale =
                 new Vector3(_selectedTower.TowerRange * 2, 0.1f, _selectedTower.TowerRange * 2);
-            towerRangeObject.SetActive(true);
+            towerRangeIndicator.SetActive(true);
 
             switch (t.TowerLevel)
             {
@@ -145,7 +148,7 @@ namespace ManagerControl
                     break;
             }
 
-            towerEditPanel.transform.position = _cam.WorldToScreenPoint(pos);
+            towerPanels.target = pos;
             towerEditPanel.SetActive(true);
         }
 
@@ -154,20 +157,17 @@ namespace ManagerControl
             _isTower = false;
             towerEditPanel.SetActive(false);
             towerInfoPanel.SetActive(false);
-            okButton.SetActive(false);
-            towerRangeObject.SetActive(false);
+            towerRangeIndicator.SetActive(false);
         }
 
         public void TowerSelectButton(int index)
         {
-            okButton.transform.position = _eventSystem.currentSelectedGameObject.transform.position;
-            okButton.SetActive(true);
-
             if (_tempTower) _tempTower.gameObject.SetActive(false);
             _tempTower = towerBuildPointManager.BuildTower(towerNames[index]);
 
             var tempTowerLevel = towerLevelManagers[index].towerLevels[0];
-            TowerInfoSetText(tempTowerLevel.towerInfo, tempTowerLevel.towerName);
+
+            ActiveOkButton(tempTowerLevel.towerInfo, tempTowerLevel.towerName);
             towerInfoPanel.SetActive(true);
             _towerIndex = index;
         }
@@ -206,13 +206,14 @@ namespace ManagerControl
             }
 
             CloseTowerEditPanel();
+            okButton.SetActive(false);
         }
 
         public void SellButton()
         {
             _isSell = true;
-            okButton.transform.position = _eventSystem.currentSelectedGameObject.transform.position;
-            okButton.SetActive(true);
+            var coin = towerLevelManagers[(int)_selectedTower.Type].towerLevels[_selectedTower.TowerLevel].coin;
+            ActiveOkButton("타워처분", $"이 타워를 처분하면 {coin} 골드가 반환됩니다.");
         }
 
         private void SellTower()
@@ -229,7 +230,6 @@ namespace ManagerControl
         private void TowerBuild()
         {
             towerSelectPanel.SetActive(false);
-            okButton.SetActive(false);
             _selectedTower = _tempTower;
             _tempTower = null;
             _selectedTower.gameObject.SetActive(false);
@@ -238,7 +238,7 @@ namespace ManagerControl
             _selectedTower.onOpenTowerEditPanelEvent += OpenTowerEditPanel;
             _selectedTower.onResetMeshEvent += ResetMesh;
 
-            _buildingPoint.SetActive(false);
+            _buildingPoint.gameObject.SetActive(false);
             towerInfoPanel.SetActive(false);
             TowerLeveling.TowerUpgrade(0, _selectedTower, towerLevelManagers[(int)_selectedTower.Type]).Forget();
         }
@@ -250,10 +250,10 @@ namespace ManagerControl
 
         private void ActiveOkButton(string info, string towerName)
         {
-            okButton.transform.position = _eventSystem.currentSelectedGameObject.transform.position;
-            okButton.SetActive(true);
+            okButton.GetComponent<FollowObject>().target = _eventSystem.currentSelectedGameObject.transform;
             TowerInfoSetText(info, towerName);
             towerInfoPanel.SetActive(true);
+            okButton.SetActive(true);
         }
 
         private void TowerInfoSetText(string content, string header = "")
