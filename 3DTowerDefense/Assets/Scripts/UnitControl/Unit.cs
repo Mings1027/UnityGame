@@ -10,7 +10,7 @@ namespace UnitControl
         private CancellationTokenSource _cts;
 
         protected TargetFinder targetFinder;
-        protected bool isTargeting;
+        public bool isTargeting;
         public Transform target;
 
 

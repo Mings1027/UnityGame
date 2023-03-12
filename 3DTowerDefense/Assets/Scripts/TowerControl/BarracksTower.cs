@@ -9,7 +9,7 @@ using UnityEngine.EventSystems;
 
 namespace TowerControl
 {
-    public class BarracksTower : TowerBase
+    public class BarracksTower : Tower
     {
         private Camera _cam;
         private Vector3 _arrivalPos;
@@ -17,8 +17,6 @@ namespace TowerControl
         private RaycastHit _hit;
         private BarracksUnit[] _barracksUnits;
 
-        private bool _getUnitDestination;
-        private bool _isMovingUnit;
 
         [SerializeField] private InputManager input;
         [SerializeField] private float unitMoveRange;
@@ -30,7 +28,6 @@ namespace TowerControl
             _cam = Camera.main;
             input.onGetMousePositionEvent += GetUnitDestination;
             input.onClickEvent += MoveUnit;
-            input.onClosePanelEvent += () => _getUnitDestination = false;
         }
 
         protected override void OnDisable()
@@ -39,32 +36,18 @@ namespace TowerControl
             BarrackUnitSetUp();
         }
 
-        public override void OnPointerDown(PointerEventData eventData)
-        {
-            base.OnPointerDown(eventData);
-            _getUnitDestination = true;
-        }
-
-        private void Update()
-        {
-            if (!_isMovingUnit) return;
-            for (var i = 0; i < _barracksUnits.Length; i++)
-            {
-                _barracksUnits[i].MovingUnit(_arrivalPos);
-            }
-        }
         //==================================Custom Function====================================================
         //==================================Custom Function====================================================
 
         private void GetUnitDestination(Vector2 moveVec)
         {
-            if (!_getUnitDestination) return;
+            if (!IsSelected) return;
             _ray = _cam.ScreenPointToRay(moveVec);
         }
 
         private void MoveUnit()
         {
-            if (!_getUnitDestination) return;
+            if (!IsSelected) return;
 
             if (!Physics.Raycast(_ray, out _hit)) return;
             if (!_hit.collider.CompareTag("Ground")) return;
@@ -72,14 +55,18 @@ namespace TowerControl
             if (Vector3.Distance(transform.position, _hit.point) < unitMoveRange)
             {
                 _arrivalPos = _hit.point;
-                _isMovingUnit = true;
+                foreach (var t in _barracksUnits)
+                {
+                    t.movePoint = true;
+                    t.point = _hit.point;
+                }
             }
         }
 
         public override void Building(float delay, float range, int damage, int health, MeshFilter towerMeshFilter)
         {
             base.Building(delay, range, damage, health, towerMeshFilter);
-            UpgradeUnit(delay, range, damage, health).Forget();
+            UpgradeUnit(delay, damage, health).Forget();
         }
 
         private void BarrackUnitSetUp()
@@ -93,7 +80,7 @@ namespace TowerControl
             }
         }
 
-        private async UniTaskVoid UpgradeUnit(float delay, float range, int damage, int health)
+        private async UniTaskVoid UpgradeUnit(float delay, int damage, int health)
         {
             var unitName = towerLevel == 4 ? "SpearManUnit" : "SwordManUnit";
 
@@ -143,28 +130,5 @@ namespace TowerControl
             if (isSold) return;
             ReSpawnTask().Forget();
         }
-
-        // private void UnitControl()
-        // {
-        //     var count = 0;
-        //     for (var i = 0; i < _barracksUnits.Length; i++)
-        //     {
-        //         if (_barracksUnits[i].gameObject.activeSelf)
-        //         {
-        //             count++;
-        //         }
-        //     }
-        //
-        //     var angle = 360 / count;
-        //
-        //     for (var i = 0; i < count; i++)
-        //     {
-        //         var theta = i * angle * Mathf.Deg2Rad;
-        //         var x = Mathf.Sin(theta);
-        //         var y = Mathf.Cos(theta);
-        //         var pos = new Vector3(x, 0, y);
-        //         _barracksUnits[i].MoveUnit(_arrivalPos + pos);
-        //     }
-        // }
     }
 }

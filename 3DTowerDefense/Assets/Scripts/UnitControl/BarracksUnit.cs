@@ -12,6 +12,8 @@ namespace UnitControl
         private Animator _anim;
         private NavMeshAgent _nav;
 
+        public bool movePoint;
+        public Vector3 point;
         public event Action onDeadEvent;
 
         protected override void Awake()
@@ -30,6 +32,12 @@ namespace UnitControl
 
         protected override void Update()
         {
+            if (movePoint)
+            {
+                _nav.SetDestination(point);
+                if (_nav.remainingDistance <= _nav.stoppingDistance) movePoint = false;
+            }
+
             if (!isTargeting) return;
             if (targetFinder.attackAble &&
                 Vector3.Distance(transform.position, target.position) <= _nav.stoppingDistance)

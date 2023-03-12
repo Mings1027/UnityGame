@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace TowerControl
 {
-    public class ArcherTower : TowerBase
+    public class ArcherTower : Tower
     {
         private Vector3 _targetDirection;
         private ArcherUnit[] _archerUnits;

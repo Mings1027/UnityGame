@@ -1,78 +1,108 @@
+using System;
+using System.Threading;
 using AttackControl;
 using GameControl;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace TowerControl
 {
-    public abstract class Tower : MonoBehaviour
+    public abstract class Tower : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
+        IPointerDownHandler
     {
-        // private Outline _outline;
-        // private MeshFilter _meshFilter;
-        // private bool _isUpgrading;
-        // protected bool isSold;        
-        // protected CancellationTokenSource cts;        
+        private Outline _outline;
+        private MeshFilter _meshFilter;
+        private bool _isUpgrading;
 
-        private TargetFinder _targetFinder;
-        private bool _attackAble;
-        private bool _isTargeting;
-        
-        private float _atkDelay;
+        protected bool isSold;
+        protected CancellationTokenSource cts;
 
-        protected int damage;
-        protected Transform target;
+        public event Action<MeshFilter> onResetMeshEvent;
+        public event Action<Tower, Transform> onOpenTowerEditPanelEvent;
 
-//==================================Event function=====================================================
+        public enum TowerType
+        {
+            Archer,
+            Barracks,
+            Canon,
+            Mage
+        }
+
+        public TowerType Type => towerType;
+
+        protected int towerLevel;
+
+        public int TowerLevel => towerLevel;
+        public float TowerRange { get; private set; }
+        public bool IsSelected { get; set; }
+
+        [SerializeField] private TowerType towerType;
+        [SerializeField] private bool hasUnit;
 
         protected virtual void Awake()
         {
-            _targetFinder = GetComponent<TargetFinder>();
+            _outline = GetComponent<Outline>();
+            _meshFilter = GetComponentInChildren<MeshFilter>();
         }
 
         protected virtual void OnEnable()
         {
-            _attackAble = true;
+            isSold = false;
+            cts?.Dispose();
+            cts = new CancellationTokenSource();
         }
 
         protected virtual void OnDisable()
         {
+            towerLevel = -1;
+            isSold = true;
+            cts?.Cancel();
             StackObjectPool.ReturnToPool(gameObject);
-            CancelInvoke();
+            onResetMeshEvent?.Invoke(_meshFilter);
+            onOpenTowerEditPanelEvent = null;
+            onResetMeshEvent = null;
         }
 
-        // protected virtual void Update()
-        // {
-        //     if (!_attackAble || !_isTargeting) return;
-        //     UnitControl();
-        //     StartCoolDown().Forget();
-        // }
-
-
-        protected virtual void OnDrawGizmos()
+        public void OnPointerEnter(PointerEventData eventData)
         {
-            
+            _outline.enabled = true;
         }
 
-        //==================================Event function=====================================================
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            _outline.enabled = false;
+        }
+
+        public virtual void OnPointerDown(PointerEventData eventData)
+        {
+            if (_isUpgrading) return;
+            onOpenTowerEditPanelEvent?.Invoke(this, transform);
+        }
 
         //==================================Custom function====================================================
+        //======================================================================================================
 
-
-
-        public virtual void EndBuild(float attackDelay, int unitDamage, int unitHealth)
+        public void TowerLevelUp(int uniqueLevel)
         {
-            _atkDelay = attackDelay;
-            damage = unitDamage;
+            if (towerLevel < 2) towerLevel++;
+            else if (uniqueLevel > 0) towerLevel = uniqueLevel;
         }
 
-        protected abstract void UnitControl();
+        public virtual void ReadyToBuild(MeshFilter consMeshFilter)
+        {
+            _isUpgrading = true;
+            _outline.enabled = false;
+            _meshFilter.sharedMesh = consMeshFilter.sharedMesh;
+        }
 
-        // private async UniTaskVoid StartCoolDown()
-        // {
-        //     _attackAble = false;
-        //     await UniTask.Delay(TimeSpan.FromSeconds(_atkDelay), cancellationToken: cts.Token);
-        //     _attackAble = true;
-        // }
+        public virtual void Building(float delay, float range, int damage, int health, MeshFilter towerMeshFilter)
+        {
+            _isUpgrading = false;
+            _meshFilter.sharedMesh = towerMeshFilter.sharedMesh;
+            TowerRange = range;
+            if (hasUnit) return;
 
-     
+            GetComponent<TargetFinder>().SetUp(delay, damage, range, health);
+        }
     }
 }

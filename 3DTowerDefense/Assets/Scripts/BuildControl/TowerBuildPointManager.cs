@@ -27,9 +27,9 @@ namespace BuildControl
             UIManager.Instance.OpenTowerSelectPanel(buildPoint);
         }
 
-        public TowerBase BuildTower(string n)
+        public Tower BuildTower(string n)
         {
-            return StackObjectPool.Get<TowerBase>(n, _buildPosition, _buildRotation);
+            return StackObjectPool.Get<Tower>(n, _buildPosition, _buildRotation);
         }
     }
 }

@@ -1,6 +1,6 @@
 namespace TowerControl
 {
-    public class CanonTower : TowerBase
+    public class CanonTower : Tower
     {
     }
 }

@@ -1,6 +1,6 @@
 namespace TowerControl
 {
-    public class MageTower : TowerBase
+    public class MageTower : Tower
     {
     }
 }
