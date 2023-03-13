@@ -73,15 +73,6 @@ namespace TowerDefenseInput
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""RightClick"",
-                    ""type"": ""Button"",
-                    ""id"": ""1a861f79-cbaf-499e-bf10-1451f4411239"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -192,17 +183,6 @@ namespace TowerDefenseInput
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""MousePosition"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""54800f4f-64ab-4c80-9685-1151097e8769"",
-                    ""path"": ""<Mouse>/rightButton"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""RightClick"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -765,7 +745,6 @@ namespace TowerDefenseInput
             m_GamePlay_Pause = m_GamePlay.FindAction("Pause", throwIfNotFound: true);
             m_GamePlay_MousePosition = m_GamePlay.FindAction("MousePosition", throwIfNotFound: true);
             m_GamePlay_Click = m_GamePlay.FindAction("Click", throwIfNotFound: true);
-            m_GamePlay_RightClick = m_GamePlay.FindAction("RightClick", throwIfNotFound: true);
             // UI
             m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
             m_UI_Resume = m_UI.FindAction("Resume", throwIfNotFound: true);
@@ -843,7 +822,6 @@ namespace TowerDefenseInput
         private readonly InputAction m_GamePlay_Pause;
         private readonly InputAction m_GamePlay_MousePosition;
         private readonly InputAction m_GamePlay_Click;
-        private readonly InputAction m_GamePlay_RightClick;
         public struct GamePlayActions
         {
             private @GameInput m_Wrapper;
@@ -853,7 +831,6 @@ namespace TowerDefenseInput
             public InputAction @Pause => m_Wrapper.m_GamePlay_Pause;
             public InputAction @MousePosition => m_Wrapper.m_GamePlay_MousePosition;
             public InputAction @Click => m_Wrapper.m_GamePlay_Click;
-            public InputAction @RightClick => m_Wrapper.m_GamePlay_RightClick;
             public InputActionMap Get() { return m_Wrapper.m_GamePlay; }
             public void Enable() { Get().Enable(); }
             public void Disable() { Get().Disable(); }
@@ -878,9 +855,6 @@ namespace TowerDefenseInput
                     @Click.started -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnClick;
                     @Click.performed -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnClick;
                     @Click.canceled -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnClick;
-                    @RightClick.started -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnRightClick;
-                    @RightClick.performed -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnRightClick;
-                    @RightClick.canceled -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnRightClick;
                 }
                 m_Wrapper.m_GamePlayActionsCallbackInterface = instance;
                 if (instance != null)
@@ -900,9 +874,6 @@ namespace TowerDefenseInput
                     @Click.started += instance.OnClick;
                     @Click.performed += instance.OnClick;
                     @Click.canceled += instance.OnClick;
-                    @RightClick.started += instance.OnRightClick;
-                    @RightClick.performed += instance.OnRightClick;
-                    @RightClick.canceled += instance.OnRightClick;
                 }
             }
         }
@@ -1027,7 +998,6 @@ namespace TowerDefenseInput
             void OnPause(InputAction.CallbackContext context);
             void OnMousePosition(InputAction.CallbackContext context);
             void OnClick(InputAction.CallbackContext context);
-            void OnRightClick(InputAction.CallbackContext context);
         }
         public interface IUIActions
         {

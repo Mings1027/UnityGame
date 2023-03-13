@@ -1,9 +1,11 @@
 using UnityEngine;
-namespace TowerControl
+
+namespace BuildControl
 {
     [CreateAssetMenu]
     public class TowerLevelManager : ScriptableObject
     {
+        public bool hasUnit;
         public TowerLevel[] towerLevels;
 
         [System.Serializable]

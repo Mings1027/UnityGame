@@ -5,6 +5,7 @@ using TMPro;
 using TowerControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
@@ -22,8 +23,8 @@ namespace ManagerControl
         private bool _isTowerSelected;
         private bool _isSell;
         private int _uniqueLevel;
-        private bool _pointer;
-        private GameObject _curOpenPanel;
+
+        public static bool pointer;
 
         [SerializeField] private TowerBuildPointManager towerBuildPointManager;
         [SerializeField] private InputManager input;
@@ -44,6 +45,8 @@ namespace ManagerControl
 
         [SerializeField] private GameObject sellButton;
 
+        [SerializeField] private GameObject moveUnitButton;
+
         [Header("Tower Info")] [Space(10)] [SerializeField]
         private TextMeshProUGUI headerField;
 
@@ -63,7 +66,7 @@ namespace ManagerControl
                     .Replace("Button", "");
             }
 
-            for (int i = 0; i < towerSelectPanel.transform.childCount; i++)
+            for (var i = 0; i < towerSelectPanel.transform.childCount; i++)
             {
                 var index = i;
                 towerSelectPanel.transform.GetChild(i).GetComponent<Button>().onClick
@@ -71,7 +74,7 @@ namespace ManagerControl
             }
 
             upgradeButton.GetComponent<Button>().onClick.AddListener(UpgradeButton);
-            for (int i = 0; i < uniqueUpgradeButtons.transform.childCount; i++)
+            for (var i = 0; i < uniqueUpgradeButtons.transform.childCount; i++)
             {
                 var index = i;
                 uniqueUpgradeButtons.transform.GetChild(i).GetComponent<Button>().onClick
@@ -80,6 +83,8 @@ namespace ManagerControl
 
             sellButton.GetComponent<Button>().onClick.AddListener(SellButton);
             okButton.GetComponent<Button>().onClick.AddListener(OkButton);
+
+            moveUnitButton.GetComponent<Button>().onClick.AddListener(() => input.isMoveUnit = true);
         }
 
         private void Start()
@@ -89,6 +94,9 @@ namespace ManagerControl
             input.onClosePanelEvent += CloseTowerSelectPanel;
             input.onClosePanelEvent += CloseTowerEditPanel;
             input.onClosePanelEvent += () => okButton.SetActive(false);
+            input.onClosePanelEvent += () => towerInfoPanel.SetActive(false);
+            input.onClosePanelEvent += () => input.isPanelOpened = false;
+
             towerInfoPanel.SetActive(false);
             towerSelectPanel.SetActive(false);
             towerEditPanel.SetActive(false);
@@ -99,13 +107,13 @@ namespace ManagerControl
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            _pointer = true;
+            pointer = true;
             // print("On");
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            _pointer = false;
+            pointer = false;
             // print("Off");
         }
 
@@ -125,6 +133,7 @@ namespace ManagerControl
 
         public void OpenTowerSelectPanel(Transform buildPoint)
         {
+            input.isPanelOpened = true;
             CloseTowerSelectPanel();
             CloseTowerEditPanel();
             _buildingPoint = buildPoint;
@@ -144,6 +153,7 @@ namespace ManagerControl
         private void OpenTowerEditPanel(Tower t, Transform pos)
         {
             if (_selectedTower == t) return;
+            input.isPanelOpened = true;
             CloseTowerSelectPanel();
             _isTowerSelected = true;
 
@@ -154,6 +164,9 @@ namespace ManagerControl
 
             _selectedTower = t;
             _selectedTower.IsSelected = true;
+
+            //현재 선택한 타워가 BarracksTower면 BarracksUnit을 움직이게 하는 버튼을 켠다.
+            moveUnitButton.SetActive(_selectedTower.Type == Tower.TowerType.Barracks);
 
             towerRangeIndicator.transform.position = _selectedTower.transform.position;
             towerRangeIndicator.transform.localScale =
@@ -306,12 +319,13 @@ namespace ManagerControl
         {
             selectedTower.TowerLevelUp(level);
             StackObjectPool.Get("BuildSmoke", selectedTower.transform.position);
-            var t = towerLevelManagers[(int)selectedTower.Type].towerLevels[selectedTower.TowerLevel];
-            selectedTower.ReadyToBuild(t.consMesh);
+            var t = towerLevelManagers[(int)selectedTower.Type];
+            var tt = t.towerLevels[selectedTower.TowerLevel];
+            selectedTower.ReadyToBuild(tt.consMesh);
 
             await UniTask.Delay(1000);
 
-            selectedTower.Building(t.attackDelay, t.attackRange, t.Damage, t.health, t.towerMesh);
+            selectedTower.Building(t.hasUnit, tt.towerMesh, tt.attackDelay, tt.attackRange, tt.Damage, tt.health);
         }
     }
 }

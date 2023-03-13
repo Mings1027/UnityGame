@@ -37,7 +37,6 @@ namespace TowerControl
         public bool IsSelected { get; set; }
 
         [SerializeField] private TowerType towerType;
-        [SerializeField] private bool hasUnit;
 
         protected virtual void Awake()
         {
@@ -95,12 +94,13 @@ namespace TowerControl
             _meshFilter.sharedMesh = consMeshFilter.sharedMesh;
         }
 
-        public virtual void Building(float delay, float range, int damage, int health, MeshFilter towerMeshFilter)
+        public virtual void Building(bool haveUnit, MeshFilter towerMeshFilter, float delay, float range, int damage,
+            int health = 0)
         {
             _isUpgrading = false;
             _meshFilter.sharedMesh = towerMeshFilter.sharedMesh;
             TowerRange = range;
-            if (hasUnit) return;
+            if (haveUnit) return;
 
             GetComponent<TargetFinder>().SetUp(delay, damage, range, health);
         }

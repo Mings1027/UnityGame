@@ -8,8 +8,12 @@ namespace ManagerControl
     [CreateAssetMenu(menuName = "InputReader")]
     public class InputManager : ScriptableObject, GameInput.IGamePlayActions, GameInput.IUIActions
     {
+        private Camera _cam;
         private GameInput _gameInput;
         private event Action<InputActionMap> OnActionMapChange;
+
+        public bool isMoveUnit;
+        public bool isPanelOpened;
 
 //===================================Game Play===========================================
         public event Action<Vector2> onCameraMoveEvent;
@@ -21,6 +25,13 @@ namespace ManagerControl
 
 //=======================================UI===========================================
         public event Action onResumeEvent;
+
+        private void Awake()
+        {
+            _cam = Camera.main;
+            isMoveUnit = false;
+            isPanelOpened = false;
+        }
 
         private void OnEnable()
         {
@@ -77,15 +88,17 @@ namespace ManagerControl
         {
             if (context.started)
             {
-                onClickEvent?.Invoke();
-            }
-        }
-
-        public void OnRightClick(InputAction.CallbackContext context)
-        {
-            if (context.started)
-            {
-                onClosePanelEvent?.Invoke();
+                if (!UIManager.pointer)
+                {
+                    if (isPanelOpened)
+                    {
+                        onClosePanelEvent?.Invoke();
+                    }
+                    else if (isMoveUnit)
+                    {
+                        onClickEvent?.Invoke();
+                    }
+                }
             }
         }
 

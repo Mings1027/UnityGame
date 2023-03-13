@@ -12,9 +12,7 @@ namespace TowerControl
     public class BarracksTower : Tower
     {
         private Camera _cam;
-        private Vector3 _arrivalPos;
-        private Ray _ray;
-        private RaycastHit _hit;
+        private Vector3 _pos;
         private BarracksUnit[] _barracksUnits;
 
 
@@ -42,30 +40,29 @@ namespace TowerControl
         private void GetUnitDestination(Vector2 moveVec)
         {
             if (!IsSelected) return;
-            _ray = _cam.ScreenPointToRay(moveVec);
+            _pos = moveVec;
         }
 
         private void MoveUnit()
         {
             if (!IsSelected) return;
 
-            if (!Physics.Raycast(_ray, out _hit)) return;
-            if (!_hit.collider.CompareTag("Ground")) return;
-
-            if (Vector3.Distance(transform.position, _hit.point) < unitMoveRange)
+            if (!Physics.Raycast(_cam.ScreenPointToRay(_pos), out var hit) ||
+                !hit.collider.CompareTag("Ground")) return;
+            if (Vector3.Distance(transform.position, hit.point) < unitMoveRange)
             {
-                _arrivalPos = _hit.point;
                 foreach (var t in _barracksUnits)
                 {
                     t.movePoint = true;
-                    t.point = _hit.point;
+                    t.point = hit.point;
                 }
             }
         }
 
-        public override void Building(float delay, float range, int damage, int health, MeshFilter towerMeshFilter)
+        public override void Building(bool haveUnit, MeshFilter towerMeshFilter, float delay, float range, int damage,
+            int health = 0)
         {
-            base.Building(delay, range, damage, health, towerMeshFilter);
+            base.Building(haveUnit, towerMeshFilter, delay, range, damage, health);
             UpgradeUnit(delay, damage, health).Forget();
         }
 

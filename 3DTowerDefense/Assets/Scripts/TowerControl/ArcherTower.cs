@@ -30,9 +30,10 @@ namespace TowerControl
             ArcherUnitSetUp();
         }
 
-        public override void Building(float delay, float range, int damage, int health, MeshFilter towerMeshFilter)
+        public override void Building( bool haveUnit,MeshFilter towerMeshFilter, float delay, float range, int damage,
+            int health = 0)
         {
-            base.Building(delay, range, damage, health, towerMeshFilter);
+            base.Building(haveUnit,towerMeshFilter,  delay, range, damage, health);
             var count = towerLevel == 4 ? 2 : 1;
             for (var i = 0; i < count; i++)
             {
