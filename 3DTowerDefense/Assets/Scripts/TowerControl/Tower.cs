@@ -7,18 +7,18 @@ using UnityEngine.EventSystems;
 
 namespace TowerControl
 {
-    public abstract class Tower : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
-        IPointerDownHandler
+    public abstract class Tower : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
+        private Collider _collider;
         private Outline _outline;
         private MeshFilter _meshFilter;
-        private bool _isUpgrading;
+        // private bool _isUpgrading;
 
         protected bool isSold;
         protected CancellationTokenSource cts;
 
         public event Action<MeshFilter> onResetMeshEvent;
-        public event Action<Tower, Transform> onOpenTowerEditPanelEvent;
+        // public event Action<Tower, Transform> onOpenTowerEditPanelEvent;
 
         public enum TowerType
         {
@@ -34,12 +34,12 @@ namespace TowerControl
 
         public int TowerLevel => towerLevel;
         public float TowerRange { get; private set; }
-        public bool IsSelected { get; set; }
-
         [SerializeField] private TowerType towerType;
 
         protected virtual void Awake()
         {
+            _collider = GetComponent<Collider>();
+            _collider.enabled = false;
             _outline = GetComponent<Outline>();
             _meshFilter = GetComponentInChildren<MeshFilter>();
         }
@@ -58,7 +58,7 @@ namespace TowerControl
             cts?.Cancel();
             StackObjectPool.ReturnToPool(gameObject);
             onResetMeshEvent?.Invoke(_meshFilter);
-            onOpenTowerEditPanelEvent = null;
+            // onOpenTowerEditPanelEvent = null;
             onResetMeshEvent = null;
         }
 
@@ -72,11 +72,6 @@ namespace TowerControl
             _outline.enabled = false;
         }
 
-        public virtual void OnPointerDown(PointerEventData eventData)
-        {
-            if (_isUpgrading) return;
-            onOpenTowerEditPanelEvent?.Invoke(this, transform);
-        }
 
         //==================================Custom function====================================================
         //======================================================================================================
@@ -89,7 +84,7 @@ namespace TowerControl
 
         public virtual void ReadyToBuild(MeshFilter consMeshFilter)
         {
-            _isUpgrading = true;
+            // _isUpgrading = true;
             _outline.enabled = false;
             _meshFilter.sharedMesh = consMeshFilter.sharedMesh;
         }
@@ -97,9 +92,10 @@ namespace TowerControl
         public virtual void Building(bool haveUnit, MeshFilter towerMeshFilter, float delay, float range, int damage,
             int health = 0)
         {
-            _isUpgrading = false;
+            // _isUpgrading = false;
             _meshFilter.sharedMesh = towerMeshFilter.sharedMesh;
             TowerRange = range;
+            _collider.enabled = true;
             if (haveUnit) return;
 
             GetComponent<TargetFinder>().SetUp(delay, damage, range, health);

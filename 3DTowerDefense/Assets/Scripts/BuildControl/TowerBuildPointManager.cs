@@ -15,8 +15,8 @@ namespace BuildControl
             for (var i = 0; i < transform.childCount; i++)
             {
                 var child = transform.GetChild(i);
-                StackObjectPool.Get<BuildingPoint>("BuildingPoint", child.position, child.rotation)
-                    .onOpenTowerSelectPanelEvent += OpenTowerSelectPanel;
+                StackObjectPool.Get<BuildingPoint>("BuildingPoint", child.position, child.rotation);
+                // .onOpenTowerSelectPanelEvent += OpenTowerSelectPanel;
             }
         }
 

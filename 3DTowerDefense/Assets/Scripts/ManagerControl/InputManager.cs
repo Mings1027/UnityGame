@@ -8,30 +8,19 @@ namespace ManagerControl
     [CreateAssetMenu(menuName = "InputReader")]
     public class InputManager : ScriptableObject, GameInput.IGamePlayActions, GameInput.IUIActions
     {
-        private Camera _cam;
         private GameInput _gameInput;
-        private event Action<InputActionMap> OnActionMapChange;
+        // private event Action<InputActionMap> OnActionMapChange;
 
-        public bool isMoveUnit;
-        public bool isPanelOpened;
+        public Vector2 mousePos;
 
 //===================================Game Play===========================================
         public event Action<Vector2> onCameraMoveEvent;
         public event Action<float> onCameraRotateEvent;
         public event Action onPauseEvent;
-        public event Action onClosePanelEvent;
-        public event Action<Vector2> onGetMousePositionEvent;
         public event Action onClickEvent;
 
 //=======================================UI===========================================
         public event Action onResumeEvent;
-
-        private void Awake()
-        {
-            _cam = Camera.main;
-            isMoveUnit = false;
-            isPanelOpened = false;
-        }
 
         private void OnEnable()
         {
@@ -81,24 +70,14 @@ namespace ManagerControl
 
         public void OnMousePosition(InputAction.CallbackContext context)
         {
-            onGetMousePositionEvent?.Invoke(context.ReadValue<Vector2>());
+            mousePos = context.ReadValue<Vector2>();
         }
 
         public void OnClick(InputAction.CallbackContext context)
         {
             if (context.started)
             {
-                if (!UIManager.pointer)
-                {
-                    if (isPanelOpened)
-                    {
-                        onClosePanelEvent?.Invoke();
-                    }
-                    else if (isMoveUnit)
-                    {
-                        onClickEvent?.Invoke();
-                    }
-                }
+                onClickEvent?.Invoke();
             }
         }
 

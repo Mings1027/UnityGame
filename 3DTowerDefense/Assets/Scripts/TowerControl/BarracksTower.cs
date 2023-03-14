@@ -16,16 +16,11 @@ namespace TowerControl
         private BarracksUnit[] _barracksUnits;
 
 
-        [SerializeField] private InputManager input;
-        [SerializeField] private float unitMoveRange;
-
         protected override void Awake()
         {
             base.Awake();
             _barracksUnits = new BarracksUnit[3];
             _cam = Camera.main;
-            input.onGetMousePositionEvent += GetUnitDestination;
-            input.onClickEvent += MoveUnit;
         }
 
         protected override void OnDisable()
@@ -37,25 +32,12 @@ namespace TowerControl
         //==================================Custom Function====================================================
         //==================================Custom Function====================================================
 
-        private void GetUnitDestination(Vector2 moveVec)
+        public void MoveUnit(Vector3 pos)
         {
-            if (!IsSelected) return;
-            _pos = moveVec;
-        }
-
-        private void MoveUnit()
-        {
-            if (!IsSelected) return;
-
-            if (!Physics.Raycast(_cam.ScreenPointToRay(_pos), out var hit) ||
-                !hit.collider.CompareTag("Ground")) return;
-            if (Vector3.Distance(transform.position, hit.point) < unitMoveRange)
+            foreach (var t in _barracksUnits)
             {
-                foreach (var t in _barracksUnits)
-                {
-                    t.movePoint = true;
-                    t.point = hit.point;
-                }
+                t.movePoint = true;
+                t.point = pos;
             }
         }
 
