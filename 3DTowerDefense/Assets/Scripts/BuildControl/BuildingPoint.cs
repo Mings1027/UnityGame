@@ -6,11 +6,12 @@ using UnityEngine.EventSystems;
 namespace BuildControl
 {
     [DisallowMultipleComponent]
-    public class BuildingPoint : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+    public class BuildingPoint : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler,
+        IPointerUpHandler
     {
         private Outline _outline;
 
-        // public event Action<Transform> onOpenTowerSelectPanelEvent;
+        public event Action<Transform> onOpenTowerSelectPanelEvent;
 
         private void Awake()
         {
@@ -33,14 +34,19 @@ namespace BuildControl
             _outline.enabled = false;
         }
 
-        // public void OnPointerDown(PointerEventData eventData)
-        // {
-        //     // onOpenTowerSelectPanelEvent?.Invoke(transform);
-        // }
-        //
-        // private void OnDestroy()
-        // {
-        //     onOpenTowerSelectPanelEvent = null;
-        // }
+        public void OnPointerDown(PointerEventData eventData)
+        {
+        }
+
+        private void OnDestroy()
+        {
+            onOpenTowerSelectPanelEvent = null;
+        }
+
+        public void OnPointerUp(PointerEventData eventData)
+        {
+            print("buildpoint UP");
+            onOpenTowerSelectPanelEvent?.Invoke(transform);
+        }
     }
 }

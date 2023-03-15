@@ -229,7 +229,7 @@ namespace ManagerControl
         public void TowerSelectButton(int index)
         {
             if (_tempTower) _tempTower.gameObject.SetActive(false);
-            _tempTower = towerBuildPointManager.BuildTower(towerNames[index]);
+            // _tempTower = towerBuildPointManager.BuildTower(towerNames[index]);
 
             var tempTowerLevel = towerLevelManagers[index].towerLevels[0];
 
@@ -298,7 +298,7 @@ namespace ManagerControl
             _selectedTower = _tempTower;
             _tempTower = null;
             _selectedTower.gameObject.SetActive(false);
-            _selectedTower = towerBuildPointManager.BuildTower(towerNames[_towerIndex]);
+            // _selectedTower = towerBuildPointManager.BuildTower(towerNames[_towerIndex]);
 
             // _selectedTower.onOpenTowerEditPanelEvent += OpenTowerEditPanel;
             _selectedTower.onResetMeshEvent += ResetMesh;

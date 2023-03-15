@@ -12,12 +12,14 @@ namespace ManagerControl
         // private event Action<InputActionMap> OnActionMapChange;
 
         public Vector2 mousePos;
+        public bool isMoveUnit;
 
 //===================================Game Play===========================================
         public event Action<Vector2> onCameraMoveEvent;
         public event Action<float> onCameraRotateEvent;
         public event Action onPauseEvent;
         public event Action onClickEvent;
+        public event Action onClosePanelEvent;
 
 //=======================================UI===========================================
         public event Action onResumeEvent;
@@ -30,6 +32,8 @@ namespace ManagerControl
                 _gameInput.GamePlay.SetCallbacks(this);
                 _gameInput.UI.SetCallbacks(this);
             }
+
+            isMoveUnit = false;
 
             Init();
         }
@@ -75,9 +79,18 @@ namespace ManagerControl
 
         public void OnClick(InputAction.CallbackContext context)
         {
-            if (context.started)
+            if (UITestManager.pointer) return;
+            if (context.canceled)
             {
-                onClickEvent?.Invoke();
+                Debug.Log("cancel");
+                if (isMoveUnit)
+                {
+                    onClickEvent?.Invoke();
+                }
+                else
+                {
+                    onClosePanelEvent?.Invoke();
+                }
             }
         }
 

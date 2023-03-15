@@ -1,3 +1,4 @@
+using System;
 using AttackControl;
 using Cysharp.Threading.Tasks;
 using GameControl;
@@ -11,7 +12,6 @@ namespace TowerControl
 {
     public class BarracksTower : Tower
     {
-        private Camera _cam;
         private Vector3 _pos;
         private BarracksUnit[] _barracksUnits;
 
@@ -20,7 +20,6 @@ namespace TowerControl
         {
             base.Awake();
             _barracksUnits = new BarracksUnit[3];
-            _cam = Camera.main;
         }
 
         protected override void OnDisable()

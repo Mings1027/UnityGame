@@ -7,10 +7,12 @@ using UnityEngine.EventSystems;
 
 namespace TowerControl
 {
-    public abstract class Tower : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
+    public abstract class Tower : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler,
+        IPointerUpHandler
     {
         private Collider _collider;
         private Outline _outline;
+
         private MeshFilter _meshFilter;
         // private bool _isUpgrading;
 
@@ -18,7 +20,7 @@ namespace TowerControl
         protected CancellationTokenSource cts;
 
         public event Action<MeshFilter> onResetMeshEvent;
-        // public event Action<Tower, Transform> onOpenTowerEditPanelEvent;
+        public event Action<Tower, Transform> onOpenTowerEditPanelEvent;
 
         public enum TowerType
         {
@@ -58,7 +60,7 @@ namespace TowerControl
             cts?.Cancel();
             StackObjectPool.ReturnToPool(gameObject);
             onResetMeshEvent?.Invoke(_meshFilter);
-            // onOpenTowerEditPanelEvent = null;
+            onOpenTowerEditPanelEvent = null;
             onResetMeshEvent = null;
         }
 
@@ -70,6 +72,16 @@ namespace TowerControl
         public void OnPointerExit(PointerEventData eventData)
         {
             _outline.enabled = false;
+        }
+
+        public void OnPointerDown(PointerEventData eventData)
+        {
+        }
+
+        public void OnPointerUp(PointerEventData eventData)
+        {
+            print("tower UP");
+            onOpenTowerEditPanelEvent?.Invoke(this, transform);
         }
 
 
