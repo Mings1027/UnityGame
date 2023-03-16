@@ -38,15 +38,15 @@ namespace BuildControl
         {
         }
 
-        private void OnDestroy()
-        {
-            onOpenTowerSelectPanelEvent = null;
-        }
 
         public void OnPointerUp(PointerEventData eventData)
         {
-            print("buildpoint UP");
             onOpenTowerSelectPanelEvent?.Invoke(transform);
+        }
+
+        private void OnDestroy()
+        {
+            onOpenTowerSelectPanelEvent = null;
         }
     }
 }

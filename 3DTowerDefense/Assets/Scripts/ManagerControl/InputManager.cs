@@ -9,6 +9,8 @@ namespace ManagerControl
     public class InputManager : ScriptableObject, GameInput.IGamePlayActions, GameInput.IUIActions
     {
         private GameInput _gameInput;
+
+        private float _curRotateAngle;
         // private event Action<InputActionMap> OnActionMapChange;
 
         public Vector2 mousePos;
@@ -18,7 +20,7 @@ namespace ManagerControl
         public event Action<Vector2> onCameraMoveEvent;
         public event Action<float> onCameraRotateEvent;
         public event Action onPauseEvent;
-        public event Action onClickEvent;
+        public event Action onMoveUnitEvent;
         public event Action onClosePanelEvent;
 
 //=======================================UI===========================================
@@ -60,10 +62,7 @@ namespace ManagerControl
 
         public void OnCameraRotate(InputAction.CallbackContext context)
         {
-            if (context.started)
-            {
-                onCameraRotateEvent?.Invoke(context.ReadValue<float>());
-            }
+            onCameraRotateEvent?.Invoke(context.ReadValue<float>());
         }
 
         public void OnPause(InputAction.CallbackContext context)
@@ -79,16 +78,15 @@ namespace ManagerControl
 
         public void OnClick(InputAction.CallbackContext context)
         {
-            if (UITestManager.pointer) return;
-            if (context.canceled)
+            if (!UITestManager.pointer)
             {
-                Debug.Log("cancel");
-                if (isMoveUnit)
+                if (context.canceled)
                 {
-                    onClickEvent?.Invoke();
-                }
-                else
-                {
+                    if (isMoveUnit)
+                    {
+                        onMoveUnitEvent?.Invoke();
+                    }
+
                     onClosePanelEvent?.Invoke();
                 }
             }

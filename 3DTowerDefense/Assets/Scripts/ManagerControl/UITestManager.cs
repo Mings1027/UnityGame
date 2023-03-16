@@ -21,7 +21,6 @@ namespace ManagerControl
         private Transform _buildingPoint;
         private EventSystem _eventSystem;
         private BarracksTower _barrackTower;
-        private GameObject _towerPanelGameObject;
 
         private Vector3 _buildPos;
         private Quaternion _buildRot;
@@ -29,6 +28,7 @@ namespace ManagerControl
         private bool _isPause;
         private bool _isSell;
         private bool _isTower;
+        private bool _panelIsOpen;
 
         public static bool pointer;
 
@@ -109,15 +109,14 @@ namespace ManagerControl
 
             input.onPauseEvent += Pause;
             input.onResumeEvent += Resume;
-            input.onClickEvent += CheckWhatIsIt;
-            input.onClosePanelEvent += ClosePanels;
+            input.onMoveUnitEvent += MoveUnitToClickPosition;
+            input.onClosePanelEvent += CloseUI;
 
             towerInfoPanel.SetActive(false);
             towerSelectPanel.SetActive(false);
             towerEditPanel.SetActive(false);
             okButton.SetActive(false);
             towerPanels.target = transform;
-            _towerPanelGameObject = towerPanels.gameObject;
             menuPanel.SetActive(false);
         }
 
@@ -145,7 +144,7 @@ namespace ManagerControl
             Time.timeScale = 1;
         }
 
-        private void CheckWhatIsIt()
+        private void MoveUnitToClickPosition()
         {
             var ray = _cam.ScreenPointToRay(input.mousePos);
             if (Physics.Raycast(ray, out var hit))
@@ -166,21 +165,24 @@ namespace ManagerControl
 
         private void OpenTowerSelectPanel(Transform t)
         {
+            ResetUI();
+            _panelIsOpen = true;
             _isTower = false;
-            _towerPanelGameObject.SetActive(true);
             _buildPos = t.position;
             _buildRot = t.rotation;
             _buildingPoint = t;
             towerPanels.target = _buildingPoint;
             _selectedTower = t.GetComponent<Tower>();
+            towerPanels.ActivePanel();
             towerSelectPanel.SetActive(true);
             towerEditPanel.SetActive(false);
         }
 
         private void OpenTowerEditPanel(Tower t, Transform trans)
         {
-            _towerPanelGameObject.SetActive(true);
+            ResetUI();
             _selectedTower = t;
+            _panelIsOpen = true;
             _isTower = true;
 
             _barrackTower = _selectedTower.Type == Tower.TowerType.Barracks
@@ -212,23 +214,40 @@ namespace ManagerControl
             towerPanels.target = trans;
             towerEditPanel.SetActive(true);
             towerSelectPanel.SetActive(false);
+            towerPanels.ActivePanel();
         }
 
-        private void ClosePanels()
+        private void CloseUI()
         {
-            if (_towerPanelGameObject.activeSelf)
+            if (pointer || !_panelIsOpen) return;
+
+            var r = _cam.ScreenPointToRay(input.mousePos);
+            if (Physics.Raycast(r, out var hit))
             {
-                _towerPanelGameObject.SetActive(false);
-                okButton.SetActive(false);
+                if (!hit.collider.CompareTag("Ground")) return;
             }
 
+            ResetUI();
+        }
+
+        private void ResetUI()
+        {
             if (towerInfoPanel.activeSelf)
             {
                 towerInfoPanel.SetActive(false);
             }
 
-            towerRangeIndicator.SetActive(false);
+            if (okButton.activeSelf)
+            {
+                okButton.SetActive(false);
+            }
 
+            if (towerRangeIndicator.activeSelf)
+            {
+                towerRangeIndicator.SetActive(false);
+            }
+
+            towerPanels.DeActivePanel();
             if (!_tempTower) return;
             _tempTower.gameObject.SetActive(false);
             _tempTower = null;
@@ -279,8 +298,7 @@ namespace ManagerControl
                 TowerBuild();
             }
 
-            ClosePanels();
-            towerEditPanel.SetActive(false);
+            ResetUI();
         }
 
         private void SellButton()
@@ -303,15 +321,12 @@ namespace ManagerControl
 
         private void TowerBuild()
         {
-            towerSelectPanel.SetActive(false);
             _selectedTower = StackObjectPool.Get<Tower>(towerNames[_towerIndex], _buildPos, _buildRot);
             _selectedTower.onResetMeshEvent += ResetMesh;
             _selectedTower.onOpenTowerEditPanelEvent += OpenTowerEditPanel;
 
             _buildingPoint.gameObject.SetActive(false);
             TowerUpgrade(0, _selectedTower).Forget();
-
-            ClosePanels();
         }
 
         private void ResetMesh(MeshFilter meshFilter)
@@ -331,8 +346,7 @@ namespace ManagerControl
         {
             moveUnitButton.SetActive(false);
             input.isMoveUnit = true;
-            // _isMoveUnit = true;
-            ClosePanels();
+            ResetUI();
             barrackRangeIndicator.transform.position = _barrackTower.transform.position;
             barrackRangeIndicator.transform.localScale =
                 new Vector3(_barrackTower.TowerRange * 2, 0.1f, _barrackTower.TowerRange * 2);

@@ -1,12 +1,9 @@
-using System;
 using AttackControl;
 using Cysharp.Threading.Tasks;
 using GameControl;
-using ManagerControl;
 using UnitControl;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.EventSystems;
 
 namespace TowerControl
 {
