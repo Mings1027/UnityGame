@@ -30,15 +30,15 @@ namespace TowerControl
             ArcherUnitSetUp();
         }
 
-        public override void Building( bool haveUnit,MeshFilter towerMeshFilter, float delay, float range, int damage,
-            int health = 0)
+        public override void Building(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range,
+            float delay, int health = 0)
         {
-            base.Building(haveUnit,towerMeshFilter,  delay, range, damage, health);
-            var count = towerLevel == 4 ? 2 : 1;
+            base.Building(towerMeshFilter, minDamage, maxDamage, range, delay, health);
+            var count = TowerLevel == 4 ? 2 : 1;
             for (var i = 0; i < count; i++)
             {
-                _archerUnits[i] = StackObjectPool.Get<ArcherUnit>("ArcherUnit", archerPos[towerLevel + i].position);
-                _archerUnits[i].GetComponent<TargetFinder>().SetUp(delay, damage, range);
+                _archerUnits[i] = StackObjectPool.Get<ArcherUnit>("ArcherUnit", archerPos[TowerLevel + i].position);
+                _archerUnits[i].GetComponent<TargetFinder>().SetUp(delay, range, minDamage, maxDamage);
             }
         }
 
@@ -52,15 +52,5 @@ namespace TowerControl
                 }
             }
         }
-
-        // protected override void UnitControl()
-        // {
-        //     var count = towerLevel == 4 ? 2 : 1;
-        //     for (var i = 0; i < count; i++)
-        //     {
-        //         _archerUnits[i].target = target;
-        //         _archerUnits[i].Attack();
-        //     }
-        // }
     }
 }

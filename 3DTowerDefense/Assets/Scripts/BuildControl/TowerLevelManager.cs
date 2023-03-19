@@ -5,7 +5,6 @@ namespace BuildControl
     [CreateAssetMenu]
     public class TowerLevelManager : ScriptableObject
     {
-        public bool hasUnit;
         public TowerLevel[] towerLevels;
 
         [System.Serializable]
@@ -16,13 +15,10 @@ namespace BuildControl
             public int coin;
             public string towerName;
             public string towerInfo;
-            public int health;
-
-            [SerializeField] private int minDamage, maxDamage;
-
-            public int Damage => Random.Range(minDamage, maxDamage);
-            public float attackDelay;
+            public int minDamage, maxDamage;
             public float attackRange;
+            public float attackDelay;
+            public int health;
         }
     }
 }

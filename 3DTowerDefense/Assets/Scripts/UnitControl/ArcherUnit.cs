@@ -1,12 +1,20 @@
+using AttackControl;
 using GameControl;
 using UnityEngine;
 using WeaponControl;
 
 namespace UnitControl
 {
-    public class ArcherUnit : Unit
+    public class ArcherUnit : Unit, IAttackTarget
     {
-        protected override void Attack()
+        private void Update()
+        {
+            if (!IsTargeting || !targetFinder.attackAble) return;
+            Attack();
+            targetFinder.StartCoolDown().Forget();
+        }
+
+        public void Attack()
         {
             var t = target.position + target.forward;
             SpawnArrow(t);

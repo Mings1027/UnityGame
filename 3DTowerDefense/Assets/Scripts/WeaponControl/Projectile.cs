@@ -35,7 +35,6 @@ namespace WeaponControl
         private void OnDisable()
         {
             _cts?.Cancel();
-            StackObjectPool.ReturnToPool(gameObject);
         }
 
         protected virtual void OnTriggerEnter(Collider other)
@@ -53,7 +52,9 @@ namespace WeaponControl
             _lerp = 0;
             while (_lerp < 1)
             {
-                _lerp += Time.deltaTime * speed;
+                var gravity = _lerp < 0.5f ? 1 : 1.5f;
+                _lerp += Time.deltaTime * gravity * speed;
+
                 _curPos = Vector3.Lerp(startPos.position, endPos, _lerp);
                 _curPos.y += curve.Evaluate(_lerp);
                 var dir = (_curPos - _rigid.position).normalized;

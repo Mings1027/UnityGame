@@ -4,10 +4,18 @@ using UnityEngine;
 
 public class TestTower : MonoBehaviour
 {
-    [SerializeField] private LayerMask layerMask;
+    private Rigidbody rigid;
+    [SerializeField]private Vector3 moveVec;
+
+    [SerializeField] private float speed;
 
     private void Start()
     {
-        layerMask = 1 << LayerMask.NameToLayer("Enemy") | 1 << LayerMask.NameToLayer("Player");
+        rigid = GetComponent<Rigidbody>();
+    }
+
+    private void FixedUpdate()
+    {
+        rigid.MovePosition(rigid.position + moveVec * (speed * Time.fixedDeltaTime));
     }
 }

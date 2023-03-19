@@ -8,9 +8,10 @@ namespace ManagerControl
     [CreateAssetMenu(menuName = "InputReader")]
     public class InputManager : ScriptableObject, GameInput.IGamePlayActions, GameInput.IUIActions
     {
+        private Camera _cam;
         private GameInput _gameInput;
 
-        private float _curRotateAngle;
+        private Ray _ray;
         // private event Action<InputActionMap> OnActionMapChange;
 
         public Vector2 mousePos;
@@ -35,13 +36,16 @@ namespace ManagerControl
                 _gameInput.UI.SetCallbacks(this);
             }
 
-            isMoveUnit = false;
-
             Init();
         }
 
         private void Init()
         {
+            _cam = Camera.main;
+
+            mousePos = Vector2.zero;
+            isMoveUnit = false;
+
             ToggleActionMap(_gameInput.GamePlay);
         }
 
@@ -73,12 +77,17 @@ namespace ManagerControl
 
         public void OnMousePosition(InputAction.CallbackContext context)
         {
-            mousePos = context.ReadValue<Vector2>();
+            if (context.performed)
+            {
+                _ray = _cam.ScreenPointToRay(context.ReadValue<Vector2>());
+
+                mousePos = context.ReadValue<Vector2>();
+            }
         }
 
         public void OnClick(InputAction.CallbackContext context)
         {
-            if (!UITestManager.pointer)
+            if (!UIManager.pointer)
             {
                 if (context.canceled)
                 {
@@ -86,8 +95,11 @@ namespace ManagerControl
                     {
                         onMoveUnitEvent?.Invoke();
                     }
-
-                    onClosePanelEvent?.Invoke();
+                    else if (Physics.Raycast(_ray, out var hit))
+                    {
+                        if (hit.collider.CompareTag("Ground"))
+                            onClosePanelEvent?.Invoke();
+                    }
                 }
             }
         }

@@ -3,24 +3,33 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameControl;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace AttackControl
 {
     public class TargetFinder : MonoBehaviour
     {
         private Vector3 _checkRangePoint;
-        private Collider[] _results;
-        private float _atkDelay, _atkRange;
+        private float _atkDelay;
         private CancellationTokenSource _cts;
         private Transform _target;
+        private Vector3 _centerPos;
+        private Collider[] _targetColliders;
+        private int _minDamage, _maxDamage;
 
-        public int Damage { get; private set; }
+        public float AtkRange { get; private set; }
+
+        public int Damage => Random.Range(_minDamage, _maxDamage);
+
         public bool attackAble;
+        public int colliderSize;
+
+        [SerializeField] private LayerMask groundLayer;
         [SerializeField] private LayerMask targetLayer;
 
         private void Awake()
         {
-            _results = new Collider[3];
+            _targetColliders = new Collider[colliderSize];
         }
 
         private void OnEnable()
@@ -36,24 +45,19 @@ namespace AttackControl
             CancelInvoke();
         }
 
-        // private void Update()
-        // {
-        //     if (!_attackAble || !_isTargeting) return;
-        //     Attack();
-        //     StartCoolDown().Forget();
-        // }
-
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(transform.position, _atkRange);
+            Gizmos.DrawWireSphere(_centerPos, AtkRange);
         }
 
-        public void SetUp(float attackDelay, int unitDamage, float attackRange = 2, int unitHealth = 0)
+        public void SetUp(float attackDelay, float attackRange, int unitMinDamage, int unitMaxDamage,
+            int unitHealth = 0)
         {
             _atkDelay = attackDelay;
-            Damage = unitDamage;
-            _atkRange = attackRange;
+            _minDamage = unitMinDamage;
+            _maxDamage = unitMaxDamage;
+            AtkRange = attackRange;
             if (TryGetComponent(out Health h)) h.InitializeHealth(unitHealth);
         }
 
@@ -66,20 +70,31 @@ namespace AttackControl
 
         public (Transform, bool) FindClosestTarget()
         {
-            var size = Physics.OverlapSphereNonAlloc(transform.position, _atkRange, _results, targetLayer);
+            Physics.Raycast(transform.position, Vector3.down, out var hit, 100, groundLayer);
+            _centerPos = hit.point;
+
+            var size = Physics.OverlapSphereNonAlloc(_centerPos, AtkRange, _targetColliders, targetLayer);
             var shortestDistance = Mathf.Infinity;
             Transform nearestEnemy = null;
 
-            if (size <= 0) return (null, false);
-            for (var i = 0; i < size; i++)
+            switch (size)
             {
-                var distanceToResult = Vector3.SqrMagnitude(transform.position - _results[i].transform.position);
-                if (distanceToResult >= shortestDistance) continue;
-                shortestDistance = distanceToResult;
-                nearestEnemy = _results[i].transform;
+                case <= 0:
+                    return (null, false);
+                case 1:
+                    return (_targetColliders[0].transform, true);
             }
 
-            return (nearestEnemy, true);
+            for (var i = 0; i < size; i++)
+            {
+                var distanceToResult =
+                    Vector3.SqrMagnitude(transform.position - _targetColliders[i].transform.position);
+                if (distanceToResult >= shortestDistance) continue;
+                shortestDistance = distanceToResult;
+                nearestEnemy = _targetColliders[i].transform;
+            }
+
+            return (nearestEnemy, nearestEnemy != null);
         }
     }
 }

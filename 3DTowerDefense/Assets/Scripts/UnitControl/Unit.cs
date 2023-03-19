@@ -10,13 +10,14 @@ namespace UnitControl
         private CancellationTokenSource _cts;
 
         protected TargetFinder targetFinder;
-        public bool isTargeting;
-        public Transform target;
+        protected Transform target;
 
+        protected bool IsTargeting { get; private set; }
 
         protected virtual void Awake()
         {
             targetFinder = GetComponent<TargetFinder>();
+            targetFinder.colliderSize = 3;
         }
 
         protected virtual void OnEnable()
@@ -30,23 +31,13 @@ namespace UnitControl
         {
             CancelInvoke();
             _cts?.Cancel();
-            StackObjectPool.ReturnToPool(gameObject);
         }
-
-        protected virtual void Update()
-        {
-            if (!isTargeting || !targetFinder.attackAble) return;
-            Attack();
-            targetFinder.StartCoolDown().Forget();
-        }
-
-        protected abstract void Attack();
 
         private void FoundTarget()
         {
             var t = targetFinder.FindClosestTarget();
             target = t.Item1;
-            isTargeting = t.Item2;
+            IsTargeting = t.Item2;
         }
     }
 }

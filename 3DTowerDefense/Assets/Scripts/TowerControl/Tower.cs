@@ -1,9 +1,9 @@
 using System;
 using System.Threading;
-using AttackControl;
 using GameControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 
 namespace TowerControl
 {
@@ -12,16 +12,16 @@ namespace TowerControl
     {
         private Collider _collider;
         private Outline _outline;
-
         private MeshFilter _meshFilter;
 
+        protected bool isUpgrading;
         protected bool isSold;
         protected CancellationTokenSource cts;
 
         public event Action<MeshFilter> onResetMeshEvent;
         public event Action<Tower, Transform> onOpenTowerEditPanelEvent;
 
-        public enum TowerType
+        public enum Type
         {
             Archer,
             Barracks,
@@ -29,13 +29,13 @@ namespace TowerControl
             Mage
         }
 
-        public TowerType Type => towerType;
+        public Type TowerType => towerType;
 
-        protected int towerLevel;
+        public int TowerLevel { get; private set; }
 
-        public int TowerLevel => towerLevel;
         public float TowerRange { get; private set; }
-        [SerializeField] private TowerType towerType;
+
+        [SerializeField] private Type towerType;
 
         protected virtual void Awake()
         {
@@ -54,10 +54,9 @@ namespace TowerControl
 
         protected virtual void OnDisable()
         {
-            towerLevel = -1;
+            TowerLevel = -1;
             isSold = true;
             cts?.Cancel();
-            StackObjectPool.ReturnToPool(gameObject);
             onResetMeshEvent?.Invoke(_meshFilter);
             onOpenTowerEditPanelEvent = null;
             onResetMeshEvent = null;
@@ -82,31 +81,29 @@ namespace TowerControl
         {
         }
 
-
         //==================================Custom function====================================================
         //======================================================================================================
 
         public void TowerLevelUp(int uniqueLevel)
         {
-            if (towerLevel < 2) towerLevel++;
-            else if (uniqueLevel > 0) towerLevel = uniqueLevel;
+            if (TowerLevel < 2) TowerLevel++;
+            else if (uniqueLevel > 0) TowerLevel = uniqueLevel;
         }
 
         public virtual void ReadyToBuild(MeshFilter consMeshFilter)
         {
+            isUpgrading = true;
             _outline.enabled = false;
             _meshFilter.sharedMesh = consMeshFilter.sharedMesh;
         }
 
-        public virtual void Building(bool haveUnit, MeshFilter towerMeshFilter, float delay, float range, int damage,
+        public virtual void Building(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range, float delay,
             int health = 0)
         {
+            isUpgrading = false;
             _meshFilter.sharedMesh = towerMeshFilter.sharedMesh;
             TowerRange = range;
             _collider.enabled = true;
-            if (haveUnit) return;
-
-            GetComponent<TargetFinder>().SetUp(delay, damage, range, health);
         }
     }
 }

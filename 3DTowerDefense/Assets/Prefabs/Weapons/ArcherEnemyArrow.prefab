@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 2722865382803578379}
   - component: {fileID: 2722865382803578378}
   - component: {fileID: 2055120198703303145}
+  - component: {fileID: -638893863733417121}
   m_Layer: 6
   m_Name: ArcherEnemyArrow
   m_TagString: Untagged
@@ -77,9 +78,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 0
-  attackTargetLayer:
-    serializedVersion: 2
-    m_Bits: 4096
   lifeTime: 1
   curve:
     serializedVersion: 2
@@ -115,6 +113,18 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   speed: 2
+--- !u!114 &-638893863733417121
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2722865382803578380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ad79af3b1ae245b5865ab5638657597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3120584527776337076
 GameObject:
   m_ObjectHideFlags: 0

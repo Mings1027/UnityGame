@@ -377,10 +377,6 @@ MonoBehaviour:
     prefab: {fileID: 4417539079662013206, guid: e65f00d669a55f74eb6840c849c657e1,
       type: 3}
     size: 3
-  - tag: MageUnit
-    prefab: {fileID: 2797710162398575740, guid: 5af01b46a9dd1b746afcf9f3e182e3d3,
-      type: 3}
-    size: 1
   - tag: BuildingPoint
     prefab: {fileID: 1323643566170160, guid: c0ad9e12aa69f14419bc9e45d54eb299, type: 3}
     size: 10
@@ -426,6 +422,14 @@ MonoBehaviour:
   - tag: BuildSmoke
     prefab: {fileID: 104829970813648393, guid: d3015b7eea383f64d8b81f965cc466e7, type: 3}
     size: 10
+  - tag: UnitBullet
+    prefab: {fileID: 4134895727443223706, guid: a11f2e7afe49e4b5bad475328834bfe7,
+      type: 3}
+    size: 10
+  - tag: Explosion
+    prefab: {fileID: 6143467867895953418, guid: be01741081bb2c944aad51a527b3e120,
+      type: 3}
+    size: 1
 --- !u!4 &211751030
 Transform:
   m_ObjectHideFlags: 0
@@ -2080,24 +2084,32 @@ MonoBehaviour:
   waves:
   - name: ArcherEnemy
     enemyCount: 20
+    atkDelay: 3
+    minDamage: 1
+    maxDamage: 4
+    atkRange: 7
     health: 30
-    damage: 1
-    rate: 3
   - name: MageEnemy
     enemyCount: 20
+    atkDelay: 2
+    minDamage: 4
+    maxDamage: 8
+    atkRange: 10
     health: 35
-    damage: 2
-    rate: 2
   - name: SpearManEnemy
     enemyCount: 30
+    atkDelay: 1
+    minDamage: 3
+    maxDamage: 5
+    atkRange: 1.5
     health: 40
-    damage: 3
-    rate: 1
   - name: SwordManEnemy
     enemyCount: 40
+    atkDelay: 0.5
+    minDamage: 6
+    maxDamage: 10
+    atkRange: 2
     health: 45
-    damage: 4
-    rate: 0.5
   spawnPoint: {fileID: 912944062}
   destinationPoint: {fileID: 320900669}
 --- !u!4 &1152211204
@@ -2173,7 +2185,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1373303588}
-  - component: {fileID: 1373303587}
   - component: {fileID: 1373303589}
   m_Layer: 0
   m_Name: UIMamager
@@ -2182,39 +2193,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1373303587
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1373303586}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ca96ba78778064d86adedf6a7ab09a6e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  towerBuildPointManager: {fileID: 2083864064}
-  input: {fileID: 11400000, guid: c33b241b4246b4aca800b66085099eae, type: 2}
-  towerLevelManagers:
-  - {fileID: 11400000, guid: 3ec0532382c2144d3924e4e6eb3132e2, type: 2}
-  - {fileID: 11400000, guid: 15c549c511dc145db8c8e37552d8213a, type: 2}
-  - {fileID: 11400000, guid: 90e784d2230af4510b514d2e99204734, type: 2}
-  - {fileID: 11400000, guid: 24a6679e1411548e3a4ddcffdb27d4ee, type: 2}
-  towerNames: []
-  towerInfoPanel: {fileID: 1846270219}
-  towerPanels: {fileID: 1800078199}
-  towerSelectPanel: {fileID: 341213572}
-  towerEditPanel: {fileID: 1253569520}
-  okButton: {fileID: 360236084}
-  menuPanel: {fileID: 1593064645}
-  upgradeButton: {fileID: 1856318922}
-  uniqueUpgradeButtons: {fileID: 548738032}
-  sellButton: {fileID: 699365260}
-  moveUnitButton: {fileID: 1490004420}
-  headerField: {fileID: 1672282492}
-  contentField: {fileID: 406335267}
-  towerRangeIndicator: {fileID: 6002198535729202646}
 --- !u!4 &1373303588
 Transform:
   m_ObjectHideFlags: 0
@@ -2227,9 +2205,10 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 6002198535229827233}
-  - {fileID: 6002198535729202645}
   - {fileID: 1639641328}
+  - {fileID: 6002198535729202645}
+  - {fileID: 6002198535229827233}
+  - {fileID: 1993667610}
   m_Father: {fileID: 0}
   m_RootOrder: 11
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2253,16 +2232,18 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 90e784d2230af4510b514d2e99204734, type: 2}
   - {fileID: 11400000, guid: 24a6679e1411548e3a4ddcffdb27d4ee, type: 2}
   towerNames: []
+  curTowerMesh: {fileID: 1993667612}
+  towerMesh: []
   towerPanels: {fileID: 1800078199}
-  towerInfoPanel: {fileID: 1846270219}
   towerSelectPanel: {fileID: 341213572}
   towerEditPanel: {fileID: 1253569520}
   upgradeButton: {fileID: 1856318922}
   uniqueUpgradeButtons: {fileID: 548738032}
-  okButton: {fileID: 360236084}
-  menuPanel: {fileID: 1593064645}
   sellButton: {fileID: 699365260}
   moveUnitButton: {fileID: 1490004420}
+  okButton: {fileID: 360236084}
+  menuPanel: {fileID: 1593064645}
+  towerInfoPanel: {fileID: 1846270219}
   headerField: {fileID: 1672282492}
   contentField: {fileID: 406335267}
   towerRangeIndicator: {fileID: 6002198535729202646}
@@ -2501,7 +2482,7 @@ RectTransform:
   - {fileID: 1869028531}
   - {fileID: 423434293}
   m_Father: {fileID: 1639641328}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -2640,12 +2621,12 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1823357934}
-  - {fileID: 1846270220}
   - {fileID: 1800078198}
   - {fileID: 1593064646}
+  - {fileID: 1846270220}
   - {fileID: 891965416}
   m_Father: {fileID: 1373303588}
-  m_RootOrder: 2
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
@@ -3330,7 +3311,7 @@ RectTransform:
   - {fileID: 1253569521}
   - {fileID: 360236085}
   m_Father: {fileID: 1639641328}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -3478,7 +3459,7 @@ RectTransform:
   - {fileID: 1672282491}
   - {fileID: 406335266}
   m_Father: {fileID: 1639641328}
-  m_RootOrder: 1
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -3969,6 +3950,89 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1993667609
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1993667610}
+  - component: {fileID: 1993667612}
+  - component: {fileID: 1993667611}
+  m_Layer: 0
+  m_Name: CurTowerMesh
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1993667610
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1993667609}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1373303588}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!23 &1993667611
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1993667609}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: c717fb89e24ff384785039c0f1169eee, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!33 &1993667612
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1993667609}
+  m_Mesh: {fileID: 0}
 --- !u!1 &2083864063
 GameObject:
   m_ObjectHideFlags: 0
@@ -3980,7 +4044,7 @@ GameObject:
   - component: {fileID: 2083864065}
   - component: {fileID: 2083864064}
   m_Layer: 0
-  m_Name: TowerBuildPointManager
+  m_Name: TowerBuildPoints
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5242,7 +5306,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1373303588}
-  m_RootOrder: 0
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &6002198535229827234
 GameObject:
@@ -5256,7 +5320,7 @@ GameObject:
   - component: {fileID: 6002198535229827232}
   - component: {fileID: 6002198535229827235}
   m_Layer: 0
-  m_Name: BarrackTowerUnitMoveRange
+  m_Name: BarrackRangeIndicator
   m_TagString: MoveArea
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5339,7 +5403,7 @@ GameObject:
   - component: {fileID: 6002198535729202644}
   - component: {fileID: 6002198535729202647}
   m_Layer: 0
-  m_Name: TowerRange
+  m_Name: TowerRangeIndicator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

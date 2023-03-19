@@ -1,11 +1,12 @@
 using System;
+using AttackControl;
 using GameControl;
 using UnityEngine;
 using UnityEngine.AI;
 
 namespace UnitControl
 {
-    public class BarracksUnit : Unit
+    public class BarracksUnit : Unit, IAttackTarget
     {
         private static readonly int IsAttack = Animator.StringToHash("isAttack");
 
@@ -30,7 +31,7 @@ namespace UnitControl
             onDeadEvent = null;
         }
 
-        protected override void Update()
+        private void Update()
         {
             if (movePoint)
             {
@@ -38,12 +39,11 @@ namespace UnitControl
                 if (_nav.remainingDistance <= _nav.stoppingDistance) movePoint = false;
             }
 
-            if (!isTargeting) return;
+            if (!IsTargeting) return;
             if (targetFinder.attackAble &&
                 Vector3.Distance(transform.position, target.position) <= _nav.stoppingDistance)
             {
                 Attack();
-                targetFinder.StartCoolDown().Forget();
             }
             else
             {
@@ -51,18 +51,15 @@ namespace UnitControl
             }
         }
 
-        protected override void Attack()
+        public void Attack()
         {
             _anim.SetTrigger(IsAttack);
             if (target.TryGetComponent(out Health h))
             {
                 h.GetHit(targetFinder.Damage, target.gameObject).Forget();
             }
-        }
 
-        public void MovingUnit(Vector3 pos)
-        {
-            _nav.SetDestination(pos);
+            targetFinder.StartCoolDown().Forget();
         }
     }
 }

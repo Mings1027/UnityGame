@@ -17,11 +17,11 @@ public class FollowWorld : MonoBehaviour
         _cam = Camera.main;
 
         _showSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-            .Append(transform.DOScale(0, duration).From())
+            .Append(transform.DOScale(0.5f, duration).From())
             .SetEase(scaleEase);
 
         _hideSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-            .Append(transform.DOScale(0, duration))
+            .Append(transform.DOScale(0f, duration))
             .SetEase(scaleEase);
     }
 

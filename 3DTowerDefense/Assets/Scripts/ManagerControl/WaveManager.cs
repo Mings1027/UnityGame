@@ -1,8 +1,10 @@
 using System;
+using AttackControl;
 using Cysharp.Threading.Tasks;
 using EnemyControl;
 using GameControl;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace ManagerControl
@@ -14,9 +16,14 @@ namespace ManagerControl
         {
             public string name;
             public int enemyCount;
+
+            [FormerlySerializedAs("delay")] [FormerlySerializedAs("rate")]
+            public float atkDelay;
+
+            [FormerlySerializedAs("damage")] public int minDamage;
+            public int maxDamage;
+            public float atkRange;
             public int health;
-            public int damage;
-            public float rate;
         }
 
         private bool _startGame;
@@ -52,7 +59,7 @@ namespace ManagerControl
             _count = waves[_nextWave].enemyCount;
             while (_count > 0)
             {
-                await UniTask.Delay(TimeSpan.FromSeconds(waves[_nextWave].rate));
+                await UniTask.Delay(TimeSpan.FromSeconds(waves[_nextWave].atkDelay));
                 _count--;
                 SpawnEnemy();
             }
@@ -67,7 +74,10 @@ namespace ManagerControl
             var e = StackObjectPool.Get<Enemy>(waves[_nextWave].name, spawnPoint.position);
             e.GetComponent<Health>().InitializeHealth(waves[_nextWave].health);
             e.destination = destinationPoint;
-            e.damage = waves[_nextWave].damage;
+
+            var w = waves[_nextWave];
+            e.GetComponent<TargetFinder>().SetUp(w.atkDelay, w.atkRange, w.minDamage, w.maxDamage, w.health);
+            e.damage = waves[_nextWave].minDamage;
         }
     }
 }

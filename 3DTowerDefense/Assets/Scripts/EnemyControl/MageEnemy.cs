@@ -4,7 +4,7 @@ namespace EnemyControl
     {
         protected override void Attack()
         {
-            throw new System.NotImplementedException();
+            
         }
     }
 }

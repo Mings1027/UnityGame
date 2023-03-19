@@ -12,7 +12,6 @@ namespace TowerControl
         private Vector3 _pos;
         private BarracksUnit[] _barracksUnits;
 
-
         protected override void Awake()
         {
             base.Awake();
@@ -37,11 +36,11 @@ namespace TowerControl
             }
         }
 
-        public override void Building(bool haveUnit, MeshFilter towerMeshFilter, float delay, float range, int damage,
-            int health = 0)
+        public override void Building(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range,
+            float delay, int health = 0)
         {
-            base.Building(haveUnit, towerMeshFilter, delay, range, damage, health);
-            UpgradeUnit(delay, damage, health).Forget();
+            base.Building(towerMeshFilter, minDamage, maxDamage, range, delay, health);
+            UpgradeUnit(delay, minDamage, maxDamage, health).Forget();
         }
 
         private void BarrackUnitSetUp()
@@ -55,9 +54,9 @@ namespace TowerControl
             }
         }
 
-        private async UniTaskVoid UpgradeUnit(float delay, int damage, int health)
+        private async UniTaskVoid UpgradeUnit(float delay, int minDamage, int maxDamage, int health)
         {
-            var unitName = towerLevel == 4 ? "SpearManUnit" : "SwordManUnit";
+            var unitName = TowerLevel == 4 ? "SpearManUnit" : "SwordManUnit";
 
             if (NavMesh.SamplePosition(transform.position, out var hit, 15, NavMesh.AllAreas))
             {
@@ -65,7 +64,7 @@ namespace TowerControl
                 {
                     await UniTask.Delay(100, cancellationToken: cts.Token);
 
-                    if (_barracksUnits[i] != null && towerLevel == 4) //이미 스폰됨 && level = 4
+                    if (_barracksUnits[i] != null && TowerLevel == 4) //이미 스폰됨 && level = 4
                     {
                         _barracksUnits[i].onDeadEvent -= ReSpawn;
                         _barracksUnits[i].gameObject.SetActive(false);
@@ -80,7 +79,7 @@ namespace TowerControl
                         _barracksUnits[i].onDeadEvent += ReSpawn;
                     }
 
-                    _barracksUnits[i].GetComponent<TargetFinder>().SetUp(delay, damage);
+                    _barracksUnits[i].GetComponent<TargetFinder>().SetUp(delay, 5f, minDamage, maxDamage);
                     _barracksUnits[i].GetComponent<Health>().InitializeHealth(health);
                 }
             }

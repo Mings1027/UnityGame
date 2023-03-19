@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3310426110391370158}
   - component: {fileID: 1433957233540561313}
   - component: {fileID: 9152204915855636318}
+  - component: {fileID: -6169054218916148228}
   m_Layer: 9
   m_Name: ArcherTower
   m_TagString: Tower
@@ -67,7 +68,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   towerType: 0
-  _hasUnit: 1
   archerPos:
   - {fileID: 6689091902206525701}
   - {fileID: 3214263664618876321}
@@ -93,6 +93,18 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
+--- !u!114 &-6169054218916148228
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2192198980469555006}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ad79af3b1ae245b5865ab5638657597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2286292466128150576
 GameObject:
   m_ObjectHideFlags: 0
