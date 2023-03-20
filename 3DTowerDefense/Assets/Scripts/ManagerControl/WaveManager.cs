@@ -76,7 +76,7 @@ namespace ManagerControl
             e.destination = destinationPoint;
 
             var w = waves[_nextWave];
-            e.GetComponent<TargetFinder>().SetUp(w.atkDelay, w.atkRange, w.minDamage, w.maxDamage, w.health);
+            e.GetComponent<TargetFinder>().SetUp(w.minDamage, w.maxDamage, w.atkRange, w.atkDelay, w.health);
             e.damage = waves[_nextWave].minDamage;
         }
     }

@@ -1,12 +1,11 @@
 using System;
-using AttackControl;
 using GameControl;
 using UnityEngine;
 using UnityEngine.AI;
 
 namespace UnitControl
 {
-    public class BarracksUnit : Unit, IAttackTarget
+    public class BarracksUnit : Unit
     {
         private static readonly int IsAttack = Animator.StringToHash("isAttack");
 
@@ -23,7 +22,7 @@ namespace UnitControl
             _nav = GetComponent<NavMeshAgent>();
             _anim = GetComponent<Animator>();
         }
-
+        
         protected override void OnDisable()
         {
             base.OnDisable();
@@ -31,7 +30,7 @@ namespace UnitControl
             onDeadEvent = null;
         }
 
-        private void Update()
+        protected override void CheckState()
         {
             if (movePoint)
             {
@@ -39,27 +38,26 @@ namespace UnitControl
                 if (_nav.remainingDistance <= _nav.stoppingDistance) movePoint = false;
             }
 
-            if (!IsTargeting) return;
+            if (!targetFinder.IsTargeting) return;
             if (targetFinder.attackAble &&
-                Vector3.Distance(transform.position, target.position) <= _nav.stoppingDistance)
+                Vector3.Distance(transform.position, targetFinder.Target.position) <= _nav.stoppingDistance)
             {
                 Attack();
+                targetFinder.StartCoolDown().Forget();
             }
             else
             {
-                _nav.SetDestination(target.position);
+                _nav.SetDestination(targetFinder.Target.position);
             }
         }
 
-        public void Attack()
+        protected override void Attack()
         {
             _anim.SetTrigger(IsAttack);
-            if (target.TryGetComponent(out Health h))
+            if (targetFinder.Target.TryGetComponent(out Health h))
             {
-                h.GetHit(targetFinder.Damage, target.gameObject).Forget();
+                h.GetHit(targetFinder.Damage, targetFinder.Target.gameObject).Forget();
             }
-
-            targetFinder.StartCoolDown().Forget();
         }
     }
 }

@@ -6,7 +6,6 @@ using TMPro;
 using TowerControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace ManagerControl

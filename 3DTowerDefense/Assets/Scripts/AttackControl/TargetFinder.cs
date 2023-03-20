@@ -12,7 +12,7 @@ namespace AttackControl
         private Vector3 _checkRangePoint;
         private float _atkDelay;
         private CancellationTokenSource _cts;
-        private Transform _target;
+
         private Vector3 _centerPos;
         private Collider[] _targetColliders;
         private int _minDamage, _maxDamage;
@@ -22,14 +22,18 @@ namespace AttackControl
         public int Damage => Random.Range(_minDamage, _maxDamage);
 
         public bool attackAble;
-        public int colliderSize;
 
+        public Transform Target { get; private set; }
+        public bool IsTargeting { get; private set; }
+
+        // [SerializeField] private int _colliderSize;
+        [SerializeField] private float smoothTurnSpeed;
         [SerializeField] private LayerMask groundLayer;
         [SerializeField] private LayerMask targetLayer;
 
         private void Awake()
         {
-            _targetColliders = new Collider[colliderSize];
+            _targetColliders = new Collider[5];
         }
 
         private void OnEnable()
@@ -37,6 +41,13 @@ namespace AttackControl
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
             attackAble = true;
+            InvokeRepeating(nameof(ClosestTarget), 0, 1f);
+        }
+
+        private void LateUpdate()
+        {
+            if (!IsTargeting) return;
+            LookTarget();
         }
 
         private void OnDisable()
@@ -51,7 +62,16 @@ namespace AttackControl
             Gizmos.DrawWireSphere(_centerPos, AtkRange);
         }
 
-        public void SetUp(float attackDelay, float attackRange, int unitMinDamage, int unitMaxDamage,
+        private void LookTarget()
+        {
+            var direction = Target.position + Target.forward;
+            var dir = direction - transform.position;
+            var yRot = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
+            var lookRot = Quaternion.Euler(0, yRot, 0);
+            transform.rotation = Quaternion.Lerp(transform.rotation, lookRot, smoothTurnSpeed);
+        }
+
+        public void SetUp(int unitMinDamage, int unitMaxDamage, float attackRange, float attackDelay,
             int unitHealth = 0)
         {
             _atkDelay = attackDelay;
@@ -68,7 +88,7 @@ namespace AttackControl
             attackAble = true;
         }
 
-        public (Transform, bool) FindClosestTarget()
+        private void ClosestTarget()
         {
             Physics.Raycast(transform.position, Vector3.down, out var hit, 100, groundLayer);
             _centerPos = hit.point;
@@ -76,14 +96,6 @@ namespace AttackControl
             var size = Physics.OverlapSphereNonAlloc(_centerPos, AtkRange, _targetColliders, targetLayer);
             var shortestDistance = Mathf.Infinity;
             Transform nearestEnemy = null;
-
-            switch (size)
-            {
-                case <= 0:
-                    return (null, false);
-                case 1:
-                    return (_targetColliders[0].transform, true);
-            }
 
             for (var i = 0; i < size; i++)
             {
@@ -94,7 +106,8 @@ namespace AttackControl
                 nearestEnemy = _targetColliders[i].transform;
             }
 
-            return (nearestEnemy, nearestEnemy != null);
+            Target = size <= 0 ? null : nearestEnemy;
+            IsTargeting = Target != null;
         }
     }
 }

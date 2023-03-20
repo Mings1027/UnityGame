@@ -4,11 +4,11 @@ using WeaponControl;
 
 namespace EnemyControl
 {
-    public class ArcherEnemy : Enemy
+    public class RangeEnemy : Enemy
     {
         protected override void Attack()
         {
-            SpawnArrow(target.position);
+            SpawnArrow(targetFinder.Target.position);
         }
 
         private void SpawnArrow(Vector3 t)

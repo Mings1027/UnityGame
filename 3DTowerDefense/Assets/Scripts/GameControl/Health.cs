@@ -10,6 +10,8 @@ namespace GameControl
     {
         private Renderer _renderer;
         private CancellationTokenSource _cts;
+
+        public int CurHealth => curHealth;
         [SerializeField] private int curHealth, maxHealth;
 
         [SerializeField] private UnityEvent<GameObject> hitWithReference;

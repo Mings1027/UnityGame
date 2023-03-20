@@ -7,7 +7,7 @@ using UnityEngine.AI;
 
 namespace TowerControl
 {
-    public class BarracksTower : Tower
+    public class BarracksTower : TowerUnitAttacker
     {
         private Vector3 _pos;
         private BarracksUnit[] _barracksUnits;
@@ -16,12 +16,6 @@ namespace TowerControl
         {
             base.Awake();
             _barracksUnits = new BarracksUnit[3];
-        }
-
-        protected override void OnDisable()
-        {
-            base.OnDisable();
-            BarrackUnitSetUp();
         }
 
         //==================================Custom Function====================================================
@@ -36,14 +30,7 @@ namespace TowerControl
             }
         }
 
-        public override void Building(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range,
-            float delay, int health = 0)
-        {
-            base.Building(towerMeshFilter, minDamage, maxDamage, range, delay, health);
-            UpgradeUnit(delay, minDamage, maxDamage, health).Forget();
-        }
-
-        private void BarrackUnitSetUp()
+        protected override void UnitSetUp()
         {
             for (var i = 0; i < _barracksUnits.Length; i++)
             {
@@ -54,7 +41,7 @@ namespace TowerControl
             }
         }
 
-        private async UniTaskVoid UpgradeUnit(float delay, int minDamage, int maxDamage, int health)
+        protected override void UnitUpgrade(int minDamage, int maxDamage, float range, float delay, int health = 0)
         {
             var unitName = TowerLevel == 4 ? "SpearManUnit" : "SwordManUnit";
 
@@ -62,8 +49,6 @@ namespace TowerControl
             {
                 for (var i = 0; i < _barracksUnits.Length; i++)
                 {
-                    await UniTask.Delay(100, cancellationToken: cts.Token);
-
                     if (_barracksUnits[i] != null && TowerLevel == 4) //이미 스폰됨 && level = 4
                     {
                         _barracksUnits[i].onDeadEvent -= ReSpawn;
@@ -79,10 +64,16 @@ namespace TowerControl
                         _barracksUnits[i].onDeadEvent += ReSpawn;
                     }
 
-                    _barracksUnits[i].GetComponent<TargetFinder>().SetUp(delay, 5f, minDamage, maxDamage);
+                    _barracksUnits[i].GetComponent<TargetFinder>().SetUp(minDamage, maxDamage, 5f, delay);
                     _barracksUnits[i].GetComponent<Health>().InitializeHealth(health);
                 }
             }
+        }
+        
+        private void ReSpawn()
+        {
+            if (isSold) return;
+            ReSpawnTask().Forget();
         }
 
         private async UniTaskVoid ReSpawnTask()
@@ -97,12 +88,6 @@ namespace TowerControl
                     t.gameObject.SetActive(true);
                 }
             }
-        }
-
-        private void ReSpawn()
-        {
-            if (isSold) return;
-            ReSpawnTask().Forget();
         }
     }
 }
