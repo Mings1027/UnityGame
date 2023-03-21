@@ -2,6 +2,7 @@ using System;
 using GameControl;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Serialization;
 
 namespace UnitControl
 {
@@ -12,7 +13,7 @@ namespace UnitControl
         private Animator _anim;
         private NavMeshAgent _nav;
 
-        public bool movePoint;
+        public bool isMoving;
         public Vector3 point;
         public event Action onDeadEvent;
 
@@ -27,15 +28,14 @@ namespace UnitControl
         {
             base.OnDisable();
             onDeadEvent?.Invoke();
-            onDeadEvent = null;
         }
 
         protected override void CheckState()
         {
-            if (movePoint)
+            if (isMoving)
             {
                 _nav.SetDestination(point);
-                if (_nav.remainingDistance <= _nav.stoppingDistance) movePoint = false;
+                if (_nav.remainingDistance <= _nav.stoppingDistance) isMoving = false;
             }
 
             if (!targetFinder.IsTargeting) return;

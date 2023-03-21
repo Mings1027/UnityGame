@@ -5,26 +5,18 @@ namespace WeaponControl
 {
     public class UnitBullet : Projectile
     {
+        private MeshFilter _meshFilter;
         private Collider[] _targetColliders;
 
         [SerializeField] private LayerMask enemyLayer;
         [SerializeField] private float atkRange;
 
-        private void Start()
-        {
-            _targetColliders = new Collider[3];
-        }
 
-        private void Explosion()
+        protected override void Awake()
         {
-            var size = Physics.OverlapSphereNonAlloc(transform.position, atkRange, _targetColliders, enemyLayer);
-            for (var i = 0; i < size; i++)
-            {
-                if (_targetColliders[i].TryGetComponent(out Health h))
-                {
-                    h.GetHit(damage, gameObject).Forget();
-                }
-            }
+            base.Awake();
+            _meshFilter = GetComponentInChildren<MeshFilter>();
+            _targetColliders = new Collider[3];
         }
 
         protected override void OnTriggerEnter(Collider other)
@@ -40,6 +32,23 @@ namespace WeaponControl
         private void OnDrawGizmos()
         {
             Gizmos.DrawWireSphere(transform.position, atkRange);
+        }
+
+        private void Explosion()
+        {
+            var size = Physics.OverlapSphereNonAlloc(transform.position, atkRange, _targetColliders, enemyLayer);
+            for (var i = 0; i < size; i++)
+            {
+                if (_targetColliders[i].TryGetComponent(out Health h))
+                {
+                    h.GetHit(damage, gameObject).Forget();
+                }
+            }
+        }
+
+        public void ChangeMesh(MeshFilter meshFilter)
+        {
+            _meshFilter.sharedMesh = meshFilter.sharedMesh;
         }
     }
 }

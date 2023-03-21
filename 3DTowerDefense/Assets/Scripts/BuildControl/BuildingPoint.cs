@@ -37,16 +37,11 @@ namespace BuildControl
         public void OnPointerDown(PointerEventData eventData)
         {
         }
-
-
+        
         public void OnPointerUp(PointerEventData eventData)
         {
             onOpenTowerSelectPanelEvent?.Invoke(transform);
         }
 
-        private void OnDestroy()
-        {
-            onOpenTowerSelectPanelEvent = null;
-        }
     }
 }

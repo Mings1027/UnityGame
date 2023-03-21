@@ -23,10 +23,7 @@ namespace ManagerControl
         private Vector3 _buildPos;
         private Quaternion _buildRot;
 
-        private bool _isPause;
-        private bool _isSell;
-        private bool _isTower;
-        private bool _panelIsOpen;
+        private bool _isPause, _isSell, _isTower, _panelIsOpen;
 
         public static bool pointer;
 

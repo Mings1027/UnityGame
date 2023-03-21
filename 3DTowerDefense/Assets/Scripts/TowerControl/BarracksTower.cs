@@ -25,7 +25,7 @@ namespace TowerControl
         {
             foreach (var t in _barracksUnits)
             {
-                t.movePoint = true;
+                t.isMoving = true;
                 t.point = pos;
             }
         }
@@ -36,7 +36,6 @@ namespace TowerControl
             {
                 if (_barracksUnits[i] == null || !_barracksUnits[i].gameObject.activeSelf) continue;
                 _barracksUnits[i].gameObject.SetActive(false);
-                _barracksUnits[i].onDeadEvent -= ReSpawn;
                 _barracksUnits[i] = null;
             }
         }
@@ -45,31 +44,27 @@ namespace TowerControl
         {
             var unitName = TowerLevel == 4 ? "SpearManUnit" : "SwordManUnit";
 
-            if (NavMesh.SamplePosition(transform.position, out var hit, 15, NavMesh.AllAreas))
-            {
-                for (var i = 0; i < _barracksUnits.Length; i++)
-                {
-                    if (_barracksUnits[i] != null && TowerLevel == 4) //이미 스폰됨 && level = 4
-                    {
-                        _barracksUnits[i].onDeadEvent -= ReSpawn;
-                        _barracksUnits[i].gameObject.SetActive(false);
-                        var pos = _barracksUnits[i].transform.position;
-                        _barracksUnits[i] = null;
-                        _barracksUnits[i] = StackObjectPool.Get<BarracksUnit>(unitName, pos);
-                        _barracksUnits[i].onDeadEvent += ReSpawn;
-                    }
-                    else if (_barracksUnits[i] == null) //스폰 되기 전
-                    {
-                        _barracksUnits[i] = StackObjectPool.Get<BarracksUnit>(unitName, hit.position);
-                        _barracksUnits[i].onDeadEvent += ReSpawn;
-                    }
+            if (!NavMesh.SamplePosition(transform.position, out var hit, 15, NavMesh.AllAreas)) return;
 
-                    _barracksUnits[i].GetComponent<TargetFinder>().SetUp(minDamage, maxDamage, 5f, delay);
-                    _barracksUnits[i].GetComponent<Health>().InitializeHealth(health);
+            for (var i = 0; i < _barracksUnits.Length; i++)
+            {
+                if (_barracksUnits[i] == null)
+                {
+                    _barracksUnits[i] = StackObjectPool.Get<BarracksUnit>(unitName, hit.position);
+                    _barracksUnits[i].onDeadEvent += ReSpawn;
                 }
+                else if (TowerLevel == 4)
+                {
+                    _barracksUnits[i].gameObject.SetActive(false);
+                    var pos = _barracksUnits[i].transform.position;
+                    _barracksUnits[i] = StackObjectPool.Get<BarracksUnit>(unitName, pos);
+                }
+
+                _barracksUnits[i].GetComponent<TargetFinder>().SetUp(minDamage, maxDamage, 5f, delay);
+                _barracksUnits[i].GetComponent<Health>().InitializeHealth(health);
             }
         }
-        
+
         private void ReSpawn()
         {
             if (isSold) return;
@@ -82,10 +77,12 @@ namespace TowerControl
             {
                 foreach (var t in _barracksUnits)
                 {
-                    if (t.gameObject.activeSelf) continue;
-                    await UniTask.Delay(5000, cancellationToken: cts.Token);
-                    t.transform.position = hit.position;
-                    t.gameObject.SetActive(true);
+                    if (!t.gameObject.activeSelf && t.GetComponent<Health>().CurHealth <= 0)
+                    {
+                        await UniTask.Delay(5000, cancellationToken: cts.Token);
+                        t.transform.position = hit.position;
+                        t.gameObject.SetActive(true);
+                    }
                 }
             }
         }

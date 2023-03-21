@@ -7,6 +7,7 @@ namespace TowerControl
     public class CanonTower : TowerAttacker
     {
         private Transform[] _shootPoints;
+        [SerializeField] private MeshFilter[] canonMeshFilters;
 
         protected override void Awake()
         {
@@ -35,6 +36,7 @@ namespace TowerControl
         {
             var p = StackObjectPool.Get<Projectile>("UnitBullet", _shootPoints[TowerLevel].transform.position,
                 transform.rotation);
+            p.GetComponent<UnitBullet>().ChangeMesh(canonMeshFilters[TowerLevel]);
             p.Parabola(_shootPoints[TowerLevel].transform, endPos).Forget();
             p.damage = targetFinder.Damage;
         }

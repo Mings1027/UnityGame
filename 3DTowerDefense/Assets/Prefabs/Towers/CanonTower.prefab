@@ -271,6 +271,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   towerType: 2
+  canonMeshFilters:
+  - {fileID: 3300000, guid: 790b418366b065e40a30c085435acbc4, type: 3}
+  - {fileID: 3300000, guid: 9874792431802014ca9be38ef8953a2f, type: 3}
+  - {fileID: 3300000, guid: 191cdfe37402a5d408a6b10ce958599b, type: 3}
+  - {fileID: 3300000, guid: 9698fdec58ace104b9fda2f1f8ebd90c, type: 3}
+  - {fileID: 3300000, guid: 4e043a9655e3bba43b5eb0b9421fc5d7, type: 3}
 --- !u!114 &7972377439174027485
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -302,7 +308,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attackAble: 0
-  colliderSize: 0
+  smoothTurnSpeed: 0
   groundLayer:
     serializedVersion: 2
     m_Bits: 128

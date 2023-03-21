@@ -1,6 +1,5 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using DG.Tweening;
 using GameControl;
 using UnityEngine;
 
@@ -15,11 +14,10 @@ namespace WeaponControl
 
         public int damage;
 
-        [SerializeField] private float lifeTime;
         [SerializeField] private AnimationCurve curve;
         [SerializeField] private float speed;
 
-        private void Awake()
+        protected virtual void Awake()
         {
             _rigid = GetComponent<Rigidbody>();
         }
@@ -28,7 +26,6 @@ namespace WeaponControl
         {
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
-            DOVirtual.DelayedCall(lifeTime, DestroyProjectile);
             _lerp = 0;
         }
 
@@ -44,7 +41,8 @@ namespace WeaponControl
                 h.GetHit(damage, other.gameObject).Forget();
             }
 
-            DestroyProjectile();
+            if (other.CompareTag("Ground"))
+                gameObject.SetActive(false);
         }
 
         public async UniTaskVoid Parabola(Transform startPos, Vector3 endPos)
@@ -63,7 +61,5 @@ namespace WeaponControl
                 await UniTask.Yield(cancellationToken: _cts.Token);
             }
         }
-
-        private void DestroyProjectile() => gameObject.SetActive(false);
     }
 }

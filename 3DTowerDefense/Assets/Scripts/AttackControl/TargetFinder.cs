@@ -26,7 +26,6 @@ namespace AttackControl
         public Transform Target { get; private set; }
         public bool IsTargeting { get; private set; }
 
-        // [SerializeField] private int _colliderSize;
         [SerializeField] private float smoothTurnSpeed;
         [SerializeField] private LayerMask groundLayer;
         [SerializeField] private LayerMask targetLayer;
@@ -59,7 +58,7 @@ namespace AttackControl
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(_centerPos, AtkRange);
+            Gizmos.DrawWireSphere(transform.position, AtkRange);
         }
 
         private void LookTarget()
@@ -90,10 +89,7 @@ namespace AttackControl
 
         private void ClosestTarget()
         {
-            Physics.Raycast(transform.position, Vector3.down, out var hit, 100, groundLayer);
-            _centerPos = hit.point;
-
-            var size = Physics.OverlapSphereNonAlloc(_centerPos, AtkRange, _targetColliders, targetLayer);
+            var size = Physics.OverlapSphereNonAlloc(transform.position, AtkRange, _targetColliders, targetLayer);
             var shortestDistance = Mathf.Infinity;
             Transform nearestEnemy = null;
 
