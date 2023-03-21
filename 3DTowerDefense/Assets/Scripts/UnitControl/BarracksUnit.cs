@@ -2,7 +2,6 @@ using System;
 using GameControl;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.Serialization;
 
 namespace UnitControl
 {

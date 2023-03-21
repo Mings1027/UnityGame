@@ -24,7 +24,7 @@ namespace WeaponControl
             if (other.CompareTag("Ground"))
             {
                 Explosion();
-                StackObjectPool.Get("Explosion", transform.position);
+                // StackObjectPool.Get("ExplosionSound", transform.position);
                 base.OnTriggerEnter(other);
             }
         }
