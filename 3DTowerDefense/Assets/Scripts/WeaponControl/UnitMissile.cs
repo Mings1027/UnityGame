@@ -1,9 +1,10 @@
 using GameControl;
+using ManagerControl;
 using UnityEngine;
 
 namespace WeaponControl
 {
-    public class UnitBullet : Projectile
+    public class UnitMissile : Projectile
     {
         private MeshFilter _meshFilter;
         private Collider[] _targetColliders;
@@ -24,7 +25,9 @@ namespace WeaponControl
             if (other.CompareTag("Ground"))
             {
                 Explosion();
-                // StackObjectPool.Get("ExplosionSound", transform.position);
+                var position = transform.position;
+                StackObjectPool.Get("ExplosionEffect", position);
+                SoundManager.PlaySound(SoundManager.Sound.MissileExplosion, position);
                 base.OnTriggerEnter(other);
             }
         }

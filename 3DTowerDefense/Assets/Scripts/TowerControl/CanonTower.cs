@@ -1,4 +1,5 @@
 using GameControl;
+using ManagerControl;
 using UnityEngine;
 using WeaponControl;
 
@@ -28,15 +29,16 @@ namespace TowerControl
 
         protected override void Attack()
         {
+            SoundManager.PlaySound(SoundManager.Sound.MissileShoot, transform.position);
             var t = targetFinder.Target.position;
             SpawnBullet(t);
         }
 
         private void SpawnBullet(Vector3 endPos)
         {
-            var p = StackObjectPool.Get<Projectile>("UnitBullet", _shootPoints[TowerLevel].transform.position,
+            var p = StackObjectPool.Get<Projectile>("UnitMissile", _shootPoints[TowerLevel].transform.position,
                 transform.rotation);
-            p.GetComponent<UnitBullet>().ChangeMesh(canonMeshFilters[TowerLevel]);
+            p.GetComponent<UnitMissile>().ChangeMesh(canonMeshFilters[TowerLevel]);
             p.Parabola(_shootPoints[TowerLevel].transform, endPos).Forget();
             p.damage = targetFinder.Damage;
         }

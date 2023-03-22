@@ -365,75 +365,74 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pools:
-  - tag: ArrowSound
-    prefab: {fileID: 4644452760251216872, guid: f85c64b38239d4b6592dc2700c14db14,
-      type: 3}
-    size: 1
-  - tag: ExplosionSound
-    prefab: {fileID: 6143467867895953418, guid: be01741081bb2c944aad51a527b3e120,
-      type: 3}
-    size: 1
   - tag: ArcherUnit
     prefab: {fileID: 8360084230518535286, guid: b2a66d2f990441f4ea87d9a6ee5f9093,
       type: 3}
-    size: 2
+    size: 20
   - tag: SwordManUnit
     prefab: {fileID: 7901291658597421272, guid: f54b13a6fbc3d47ff8bc260b5e9f0a64,
       type: 3}
-    size: 3
+    size: 30
   - tag: SpearManUnit
     prefab: {fileID: 4417539079662013206, guid: e65f00d669a55f74eb6840c849c657e1,
       type: 3}
-    size: 3
+    size: 30
   - tag: BuildingPoint
     prefab: {fileID: 1323643566170160, guid: c0ad9e12aa69f14419bc9e45d54eb299, type: 3}
     size: 10
   - tag: ArcherTower
     prefab: {fileID: 2192198980469555006, guid: e369eafc6fad84c82a24888a011552cb,
       type: 3}
-    size: 1
+    size: 20
   - tag: BarracksTower
     prefab: {fileID: 6545304924751771831, guid: b618602a7539e4ff69370c623d04bcde,
       type: 3}
-    size: 1
+    size: 20
   - tag: CanonTower
     prefab: {fileID: 8402685592966021926, guid: 7cc8e352e306e435d8e57d78a3d8dd5d,
       type: 3}
-    size: 1
+    size: 20
   - tag: MageTower
     prefab: {fileID: 6505191089890531792, guid: 25943dab98ddf4593a4ab9a25c29e8d0,
       type: 3}
-    size: 1
+    size: 20
   - tag: ArcherEnemy
     prefab: {fileID: 8802891610567318186, guid: 0d1e7c9f901b048e6b07296b16d8a6a9,
       type: 3}
-    size: 10
+    size: 30
   - tag: MageEnemy
     prefab: {fileID: 7712616592404947846, guid: a67f3e5c82fd741939910d9d248754ab,
       type: 3}
-    size: 10
+    size: 30
   - tag: SpearManEnemy
     prefab: {fileID: 6965371322595520466, guid: 27bc6d78554bc4eb489e5c41f8523bf7,
       type: 3}
-    size: 10
+    size: 30
   - tag: SwordManEnemy
     prefab: {fileID: 10859800051177605, guid: f99f0cc7ac7b643b1a6860bad1ffaa6c, type: 3}
-    size: 10
+    size: 30
   - tag: UnitProjectile
     prefab: {fileID: 2722865382803578380, guid: b5fdd2d8e79694cc9a686bbfbaf93b47,
       type: 3}
-    size: 10
+    size: 30
   - tag: EnemyProjectile
     prefab: {fileID: 2722865382803578380, guid: 9166d6459eee746b0b147657098aa7ae,
       type: 3}
-    size: 10
+    size: 30
   - tag: BuildSmoke
     prefab: {fileID: 104829970813648393, guid: d3015b7eea383f64d8b81f965cc466e7, type: 3}
-    size: 10
-  - tag: UnitBullet
+    size: 30
+  - tag: UnitMissile
     prefab: {fileID: 4134895727443223706, guid: a11f2e7afe49e4b5bad475328834bfe7,
       type: 3}
-    size: 10
+    size: 30
+  - tag: Sound
+    prefab: {fileID: 953530123978054383, guid: 80a327d3bb6224375a83b345522d2d3e, type: 3}
+    size: 30
+  - tag: ExplosionEffect
+    prefab: {fileID: 6143467867895953418, guid: be01741081bb2c944aad51a527b3e120,
+      type: 3}
+    size: 30
 --- !u!4 &211751030
 Transform:
   m_ObjectHideFlags: 0
@@ -1771,6 +1770,61 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 0}
+--- !u!1 &758017725
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 758017727}
+  - component: {fileID: 758017726}
+  m_Layer: 0
+  m_Name: SoundManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &758017726
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 758017725}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc97d6812aaed4b5083e6cf7f5a41efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  soundAudioClipArray:
+  - sound: 0
+    audioClip: {fileID: 8300000, guid: 327abfd8802775d418b743912fa6fa57, type: 3}
+  - sound: 1
+    audioClip: {fileID: 0}
+  - sound: 2
+    audioClip: {fileID: 0}
+  - sound: 3
+    audioClip: {fileID: 8300000, guid: 9acc11f5bd28e284fb0fb6dde51df504, type: 3}
+  - sound: 4
+    audioClip: {fileID: 8300000, guid: c63c97718a9532c45903f33e38d138ce, type: 3}
+--- !u!4 &758017727
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 758017725}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 12
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &832575517
 GameObject:
   m_ObjectHideFlags: 0

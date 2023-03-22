@@ -1,4 +1,5 @@
 using GameControl;
+using ManagerControl;
 using UnityEngine;
 using WeaponControl;
 
@@ -15,6 +16,7 @@ namespace UnitControl
 
         protected override void Attack()
         {
+            SoundManager.PlaySound(SoundManager.Sound.Arrow,transform.position);
             var target = targetFinder.Target;
             var t = target.position + target.forward;
             SpawnArrow(t);

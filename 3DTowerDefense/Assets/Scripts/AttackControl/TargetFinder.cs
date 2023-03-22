@@ -26,8 +26,8 @@ namespace AttackControl
         public Transform Target { get; private set; }
         public bool IsTargeting { get; private set; }
 
+        [SerializeField] private bool lookObject;
         [SerializeField] private float smoothTurnSpeed;
-        [SerializeField] private LayerMask groundLayer;
         [SerializeField] private LayerMask targetLayer;
 
         private void Awake()
@@ -45,7 +45,7 @@ namespace AttackControl
 
         private void LateUpdate()
         {
-            if (!IsTargeting) return;
+            if (!IsTargeting || !lookObject) return;
             LookTarget();
         }
 

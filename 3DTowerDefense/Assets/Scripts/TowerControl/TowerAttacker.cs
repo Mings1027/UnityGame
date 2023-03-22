@@ -13,7 +13,6 @@ namespace TowerControl
         protected override void Awake()
         {
             base.Awake();
-
             targetFinder = GetComponent<TargetFinder>();
         }
 
