@@ -17,10 +17,9 @@ namespace ManagerControl
             public string name;
             public int enemyCount;
 
-            [FormerlySerializedAs("delay")] [FormerlySerializedAs("rate")]
             public float atkDelay;
 
-            [FormerlySerializedAs("damage")] public int minDamage;
+            public int minDamage;
             public int maxDamage;
             public float atkRange;
             public int health;
@@ -29,8 +28,8 @@ namespace ManagerControl
         private bool _startGame;
         private int _nextWave;
         private int _count;
+        private Button _startWaveButton;
 
-        [SerializeField] private Button startWaveButton;
         [SerializeField] private Wave[] waves;
         [SerializeField] private Transform spawnPoint;
         [SerializeField] private Transform destinationPoint;
@@ -38,17 +37,18 @@ namespace ManagerControl
         private void Awake()
         {
             _nextWave = -1;
+            _startWaveButton = GetComponent<Button>();
         }
 
         private void Start()
         {
-            startWaveButton.onClick.AddListener(StartGame);
+            _startWaveButton.onClick.AddListener(StartGame);
         }
 
         private void StartGame()
         {
             WaveStart().Forget();
-            startWaveButton.gameObject.SetActive(false);
+            _startWaveButton.gameObject.SetActive(false);
         }
 
         private async UniTaskVoid WaveStart()
@@ -59,12 +59,12 @@ namespace ManagerControl
             _count = waves[_nextWave].enemyCount;
             while (_count > 0)
             {
-                await UniTask.Delay(TimeSpan.FromSeconds(waves[_nextWave].atkDelay));
+                await UniTask.Delay(1000);
                 _count--;
                 SpawnEnemy();
             }
 
-            startWaveButton.gameObject.SetActive(true);
+            _startWaveButton.gameObject.SetActive(true);
 
             _startGame = false;
         }
@@ -77,7 +77,6 @@ namespace ManagerControl
 
             var w = waves[_nextWave];
             e.GetComponent<TargetFinder>().SetUp(w.minDamage, w.maxDamage, w.atkRange, w.atkDelay, w.health);
-            e.damage = waves[_nextWave].minDamage;
         }
     }
 }

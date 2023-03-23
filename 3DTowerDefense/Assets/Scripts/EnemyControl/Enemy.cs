@@ -14,7 +14,7 @@ namespace EnemyControl
         private CancellationTokenSource _cts;
 
         public Transform destination;
-        public int damage;
+
 
         protected virtual void Awake()
         {
@@ -27,7 +27,7 @@ namespace EnemyControl
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
 
-            InvokeRepeating(nameof(FindUnit), 0, 0.5f);
+            // InvokeRepeating(nameof(FindUnit), 0, 0.1f);
         }
 
         private void OnDisable()
@@ -38,16 +38,18 @@ namespace EnemyControl
 
         protected abstract void Attack();
 
-        private void FindUnit()
+        private void Update()
         {
             if (targetFinder.IsTargeting)
             {
-                if (targetFinder.attackAble &&
-                    Vector3.Distance(transform.position, targetFinder.Target.position) <= targetFinder.AtkRange)
+                if (Vector3.Distance(transform.position, targetFinder.Target.position) <= targetFinder.AtkRange)
                 {
-                    _nav.isStopped = true;
-                    Attack();
-                    targetFinder.StartCoolDown().Forget();
+                    if (targetFinder.attackAble)
+                    {
+                        _nav.isStopped = true;
+                        Attack();
+                        targetFinder.StartCoolDown();
+                    }
                 }
                 else
                 {

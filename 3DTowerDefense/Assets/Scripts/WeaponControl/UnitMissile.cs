@@ -44,7 +44,7 @@ namespace WeaponControl
             {
                 if (_targetColliders[i].TryGetComponent(out Health h))
                 {
-                    h.GetHit(damage, gameObject).Forget();
+                    h.GetHit(damage, gameObject);
                 }
             }
         }

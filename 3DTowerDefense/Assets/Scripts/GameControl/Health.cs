@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -40,11 +41,11 @@ namespace GameControl
             isDead = false;
         }
 
-        public async UniTaskVoid GetHit(int amount, GameObject sender)
+        public void GetHit(int amount, GameObject sender)
         {
             if (isDead) return;
             curHealth -= amount;
-            HitEffect().Forget();
+            HitEffect();
             if (curHealth > 0)
             {
                 hitWithReference?.Invoke(sender);
@@ -53,16 +54,18 @@ namespace GameControl
             {
                 deathWithReference?.Invoke(sender);
                 isDead = true;
-                await UniTask.Delay(TimeSpan.FromSeconds(disappearTime), cancellationToken: _cts.Token);
-                gameObject.SetActive(false);
+                DOVirtual.DelayedCall(disappearTime, () => gameObject.SetActive(false));
+                // await UniTask.Delay(TimeSpan.FromSeconds(disappearTime), cancellationToken: _cts.Token);
+                // gameObject.SetActive(false);
             }
         }
 
-        private async UniTaskVoid HitEffect()
+        private void HitEffect()
         {
             _renderer.material.color = Color.red;
-            await UniTask.Delay(500, cancellationToken: _cts.Token);
-            _renderer.material.color = Color.white;
+            DOVirtual.DelayedCall(0.5f,()=>_renderer.material.color = Color.white);
+            // await UniTask.Delay(500, cancellationToken: _cts.Token);
+            // _renderer.material.color = Color.white;
         }
     }
 }

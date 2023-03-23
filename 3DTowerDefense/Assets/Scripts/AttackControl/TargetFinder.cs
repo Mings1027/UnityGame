@@ -1,6 +1,5 @@
-using System;
 using System.Threading;
-using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using GameControl;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -46,6 +45,7 @@ namespace AttackControl
         private void LateUpdate()
         {
             if (!IsTargeting || !lookObject) return;
+            
             LookTarget();
         }
 
@@ -73,18 +73,17 @@ namespace AttackControl
         public void SetUp(int unitMinDamage, int unitMaxDamage, float attackRange, float attackDelay,
             int unitHealth = 0)
         {
-            _atkDelay = attackDelay;
             _minDamage = unitMinDamage;
             _maxDamage = unitMaxDamage;
             AtkRange = attackRange;
+            _atkDelay = attackDelay;
             if (TryGetComponent(out Health h)) h.InitializeHealth(unitHealth);
         }
 
-        public async UniTaskVoid StartCoolDown()
+        public void StartCoolDown()
         {
             attackAble = false;
-            await UniTask.Delay(TimeSpan.FromSeconds(_atkDelay), cancellationToken: _cts.Token);
-            attackAble = true;
+            DOVirtual.DelayedCall(_atkDelay, () => attackAble = true);
         }
 
         private void ClosestTarget()

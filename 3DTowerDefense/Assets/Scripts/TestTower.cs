@@ -1,21 +1,26 @@
 using System;
+using DG.Tweening;
 using UnityEngine;
 
 
 public class TestTower : MonoBehaviour
 {
-    private Rigidbody rigid;
-    [SerializeField]private Vector3 moveVec;
+    private Tween _delayTween;
+    private bool _attackAble;
+    [SerializeField] private float delay;
 
-    [SerializeField] private float speed;
-
-    private void Start()
+    private void Awake()
     {
-        rigid = GetComponent<Rigidbody>();
+        _delayTween = DOVirtual.DelayedCall(delay, () => _attackAble = true).SetAutoKill(false);
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
-        rigid.MovePosition(rigid.position + moveVec * (speed * Time.fixedDeltaTime));
+        if (_attackAble)
+        {
+            Debug.Log("attttttttttttack");
+            _attackAble = false;
+            _delayTween.Restart();
+        }
     }
 }

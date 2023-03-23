@@ -1,5 +1,6 @@
 using AttackControl;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using GameControl;
 using UnitControl;
 using UnityEngine;
@@ -68,20 +69,25 @@ namespace TowerControl
         private void ReSpawn()
         {
             if (isSold) return;
-            ReSpawnTask().Forget();
+            ReSpawnTask();
         }
 
-        private async UniTaskVoid ReSpawnTask()
+        private void ReSpawnTask()
         {
-            if (NavMesh.SamplePosition(transform.position, out var hit, 15, NavMesh.AllAreas))
+            NavMeshHit hit;
+            if (NavMesh.SamplePosition(transform.position, out hit, 15, NavMesh.AllAreas))
             {
-                foreach (var t in _barracksUnits)
+                for (var i = 0; i < _barracksUnits.Length; i++)
                 {
+                    var t = _barracksUnits[i];
                     if (!t.gameObject.activeSelf && t.GetComponent<Health>().CurHealth <= 0)
                     {
-                        await UniTask.Delay(5000, cancellationToken: cts.Token);
-                        t.transform.position = hit.position;
-                        t.gameObject.SetActive(true);
+                        // await UniTask.Delay(5000, cancellationToken: cts.Token);
+                        DOVirtual.DelayedCall(5, () =>
+                        {
+                            t.transform.position = hit.position;
+                            t.gameObject.SetActive(true);
+                        });
                     }
                 }
             }

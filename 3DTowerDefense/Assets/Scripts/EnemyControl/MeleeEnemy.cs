@@ -20,7 +20,7 @@ namespace EnemyControl
             _anim.SetTrigger(IsAttack);
             if (targetFinder.Target.TryGetComponent(out Health h))
             {
-                h.GetHit(targetFinder.Damage, targetFinder.Target.gameObject).Forget();
+                h.GetHit(targetFinder.Damage, targetFinder.Target.gameObject);
             }
         }
     }

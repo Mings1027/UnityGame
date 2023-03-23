@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using AttackControl;
 using UnityEngine;
@@ -23,6 +24,11 @@ namespace UnitControl
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
             InvokeRepeating(nameof(CheckState), 0, 0.5f);
+        }
+
+        private void Update()
+        {
+            CheckState();
         }
 
         protected virtual void OnDisable()

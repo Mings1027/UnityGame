@@ -365,6 +365,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pools:
+  - tag: Sound
+    prefab: {fileID: 953530123978054383, guid: 80a327d3bb6224375a83b345522d2d3e, type: 3}
+    size: 30
+  - tag: BuildingPoint
+    prefab: {fileID: 1323643566170160, guid: c0ad9e12aa69f14419bc9e45d54eb299, type: 3}
+    size: 10
   - tag: ArcherUnit
     prefab: {fileID: 8360084230518535286, guid: b2a66d2f990441f4ea87d9a6ee5f9093,
       type: 3}
@@ -377,9 +383,6 @@ MonoBehaviour:
     prefab: {fileID: 4417539079662013206, guid: e65f00d669a55f74eb6840c849c657e1,
       type: 3}
     size: 30
-  - tag: BuildingPoint
-    prefab: {fileID: 1323643566170160, guid: c0ad9e12aa69f14419bc9e45d54eb299, type: 3}
-    size: 10
   - tag: ArcherTower
     prefab: {fileID: 2192198980469555006, guid: e369eafc6fad84c82a24888a011552cb,
       type: 3}
@@ -419,15 +422,12 @@ MonoBehaviour:
     prefab: {fileID: 2722865382803578380, guid: 9166d6459eee746b0b147657098aa7ae,
       type: 3}
     size: 30
-  - tag: BuildSmoke
-    prefab: {fileID: 104829970813648393, guid: d3015b7eea383f64d8b81f965cc466e7, type: 3}
-    size: 30
   - tag: UnitMissile
     prefab: {fileID: 4134895727443223706, guid: a11f2e7afe49e4b5bad475328834bfe7,
       type: 3}
     size: 30
-  - tag: Sound
-    prefab: {fileID: 953530123978054383, guid: 80a327d3bb6224375a83b345522d2d3e, type: 3}
+  - tag: BuildSmoke
+    prefab: {fileID: 104829970813648393, guid: d3015b7eea383f64d8b81f965cc466e7, type: 3}
     size: 30
   - tag: ExplosionEffect
     prefab: {fileID: 6143467867895953418, guid: be01741081bb2c944aad51a527b3e120,
@@ -1799,7 +1799,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc97d6812aaed4b5083e6cf7f5a41efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  soundAudioClipArray:
+  soundClips:
   - sound: 0
     audioClip: {fileID: 8300000, guid: 327abfd8802775d418b743912fa6fa57, type: 3}
   - sound: 1
@@ -1823,7 +1823,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 12
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &832575517
 GameObject:
@@ -1886,6 +1886,7 @@ GameObject:
   - component: {fileID: 891965419}
   - component: {fileID: 891965418}
   - component: {fileID: 891965417}
+  - component: {fileID: 891965420}
   m_Layer: 0
   m_Name: StartWaveButton
   m_TagString: Untagged
@@ -1996,6 +1997,49 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 891965415}
   m_CullTransparentMesh: 1
+--- !u!114 &891965420
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 891965415}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1c72e29ee56744efa7b755f41c9978d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  waves:
+  - name: ArcherEnemy
+    enemyCount: 20
+    atkDelay: 3
+    minDamage: 1
+    maxDamage: 4
+    atkRange: 7
+    health: 30
+  - name: MageEnemy
+    enemyCount: 20
+    atkDelay: 2
+    minDamage: 4
+    maxDamage: 8
+    atkRange: 10
+    health: 35
+  - name: SpearManEnemy
+    enemyCount: 30
+    atkDelay: 1
+    minDamage: 3
+    maxDamage: 5
+    atkRange: 1.5
+    health: 40
+  - name: SwordManEnemy
+    enemyCount: 40
+    atkDelay: 0.5
+    minDamage: 6
+    maxDamage: 10
+    atkRange: 2
+    health: 45
+  spawnPoint: {fileID: 912944062}
+  destinationPoint: {fileID: 320900669}
 --- !u!4 &912944062 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 912944062, guid: f3daaf608a34b4268879bdf500f738a5,
@@ -2031,7 +2075,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 9
+  m_RootOrder: 8
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1005381158
 GameObject:
@@ -2109,82 +2153,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1005381158}
   m_CullTransparentMesh: 1
---- !u!1 &1152211202
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1152211204}
-  - component: {fileID: 1152211203}
-  m_Layer: 0
-  m_Name: WaveManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1152211203
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1152211202}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f1c72e29ee56744efa7b755f41c9978d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  startWaveButton: {fileID: 891965417}
-  waves:
-  - name: ArcherEnemy
-    enemyCount: 1000
-    atkDelay: 3
-    minDamage: 1
-    maxDamage: 4
-    atkRange: 7
-    health: 30
-  - name: MageEnemy
-    enemyCount: 20
-    atkDelay: 2
-    minDamage: 4
-    maxDamage: 8
-    atkRange: 10
-    health: 35
-  - name: SpearManEnemy
-    enemyCount: 30
-    atkDelay: 1
-    minDamage: 3
-    maxDamage: 5
-    atkRange: 1.5
-    health: 40
-  - name: SwordManEnemy
-    enemyCount: 40
-    atkDelay: 0.5
-    minDamage: 6
-    maxDamage: 10
-    atkRange: 2
-    health: 45
-  spawnPoint: {fileID: 912944062}
-  destinationPoint: {fileID: 320900669}
---- !u!4 &1152211204
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1152211202}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_RootOrder: 7
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1253569520
 GameObject:
   m_ObjectHideFlags: 0
@@ -5080,7 +5048,7 @@ PrefabInstance:
     - target: {fileID: 1918877429391717105, guid: f3daaf608a34b4268879bdf500f738a5,
         type: 3}
       propertyPath: m_RootOrder
-      value: 8
+      value: 9
       objectReference: {fileID: 0}
     - target: {fileID: 1918877429391717105, guid: f3daaf608a34b4268879bdf500f738a5,
         type: 3}

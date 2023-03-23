@@ -1,21 +1,16 @@
-using GameControl;
+using ManagerControl;
 using UnityEngine;
-using WeaponControl;
 
 namespace EnemyControl
 {
-    public class RangeEnemy : Enemy
+    public abstract class RangeEnemy : Enemy
     {
+        protected abstract void SpawnProjectile(Vector3 t);
+
         protected override void Attack()
         {
-            SpawnArrow(targetFinder.Target.position);
-        }
-
-        private void SpawnArrow(Vector3 t)
-        {
-            var p = StackObjectPool.Get<Projectile>("EnemyProjectile", transform.up, Quaternion.Euler(-90, 0, 0));
-            p.Parabola(transform, t).Forget();
-            p.damage = damage;
+            SoundManager.PlaySound(SoundManager.Sound.Arrow, transform.position);
+            SpawnProjectile(targetFinder.Target.position);
         }
     }
 }

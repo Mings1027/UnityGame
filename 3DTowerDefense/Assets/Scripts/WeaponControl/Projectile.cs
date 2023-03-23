@@ -38,7 +38,7 @@ namespace WeaponControl
         {
             if (other.TryGetComponent(out Health h))
             {
-                h.GetHit(damage, other.gameObject).Forget();
+                h.GetHit(damage, other.gameObject);
             }
 
             if (other.CompareTag("Ground"))

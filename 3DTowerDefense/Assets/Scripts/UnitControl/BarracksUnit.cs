@@ -42,7 +42,7 @@ namespace UnitControl
                 Vector3.Distance(transform.position, targetFinder.Target.position) <= _nav.stoppingDistance)
             {
                 Attack();
-                targetFinder.StartCoolDown().Forget();
+                targetFinder.StartCoolDown();
             }
             else
             {
@@ -55,7 +55,7 @@ namespace UnitControl
             _anim.SetTrigger(IsAttack);
             if (targetFinder.Target.TryGetComponent(out Health h))
             {
-                h.GetHit(targetFinder.Damage, targetFinder.Target.gameObject).Forget();
+                h.GetHit(targetFinder.Damage, targetFinder.Target.gameObject);
             }
         }
     }

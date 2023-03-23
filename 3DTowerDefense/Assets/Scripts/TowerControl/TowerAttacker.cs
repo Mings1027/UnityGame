@@ -19,7 +19,7 @@ namespace TowerControl
         protected override void OnEnable()
         {
             base.OnEnable();
-            InvokeRepeating(nameof(CheckState), 0, 0.5f);
+            InvokeRepeating(nameof(CheckState), 0, 0.1f);
         }
 
         protected override void OnDisable()

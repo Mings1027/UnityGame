@@ -1,5 +1,4 @@
-using System;
-using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using UnityEngine;
 
 namespace GameControl
@@ -8,10 +7,9 @@ namespace GameControl
     {
         [SerializeField] private float lifeTime;
         
-        private async UniTaskVoid OnEnable()
+        private void OnEnable()
         {
-            await UniTask.Delay(TimeSpan.FromSeconds(lifeTime));
-            gameObject.SetActive(false);
+            DOVirtual.DelayedCall(lifeTime, () => gameObject.SetActive(false));
         }
     }
 }
