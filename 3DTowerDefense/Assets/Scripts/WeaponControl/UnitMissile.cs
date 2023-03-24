@@ -1,5 +1,4 @@
 using GameControl;
-using ManagerControl;
 using UnityEngine;
 
 namespace WeaponControl
@@ -27,7 +26,7 @@ namespace WeaponControl
                 Explosion();
                 var position = transform.position;
                 StackObjectPool.Get("ExplosionEffect", position);
-                SoundManager.PlaySound(SoundManager.Sound.MissileExplosion, position);
+                StackObjectPool.Get("MissileExplosionSound", position);
                 base.OnTriggerEnter(other);
             }
         }

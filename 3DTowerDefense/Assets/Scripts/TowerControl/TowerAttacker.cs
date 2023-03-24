@@ -7,7 +7,6 @@ namespace TowerControl
     {
         protected TargetFinder targetFinder;
 
-        protected abstract void CheckState();
         protected abstract void Attack();
 
         protected override void Awake()
@@ -16,16 +15,23 @@ namespace TowerControl
             targetFinder = GetComponent<TargetFinder>();
         }
 
-        protected override void OnEnable()
-        {
-            base.OnEnable();
-            InvokeRepeating(nameof(CheckState), 0, 0.1f);
-        }
-
         protected override void OnDisable()
         {
             base.OnDisable();
             CancelInvoke();
+        }
+
+        private void Update()
+        {
+            if (isUpgrading || !targetFinder.IsTargeting || !targetFinder.attackAble) return;
+            Attack();
+            targetFinder.StartCoolDown();
+        }
+
+        public override void ReadyToBuild(MeshFilter consMeshFilter)
+        {
+            base.ReadyToBuild(consMeshFilter);
+            isUpgrading = true;
         }
 
         public override void Building(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range,
@@ -33,6 +39,7 @@ namespace TowerControl
         {
             base.Building(towerMeshFilter, minDamage, maxDamage, range, delay, health);
             GetComponent<TargetFinder>().SetUp(minDamage, maxDamage, range, delay);
+            isUpgrading = false;
         }
     }
 }

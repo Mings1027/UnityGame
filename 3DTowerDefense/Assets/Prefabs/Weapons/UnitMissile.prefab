@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 4134895727443223704}
   - component: {fileID: -7675257218544969490}
   - component: {fileID: -4739773217303308682}
+  - component: {fileID: 3668009544738106452}
   m_Layer: 6
   m_Name: UnitMissile
   m_TagString: Untagged
@@ -47,7 +48,7 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 1
+  m_Radius: 1.2
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &4134895727443223704
 Rigidbody:
@@ -128,6 +129,19 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   atkRange: 7
+--- !u!114 &3668009544738106452
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4134895727443223706}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a4c19757ecdf48b7a0fefc3a85a1999, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lifeTime: 2
 --- !u!1001 &4134895727718178076
 PrefabInstance:
   m_ObjectHideFlags: 0

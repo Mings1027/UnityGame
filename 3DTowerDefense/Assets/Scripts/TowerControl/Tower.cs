@@ -12,7 +12,7 @@ namespace TowerControl
         private Outline _outline;
         private MeshFilter _meshFilter;
         
-        private bool _isUpgrading;
+        protected bool isUpgrading;
         protected bool isSold;
         
         public event Action<MeshFilter> onResetMeshEvent;
@@ -68,7 +68,7 @@ namespace TowerControl
 
         public void OnPointerUp(PointerEventData eventData)
         {
-            if (_isUpgrading) return;
+            if (isUpgrading) return;
             onOpenTowerEditPanelEvent?.Invoke(this, transform);
         }
 
@@ -87,7 +87,7 @@ namespace TowerControl
 
         public virtual void ReadyToBuild(MeshFilter consMeshFilter)
         {
-            _isUpgrading = true;
+            isUpgrading = true;
             _outline.enabled = false;
             _meshFilter.sharedMesh = consMeshFilter.sharedMesh;
         }
@@ -95,7 +95,7 @@ namespace TowerControl
         public virtual void Building(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range, float delay,
             int health = 0)
         {
-            _isUpgrading = false;
+            isUpgrading = false;
             _meshFilter.sharedMesh = towerMeshFilter.sharedMesh;
             TowerRange = range;
             _collider.enabled = true;

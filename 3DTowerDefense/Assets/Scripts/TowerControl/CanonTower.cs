@@ -1,5 +1,4 @@
 using GameControl;
-using ManagerControl;
 using UnityEngine;
 using WeaponControl;
 
@@ -7,40 +6,53 @@ namespace TowerControl
 {
     public class CanonTower : TowerAttacker
     {
-        private Transform[] _shootPoints;
+        private Transform[] _singleShootPoints;
+        private Transform[] _multiShootPoints;
+
         [SerializeField] private MeshFilter[] canonMeshFilters;
+
+        [SerializeField] private int min, max;
 
         protected override void Awake()
         {
             base.Awake();
-            _shootPoints = new Transform[transform.GetChild(0).childCount];
-            for (var i = 0; i < _shootPoints.Length; i++)
+            _singleShootPoints = new Transform[transform.GetChild(0).childCount];
+            for (var i = 0; i < _singleShootPoints.Length; i++)
             {
-                _shootPoints[i] = transform.GetChild(0).GetChild(i);
+                _singleShootPoints[i] = transform.GetChild(0).GetChild(i);
             }
-        }
 
-        protected override void CheckState()
-        {
-            if (!targetFinder.IsTargeting || !targetFinder.attackAble) return;
-            Attack();
-            targetFinder.StartCoolDown();
+            _multiShootPoints = new Transform[transform.GetChild(1).childCount];
+            for (int i = 0; i < _multiShootPoints.Length; i++)
+            {
+                _multiShootPoints[i] = transform.GetChild(1).GetChild(i);
+            }
         }
 
         protected override void Attack()
         {
-            SoundManager.PlaySound(SoundManager.Sound.MissileShoot, transform.position);
-            var t = targetFinder.Target.position;
-            SpawnBullet(t);
+            StackObjectPool.Get<AudioSource>("ShootMissileSound", transform.position);
+            if (TowerLevel != 4)
+                SingleShoot(targetFinder.Target.position);
+            else
+                MultiShoot(targetFinder.Target);
         }
 
-        private void SpawnBullet(Vector3 endPos)
+        private void SingleShoot(Vector3 endPos)
         {
-            var p = StackObjectPool.Get<Projectile>("UnitMissile", _shootPoints[TowerLevel].transform.position,
-                transform.rotation);
-            p.GetComponent<UnitMissile>().ChangeMesh(canonMeshFilters[TowerLevel]);
-            p.Parabola(_shootPoints[TowerLevel].transform, endPos).Forget();
-            p.damage = targetFinder.Damage;
+            var m = StackObjectPool.Get<Projectile>("UnitMissile", transform.position);
+            m.SetPosition(_singleShootPoints[TowerLevel].position, endPos);
+            if (m.TryGetComponent(out UnitMissile u)) u.ChangeMesh(canonMeshFilters[TowerLevel]);
+        }
+
+        private void MultiShoot(Transform endPos)
+        {
+            for (var i = 0; i < 3; i++)
+            {
+                var m = StackObjectPool.Get<Projectile>("UnitMissile", transform.position);
+                m.SetPosition(_multiShootPoints[i].position, endPos.position + endPos.forward * Random.Range(min, max));
+                if (m.TryGetComponent(out UnitMissile u)) u.ChangeMesh(canonMeshFilters[TowerLevel]);
+            }
         }
     }
 }

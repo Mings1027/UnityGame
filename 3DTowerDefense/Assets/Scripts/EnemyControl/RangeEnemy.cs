@@ -1,4 +1,4 @@
-using ManagerControl;
+using GameControl;
 using UnityEngine;
 
 namespace EnemyControl
@@ -9,7 +9,7 @@ namespace EnemyControl
 
         protected override void Attack()
         {
-            SoundManager.PlaySound(SoundManager.Sound.Arrow, transform.position);
+            StackObjectPool.Get("ShootArrowSound", transform.position);
             SpawnProjectile(targetFinder.Target.position);
         }
     }

@@ -10,7 +10,6 @@ namespace AttackControl
     {
         private Vector3 _checkRangePoint;
         private float _atkDelay;
-        private CancellationTokenSource _cts;
 
         private Vector3 _centerPos;
         private Collider[] _targetColliders;
@@ -36,8 +35,6 @@ namespace AttackControl
 
         private void OnEnable()
         {
-            _cts?.Dispose();
-            _cts = new CancellationTokenSource();
             attackAble = true;
             InvokeRepeating(nameof(ClosestTarget), 0, 1f);
         }
@@ -51,7 +48,6 @@ namespace AttackControl
 
         private void OnDisable()
         {
-            _cts.Cancel();
             CancelInvoke();
         }
 

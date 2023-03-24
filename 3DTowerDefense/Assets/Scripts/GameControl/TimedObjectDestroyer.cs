@@ -9,7 +9,10 @@ namespace GameControl
         
         private void OnEnable()
         {
+            // Invoke(nameof(DestroyObject),lifeTime);
             DOVirtual.DelayedCall(lifeTime, () => gameObject.SetActive(false));
         }
+
+        // private void DestroyObject() => gameObject.SetActive(false);
     }
 }

@@ -1,5 +1,4 @@
 using GameControl;
-using ManagerControl;
 using UnityEngine;
 using WeaponControl;
 
@@ -16,7 +15,7 @@ namespace UnitControl
 
         protected override void Attack()
         {
-            SoundManager.PlaySound(SoundManager.Sound.Arrow,transform.position);
+            StackObjectPool.Get("ShootArrowSound", transform.position);
             var target = targetFinder.Target;
             var t = target.position + target.forward;
             SpawnArrow(t);
@@ -26,7 +25,7 @@ namespace UnitControl
         {
             var p = StackObjectPool.Get<Projectile>("UnitProjectile", transform.position,
                 Quaternion.Euler(-90, 0, 0));
-            p.Parabola(transform, endPos).Forget();
+            p.SetPosition(transform.position, endPos);
             p.damage = targetFinder.Damage;
         }
     }

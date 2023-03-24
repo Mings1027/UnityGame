@@ -4,13 +4,11 @@ namespace AssetStore.Polygon_Arsenal.Scripts
 {
     public class PolygonSoundSpawn : MonoBehaviour
     {
-
         public GameObject prefabSound;
 
         public bool destroyWhenDone = true;
         public bool soundPrefabIsChild;
-        [Range(0.01f, 10f)]
-        public float pitchRandomMultiplier = 1f;
+        [Range(0.01f, 10f)] public float pitchRandomMultiplier = 1f;
 
         // Use this for initialization
         private void Start()

@@ -23,7 +23,7 @@ namespace UnitControl
         {
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
-            InvokeRepeating(nameof(CheckState), 0, 0.5f);
+            InvokeRepeating(nameof(CheckState), 0, 0.1f);
         }
 
         private void Update()

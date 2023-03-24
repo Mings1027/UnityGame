@@ -9,7 +9,7 @@ namespace EnemyControl
         protected override void SpawnProjectile(Vector3 t)
         {
             var p = StackObjectPool.Get<Projectile>("EnemyProjectile", transform.up, Quaternion.Euler(-90, 0, 0));
-            p.Parabola(transform, t).Forget();
+            p.SetPosition(transform.position, t);
             p.damage = targetFinder.Damage;
         }
     }

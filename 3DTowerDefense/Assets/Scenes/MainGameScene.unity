@@ -365,9 +365,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pools:
-  - tag: Sound
-    prefab: {fileID: 953530123978054383, guid: 80a327d3bb6224375a83b345522d2d3e, type: 3}
-    size: 30
   - tag: BuildingPoint
     prefab: {fileID: 1323643566170160, guid: c0ad9e12aa69f14419bc9e45d54eb299, type: 3}
     size: 10
@@ -432,6 +429,15 @@ MonoBehaviour:
   - tag: ExplosionEffect
     prefab: {fileID: 6143467867895953418, guid: be01741081bb2c944aad51a527b3e120,
       type: 3}
+    size: 30
+  - tag: ShootArrowSound
+    prefab: {fileID: 953530123978054383, guid: 80a327d3bb6224375a83b345522d2d3e, type: 3}
+    size: 30
+  - tag: ShootMissileSound
+    prefab: {fileID: 953530123978054383, guid: 5c99c05004e754440842aad77f3c4871, type: 3}
+    size: 30
+  - tag: MissileExplosionSound
+    prefab: {fileID: 953530123978054383, guid: b0799921b8d5941e69e6a1544e62922a, type: 3}
     size: 30
 --- !u!4 &211751030
 Transform:
@@ -2011,12 +2017,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   waves:
   - name: ArcherEnemy
-    enemyCount: 20
+    enemyCount: 351
     atkDelay: 3
     minDamage: 1
     maxDamage: 4
     atkRange: 7
-    health: 30
+    health: 1148
   - name: MageEnemy
     enemyCount: 20
     atkDelay: 2
