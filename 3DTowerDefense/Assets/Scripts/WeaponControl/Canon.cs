@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace WeaponControl
 {
-    public class UnitMissile : Projectile
+    public class Canon : Projectile
     {
         private MeshFilter _meshFilter;
         private Collider[] _targetColliders;
@@ -16,19 +16,17 @@ namespace WeaponControl
         {
             base.Awake();
             _meshFilter = GetComponentInChildren<MeshFilter>();
-            _targetColliders = new Collider[3];
+            _targetColliders = new Collider[10];
         }
 
         protected override void OnTriggerEnter(Collider other)
         {
-            if (other.CompareTag("Ground"))
-            {
-                Explosion();
-                var position = transform.position;
-                StackObjectPool.Get("ExplosionEffect", position);
-                StackObjectPool.Get("MissileExplosionSound", position);
-                base.OnTriggerEnter(other);
-            }
+            base.OnTriggerEnter(other);
+            if (!other.CompareTag(tagName)) return;
+            Explosion();
+            var position = transform.position;
+            StackObjectPool.Get("CanonEffect", position);
+            StackObjectPool.Get("CanonExplosionSound", position);
         }
 
         private void OnDrawGizmos()
@@ -41,10 +39,7 @@ namespace WeaponControl
             var size = Physics.OverlapSphereNonAlloc(transform.position, atkRange, _targetColliders, enemyLayer);
             for (var i = 0; i < size; i++)
             {
-                if (_targetColliders[i].TryGetComponent(out Health h))
-                {
-                    h.GetHit(damage, gameObject);
-                }
+                GetDamage(_targetColliders[i]);
             }
         }
 

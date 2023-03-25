@@ -1,4 +1,3 @@
-using GameControl;
 using UnityEngine;
 
 namespace EnemyControl
@@ -9,7 +8,6 @@ namespace EnemyControl
 
         protected override void Attack()
         {
-            StackObjectPool.Get("ShootArrowSound", transform.position);
             SpawnProjectile(targetFinder.Target.position);
         }
     }

@@ -1,4 +1,6 @@
+using System;
 using System.Threading;
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using GameControl;
 using UnityEngine;
@@ -8,12 +10,10 @@ namespace AttackControl
 {
     public class TargetFinder : MonoBehaviour
     {
-        private Vector3 _checkRangePoint;
-        private float _atkDelay;
-
-        private Vector3 _centerPos;
         private Collider[] _targetColliders;
+        private float _atkDelay;
         private int _minDamage, _maxDamage;
+        private CancellationTokenSource cts;
 
         public float AtkRange { get; private set; }
 
@@ -35,6 +35,8 @@ namespace AttackControl
 
         private void OnEnable()
         {
+            cts?.Dispose();
+            cts = new CancellationTokenSource();
             attackAble = true;
             InvokeRepeating(nameof(ClosestTarget), 0, 1f);
         }
@@ -42,12 +44,12 @@ namespace AttackControl
         private void LateUpdate()
         {
             if (!IsTargeting || !lookObject) return;
-            
             LookTarget();
         }
 
         private void OnDisable()
         {
+            cts?.Dispose();
             CancelInvoke();
         }
 
@@ -76,10 +78,11 @@ namespace AttackControl
             if (TryGetComponent(out Health h)) h.InitializeHealth(unitHealth);
         }
 
-        public void StartCoolDown()
+        public async UniTaskVoid StartCoolDown()
         {
             attackAble = false;
-            DOVirtual.DelayedCall(_atkDelay, () => attackAble = true);
+            await UniTask.Delay(TimeSpan.FromSeconds(_atkDelay), cancellationToken: cts.Token);
+            attackAble = true;
         }
 
         private void ClosestTarget()

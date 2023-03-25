@@ -51,7 +51,7 @@ namespace ManagerControl
         [SerializeField] private GameObject sellButton;
         [SerializeField] private GameObject moveUnitButton;
 
-        [SerializeField] private GameObject okButton;
+        [SerializeField] private FollowWorld okButton;
 
         [Header("Menu")] [Space(10)] [SerializeField]
         private GameObject menuPanel;
@@ -119,8 +119,8 @@ namespace ManagerControl
             towerInfoPanel.SetActive(false);
             towerSelectPanel.SetActive(false);
             towerEditPanel.SetActive(false);
-            okButton.SetActive(false);
-            towerPanels.target = transform;
+            okButton.gameObject.SetActive(false);
+            towerPanels.WorldTarget(transform);
             menuPanel.SetActive(false);
         }
 
@@ -175,7 +175,7 @@ namespace ManagerControl
             _buildPos = t.position;
             _buildRot = t.rotation;
             _buildingPoint = t;
-            towerPanels.target = _buildingPoint;
+            towerPanels.WorldTarget(_buildingPoint);
             _selectedTower = t.GetComponent<Tower>();
             towerPanels.ActivePanel();
             towerSelectPanel.SetActive(true);
@@ -215,7 +215,7 @@ namespace ManagerControl
                     break;
             }
 
-            towerPanels.target = trans;
+            towerPanels.WorldTarget(trans);
             towerEditPanel.SetActive(true);
             towerSelectPanel.SetActive(false);
             towerPanels.ActivePanel();
@@ -236,9 +236,9 @@ namespace ManagerControl
                 towerInfoPanel.SetActive(false);
             }
 
-            if (okButton.activeSelf)
+            if (okButton.gameObject.activeSelf)
             {
-                okButton.SetActive(false);
+                okButton.DeActivePanel();
             }
 
             if (towerRangeIndicator.activeSelf)
@@ -325,11 +325,12 @@ namespace ManagerControl
         private void TowerBuild()
         {
             _selectedTower = StackObjectPool.Get<Tower>(towerNames[_towerIndex], _buildPos, _buildRot);
-            _selectedTower.onResetMeshEvent += ResetMesh;
-            _selectedTower.onOpenTowerEditPanelEvent += OpenTowerEditPanel;
-
             _buildingPoint.gameObject.SetActive(false);
             TowerUpgrade(0, _selectedTower).Forget();
+
+            if (_selectedTower.FirstSpawn) return;
+            _selectedTower.onResetMeshEvent += ResetMesh;
+            _selectedTower.onOpenTowerEditPanelEvent += OpenTowerEditPanel;
         }
 
         private void ResetMesh(MeshFilter meshFilter)
@@ -339,10 +340,10 @@ namespace ManagerControl
 
         private void ActiveOkButton(string info, string towerName)
         {
-            okButton.GetComponent<FollowObject>().target = _eventSystem.currentSelectedGameObject.transform;
+            okButton.GetComponent<FollowWorld>().ScreenTarget(_eventSystem.currentSelectedGameObject.transform);
             TowerInfoSetText(info, towerName);
             towerInfoPanel.SetActive(true);
-            okButton.SetActive(true);
+            okButton.ActivePanel();
         }
 
         private void MoveUnitButton()

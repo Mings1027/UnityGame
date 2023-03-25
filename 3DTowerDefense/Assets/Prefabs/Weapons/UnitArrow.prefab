@@ -9,13 +9,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2722865382803578376}
-  - component: {fileID: -8490916056140668587}
+  - component: {fileID: -3880483551130124011}
   - component: {fileID: 2722865382803578378}
-  - component: {fileID: 2055120198703303145}
-  - component: {fileID: -638893863733417121}
-  - component: {fileID: 8274471379105439395}
+  - component: {fileID: -5408136007147978908}
+  - component: {fileID: -308672101825625463}
+  - component: {fileID: 2722865382803578381}
   m_Layer: 6
-  m_Name: ArcherEnemyArrow
+  m_Name: UnitArrow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -37,7 +37,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!135 &-8490916056140668587
+--- !u!135 &-3880483551130124011
 SphereCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -66,7 +66,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
---- !u!114 &2055120198703303145
+--- !u!114 &-5408136007147978908
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -75,10 +75,36 @@ MonoBehaviour:
   m_GameObject: {fileID: 2722865382803578380}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0f7efaf5613294269a806e6e6ba23aaf, type: 3}
+  m_Script: {fileID: 11500000, guid: 5a4c19757ecdf48b7a0fefc3a85a1999, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lifeTime: 2
+--- !u!114 &-308672101825625463
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2722865382803578380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ad79af3b1ae245b5865ab5638657597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2722865382803578381
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2722865382803578380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b574b856abeb243aebd0b8e2769417d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   damage: 0
+  targetLayer: 1
   curve:
     serializedVersion: 2
     m_Curve:
@@ -113,31 +139,6 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   speed: 2
---- !u!114 &-638893863733417121
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2722865382803578380}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9ad79af3b1ae245b5865ab5638657597, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &8274471379105439395
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2722865382803578380}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5a4c19757ecdf48b7a0fefc3a85a1999, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lifeTime: 2
 --- !u!1 &3120584527776337076
 GameObject:
   m_ObjectHideFlags: 0

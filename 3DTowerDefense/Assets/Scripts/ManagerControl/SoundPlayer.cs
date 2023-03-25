@@ -5,7 +5,6 @@ namespace ManagerControl
     public class SoundPlayer : MonoBehaviour
     {
         private AudioSource audioSource;
-        // private AudioClip audioClip;
 
         private void Awake()
         {

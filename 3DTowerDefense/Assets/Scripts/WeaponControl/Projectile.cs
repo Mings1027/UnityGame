@@ -1,6 +1,3 @@
-using System;
-using System.Threading;
-using Cysharp.Threading.Tasks;
 using GameControl;
 using UnityEngine;
 
@@ -12,19 +9,31 @@ namespace WeaponControl
         private float _lerp;
         private Vector3 _startPos, _endPos, _curPos;
 
+        private enum TargetName
+        {
+            Unit,
+            Enemy,
+            Ground
+        }
+
+        protected string tagName;
+
         public int damage;
 
+        [SerializeField] private TargetName targetLayer;
         [SerializeField] private AnimationCurve curve;
         [SerializeField] private float speed;
 
         protected virtual void Awake()
         {
             _rigid = GetComponent<Rigidbody>();
+            tagName = targetLayer.ToString();
         }
 
-        private void OnEnable()
+        protected virtual void OnEnable()
         {
             _lerp = 0;
+            _startPos = transform.position;
         }
 
         private void FixedUpdate()
@@ -40,18 +49,22 @@ namespace WeaponControl
 
         protected virtual void OnTriggerEnter(Collider other)
         {
-            if (other.TryGetComponent(out Health h))
-            {
-                h.GetHit(damage, other.gameObject);
-            }
-
             if (other.CompareTag("Ground"))
+            {
                 gameObject.SetActive(false);
+            }
         }
 
-        public void SetPosition(Vector3 startPos, Vector3 endPos)
+        protected void GetDamage(Collider col)
         {
-            _startPos = startPos;
+            if (col.TryGetComponent(out Health h))
+            {
+                h.GetHit(damage, col.gameObject);
+            }
+        }
+
+        public void SetPosition(Vector3 endPos)
+        {
             _endPos = endPos;
         }
     }

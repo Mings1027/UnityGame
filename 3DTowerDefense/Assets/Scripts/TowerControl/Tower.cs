@@ -11,10 +11,10 @@ namespace TowerControl
         private Collider _collider;
         private Outline _outline;
         private MeshFilter _meshFilter;
-        
+
         protected bool isUpgrading;
         protected bool isSold;
-        
+
         public event Action<MeshFilter> onResetMeshEvent;
         public event Action<Tower, Transform> onOpenTowerEditPanelEvent;
 
@@ -27,10 +27,9 @@ namespace TowerControl
         }
 
         public Type TowerType => towerType;
-
         public int TowerLevel { get; private set; }
-
         public float TowerRange { get; private set; }
+        public bool FirstSpawn { get; private set; }
 
         [SerializeField] private Type towerType;
 
@@ -40,6 +39,7 @@ namespace TowerControl
             _collider.enabled = false;
             _outline = GetComponent<Outline>();
             _meshFilter = GetComponentInChildren<MeshFilter>();
+            FirstSpawn = false;
         }
 
         protected virtual void OnEnable()
@@ -52,8 +52,6 @@ namespace TowerControl
             TowerLevel = -1;
             isSold = true;
             onResetMeshEvent?.Invoke(_meshFilter);
-            onOpenTowerEditPanelEvent = null;
-            onResetMeshEvent = null;
         }
 
         public void OnPointerEnter(PointerEventData eventData)
@@ -99,6 +97,9 @@ namespace TowerControl
             _meshFilter.sharedMesh = towerMeshFilter.sharedMesh;
             TowerRange = range;
             _collider.enabled = true;
+
+            if (FirstSpawn) return;
+            FirstSpawn = true;
         }
     }
 }

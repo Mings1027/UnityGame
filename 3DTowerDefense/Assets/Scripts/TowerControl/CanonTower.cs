@@ -31,27 +31,31 @@ namespace TowerControl
 
         protected override void Attack()
         {
-            StackObjectPool.Get<AudioSource>("ShootMissileSound", transform.position);
+            StackObjectPool.Get("CanonShootSound", transform.position);
             if (TowerLevel != 4)
+            {
                 SingleShoot(targetFinder.Target.position);
+            }
             else
+            {
                 MultiShoot(targetFinder.Target);
+            }
         }
 
         private void SingleShoot(Vector3 endPos)
         {
-            var m = StackObjectPool.Get<Projectile>("UnitMissile", transform.position);
-            m.SetPosition(_singleShootPoints[TowerLevel].position, endPos);
-            if (m.TryGetComponent(out UnitMissile u)) u.ChangeMesh(canonMeshFilters[TowerLevel]);
+            var m = StackObjectPool.Get<Projectile>("CanonMissile", _singleShootPoints[TowerLevel].position);
+            m.SetPosition(endPos);
+            if (m.TryGetComponent(out Canon u)) u.ChangeMesh(canonMeshFilters[TowerLevel]);
         }
 
         private void MultiShoot(Transform endPos)
         {
             for (var i = 0; i < 3; i++)
             {
-                var m = StackObjectPool.Get<Projectile>("UnitMissile", transform.position);
-                m.SetPosition(_multiShootPoints[i].position, endPos.position + endPos.forward * Random.Range(min, max));
-                if (m.TryGetComponent(out UnitMissile u)) u.ChangeMesh(canonMeshFilters[TowerLevel]);
+                var m = StackObjectPool.Get<Projectile>("CanonMissile", _multiShootPoints[i].position);
+                m.SetPosition(endPos.position + endPos.forward * Random.Range(min, max));
+                if (m.TryGetComponent(out Canon u)) u.ChangeMesh(canonMeshFilters[TowerLevel]);
             }
         }
     }

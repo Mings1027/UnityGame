@@ -15,7 +15,7 @@ namespace UnitControl
 
         protected override void Attack()
         {
-            StackObjectPool.Get("ShootArrowSound", transform.position);
+            StackObjectPool.Get("ArrowShootSound", transform.position);
             var target = targetFinder.Target;
             var t = target.position + target.forward;
             SpawnArrow(t);
@@ -23,9 +23,9 @@ namespace UnitControl
 
         private void SpawnArrow(Vector3 endPos)
         {
-            var p = StackObjectPool.Get<Projectile>("UnitProjectile", transform.position,
-                Quaternion.Euler(-90, 0, 0));
-            p.SetPosition(transform.position, endPos);
+            var startPos = transform.position;
+            var p = StackObjectPool.Get<Projectile>("UnitArrow", startPos);
+            p.SetPosition(endPos);
             p.damage = targetFinder.Damage;
         }
     }

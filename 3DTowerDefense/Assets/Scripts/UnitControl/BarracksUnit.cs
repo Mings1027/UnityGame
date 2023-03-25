@@ -11,6 +11,7 @@ namespace UnitControl
 
         private Animator _anim;
         private NavMeshAgent _nav;
+        private Transform attackEffectPos;
 
         public bool isMoving;
         public Vector3 point;
@@ -21,12 +22,21 @@ namespace UnitControl
             base.Awake();
             _nav = GetComponent<NavMeshAgent>();
             _anim = GetComponent<Animator>();
+            attackEffectPos = transform.GetChild(0);
         }
-        
+
         protected override void OnDisable()
         {
             base.OnDisable();
             onDeadEvent?.Invoke();
+        }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            if (other.CompareTag("Enemy"))
+            {
+                StackObjectPool.Get("SwordEffect", other.transform.position);
+            }
         }
 
         protected override void CheckState()
@@ -53,6 +63,9 @@ namespace UnitControl
         protected override void Attack()
         {
             _anim.SetTrigger(IsAttack);
+            StackObjectPool.Get("SwordSlashEffect", attackEffectPos.position,
+                transform.rotation * Quaternion.Euler(0, 90, 0));
+            //이 줄에 Slash 소리 스폰해야함
             if (targetFinder.Target.TryGetComponent(out Health h))
             {
                 h.GetHit(targetFinder.Damage, targetFinder.Target.gameObject);

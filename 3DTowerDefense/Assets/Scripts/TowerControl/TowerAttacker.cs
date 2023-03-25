@@ -23,9 +23,11 @@ namespace TowerControl
 
         private void Update()
         {
-            if (isUpgrading || !targetFinder.IsTargeting || !targetFinder.attackAble) return;
-            Attack();
-            targetFinder.StartCoolDown();
+            if (!isUpgrading && targetFinder.attackAble && targetFinder.IsTargeting)
+            {
+                Attack();
+                targetFinder.StartCoolDown().Forget();
+            }
         }
 
         public override void ReadyToBuild(MeshFilter consMeshFilter)

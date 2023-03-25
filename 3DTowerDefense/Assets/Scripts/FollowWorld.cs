@@ -6,8 +6,10 @@ public class FollowWorld : MonoBehaviour
 {
     private Camera _cam;
     private Sequence _showSequence, _hideSequence;
+    private Transform target;
+    private Vector3 pos;
+    private bool worldTarget;
 
-    public Transform target;
     [SerializeField] private Vector3 offset;
     [SerializeField] private Ease scaleEase;
     [SerializeField] private float duration;
@@ -22,12 +24,13 @@ public class FollowWorld : MonoBehaviour
 
         _hideSequence = DOTween.Sequence().SetAutoKill(false).Pause()
             .Append(transform.DOScale(0f, duration))
-            .SetEase(scaleEase);
+            .SetEase(scaleEase)
+            .OnComplete(() => gameObject.SetActive(false));
     }
 
     private void Update()
     {
-        var pos = _cam.WorldToScreenPoint(target.position + offset);
+        pos = worldTarget ? _cam.WorldToScreenPoint(target.position + offset) : target.position;
 
         if (transform.position != pos)
         {
@@ -40,9 +43,22 @@ public class FollowWorld : MonoBehaviour
         _showSequence.Kill();
     }
 
+    public void WorldTarget(Transform t)
+    {
+        worldTarget = true;
+        target = t;
+    }
+
+    public void ScreenTarget(Transform t)
+    {
+        target = t;
+    }
+
     public void ActivePanel()
     {
         _hideSequence.Pause();
+        if (!gameObject.activeSelf)
+            gameObject.SetActive(true);
         _showSequence.Restart();
     }
 

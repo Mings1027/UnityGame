@@ -365,6 +365,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pools:
+  - tag: ArrowShootSound
+    prefab: {fileID: 953530123978054383, guid: 80a327d3bb6224375a83b345522d2d3e, type: 3}
+    size: 30
+  - tag: ArrowExplosionSound
+    prefab: {fileID: 953530123978054383, guid: eaea9681d992d453c8887f8f2165dbac, type: 3}
+    size: 30
+  - tag: CanonShootSound
+    prefab: {fileID: 953530123978054383, guid: 5c99c05004e754440842aad77f3c4871, type: 3}
+    size: 30
+  - tag: CanonExplosionSound
+    prefab: {fileID: 953530123978054383, guid: b0799921b8d5941e69e6a1544e62922a, type: 3}
+    size: 30
   - tag: BuildingPoint
     prefab: {fileID: 1323643566170160, guid: c0ad9e12aa69f14419bc9e45d54eb299, type: 3}
     size: 10
@@ -411,33 +423,32 @@ MonoBehaviour:
   - tag: SwordManEnemy
     prefab: {fileID: 10859800051177605, guid: f99f0cc7ac7b643b1a6860bad1ffaa6c, type: 3}
     size: 30
-  - tag: UnitProjectile
+  - tag: UnitArrow
     prefab: {fileID: 2722865382803578380, guid: b5fdd2d8e79694cc9a686bbfbaf93b47,
       type: 3}
     size: 30
-  - tag: EnemyProjectile
+  - tag: EnemyArrow
     prefab: {fileID: 2722865382803578380, guid: 9166d6459eee746b0b147657098aa7ae,
       type: 3}
     size: 30
-  - tag: UnitMissile
+  - tag: CanonMissile
     prefab: {fileID: 4134895727443223706, guid: a11f2e7afe49e4b5bad475328834bfe7,
       type: 3}
     size: 30
   - tag: BuildSmoke
     prefab: {fileID: 104829970813648393, guid: d3015b7eea383f64d8b81f965cc466e7, type: 3}
     size: 30
-  - tag: ExplosionEffect
+  - tag: CanonEffect
     prefab: {fileID: 6143467867895953418, guid: be01741081bb2c944aad51a527b3e120,
       type: 3}
     size: 30
-  - tag: ShootArrowSound
-    prefab: {fileID: 953530123978054383, guid: 80a327d3bb6224375a83b345522d2d3e, type: 3}
+  - tag: ArrowEffect
+    prefab: {fileID: 8382068301544357172, guid: 57306482cd2489b44819dcfc9831623a,
+      type: 3}
     size: 30
-  - tag: ShootMissileSound
-    prefab: {fileID: 953530123978054383, guid: 5c99c05004e754440842aad77f3c4871, type: 3}
-    size: 30
-  - tag: MissileExplosionSound
-    prefab: {fileID: 953530123978054383, guid: b0799921b8d5941e69e6a1544e62922a, type: 3}
+  - tag: SwordSlashEffect
+    prefab: {fileID: 8792079695798041162, guid: 7923e37648055d34abc4f9ce4dfbbba0,
+      type: 3}
     size: 30
 --- !u!4 &211751030
 Transform:
@@ -854,7 +865,7 @@ GameObject:
   - component: {fileID: 360236088}
   - component: {fileID: 360236087}
   - component: {fileID: 360236086}
-  - component: {fileID: 731357188}
+  - component: {fileID: 731357189}
   m_Layer: 0
   m_Name: OKButton
   m_TagString: Untagged
@@ -1763,7 +1774,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 699365260}
   m_CullTransparentMesh: 1
---- !u!114 &731357188
+--- !u!114 &731357189
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1772,10 +1783,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 360236084}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4c975fb354b764ebc8ebce6bd1829840, type: 3}
+  m_Script: {fileID: 11500000, guid: 71340bf5230d44387bd4c19c446562d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 0}
+  offset: {x: 0, y: 0, z: 0}
+  scaleEase: 0
+  duration: 0
 --- !u!1 &758017725
 GameObject:
   m_ObjectHideFlags: 0
@@ -2017,12 +2030,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   waves:
   - name: ArcherEnemy
-    enemyCount: 351
+    enemyCount: 20
     atkDelay: 3
     minDamage: 1
     maxDamage: 4
     atkRange: 7
-    health: 1148
+    health: 1000
   - name: MageEnemy
     enemyCount: 20
     atkDelay: 2
@@ -2273,7 +2286,7 @@ MonoBehaviour:
   uniqueUpgradeButtons: {fileID: 548738032}
   sellButton: {fileID: 699365260}
   moveUnitButton: {fileID: 1490004420}
-  okButton: {fileID: 360236084}
+  okButton: {fileID: 731357189}
   menuPanel: {fileID: 1593064645}
   towerInfoPanel: {fileID: 1846270219}
   headerField: {fileID: 1672282492}
@@ -3362,7 +3375,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71340bf5230d44387bd4c19c446562d2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 0}
   offset: {x: 0, y: 0, z: 0}
   scaleEase: 27
   duration: 1

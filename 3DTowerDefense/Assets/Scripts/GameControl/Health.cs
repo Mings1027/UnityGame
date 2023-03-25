@@ -10,7 +10,8 @@ namespace GameControl
     public class Health : MonoBehaviour
     {
         private Renderer _renderer;
-        private CancellationTokenSource _cts;
+        private Sequence hitEffectSequence;
+        private Tween destroyTween;
 
         public int CurHealth => curHealth;
         [SerializeField] private int curHealth, maxHealth;
@@ -20,18 +21,26 @@ namespace GameControl
         [SerializeField] private bool isDead;
         [SerializeField] private float disappearTime;
 
-        private void OnEnable()
+        private void Awake()
         {
             _renderer = GetComponentInChildren<Renderer>();
             _renderer.material.color = Color.white;
-            _cts?.Dispose();
-            _cts = new CancellationTokenSource();
-            curHealth = maxHealth;
         }
 
-        private void OnDisable()
+        private void Start()
         {
-            _cts?.Cancel();
+            hitEffectSequence = DOTween.Sequence()
+                .SetAutoKill(false)
+                .Append(_renderer.material.DOColor(Color.red, 0f))
+                .Append(_renderer.material.DOColor(Color.white, 1f))
+                .Pause();
+            destroyTween = DOVirtual.DelayedCall(disappearTime, () => gameObject.SetActive(false))
+                .SetAutoKill(false).Pause();
+        }
+
+        private void OnEnable()
+        {
+            curHealth = maxHealth;
         }
 
         public void InitializeHealth(int healthValue)
@@ -54,18 +63,13 @@ namespace GameControl
             {
                 deathWithReference?.Invoke(sender);
                 isDead = true;
-                DOVirtual.DelayedCall(disappearTime, () => gameObject.SetActive(false));
-                // await UniTask.Delay(TimeSpan.FromSeconds(disappearTime), cancellationToken: _cts.Token);
-                // gameObject.SetActive(false);
+                destroyTween.Restart();
             }
         }
 
         private void HitEffect()
         {
-            _renderer.material.color = Color.red;
-            DOVirtual.DelayedCall(0.5f,()=>_renderer.material.color = Color.white);
-            // await UniTask.Delay(500, cancellationToken: _cts.Token);
-            // _renderer.material.color = Color.white;
+            hitEffectSequence.Restart();
         }
     }
 }
