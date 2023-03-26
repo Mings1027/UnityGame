@@ -10,7 +10,7 @@ namespace UnitControl
         {
             if (!targetFinder.IsTargeting || !targetFinder.attackAble) return;
             Attack();
-            targetFinder.StartCoolDown();
+            targetFinder.StartCoolDown().Forget();
         }
 
         protected override void Attack()
@@ -25,8 +25,7 @@ namespace UnitControl
         {
             var startPos = transform.position;
             var p = StackObjectPool.Get<Projectile>("UnitArrow", startPos);
-            p.SetPosition(endPos);
-            p.damage = targetFinder.Damage;
+            p.Setting("Enemy", endPos, targetFinder.Damage);
         }
     }
 }

@@ -13,12 +13,12 @@ namespace GameControl
         private Sequence hitEffectSequence;
         private Tween destroyTween;
 
-        public int CurHealth => curHealth;
-        [SerializeField] private int curHealth, maxHealth;
+        public bool IsDead { get; private set; }
 
+        [SerializeField] private int curHealth, maxHealth;
         [SerializeField] private UnityEvent<GameObject> hitWithReference;
         [SerializeField] private UnityEvent<GameObject> deathWithReference;
-        [SerializeField] private bool isDead;
+
         [SerializeField] private float disappearTime;
 
         private void Awake()
@@ -40,19 +40,22 @@ namespace GameControl
 
         private void OnEnable()
         {
+            print("onenable");
             curHealth = maxHealth;
+            IsDead = false;
         }
 
         public void InitializeHealth(int healthValue)
         {
+            print("init");
             curHealth = healthValue;
             maxHealth = healthValue;
-            isDead = false;
+            IsDead = false;
         }
 
         public void GetHit(int amount, GameObject sender)
         {
-            if (isDead) return;
+            if (IsDead) return;
             curHealth -= amount;
             HitEffect();
             if (curHealth > 0)
@@ -62,7 +65,7 @@ namespace GameControl
             else
             {
                 deathWithReference?.Invoke(sender);
-                isDead = true;
+                IsDead = true;
                 destroyTween.Restart();
             }
         }

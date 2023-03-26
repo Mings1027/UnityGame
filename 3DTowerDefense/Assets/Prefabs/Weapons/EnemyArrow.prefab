@@ -10,11 +10,11 @@ GameObject:
   m_Component:
   - component: {fileID: 2722865382803578376}
   - component: {fileID: -8490916056140668587}
-  - component: {fileID: 2722865382803578378}
+  - component: {fileID: 7021286506649920582}
   - component: {fileID: 8274471379105439395}
   - component: {fileID: -638893863733417121}
   - component: {fileID: 7056727488715245183}
-  m_Layer: 6
+  m_Layer: 13
   m_Name: EnemyArrow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -50,7 +50,7 @@ SphereCollider:
   serializedVersion: 2
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0.5}
---- !u!54 &2722865382803578378
+--- !u!54 &7021286506649920582
 Rigidbody:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -78,7 +78,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a4c19757ecdf48b7a0fefc3a85a1999, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lifeTime: 2
+  lifeTime: 1.2
 --- !u!114 &-638893863733417121
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -103,7 +103,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b574b856abeb243aebd0b8e2769417d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 0
   curve:
     serializedVersion: 2
     m_Curve:
@@ -138,9 +137,6 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   speed: 2
-  targetLayer:
-    serializedVersion: 2
-    m_Bits: 4096
 --- !u!1 &3120584527776337076
 GameObject:
   m_ObjectHideFlags: 0

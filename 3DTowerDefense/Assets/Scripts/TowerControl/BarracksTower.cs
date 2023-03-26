@@ -77,17 +77,12 @@ namespace TowerControl
             NavMeshHit hit;
             if (NavMesh.SamplePosition(transform.position, out hit, 15, NavMesh.AllAreas))
             {
-                for (var i = 0; i < _barracksUnits.Length; i++)
+                foreach (var t in _barracksUnits)
                 {
-                    var t = _barracksUnits[i];
-                    if (!t.gameObject.activeSelf && t.GetComponent<Health>().CurHealth <= 0)
+                    if (!t.gameObject.activeSelf && t.GetComponent<Health>().IsDead)
                     {
-                        // await UniTask.Delay(5000, cancellationToken: cts.Token);
-                        DOVirtual.DelayedCall(5, () =>
-                        {
-                            t.transform.position = hit.position;
-                            t.gameObject.SetActive(true);
-                        });
+                        t.transform.position = hit.position;
+                        t.gameObject.SetActive(true);
                     }
                 }
             }

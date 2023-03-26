@@ -7,12 +7,14 @@ namespace WeaponControl
     {
         protected override void OnTriggerEnter(Collider other)
         {
-            base.OnTriggerEnter(other);
-            if (!other.CompareTag(tagName)) return;
-            GetDamage(other);
-            var position = transform.position;
-            StackObjectPool.Get("ArrowEffect", position);
-            StackObjectPool.Get("ArrowExplosionSound", position);
+            if (other.CompareTag(hitName))
+            {
+                var position = transform.position;
+                StackObjectPool.Get("ArrowEffect", position);
+                StackObjectPool.Get("ArrowExplosionSound", position);
+                GetDamage(other);
+                gameObject.SetActive(false);
+            }
         }
     }
 }

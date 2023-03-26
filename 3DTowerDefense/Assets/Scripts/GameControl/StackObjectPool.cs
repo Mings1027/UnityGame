@@ -99,7 +99,10 @@ namespace GameControl
             var poolStack = _poolDictionary[objTag];
             if (poolStack.Count <= 0)
             {
-                var pool = Array.Find(pools, x => x.tag == objTag);
+                var pool = GetPoolWithTag(objTag);
+                if (pool == null)
+                    throw new Exception($"Pool with tag {objTag} doesn't exist.");
+
                 var obj = CreateNewObject(pool.tag, pool.prefab);
                 SortObject(obj);
             }
@@ -109,6 +112,19 @@ namespace GameControl
             poolObj.transform.SetPositionAndRotation(position, rotation);
             poolObj.SetActive(true);
             return poolObj;
+        }
+
+        private Pool GetPoolWithTag(string objTag)
+        {
+            for (var i = 0; i < pools.Length; i++)
+            {
+                if (pools[i].tag == objTag)
+                {
+                    return pools[i];
+                }
+            }
+
+            return null;
         }
 
         public static void ReturnToPool(GameObject obj)

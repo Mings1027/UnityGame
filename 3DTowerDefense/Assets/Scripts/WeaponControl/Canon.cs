@@ -11,36 +11,30 @@ namespace WeaponControl
         [SerializeField] private LayerMask enemyLayer;
         [SerializeField] private float atkRange;
 
-
-        protected override void Awake()
+        private void Awake()
         {
-            base.Awake();
             _meshFilter = GetComponentInChildren<MeshFilter>();
             _targetColliders = new Collider[10];
         }
 
         protected override void OnTriggerEnter(Collider other)
         {
-            base.OnTriggerEnter(other);
-            if (!other.CompareTag(tagName)) return;
-            Explosion();
-            var position = transform.position;
-            StackObjectPool.Get("CanonEffect", position);
-            StackObjectPool.Get("CanonExplosionSound", position);
+            if (other.CompareTag("Ground"))
+            {
+                var position = transform.position;
+                StackObjectPool.Get("CanonEffect", position);
+                StackObjectPool.Get("CanonExplosionSound", position);
+                var size = Physics.OverlapSphereNonAlloc(position, atkRange, _targetColliders, enemyLayer);
+                for (var i = 0; i < size; i++)
+                {
+                    GetDamage(_targetColliders[i]);
+                }
+            }
         }
 
         private void OnDrawGizmos()
         {
             Gizmos.DrawWireSphere(transform.position, atkRange);
-        }
-
-        private void Explosion()
-        {
-            var size = Physics.OverlapSphereNonAlloc(transform.position, atkRange, _targetColliders, enemyLayer);
-            for (var i = 0; i < size; i++)
-            {
-                GetDamage(_targetColliders[i]);
-            }
         }
 
         public void ChangeMesh(MeshFilter meshFilter)

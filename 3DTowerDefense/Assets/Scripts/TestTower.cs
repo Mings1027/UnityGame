@@ -1,26 +1,17 @@
 using System;
+using AttackControl;
 using DG.Tweening;
+using GameControl;
 using UnityEngine;
 
 
 public class TestTower : MonoBehaviour
 {
-    private Tween _delayTween;
-    private bool _attackAble;
-    [SerializeField] private float delay;
-
-    private void Awake()
+    private void OnTriggerEnter(Collider other)
     {
-        _delayTween = DOVirtual.DelayedCall(delay, () => _attackAble = true).SetAutoKill(false);
-    }
-
-    private void Update()
-    {
-        if (_attackAble)
+        if (other.CompareTag("Enemy"))
         {
-            Debug.Log("attttttttttttack");
-            _attackAble = false;
-            _delayTween.Restart();
+            print("this is enemy");
         }
     }
 }

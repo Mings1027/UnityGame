@@ -11,8 +11,7 @@ namespace EnemyControl
             var position = transform.position;
             StackObjectPool.Get("ArrowShootSound", position);
             var p = StackObjectPool.Get<Projectile>("EnemyArrow", position, Quaternion.Euler(-90, 0, 0));
-            p.SetPosition(t);
-            p.damage = targetFinder.Damage;
+            p.Setting("Unit", t, targetFinder.Damage);
         }
     }
 }

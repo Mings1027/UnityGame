@@ -16,8 +16,8 @@ namespace AttackControl
         private CancellationTokenSource cts;
 
         public float AtkRange { get; private set; }
-
         public int Damage => Random.Range(_minDamage, _maxDamage);
+        public LayerMask TargetLayer => targetLayer;
 
         public bool attackAble;
 
@@ -31,6 +31,7 @@ namespace AttackControl
         private void Awake()
         {
             _targetColliders = new Collider[5];
+            AtkRange = 5;
         }
 
         private void OnEnable()

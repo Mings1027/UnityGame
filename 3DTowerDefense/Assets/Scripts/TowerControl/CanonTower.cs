@@ -45,7 +45,7 @@ namespace TowerControl
         private void SingleShoot(Vector3 endPos)
         {
             var m = StackObjectPool.Get<Projectile>("CanonMissile", _singleShootPoints[TowerLevel].position);
-            m.SetPosition(endPos);
+            m.Setting("Ground", endPos, targetFinder.Damage);
             if (m.TryGetComponent(out Canon u)) u.ChangeMesh(canonMeshFilters[TowerLevel]);
         }
 
@@ -54,7 +54,7 @@ namespace TowerControl
             for (var i = 0; i < 3; i++)
             {
                 var m = StackObjectPool.Get<Projectile>("CanonMissile", _multiShootPoints[i].position);
-                m.SetPosition(endPos.position + endPos.forward * Random.Range(min, max));
+                m.Setting("Ground", endPos.position + endPos.forward * Random.Range(min, max), targetFinder.Damage);
                 if (m.TryGetComponent(out Canon u)) u.ChangeMesh(canonMeshFilters[TowerLevel]);
             }
         }

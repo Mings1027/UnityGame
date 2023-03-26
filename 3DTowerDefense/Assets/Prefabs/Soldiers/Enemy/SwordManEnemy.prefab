@@ -345,8 +345,8 @@ GameObject:
   m_Component:
   - component: {fileID: 10859800051177606}
   - component: {fileID: -3692400187074213520}
-  - component: {fileID: 6269060457891663113}
   - component: {fileID: 10859800051177604}
+  - component: {fileID: 6269060457891663113}
   - component: {fileID: 1537043641030780071}
   - component: {fileID: 7433286837059750528}
   - component: {fileID: -6016187871775544750}
@@ -394,20 +394,6 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
---- !u!136 &6269060457891663113
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 10859800051177605}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  m_Radius: 1.3
-  m_Height: 4
-  m_Direction: 1
-  m_Center: {x: 0, y: 2.5, z: 0}
 --- !u!195 &10859800051177604
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -430,6 +416,20 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!136 &6269060457891663113
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 10859800051177605}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  m_Radius: 1.3
+  m_Height: 4
+  m_Direction: 1
+  m_Center: {x: 0, y: 2.5, z: 0}
 --- !u!114 &1537043641030780071
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -479,12 +479,9 @@ MonoBehaviour:
   attackAble: 0
   lookObject: 1
   smoothTurnSpeed: 0.1
-  groundLayer:
-    serializedVersion: 2
-    m_Bits: 128
   targetLayer:
     serializedVersion: 2
-    m_Bits: 4096
+    m_Bits: 64
 --- !u!114 &4243633212556056026
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -498,4 +495,3 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   destination: {fileID: 0}
-  damage: 0
