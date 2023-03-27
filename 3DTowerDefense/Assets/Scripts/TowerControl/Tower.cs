@@ -29,7 +29,6 @@ namespace TowerControl
         public Type TowerType => towerType;
         public int TowerLevel { get; private set; }
         public float TowerRange { get; private set; }
-        public bool FirstSpawn { get; private set; }
 
         [SerializeField] private Type towerType;
 
@@ -38,8 +37,7 @@ namespace TowerControl
             _collider = GetComponent<Collider>();
             _collider.enabled = false;
             _outline = GetComponent<Outline>();
-            _meshFilter = GetComponentInChildren<MeshFilter>();
-            FirstSpawn = false;
+            _meshFilter = GetComponentInChildren<MeshFilter>(); 
         }
 
         protected virtual void OnEnable()
@@ -52,6 +50,8 @@ namespace TowerControl
             TowerLevel = -1;
             isSold = true;
             onResetMeshEvent?.Invoke(_meshFilter);
+            onResetMeshEvent = null;
+            onOpenTowerEditPanelEvent = null;
         }
 
         public void OnPointerEnter(PointerEventData eventData)
@@ -97,9 +97,6 @@ namespace TowerControl
             _meshFilter.sharedMesh = towerMeshFilter.sharedMesh;
             TowerRange = range;
             _collider.enabled = true;
-
-            if (FirstSpawn) return;
-            FirstSpawn = true;
         }
     }
 }

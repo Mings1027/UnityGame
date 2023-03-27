@@ -72,11 +72,11 @@ namespace ManagerControl
         private void SpawnEnemy()
         {
             var e = StackObjectPool.Get<Enemy>(waves[_nextWave].name, spawnPoint.position);
-            e.GetComponent<Health>().InitializeHealth(waves[_nextWave].health);
+            e.GetComponent<Health>().Init(waves[_nextWave].health);
             e.destination = destinationPoint;
 
             var w = waves[_nextWave];
-            e.GetComponent<TargetFinder>().SetUp(w.minDamage, w.maxDamage, w.atkRange, w.atkDelay, w.health);
+            e.GetComponent<TargetFinder>().SetUp(w.minDamage, w.maxDamage, w.atkRange, w.atkDelay);
         }
     }
 }

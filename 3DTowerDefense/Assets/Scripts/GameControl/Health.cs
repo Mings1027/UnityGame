@@ -1,6 +1,3 @@
-using System;
-using System.Threading;
-using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.Events;
@@ -25,10 +22,7 @@ namespace GameControl
         {
             _renderer = GetComponentInChildren<Renderer>();
             _renderer.material.color = Color.white;
-        }
 
-        private void Start()
-        {
             hitEffectSequence = DOTween.Sequence()
                 .SetAutoKill(false)
                 .Append(_renderer.material.DOColor(Color.red, 0f))
@@ -38,16 +32,8 @@ namespace GameControl
                 .SetAutoKill(false).Pause();
         }
 
-        private void OnEnable()
+        public void Init(int healthValue)
         {
-            print("onenable");
-            curHealth = maxHealth;
-            IsDead = false;
-        }
-
-        public void InitializeHealth(int healthValue)
-        {
-            print("init");
             curHealth = healthValue;
             maxHealth = healthValue;
             IsDead = false;
@@ -57,7 +43,7 @@ namespace GameControl
         {
             if (IsDead) return;
             curHealth -= amount;
-            HitEffect();
+            hitEffectSequence.Restart();
             if (curHealth > 0)
             {
                 hitWithReference?.Invoke(sender);
@@ -68,11 +54,6 @@ namespace GameControl
                 IsDead = true;
                 destroyTween.Restart();
             }
-        }
-
-        private void HitEffect()
-        {
-            hitEffectSequence.Restart();
         }
     }
 }

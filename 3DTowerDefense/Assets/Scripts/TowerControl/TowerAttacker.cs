@@ -41,7 +41,6 @@ namespace TowerControl
         {
             base.Building(towerMeshFilter, minDamage, maxDamage, range, delay, health);
             GetComponent<TargetFinder>().SetUp(minDamage, maxDamage, range, delay);
-            isUpgrading = false;
         }
     }
 }

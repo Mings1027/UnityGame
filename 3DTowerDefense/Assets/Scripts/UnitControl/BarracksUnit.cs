@@ -25,10 +25,19 @@ namespace UnitControl
             attackEffectPos = transform.GetChild(0);
         }
 
-        protected override void OnDisable()
+        private void OnEnable()
         {
-            base.OnDisable();
+            InvokeRepeating(nameof(MoveToMousePosition), 0f, 0.5f);
+        }
+
+        private void OnDisable()
+        {
             onDeadEvent?.Invoke();
+            onDeadEvent = null;
+            if (IsInvoking())
+            {
+                CancelInvoke();
+            }
         }
 
         private void OnTriggerEnter(Collider other)
@@ -41,21 +50,16 @@ namespace UnitControl
 
         protected override void CheckState()
         {
-            if (isMoving)
-            {
-                _nav.SetDestination(point);
-                if (_nav.remainingDistance <= _nav.stoppingDistance) isMoving = false;
-            }
-
             if (!targetFinder.IsTargeting) return;
             if (targetFinder.attackAble &&
                 Vector3.Distance(transform.position, targetFinder.Target.position) <= _nav.stoppingDistance)
             {
                 Attack();
-                targetFinder.StartCoolDown();
+                targetFinder.StartCoolDown().Forget();
             }
             else
             {
+                print("move to target");
                 _nav.SetDestination(targetFinder.Target.position);
             }
         }
@@ -70,6 +74,14 @@ namespace UnitControl
             {
                 h.GetHit(targetFinder.Damage, targetFinder.Target.gameObject);
             }
+        }
+
+        private void MoveToMousePosition()
+        {
+            if (!isMoving) return;
+            print("move to point");
+            _nav.SetDestination(point);
+            if (_nav.remainingDistance <= _nav.stoppingDistance) isMoving = false;
         }
     }
 }

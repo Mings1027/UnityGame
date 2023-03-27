@@ -17,8 +17,6 @@ namespace AttackControl
 
         public float AtkRange { get; private set; }
         public int Damage => Random.Range(_minDamage, _maxDamage);
-        public LayerMask TargetLayer => targetLayer;
-
         public bool attackAble;
 
         public Transform Target { get; private set; }
@@ -52,6 +50,8 @@ namespace AttackControl
         {
             cts?.Dispose();
             CancelInvoke();
+            Target = null;
+            IsTargeting = false;
         }
 
         private void OnDrawGizmos()
@@ -69,14 +69,12 @@ namespace AttackControl
             transform.rotation = Quaternion.Lerp(transform.rotation, lookRot, smoothTurnSpeed);
         }
 
-        public void SetUp(int unitMinDamage, int unitMaxDamage, float attackRange, float attackDelay,
-            int unitHealth = 0)
+        public void SetUp(int unitMinDamage, int unitMaxDamage, float attackRange, float attackDelay)
         {
             _minDamage = unitMinDamage;
             _maxDamage = unitMaxDamage;
             AtkRange = attackRange;
             _atkDelay = attackDelay;
-            if (TryGetComponent(out Health h)) h.InitializeHealth(unitHealth);
         }
 
         public async UniTaskVoid StartCoolDown()

@@ -328,7 +328,6 @@ namespace ManagerControl
             _buildingPoint.gameObject.SetActive(false);
             TowerUpgrade(0, _selectedTower).Forget();
 
-            if (_selectedTower.FirstSpawn) return;
             _selectedTower.onResetMeshEvent += ResetMesh;
             _selectedTower.onOpenTowerEditPanelEvent += OpenTowerEditPanel;
         }
