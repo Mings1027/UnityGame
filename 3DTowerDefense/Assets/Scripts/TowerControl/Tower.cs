@@ -90,8 +90,7 @@ namespace TowerControl
             _meshFilter.sharedMesh = consMeshFilter.sharedMesh;
         }
 
-        public virtual void Building(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range, float delay,
-            int health = 0)
+        public virtual void Building(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range, float delay)
         {
             isUpgrading = false;
             _meshFilter.sharedMesh = towerMeshFilter.sharedMesh;

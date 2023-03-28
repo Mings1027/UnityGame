@@ -55,11 +55,10 @@ namespace UnitControl
                 Vector3.Distance(transform.position, targetFinder.Target.position) <= _nav.stoppingDistance)
             {
                 Attack();
-                targetFinder.StartCoolDown().Forget();
+                targetFinder.StartCoolDown();
             }
             else
             {
-                print("move to target");
                 _nav.SetDestination(targetFinder.Target.position);
             }
         }
@@ -79,7 +78,6 @@ namespace UnitControl
         private void MoveToMousePosition()
         {
             if (!isMoving) return;
-            print("move to point");
             _nav.SetDestination(point);
             if (_nav.remainingDistance <= _nav.stoppingDistance) isMoving = false;
         }

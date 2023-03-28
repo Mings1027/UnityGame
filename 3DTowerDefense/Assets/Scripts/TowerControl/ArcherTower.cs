@@ -35,7 +35,7 @@ namespace TowerControl
             }
         }
 
-        protected override void UnitUpgrade(int minDamage, int maxDamage, float range, float delay, int health = 0)
+        protected override void UnitUpgrade(int minDamage, int maxDamage, float range, float delay)
         {
             var count = TowerLevel == 4 ? 2 : 1;
             for (var i = 0; i < count; i++)

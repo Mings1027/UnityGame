@@ -10,7 +10,7 @@ namespace UnitControl
         {
             if (!targetFinder.IsTargeting || !targetFinder.attackAble) return;
             Attack();
-            targetFinder.StartCoolDown().Forget();
+            targetFinder.StartCoolDown();
         }
 
         protected override void Attack()

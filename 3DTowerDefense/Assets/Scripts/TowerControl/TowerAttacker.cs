@@ -26,7 +26,7 @@ namespace TowerControl
             if (!isUpgrading && targetFinder.attackAble && targetFinder.IsTargeting)
             {
                 Attack();
-                targetFinder.StartCoolDown().Forget();
+                targetFinder.StartCoolDown();
             }
         }
 
@@ -37,9 +37,9 @@ namespace TowerControl
         }
 
         public override void Building(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range,
-            float delay, int health = 0)
+            float delay)
         {
-            base.Building(towerMeshFilter, minDamage, maxDamage, range, delay, health);
+            base.Building(towerMeshFilter, minDamage, maxDamage, range, delay);
             GetComponent<TargetFinder>().SetUp(minDamage, maxDamage, range, delay);
         }
     }

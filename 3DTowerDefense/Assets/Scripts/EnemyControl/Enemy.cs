@@ -1,5 +1,3 @@
-using System;
-using System.Threading;
 using AttackControl;
 using UnityEngine;
 using UnityEngine.AI;
@@ -11,8 +9,6 @@ namespace EnemyControl
         protected TargetFinder targetFinder;
         private NavMeshAgent _nav;
 
-        private CancellationTokenSource _cts;
-
         public Transform destination;
 
 
@@ -22,17 +18,8 @@ namespace EnemyControl
             _nav = GetComponent<NavMeshAgent>();
         }
 
-        private void OnEnable()
-        {
-            _cts?.Dispose();
-            _cts = new CancellationTokenSource();
-
-            // InvokeRepeating(nameof(FindUnit), 0, 0.1f);
-        }
-
         private void OnDisable()
         {
-            _cts?.Cancel();
             CancelInvoke();
         }
 
@@ -42,14 +29,12 @@ namespace EnemyControl
         {
             if (targetFinder.IsTargeting)
             {
-                if (Vector3.Distance(transform.position, targetFinder.Target.position) <= targetFinder.AtkRange)
+                if (Vector3.Distance(transform.position, targetFinder.Target.position) <= _nav.stoppingDistance)
                 {
-                    if (targetFinder.attackAble)
-                    {
-                        _nav.isStopped = true;
-                        Attack();
-                        targetFinder.StartCoolDown();
-                    }
+                    if (!targetFinder.attackAble) return;
+                    _nav.isStopped = true;
+                    Attack();
+                    targetFinder.StartCoolDown();
                 }
                 else
                 {

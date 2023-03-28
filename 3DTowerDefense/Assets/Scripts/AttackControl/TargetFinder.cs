@@ -1,8 +1,6 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using DG.Tweening;
-using GameControl;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -10,12 +8,14 @@ namespace AttackControl
 {
     public class TargetFinder : MonoBehaviour
     {
+        private CancellationTokenSource cts;
+        
+        private GameObject targetObj;
         private Collider[] _targetColliders;
         private float _atkDelay;
         private int _minDamage, _maxDamage;
-        private CancellationTokenSource cts;
+        private float atkRange;
 
-        public float AtkRange { get; private set; }
         public int Damage => Random.Range(_minDamage, _maxDamage);
         public bool attackAble;
 
@@ -29,7 +29,7 @@ namespace AttackControl
         private void Awake()
         {
             _targetColliders = new Collider[5];
-            AtkRange = 5;
+            atkRange = 5;
         }
 
         private void OnEnable()
@@ -57,7 +57,7 @@ namespace AttackControl
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(transform.position, AtkRange);
+            Gizmos.DrawWireSphere(transform.position, atkRange);
         }
 
         private void LookTarget()
@@ -73,7 +73,7 @@ namespace AttackControl
         {
             _minDamage = unitMinDamage;
             _maxDamage = unitMaxDamage;
-            AtkRange = attackRange;
+            atkRange = attackRange;
             _atkDelay = attackDelay;
         }
 
@@ -86,12 +86,21 @@ namespace AttackControl
 
         private void ClosestTarget()
         {
-            var size = Physics.OverlapSphereNonAlloc(transform.position, AtkRange, _targetColliders, targetLayer);
+            var size = Physics.OverlapSphereNonAlloc(transform.position, atkRange, _targetColliders, targetLayer);
+            if (size <= 0)
+            {
+                Target = null;
+                IsTargeting = false;
+                return;
+            }
+
             var shortestDistance = Mathf.Infinity;
             Transform nearestEnemy = null;
 
             for (var i = 0; i < size; i++)
             {
+                if (_targetColliders[i].gameObject == targetObj) continue;
+
                 var distanceToResult =
                     Vector3.SqrMagnitude(transform.position - _targetColliders[i].transform.position);
                 if (distanceToResult >= shortestDistance) continue;
@@ -99,8 +108,9 @@ namespace AttackControl
                 nearestEnemy = _targetColliders[i].transform;
             }
 
-            Target = size <= 0 ? null : nearestEnemy;
-            IsTargeting = Target != null;
+            Target = nearestEnemy;
+            IsTargeting = nearestEnemy != null;
+            targetObj = nearestEnemy != null ? nearestEnemy.gameObject : null;
         }
     }
 }

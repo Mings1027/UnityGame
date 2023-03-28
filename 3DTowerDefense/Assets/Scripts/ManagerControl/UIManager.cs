@@ -18,7 +18,6 @@ namespace ManagerControl
         private int _uniqueLevel;
         private Transform _buildingPoint;
         private EventSystem _eventSystem;
-        private BarracksTower _barrackTower;
 
         private Vector3 _buildPos;
         private Quaternion _buildRot;
@@ -153,12 +152,12 @@ namespace ManagerControl
             var ray = _cam.ScreenPointToRay(input.mousePos);
             if (Physics.Raycast(ray, out var hit))
             {
-                if (Vector3.Distance(_barrackTower.transform.position, hit.point) < _barrackTower.TowerRange)
+                if (Vector3.Distance(_selectedTower.transform.position, hit.point) < _selectedTower.TowerRange)
                 {
                     if (!hit.collider.CompareTag("Ground")) return;
                     input.isMoveUnit = false;
                     barrackRangeIndicator.SetActive(false);
-                    _barrackTower.MoveUnit(hit.point);
+                    _selectedTower.GetComponent<BarracksTower>().MoveUnit(hit.point);
                 }
                 else
                 {
@@ -189,10 +188,7 @@ namespace ManagerControl
             _panelIsOpen = true;
             _isTower = true;
 
-            _barrackTower = _selectedTower.TowerType == Tower.Type.Barracks
-                ? _selectedTower.GetComponent<BarracksTower>()
-                : null;
-            moveUnitButton.SetActive(_barrackTower != null);
+            moveUnitButton.SetActive(_selectedTower.TowerType == Tower.Type.Barracks);
 
             towerRangeIndicator.transform.position = _selectedTower.transform.position;
             towerRangeIndicator.transform.localScale =
@@ -225,8 +221,8 @@ namespace ManagerControl
         {
             if (!_panelIsOpen) return;
 
-            ResetUI();
             _panelIsOpen = false;
+            ResetUI();
         }
 
         private void ResetUI()
@@ -301,7 +297,7 @@ namespace ManagerControl
                 TowerBuild();
             }
 
-            ResetUI();
+            CloseUI();
         }
 
         private void SellButton()
@@ -350,9 +346,9 @@ namespace ManagerControl
             moveUnitButton.SetActive(false);
             input.isMoveUnit = true;
             ResetUI();
-            barrackRangeIndicator.transform.position = _barrackTower.transform.position;
+            barrackRangeIndicator.transform.position = _selectedTower.transform.position;
             barrackRangeIndicator.transform.localScale =
-                new Vector3(_barrackTower.TowerRange * 2, 0.1f, _barrackTower.TowerRange * 2);
+                new Vector3(_selectedTower.TowerRange * 2, 0.1f, _selectedTower.TowerRange * 2);
             barrackRangeIndicator.SetActive(true);
         }
 
@@ -379,9 +375,16 @@ namespace ManagerControl
             var tt = t.towerLevels[selectedTower.TowerLevel];
             selectedTower.ReadyToBuild(tt.consMesh);
 
+            if (selectedTower.TowerType == Tower.Type.Barracks)
+            {
+                _selectedTower.GetComponent<BarracksTower>().UnitHealth = tt.health;
+            }
+
             await UniTask.Delay(1000);
 
-            selectedTower.Building(tt.towerMesh, tt.minDamage, tt.maxDamage, tt.attackRange, tt.attackDelay, tt.health);
+            selectedTower.Building(tt.towerMesh, tt.minDamage, tt.maxDamage, tt.attackRange, tt.attackDelay);
+
+            _selectedTower = null;
         }
     }
 }
