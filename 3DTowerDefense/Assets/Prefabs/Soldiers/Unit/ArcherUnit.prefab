@@ -3907,8 +3907,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9045900214068995865}
-  - component: {fileID: 1622410303651542641}
-  - component: {fileID: 6065330392677103720}
+  - component: {fileID: -4513717157240995635}
   - component: {fileID: -207301934430179544}
   m_Layer: 6
   m_Name: ArcherUnit
@@ -3933,7 +3932,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1622410303651542641
+--- !u!114 &-4513717157240995635
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3945,24 +3944,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37dc3ddf06a644fd19c3882460f50eb8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &6065330392677103720
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8360084230518535286}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 89d816a991c314199b1c8f830e9a9e16, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  attackAble: 0
-  lookObject: 1
-  smoothTurnSpeed: 0.1
-  targetLayer:
-    serializedVersion: 2
-    m_Bits: 256
+  smoothTurnSpeed: 10
 --- !u!114 &-207301934430179544
 MonoBehaviour:
   m_ObjectHideFlags: 0

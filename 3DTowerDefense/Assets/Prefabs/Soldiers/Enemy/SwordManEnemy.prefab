@@ -349,7 +349,6 @@ GameObject:
   - component: {fileID: 6269060457891663113}
   - component: {fileID: 1537043641030780071}
   - component: {fileID: 7433286837059750528}
-  - component: {fileID: -6016187871775544750}
   - component: {fileID: 4243633212556056026}
   m_Layer: 8
   m_Name: SwordManEnemy
@@ -462,26 +461,7 @@ MonoBehaviour:
   deathWithReference:
     m_PersistentCalls:
       m_Calls: []
-  isDead: 0
   disappearTime: 0
---- !u!114 &-6016187871775544750
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 10859800051177605}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 89d816a991c314199b1c8f830e9a9e16, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  attackAble: 0
-  lookObject: 1
-  smoothTurnSpeed: 0.1
-  targetLayer:
-    serializedVersion: 2
-    m_Bits: 64
 --- !u!114 &4243633212556056026
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -494,4 +474,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 558000a852120469fbe16d74920b59c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  targetLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  atkRange: 5
+  smoothTurnSpeed: 0.1
   destination: {fileID: 0}

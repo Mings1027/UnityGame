@@ -1,8 +1,9 @@
 using System;
 using AttackControl;
 using Cysharp.Threading.Tasks;
-using EnemyControl;
 using GameControl;
+using UnitControl;
+using UnitControl.EnemyControl;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
@@ -21,7 +22,6 @@ namespace ManagerControl
 
             public int minDamage;
             public int maxDamage;
-            public float atkRange;
             public int health;
         }
 
@@ -71,12 +71,12 @@ namespace ManagerControl
 
         private void SpawnEnemy()
         {
-            var e = StackObjectPool.Get<Enemy>(waves[_nextWave].name, spawnPoint.position);
+            var e = StackObjectPool.Get<EnemyUnit>(waves[_nextWave].name, spawnPoint.position);
             e.GetComponent<Health>().Init(waves[_nextWave].health);
             e.destination = destinationPoint;
 
             var w = waves[_nextWave];
-            e.GetComponent<TargetFinder>().SetUp(w.minDamage, w.maxDamage, w.atkRange, w.atkDelay);
+            e.UnitInit(w.minDamage, w.maxDamage, w.atkDelay);
         }
     }
 }

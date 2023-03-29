@@ -1,31 +1,28 @@
-using GameControl;
 using UnityEngine;
-using WeaponControl;
 
 namespace UnitControl
 {
-    public class ArcherUnit : Unit
+    public class ArcherUnit : MonoBehaviour
     {
-        protected override void CheckState()
+        private Transform _target;
+        private bool _isTargeting;
+
+        [SerializeField] private float smoothTurnSpeed;
+
+        private void LateUpdate()
         {
-            if (!targetFinder.IsTargeting || !targetFinder.attackAble) return;
-            Attack();
-            targetFinder.StartCoolDown();
+            if (!_isTargeting) return;
+            var targetPos = _target.position + _target.forward;
+            var dir = targetPos - transform.position;
+            var yRot = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
+            var lookRot = Quaternion.Euler(0, yRot, 0);
+            transform.rotation = Quaternion.Lerp(transform.rotation, lookRot, smoothTurnSpeed);
         }
 
-        protected override void Attack()
+        public void TargetUpdate(Transform t, bool isTargeting)
         {
-            StackObjectPool.Get("ArrowShootSound", transform.position);
-            var target = targetFinder.Target;
-            var t = target.position + target.forward;
-            SpawnArrow(t);
-        }
-
-        private void SpawnArrow(Vector3 endPos)
-        {
-            var startPos = transform.position;
-            var p = StackObjectPool.Get<Projectile>("UnitArrow", startPos);
-            p.Setting("Enemy", endPos, targetFinder.Damage);
+            _target = t;
+            _isTargeting = isTargeting;
         }
     }
 }

@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 5198208533031153745}
   - component: {fileID: 2564073691206786456}
   - component: {fileID: 832268650158483848}
-  - component: {fileID: 2595608266452113383}
   - component: {fileID: 4687016272046448172}
   m_Layer: 8
   m_Name: MageEnemy
@@ -106,26 +105,7 @@ MonoBehaviour:
   deathWithReference:
     m_PersistentCalls:
       m_Calls: []
-  isDead: 0
   disappearTime: 0
---- !u!114 &2595608266452113383
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7712616592404947846}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 89d816a991c314199b1c8f830e9a9e16, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  attackAble: 0
-  lookObject: 1
-  smoothTurnSpeed: 0.1
-  targetLayer:
-    serializedVersion: 2
-    m_Bits: 64
 --- !u!114 &4687016272046448172
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -138,6 +118,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 849ea757fc2324be58da4d452d28b25d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  targetLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  atkRange: 7
+  smoothTurnSpeed: 0.1
   destination: {fileID: 0}
 --- !u!1 &7713676065723812958
 GameObject:

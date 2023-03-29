@@ -2,6 +2,7 @@ using AttackControl;
 using Cysharp.Threading.Tasks;
 using GameControl;
 using UnitControl;
+using UnitControl.FriendlyControl;
 using UnityEngine;
 using UnityEngine.AI;
 using Random = UnityEngine.Random;
@@ -50,20 +51,17 @@ namespace TowerControl
                 if (_barracksUnits[i] != null) _barracksUnits[i].gameObject.SetActive(false);
 
                 UnitSpawnAndInit(i, UnitHealth);
-                _barracksUnits[i].GetComponent<TargetFinder>().SetUp(minDamage, maxDamage, range, delay);
+                _barracksUnits[i].UnitInit(minDamage, maxDamage, delay);
             }
         }
 
-        private void ReSpawn()
+        private void ReSpawn(BarracksUnit b)
         {
             if (isSold) return;
 
-            foreach (var t in _barracksUnits)
+            if (b.GetComponent<Health>().IsDead)
             {
-                if (t.GetComponent<Health>().IsDead)
-                {
-                    deadUnitCount++;
-                }
+                deadUnitCount++;
             }
 
             if (deadUnitCount < 3) return;

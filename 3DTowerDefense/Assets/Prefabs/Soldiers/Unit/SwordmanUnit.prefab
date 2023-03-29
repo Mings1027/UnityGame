@@ -380,7 +380,6 @@ GameObject:
   - component: {fileID: 6375777913767831454}
   - component: {fileID: 4147760253431929618}
   - component: {fileID: -4982384831364881312}
-  - component: {fileID: -8933750680431876243}
   - component: {fileID: 8316159348194480760}
   m_Layer: 6
   m_Name: SwordManUnit
@@ -454,7 +453,7 @@ NavMeshAgent:
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 360
-  m_StoppingDistance: 4
+  m_StoppingDistance: 3
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
@@ -495,24 +494,6 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   disappearTime: 0
---- !u!114 &-8933750680431876243
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7901291658597421272}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 89d816a991c314199b1c8f830e9a9e16, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  attackAble: 0
-  lookObject: 1
-  smoothTurnSpeed: 0.1
-  targetLayer:
-    serializedVersion: 2
-    m_Bits: 256
 --- !u!114 &8316159348194480760
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -525,5 +506,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 288b7560274594a4db9715d259f1eead, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  targetLayer:
+    serializedVersion: 2
+    m_Bits: 256
+  atkRange: 5
+  smoothTurnSpeed: 0.5
   isMoving: 0
   point: {x: 0, y: 0, z: 0}

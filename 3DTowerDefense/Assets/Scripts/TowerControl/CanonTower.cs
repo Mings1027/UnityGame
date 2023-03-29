@@ -34,18 +34,19 @@ namespace TowerControl
             StackObjectPool.Get("CanonShootSound", transform.position);
             if (TowerLevel != 4)
             {
-                SingleShoot(targetFinder.Target.position);
+                SingleShoot(target.position);
             }
             else
             {
-                MultiShoot(targetFinder.Target);
+                MultiShoot(target);
             }
         }
 
         private void SingleShoot(Vector3 endPos)
         {
+            StackObjectPool.Get("CanonSmoke", _singleShootPoints[TowerLevel].position + new Vector3(0, 1, 0));
             var m = StackObjectPool.Get<Projectile>("CanonMissile", _singleShootPoints[TowerLevel].position);
-            m.Setting("Ground", endPos, targetFinder.Damage);
+            m.Setting("Ground", endPos, Damage);
             if (m.TryGetComponent(out Canon u)) u.ChangeMesh(canonMeshFilters[TowerLevel]);
         }
 
@@ -53,8 +54,9 @@ namespace TowerControl
         {
             for (var i = 0; i < 3; i++)
             {
+                StackObjectPool.Get("CanonSmoke", _multiShootPoints[i].position + new Vector3(0, 1, 0));
                 var m = StackObjectPool.Get<Projectile>("CanonMissile", _multiShootPoints[i].position);
-                m.Setting("Ground", endPos.position + endPos.forward * Random.Range(min, max), targetFinder.Damage);
+                m.Setting("Ground", endPos.position + endPos.forward * Random.Range(min, max), Damage);
                 if (m.TryGetComponent(out Canon u)) u.ChangeMesh(canonMeshFilters[TowerLevel]);
             }
         }

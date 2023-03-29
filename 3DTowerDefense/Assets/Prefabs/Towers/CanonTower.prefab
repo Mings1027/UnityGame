@@ -315,7 +315,6 @@ GameObject:
   - component: {fileID: 2229747408957211237}
   - component: {fileID: 6072493077216855191}
   - component: {fileID: 7972377439174027485}
-  - component: {fileID: -7295429562089454869}
   - component: {fileID: 3876992649814622796}
   m_Layer: 9
   m_Name: CanonTower
@@ -368,6 +367,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   towerType: 2
+  targetLayer:
+    serializedVersion: 2
+    m_Bits: 256
   canonMeshFilters:
   - {fileID: 3300000, guid: 790b418366b065e40a30c085435acbc4, type: 3}
   - {fileID: 3300000, guid: 9874792431802014ca9be38ef8953a2f, type: 3}
@@ -394,24 +396,6 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
---- !u!114 &-7295429562089454869
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8402685592966021926}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 89d816a991c314199b1c8f830e9a9e16, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  attackAble: 0
-  lookObject: 0
-  smoothTurnSpeed: 0
-  targetLayer:
-    serializedVersion: 2
-    m_Bits: 256
 --- !u!114 &3876992649814622796
 MonoBehaviour:
   m_ObjectHideFlags: 0

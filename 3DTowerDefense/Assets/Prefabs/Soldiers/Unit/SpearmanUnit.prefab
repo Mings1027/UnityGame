@@ -349,7 +349,6 @@ GameObject:
   - component: {fileID: 4417539079662013207}
   - component: {fileID: -4740572082594550417}
   - component: {fileID: 1187569668635173033}
-  - component: {fileID: 8678424500145534307}
   - component: {fileID: 4417539079662013201}
   m_Layer: 6
   m_Name: SpearManUnit
@@ -463,26 +462,7 @@ MonoBehaviour:
   deathWithReference:
     m_PersistentCalls:
       m_Calls: []
-  isDead: 0
   disappearTime: 0
---- !u!114 &8678424500145534307
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4417539079662013206}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 89d816a991c314199b1c8f830e9a9e16, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  attackAble: 0
-  lookObject: 1
-  smoothTurnSpeed: 0.1
-  targetLayer:
-    serializedVersion: 2
-    m_Bits: 256
 --- !u!114 &4417539079662013201
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -495,6 +475,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 288b7560274594a4db9715d259f1eead, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  targetLayer:
+    serializedVersion: 2
+    m_Bits: 256
+  atkRange: 5
+  smoothTurnSpeed: 0.5
   isMoving: 0
   point: {x: 0, y: 0, z: 0}
 --- !u!1 &5333493300763414014
