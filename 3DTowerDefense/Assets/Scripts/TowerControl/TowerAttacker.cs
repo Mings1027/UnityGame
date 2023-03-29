@@ -7,8 +7,8 @@ namespace TowerControl
 {
     public abstract class TowerAttacker : Tower
     {
-        private Collider[] targetColliders;
-        private Tween delayTween;
+        private Collider[] _targetColliders;
+        private Tween _delayTween;
         private int _minDamage, _maxDamage;
         private float _atkRange;
         private bool _attackAble;
@@ -24,7 +24,7 @@ namespace TowerControl
         protected override void Awake()
         {
             base.Awake();
-            targetColliders = new Collider[5];
+            _targetColliders = new Collider[5];
         }
 
         protected override void OnEnable()
@@ -55,7 +55,7 @@ namespace TowerControl
 
         private void FindTarget()
         {
-            var c = SearchTarget.ClosestTarget(transform.position, _atkRange, targetColliders, targetLayer);
+            var c = SearchTarget.ClosestTarget(transform.position, _atkRange, _targetColliders, targetLayer);
             target = c.Item1;
             isTargeting = c.Item2;
         }
@@ -63,7 +63,7 @@ namespace TowerControl
         private void StartCoolDown()
         {
             _attackAble = false;
-            delayTween.Restart();
+            _delayTween.Restart();
         }
 
         public override void ReadyToBuild(MeshFilter consMeshFilter)
@@ -79,8 +79,8 @@ namespace TowerControl
             _minDamage = minDamage;
             _maxDamage = maxDamage;
             _atkRange = range;
-            delayTween?.Kill();
-            delayTween = DOVirtual.DelayedCall(delay, () => _attackAble = true).SetAutoKill(false);
+            _delayTween?.Kill();
+            _delayTween = DOVirtual.DelayedCall(delay, () => _attackAble = true).SetAutoKill(false);
         }
     }
 }

@@ -9,7 +9,7 @@ namespace UnitControl.FriendlyControl
         private static readonly int IsAttack = Animator.StringToHash("isAttack");
 
         private Animator _anim;
-        private Transform attackEffectPos;
+        private Transform _attackEffectPos;
 
         public bool isMoving;
         public Vector3 point;
@@ -19,7 +19,7 @@ namespace UnitControl.FriendlyControl
         {
             base.Awake();
             _anim = GetComponent<Animator>();
-            attackEffectPos = transform.GetChild(0);
+            _attackEffectPos = transform.GetChild(0);
         }
 
         protected override void OnEnable()
@@ -49,7 +49,7 @@ namespace UnitControl.FriendlyControl
         protected override void Attack()
         {
             _anim.SetTrigger(IsAttack);
-            StackObjectPool.Get("SwordSlashEffect", attackEffectPos.position,
+            StackObjectPool.Get("SwordSlashEffect", _attackEffectPos.position,
                 transform.rotation * Quaternion.Euler(0, 90, 0));
             //이 줄에 Slash 소리 스폰해야함
             if (target.TryGetComponent(out Health h))

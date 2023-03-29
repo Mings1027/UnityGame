@@ -1,14 +1,14 @@
-using System;
 using BuildControl;
 using Cysharp.Threading.Tasks;
 using GameControl;
+using ManagerControl;
 using TMPro;
 using TowerControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-namespace ManagerControl
+namespace UIControl
 {
     public class UIManager : Singleton<UIManager>, IPointerEnterHandler, IPointerExitHandler
     {

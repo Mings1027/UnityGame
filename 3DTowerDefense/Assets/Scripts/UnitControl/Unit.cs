@@ -8,8 +8,8 @@ namespace UnitControl
 {
     public abstract class Unit : MonoBehaviour
     {
-        private Collider[] targetColliders;
-        private Tween delayTween;
+        private Collider[] _targetColliders;
+        private Tween _delayTween;
         private int _minDamage, _maxDamage;
 
         protected bool attackAble;
@@ -27,7 +27,7 @@ namespace UnitControl
         protected virtual void Awake()
         {
             nav = GetComponent<NavMeshAgent>();
-            targetColliders = new Collider[5];
+            _targetColliders = new Collider[5];
         }
 
         protected virtual void OnEnable()
@@ -57,13 +57,13 @@ namespace UnitControl
         {
             _minDamage = minDamage;
             _maxDamage = maxDamage;
-            delayTween?.Kill();
-            delayTween = DOVirtual.DelayedCall(delay, () => attackAble = true).SetAutoKill(false);
+            _delayTween?.Kill();
+            _delayTween = DOVirtual.DelayedCall(delay, () => attackAble = true).SetAutoKill(false);
         }
 
         private void FindTarget()
         {
-            var c = SearchTarget.ClosestTarget(transform.position, atkRange, targetColliders, targetLayer);
+            var c = SearchTarget.ClosestTarget(transform.position, atkRange, _targetColliders, targetLayer);
             target = c.Item1;
             isTargeting = c.Item2;
         }
@@ -71,7 +71,7 @@ namespace UnitControl
         protected void StartCoolDown()
         {
             attackAble = false;
-            delayTween.Restart();
+            _delayTween.Restart();
         }
 
         private void LookTarget()
