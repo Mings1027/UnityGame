@@ -36,7 +36,7 @@ namespace TowerControl
             _collider = GetComponent<Collider>();
             _collider.enabled = false;
             _outline = GetComponent<Outline>();
-            _meshFilter = GetComponentInChildren<MeshFilter>(); 
+            _meshFilter = GetComponentInChildren<MeshFilter>();
         }
 
         protected virtual void OnEnable()
@@ -63,17 +63,17 @@ namespace TowerControl
             _outline.enabled = false;
         }
 
+        public void OnPointerDown(PointerEventData eventData)
+        {
+        }
+
         public void OnPointerUp(PointerEventData eventData)
         {
             if (isUpgrading) return;
             onOpenTowerEditPanelEvent?.Invoke(this, transform);
         }
 
-        public void OnPointerDown(PointerEventData eventData)
-        {
-        }
-
-        //==================================Custom function====================================================
+        //==================================Custom Method====================================================
         //======================================================================================================
 
         public void TowerLevelUp(int uniqueLevel)

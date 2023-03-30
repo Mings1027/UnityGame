@@ -180,6 +180,7 @@ GameObject:
   - component: {fileID: 4413993338551003391}
   - component: {fileID: 4411493770390680875}
   - component: {fileID: 4403026426740811467}
+  - component: {fileID: 6545926852812978768}
   m_Layer: 0
   m_Name: TB_Soldier_Spearman_Hand
   m_TagString: Untagged
@@ -252,6 +253,23 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &6545926852812978768
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4416543215115660371}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 433377ff9155d49c8a59d9b64200a862, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 256
+  hitBox: {fileID: 1882532506026746618}
+  hitBoxSize: 1
 --- !u!1 &4416860895421841417
 GameObject:
   m_ObjectHideFlags: 0
@@ -367,7 +385,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1882532506026746618}
   - {fileID: 4413937242033937489}
@@ -480,8 +498,7 @@ MonoBehaviour:
     m_Bits: 256
   atkRange: 5
   smoothTurnSpeed: 0.5
-  isMoving: 0
-  point: {x: 0, y: 0, z: 0}
+  meleeWeapon: {fileID: 6545926852812978768}
 --- !u!1 &5333493300763414014
 GameObject:
   m_ObjectHideFlags: 0

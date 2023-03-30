@@ -26,20 +26,13 @@ namespace UIControl
 
         public static bool pointer;
 
-        [SerializeField] private Transform towerBuildPoints;
-
         [SerializeField] private InputManager input;
-
+        [SerializeField] private Transform towerBuildPoints;
         [SerializeField] private TowerLevelManager[] towerLevelManagers;
-
         [SerializeField] private string[] towerNames;
-
         [SerializeField] private MeshFilter curTowerMesh;
-
         [SerializeField] private Mesh[] towerMesh;
-
         [SerializeField] private FollowWorld towerPanels;
-
         [SerializeField] private GameObject towerSelectPanel;
 
         [Header("Tower Edit")] [Space(10)] [SerializeField]
@@ -59,7 +52,6 @@ namespace UIControl
         private GameObject towerInfoPanel;
 
         [SerializeField] private TextMeshProUGUI headerField;
-
         [SerializeField] private TextMeshProUGUI contentField;
 
         [SerializeField] private GameObject towerRangeIndicator;
@@ -112,7 +104,7 @@ namespace UIControl
 
             input.onPauseEvent += Pause;
             input.onResumeEvent += Resume;
-            input.onMoveUnitEvent += MoveUnitToClickPosition;
+            input.onMoveUnitEvent += MoveUnit;
             input.onClosePanelEvent += CloseUI;
 
             towerInfoPanel.SetActive(false);
@@ -147,7 +139,7 @@ namespace UIControl
             Time.timeScale = 1;
         }
 
-        private void MoveUnitToClickPosition()
+        private void MoveUnit()
         {
             var ray = _cam.ScreenPointToRay(input.mousePos);
             if (Physics.Raycast(ray, out var hit))
@@ -157,7 +149,7 @@ namespace UIControl
                     if (!hit.collider.CompareTag("Ground")) return;
                     input.isMoveUnit = false;
                     barrackRangeIndicator.SetActive(false);
-                    _selectedTower.GetComponent<BarracksTower>().MoveUnit(hit.point);
+                    _selectedTower.GetComponent<BarracksTower>().MoveUnits(hit.point);
                 }
                 else
                 {

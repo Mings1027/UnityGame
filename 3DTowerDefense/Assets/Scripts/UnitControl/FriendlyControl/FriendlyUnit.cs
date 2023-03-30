@@ -4,7 +4,7 @@ namespace UnitControl.FriendlyControl
 {
     public abstract class FriendlyUnit : Unit
     {
-        private void Update()
+        protected virtual void Update()
         {
             if (!isTargeting) return;
             if (attackAble && Vector3.Distance(transform.position, target.position) <= nav.stoppingDistance)

@@ -96,10 +96,9 @@ namespace ManagerControl
                     {
                         onMoveUnitEvent?.Invoke();
                     }
-                    else if (Physics.Raycast(_ray, out var hit))
+                    else
                     {
-                        if (hit.collider.CompareTag("Ground"))
-                            onClosePanelEvent?.Invoke();
+                        onClosePanelEvent?.Invoke();
                     }
                 }
             }

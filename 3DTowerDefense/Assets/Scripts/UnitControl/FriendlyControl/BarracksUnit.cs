@@ -1,6 +1,7 @@
 using System;
 using GameControl;
 using UnityEngine;
+using WeaponControl;
 
 namespace UnitControl.FriendlyControl
 {
@@ -10,10 +11,11 @@ namespace UnitControl.FriendlyControl
 
         private Animator _anim;
         private Transform _attackEffectPos;
+        private Vector3 _mousePos;
+        private bool _isMoving;
 
-        public bool isMoving;
-        public Vector3 point;
         public event Action<BarracksUnit> onDeadEvent;
+        [SerializeField] private MeleeWeapon meleeWeapon;
 
         protected override void Awake()
         {
@@ -22,10 +24,14 @@ namespace UnitControl.FriendlyControl
             _attackEffectPos = transform.GetChild(0);
         }
 
-        protected override void OnEnable()
+        private void FixedUpdate()
         {
-            base.OnEnable();
-            InvokeRepeating(nameof(MoveToMousePosition), 0f, 0.5f);
+            if (!_isMoving) return;
+
+            if (nav.remainingDistance <= nav.stoppingDistance)
+            {
+                _isMoving = false;
+            }
         }
 
         private void OnDisable()
@@ -38,31 +44,22 @@ namespace UnitControl.FriendlyControl
             }
         }
 
-        private void OnTriggerEnter(Collider other)
-        {
-            if (other.CompareTag("Enemy"))
-            {
-                StackObjectPool.Get("SwordEffect", other.transform.position);
-            }
-        }
-
         protected override void Attack()
         {
+            if (_isMoving) return;
+
             _anim.SetTrigger(IsAttack);
             StackObjectPool.Get("SwordSlashEffect", _attackEffectPos.position,
                 transform.rotation * Quaternion.Euler(0, 90, 0));
             //이 줄에 Slash 소리 스폰해야함
-            if (target.TryGetComponent(out Health h))
-            {
-                h.GetHit(Damage, target.gameObject);
-            }
+            meleeWeapon.Attack(target, Damage);
         }
 
-        private void MoveToMousePosition()
+        public void GoToTargetPosition(Vector3 pos)
         {
-            if (!isMoving) return;
-            nav.SetDestination(point);
-            if (nav.remainingDistance <= nav.stoppingDistance) isMoving = false;
+            _isMoving = true;
+            _mousePos = pos;
+            nav.SetDestination(_mousePos);
         }
     }
 }

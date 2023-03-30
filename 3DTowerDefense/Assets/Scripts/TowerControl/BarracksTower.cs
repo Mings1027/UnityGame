@@ -1,7 +1,5 @@
-using AttackControl;
 using Cysharp.Threading.Tasks;
 using GameControl;
-using UnitControl;
 using UnitControl.FriendlyControl;
 using UnityEngine;
 using UnityEngine.AI;
@@ -11,7 +9,7 @@ namespace TowerControl
 {
     public class BarracksTower : TowerUnitAttacker
     {
-        private int deadUnitCount;
+        private int _deadUnitCount;
         private Vector3 _pos;
         private BarracksUnit[] _barracksUnits;
 
@@ -26,21 +24,24 @@ namespace TowerControl
         //==================================Custom Function====================================================
         //==================================Custom Function====================================================
 
-        public void MoveUnit(Vector3 pos)
+        public void MoveUnits(Vector3 pos)
         {
             foreach (var t in _barracksUnits)
             {
-                t.isMoving = true;
-                t.point = pos;
+                // t.GoToDestination(pos);
+                t.GoToTargetPosition(pos);
             }
         }
 
-        protected override void UnitSetUp()
+        protected override void UnitDisable()
         {
-            foreach (var t in _barracksUnits)
+            for (var i = 0; i < _barracksUnits.Length; i++)
             {
-                if (t != null && t.gameObject.activeSelf)
-                    t.gameObject.SetActive(false);
+                if (_barracksUnits[i] != null && _barracksUnits[i].gameObject.activeSelf)
+                {
+                    _barracksUnits[i].gameObject.SetActive(false);
+                    _barracksUnits[i] = null;
+                }
             }
         }
 
@@ -61,17 +62,17 @@ namespace TowerControl
 
             if (b.GetComponent<Health>().IsDead)
             {
-                deadUnitCount++;
+                _deadUnitCount++;
             }
 
-            if (deadUnitCount < 3) return;
+            if (_deadUnitCount < 3) return;
 
             ReSpawnTask().Forget();
         }
 
         private async UniTaskVoid ReSpawnTask()
         {
-            deadUnitCount = 0;
+            _deadUnitCount = 0;
             await UniTask.Delay(5000);
 
             for (var i = 0; i < _barracksUnits.Length; i++)

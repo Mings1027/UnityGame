@@ -4,13 +4,13 @@ namespace TowerControl
 {
     public abstract class TowerUnitAttacker : Tower
     {
-        protected abstract void UnitSetUp();
+        protected abstract void UnitDisable();
         protected abstract void UnitUpgrade(int minDamage, int maxDamage, float range, float delay);
 
         protected override void OnDisable()
         {
             base.OnDisable();
-            UnitSetUp();
+            UnitDisable();
         }
 
         public override void Building(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range,

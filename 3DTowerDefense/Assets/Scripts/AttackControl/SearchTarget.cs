@@ -4,8 +4,6 @@ namespace AttackControl
 {
     public class SearchTarget : MonoBehaviour
     {
-        private static GameObject targetObj;
-
         public static (Transform, bool) ClosestTarget(Vector3 pos, float range, Collider[] targetColliders,
             LayerMask targetLayer)
         {
@@ -13,21 +11,19 @@ namespace AttackControl
             if (size <= 0) return (null, false);
 
             var shortestDistance = Mathf.Infinity;
-            Transform nearestEnemy = null;
+            Transform nearestTarget = null;
 
             for (var i = 0; i < size; i++)
             {
-                if (targetColliders[i].gameObject == targetObj) continue;
                 var distanceToResult =
                     Vector3.SqrMagnitude(pos - targetColliders[i].transform.position);
                 if (distanceToResult >= shortestDistance) continue;
                 shortestDistance = distanceToResult;
-                nearestEnemy = targetColliders[i].transform;
+                nearestTarget = targetColliders[i].transform;
+                
             }
 
-            targetObj = nearestEnemy != null ? nearestEnemy.gameObject : null;
-
-            return (nearestEnemy, nearestEnemy != null);
+            return (nearestTarget, nearestTarget != null);
         }
     }
 }

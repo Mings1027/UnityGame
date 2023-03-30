@@ -24,7 +24,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 660336547995583447}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.8, y: 1.4, z: 1.9}
+  m_LocalPosition: {x: 0.8, y: 1.5, z: 2.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -42,6 +42,7 @@ GameObject:
   - component: {fileID: 4791770584468057903}
   - component: {fileID: 4757702531302941925}
   - component: {fileID: 4765815927614192531}
+  - component: {fileID: 3757445608704797434}
   m_Layer: 0
   m_Name: TB_Soldier_Swordman_Hand
   m_TagString: Untagged
@@ -114,6 +115,23 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &3757445608704797434
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4788582947294165273}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 433377ff9155d49c8a59d9b64200a862, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  enemyLayer:
+    serializedVersion: 2
+    m_Bits: 256
+  hitBox: {fileID: 1839090569684886007}
+  hitBoxSize: 1
 --- !u!1 &4788664271609423077
 GameObject:
   m_ObjectHideFlags: 0
@@ -398,7 +416,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1839090569684886007}
   - {fileID: 4783132248802709401}
@@ -511,5 +529,4 @@ MonoBehaviour:
     m_Bits: 256
   atkRange: 5
   smoothTurnSpeed: 0.5
-  isMoving: 0
-  point: {x: 0, y: 0, z: 0}
+  meleeWeapon: {fileID: 3757445608704797434}
