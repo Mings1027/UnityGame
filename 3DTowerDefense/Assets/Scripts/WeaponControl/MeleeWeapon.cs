@@ -26,10 +26,10 @@ namespace WeaponControl
             var size = Physics.OverlapSphereNonAlloc(hitBox.position, hitBoxSize, _attackCollier, enemyLayer);
             if (size <= 0) return;
 
-            for (var i = 0; i < size; i++)
+            if (target.TryGetComponent(out Health h))
             {
-                if (target.TryGetComponent(out Health h))
-                    h.GetHit(damage, target.gameObject);
+                StackObjectPool.Get("SwordEffect", hitBox.position);
+                h.GetHit(damage, target.gameObject);
             }
         }
     }

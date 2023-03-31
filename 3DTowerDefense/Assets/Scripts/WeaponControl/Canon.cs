@@ -23,7 +23,7 @@ namespace WeaponControl
             {
                 var position = transform.position;
                 StackObjectPool.Get("CanonEffect", position);
-                StackObjectPool.Get("CanonExplosionSound", position);
+                StackObjectPool.Get("CanonExplosionSFX", position);
                 var size = Physics.OverlapSphereNonAlloc(position, atkRange, _targetColliders, enemyLayer);
                 for (var i = 0; i < size; i++)
                 {

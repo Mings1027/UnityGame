@@ -31,7 +31,7 @@ namespace TowerControl
 
         protected override void Attack()
         {
-            StackObjectPool.Get("CanonShootSound", transform.position);
+            StackObjectPool.Get("CanonShootSFX", transform.position);
             if (TowerLevel != 4)
             {
                 SingleShoot(target.position);

@@ -59,7 +59,7 @@ namespace TowerControl
 
         protected override void Attack()
         {
-            StackObjectPool.Get("ArrowShootSound", transform.position);
+            StackObjectPool.Get("ArrowShootSFX", transform.position);
             if (TowerLevel != 4)
             {
                 SingleArcher();

@@ -9,7 +9,7 @@ namespace UnitControl.EnemyControl
         protected override void SpawnProjectile(Vector3 t)
         {
             var position = transform.position;
-            StackObjectPool.Get("ArrowShootSound", position);
+            StackObjectPool.Get("ArrowShootSFX", position);
             var p = StackObjectPool.Get<Projectile>("EnemyArrow", position, Quaternion.Euler(-90, 0, 0));
             p.Setting("Unit", t, Damage);
         }

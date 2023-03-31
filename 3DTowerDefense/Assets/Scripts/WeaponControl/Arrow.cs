@@ -11,7 +11,7 @@ namespace WeaponControl
             {
                 var position = transform.position;
                 StackObjectPool.Get("ArrowEffect", position);
-                StackObjectPool.Get("ArrowExplosionSound", position);
+                StackObjectPool.Get("ArrowExplosionSFX", position);
                 GetDamage(other);
                 gameObject.SetActive(false);
             }
