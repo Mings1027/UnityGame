@@ -28,7 +28,6 @@ namespace TowerControl
         {
             foreach (var t in _barracksUnits)
             {
-                // t.GoToDestination(pos);
                 t.GoToTargetPosition(pos);
             }
         }

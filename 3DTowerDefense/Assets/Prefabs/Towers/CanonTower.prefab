@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 4968439385519377057}
   - component: {fileID: 6455345781569939961}
   m_Layer: 0
-  m_Name: CanonTower_Lv1
+  m_Name: CanonTowerMesh
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -26,12 +26,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 323769950004589229}
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 9211979634268707228}
-  m_RootOrder: 2
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &4968439385519377057
 MeshFilter:
@@ -217,7 +217,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6335887997640218093}
   m_Layer: 9
-  m_Name: MultiShootPoints
+  m_Name: MultiShootPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -239,7 +239,7 @@ Transform:
   - {fileID: 2850680940284120589}
   - {fileID: 901477480802095748}
   m_Father: {fileID: 9211979634268707228}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7977503285579762295
 GameObject:
@@ -335,9 +335,9 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 4901110159420315465}
   - {fileID: 282438903915886337}
   - {fileID: 6335887997640218093}
-  - {fileID: 4901110159420315465}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -370,6 +370,8 @@ MonoBehaviour:
   targetLayer:
     serializedVersion: 2
     m_Bits: 256
+  singleShootPoint: {fileID: 282438903915886337}
+  multiShootPoint: {fileID: 6335887997640218093}
   canonMeshFilters:
   - {fileID: 3300000, guid: 790b418366b065e40a30c085435acbc4, type: 3}
   - {fileID: 3300000, guid: 9874792431802014ca9be38ef8953a2f, type: 3}
@@ -418,7 +420,7 @@ GameObject:
   m_Component:
   - component: {fileID: 282438903915886337}
   m_Layer: 9
-  m_Name: SingleShootPoints
+  m_Name: SingleShootPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -441,7 +443,7 @@ Transform:
   - {fileID: 1353929233658254902}
   - {fileID: 6364052388128808472}
   m_Father: {fileID: 9211979634268707228}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &9168222575468846267
 GameObject:

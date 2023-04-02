@@ -2,69 +2,63 @@ using System;
 using DG.Tweening;
 using UnityEngine;
 
-public class FollowWorld : MonoBehaviour
+namespace UIControl
 {
-    private Camera _cam;
-    private Sequence _showSequence, _hideSequence;
-    private Transform target;
-    private Vector3 pos;
-    private bool worldTarget;
-
-    [SerializeField] private Vector3 offset;
-    [SerializeField] private Ease scaleEase;
-    [SerializeField] private float duration;
-
-    private void Awake()
+    public class FollowWorld : MonoBehaviour
     {
-        _cam = Camera.main;
+        private Camera _cam;
+        private Sequence _showSequence, _hideSequence;
+        private Transform _target;
+        private Vector3 _pos;
 
-        _showSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-            .Append(transform.DOScale(0.5f, duration).From())
-            .SetEase(scaleEase);
+        [SerializeField] private Vector3 offset;
+        [SerializeField] private Ease scaleEase;
+        [SerializeField] private float duration;
 
-        _hideSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-            .Append(transform.DOScale(0f, duration))
-            .SetEase(scaleEase)
-            .OnComplete(() => gameObject.SetActive(false));
-    }
-
-    private void Update()
-    {
-        pos = worldTarget ? _cam.WorldToScreenPoint(target.position + offset) : target.position;
-
-        if (transform.position != pos)
+        private void Awake()
         {
-            transform.position = pos;
-        }
-    }
-
-    private void OnDestroy()
-    {
-        _showSequence.Kill();
-    }
-
-    public void WorldTarget(Transform t)
-    {
-        worldTarget = true;
-        target = t;
-    }
-
-    public void ScreenTarget(Transform t)
-    {
-        target = t;
-    }
-
-    public void ActivePanel()
-    {
-        _hideSequence.Pause();
-        if (!gameObject.activeSelf)
             gameObject.SetActive(true);
-        _showSequence.Restart();
-    }
+            _cam = Camera.main;
+            _showSequence = DOTween.Sequence().SetAutoKill(false).Pause()
+                .Append(transform.DOScale(0.5f, duration).From())
+                .SetEase(scaleEase);
 
-    public void DeActivePanel()
-    {
-        _showSequence.Pause();
-        _hideSequence.Restart();
+            _hideSequence = DOTween.Sequence().SetAutoKill(false).Pause()
+                .Append(transform.DOScale(0f, duration))
+                .SetEase(scaleEase)
+                .OnComplete(() => gameObject.SetActive(false));
+            gameObject.SetActive(false);
+        }
+
+        private void Update()
+        {
+            _pos = _cam.WorldToScreenPoint(_target.position + offset);
+            if (transform.position == _pos) return;
+            transform.position = _pos;
+        }
+
+        private void OnDestroy()
+        {
+            _showSequence.Kill();
+        }
+
+        public void WorldTarget(Transform t)
+        {
+            _target = t;
+        }
+
+        public void ActivePanel()
+        {
+            _hideSequence.Pause();
+            if (!gameObject.activeSelf)
+                gameObject.SetActive(true);
+            _showSequence.Restart();
+        }
+
+        public void DeActivePanel()
+        {
+            _showSequence.Pause();
+            _hideSequence.Restart();
+        }
     }
 }

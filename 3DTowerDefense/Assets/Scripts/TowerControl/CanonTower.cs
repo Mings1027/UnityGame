@@ -9,23 +9,24 @@ namespace TowerControl
         private Transform[] _singleShootPoints;
         private Transform[] _multiShootPoints;
 
+        [SerializeField] private Transform singleShootPoint;
+        [SerializeField] private Transform multiShootPoint;
         [SerializeField] private MeshFilter[] canonMeshFilters;
-
         [SerializeField] private int min, max;
 
         protected override void Awake()
         {
             base.Awake();
-            _singleShootPoints = new Transform[transform.GetChild(0).childCount];
+            _singleShootPoints = new Transform[singleShootPoint.childCount];
             for (var i = 0; i < _singleShootPoints.Length; i++)
             {
-                _singleShootPoints[i] = transform.GetChild(0).GetChild(i);
+                _singleShootPoints[i] = singleShootPoint.GetChild(i);
             }
 
-            _multiShootPoints = new Transform[transform.GetChild(1).childCount];
+            _multiShootPoints = new Transform[multiShootPoint.childCount];
             for (int i = 0; i < _multiShootPoints.Length; i++)
             {
-                _multiShootPoints[i] = transform.GetChild(1).GetChild(i);
+                _multiShootPoints[i] = multiShootPoint.GetChild(i);
             }
         }
 

@@ -21,7 +21,7 @@ namespace WeaponControl
             _startPos = transform.position;
         }
 
-        private void Update()
+        private void FixedUpdate()
         {
             var gravity = _lerp < 0.5f ? 1 : 1.5f;
             _lerp += Time.deltaTime * gravity * speed;

@@ -36,7 +36,7 @@ namespace TowerControl
             _collider = GetComponent<Collider>();
             _collider.enabled = false;
             _outline = GetComponent<Outline>();
-            _meshFilter = GetComponentInChildren<MeshFilter>();
+            _meshFilter = transform.GetChild(0).GetComponent<MeshFilter>();
         }
 
         protected virtual void OnEnable()

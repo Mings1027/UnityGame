@@ -9,17 +9,18 @@ namespace TowerControl
     {
         private Vector3 _targetDirection;
         private ArcherUnit[] _archerUnits;
+        private Transform[] _archerPos;
 
-        [SerializeField] private Transform[] archerPos;
+        [SerializeField] private Transform archerPosition;
 
         protected override void Awake()
         {
             base.Awake();
             _archerUnits = new ArcherUnit[2];
-            archerPos = new Transform[transform.GetChild(0).childCount];
-            for (var i = 0; i < archerPos.Length; i++)
+            _archerPos = new Transform[archerPosition.childCount];
+            for (var i = 0; i < _archerPos.Length; i++)
             {
-                archerPos[i] = transform.GetChild(0).GetChild(i);
+                _archerPos[i] = archerPosition.GetChild(i);
             }
         }
 
@@ -43,7 +44,7 @@ namespace TowerControl
             var count = TowerLevel == 4 ? 2 : 1;
             for (var i = 0; i < count; i++)
             {
-                _archerUnits[i] = StackObjectPool.Get<ArcherUnit>("ArcherUnit", archerPos[TowerLevel + i].position);
+                _archerUnits[i] = StackObjectPool.Get<ArcherUnit>("ArcherUnit", _archerPos[TowerLevel + i].position);
             }
         }
 
