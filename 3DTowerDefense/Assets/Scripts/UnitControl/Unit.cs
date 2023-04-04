@@ -18,6 +18,8 @@ namespace UnitControl
         protected Transform target;
         protected int Damage => Random.Range(_minDamage, _maxDamage);
 
+        private bool Matched { get; set; }
+
         [SerializeField] private LayerMask targetLayer;
         [SerializeField] private int atkRange;
         [SerializeField] [Range(0, 1)] private float smoothTurnSpeed;
@@ -27,13 +29,13 @@ namespace UnitControl
         protected virtual void Awake()
         {
             nav = GetComponent<NavMeshAgent>();
-            _targetColliders = new Collider[5];
+            _targetColliders = new Collider[1];
         }
 
         protected virtual void OnEnable()
         {
             attackAble = true;
-            InvokeRepeating(nameof(FindTarget), 1f, 1f);
+            InvokeRepeating(nameof(TrackTarget), 1f, 1f);
         }
 
         private void LateUpdate()
@@ -44,6 +46,7 @@ namespace UnitControl
 
         private void OnDisable()
         {
+            Matched = false;
             CancelInvoke();
         }
 
@@ -61,11 +64,34 @@ namespace UnitControl
             _delayTween = DOVirtual.DelayedCall(delay, () => attackAble = true).SetAutoKill(false);
         }
 
-        private void FindTarget()
+        private void Detection()
+        {
+            if (isTargeting && target != null && !target.gameObject.activeSelf)
+            {
+                isTargeting = false;
+                target = null;
+            }
+
+            if (isTargeting) return;
+
+            var (newTarget, foundTarget) =
+                SearchTarget.ClosestTarget(transform.position, atkRange, _targetColliders, targetLayer);
+
+            if (!foundTarget) return;
+
+            isTargeting = true;
+            target = newTarget;
+        }
+
+        private void TrackTarget()
         {
             var c = SearchTarget.ClosestTarget(transform.position, atkRange, _targetColliders, targetLayer);
+
+            // if (!c.Item2 || c.Item1.GetComponent<Unit>().Matched) return;
+
             target = c.Item1;
             isTargeting = c.Item2;
+            // Matched = true;
         }
 
         protected void StartCoolDown()

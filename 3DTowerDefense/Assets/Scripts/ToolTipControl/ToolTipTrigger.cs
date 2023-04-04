@@ -10,7 +10,7 @@ namespace ToolTipControl
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            ToolTipSystem.Instance.Show(content, header);
+            ToolTipSystem.Instance.Show(transform.position, content, header);
         }
 
         public void OnPointerExit(PointerEventData eventData)

@@ -15,6 +15,9 @@ namespace WeaponControl
                 GetDamage(other);
                 gameObject.SetActive(false);
             }
+
+            if (other.CompareTag("Ground"))
+                gameObject.SetActive(false);
         }
     }
 }

@@ -10,7 +10,7 @@ namespace UnitControl.EnemyControl
         {
             if (isTargeting)
             {
-                if (Vector3.Distance(transform.position, target.position) <= nav.stoppingDistance)
+                if (nav.remainingDistance <= nav.stoppingDistance)
                 {
                     if (!attackAble) return;
                     nav.isStopped = true;

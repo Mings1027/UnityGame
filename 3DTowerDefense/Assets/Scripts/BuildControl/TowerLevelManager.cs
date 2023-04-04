@@ -6,6 +6,7 @@ namespace BuildControl
     public class TowerLevelManager : ScriptableObject
     {
         public TowerLevel[] towerLevels;
+        public int[] coins;
 
         [System.Serializable]
         public class TowerLevel

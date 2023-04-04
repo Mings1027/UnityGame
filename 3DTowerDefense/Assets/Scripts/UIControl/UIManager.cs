@@ -1,3 +1,4 @@
+using System;
 using BuildControl;
 using Cysharp.Threading.Tasks;
 using GameControl;
@@ -46,12 +47,6 @@ namespace UIControl
         [SerializeField] private GameObject uniqueUpgradeButtons;
         [SerializeField] private GameObject sellButton;
         [SerializeField] private GameObject moveUnitButton;
-
-        // [Header("Tower Info Panel")] [Space(10)] [SerializeField]
-        // private GameObject towerInfoPanel;
-        //
-        // [SerializeField] private TextMeshProUGUI headerField;
-        // [SerializeField] private TextMeshProUGUI contentField;
 
         [SerializeField] private ToolTipSystem tooltip;
 
@@ -226,11 +221,6 @@ namespace UIControl
 
         private void ResetUI()
         {
-            // if (towerInfoPanel.activeSelf)
-            // {
-            //     towerInfoPanel.SetActive(false);
-            // }
-
             if (tooltip.gameObject.activeSelf)
             {
                 tooltip.Hide();
@@ -263,7 +253,6 @@ namespace UIControl
             curTowerMesh.sharedMesh = tempTowerLevel.towerMesh.sharedMesh;
 
             ActiveOkButton(tempTowerLevel.towerInfo, tempTowerLevel.towerName);
-            // towerInfoPanel.SetActive(true);
             _towerIndex = index;
         }
 
@@ -308,7 +297,8 @@ namespace UIControl
         {
             _isSell = true;
             var coin = towerLevelManagers[(int)_selectedTower.TowerType].towerLevels[_selectedTower.TowerLevel].coin;
-            ActiveOkButton("타워처분", $"이 타워를 처분하면 {coin} 골드가 반환됩니다.");
+            ActiveOkButton($"이 타워를 처분하면 {coin} 골드가 반환됩니다.", "타워처분");
+ 
         }
 
         private void SellTower()
@@ -339,8 +329,7 @@ namespace UIControl
 
         private void ActiveOkButton(string info, string towerName)
         {
-            TowerInfoSetText(info, towerName);
-            // towerInfoPanel.SetActive(true);
+            tooltip.Show(towerSelectPanel.transform.position, info, towerName);
             okButton.transform.position = _eventSystem.currentSelectedGameObject.transform.position;
             okButton.SetActive(true);
         }
@@ -355,22 +344,6 @@ namespace UIControl
             moveUnitIndicatorTransform.localScale =
                 new Vector3(_selectedTower.TowerRange * 2, 0.1f, _selectedTower.TowerRange * 2);
             moveUnitIndicator.enabled = true;
-        }
-
-        private void TowerInfoSetText(string content, string header = "")
-        {
-            tooltip.Show(content,header);
-            // if (string.IsNullOrEmpty(header))
-            // {
-            //     headerField.gameObject.SetActive(false);
-            // }
-            // else
-            // {
-            //     headerField.gameObject.SetActive(true);
-            //     headerField.text = header;
-            // }
-            //
-            // contentField.text = content;
         }
 
         private async UniTaskVoid TowerUpgrade(int level, Tower selectedTower)

@@ -7,9 +7,9 @@ namespace ToolTipControl
     {
         [SerializeField] private ToolTip toolTip;
 
-        public void Show(string content, string header ="")
+        public void Show(Vector3 pos,string content, string header ="")
         {
-            toolTip.SetText(content,header);
+            toolTip.SetText(pos,content,header);
             toolTip.gameObject.SetActive(true);
         }
 

@@ -7,8 +7,8 @@ namespace GameControl
     public class Health : MonoBehaviour
     {
         private Renderer _renderer;
-        private Sequence hitEffectSequence;
-        private Tween destroyTween;
+        private Sequence _hitEffectSequence;
+        private Tween _destroyTween;
 
         public bool IsDead { get; private set; }
 
@@ -23,12 +23,12 @@ namespace GameControl
             _renderer = GetComponentInChildren<Renderer>();
             _renderer.material.color = Color.white;
 
-            hitEffectSequence = DOTween.Sequence()
+            _hitEffectSequence = DOTween.Sequence()
                 .SetAutoKill(false)
                 .Append(_renderer.material.DOColor(Color.red, 0f))
                 .Append(_renderer.material.DOColor(Color.white, 1f))
                 .Pause();
-            destroyTween = DOVirtual.DelayedCall(disappearTime, () => gameObject.SetActive(false))
+            _destroyTween = DOVirtual.DelayedCall(disappearTime, () => gameObject.SetActive(false))
                 .SetAutoKill(false).Pause();
         }
 
@@ -43,7 +43,7 @@ namespace GameControl
         {
             if (IsDead) return;
             curHealth -= amount;
-            hitEffectSequence.Restart();
+            _hitEffectSequence.Restart();
             if (curHealth > 0)
             {
                 hitWithReference?.Invoke(sender);
@@ -52,7 +52,7 @@ namespace GameControl
             {
                 deathWithReference?.Invoke(sender);
                 IsDead = true;
-                destroyTween.Restart();
+                _destroyTween.Restart();
             }
         }
     }

@@ -39,6 +39,7 @@ namespace TowerControl
 
         protected override void Attack()
         {
+            print("attttack");
         }
     }
 }

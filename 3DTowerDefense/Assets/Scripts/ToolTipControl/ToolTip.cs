@@ -8,6 +8,8 @@ namespace ToolTipControl
     [ExecuteInEditMode]
     public class ToolTip : MonoBehaviour
     {
+        private Vector2 _position;
+
         [SerializeField] private TextMeshProUGUI headerField;
         [SerializeField] private TextMeshProUGUI contentField;
 
@@ -15,21 +17,25 @@ namespace ToolTipControl
 
         [SerializeField] private int wrapLimit;
 
-        private RectTransform _rectTransform;
+        // private RectTransform _rectTransform;
 
         private void Awake()
         {
-            _rectTransform = GetComponent<RectTransform>();
+            // _rectTransform = GetComponent<RectTransform>();
         }
 
-        public void SetText(string content, string header = "")
+        public void SetText(Vector3 pos, string content, string header = "")
         {
-            var pos = Mouse.current.position.ReadValue();
-            var x = pos.x / Screen.width;
-            var y = pos.y / Screen.height;
-            
-            _rectTransform.pivot = new Vector2(x, y);
-            transform.position = pos;
+            // var pos = Mouse.current.position.ReadValue();
+            // var x = pos.x / Screen.width;
+            // var y = pos.y / Screen.height;
+
+            // _rectTransform.pivot = new Vector2(x, y);
+            var screenWidth = Screen.width;
+            var x = pos.x > screenWidth * 0.5f ? pos.x - 500 : pos.x + 500;
+            var y = pos.y;
+
+            transform.position = new Vector3(x, y);
 
             if (string.IsNullOrEmpty(header))
             {
@@ -43,10 +49,10 @@ namespace ToolTipControl
 
             contentField.text = content;
 
-            var headerLength = headerField.text.Length;
-            var contentLength = contentField.text.Length;
+            // var headerLength = headerField.text.Length;
+            // var contentLength = contentField.text.Length;
 
-            layoutElement.enabled = headerLength > wrapLimit || contentLength > wrapLimit;
+            // layoutElement.enabled = headerLength > wrapLimit || contentLength > wrapLimit;
         }
     }
 }
