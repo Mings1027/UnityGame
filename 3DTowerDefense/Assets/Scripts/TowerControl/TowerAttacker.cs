@@ -1,5 +1,7 @@
+using System;
 using AttackControl;
 using DG.Tweening;
+using ManagerControl;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -34,8 +36,9 @@ namespace TowerControl
             InvokeRepeating(nameof(FindTarget), 1f, 1f);
         }
 
-        private void Update()
+        protected override void UnityUpdate()
         {
+            base.UnityUpdate();
             if (isUpgrading || !_attackAble || !isTargeting) return;
             Attack();
             StartCoolDown();
@@ -66,21 +69,21 @@ namespace TowerControl
             _delayTween.Restart();
         }
 
-        public override void ReadyToBuild(MeshFilter consMeshFilter)
+        public override void UnderConstruction(MeshFilter consMeshFilter)
         {
-            base.ReadyToBuild(consMeshFilter);
+            base.UnderConstruction(consMeshFilter);
             isUpgrading = true;
         }
 
-        public override void Building(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range,
+        public override void ConstructionFinished(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range,
             float delay)
         {
-            base.Building(towerMeshFilter, minDamage, maxDamage, range, delay);
+            base.ConstructionFinished(towerMeshFilter, minDamage, maxDamage, range, delay);
             _minDamage = minDamage;
             _maxDamage = maxDamage;
             _atkRange = range;
             _delayTween?.Kill();
-            _delayTween = DOVirtual.DelayedCall(delay, () => _attackAble = true).SetAutoKill(false);
+            _delayTween = DOVirtual.DelayedCall(delay, () => _attackAble = true, false).SetAutoKill(false);
         }
     }
 }

@@ -1,13 +1,18 @@
+using System;
 using UnityEngine;
 
 namespace UnitControl.EnemyControl
 {
     public abstract class EnemyUnit : Unit
     {
+        public int Number { get; set; }
         public Transform destination;
-        
-        private void Update()
+
+        public event Action<int> onFinishWaveCheckEvent;
+
+        protected override void UnityUpdate()
         {
+            base.UnityUpdate();
             if (isTargeting)
             {
                 if (nav.remainingDistance <= nav.stoppingDistance)
@@ -29,6 +34,13 @@ namespace UnitControl.EnemyControl
                 if (Vector3.Distance(transform.position, destination.position) <= nav.stoppingDistance)
                     gameObject.SetActive(false);
             }
+        }
+
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+            onFinishWaveCheckEvent?.Invoke(Number);
+            onFinishWaveCheckEvent = null;
         }
     }
 }

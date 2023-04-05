@@ -14,7 +14,7 @@ namespace WeaponControl
         private void Awake()
         {
             _meshFilter = GetComponentInChildren<MeshFilter>();
-            _targetColliders = new Collider[10];
+            _targetColliders = new Collider[5];
         }
 
         protected override void OnTriggerEnter(Collider other)

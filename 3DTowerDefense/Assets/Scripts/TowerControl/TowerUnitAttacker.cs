@@ -13,10 +13,10 @@ namespace TowerControl
             UnitDisable();
         }
 
-        public override void Building(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range,
+        public override void ConstructionFinished(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range,
             float delay)
         {
-            base.Building(towerMeshFilter, minDamage, maxDamage, range, delay);
+            base.ConstructionFinished(towerMeshFilter, minDamage, maxDamage, range, delay);
             UnitUpgrade(minDamage, maxDamage, range, delay);
         }
     }

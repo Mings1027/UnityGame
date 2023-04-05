@@ -6,19 +6,19 @@ namespace GameControl
 {
     public class TimedObjectDestroyer : MonoBehaviour
     {
-        private Tween disableTween;
+        private Tween _disableTween;
 
         [SerializeField] private float lifeTime;
 
         private void Awake()
         {
-            disableTween = DOVirtual.DelayedCall(lifeTime, () => gameObject.SetActive(false))
+            _disableTween = DOVirtual.DelayedCall(lifeTime, () => gameObject.SetActive(false), false)
                 .SetAutoKill(false);
         }
 
         private void OnEnable()
         {
-            disableTween.Restart();
+            _disableTween.Restart();
         }
     }
 }

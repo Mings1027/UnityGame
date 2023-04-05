@@ -1,9 +1,7 @@
-using System;
 using BuildControl;
 using Cysharp.Threading.Tasks;
 using GameControl;
 using ManagerControl;
-using TMPro;
 using ToolTipControl;
 using TowerControl;
 using UnityEngine;
@@ -30,9 +28,6 @@ namespace UIControl
 
         [SerializeField] private InputManager input;
         [SerializeField] private Transform towerBuildPoints;
-
-        [Header("Menu Panel")] [Space(10)] [SerializeField]
-        private GameObject menuPanel;
 
         [Header("Tower Panels")] [Space(10)] [SerializeField]
         private FollowWorld towerPanels;
@@ -103,17 +98,13 @@ namespace UIControl
 
             moveUnitButton.GetComponent<Button>().onClick.AddListener(MoveUnitButton);
 
-            input.onPauseEvent += Pause;
-            input.onResumeEvent += Resume;
             input.onMoveUnitEvent += MoveUnit;
             input.onClosePanelEvent += CloseUI;
 
-            // towerInfoPanel.SetActive(false);
             towerSelectPanel.SetActive(false);
             towerEditPanel.SetActive(false);
             okButton.gameObject.SetActive(false);
             towerPanels.WorldTarget(transform);
-            menuPanel.SetActive(false);
         }
 
         public void OnPointerEnter(PointerEventData eventData)
@@ -124,20 +115,6 @@ namespace UIControl
         public void OnPointerExit(PointerEventData eventData)
         {
             pointer = false;
-        }
-
-        private void Pause()
-        {
-            isPause = true;
-            menuPanel.SetActive(true);
-            Time.timeScale = 0;
-        }
-
-        private void Resume()
-        {
-            isPause = false;
-            menuPanel.SetActive(false);
-            Time.timeScale = 1;
         }
 
         private void MoveUnit()
@@ -183,11 +160,13 @@ namespace UIControl
 
             moveUnitButton.SetActive(_selectedTower.TowerType == Tower.Type.Barracks);
 
-            var towerRangeIndicatorTransform = towerRangeIndicator.transform;
-            towerRangeIndicatorTransform.position = _selectedTower.transform.position;
-            towerRangeIndicatorTransform.localScale =
+            var indicatorTransform = towerRangeIndicator.transform;
+            indicatorTransform.position = _selectedTower.transform.position;
+            indicatorTransform.localScale =
                 new Vector3(_selectedTower.TowerRange * 2, 0.1f, _selectedTower.TowerRange * 2);
-            towerRangeIndicator.enabled = true;
+
+            if (!towerRangeIndicator.enabled)
+                towerRangeIndicator.enabled = true;
 
             switch (t.TowerLevel)
             {
@@ -254,6 +233,14 @@ namespace UIControl
 
             ActiveOkButton(tempTowerLevel.towerInfo, tempTowerLevel.towerName);
             _towerIndex = index;
+
+            var indicatorTransform = towerRangeIndicator.transform;
+            indicatorTransform.position = curTowerMesh.transform.position;
+            indicatorTransform.localScale =
+                new Vector3(tempTowerLevel.attackRange * 2, 0.1f, tempTowerLevel.attackRange * 2);
+
+            if (towerRangeIndicator.enabled) return;
+            towerRangeIndicator.enabled = true;
         }
 
         private void UpgradeButton()
@@ -298,7 +285,6 @@ namespace UIControl
             _isSell = true;
             var coin = towerLevelManagers[(int)_selectedTower.TowerType].towerLevels[_selectedTower.TowerLevel].coin;
             ActiveOkButton($"이 타워를 처분하면 {coin} 골드가 반환됩니다.", "타워처분");
- 
         }
 
         private void SellTower()
@@ -352,7 +338,7 @@ namespace UIControl
             StackObjectPool.Get("BuildSmoke", selectedTower.transform.position);
             var t = towerLevelManagers[(int)selectedTower.TowerType];
             var tt = t.towerLevels[selectedTower.TowerLevel];
-            selectedTower.ReadyToBuild(tt.consMesh);
+            selectedTower.UnderConstruction(tt.consMesh);
 
             if (selectedTower.TowerType == Tower.Type.Barracks)
             {
@@ -361,7 +347,8 @@ namespace UIControl
 
             await UniTask.Delay(1000);
 
-            selectedTower.Building(tt.towerMesh, tt.minDamage, tt.maxDamage, tt.attackRange, tt.attackDelay);
+            selectedTower.ConstructionFinished(tt.towerMesh, tt.minDamage, tt.maxDamage, tt.attackRange,
+                tt.attackDelay);
         }
     }
 }

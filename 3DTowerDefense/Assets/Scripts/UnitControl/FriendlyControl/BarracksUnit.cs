@@ -34,14 +34,11 @@ namespace UnitControl.FriendlyControl
             }
         }
 
-        private void OnDisable()
+        protected override void OnDisable()
         {
+            base.OnDisable();
             onDeadEvent?.Invoke(this);
             onDeadEvent = null;
-            if (IsInvoking())
-            {
-                CancelInvoke();
-            }
         }
 
         protected override void Attack()

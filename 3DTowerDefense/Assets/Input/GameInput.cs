@@ -73,6 +73,42 @@ namespace TowerDefenseInput
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""TowerSelectOne"",
+                    ""type"": ""Button"",
+                    ""id"": ""32ce276b-99a9-4fcf-8b31-2f7cc0766bd1"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""TowerSelectTwo"",
+                    ""type"": ""Button"",
+                    ""id"": ""f2cfea86-0d97-4368-9bcf-42e813a9bf47"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""TowerSelectThree"",
+                    ""type"": ""Button"",
+                    ""id"": ""d2d7c88a-b8ba-493a-ba9c-51ad8d49d42d"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""TowerSelectFour"",
+                    ""type"": ""Button"",
+                    ""id"": ""bd262106-a50f-48a8-ba34-49256a26f419"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -194,6 +230,50 @@ namespace TowerDefenseInput
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Click"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""87fa96d1-148e-41eb-b175-3131657b08bd"",
+                    ""path"": ""<Keyboard>/1"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""TowerSelectOne"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""13942a25-ecee-48f8-82e1-133e1f0cb7ef"",
+                    ""path"": ""<Keyboard>/2"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""TowerSelectTwo"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a225fb3d-bfbe-44e4-a760-19c209d8fb83"",
+                    ""path"": ""<Keyboard>/3"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""TowerSelectThree"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""e6251af6-1820-4f96-8c0c-cf8cedb29be3"",
+                    ""path"": ""<Keyboard>/4"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""TowerSelectFour"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 }
@@ -745,6 +825,10 @@ namespace TowerDefenseInput
             m_GamePlay_Pause = m_GamePlay.FindAction("Pause", throwIfNotFound: true);
             m_GamePlay_MousePosition = m_GamePlay.FindAction("MousePosition", throwIfNotFound: true);
             m_GamePlay_Click = m_GamePlay.FindAction("Click", throwIfNotFound: true);
+            m_GamePlay_TowerSelectOne = m_GamePlay.FindAction("TowerSelectOne", throwIfNotFound: true);
+            m_GamePlay_TowerSelectTwo = m_GamePlay.FindAction("TowerSelectTwo", throwIfNotFound: true);
+            m_GamePlay_TowerSelectThree = m_GamePlay.FindAction("TowerSelectThree", throwIfNotFound: true);
+            m_GamePlay_TowerSelectFour = m_GamePlay.FindAction("TowerSelectFour", throwIfNotFound: true);
             // UI
             m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
             m_UI_Resume = m_UI.FindAction("Resume", throwIfNotFound: true);
@@ -822,6 +906,10 @@ namespace TowerDefenseInput
         private readonly InputAction m_GamePlay_Pause;
         private readonly InputAction m_GamePlay_MousePosition;
         private readonly InputAction m_GamePlay_Click;
+        private readonly InputAction m_GamePlay_TowerSelectOne;
+        private readonly InputAction m_GamePlay_TowerSelectTwo;
+        private readonly InputAction m_GamePlay_TowerSelectThree;
+        private readonly InputAction m_GamePlay_TowerSelectFour;
         public struct GamePlayActions
         {
             private @GameInput m_Wrapper;
@@ -831,6 +919,10 @@ namespace TowerDefenseInput
             public InputAction @Pause => m_Wrapper.m_GamePlay_Pause;
             public InputAction @MousePosition => m_Wrapper.m_GamePlay_MousePosition;
             public InputAction @Click => m_Wrapper.m_GamePlay_Click;
+            public InputAction @TowerSelectOne => m_Wrapper.m_GamePlay_TowerSelectOne;
+            public InputAction @TowerSelectTwo => m_Wrapper.m_GamePlay_TowerSelectTwo;
+            public InputAction @TowerSelectThree => m_Wrapper.m_GamePlay_TowerSelectThree;
+            public InputAction @TowerSelectFour => m_Wrapper.m_GamePlay_TowerSelectFour;
             public InputActionMap Get() { return m_Wrapper.m_GamePlay; }
             public void Enable() { Get().Enable(); }
             public void Disable() { Get().Disable(); }
@@ -855,6 +947,18 @@ namespace TowerDefenseInput
                     @Click.started -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnClick;
                     @Click.performed -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnClick;
                     @Click.canceled -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnClick;
+                    @TowerSelectOne.started -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnTowerSelectOne;
+                    @TowerSelectOne.performed -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnTowerSelectOne;
+                    @TowerSelectOne.canceled -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnTowerSelectOne;
+                    @TowerSelectTwo.started -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnTowerSelectTwo;
+                    @TowerSelectTwo.performed -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnTowerSelectTwo;
+                    @TowerSelectTwo.canceled -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnTowerSelectTwo;
+                    @TowerSelectThree.started -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnTowerSelectThree;
+                    @TowerSelectThree.performed -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnTowerSelectThree;
+                    @TowerSelectThree.canceled -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnTowerSelectThree;
+                    @TowerSelectFour.started -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnTowerSelectFour;
+                    @TowerSelectFour.performed -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnTowerSelectFour;
+                    @TowerSelectFour.canceled -= m_Wrapper.m_GamePlayActionsCallbackInterface.OnTowerSelectFour;
                 }
                 m_Wrapper.m_GamePlayActionsCallbackInterface = instance;
                 if (instance != null)
@@ -874,6 +978,18 @@ namespace TowerDefenseInput
                     @Click.started += instance.OnClick;
                     @Click.performed += instance.OnClick;
                     @Click.canceled += instance.OnClick;
+                    @TowerSelectOne.started += instance.OnTowerSelectOne;
+                    @TowerSelectOne.performed += instance.OnTowerSelectOne;
+                    @TowerSelectOne.canceled += instance.OnTowerSelectOne;
+                    @TowerSelectTwo.started += instance.OnTowerSelectTwo;
+                    @TowerSelectTwo.performed += instance.OnTowerSelectTwo;
+                    @TowerSelectTwo.canceled += instance.OnTowerSelectTwo;
+                    @TowerSelectThree.started += instance.OnTowerSelectThree;
+                    @TowerSelectThree.performed += instance.OnTowerSelectThree;
+                    @TowerSelectThree.canceled += instance.OnTowerSelectThree;
+                    @TowerSelectFour.started += instance.OnTowerSelectFour;
+                    @TowerSelectFour.performed += instance.OnTowerSelectFour;
+                    @TowerSelectFour.canceled += instance.OnTowerSelectFour;
                 }
             }
         }
@@ -998,6 +1114,10 @@ namespace TowerDefenseInput
             void OnPause(InputAction.CallbackContext context);
             void OnMousePosition(InputAction.CallbackContext context);
             void OnClick(InputAction.CallbackContext context);
+            void OnTowerSelectOne(InputAction.CallbackContext context);
+            void OnTowerSelectTwo(InputAction.CallbackContext context);
+            void OnTowerSelectThree(InputAction.CallbackContext context);
+            void OnTowerSelectFour(InputAction.CallbackContext context);
         }
         public interface IUIActions
         {

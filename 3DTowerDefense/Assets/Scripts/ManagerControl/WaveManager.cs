@@ -1,11 +1,9 @@
 using System;
-using AttackControl;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using GameControl;
-using UnitControl;
 using UnitControl.EnemyControl;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace ManagerControl
@@ -26,9 +24,11 @@ namespace ManagerControl
         }
 
         private bool _startGame;
-        private int _nextWave;
-        private int _count;
+        private int _curWave;
+        private int _enemiesIndex;
         private Button _startWaveButton;
+
+        private EnemyUnit[] _enemies;
 
         [SerializeField] private Wave[] waves;
         [SerializeField] private Transform spawnPoint;
@@ -36,8 +36,11 @@ namespace ManagerControl
 
         private void Awake()
         {
-            _nextWave = -1;
+            _curWave = -1;
             _startWaveButton = GetComponent<Button>();
+            var maxEnemiesCount = waves.Select(t => t.enemyCount).Prepend(0).Max();
+
+            _enemies = new EnemyUnit[maxEnemiesCount];
         }
 
         private void Start()
@@ -55,28 +58,48 @@ namespace ManagerControl
         {
             if (_startGame) return;
             _startGame = true;
-            _nextWave++;
-            _count = waves[_nextWave].enemyCount;
-            while (_count > 0)
+            _enemiesIndex = -1;
+            _curWave++;
+
+            var enemyCount = waves[_curWave].enemyCount;
+            while (enemyCount > 0)
             {
                 await UniTask.Delay(1000);
-                _count--;
+                enemyCount--;
+                _enemiesIndex++;
                 SpawnEnemy();
             }
-
-            _startWaveButton.gameObject.SetActive(true);
-
-            _startGame = false;
         }
 
         private void SpawnEnemy()
         {
-            var e = StackObjectPool.Get<EnemyUnit>(waves[_nextWave].name, spawnPoint.position);
-            e.GetComponent<Health>().Init(waves[_nextWave].health);
+            var e = StackObjectPool.Get<EnemyUnit>(waves[_curWave].name, spawnPoint.position);
+            e.GetComponent<Health>().Init(waves[_curWave].health);
             e.destination = destinationPoint;
+            e.Number = _enemiesIndex;
+            e.onFinishWaveCheckEvent += RemoveEnemies;
+            _enemies[_enemiesIndex] = e;
 
-            var w = waves[_nextWave];
+            var w = waves[_curWave];
             e.UnitInit(w.minDamage, w.maxDamage, w.atkDelay);
+        }
+
+        private void RemoveEnemies(int num)
+        {
+            _enemies[num] = null;
+            if (waves.Length - 1 == _curWave)
+            {
+                if (_enemies.All(x => x == null))
+                {
+                    print("Complete");
+                }
+            }
+            else
+            {
+                _startWaveButton.gameObject.SetActive(true);
+            }
+
+            _startGame = false;
         }
     }
 }

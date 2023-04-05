@@ -1,12 +1,13 @@
 using AttackControl;
 using DG.Tweening;
+using GameControl;
 using UnityEngine;
 using UnityEngine.AI;
 using Random = UnityEngine.Random;
 
 namespace UnitControl
 {
-    public abstract class Unit : MonoBehaviour
+    public abstract class Unit : PauseMonoBehaviour
     {
         private Collider[] _targetColliders;
         private Tween _delayTween;
@@ -38,13 +39,14 @@ namespace UnitControl
             InvokeRepeating(nameof(TrackTarget), 1f, 1f);
         }
 
-        private void LateUpdate()
+        protected override void UnityLateUpdate()
         {
+            base.UnityLateUpdate();
             if (!isTargeting) return;
             LookTarget();
         }
 
-        private void OnDisable()
+        protected virtual void OnDisable()
         {
             Matched = false;
             CancelInvoke();
@@ -62,25 +64,6 @@ namespace UnitControl
             _maxDamage = maxDamage;
             _delayTween?.Kill();
             _delayTween = DOVirtual.DelayedCall(delay, () => attackAble = true).SetAutoKill(false);
-        }
-
-        private void Detection()
-        {
-            if (isTargeting && target != null && !target.gameObject.activeSelf)
-            {
-                isTargeting = false;
-                target = null;
-            }
-
-            if (isTargeting) return;
-
-            var (newTarget, foundTarget) =
-                SearchTarget.ClosestTarget(transform.position, atkRange, _targetColliders, targetLayer);
-
-            if (!foundTarget) return;
-
-            isTargeting = true;
-            target = newTarget;
         }
 
         private void TrackTarget()

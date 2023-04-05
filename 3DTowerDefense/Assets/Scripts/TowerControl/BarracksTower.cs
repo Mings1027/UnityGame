@@ -73,7 +73,7 @@ namespace TowerControl
         {
             _deadUnitCount = 0;
             await UniTask.Delay(5000);
-
+print("respawn");
             for (var i = 0; i < _barracksUnits.Length; i++)
             {
                 UnitSpawnAndInit(i, UnitHealth);

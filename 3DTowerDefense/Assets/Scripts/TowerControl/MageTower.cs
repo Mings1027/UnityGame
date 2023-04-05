@@ -23,16 +23,16 @@ namespace TowerControl
             }
         }
 
-        public override void ReadyToBuild(MeshFilter consMeshFilter)
+        public override void UnderConstruction(MeshFilter consMeshFilter)
         {
-            base.ReadyToBuild(consMeshFilter);
+            base.UnderConstruction(consMeshFilter);
             crystal.position = transform.position;
         }
 
-        public override void Building(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range,
+        public override void ConstructionFinished(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range,
             float delay)
         {
-            base.Building(towerMeshFilter, minDamage, maxDamage, range, delay);
+            base.ConstructionFinished(towerMeshFilter, minDamage, maxDamage, range, delay);
             crystal.position = _crystalPositions[TowerLevel].position;
             _crystalMeshFilter.sharedMesh = crystalMesh[TowerLevel];
         }

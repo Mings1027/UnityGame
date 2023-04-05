@@ -1,10 +1,11 @@
 using System;
+using GameControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace TowerControl
 {
-    public abstract class Tower : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler,
+    public abstract class Tower : PauseMonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler,
         IPointerUpHandler
     {
         private Collider _collider;
@@ -82,14 +83,14 @@ namespace TowerControl
             else if (uniqueLevel > 0) TowerLevel = uniqueLevel;
         }
 
-        public virtual void ReadyToBuild(MeshFilter consMeshFilter)
+        public virtual void UnderConstruction(MeshFilter consMeshFilter)
         {
             isUpgrading = true;
             _outline.enabled = false;
             _meshFilter.sharedMesh = consMeshFilter.sharedMesh;
         }
 
-        public virtual void Building(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range, float delay)
+        public virtual void ConstructionFinished(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range, float delay)
         {
             isUpgrading = false;
             _meshFilter.sharedMesh = towerMeshFilter.sharedMesh;

@@ -3,19 +3,19 @@ using TowerDefenseInput;
 using UIControl;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 namespace ManagerControl
 {
     [CreateAssetMenu(menuName = "InputReader")]
     public class InputManager : ScriptableObject, GameInput.IGamePlayActions, GameInput.IUIActions
     {
-        private Camera _cam;
         private GameInput _gameInput;
 
-        private Ray _ray;
         // private event Action<InputActionMap> OnActionMapChange;
 
         public Vector2 mousePos;
+        public bool openTowerSelectPanel;
         public bool isMoveUnit;
 
 //===================================Game Play===========================================
@@ -42,8 +42,6 @@ namespace ManagerControl
 
         private void Init()
         {
-            _cam = Camera.main;
-
             mousePos = Vector2.zero;
             isMoveUnit = false;
 
@@ -80,8 +78,6 @@ namespace ManagerControl
         {
             if (context.performed)
             {
-                _ray = _cam.ScreenPointToRay(context.ReadValue<Vector2>());
-
                 mousePos = context.ReadValue<Vector2>();
             }
         }
@@ -103,6 +99,29 @@ namespace ManagerControl
                 }
             }
         }
+
+        public void OnTowerSelectOne(InputAction.CallbackContext context)
+        {
+            if (openTowerSelectPanel && context.started)
+            {
+            }
+        }
+
+        public void OnTowerSelectTwo(InputAction.CallbackContext context)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnTowerSelectThree(InputAction.CallbackContext context)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnTowerSelectFour(InputAction.CallbackContext context)
+        {
+            throw new NotImplementedException();
+        }
+
 
         //==================================UI Action Map=============================================
 

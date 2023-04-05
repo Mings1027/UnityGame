@@ -30,16 +30,16 @@ namespace TowerControl
             UnitDisable();
         }
 
-        public override void ReadyToBuild(MeshFilter consMeshFilter)
+        public override void UnderConstruction(MeshFilter consMeshFilter)
         {
-            base.ReadyToBuild(consMeshFilter);
+            base.UnderConstruction(consMeshFilter);
             UnitDisable();
         }
 
-        public override void Building(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range,
+        public override void ConstructionFinished(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range,
             float delay)
         {
-            base.Building(towerMeshFilter, minDamage, maxDamage, range, delay);
+            base.ConstructionFinished(towerMeshFilter, minDamage, maxDamage, range, delay);
 
             var count = TowerLevel == 4 ? 2 : 1;
             for (var i = 0; i < count; i++)
