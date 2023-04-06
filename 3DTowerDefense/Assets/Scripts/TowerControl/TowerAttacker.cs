@@ -9,6 +9,7 @@ namespace TowerControl
 {
     public abstract class TowerAttacker : Tower
     {
+        private GameManager _gameManager;
         private Collider[] _targetColliders;
         private Tween _delayTween;
         private int _minDamage, _maxDamage;
@@ -27,6 +28,7 @@ namespace TowerControl
         {
             base.Awake();
             _targetColliders = new Collider[5];
+            _gameManager = GameManager.Instance;
         }
 
         protected override void OnEnable()
@@ -36,9 +38,9 @@ namespace TowerControl
             InvokeRepeating(nameof(FindTarget), 1f, 1f);
         }
 
-        protected override void UnityUpdate()
+        private void Update()
         {
-            base.UnityUpdate();
+            if (_gameManager.IsPause) return;
             if (isUpgrading || !_attackAble || !isTargeting) return;
             Attack();
             StartCoolDown();

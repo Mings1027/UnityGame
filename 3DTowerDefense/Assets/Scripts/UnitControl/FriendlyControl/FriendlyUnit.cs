@@ -4,9 +4,9 @@ namespace UnitControl.FriendlyControl
 {
     public abstract class FriendlyUnit : Unit
     {
-        protected override void UnityUpdate()
+        private void Update()
         {
-            base.UnityUpdate();
+            if (gameManager.IsPause) return;
             if (!isTargeting) return;
             if (attackAble && Vector3.Distance(transform.position, target.position) <= nav.stoppingDistance)
             {

@@ -10,9 +10,9 @@ namespace UnitControl.EnemyControl
 
         public event Action<int> onFinishWaveCheckEvent;
 
-        protected override void UnityUpdate()
+        private void Update()
         {
-            base.UnityUpdate();
+            if (gameManager.IsPause) return;
             if (isTargeting)
             {
                 if (nav.remainingDistance <= nav.stoppingDistance)

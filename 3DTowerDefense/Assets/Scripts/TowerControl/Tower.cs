@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 
 namespace TowerControl
 {
-    public abstract class Tower : PauseMonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler,
+    public abstract class Tower : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler,
         IPointerUpHandler
     {
         private Collider _collider;

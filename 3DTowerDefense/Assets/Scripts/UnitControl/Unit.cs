@@ -1,18 +1,21 @@
+using System;
 using AttackControl;
 using DG.Tweening;
 using GameControl;
+using ManagerControl;
 using UnityEngine;
 using UnityEngine.AI;
 using Random = UnityEngine.Random;
 
 namespace UnitControl
 {
-    public abstract class Unit : PauseMonoBehaviour
+    public abstract class Unit : MonoBehaviour
     {
         private Collider[] _targetColliders;
         private Tween _delayTween;
         private int _minDamage, _maxDamage;
 
+        protected GameManager gameManager;
         protected bool attackAble;
         protected bool isTargeting;
         protected NavMeshAgent nav;
@@ -31,6 +34,7 @@ namespace UnitControl
         {
             nav = GetComponent<NavMeshAgent>();
             _targetColliders = new Collider[1];
+            gameManager = GameManager.Instance;
         }
 
         protected virtual void OnEnable()
@@ -39,9 +43,9 @@ namespace UnitControl
             InvokeRepeating(nameof(TrackTarget), 1f, 1f);
         }
 
-        protected override void UnityLateUpdate()
+        private void LateUpdate()
         {
-            base.UnityLateUpdate();
+            if (gameManager.IsPause) return;
             if (!isTargeting) return;
             LookTarget();
         }
