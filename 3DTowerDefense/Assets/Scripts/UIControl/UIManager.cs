@@ -33,6 +33,7 @@ namespace UIControl
         private FollowWorld towerPanels;
 
         [SerializeField] private GameObject towerSelectPanel;
+        [SerializeField] private Button[] towerSelectButtons;
         [SerializeField] private GameObject towerEditPanel;
         [SerializeField] private GameObject okButton;
 
@@ -78,11 +79,12 @@ namespace UIControl
                 _towerMesh[i] = towerLevelManagers[i].towerLevels[0].towerMesh.sharedMesh;
             }
 
-            for (var i = 0; i < towerSelectPanel.transform.childCount; i++)
+            towerSelectButtons = new Button[towerSelectPanel.transform.childCount];
+            for (var i = 0; i < towerSelectButtons.Length; i++)
             {
                 var index = i;
-                towerSelectPanel.transform.GetChild(i).GetComponent<Button>().onClick
-                    .AddListener(() => TowerSelectButton(index));
+                towerSelectButtons[i] = towerSelectPanel.transform.GetChild(i).GetComponent<Button>();
+                towerSelectButtons[i].onClick.AddListener(() => TowerSelectButton(index));
             }
 
             upgradeButton.GetComponent<Button>().onClick.AddListener(UpgradeButton);
@@ -139,6 +141,9 @@ namespace UIControl
         private void OpenTowerSelectPanel(Transform t)
         {
             ResetUI();
+
+            if (!input.selectTower) input.selectTower = true;
+
             _panelIsOpen = true;
             _isTower = false;
             _buildPos = t.position;
@@ -149,6 +154,24 @@ namespace UIControl
             towerSelectPanel.SetActive(true);
             towerEditPanel.SetActive(false);
             towerPanels.ActivePanel();
+        }
+
+        public void TowerSelectButton(int index)
+        {
+            var tempTowerLevel = towerLevelManagers[index].towerLevels[0];
+            curTowerMesh.transform.SetPositionAndRotation(_buildPos, _buildRot);
+            curTowerMesh.sharedMesh = tempTowerLevel.towerMesh.sharedMesh;
+
+            _towerIndex = index;
+            ActiveOkButton(tempTowerLevel.towerInfo, tempTowerLevel.towerName);
+
+            var indicatorTransform = towerRangeIndicator.transform;
+            indicatorTransform.position = curTowerMesh.transform.position;
+            indicatorTransform.localScale =
+                new Vector3(tempTowerLevel.attackRange * 2, 0.1f, tempTowerLevel.attackRange * 2);
+
+            if (towerRangeIndicator.enabled) return;
+            towerRangeIndicator.enabled = true;
         }
 
         private void OpenTowerEditPanel(Tower t, Transform trans)
@@ -194,12 +217,15 @@ namespace UIControl
         {
             if (!_panelIsOpen) return;
 
+            input.selectTower = false;
             _panelIsOpen = false;
             ResetUI();
         }
 
         private void ResetUI()
         {
+            input.LastIndex = -1;
+            
             if (tooltip.gameObject.activeSelf)
             {
                 tooltip.Hide();
@@ -225,23 +251,6 @@ namespace UIControl
             curTowerMesh.sharedMesh = null;
         }
 
-        private void TowerSelectButton(int index)
-        {
-            var tempTowerLevel = towerLevelManagers[index].towerLevels[0];
-            curTowerMesh.transform.SetPositionAndRotation(_buildPos, _buildRot);
-            curTowerMesh.sharedMesh = tempTowerLevel.towerMesh.sharedMesh;
-
-            ActiveOkButton(tempTowerLevel.towerInfo, tempTowerLevel.towerName);
-            _towerIndex = index;
-
-            var indicatorTransform = towerRangeIndicator.transform;
-            indicatorTransform.position = curTowerMesh.transform.position;
-            indicatorTransform.localScale =
-                new Vector3(tempTowerLevel.attackRange * 2, 0.1f, tempTowerLevel.attackRange * 2);
-
-            if (towerRangeIndicator.enabled) return;
-            towerRangeIndicator.enabled = true;
-        }
 
         private void UpgradeButton()
         {
@@ -259,7 +268,7 @@ namespace UIControl
             ActiveOkButton(towerLevel.towerInfo, towerLevel.towerName);
         }
 
-        private void OkButton()
+        public void OkButton()
         {
             if (_isTower)
             {
@@ -316,7 +325,15 @@ namespace UIControl
         private void ActiveOkButton(string info, string towerName)
         {
             tooltip.Show(towerSelectPanel.transform.position, info, towerName);
-            okButton.transform.position = _eventSystem.currentSelectedGameObject.transform.position;
+            if (_eventSystem.currentSelectedGameObject != null)
+            {
+                okButton.transform.position = _eventSystem.currentSelectedGameObject.transform.position;
+            }
+            else
+            {
+                okButton.transform.position = towerSelectButtons[_towerIndex].transform.position;
+            }
+
             okButton.SetActive(true);
         }
 

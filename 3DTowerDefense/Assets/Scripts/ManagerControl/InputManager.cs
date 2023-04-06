@@ -3,6 +3,7 @@ using TowerDefenseInput;
 using UIControl;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
 using UnityEngine.Serialization;
 
 namespace ManagerControl
@@ -11,11 +12,16 @@ namespace ManagerControl
     public class InputManager : ScriptableObject, GameInput.IGamePlayActions, GameInput.IUIActions
     {
         private GameInput _gameInput;
+        private bool readyToBuild;
+
+        public int LastIndex { get; set; }
+        private int towerIndex;
 
         // private event Action<InputActionMap> OnActionMapChange;
 
         public Vector2 mousePos;
-        public bool openTowerSelectPanel;
+
+        public bool selectTower;
         public bool isMoveUnit;
 
 //===================================Game Play===========================================
@@ -44,6 +50,7 @@ namespace ManagerControl
         {
             mousePos = Vector2.zero;
             isMoveUnit = false;
+            selectTower = false;
 
             ToggleActionMap(_gameInput.GamePlay);
         }
@@ -100,29 +107,52 @@ namespace ManagerControl
             }
         }
 
-        public void OnTowerSelectOne(InputAction.CallbackContext context)
+        public void OnOneTowerButton(InputAction.CallbackContext context)
         {
-            if (openTowerSelectPanel && context.started)
+            if (context.performed)
             {
+                SelectButton(0);
             }
         }
 
-        public void OnTowerSelectTwo(InputAction.CallbackContext context)
+        public void OnTwoTowerButton(InputAction.CallbackContext context)
         {
-            throw new NotImplementedException();
+            if (context.performed)
+            {
+                SelectButton(1);
+            }
         }
 
-        public void OnTowerSelectThree(InputAction.CallbackContext context)
+        public void OnThreeTowerButton(InputAction.CallbackContext context)
         {
-            throw new NotImplementedException();
+            if (context.performed)
+            {
+                SelectButton(2);
+            }
         }
 
-        public void OnTowerSelectFour(InputAction.CallbackContext context)
+        public void OnFourTowerButton(InputAction.CallbackContext context)
         {
-            throw new NotImplementedException();
+            if (context.performed)
+            {
+                SelectButton(3);
+            }
         }
 
-
+        private void SelectButton(int index)
+        {
+            if (!selectTower) return;
+            if (LastIndex != index)
+            {
+                UIManager.Instance.TowerSelectButton(index);
+                LastIndex = index;
+            }
+            else
+            {
+                UIManager.Instance.OkButton();
+                LastIndex = -1;
+            }
+        }
         //==================================UI Action Map=============================================
 
         public void OnResume(InputAction.CallbackContext context)
