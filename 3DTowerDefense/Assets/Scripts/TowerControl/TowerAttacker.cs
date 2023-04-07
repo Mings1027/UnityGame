@@ -9,13 +9,13 @@ namespace TowerControl
 {
     public abstract class TowerAttacker : Tower
     {
-        private GameManager _gameManager;
         private Collider[] _targetColliders;
         private Tween _delayTween;
         private int _minDamage, _maxDamage;
         private float _atkRange;
-        private bool _attackAble;
 
+        protected GameManager gameManager;
+        protected bool attackAble;
         protected int Damage => Random.Range(_minDamage, _maxDamage);
         protected Transform target;
         protected bool isTargeting;
@@ -28,20 +28,20 @@ namespace TowerControl
         {
             base.Awake();
             _targetColliders = new Collider[5];
-            _gameManager = GameManager.Instance;
+            gameManager = GameManager.Instance;
         }
 
         protected override void OnEnable()
         {
             base.OnEnable();
-            _attackAble = true;
+            attackAble = true;
             InvokeRepeating(nameof(FindTarget), 1f, 1f);
         }
 
-        private void Update()
+        protected virtual void Update()
         {
-            if (_gameManager.IsPause) return;
-            if (isUpgrading || !_attackAble || !isTargeting) return;
+            if (gameManager.IsPause) return;
+            if (isUpgrading || !attackAble || !isTargeting) return;
             Attack();
             StartCoolDown();
         }
@@ -65,9 +65,9 @@ namespace TowerControl
             isTargeting = c.Item2;
         }
 
-        private void StartCoolDown()
+        protected void StartCoolDown()
         {
-            _attackAble = false;
+            attackAble = false;
             _delayTween.Restart();
         }
 
@@ -85,7 +85,7 @@ namespace TowerControl
             _maxDamage = maxDamage;
             _atkRange = range;
             _delayTween?.Kill();
-            _delayTween = DOVirtual.DelayedCall(delay, () => _attackAble = true, false).SetAutoKill(false);
+            _delayTween = DOVirtual.DelayedCall(delay, () => attackAble = true, false).SetAutoKill(false);
         }
     }
 }

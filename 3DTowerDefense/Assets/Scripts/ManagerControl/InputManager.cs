@@ -13,16 +13,14 @@ namespace ManagerControl
     {
         private GameInput _gameInput;
         private bool readyToBuild;
-
-        public int LastIndex { get; set; }
         private int towerIndex;
-
+        
         // private event Action<InputActionMap> OnActionMapChange;
 
-        public Vector2 mousePos;
-
-        public bool selectTower;
-        public bool isMoveUnit;
+        public Vector2 MousePos { get; private set; }
+        public int LastIndex { get; set; }
+        public bool IsPressTowerButton { get; set; }
+        public bool IsMoveUnit { get; set; }
 
 //===================================Game Play===========================================
         public event Action<Vector2> onCameraMoveEvent;
@@ -48,9 +46,9 @@ namespace ManagerControl
 
         private void Init()
         {
-            mousePos = Vector2.zero;
-            isMoveUnit = false;
-            selectTower = false;
+            MousePos = Vector2.zero;
+            IsMoveUnit = false;
+            IsPressTowerButton = false;
 
             ToggleActionMap(_gameInput.GamePlay);
         }
@@ -85,24 +83,25 @@ namespace ManagerControl
         {
             if (context.performed)
             {
-                mousePos = context.ReadValue<Vector2>();
+                if (IsMoveUnit)
+                {
+                    MousePos = context.ReadValue<Vector2>();
+                }
             }
         }
 
         public void OnClick(InputAction.CallbackContext context)
         {
-            if (!UIManager.pointer)
+            if (UIManager.pointer) return;
+            if (context.canceled)
             {
-                if (context.canceled)
+                if (IsMoveUnit)
                 {
-                    if (isMoveUnit)
-                    {
-                        onMoveUnitEvent?.Invoke();
-                    }
-                    else
-                    {
-                        onClosePanelEvent?.Invoke();
-                    }
+                    onMoveUnitEvent?.Invoke();
+                }
+                else
+                {
+                    onClosePanelEvent?.Invoke();
                 }
             }
         }
@@ -141,7 +140,7 @@ namespace ManagerControl
 
         private void SelectButton(int index)
         {
-            if (!selectTower) return;
+            if (!IsPressTowerButton) return;
             if (LastIndex != index)
             {
                 UIManager.Instance.TowerSelectButton(index);

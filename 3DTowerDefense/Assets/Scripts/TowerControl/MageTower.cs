@@ -1,19 +1,24 @@
+using DG.Tweening;
 using UnityEngine;
 
 namespace TowerControl
 {
     public class MageTower : TowerAttacker
     {
+        private Sequence atkSequence;
+        private Material material;
         private MeshFilter _crystalMeshFilter;
         private Transform[] _crystalPositions;
-        
+
         [SerializeField] private Transform crystal;
         [SerializeField] private Transform crystalPosition;
         [SerializeField] private Mesh[] crystalMesh;
-        
+        private static readonly int EmissionColor = Shader.PropertyToID("_EmissionColor");
+
         protected override void Awake()
         {
             base.Awake();
+            material = crystal.GetComponent<Renderer>().material;
             _crystalMeshFilter = crystal.GetComponent<MeshFilter>();
 
             _crystalPositions = new Transform[crystalPosition.childCount];
@@ -21,6 +26,13 @@ namespace TowerControl
             {
                 _crystalPositions[i] = crystalPosition.GetChild(i);
             }
+
+            print(material.GetColor(EmissionColor));
+
+            atkSequence = DOTween.Sequence().SetAutoKill(false).Pause()
+                .Append(material.DOColor(material.GetColor(EmissionColor) * 2, 1))
+                .AppendCallback(Attack)
+                .Append(material.DOColor(material.GetColor(EmissionColor), 1));
         }
 
         public override void UnderConstruction(MeshFilter consMeshFilter)
@@ -35,6 +47,14 @@ namespace TowerControl
             base.ConstructionFinished(towerMeshFilter, minDamage, maxDamage, range, delay);
             crystal.position = _crystalPositions[TowerLevel].position;
             _crystalMeshFilter.sharedMesh = crystalMesh[TowerLevel];
+        }
+
+        protected override void Update()
+        {
+            if (gameManager.IsPause) return;
+            if (isUpgrading || !attackAble || !isTargeting) return;
+            atkSequence.Restart();
+            StartCoolDown();
         }
 
         protected override void Attack()
