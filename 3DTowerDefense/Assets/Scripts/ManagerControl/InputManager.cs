@@ -14,12 +14,10 @@ namespace ManagerControl
         private GameInput _gameInput;
         private bool readyToBuild;
         private int towerIndex;
-        
+
         // private event Action<InputActionMap> OnActionMapChange;
 
         public Vector2 MousePos { get; private set; }
-        public int LastIndex { get; set; }
-        public bool IsPressTowerButton { get; set; }
         public bool IsMoveUnit { get; set; }
 
 //===================================Game Play===========================================
@@ -28,6 +26,8 @@ namespace ManagerControl
         public event Action onPauseEvent;
         public event Action onMoveUnitEvent;
         public event Action onClosePanelEvent;
+
+        public event Action<int> onSelectTowerButtonEvent;
 
 //=======================================UI===========================================
         public event Action onResumeEvent;
@@ -48,7 +48,6 @@ namespace ManagerControl
         {
             MousePos = Vector2.zero;
             IsMoveUnit = false;
-            IsPressTowerButton = false;
 
             ToggleActionMap(_gameInput.GamePlay);
         }
@@ -110,7 +109,7 @@ namespace ManagerControl
         {
             if (context.performed)
             {
-                SelectButton(0);
+                onSelectTowerButtonEvent?.Invoke(0);
             }
         }
 
@@ -118,7 +117,7 @@ namespace ManagerControl
         {
             if (context.performed)
             {
-                SelectButton(1);
+                onSelectTowerButtonEvent?.Invoke(1);
             }
         }
 
@@ -126,7 +125,7 @@ namespace ManagerControl
         {
             if (context.performed)
             {
-                SelectButton(2);
+                onSelectTowerButtonEvent?.Invoke(2);
             }
         }
 
@@ -134,24 +133,10 @@ namespace ManagerControl
         {
             if (context.performed)
             {
-                SelectButton(3);
+                onSelectTowerButtonEvent?.Invoke(3);
             }
         }
 
-        private void SelectButton(int index)
-        {
-            if (!IsPressTowerButton) return;
-            if (LastIndex != index)
-            {
-                UIManager.Instance.TowerSelectButton(index);
-                LastIndex = index;
-            }
-            else
-            {
-                UIManager.Instance.OkButton();
-                LastIndex = -1;
-            }
-        }
         //==================================UI Action Map=============================================
 
         public void OnResume(InputAction.CallbackContext context)
