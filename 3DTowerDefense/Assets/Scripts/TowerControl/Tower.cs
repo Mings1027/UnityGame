@@ -10,12 +10,12 @@ namespace TowerControl
     {
         private Collider _collider;
         private Outline _outline;
+        private MeshFilter _initMesh;
 
         protected MeshFilter meshFilter;
         protected bool isUpgrading;
         protected bool isSold;
 
-        public event Action<MeshFilter> onResetMeshEvent;
         public event Action<Tower, Transform> onOpenTowerEditPanelEvent;
 
         public enum Type
@@ -38,6 +38,7 @@ namespace TowerControl
             _collider.enabled = false;
             _outline = GetComponent<Outline>();
             meshFilter = transform.GetChild(0).GetComponent<MeshFilter>();
+            _initMesh = meshFilter;
         }
 
         protected virtual void OnEnable()
@@ -49,8 +50,7 @@ namespace TowerControl
         {
             TowerLevel = -1;
             isSold = true;
-            onResetMeshEvent?.Invoke(meshFilter);
-            onResetMeshEvent = null;
+            meshFilter.sharedMesh = _initMesh.sharedMesh;
             onOpenTowerEditPanelEvent = null;
         }
 
@@ -90,7 +90,8 @@ namespace TowerControl
             meshFilter.sharedMesh = consMeshFilter.sharedMesh;
         }
 
-        public virtual void ConstructionFinished(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range, float delay)
+        public virtual void ConstructionFinished(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range,
+            float delay)
         {
             isUpgrading = false;
             meshFilter.sharedMesh = towerMeshFilter.sharedMesh;

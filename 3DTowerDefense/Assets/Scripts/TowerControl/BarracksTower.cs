@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using GameControl;
+using ManagerControl;
 using UnitControl.FriendlyControl;
 using UnityEngine;
 using UnityEngine.AI;
@@ -9,15 +10,20 @@ namespace TowerControl
 {
     public class BarracksTower : TowerUnitAttacker
     {
+        private Camera cam;
+        
         private int _deadUnitCount;
         private Vector3 _pos;
         private BarracksUnit[] _barracksUnits;
-
+        
         public int UnitHealth { get; set; }
 
+        [SerializeField] private InputManager input;
+        
         protected override void Awake()
         {
             base.Awake();
+            cam = Camera.main;
             _barracksUnits = new BarracksUnit[3];
         }
 

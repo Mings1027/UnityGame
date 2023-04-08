@@ -11,14 +11,18 @@ using UnityEngine.UI;
 
 namespace UIControl
 {
-    public class UIManager : Singleton<UIManager>, IPointerEnterHandler, IPointerExitHandler
+    public sealed class UIManager : Singleton<UIManager>, IPointerEnterHandler, IPointerExitHandler
     {
-        private Sequence towerSelectPanelSequence;
+        private Sequence _towerSelectPanelSequence;
+        private Tweener _moveTowerPanelTween;
 
         private EventSystem eventSystem;
         private Camera _cam;
-        private Tower _selectedTower;
+        private Tower _curSelectedTower;
+
+        private Transform _uiTarget;
         private Transform _buildingPoint;
+
         private Vector3 _buildPos;
         private Quaternion _buildRot;
         private int _towerIndex;
@@ -27,13 +31,18 @@ namespace UIControl
 
         private bool _isPressTowerButton;
         private bool _isSell, _isTower, _panelIsOpen;
+        private bool isPause;
+        private bool _isOpenSelectPanel;
 
-        public static bool isPause, pointer;
+        private string[] _towerNames;
+        private Mesh[] _towerMesh;
+
+        public static bool IsOnUI { get; private set; }
 
         [SerializeField] private InputManager input;
         [SerializeField] private Transform towerBuildPoints;
 
-        [SerializeField] private FollowWorld towerPanels;
+        [SerializeField] private Transform towerPanels;
 
         [Header("Tower Select Panel")] [Space(10)] [SerializeField]
         private GameObject towerSelectPanel;
@@ -56,12 +65,14 @@ namespace UIControl
         [SerializeField] private MeshRenderer moveUnitIndicator;
 
         [SerializeField] private TowerLevelManager[] towerLevelManagers;
-        private string[] _towerNames;
-        private Mesh[] _towerMesh;
 
         private void Awake()
         {
-            towerSelectPanelSequence = DOTween.Sequence().SetAutoKill(false);
+            eventSystem = EventSystem.current;
+            _cam = Camera.main;
+
+            _towerSelectPanelSequence = DOTween.Sequence().SetAutoKill(false);
+            _moveTowerPanelTween = towerPanels.transform.DOMove(transform.position, 0f).SetAutoKill(false);
 
             towerSelectButtons = new Button[towerSelectPanel.transform.childCount];
             for (var i = 0; i < towerSelectButtons.Length; i++)
@@ -70,19 +81,16 @@ namespace UIControl
                 towerSelectButtons[i] = towerSelectPanel.transform.GetChild(i).GetComponent<Button>();
                 towerSelectButtons[i].onClick.AddListener(() => TowerSelectButton(index));
 
-                var b = towerSelectButtons[i].transform;
-
-                towerSelectPanelSequence.Append(b.DOScale(1, 0.1f).From(0))
-                    // .Join(b.DOLocalMove(b.position, 0.1f).From(towerPanels.transform.position).SetRelative())
-                    .Pause();
+                _towerSelectPanelSequence
+                    .Append(towerSelectButtons[i].transform.DOScale(1, 0.1f).From(0))
+                    .Join(towerSelectButtons[i].transform.DOLocalMove(Vector3.zero, 0.1f).From());
             }
+
+            _towerSelectPanelSequence.Pause();
         }
 
         private void Start()
         {
-            eventSystem = EventSystem.current;
-            _cam = Camera.main;
-
             for (var i = 0; i < towerBuildPoints.transform.childCount; i++)
             {
                 var child = towerBuildPoints.transform.GetChild(i);
@@ -103,7 +111,6 @@ namespace UIControl
                 _towerMesh[i] = towerLevelManagers[i].towerLevels[0].towerMesh.sharedMesh;
             }
 
-
             upgradeButton.GetComponent<Button>().onClick.AddListener(UpgradeButton);
             for (var i = 0; i < uniqueUpgradeButtons.transform.childCount; i++)
             {
@@ -114,7 +121,6 @@ namespace UIControl
 
             sellButton.GetComponent<Button>().onClick.AddListener(SellButton);
             okButton.GetComponent<Button>().onClick.AddListener(OkButton);
-
             moveUnitButton.GetComponent<Button>().onClick.AddListener(MoveUnitButton);
 
             input.onMoveUnitEvent += MoveUnit;
@@ -124,20 +130,25 @@ namespace UIControl
             towerSelectPanel.SetActive(false);
             towerEditPanel.SetActive(false);
             okButton.gameObject.SetActive(false);
-            towerPanels.WorldTarget(transform);
+        }
+
+        private void Update()
+        {
+            if (!_panelIsOpen || _uiTarget == towerPanels) return;
+            _moveTowerPanelTween.ChangeEndValue(_cam.WorldToScreenPoint(_uiTarget.position), true).Restart();
         }
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            pointer = true;
+            IsOnUI = true;
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            pointer = false;
+            IsOnUI = false;
         }
 
-        #region TowerSelectPanel
+        #region Tower Select Panel
 
         private void OpenTowerSelectPanel(Transform t)
         {
@@ -149,13 +160,13 @@ namespace UIControl
             _buildPos = t.position;
             _buildRot = t.rotation;
             _buildingPoint = t;
-            towerPanels.WorldTarget(_buildingPoint);
-            _selectedTower = t.GetComponent<Tower>();
+            _uiTarget = _buildingPoint;
+            _curSelectedTower = t.GetComponent<Tower>();
             towerSelectPanel.SetActive(true);
             towerEditPanel.SetActive(false);
             towerPanels.gameObject.SetActive(true);
 
-            towerSelectPanelSequence.Restart();
+            _towerSelectPanelSequence.OnComplete(() => _isOpenSelectPanel = true).Restart();
         }
 
         private void TowerSelectButton(int index)
@@ -179,6 +190,7 @@ namespace UIControl
 
         private void SelectTowerButton(int index)
         {
+            if (!_isOpenSelectPanel) return;
             if (!_isPressTowerButton) return;
             if (_lastIndex != index)
             {
@@ -193,21 +205,21 @@ namespace UIControl
 
         #endregion
 
-        #region TowerEditPanel
+        #region Tower Edit Panel
 
         private void OpenTowerEditPanel(Tower t, Transform trans)
         {
             ResetUI();
-            _selectedTower = t;
+            _curSelectedTower = t;
             _panelIsOpen = true;
             _isTower = true;
 
-            moveUnitButton.SetActive(_selectedTower.TowerType == Tower.Type.Barracks);
+            moveUnitButton.SetActive(_curSelectedTower.TowerType == Tower.Type.Barracks);
 
             var indicatorTransform = towerRangeIndicator.transform;
-            indicatorTransform.position = _selectedTower.transform.position;
+            indicatorTransform.position = _curSelectedTower.transform.position;
             indicatorTransform.localScale =
-                new Vector3(_selectedTower.TowerRange * 2, 0.1f, _selectedTower.TowerRange * 2);
+                new Vector3(_curSelectedTower.TowerRange * 2, 0.1f, _curSelectedTower.TowerRange * 2);
 
             if (!towerRangeIndicator.enabled)
                 towerRangeIndicator.enabled = true;
@@ -228,7 +240,8 @@ namespace UIControl
                     break;
             }
 
-            towerPanels.WorldTarget(trans);
+            _uiTarget = trans;
+
             towerEditPanel.SetActive(true);
             towerSelectPanel.SetActive(false);
             towerPanels.gameObject.SetActive(true);
@@ -237,8 +250,8 @@ namespace UIControl
         private void UpgradeButton()
         {
             _isSell = false;
-            var towerLevel = towerLevelManagers[(int)_selectedTower.TowerType]
-                .towerLevels[_selectedTower.TowerLevel + 1];
+            var towerLevel = towerLevelManagers[(int)_curSelectedTower.TowerType]
+                .towerLevels[_curSelectedTower.TowerLevel + 1];
 
             ActiveOkButton(towerLevel.towerInfo, towerLevel.towerName);
         }
@@ -247,14 +260,14 @@ namespace UIControl
         private void UniqueUpgradeButton(int index)
         {
             _uniqueLevel = index;
-            var towerLevel = towerLevelManagers[(int)_selectedTower.TowerType].towerLevels[index];
+            var towerLevel = towerLevelManagers[(int)_curSelectedTower.TowerType].towerLevels[index];
             ActiveOkButton(towerLevel.towerInfo, towerLevel.towerName);
         }
 
         private void SellButton()
         {
             _isSell = true;
-            var coin = towerLevelManagers[(int)_selectedTower.TowerType].towerLevels[_selectedTower.TowerLevel].coin;
+            var coin = towerLevelManagers[(int)_curSelectedTower.TowerType].towerLevels[_curSelectedTower.TowerLevel].coin;
             ActiveOkButton($"이 타워를 처분하면 {coin} 골드가 반환됩니다.", "타워처분");
         }
 
@@ -264,39 +277,15 @@ namespace UIControl
             moveUnitButton.SetActive(false);
             ResetUI();
             var moveUnitIndicatorTransform = moveUnitIndicator.transform;
-            moveUnitIndicatorTransform.position = _selectedTower.transform.position;
+            moveUnitIndicatorTransform.position = _curSelectedTower.transform.position;
             moveUnitIndicatorTransform.localScale =
-                new Vector3(_selectedTower.TowerRange * 2, 0.1f, _selectedTower.TowerRange * 2);
+                new Vector3(_curSelectedTower.TowerRange * 2, 0.1f, _curSelectedTower.TowerRange * 2);
             moveUnitIndicator.enabled = true;
         }
 
         #endregion
 
-        #region Shared Button
-
-        
-
-        #endregion
-        private void OkButton()
-        {
-            if (_isTower)
-            {
-                if (_isSell)
-                {
-                    SellTower();
-                }
-                else
-                {
-                    TowerUpgrade(_uniqueLevel, _selectedTower).Forget();
-                }
-            }
-            else
-            {
-                TowerBuild();
-            }
-
-            CloseUI();
-        }
+        #region Init UI
 
         private void CloseUI()
         {
@@ -310,6 +299,7 @@ namespace UIControl
         private void ResetUI()
         {
             _lastIndex = -1;
+            _isOpenSelectPanel = false;
 
             if (tooltip.gameObject.activeSelf)
             {
@@ -336,31 +326,7 @@ namespace UIControl
             curTowerMesh.sharedMesh = null;
         }
 
-        private void SellTower()
-        {
-            _isSell = false;
-            _selectedTower.gameObject.SetActive(false);
-            var towerTransform = _selectedTower.transform;
-            var position = towerTransform.position;
-
-            StackObjectPool.Get("BuildSmoke", position);
-            StackObjectPool.Get("BuildingPoint", position, towerTransform.rotation);
-        }
-
-        private void TowerBuild()
-        {
-            _selectedTower = StackObjectPool.Get<Tower>(_towerNames[_towerIndex], _buildPos, _buildRot);
-            _buildingPoint.gameObject.SetActive(false);
-            TowerUpgrade(0, _selectedTower).Forget();
-
-            _selectedTower.onResetMeshEvent += ResetMesh;
-            _selectedTower.onOpenTowerEditPanelEvent += OpenTowerEditPanel;
-        }
-
-        private void ResetMesh(MeshFilter meshFilter)
-        {
-            meshFilter.sharedMesh = towerLevelManagers[_towerIndex].towerLevels[0].towerMesh.sharedMesh;
-        }
+        #endregion
 
         private void ActiveOkButton(string info, string towerName)
         {
@@ -372,17 +338,58 @@ namespace UIControl
             okButton.SetActive(true);
         }
 
+        private void OkButton()
+        {
+            if (_isTower)
+            {
+                if (_isSell)
+                {
+                    SellTower();
+                }
+                else
+                {
+                    TowerUpgrade(_uniqueLevel, _curSelectedTower).Forget();
+                }
+            }
+            else
+            {
+                TowerBuild();
+            }
+
+            CloseUI();
+        }
+
+        private void SellTower()
+        {
+            _isSell = false;
+            _curSelectedTower.gameObject.SetActive(false);
+            var towerTransform = _curSelectedTower.transform;
+            var position = towerTransform.position;
+
+            StackObjectPool.Get("BuildSmoke", position);
+            StackObjectPool.Get("BuildingPoint", position, towerTransform.rotation);
+        }
+
+        private void TowerBuild()
+        {
+            _curSelectedTower = StackObjectPool.Get<Tower>(_towerNames[_towerIndex], _buildPos, _buildRot);
+            _buildingPoint.gameObject.SetActive(false);
+            TowerUpgrade(0, _curSelectedTower).Forget();
+
+            _curSelectedTower.onOpenTowerEditPanelEvent += OpenTowerEditPanel;
+        }
+
         private void MoveUnit()
         {
             var ray = _cam.ScreenPointToRay(input.MousePos);
             if (Physics.Raycast(ray, out var hit))
             {
-                if (Vector3.Distance(_selectedTower.transform.position, hit.point) < _selectedTower.TowerRange)
+                if (Vector3.Distance(_curSelectedTower.transform.position, hit.point) < _curSelectedTower.TowerRange)
                 {
                     if (!hit.collider.CompareTag("Ground")) return;
                     input.IsMoveUnit = false;
                     moveUnitIndicator.enabled = false;
-                    _selectedTower.GetComponent<BarracksTower>().MoveUnits(hit.point);
+                    _curSelectedTower.GetComponent<BarracksTower>().MoveUnits(hit.point);
                 }
                 else
                 {
@@ -401,7 +408,7 @@ namespace UIControl
 
             if (selectedTower.TowerType == Tower.Type.Barracks)
             {
-                _selectedTower.GetComponent<BarracksTower>().UnitHealth = tt.health;
+                _curSelectedTower.GetComponent<BarracksTower>().UnitHealth = tt.health;
             }
 
             await UniTask.Delay(1000);

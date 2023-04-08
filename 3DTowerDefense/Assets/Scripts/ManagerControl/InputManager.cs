@@ -3,8 +3,6 @@ using TowerDefenseInput;
 using UIControl;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.Controls;
-using UnityEngine.Serialization;
 
 namespace ManagerControl
 {
@@ -91,7 +89,7 @@ namespace ManagerControl
 
         public void OnClick(InputAction.CallbackContext context)
         {
-            if (UIManager.pointer) return;
+            if (UIManager.IsOnUI) return;
             if (context.canceled)
             {
                 if (IsMoveUnit)

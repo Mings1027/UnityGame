@@ -27,8 +27,6 @@ namespace TowerControl
                 _crystalPositions[i] = crystalPosition.GetChild(i);
             }
 
-            print(material.GetColor(EmissionColor));
-
             atkSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(material.DOColor(material.GetColor(EmissionColor) * 2, 1))
                 .AppendCallback(Attack)
