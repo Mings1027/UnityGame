@@ -91,7 +91,7 @@ namespace TowerControl
         private void SpawnArrow(Vector3 startPos, Vector3 endPos)
         {
             var p = StackObjectPool.Get<Projectile>("UnitArrow", startPos);
-            p.Setting("Enemy", endPos, Damage);
+            p.Setting(endPos, Damage);
         }
     }
 }

@@ -83,7 +83,7 @@ namespace TowerControl
             }
             else
             {
-                Multi(target).Forget();
+                MultiShoot(target).Forget();
             }
         }
 
@@ -91,28 +91,17 @@ namespace TowerControl
         {
             StackObjectPool.Get("CanonSmoke", shootPos);
             var m = StackObjectPool.Get<Projectile>("CanonMissile", shootPos);
-            m.Setting("Ground", endPos, Damage);
+            m.Setting(endPos, Damage);
             if (m.TryGetComponent(out Canon u)) u.ChangeMesh(canonMeshFilters[TowerLevel]);
         }
 
-        private void MultiShoot(Transform endPos)
+        private async UniTaskVoid MultiShoot(Transform endPos)
         {
             for (var i = 0; i < 3; i++)
             {
                 StackObjectPool.Get("CanonSmoke", _multiShootPoints[i].position + new Vector3(0, 1, 0));
                 var m = StackObjectPool.Get<Projectile>("CanonMissile", _multiShootPoints[i].position);
-                m.Setting("Ground", endPos.position + endPos.forward * Random.Range(min, max), Damage);
-                if (m.TryGetComponent(out Canon u)) u.ChangeMesh(canonMeshFilters[TowerLevel]);
-            }
-        }
-
-        private async UniTaskVoid Multi(Transform endPos)
-        {
-            for (int i = 0; i < 3; i++)
-            {
-                StackObjectPool.Get("CanonSmoke", _multiShootPoints[i].position + new Vector3(0, 1, 0));
-                var m = StackObjectPool.Get<Projectile>("CanonMissile", _multiShootPoints[i].position);
-                m.Setting("Ground", endPos.position + endPos.forward * Random.Range(min, max), Damage);
+                m.Setting(endPos.position + endPos.forward * Random.Range(min, max), Damage);
                 if (m.TryGetComponent(out Canon u)) u.ChangeMesh(canonMeshFilters[TowerLevel]);
 
                 await UniTask.Delay(100, cancellationToken: cts.Token);

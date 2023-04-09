@@ -19,7 +19,7 @@ namespace WeaponControl
 
         protected override void OnTriggerEnter(Collider other)
         {
-            if (other.CompareTag("Ground"))
+            if (other.CompareTag(TagName))
             {
                 var position = transform.position;
                 StackObjectPool.Get("CanonEffect", position);

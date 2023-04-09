@@ -40,7 +40,6 @@ namespace UIControl
         public static bool IsOnUI { get; private set; }
 
         [SerializeField] private InputManager input;
-        [SerializeField] private Transform towerBuildPoints;
 
         [SerializeField] private Transform towerPanels;
 
@@ -91,13 +90,6 @@ namespace UIControl
 
         private void Start()
         {
-            for (var i = 0; i < towerBuildPoints.transform.childCount; i++)
-            {
-                var child = towerBuildPoints.transform.GetChild(i);
-                StackObjectPool.Get<BuildingPoint>("BuildingPoint", child.position, child.rotation)
-                    .onOpenTowerSelectPanelEvent += OpenTowerSelectPanel;
-            }
-
             _towerNames = new string[towerSelectPanel.transform.childCount];
             for (var i = 0; i < _towerNames.Length; i++)
             {
@@ -150,7 +142,7 @@ namespace UIControl
 
         #region Tower Select Panel
 
-        private void OpenTowerSelectPanel(Transform t)
+        public void OpenTowerSelectPanel(Transform t)
         {
             ResetUI();
 
@@ -267,7 +259,8 @@ namespace UIControl
         private void SellButton()
         {
             _isSell = true;
-            var coin = towerLevelManagers[(int)_curSelectedTower.TowerType].towerLevels[_curSelectedTower.TowerLevel].coin;
+            var coin = towerLevelManagers[(int)_curSelectedTower.TowerType].towerLevels[_curSelectedTower.TowerLevel]
+                .coin;
             ActiveOkButton($"이 타워를 처분하면 {coin} 골드가 반환됩니다.", "타워처분");
         }
 

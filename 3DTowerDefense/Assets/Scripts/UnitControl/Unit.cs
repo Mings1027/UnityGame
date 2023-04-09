@@ -1,7 +1,5 @@
-using System;
 using AttackControl;
 using DG.Tweening;
-using GameControl;
 using ManagerControl;
 using UnityEngine;
 using UnityEngine.AI;
@@ -21,8 +19,6 @@ namespace UnitControl
         protected NavMeshAgent nav;
         protected Transform target;
         protected int Damage => Random.Range(_minDamage, _maxDamage);
-
-        private bool Matched { get; set; }
 
         [SerializeField] private LayerMask targetLayer;
         [SerializeField] private int atkRange;
@@ -52,7 +48,6 @@ namespace UnitControl
 
         protected virtual void OnDisable()
         {
-            Matched = false;
             CancelInvoke();
         }
 
@@ -67,18 +62,15 @@ namespace UnitControl
             _minDamage = minDamage;
             _maxDamage = maxDamage;
             _delayTween?.Kill();
-            _delayTween = DOVirtual.DelayedCall(delay, () => attackAble = true).SetAutoKill(false);
+            _delayTween = DOVirtual.DelayedCall(delay, () => attackAble = true, false).SetAutoKill(false);
         }
 
         private void TrackTarget()
         {
             var c = SearchTarget.ClosestTarget(transform.position, atkRange, _targetColliders, targetLayer);
 
-            // if (!c.Item2 || c.Item1.GetComponent<Unit>().Matched) return;
-
             target = c.Item1;
             isTargeting = c.Item2;
-            // Matched = true;
         }
 
         protected void StartCoolDown()

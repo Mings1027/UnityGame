@@ -4,7 +4,6 @@ using Cysharp.Threading.Tasks;
 using GameControl;
 using UnitControl.EnemyControl;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace ManagerControl
 {
@@ -15,9 +14,7 @@ namespace ManagerControl
         {
             public string name;
             public int enemyCount;
-
             public float atkDelay;
-
             public int minDamage;
             public int maxDamage;
             public int health;
@@ -26,7 +23,6 @@ namespace ManagerControl
         private bool _startGame;
         private int _curWave;
         private int _enemiesIndex;
-        private Button _startWaveButton;
 
         private EnemyUnit[] _enemies;
 
@@ -37,21 +33,15 @@ namespace ManagerControl
         private void Awake()
         {
             _curWave = -1;
-            _startWaveButton = GetComponent<Button>();
             var maxEnemiesCount = waves.Select(t => t.enemyCount).Prepend(0).Max();
 
             _enemies = new EnemyUnit[maxEnemiesCount];
         }
 
-        private void Start()
-        {
-            _startWaveButton.onClick.AddListener(StartGame);
-        }
-
-        private void StartGame()
+        public void StartWave()
         {
             WaveStart().Forget();
-            _startWaveButton.gameObject.SetActive(false);
+            gameObject.SetActive(false);
         }
 
         private async UniTaskVoid WaveStart()
@@ -96,7 +86,7 @@ namespace ManagerControl
             }
             else
             {
-                _startWaveButton.gameObject.SetActive(true);
+                gameObject.SetActive(true);
             }
 
             _startGame = false;

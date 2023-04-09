@@ -7,14 +7,14 @@ namespace WeaponControl
     {
         private float _lerp;
         private Vector3 _startPos, _endPos, _curPos;
-
         private int _damage;
 
-        protected string hitName;
+        protected string TagName => tagName;
 
+        [SerializeField] private string tagName;
         [SerializeField] private AnimationCurve curve;
         [SerializeField] private float speed;
-        
+
         protected virtual void OnEnable()
         {
             _lerp = 0;
@@ -43,9 +43,8 @@ namespace WeaponControl
             }
         }
 
-        public void Setting(string n, Vector3 endPos, int damage)
+        public void Setting(Vector3 endPos, int damage)
         {
-            hitName = n;
             _endPos = endPos;
             _damage = damage;
         }

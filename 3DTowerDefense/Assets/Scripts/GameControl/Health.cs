@@ -1,3 +1,6 @@
+using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.Events;
@@ -6,9 +9,8 @@ namespace GameControl
 {
     public class Health : MonoBehaviour
     {
+        private CancellationTokenSource cts;
         private Renderer _renderer;
-        private Sequence _hitEffectSequence;
-        private Tween _destroyTween;
 
         public bool IsDead { get; private set; }
 
@@ -22,14 +24,17 @@ namespace GameControl
         {
             _renderer = GetComponentInChildren<Renderer>();
             _renderer.material.color = Color.white;
+        }
 
-            _hitEffectSequence = DOTween.Sequence()
-                .SetAutoKill(false)
-                .Append(_renderer.material.DOColor(Color.red, 0f))
-                .Append(_renderer.material.DOColor(Color.white, 1f))
-                .Pause();
-            _destroyTween = DOVirtual.DelayedCall(disappearTime, () => gameObject.SetActive(false))
-                .SetAutoKill(false).Pause();
+        private void OnEnable()
+        {
+            cts?.Dispose();
+            cts = new CancellationTokenSource();
+        }
+
+        private void OnDisable()
+        {
+            cts?.Cancel();
         }
 
         public void Init(int healthValue)
@@ -43,7 +48,7 @@ namespace GameControl
         {
             if (IsDead) return;
             curHealth -= amount;
-            _hitEffectSequence.Restart();
+            HitEffectTask().Forget();
             if (curHealth > 0)
             {
                 hitWithReference?.Invoke(sender);
@@ -52,8 +57,21 @@ namespace GameControl
             {
                 deathWithReference?.Invoke(sender);
                 IsDead = true;
-                _destroyTween.Restart();
+                DeadTask().Forget();
             }
+        }
+
+        private async UniTaskVoid HitEffectTask()
+        {
+            _renderer.material.color = Color.red;
+            await UniTask.Delay(1000, cancellationToken: cts.Token);
+            _renderer.material.color = Color.white;
+        }
+
+        private async UniTaskVoid DeadTask()
+        {
+            await UniTask.Delay(TimeSpan.FromSeconds(disappearTime), cancellationToken: cts.Token);
+            gameObject.SetActive(false);
         }
     }
 }
