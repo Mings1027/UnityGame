@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameControl;
 using UnitControl.EnemyControl;
@@ -23,6 +24,7 @@ namespace ManagerControl
         private bool _startGame;
         private int _curWave;
         private int _enemiesIndex;
+        private CancellationTokenSource cts;
 
         private EnemyUnit[] _enemies;
 
@@ -36,6 +38,17 @@ namespace ManagerControl
             var maxEnemiesCount = waves.Select(t => t.enemyCount).Prepend(0).Max();
 
             _enemies = new EnemyUnit[maxEnemiesCount];
+        }
+
+        private void OnEnable()
+        {
+            cts?.Dispose();
+            cts = new CancellationTokenSource();
+        }
+
+        private void OnDisable()
+        {
+            cts?.Cancel();
         }
 
         public void StartWave()

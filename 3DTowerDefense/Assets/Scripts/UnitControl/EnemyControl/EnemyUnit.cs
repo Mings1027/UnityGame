@@ -5,6 +5,7 @@ namespace UnitControl.EnemyControl
 {
     public abstract class EnemyUnit : Unit
     {
+        
         public int Number { get; set; }
         public Transform destination;
 

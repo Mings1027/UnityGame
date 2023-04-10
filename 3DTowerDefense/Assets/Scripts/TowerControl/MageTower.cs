@@ -1,5 +1,7 @@
 using DG.Tweening;
+using GameControl;
 using UnityEngine;
+using WeaponControl;
 
 namespace TowerControl
 {
@@ -33,6 +35,14 @@ namespace TowerControl
                 .Append(material.DOColor(material.GetColor(EmissionColor), 1));
         }
 
+        protected override void Update()
+        {
+            if (gameManager.IsPause) return;
+            if (isUpgrading || !attackAble || !isTargeting) return;
+            atkSequence.Restart();
+            StartCoolDown();
+        }
+
         public override void UnderConstruction(MeshFilter consMeshFilter)
         {
             base.UnderConstruction(consMeshFilter);
@@ -46,18 +56,13 @@ namespace TowerControl
             crystal.position = _crystalPositions[TowerLevel].position;
             _crystalMeshFilter.sharedMesh = crystalMesh[TowerLevel];
         }
-
-        protected override void Update()
-        {
-            if (gameManager.IsPause) return;
-            if (isUpgrading || !attackAble || !isTargeting) return;
-            atkSequence.Restart();
-            StartCoolDown();
-        }
-
+        
         protected override void Attack()
         {
-            print("attttack");
+            StackObjectPool.Get("MageShootSFX", transform.position);
+            StackObjectPool
+                .Get<Projectile>("MageMissile", _crystalPositions[TowerLevel].position + new Vector3(0, 3, 0))
+                .Init(target, Damage);
         }
     }
 }

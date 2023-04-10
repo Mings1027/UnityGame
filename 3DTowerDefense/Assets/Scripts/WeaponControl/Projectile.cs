@@ -5,35 +5,57 @@ namespace WeaponControl
 {
     public abstract class Projectile : MonoBehaviour
     {
-        private float _lerp;
-        private Vector3 _startPos, _endPos, _curPos;
+        private Transform _endPos;
+        private Vector3 _curPos, _startPos;
         private int _damage;
 
-        protected string TagName => tagName;
+        private float lerp;
 
+        protected float ProjectileSpeed => speed;
+        public Transform Target { get; set; }
+
+        [SerializeField] private string effect, explosion;
         [SerializeField] private string tagName;
         [SerializeField] private AnimationCurve curve;
         [SerializeField] private float speed;
 
         protected virtual void OnEnable()
         {
-            _lerp = 0;
+            lerp = 0;
             _startPos = transform.position;
         }
 
-        private void FixedUpdate()
+        protected virtual void FixedUpdate()
         {
-            var gravity = _lerp < 0.5f ? 1 : 1.5f;
-            _lerp += Time.deltaTime * gravity * speed;
-            _curPos = Vector3.Lerp(_startPos, _endPos, _lerp);
-            _curPos.y += curve.Evaluate(_lerp);
+            var gravity = lerp < 0.5f ? 1 : 1.5f;
+            lerp += Time.fixedDeltaTime * gravity * speed;
+            _curPos = Vector3.Lerp(_startPos, _endPos.position, lerp);
+            Parabola();
+        }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            if (other.CompareTag(tagName))
+            {
+                HitEffect(other);
+            }
+        }
+
+        private void Parabola()
+        {
+            _curPos.y += curve.Evaluate(lerp);
             var t = transform;
             var dir = (_curPos - t.position).normalized;
             t.position = _curPos;
             t.forward = dir;
         }
 
-        protected abstract void OnTriggerEnter(Collider other);
+        protected virtual void HitEffect(Collider col)
+        {
+            var pos = transform.position;
+            StackObjectPool.Get(effect, pos);
+            StackObjectPool.Get(explosion, pos);
+        }
 
         protected void GetDamage(Collider col)
         {
@@ -43,9 +65,15 @@ namespace WeaponControl
             }
         }
 
-        public void Setting(Vector3 endPos, int damage)
+        public void Setting(Transform endPos, int damage)
         {
             _endPos = endPos;
+            _damage = damage;
+        }
+
+        public void Init(Transform target, int damage)
+        {
+            Target = target;
             _damage = damage;
         }
     }

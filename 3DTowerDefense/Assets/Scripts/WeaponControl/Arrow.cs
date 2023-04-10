@@ -1,21 +1,14 @@
-using GameControl;
 using UnityEngine;
 
 namespace WeaponControl
 {
     public class Arrow : Projectile
     {
-        protected override void OnTriggerEnter(Collider other)
+        protected override void HitEffect(Collider col)
         {
-            if (other.CompareTag(TagName))
-            {
-                print(other.tag);
-                var position = transform.position;
-                StackObjectPool.Get("ArrowEffect", position);
-                StackObjectPool.Get("ArrowExplosionSFX", position);
-                GetDamage(other);
-                gameObject.SetActive(false);
-            }
+            base.HitEffect(col);
+            GetDamage(col);
+            gameObject.SetActive(false);
         }
     }
 }

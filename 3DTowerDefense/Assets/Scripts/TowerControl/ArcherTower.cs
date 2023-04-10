@@ -73,8 +73,8 @@ namespace TowerControl
 
         private void SingleArcher()
         {
-            var t = target.position + target.forward;
-            SpawnArrow(_archerUnits[0].transform.position, t);
+            StackObjectPool.Get<Projectile>("UnitArrow", _archerUnits[0].transform.position)
+                .Setting(target, Damage);
             _archerUnits[0].TargetUpdate(target, isTargeting);
         }
 
@@ -82,16 +82,10 @@ namespace TowerControl
         {
             for (var i = 0; i < 2; i++)
             {
-                var t = target.position + target.forward;
-                SpawnArrow(_archerUnits[i].transform.position, t);
+                StackObjectPool.Get<Projectile>("UnitArrow", _archerUnits[i].transform.position)
+                    .Setting(target, Damage);
                 _archerUnits[i].TargetUpdate(target, isTargeting);
             }
-        }
-
-        private void SpawnArrow(Vector3 startPos, Vector3 endPos)
-        {
-            var p = StackObjectPool.Get<Projectile>("UnitArrow", startPos);
-            p.Setting(endPos, Damage);
         }
     }
 }

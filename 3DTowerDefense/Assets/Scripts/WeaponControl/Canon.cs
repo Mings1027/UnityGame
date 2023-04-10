@@ -17,18 +17,13 @@ namespace WeaponControl
             _targetColliders = new Collider[5];
         }
 
-        protected override void OnTriggerEnter(Collider other)
+        protected override void HitEffect(Collider col)
         {
-            if (other.CompareTag(TagName))
+            base.HitEffect(col);
+            var size = Physics.OverlapSphereNonAlloc(transform.position, atkRange, _targetColliders, enemyLayer);
+            for (var i = 0; i < size; i++)
             {
-                var position = transform.position;
-                StackObjectPool.Get("CanonEffect", position);
-                StackObjectPool.Get("CanonExplosionSFX", position);
-                var size = Physics.OverlapSphereNonAlloc(position, atkRange, _targetColliders, enemyLayer);
-                for (var i = 0; i < size; i++)
-                {
-                    GetDamage(_targetColliders[i]);
-                }
+                GetDamage(_targetColliders[i]);
             }
         }
 
