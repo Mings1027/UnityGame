@@ -5,14 +5,15 @@ namespace WeaponControl
 {
     public abstract class Projectile : MonoBehaviour
     {
-        private Transform _endPos;
-        private Vector3 _curPos, _startPos;
-        private int _damage;
-
         private float lerp;
+        private Vector3 _curPos;
+        private Vector3 _startPos;
+
+        protected int _damage;
+        protected Vector3 _endPos;
 
         protected float ProjectileSpeed => speed;
-        public Transform Target { get; set; }
+        protected Transform target;
 
         [SerializeField] private string effect, explosion;
         [SerializeField] private string tagName;
@@ -25,24 +26,28 @@ namespace WeaponControl
             _startPos = transform.position;
         }
 
-        protected virtual void FixedUpdate()
+        private void FixedUpdate()
         {
-            var gravity = lerp < 0.5f ? 1 : 1.5f;
-            lerp += Time.fixedDeltaTime * gravity * speed;
-            _curPos = Vector3.Lerp(_startPos, _endPos.position, lerp);
-            Parabola();
+            ProjectilePath();
         }
 
         private void OnTriggerEnter(Collider other)
         {
             if (other.CompareTag(tagName))
             {
-                HitEffect(other);
+                var pos = transform.position;
+                StackObjectPool.Get(effect, pos);
+                StackObjectPool.Get(explosion, pos);
+                ProjectileHit(other);
+                gameObject.SetActive(false);
             }
         }
 
-        private void Parabola()
+        protected virtual void ProjectilePath()
         {
+            var gravity = lerp < 0.5f ? 1 : 1.5f;
+            lerp += Time.fixedDeltaTime * gravity * speed;
+            _curPos = Vector3.Lerp(_startPos, _endPos, lerp);
             _curPos.y += curve.Evaluate(lerp);
             var t = transform;
             var dir = (_curPos - t.position).normalized;
@@ -50,31 +55,20 @@ namespace WeaponControl
             t.forward = dir;
         }
 
-        protected virtual void HitEffect(Collider col)
+        protected virtual void ProjectileHit(Collider col)
         {
-            var pos = transform.position;
-            StackObjectPool.Get(effect, pos);
-            StackObjectPool.Get(explosion, pos);
+            Damage(col);
         }
 
-        protected void GetDamage(Collider col)
+        protected void Damage(Collider col)
         {
             if (col.TryGetComponent(out Health h))
             {
-                h.GetHit(_damage, col.gameObject);
+                h.TakeDamage(_damage, col.gameObject);
             }
         }
 
-        public void Setting(Transform endPos, int damage)
-        {
-            _endPos = endPos;
-            _damage = damage;
-        }
-
-        public void Init(Transform target, int damage)
-        {
-            Target = target;
-            _damage = damage;
-        }
+        public abstract void Init(Transform t, int damage);
+        
     }
 }

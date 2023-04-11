@@ -29,7 +29,7 @@ namespace WeaponControl
             if (target.TryGetComponent(out Health h))
             {
                 StackObjectPool.Get("SwordEffect", hitBox.position);
-                h.GetHit(damage, target.gameObject);
+                h.TakeDamage(damage, target.gameObject);
             }
         }
     }

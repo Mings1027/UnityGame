@@ -11,7 +11,7 @@ namespace UnitControl.EnemyControl
             var position = transform.position;
             StackObjectPool.Get("ArrowShootSFX", position);
             var p = StackObjectPool.Get<Projectile>("EnemyArrow", position, Quaternion.Euler(-90, 0, 0));
-            p.Setting(t, Damage);
+            p.Init(t, Damage);
         }
     }
 }

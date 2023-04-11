@@ -56,12 +56,13 @@ namespace TowerControl
             crystal.position = _crystalPositions[TowerLevel].position;
             _crystalMeshFilter.sharedMesh = crystalMesh[TowerLevel];
         }
-        
+
         protected override void Attack()
         {
+            if (!isTargeting) return;
             StackObjectPool.Get("MageShootSFX", transform.position);
             StackObjectPool
-                .Get<Projectile>("MageMissile", _crystalPositions[TowerLevel].position + new Vector3(0, 3, 0))
+                .Get<Projectile>("MageBullet", _crystalPositions[TowerLevel].position + new Vector3(0, 3, 0))
                 .Init(target, Damage);
         }
     }

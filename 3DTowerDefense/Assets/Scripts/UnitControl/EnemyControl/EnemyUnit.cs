@@ -5,7 +5,6 @@ namespace UnitControl.EnemyControl
 {
     public abstract class EnemyUnit : Unit
     {
-        
         public int Number { get; set; }
         public Transform destination;
 
@@ -16,7 +15,7 @@ namespace UnitControl.EnemyControl
             if (gameManager.IsPause) return;
             if (isTargeting)
             {
-                if (nav.remainingDistance <= nav.stoppingDistance)
+                if (Vector3.Distance(transform.position, target.position) <= AtkRange)
                 {
                     if (!attackAble) return;
                     nav.isStopped = true;

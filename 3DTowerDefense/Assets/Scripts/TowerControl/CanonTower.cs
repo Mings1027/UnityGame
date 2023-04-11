@@ -90,9 +90,9 @@ namespace TowerControl
         private void SingleShoot(Transform endPos)
         {
             StackObjectPool.Get("CanonSmoke", shootPos);
-            var m = StackObjectPool.Get<Projectile>("CanonMissile", shootPos);
-            m.Setting(endPos, Damage);
-            if (m.TryGetComponent(out Canon u)) u.ChangeMesh(canonMeshFilters[TowerLevel]);
+            var m = StackObjectPool.Get<Projectile>("CanonBullet", shootPos);
+            m.Init(endPos, Damage);
+            if (m.TryGetComponent(out CanonBullet u)) u.ChangeMesh(canonMeshFilters[TowerLevel]);
         }
 
         private async UniTaskVoid MultiShoot(Transform endPos)
@@ -100,9 +100,9 @@ namespace TowerControl
             for (var i = 0; i < 3; i++)
             {
                 StackObjectPool.Get("CanonSmoke", _multiShootPoints[i].position + new Vector3(0, 1, 0));
-                var m = StackObjectPool.Get<Projectile>("CanonMissile", _multiShootPoints[i].position);
-                m.Setting(endPos, Damage);
-                if (m.TryGetComponent(out Canon u)) u.ChangeMesh(canonMeshFilters[TowerLevel]);
+                var m = StackObjectPool.Get<Projectile>("CanonBullet", _multiShootPoints[i].position);
+                m.Init(endPos, Damage);
+                if (m.TryGetComponent(out CanonBullet u)) u.ChangeMesh(canonMeshFilters[TowerLevel]);
 
                 await UniTask.Delay(100, cancellationToken: cts.Token);
             }

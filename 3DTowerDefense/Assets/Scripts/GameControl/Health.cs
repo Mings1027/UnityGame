@@ -44,7 +44,7 @@ namespace GameControl
             IsDead = false;
         }
 
-        public void GetHit(int amount, GameObject sender)
+        public void TakeDamage(int amount, GameObject sender)
         {
             if (IsDead) return;
             curHealth -= amount;

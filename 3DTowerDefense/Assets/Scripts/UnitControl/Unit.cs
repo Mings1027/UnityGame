@@ -19,6 +19,7 @@ namespace UnitControl
         protected NavMeshAgent nav;
         protected Transform target;
         protected int Damage => Random.Range(_minDamage, _maxDamage);
+        protected int AtkRange => atkRange;
 
         [SerializeField] private LayerMask targetLayer;
         [SerializeField] private int atkRange;
