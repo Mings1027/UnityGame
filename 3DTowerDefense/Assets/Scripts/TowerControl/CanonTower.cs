@@ -4,7 +4,6 @@ using DG.Tweening;
 using GameControl;
 using UnityEngine;
 using WeaponControl;
-using Random = UnityEngine.Random;
 
 namespace TowerControl
 {
@@ -12,27 +11,26 @@ namespace TowerControl
     {
         private CancellationTokenSource cts;
         private Sequence atkSequence;
-        private Vector3 shootPos;
-
         private Transform[] _singleShootPoints;
         private Transform[] _multiShootPoints;
 
         [SerializeField] private MeshFilter[] canonMeshFilters;
-        [SerializeField] private int min, max;
 
         protected override void Awake()
         {
             base.Awake();
-            _singleShootPoints = new Transform[transform.GetChild(1).childCount];
+            var singlePoint = GameObject.Find("SingleShootPoint").transform;
+            _singleShootPoints = new Transform[singlePoint.childCount];
             for (var i = 0; i < _singleShootPoints.Length; i++)
             {
-                _singleShootPoints[i] = transform.GetChild(1).GetChild(i);
+                _singleShootPoints[i] = singlePoint.GetChild(i);
             }
 
-            _multiShootPoints = new Transform[transform.GetChild(2).childCount];
+            var multiPoint = GameObject.Find("MultiShootPoint").transform;
+            _multiShootPoints = new Transform[multiPoint.childCount];
             for (var i = 0; i < _multiShootPoints.Length; i++)
             {
-                _multiShootPoints[i] = transform.GetChild(2).GetChild(i);
+                _multiShootPoints[i] = multiPoint.GetChild(i);
             }
 
             atkSequence = DOTween.Sequence().SetAutoKill(false).Pause()
@@ -67,13 +65,6 @@ namespace TowerControl
             atkSequence.Kill();
         }
 
-        public override void UnderConstruction(MeshFilter consMeshFilter)
-        {
-            base.UnderConstruction(consMeshFilter);
-            if (TowerLevel <= 3)
-                shootPos = _singleShootPoints[TowerLevel].position + new Vector3(0, 1, 0);
-        }
-
         protected override void Attack()
         {
             StackObjectPool.Get("CanonShootSFX", transform.position);
@@ -89,23 +80,25 @@ namespace TowerControl
 
         private void SingleShoot(Transform endPos)
         {
-            StackObjectPool.Get("CanonSmoke", shootPos);
-            var m = StackObjectPool.Get<Projectile>("CanonBullet", shootPos);
-            m.Init(endPos, Damage);
-            if (m.TryGetComponent(out CanonBullet u)) u.ChangeMesh(canonMeshFilters[TowerLevel]);
+            Shoot(endPos, _singleShootPoints[TowerLevel].position + new Vector3(0, 1, 0));
         }
 
         private async UniTaskVoid MultiShoot(Transform endPos)
         {
             for (var i = 0; i < 3; i++)
             {
-                StackObjectPool.Get("CanonSmoke", _multiShootPoints[i].position + new Vector3(0, 1, 0));
-                var m = StackObjectPool.Get<Projectile>("CanonBullet", _multiShootPoints[i].position);
-                m.Init(endPos, Damage);
-                if (m.TryGetComponent(out CanonBullet u)) u.ChangeMesh(canonMeshFilters[TowerLevel]);
-
+                Shoot(endPos, _multiShootPoints[i].position + new Vector3(0, 1, 0));
                 await UniTask.Delay(100, cancellationToken: cts.Token);
             }
+        }
+
+        private void Shoot(Transform t, Vector3 pos)
+        {
+            StackObjectPool.Get("CanonSmoke", pos);
+            var m = StackObjectPool.Get<Projectile>("CanonBullet", pos);
+            m.Init(t, Damage);
+            if (m.TryGetComponent(out CanonBullet u))
+                u.CanonMeshFilter.sharedMesh = canonMeshFilters[TowerLevel].sharedMesh;
         }
     }
 }

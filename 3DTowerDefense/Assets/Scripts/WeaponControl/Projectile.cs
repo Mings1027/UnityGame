@@ -1,3 +1,4 @@
+using System;
 using GameControl;
 using UnityEngine;
 
@@ -5,17 +6,20 @@ namespace WeaponControl
 {
     public abstract class Projectile : MonoBehaviour
     {
+        private int damage;
         private float lerp;
-        private Vector3 _curPos;
-        private Vector3 _startPos;
+        private Vector3 curPos;
+        private Vector3 startPos;
+        private Transform target;
 
-        protected int _damage;
-        protected Vector3 _endPos;
+        protected int level;
 
-        protected float ProjectileSpeed => speed;
-        protected Transform target;
+        protected float projSpeed
+        {
+            get => speed;
+            set => speed = value;
+        }
 
-        [SerializeField] private string effect, explosion;
         [SerializeField] private string tagName;
         [SerializeField] private AnimationCurve curve;
         [SerializeField] private float speed;
@@ -23,52 +27,64 @@ namespace WeaponControl
         protected virtual void OnEnable()
         {
             lerp = 0;
-            _startPos = transform.position;
+            startPos = transform.position;
         }
 
-        private void FixedUpdate()
-        {
-            ProjectilePath();
-        }
+        protected abstract void FixedUpdate();
 
         private void OnTriggerEnter(Collider other)
         {
             if (other.CompareTag(tagName))
             {
-                var pos = transform.position;
-                StackObjectPool.Get(effect, pos);
-                StackObjectPool.Get(explosion, pos);
                 ProjectileHit(other);
-                gameObject.SetActive(false);
             }
+
+            if (other.CompareTag("Ground")) gameObject.SetActive(false);
         }
 
-        protected virtual void ProjectilePath()
+        protected void ParabolaPath()
         {
-            var gravity = lerp < 0.5f ? 1 : 1.5f;
-            lerp += Time.fixedDeltaTime * gravity * speed;
-            _curPos = Vector3.Lerp(_startPos, _endPos, lerp);
-            _curPos.y += curve.Evaluate(lerp);
+            var gravity = lerp < 0.5f ? 1f : 1.2f;
+            lerp += Time.fixedDeltaTime * gravity * projSpeed;
+            curPos = Vector3.Lerp(startPos, target.position, lerp);
+            curPos.y += curve.Evaluate(lerp);
             var t = transform;
-            var dir = (_curPos - t.position).normalized;
-            t.position = _curPos;
+            var dir = (curPos - t.position).normalized;
+            t.position = curPos;
+            t.forward = dir;
+        }
+
+        protected void StraightPath()
+        {
+            lerp += Time.fixedDeltaTime * projSpeed;
+            curPos = Vector3.Lerp(startPos, target.position, lerp);
+            var t = transform;
+            var dir = (curPos - t.position).normalized;
+            t.position = curPos;
             t.forward = dir;
         }
 
         protected virtual void ProjectileHit(Collider col)
         {
-            Damage(col);
-        }
-
-        protected void Damage(Collider col)
-        {
             if (col.TryGetComponent(out Health h))
             {
-                h.TakeDamage(_damage, col.gameObject);
+                h.TakeDamage(damage, col.gameObject);
             }
+
+            gameObject.SetActive(false);
         }
 
-        public abstract void Init(Transform t, int damage);
-        
+        public void Init(Transform t, int d)
+        {
+            target = t;
+            damage = d;
+        }
+
+        public virtual void Init(Transform t, int d, int towerLevel)
+        {
+            target = t;
+            damage = d;
+            level = towerLevel;
+        }
     }
 }

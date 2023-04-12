@@ -11,18 +11,19 @@ namespace TowerControl
         private Material material;
         private MeshFilter _crystalMeshFilter;
         private Transform[] _crystalPositions;
+        private Transform crystal;
 
-        [SerializeField] private Transform crystal;
-        [SerializeField] private Transform crystalPosition;
         [SerializeField] private Mesh[] crystalMesh;
         private static readonly int EmissionColor = Shader.PropertyToID("_EmissionColor");
 
         protected override void Awake()
         {
             base.Awake();
+            crystal = GameObject.Find("Crystal").transform;
             material = crystal.GetComponent<Renderer>().material;
             _crystalMeshFilter = crystal.GetComponent<MeshFilter>();
 
+            var crystalPosition = GameObject.Find("CrystalPosition").transform;
             _crystalPositions = new Transform[crystalPosition.childCount];
             for (var i = 0; i < _crystalPositions.Length; i++)
             {

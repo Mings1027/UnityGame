@@ -95,7 +95,7 @@ GameObject:
   - component: {fileID: 51854481081768043}
   - component: {fileID: 3762357825832611403}
   - component: {fileID: 1534788913187985664}
-  - component: {fileID: -1819713892797746041}
+  - component: {fileID: -8293534404521259119}
   m_Layer: 9
   m_Name: BarracksTower
   m_TagString: Tower
@@ -145,6 +145,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   towerType: 1
+  input: {fileID: 0}
 --- !u!114 &1534788913187985664
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -163,7 +164,7 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
---- !u!114 &-1819713892797746041
+--- !u!114 &-8293534404521259119
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -172,6 +173,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 6545304924751771831}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9ad79af3b1ae245b5865ab5638657597, type: 3}
+  m_Script: {fileID: 11500000, guid: 5a4c19757ecdf48b7a0fefc3a85a1999, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dontDestroy: 1
+  lifeTime: 0

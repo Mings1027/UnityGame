@@ -1,28 +1,21 @@
+using GameControl;
 using UnityEngine;
 
 namespace WeaponControl
 {
     public class MageBullet : Projectile
     {
-        private Rigidbody rigid;
-
-        private void Awake()
+        protected override void FixedUpdate()
         {
-            rigid = GetComponent<Rigidbody>();
+            StraightPath();
         }
 
-        protected override void ProjectilePath()
+        protected override void ProjectileHit(Collider col)
         {
-            var position = rigid.position;
-            var dir = target.position - position;
-            dir *= ProjectileSpeed * Time.fixedDeltaTime;
-            rigid.MovePosition(position + dir);
-        }
-
-        public override void Init(Transform t, int damage)
-        {
-            target = t;
-            _damage = damage;
+            var pos = transform.position;
+            StackObjectPool.Get("MageEffect", pos);
+            StackObjectPool.Get("MageExplosionSFX", pos);
+            base.ProjectileHit(col);
         }
     }
 }

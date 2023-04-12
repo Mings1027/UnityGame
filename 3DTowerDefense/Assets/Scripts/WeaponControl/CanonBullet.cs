@@ -1,19 +1,26 @@
+using GameControl;
 using UnityEngine;
 
 namespace WeaponControl
 {
     public class CanonBullet : Projectile
     {
-        private MeshFilter _meshFilter;
         private Collider[] _targetColliders;
+
+        public MeshFilter CanonMeshFilter { get; private set; }
 
         [SerializeField] private LayerMask enemyLayer;
         [SerializeField] private float atkRange;
 
         private void Awake()
         {
-            _meshFilter = GetComponentInChildren<MeshFilter>();
+            CanonMeshFilter = GetComponentInChildren<MeshFilter>();
             _targetColliders = new Collider[5];
+        }
+
+        protected override void FixedUpdate()
+        {
+            ParabolaPath();
         }
 
         private void OnDrawGizmos()
@@ -23,23 +30,14 @@ namespace WeaponControl
 
         protected override void ProjectileHit(Collider col)
         {
-            var size = Physics.OverlapSphereNonAlloc(transform.position, atkRange, _targetColliders, enemyLayer);
-            print(size);
+            var pos = transform.position;
+            StackObjectPool.Get("CanonEffect", pos);
+            StackObjectPool.Get("CanonExplosionSFX", pos);
+            var size = Physics.OverlapSphereNonAlloc(pos, atkRange, _targetColliders, enemyLayer);
             for (var i = 0; i < size; i++)
             {
-                Damage(_targetColliders[i]);
+                base.ProjectileHit(_targetColliders[i]);
             }
-        }
-
-        public override void Init(Transform t, int damage)
-        {
-            _endPos = t.position + new Vector3(Random.Range(-7, 7), 0);
-            _damage = damage;
-        }
-
-        public void ChangeMesh(MeshFilter meshFilter)
-        {
-            _meshFilter.sharedMesh = meshFilter.sharedMesh;
         }
     }
 }

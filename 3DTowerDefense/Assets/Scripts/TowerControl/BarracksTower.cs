@@ -10,8 +10,6 @@ namespace TowerControl
 {
     public class BarracksTower : TowerUnitAttacker
     {
-        private Camera cam;
-        
         private int _deadUnitCount;
         private Vector3 _pos;
         private BarracksUnit[] _barracksUnits;
@@ -23,7 +21,6 @@ namespace TowerControl
         protected override void Awake()
         {
             base.Awake();
-            cam = Camera.main;
             _barracksUnits = new BarracksUnit[3];
         }
 
@@ -79,7 +76,6 @@ namespace TowerControl
         {
             _deadUnitCount = 0;
             await UniTask.Delay(5000);
-print("respawn");
             for (var i = 0; i < _barracksUnits.Length; i++)
             {
                 UnitSpawnAndInit(i, UnitHealth);

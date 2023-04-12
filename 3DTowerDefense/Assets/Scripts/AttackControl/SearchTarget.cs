@@ -24,7 +24,7 @@ namespace AttackControl
                 nearestTarget = targetColliders[i].transform;
             }
 
-            return (nearestTarget, nearestTarget != null);
+            return (nearestTarget, true);
         }
     }
 }

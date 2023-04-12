@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2797710162398575714}
   - component: {fileID: 2797710162398575741}
-  - component: {fileID: 4735054750007477949}
+  - component: {fileID: 2226921518607690517}
   m_Layer: 6
   m_Name: MageUnit
   m_TagString: Unit
@@ -51,7 +51,7 @@ MonoBehaviour:
     m_Bits: 256
   atkRange: 10
   smoothTurnSpeed: 0
---- !u!114 &4735054750007477949
+--- !u!114 &2226921518607690517
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -60,9 +60,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 2797710162398575740}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9ad79af3b1ae245b5865ab5638657597, type: 3}
+  m_Script: {fileID: 11500000, guid: 5a4c19757ecdf48b7a0fefc3a85a1999, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dontDestroy: 1
+  lifeTime: 0
 --- !u!1 &6157758749145665941
 GameObject:
   m_ObjectHideFlags: 0

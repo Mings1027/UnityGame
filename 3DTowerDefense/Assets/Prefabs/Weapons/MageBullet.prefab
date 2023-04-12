@@ -4946,7 +4946,6 @@ GameObject:
   - component: {fileID: 3299557249995829817}
   - component: {fileID: 5764288072324559232}
   - component: {fileID: 7734692918368899155}
-  - component: {fileID: 2285573011516600268}
   - component: {fileID: 3539322938186380301}
   m_Layer: 12
   m_Name: MageBullet
@@ -4982,7 +4981,7 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.25
+  m_Radius: 0.3
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &5764288072324559232
 Rigidbody:
@@ -5012,19 +5011,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a4c19757ecdf48b7a0fefc3a85a1999, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dontDestroy: 0
   lifeTime: 3
---- !u!114 &2285573011516600268
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4848723035775484797}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9ad79af3b1ae245b5865ab5638657597, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &3539322938186380301
 MonoBehaviour:
   m_ObjectHideFlags: 0

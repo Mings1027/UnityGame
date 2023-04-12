@@ -315,7 +315,7 @@ GameObject:
   - component: {fileID: 2229747408957211237}
   - component: {fileID: 6072493077216855191}
   - component: {fileID: 7972377439174027485}
-  - component: {fileID: 3876992649814622796}
+  - component: {fileID: 7188673151814716823}
   m_Layer: 9
   m_Name: CanonTower
   m_TagString: Tower
@@ -370,8 +370,6 @@ MonoBehaviour:
   targetLayer:
     serializedVersion: 2
     m_Bits: 256
-  singleShootPoint: {fileID: 282438903915886337}
-  multiShootPoint: {fileID: 6335887997640218093}
   canonMeshFilters:
   - {fileID: 3300000, guid: 790b418366b065e40a30c085435acbc4, type: 3}
   - {fileID: 3300000, guid: 9874792431802014ca9be38ef8953a2f, type: 3}
@@ -398,7 +396,7 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
---- !u!114 &3876992649814622796
+--- !u!114 &7188673151814716823
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -407,9 +405,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 8402685592966021926}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9ad79af3b1ae245b5865ab5638657597, type: 3}
+  m_Script: {fileID: 11500000, guid: 5a4c19757ecdf48b7a0fefc3a85a1999, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dontDestroy: 1
+  lifeTime: 0
 --- !u!1 &9159218683725785588
 GameObject:
   m_ObjectHideFlags: 0

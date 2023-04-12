@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using GameControl;
 using UnitControl;
 using UnityEngine;
@@ -11,12 +12,12 @@ namespace TowerControl
         private ArcherUnit[] _archerUnits;
         private Transform[] _archerPos;
 
-        [SerializeField] private Transform archerPosition;
-
         protected override void Awake()
         {
             base.Awake();
             _archerUnits = new ArcherUnit[2];
+            
+            var archerPosition = GameObject.Find("ArcherPosition").transform;
             _archerPos = new Transform[archerPosition.childCount];
             for (var i = 0; i < _archerPos.Length; i++)
             {
@@ -67,24 +68,26 @@ namespace TowerControl
             }
             else
             {
-                MultiArcher();
+                MultiArcher().Forget();
             }
         }
 
         private void SingleArcher()
         {
             StackObjectPool.Get<Projectile>("ArrowBullet", _archerUnits[0].transform.position)
-                .Init(target, Damage);
+                .Init(target, Damage, TowerLevel);
             _archerUnits[0].TargetUpdate(target, isTargeting);
         }
 
-        private void MultiArcher()
+        private async UniTaskVoid MultiArcher()
         {
             for (var i = 0; i < 2; i++)
             {
                 StackObjectPool.Get<Projectile>("ArrowBullet", _archerUnits[i].transform.position)
-                    .Init(target, Damage);
+                    .Init(target, Damage, TowerLevel);
                 _archerUnits[i].TargetUpdate(target, isTargeting);
+
+                await UniTask.Delay(100);
             }
         }
     }

@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 3310426110391370158}
   - component: {fileID: 1433957233540561313}
   - component: {fileID: 9152204915855636318}
-  - component: {fileID: -6169054218916148228}
+  - component: {fileID: -279149815441083166}
   m_Layer: 9
   m_Name: ArcherTower
   m_TagString: Tower
@@ -85,7 +85,7 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
---- !u!114 &-6169054218916148228
+--- !u!114 &-279149815441083166
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -94,9 +94,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 2192198980469555006}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9ad79af3b1ae245b5865ab5638657597, type: 3}
+  m_Script: {fileID: 11500000, guid: 5a4c19757ecdf48b7a0fefc3a85a1999, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dontDestroy: 1
+  lifeTime: 0
 --- !u!1 &2286292466128150576
 GameObject:
   m_ObjectHideFlags: 0

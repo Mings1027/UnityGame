@@ -23,11 +23,11 @@ namespace GameControl
         private void Awake()
         {
             _renderer = GetComponentInChildren<Renderer>();
-            _renderer.material.color = Color.white;
         }
 
         private void OnEnable()
         {
+            _renderer.material.color = Color.white;
             cts?.Dispose();
             cts = new CancellationTokenSource();
         }

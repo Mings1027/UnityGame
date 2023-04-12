@@ -50,6 +50,7 @@ namespace TowerControl
         {
             base.OnDisable();
             CancelInvoke();
+            _delayTween?.Kill();
         }
 
         private void OnDrawGizmos()

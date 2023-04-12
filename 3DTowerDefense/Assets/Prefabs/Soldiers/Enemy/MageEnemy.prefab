@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 7712616592404947845}
   - component: {fileID: 7712616592404947847}
   - component: {fileID: 5198208533031153745}
-  - component: {fileID: 2564073691206786456}
   - component: {fileID: 832268650158483848}
   - component: {fileID: 4687016272046448172}
+  - component: {fileID: -904191142285399274}
   m_Layer: 8
   m_Name: MageEnemy
   m_TagString: Enemy
@@ -67,24 +67,12 @@ CapsuleCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7712616592404947846}
   m_Material: {fileID: 0}
-  m_IsTrigger: 1
+  m_IsTrigger: 0
   m_Enabled: 1
   m_Radius: 1.3
   m_Height: 4
   m_Direction: 1
   m_Center: {x: 0, y: 2, z: 0}
---- !u!114 &2564073691206786456
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7712616592404947846}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9ad79af3b1ae245b5865ab5638657597, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &832268650158483848
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -124,6 +112,20 @@ MonoBehaviour:
   atkRange: 7
   smoothTurnSpeed: 0.1
   destination: {fileID: 0}
+--- !u!114 &-904191142285399274
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7712616592404947846}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a4c19757ecdf48b7a0fefc3a85a1999, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dontDestroy: 1
+  lifeTime: 0
 --- !u!1 &7713676065723812958
 GameObject:
   m_ObjectHideFlags: 0

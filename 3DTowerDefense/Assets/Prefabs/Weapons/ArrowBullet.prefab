@@ -101,7 +101,7 @@ TrailRenderer:
         outWeight: 0.33333334
       - serializedVersion: 3
         time: 1
-        value: 0.63440865
+        value: 0.2
         inSlope: -0.043394256
         outSlope: -0.043394256
         tangentMode: 0
@@ -14834,10 +14834,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7706801028311746438}
-  - component: {fileID: 7706801028311746441}
+  - component: {fileID: 2312138824256600604}
   - component: {fileID: 5403301033657038312}
   - component: {fileID: 7706801028311746440}
-  - component: {fileID: 7706801028311746443}
   - component: {fileID: 7706801028311746442}
   m_Layer: 12
   m_Name: ArrowBullet
@@ -14855,15 +14854,15 @@ Transform:
   m_GameObject: {fileID: 7706801028311746445}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 2, y: 2, z: 2}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 4938191554456736544}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!135 &7706801028311746441
-SphereCollider:
+--- !u!136 &2312138824256600604
+CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -14872,9 +14871,10 @@ SphereCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 1
   m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.15
-  m_Center: {x: 0, y: 0, z: 0.1}
+  m_Radius: 0.1
+  m_Height: 0.6
+  m_Direction: 2
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &5403301033657038312
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -14903,19 +14903,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a4c19757ecdf48b7a0fefc3a85a1999, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lifeTime: 1.5
---- !u!114 &7706801028311746443
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7706801028311746445}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9ad79af3b1ae245b5865ab5638657597, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  dontDestroy: 0
+  lifeTime: 3
 --- !u!114 &7706801028311746442
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14964,4 +14953,4 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  speed: 5
+  speed: 1.5
