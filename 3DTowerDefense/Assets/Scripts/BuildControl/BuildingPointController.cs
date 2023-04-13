@@ -20,10 +20,10 @@ namespace BuildControl
             for (int i = 0; i < transform.childCount; i++)
             {
                 var child = transform.GetChild(i);
-                var p = StackObjectPool.Get<BuildingPoint>("BuildingPoint", child.position + new Vector3(0, 100, 0),
+                var p = StackObjectPool.Get<BuildingPoint>("BuildingPoint", child.position + new Vector3(0, 300, 0),
                     child.rotation);
                 p.onOpenTowerSelectPanelEvent += uiManager.OpenTowerSelectPanel;
-                buildingPointSequence.Append(p.transform.DOMoveY(0, 0.5f)
+                buildingPointSequence.Append(p.transform.DOMoveY(0, 0.2f)
                     .OnComplete(() => StackObjectPool.Get("BuildSmoke", p.transform.position)));
             }
 

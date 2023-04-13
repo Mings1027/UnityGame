@@ -13,7 +13,7 @@ namespace UIControl
 {
     public sealed class UIManager : Singleton<UIManager>, IPointerEnterHandler, IPointerExitHandler
     {
-        private Sequence _towerSelectPanelSequence;
+        private Sequence _towerSelectPanelSequence, _towerEditPanelSequence;
         private Tweener _moveTowerPanelTween;
 
         private EventSystem eventSystem;
@@ -39,6 +39,12 @@ namespace UIControl
 
         public static bool IsOnUI { get; private set; }
 
+        public MeshRenderer MoveUnitIndicator
+        {
+            get => moveUnitIndicator;
+            set => moveUnitIndicator = value;
+        }
+
         [SerializeField] private InputManager input;
 
         [SerializeField] private Transform towerPanels;
@@ -51,8 +57,11 @@ namespace UIControl
         [Header("Tower Edit Panel")] [Space(10)] [SerializeField]
         private GameObject towerEditPanel;
 
+        [SerializeField] private Button[] towerEditButtons;
+
         [SerializeField] private GameObject upgradeButton;
-        [SerializeField] private GameObject uniqueUpgradeButtons;
+        [SerializeField] private GameObject aUpgradeButton;
+        [SerializeField] private GameObject bUpgradeButton;
         [SerializeField] private GameObject sellButton;
         [SerializeField] private GameObject moveUnitButton;
 
@@ -80,12 +89,23 @@ namespace UIControl
                 towerSelectButtons[i] = towerSelectPanel.transform.GetChild(i).GetComponent<Button>();
                 towerSelectButtons[i].onClick.AddListener(() => TowerSelectButton(index));
 
-                _towerSelectPanelSequence
-                    .Append(towerSelectButtons[i].transform.DOScale(1, 0.1f).From(0))
+                _towerSelectPanelSequence.Append(towerSelectButtons[i].transform.DOScale(1, 0.1f).From(0))
                     .Join(towerSelectButtons[i].transform.DOLocalMove(Vector3.zero, 0.1f).From());
             }
 
             _towerSelectPanelSequence.Pause();
+
+            _towerEditPanelSequence = DOTween.Sequence().SetAutoKill(false);
+            towerEditButtons = new Button[towerEditPanel.transform.childCount];
+            for (var i = 0; i < towerEditButtons.Length; i++)
+            {
+                towerEditButtons[i] = towerEditPanel.transform.GetChild(i).GetComponent<Button>();
+
+                _towerEditPanelSequence.Append(towerEditButtons[i].transform.DOScale(1, 0.05f).From(0))
+                    .Join(towerEditButtons[i].transform.DOLocalMove(Vector3.zero, 0.1f).From());
+            }
+
+            _towerEditPanelSequence.Pause();
         }
 
         private void Start()
@@ -104,12 +124,8 @@ namespace UIControl
             }
 
             upgradeButton.GetComponent<Button>().onClick.AddListener(UpgradeButton);
-            for (var i = 0; i < uniqueUpgradeButtons.transform.childCount; i++)
-            {
-                var index = i;
-                uniqueUpgradeButtons.transform.GetChild(i).GetComponent<Button>().onClick
-                    .AddListener(() => UniqueUpgradeButton(index + 3));
-            }
+            aUpgradeButton.GetComponent<Button>().onClick.AddListener(() => UniqueUpgradeButton(3));
+            bUpgradeButton.GetComponent<Button>().onClick.AddListener(() => UniqueUpgradeButton(4));
 
             sellButton.GetComponent<Button>().onClick.AddListener(SellButton);
             okButton.GetComponent<Button>().onClick.AddListener(OkButton);
@@ -199,7 +215,7 @@ namespace UIControl
 
         #region Tower Edit Panel
 
-        private void OpenTowerEditPanel(Tower t, Transform trans)
+        private void OpenTowerEditPanel(Tower t, Transform uiTarget)
         {
             ResetUI();
             _curSelectedTower = t;
@@ -220,23 +236,28 @@ namespace UIControl
             {
                 case >= 3:
                     upgradeButton.SetActive(false);
-                    uniqueUpgradeButtons.SetActive(false);
+                    aUpgradeButton.SetActive(false);
+                    bUpgradeButton.SetActive(false);
                     break;
                 case 2:
                     upgradeButton.SetActive(false);
-                    uniqueUpgradeButtons.SetActive(true);
+                    aUpgradeButton.SetActive(true);
+                    bUpgradeButton.SetActive(true);
                     break;
                 default:
                     upgradeButton.SetActive(true);
-                    uniqueUpgradeButtons.SetActive(false);
+                    aUpgradeButton.SetActive(false);
+                    bUpgradeButton.SetActive(false);
                     break;
             }
 
-            _uiTarget = trans;
+            _uiTarget = uiTarget;
 
             towerEditPanel.SetActive(true);
             towerSelectPanel.SetActive(false);
             towerPanels.gameObject.SetActive(true);
+
+            _towerEditPanelSequence.Restart();
         }
 
         private void UpgradeButton()
@@ -374,21 +395,7 @@ namespace UIControl
 
         private void MoveUnit()
         {
-            var ray = _cam.ScreenPointToRay(input.MousePos);
-            if (Physics.Raycast(ray, out var hit))
-            {
-                if (Vector3.Distance(_curSelectedTower.transform.position, hit.point) < _curSelectedTower.TowerRange)
-                {
-                    if (!hit.collider.CompareTag("Ground")) return;
-                    input.IsMoveUnit = false;
-                    moveUnitIndicator.enabled = false;
-                    _curSelectedTower.GetComponent<BarracksTower>().MoveUnits(hit.point);
-                }
-                else
-                {
-                    print("Can't Move");
-                }
-            }
+            _curSelectedTower.GetComponent<BarracksTower>().MoveUnit();
         }
 
         private async UniTaskVoid TowerUpgrade(int level, Tower selectedTower)
