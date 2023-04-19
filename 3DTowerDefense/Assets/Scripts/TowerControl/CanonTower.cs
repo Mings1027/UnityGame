@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
@@ -9,10 +10,11 @@ namespace TowerControl
 {
     public class CanonTower : TowerAttacker
     {
-        private CancellationTokenSource cts;
         private Sequence atkSequence;
         private Transform[] _singleShootPoints;
         private Transform[] _multiShootPoints;
+
+        private Action<Transform> onAttackEvent;
 
         [SerializeField] private MeshFilter[] canonMeshFilters;
 
@@ -39,13 +41,6 @@ namespace TowerControl
                 .Append(meshFilter.transform.DOScaleY(1f, 0.5f).SetEase(Ease.OutQuint));
         }
 
-        protected override void OnEnable()
-        {
-            base.OnEnable();
-            cts?.Dispose();
-            cts = new CancellationTokenSource();
-        }
-
         protected override void Update()
         {
             if (gameManager.IsPause) return;
@@ -54,28 +49,23 @@ namespace TowerControl
             StartCoolDown();
         }
 
-        protected override void OnDisable()
-        {
-            base.OnDisable();
-            cts?.Cancel();
-        }
-
         private void OnDestroy()
         {
             atkSequence.Kill();
         }
 
+        public override void ConstructionFinished(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range,
+            float delay)
+        {
+            base.ConstructionFinished(towerMeshFilter, minDamage, maxDamage, range, delay);
+            onAttackEvent = null;
+            onAttackEvent += TowerLevel != 4 ? SingleShoot : MultiShoot;
+        }
+
         protected override void Attack()
         {
             StackObjectPool.Get("CanonShootSFX", transform.position);
-            if (TowerLevel != 4)
-            {
-                SingleShoot(target);
-            }
-            else
-            {
-                MultiShoot(target).Forget();
-            }
+            onAttackEvent?.Invoke(target);
         }
 
         private void SingleShoot(Transform endPos)
@@ -83,12 +73,11 @@ namespace TowerControl
             Shoot(endPos, _singleShootPoints[TowerLevel].position + new Vector3(0, 1, 0));
         }
 
-        private async UniTaskVoid MultiShoot(Transform endPos)
+        private void MultiShoot(Transform endPos)
         {
             for (var i = 0; i < 3; i++)
             {
                 Shoot(endPos, _multiShootPoints[i].position + new Vector3(0, 1, 0));
-                await UniTask.Delay(100, cancellationToken: cts.Token);
             }
         }
 

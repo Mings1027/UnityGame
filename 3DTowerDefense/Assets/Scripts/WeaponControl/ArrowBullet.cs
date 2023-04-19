@@ -5,6 +5,12 @@ namespace WeaponControl
 {
     public class ArrowBullet : Projectile
     {
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            StackObjectPool.Get("ArrowShootSFX", transform.position);
+        }
+
         protected override void FixedUpdate()
         {
             if (level == 3)
@@ -28,7 +34,7 @@ namespace WeaponControl
         public override void Init(Transform t, int d, int towerLevel)
         {
             base.Init(t, d, towerLevel);
-            if (level == 3) projSpeed = 5;
+            if (level == 3) ProjSpeed = 5;
         }
     }
 }

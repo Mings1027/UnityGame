@@ -2,26 +2,9 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-// #if UNITY_EDITOR
-// using UnityEditor;
-
 namespace GameControl
 {
-//     [CustomEditor(typeof(StackObjectPool))]
-//     public class StackObjectPoolingEditor : Editor
-//     {
-//         private const string Info = "풀링한 오브젝트에 다음을 적으세요 \nvoid OnDisable()\n{\n" +
-//                                     "    StackObjectPooler.ReturnToPool(gameObject);    // 한 객체에 한번만 \n" +
-//                                     "    CancelInvoke();    // Monobehaviour에 Invoke가 있다면 \n}";
-//
-//         public override void OnInspectorGUI()
-//         {
-//             EditorGUILayout.HelpBox(Info, MessageType.Info);
-//             base.OnInspectorGUI();
-//         }
-//     }
-// #endif
-    public class StackObjectPool : MonoBehaviour
+    public class StackObjectPool : Singleton<StackObjectPool>
     {
         [Serializable]
         public class Pool
@@ -41,7 +24,7 @@ namespace GameControl
 
         private void Awake()
         {
-            inst = this;
+            inst = Instance;
             _poolDictionary = new Dictionary<string, Stack<GameObject>>();
             //미리 생성
             foreach (var pool in pools)
@@ -87,7 +70,7 @@ namespace GameControl
             var obj = inst.Spawn(tag, position, rotation);
             if (obj.TryGetComponent(out T component)) return component;
             obj.SetActive(false);
-            throw new Exception($"Component not found");
+            throw new Exception("Component not found");
         }
 
         private GameObject Spawn(string objTag, Vector3 position, Quaternion rotation)

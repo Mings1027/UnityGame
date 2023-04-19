@@ -1,4 +1,6 @@
+using System;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using GameControl;
 using UnitControl;
 using UnityEngine;
@@ -12,11 +14,13 @@ namespace TowerControl
         private ArcherUnit[] _archerUnits;
         private Transform[] _archerPos;
 
+        private Action onAttackEvent;
+
         protected override void Awake()
         {
             base.Awake();
             _archerUnits = new ArcherUnit[2];
-            
+
             var archerPosition = GameObject.Find("ArcherPosition").transform;
             _archerPos = new Transform[archerPosition.childCount];
             for (var i = 0; i < _archerPos.Length; i++)
@@ -47,6 +51,9 @@ namespace TowerControl
             {
                 _archerUnits[i] = StackObjectPool.Get<ArcherUnit>("ArcherUnit", _archerPos[TowerLevel + i].position);
             }
+
+            onAttackEvent = null;
+            onAttackEvent += TowerLevel != 4 ? SingleArcher : () => MultiArcher().Forget();
         }
 
         private void UnitDisable()
@@ -61,15 +68,9 @@ namespace TowerControl
 
         protected override void Attack()
         {
-            StackObjectPool.Get("ArrowShootSFX", transform.position);
-            if (TowerLevel != 4)
-            {
-                SingleArcher();
-            }
-            else
-            {
-                MultiArcher().Forget();
-            }
+            // StackObjectPool.Get("ArrowShootSFX", transform.position);
+
+            onAttackEvent?.Invoke();
         }
 
         private void SingleArcher()
@@ -87,7 +88,7 @@ namespace TowerControl
                     .Init(target, Damage, TowerLevel);
                 _archerUnits[i].TargetUpdate(target, isTargeting);
 
-                await UniTask.Delay(100);
+                await UniTask.Delay(500);
             }
         }
     }

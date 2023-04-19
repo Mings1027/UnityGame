@@ -31,17 +31,8 @@ namespace TowerControl
             }
 
             atkSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(material.DOColor(material.GetColor(EmissionColor) * 2, 1))
-                .AppendCallback(Attack)
-                .Append(material.DOColor(material.GetColor(EmissionColor), 1));
-        }
-
-        protected override void Update()
-        {
-            if (gameManager.IsPause) return;
-            if (isUpgrading || !attackAble || !isTargeting) return;
-            atkSequence.Restart();
-            StartCoolDown();
+                .Append(material.DOColor(material.GetColor(EmissionColor) * 2, 0.5f))
+                .Append(material.DOColor(material.GetColor(EmissionColor), 0.5f));
         }
 
         public override void UnderConstruction(MeshFilter consMeshFilter)
@@ -60,7 +51,7 @@ namespace TowerControl
 
         protected override void Attack()
         {
-            if (!isTargeting) return;
+            atkSequence.Restart();
             StackObjectPool.Get("MageShootSFX", transform.position);
             StackObjectPool
                 .Get<Projectile>("MageBullet", _crystalPositions[TowerLevel].position + new Vector3(0, 3, 0))

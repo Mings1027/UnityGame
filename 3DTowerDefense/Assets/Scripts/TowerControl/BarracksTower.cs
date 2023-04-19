@@ -12,8 +12,6 @@ namespace TowerControl
 {
     public class BarracksTower : TowerUnitAttacker
     {
-        private Camera cam;
-
         private int _deadUnitCount;
         private Vector3 _pos;
         private BarracksUnit[] _barracksUnits;
@@ -26,30 +24,12 @@ namespace TowerControl
         {
             base.Awake();
             _barracksUnits = new BarracksUnit[3];
-            cam = Camera.main;
         }
 
         //==================================Custom Function====================================================
         //==================================Custom Function====================================================
 
-        public void MoveUnit()
-        {
-            var ray = cam.ScreenPointToRay(input.MousePos);
-            if (!Physics.Raycast(ray, out var hit)) return;
-            if (Vector3.Distance(transform.position, hit.point) < TowerRange)
-            {
-                if (!hit.collider.CompareTag("Ground")) return;
-                input.IsMoveUnit = false;
-                UIManager.Instance.MoveUnitIndicator.enabled = false;
-                MoveUnits(hit.point);
-            }
-            else
-            {
-                print("Can't Move");
-            }
-        }
-
-        private void MoveUnits(Vector3 pos)
+        public void MoveUnits(Vector3 pos)
         {
             foreach (var t in _barracksUnits)
             {

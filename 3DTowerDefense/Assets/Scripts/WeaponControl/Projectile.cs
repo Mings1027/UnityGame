@@ -14,7 +14,7 @@ namespace WeaponControl
 
         protected int level;
 
-        protected float projSpeed
+        protected float ProjSpeed
         {
             get => speed;
             set => speed = value;
@@ -45,7 +45,7 @@ namespace WeaponControl
         protected void ParabolaPath()
         {
             var gravity = lerp < 0.5f ? 1f : 1.2f;
-            lerp += Time.fixedDeltaTime * gravity * projSpeed;
+            lerp += Time.fixedDeltaTime * gravity * ProjSpeed;
             curPos = Vector3.Lerp(startPos, target.position, lerp);
             curPos.y += curve.Evaluate(lerp);
             var t = transform;
@@ -56,7 +56,7 @@ namespace WeaponControl
 
         protected void StraightPath()
         {
-            lerp += Time.fixedDeltaTime * projSpeed;
+            lerp += Time.fixedDeltaTime * ProjSpeed;
             curPos = Vector3.Lerp(startPos, target.position, lerp);
             var t = transform;
             var dir = (curPos - t.position).normalized;
