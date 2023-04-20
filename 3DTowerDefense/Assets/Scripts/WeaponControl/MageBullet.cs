@@ -7,7 +7,7 @@ namespace WeaponControl
     {
         protected override void FixedUpdate()
         {
-            StraightPath();
+            
         }
 
         protected override void ProjectileHit(Collider col)
@@ -15,7 +15,7 @@ namespace WeaponControl
             var pos = transform.position;
             StackObjectPool.Get("MageEffect", pos);
             StackObjectPool.Get("MageExplosionSFX", pos);
-            base.ProjectileHit(col);
+            Damaging(col);
         }
     }
 }

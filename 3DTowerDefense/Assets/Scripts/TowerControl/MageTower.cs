@@ -52,7 +52,6 @@ namespace TowerControl
         protected override void Attack()
         {
             atkSequence.Restart();
-            StackObjectPool.Get("MageShootSFX", transform.position);
             StackObjectPool
                 .Get<Projectile>("MageBullet", _crystalPositions[TowerLevel].position + new Vector3(0, 3, 0))
                 .Init(target, Damage);

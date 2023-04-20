@@ -64,7 +64,6 @@ namespace TowerControl
 
         protected override void Attack()
         {
-            StackObjectPool.Get("CanonShootSFX", transform.position);
             onAttackEvent?.Invoke(target);
         }
 
@@ -86,7 +85,7 @@ namespace TowerControl
             StackObjectPool.Get("CanonSmoke", pos);
             var m = StackObjectPool.Get<Projectile>("CanonBullet", pos);
             m.Init(t, Damage);
-            if (m.TryGetComponent(out CanonBullet u))
+            if (m.TryGetComponent(out Canon u))
                 u.CanonMeshFilter.sharedMesh = canonMeshFilters[TowerLevel].sharedMesh;
         }
     }

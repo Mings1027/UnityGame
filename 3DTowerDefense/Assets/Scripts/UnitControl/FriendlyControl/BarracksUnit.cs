@@ -46,7 +46,6 @@ namespace UnitControl.FriendlyControl
             if (_isMoving) return;
 
             _anim.SetTrigger(IsAttack);
-            StackObjectPool.Get("SwordSlashSFX", transform.position);
             StackObjectPool.Get("SwordSlashEffect", _attackEffectPos.position,
                 transform.rotation * Quaternion.Euler(0, 90, 0));
             //이 줄에 Slash 소리 스폰해야함

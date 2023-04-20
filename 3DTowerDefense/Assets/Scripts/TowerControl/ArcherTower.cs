@@ -68,28 +68,28 @@ namespace TowerControl
 
         protected override void Attack()
         {
-            // StackObjectPool.Get("ArrowShootSFX", transform.position);
-
             onAttackEvent?.Invoke();
         }
 
         private void SingleArcher()
         {
-            StackObjectPool.Get<Projectile>("ArrowBullet", _archerUnits[0].transform.position)
-                .Init(target, Damage, TowerLevel);
-            _archerUnits[0].TargetUpdate(target, isTargeting);
+            AmmoSpawn<Bullet>("Bullet", 0).Init(target, Damage);
         }
 
         private async UniTaskVoid MultiArcher()
         {
             for (var i = 0; i < 2; i++)
             {
-                StackObjectPool.Get<Projectile>("ArrowBullet", _archerUnits[i].transform.position)
-                    .Init(target, Damage, TowerLevel);
-                _archerUnits[i].TargetUpdate(target, isTargeting);
+                AmmoSpawn<Projectile>("ArrowProjectile", i).Init(target, Damage);
 
                 await UniTask.Delay(500);
             }
+        }
+
+        private T AmmoSpawn<T>(string tagName, int index) where T : MonoBehaviour
+        {
+            _archerUnits[index].TargetUpdate(target, isTargeting);
+            return StackObjectPool.Get<T>(tagName, _archerUnits[index].transform.position);
         }
     }
 }

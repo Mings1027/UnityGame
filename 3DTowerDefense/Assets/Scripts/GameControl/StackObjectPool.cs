@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TowerControl;
 using UnityEngine;
 
 namespace GameControl
@@ -51,6 +52,27 @@ namespace GameControl
             return obj;
         }
 
+        private void SortObject(GameObject obj)
+        {
+            var isFind = false;
+            for (var i = 0; i < transform.childCount; i++)
+            {
+                if (i == transform.childCount - 1)
+                {
+                    obj.transform.SetSiblingIndex(i);
+                    break;
+                }
+
+                if (transform.GetChild(i).name == obj.name)
+                    isFind = true;
+                else if (isFind)
+                {
+                    obj.transform.SetSiblingIndex(i);
+                    break;
+                }
+            }
+        }
+
         public static GameObject Get(string tag, Vector3 position) =>
             inst.Spawn(tag, position, Quaternion.identity);
 
@@ -61,6 +83,14 @@ namespace GameControl
         {
             var obj = inst.Spawn(tag, position, Quaternion.identity);
             if (obj.TryGetComponent(out T component)) return component;
+            obj.SetActive(false);
+            throw new Exception("Component not found");
+        }
+
+        public static T Test<T>(string tag, Vector3 position)
+        {
+            var obj = inst.Spawn(tag, position, Quaternion.identity);
+            if (obj.TryGetComponent(out T c)) return c;
             obj.SetActive(false);
             throw new Exception("Component not found");
         }
@@ -115,27 +145,6 @@ namespace GameControl
             if (!inst._poolDictionary.ContainsKey(obj.name))
                 throw new Exception($"Pool with tag {obj.name} doesn't exist.");
             inst._poolDictionary[obj.name].Push(obj);
-        }
-
-        private void SortObject(GameObject obj)
-        {
-            var isFind = false;
-            for (var i = 0; i < transform.childCount; i++)
-            {
-                if (i == transform.childCount - 1)
-                {
-                    obj.transform.SetSiblingIndex(i);
-                    break;
-                }
-
-                if (transform.GetChild(i).name == obj.name)
-                    isFind = true;
-                else if (isFind)
-                {
-                    obj.transform.SetSiblingIndex(i);
-                    break;
-                }
-            }
         }
     }
 }

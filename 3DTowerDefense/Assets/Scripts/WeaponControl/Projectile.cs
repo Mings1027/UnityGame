@@ -11,23 +11,24 @@ namespace WeaponControl
         private Vector3 curPos;
         private Vector3 startPos;
         private Transform target;
-
-        protected int level;
-
-        protected float ProjSpeed
-        {
-            get => speed;
-            set => speed = value;
-        }
-
+        private AudioSource audioSource;
+        
         [SerializeField] private string tagName;
         [SerializeField] private AnimationCurve curve;
         [SerializeField] private float speed;
+        [SerializeField] private AudioClip enableAudio;
+
+        protected virtual void Awake()
+        {
+            audioSource = GetComponent<AudioSource>();
+        }
 
         protected virtual void OnEnable()
         {
             lerp = 0;
             startPos = transform.position;
+
+            audioSource.PlayOneShot(enableAudio);
         }
 
         protected abstract void FixedUpdate();
@@ -37,15 +38,14 @@ namespace WeaponControl
             if (other.CompareTag(tagName))
             {
                 ProjectileHit(other);
+                gameObject.SetActive(false);
             }
-
-            if (other.CompareTag("Ground")) gameObject.SetActive(false);
         }
 
         protected void ParabolaPath()
         {
             var gravity = lerp < 0.5f ? 1f : 1.2f;
-            lerp += Time.fixedDeltaTime * gravity * ProjSpeed;
+            lerp += Time.fixedDeltaTime * gravity * speed;
             curPos = Vector3.Lerp(startPos, target.position, lerp);
             curPos.y += curve.Evaluate(lerp);
             var t = transform;
@@ -54,37 +54,20 @@ namespace WeaponControl
             t.forward = dir;
         }
 
-        protected void StraightPath()
-        {
-            lerp += Time.fixedDeltaTime * ProjSpeed;
-            curPos = Vector3.Lerp(startPos, target.position, lerp);
-            var t = transform;
-            var dir = (curPos - t.position).normalized;
-            t.position = curPos;
-            t.forward = dir;
-        }
+        protected abstract void ProjectileHit(Collider col);
 
-        protected virtual void ProjectileHit(Collider col)
+        protected void Damaging(Collider col)
         {
             if (col.TryGetComponent(out Health h))
             {
                 h.TakeDamage(damage, col.gameObject);
             }
-
-            gameObject.SetActive(false);
         }
 
         public void Init(Transform t, int d)
         {
             target = t;
             damage = d;
-        }
-
-        public virtual void Init(Transform t, int d, int towerLevel)
-        {
-            target = t;
-            damage = d;
-            level = towerLevel;
         }
     }
 }
