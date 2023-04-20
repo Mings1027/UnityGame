@@ -259,7 +259,7 @@ namespace DG.Tweening
                     break;
                 case TargetType.Rigidbody:
 #if true // PHYSICS_MARKER
-                    tween = ((Rigidbody)target).DOMove(endValueV3, duration, optionalBool0);
+                    tween = ((Rigidbody)target).DoMove(endValueV3, duration, optionalBool0);
 #else
                     tween = ((Transform)target).DOMove(endValueV3, duration, optionalBool0);
 #endif
@@ -283,7 +283,7 @@ namespace DG.Tweening
                     break;
                 case TargetType.Rigidbody:
 #if true // PHYSICS_MARKER
-                    tween = ((Rigidbody)target).DORotate(endValueV3, duration, optionalRotationMode);
+                    tween = ((Rigidbody)target).DoRotate(endValueV3, duration, optionalRotationMode);
 #else
                     tween = ((Transform)target).DORotate(endValueV3, duration, optionalRotationMode);
 #endif

@@ -53,7 +53,12 @@ namespace TowerControl
             }
 
             onAttackEvent = null;
-            onAttackEvent += TowerLevel != 4 ? SingleArcher : () => MultiArcher().Forget();
+            onAttackEvent += TowerLevel switch
+            {
+                4 => () => MultiArcher().Forget(),
+                3 => () => AmmoSpawn<Bullet>("Bullet", 0).Init(target, Damage),
+                _ => () => AmmoSpawn<Projectile>("ArrowProjectile", 0).Init(target, Damage)
+            };
         }
 
         private void UnitDisable()
@@ -69,11 +74,6 @@ namespace TowerControl
         protected override void Attack()
         {
             onAttackEvent?.Invoke();
-        }
-
-        private void SingleArcher()
-        {
-            AmmoSpawn<Bullet>("Bullet", 0).Init(target, Damage);
         }
 
         private async UniTaskVoid MultiArcher()
