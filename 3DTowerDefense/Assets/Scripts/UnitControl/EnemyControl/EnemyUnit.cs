@@ -10,7 +10,7 @@ namespace UnitControl.EnemyControl
 
         public event Action<int> onFinishWaveCheckEvent;
 
-        private void Update()
+        protected override void Update()
         {
             if (gameManager.IsPause) return;
             if (isTargeting)

@@ -1,3 +1,4 @@
+using System;
 using AttackControl;
 using DG.Tweening;
 using ManagerControl;
@@ -21,6 +22,8 @@ namespace UnitControl
         protected int Damage => Random.Range(_minDamage, _maxDamage);
         protected int AtkRange => atkRange;
 
+        public bool isMatched;
+
         [SerializeField] private LayerMask targetLayer;
         [SerializeField] private int atkRange;
         [SerializeField] [Range(0, 1)] private float smoothTurnSpeed;
@@ -39,6 +42,8 @@ namespace UnitControl
             attackAble = true;
             InvokeRepeating(nameof(TrackTarget), 1f, 1f);
         }
+
+        protected abstract void Update();
 
         private void LateUpdate()
         {

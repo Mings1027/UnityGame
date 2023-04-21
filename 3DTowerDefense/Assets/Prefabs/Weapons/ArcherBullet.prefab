@@ -14,8 +14,8 @@ GameObject:
   - component: {fileID: -6727335637317819992}
   - component: {fileID: 1750488920464917287}
   - component: {fileID: 8074484723884457767}
-  - component: {fileID: 6479407522769317293}
   - component: {fileID: -759570817592359801}
+  - component: {fileID: 8344940822524051499}
   m_Layer: 12
   m_Name: ArcherBullet
   m_TagString: UnitAmmo
@@ -5024,21 +5024,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &6479407522769317293
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1102214754406758}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 52720a885949b418399281fcc5251303, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  tagName: Enemy
-  bulletSpeed: 100
-  enableAudio: {fileID: 8300000, guid: c9078c3724d980347b7b29c5e846c2bb, type: 3}
 --- !u!114 &-759570817592359801
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5053,6 +5038,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dontDestroy: 0
   lifeTime: 2
+--- !u!114 &8344940822524051499
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1102214754406758}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3c86e801e923f44d98d596229567b46b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bulletSpeed: 15
+  enableAudio: {fileID: 8300000, guid: 327abfd8802775d418b743912fa6fa57, type: 3}
 --- !u!1 &1643392390538482
 GameObject:
   m_ObjectHideFlags: 0

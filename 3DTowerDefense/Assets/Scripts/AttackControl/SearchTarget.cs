@@ -1,3 +1,4 @@
+using UnitControl;
 using UnityEngine;
 
 namespace AttackControl
@@ -15,13 +16,13 @@ namespace AttackControl
 
             for (var i = 0; i < size; i++)
             {
-                if (!targetColliders[i].gameObject.activeSelf) continue;
-
+                if (targetColliders[i].GetComponent<Unit>().isMatched) continue;
                 var distanceToResult =
                     Vector3.SqrMagnitude(pos - targetColliders[i].transform.position);
                 if (distanceToResult >= shortestDistance) continue;
                 shortestDistance = distanceToResult;
                 nearestTarget = targetColliders[i].transform;
+                nearestTarget.GetComponent<Unit>().isMatched = true;
             }
 
             return (nearestTarget, true);

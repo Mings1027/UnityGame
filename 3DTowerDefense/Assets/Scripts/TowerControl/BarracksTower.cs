@@ -1,8 +1,5 @@
-using System;
 using Cysharp.Threading.Tasks;
 using GameControl;
-using ManagerControl;
-using UIControl;
 using UnitControl.FriendlyControl;
 using UnityEngine;
 using UnityEngine.AI;
@@ -17,8 +14,6 @@ namespace TowerControl
         private BarracksUnit[] _barracksUnits;
 
         public int UnitHealth { get; set; }
-
-        [SerializeField] private InputManager input;
 
         protected override void Awake()
         {

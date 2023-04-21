@@ -1,65 +1,60 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using DG.Tweening;
 using GameControl;
 using UnityEngine;
 
-public class Bullet : MonoBehaviour
+namespace WeaponControl
 {
-    private Transform target;
-    private int damage;
-    private Rigidbody rigid;
-    private AudioSource audioSource;
-
-    [SerializeField] private string tagName;
-    [SerializeField] private float bulletSpeed;
-    [SerializeField] private AudioClip enableAudio;
-
-    private void Awake()
+    public abstract class Bullet : MonoBehaviour
     {
-        rigid = GetComponent<Rigidbody>();
-        audioSource = GetComponent<AudioSource>();
-    }
+        private int damage;
+        private AudioSource audioSource;
+        
+        protected Transform target;
+        protected Rigidbody rigid;
+        protected float BulletSpeed => bulletSpeed;
 
-    private void OnEnable()
-    {
-        audioSource.PlayOneShot(enableAudio);
-        if (target == null) return;
-        var position = target.position;
-        transform.forward = (position - rigid.position).normalized;
-        rigid.DoMove(position + new Vector3(0, 1, 0), bulletSpeed).SetSpeedBased();
-    }
+        [SerializeField] private float bulletSpeed;
+        [SerializeField] private AudioClip enableAudio;
 
-    // private void FixedUpdate()
-    // {
-    //     var dir = (target.position - rigid.position).normalized;
-    //     rigid.velocity = dir * bulletSpeed;
-    //     transform.forward = dir;
-    // }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag(tagName))
+        private void Awake()
         {
-            ProjectileHit(other);
-            gameObject.SetActive(false);
+            rigid = GetComponent<Rigidbody>();
+            audioSource = GetComponent<AudioSource>();
         }
-    }
 
-    private void ProjectileHit(Component other)
-    {
-        var pos = transform.position;
-        StackObjectPool.Get("BulletExplosionSFX", pos);
-        if (other.TryGetComponent(out Health h))
+        protected virtual void OnEnable()
         {
-            h.TakeDamage(damage, other.gameObject);
+            audioSource.PlayOneShot(enableAudio);
         }
-    }
 
-    public void Init(Transform t, int d)
-    {
-        target = t;
-        damage = d;
+        private void FixedUpdate()
+        {
+            StraightPath();
+        }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            if (other.CompareTag("Enemy"))
+            {
+                BulletHit(other);
+                gameObject.SetActive(false);
+            }
+        }
+
+        protected abstract void StraightPath();
+        
+        protected virtual void BulletHit(Component other)
+        {
+            if (other.TryGetComponent(out Health h))
+            {
+                h.TakeDamage(damage, other.gameObject);
+            }
+        }
+
+        public void Init(Transform t, int d)
+        {
+            target = t;
+            damage = d;
+        }
     }
 }

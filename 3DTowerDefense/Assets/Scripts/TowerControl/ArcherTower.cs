@@ -56,8 +56,8 @@ namespace TowerControl
             onAttackEvent += TowerLevel switch
             {
                 4 => () => MultiArcher().Forget(),
-                3 => () => AmmoSpawn<Bullet>("Bullet", 0).Init(target, Damage),
-                _ => () => AmmoSpawn<Projectile>("ArrowProjectile", 0).Init(target, Damage)
+                3 => () => AmmoSpawn<Bullet>("ArcherBullet", 0).Init(target, Damage),
+                _ => () => AmmoSpawn<Projectile>("ArcherProjectile", 0).Init(target, Damage)
             };
         }
 
@@ -80,13 +80,13 @@ namespace TowerControl
         {
             for (var i = 0; i < 2; i++)
             {
-                AmmoSpawn<Projectile>("ArrowProjectile", i).Init(target, Damage);
+                AmmoSpawn<Projectile>("ArcherProjectile", i).Init(target, Damage);
 
                 await UniTask.Delay(500);
             }
         }
 
-        private T AmmoSpawn<T>(string tagName, int index) where T : MonoBehaviour
+        private T AmmoSpawn<T>(string tagName, int index) where T : Component
         {
             _archerUnits[index].TargetUpdate(target, isTargeting);
             return StackObjectPool.Get<T>(tagName, _archerUnits[index].transform.position);

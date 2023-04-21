@@ -85,7 +85,7 @@ namespace TowerControl
             StackObjectPool.Get("CanonSmoke", pos);
             var m = StackObjectPool.Get<Projectile>("CanonBullet", pos);
             m.Init(t, Damage);
-            if (m.TryGetComponent(out Canon u))
+            if (m.TryGetComponent(out CanonProjectile u))
                 u.CanonMeshFilter.sharedMesh = canonMeshFilters[TowerLevel].sharedMesh;
         }
     }

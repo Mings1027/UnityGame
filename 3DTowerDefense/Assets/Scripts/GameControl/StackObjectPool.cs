@@ -8,11 +8,16 @@ namespace GameControl
     public class StackObjectPool : Singleton<StackObjectPool>
     {
         [Serializable]
-        public class Pool
+        public class Pool : IComparable<Pool>
         {
             public string tag;
             public GameObject prefab;
             public int size;
+
+            public int CompareTo(Pool other)
+            {
+                return string.Compare(tag, other.tag, StringComparison.Ordinal);
+            }
         }
 
         private static StackObjectPool inst;
@@ -25,6 +30,8 @@ namespace GameControl
 
         private void Awake()
         {
+            Array.Sort(pools);
+            
             inst = Instance;
             _poolDictionary = new Dictionary<string, Stack<GameObject>>();
             //미리 생성
@@ -83,14 +90,6 @@ namespace GameControl
         {
             var obj = inst.Spawn(tag, position, Quaternion.identity);
             if (obj.TryGetComponent(out T component)) return component;
-            obj.SetActive(false);
-            throw new Exception("Component not found");
-        }
-
-        public static T Test<T>(string tag, Vector3 position)
-        {
-            var obj = inst.Spawn(tag, position, Quaternion.identity);
-            if (obj.TryGetComponent(out T c)) return c;
             obj.SetActive(false);
             throw new Exception("Component not found");
         }

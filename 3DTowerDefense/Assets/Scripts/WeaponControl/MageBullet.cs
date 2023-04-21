@@ -3,19 +3,21 @@ using UnityEngine;
 
 namespace WeaponControl
 {
-    public class MageBullet : Projectile
+    public class MageBullet : Bullet
     {
-        protected override void FixedUpdate()
+        protected override void StraightPath()
         {
-            
+            var dir = (target.position - rigid.position).normalized;
+            rigid.velocity = dir * (BulletSpeed * Time.fixedDeltaTime);
+            transform.forward = dir;
         }
 
-        protected override void ProjectileHit(Collider col)
+        protected override void BulletHit(Component other)
         {
             var pos = transform.position;
-            StackObjectPool.Get("MageEffect", pos);
-            StackObjectPool.Get("MageExplosionSFX", pos);
-            Damaging(col);
+            StackObjectPool.Get("MageHitSFX",pos);
+            StackObjectPool.Get("MageHitVFX", pos);
+            base.BulletHit(other);
         }
     }
 }

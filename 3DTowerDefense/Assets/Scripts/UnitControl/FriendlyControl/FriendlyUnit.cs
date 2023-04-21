@@ -4,7 +4,7 @@ namespace UnitControl.FriendlyControl
 {
     public abstract class FriendlyUnit : Unit
     {
-        private void Update()
+        protected override void Update()
         {
             if (gameManager.IsPause) return;
             if (!isTargeting) return;

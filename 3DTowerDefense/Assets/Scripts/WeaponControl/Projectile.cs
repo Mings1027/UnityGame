@@ -1,4 +1,3 @@
-using System;
 using GameControl;
 using UnityEngine;
 
@@ -50,6 +49,7 @@ namespace WeaponControl
             curPos.y += curve.Evaluate(lerp);
             var t = transform;
             var dir = (curPos - t.position).normalized;
+            if (dir == Vector3.zero) dir = t.forward;
             t.position = curPos;
             t.forward = dir;
         }
