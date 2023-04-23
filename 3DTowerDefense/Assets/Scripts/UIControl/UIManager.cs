@@ -153,7 +153,7 @@ namespace UIControl
             bUpgradeButton = towerEditPanel.transform.Find("B UpgradeButton").gameObject;
             moveUnitButton = towerEditPanel.transform.Find("MoveUnitButton").gameObject;
             sellButton = towerEditPanel.transform.Find("SellButton").gameObject;
-            
+
             upgradeButton.GetComponent<Button>().onClick.AddListener(UpgradeButton);
             aUpgradeButton.GetComponent<Button>().onClick.AddListener(() => UniqueUpgradeButton(3));
             bUpgradeButton.GetComponent<Button>().onClick.AddListener(() => UniqueUpgradeButton(4));
@@ -200,6 +200,21 @@ namespace UIControl
             _towerSelectPanelSequence.OnComplete(() => _isOpenSelectPanel = true).Restart();
         }
 
+        private void SelectTowerButton(int index)
+        {
+            if (!_isOpenSelectPanel) return;
+            if (!_isPressTowerButton) return;
+            if (_lastIndex != index)
+            {
+                TowerSelectButton(index);
+            }
+            else
+            {
+                OkButton();
+                _lastIndex = -1;
+            }
+        }
+
         private void TowerSelectButton(int index)
         {
             var tempTowerLevel = towerLevelManagers[index].towerLevels[0];
@@ -217,21 +232,6 @@ namespace UIControl
 
             if (towerRangeIndicator.enabled) return;
             towerRangeIndicator.enabled = true;
-        }
-
-        private void SelectTowerButton(int index)
-        {
-            if (!_isOpenSelectPanel) return;
-            if (!_isPressTowerButton) return;
-            if (_lastIndex != index)
-            {
-                TowerSelectButton(index);
-            }
-            else
-            {
-                OkButton();
-                _lastIndex = -1;
-            }
         }
 
         #endregion
