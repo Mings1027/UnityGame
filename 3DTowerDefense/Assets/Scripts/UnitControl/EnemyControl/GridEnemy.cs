@@ -19,7 +19,7 @@ namespace UnitControl.EnemyControl
         private void Start()
         {
             cam = Camera.main;
-            input.onMoveUnitEvent += Move;
+            // input.onMoveUnitEvent += Move;
         }
 
         private void Move()

@@ -162,9 +162,9 @@ namespace UIControl
             okButton.GetComponent<Button>().onClick.AddListener(OkButton);
             moveUnitButton.GetComponent<Button>().onClick.AddListener(MoveUnitButton);
 
-            input.onMoveUnitEvent += MoveUnit;
-            input.onClosePanelEvent += CloseUI;
-            input.onSelectTowerButtonEvent += SelectTowerButton;
+            // input.onMoveUnitEvent += MoveUnit;
+            // input.onClosePanelEvent += CloseUI;
+            // input.onSelectTowerButtonEvent += SelectTowerButton;
 
             towerSelectPanel.SetActive(false);
             towerEditPanel.SetActive(false);
@@ -310,7 +310,7 @@ namespace UIControl
 
         private void MoveUnitButton()
         {
-            input.IsMoveUnit = true;
+            // input.IsMoveUnit = true;
             moveUnitButton.SetActive(false);
             ResetUI();
             var moveUnitIndicatorTransform = moveUnitIndicator.transform;

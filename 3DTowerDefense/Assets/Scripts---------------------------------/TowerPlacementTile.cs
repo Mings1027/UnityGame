@@ -7,24 +7,16 @@ using UnityEngine.EventSystems;
 public class TowerPlacementTile : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler,
     IPointerUpHandler
 {
-    private Outline outline;
+    public bool IsPlaced { get; set; }
+    public event Action<TowerPlacementTile, Transform> onOpenTowerPanelEvent;
 
-    public event Action<Transform> onOpenTowerPanelEvent;
-
-    private void Awake()
-    {
-        outline = GetComponent<Outline>();
-        outline.enabled = false;
-    }
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        outline.enabled = true;
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        outline.enabled = false;
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -33,6 +25,7 @@ public class TowerPlacementTile : MonoBehaviour, IPointerEnterHandler, IPointerE
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        onOpenTowerPanelEvent?.Invoke(transform);
+        if (IsPlaced) return;
+        onOpenTowerPanelEvent?.Invoke(this, transform);
     }
 }

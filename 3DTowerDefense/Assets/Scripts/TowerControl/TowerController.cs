@@ -12,19 +12,19 @@ namespace TowerControl
         public static void MoveBarrackUnit(InputManager input, Camera cam, Tower curTower,
             MeshRenderer moveUnitIndicator)
         {
-            var ray = cam.ScreenPointToRay(input.MousePos);
-            if (!Physics.Raycast(ray, out var hit)) return;
-            if (Vector3.Distance(curTower.transform.position, hit.point) < curTower.TowerRange)
-            {
-                if (!hit.collider.CompareTag("Ground")) return;
-                input.IsMoveUnit = false;
-                moveUnitIndicator.enabled = false;
-                curTower.GetComponent<BarracksTower>().MoveUnits(hit.point);
-            }
-            else
-            {
-                print("Can't Move");
-            }
+            // var ray = cam.ScreenPointToRay(input.MousePos);
+            // if (!Physics.Raycast(ray, out var hit)) return;
+            // if (Vector3.Distance(curTower.transform.position, hit.point) < curTower.TowerRange)
+            // {
+            //     if (!hit.collider.CompareTag("Ground")) return;
+            //     input.IsMoveUnit = false;
+            //     moveUnitIndicator.enabled = false;
+            //     curTower.GetComponent<BarracksTower>().MoveUnits(hit.point);
+            // }
+            // else
+            // {
+            //     print("Can't Move");
+            // }
         }
 
         public static async UniTaskVoid TowerUpgrade(int level, IReadOnlyList<TowerLevelManager> towerLevelManagers,

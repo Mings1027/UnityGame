@@ -26,7 +26,7 @@ namespace Minimalist.MapBuilder
         [Header("Base:")]
         public EditModeInstanceBhv basePrefab;
         public Color baseColor = Color.black;
-        public Vector3Int baseScale = new Vector3Int(25, 1, 25);
+        public Vector3Int baseScale = new Vector3Int(50, 1, 50);
 
         [Header("Tiles:")]
         public EditModeInstanceBhv tilePrefab;
@@ -190,9 +190,9 @@ namespace Minimalist.MapBuilder
 
         private void ValidateBaseScale()
         {
-            int x = (int)Mathf.Clamp(baseScale.x, 1, 50);
+            int x = (int)Mathf.Clamp(baseScale.x, 1, 100);
             int y = (int)Mathf.Clamp(baseScale.y, 1, 50);
-            int z = (int)Mathf.Clamp(baseScale.z, 1, 50);
+            int z = (int)Mathf.Clamp(baseScale.z, 1, 100);
 
             baseScale = new Vector3Int(x, y, z);
         }

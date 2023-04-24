@@ -18,8 +18,8 @@ namespace ManagerControl
 
         private void Start()
         {
-            input.onPauseEvent += Pause;
-            input.onResumeEvent += Resume;
+            // input.onPauseEvent += Pause;
+            // input.onResumeEvent += Resume;
         }
 
         private void Pause()

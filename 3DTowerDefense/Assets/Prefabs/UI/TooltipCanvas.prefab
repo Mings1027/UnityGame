@@ -335,8 +335,6 @@ GameObject:
   - component: {fileID: 7625825398440312277}
   - component: {fileID: 7625825398440312276}
   - component: {fileID: 7625825398440312279}
-  - component: {fileID: 7625825398440312278}
-  - component: {fileID: 7625825398440312282}
   - component: {fileID: 7625825398440312283}
   m_Layer: 0
   m_Name: Tooltip
@@ -431,40 +429,6 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
---- !u!114 &7625825398440312278
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7625825398440312272}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_HorizontalFit: 2
-  m_VerticalFit: 2
---- !u!114 &7625825398440312282
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7625825398440312272}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_IgnoreLayout: 0
-  m_MinWidth: -1
-  m_MinHeight: -1
-  m_PreferredWidth: 300
-  m_PreferredHeight: -1
-  m_FlexibleWidth: -1
-  m_FlexibleHeight: -1
-  m_LayoutPriority: 1
 --- !u!114 &7625825398440312283
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -479,5 +443,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   headerField: {fileID: 7625825397154928186}
   contentField: {fileID: 7625825397797323410}
-  layoutElement: {fileID: 7625825398440312282}
+  layoutElement: {fileID: 0}
   wrapLimit: 80

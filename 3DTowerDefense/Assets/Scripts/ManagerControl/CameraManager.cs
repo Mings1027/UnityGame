@@ -15,8 +15,6 @@ namespace ManagerControl
 
         private void Awake()
         {
-            input.onCameraMoveEvent += CameraMove;
-            input.onCameraRotateEvent += CameraRotate;
         }
 
         private void CameraMove(Vector2 moveVec)
