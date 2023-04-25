@@ -1,5 +1,3 @@
-using System;
-using BuildControl;
 using DG.Tweening;
 using GameControl;
 using ManagerControl;
@@ -7,16 +5,12 @@ using TMPro;
 using ToolTipControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
-public class TowerPlacementManager : Singleton<TowerPlacementManager>, IPointerEnterHandler, IPointerExitHandler,
-    IPointerDownHandler, IPointerUpHandler
+public class TowerPlacementManager : Singleton<TowerPlacementManager>, IPointerDownHandler, IPointerUpHandler
 {
     private Tweener towerSelectPanelTween;
     private Tweener towerEditPanelTween;
-    private Camera cam;
-    private Vector3 touchPoint;
     private Vector3 placePos;
     private Quaternion placeRot;
     private Turret curSelectedTurret;
@@ -28,7 +22,7 @@ public class TowerPlacementManager : Singleton<TowerPlacementManager>, IPointerE
     private bool isTower;
     private bool isSell;
 
-    public EventSystem eventSystem;
+    private EventSystem eventSystem;
 
     [SerializeField] private InputManager input;
     [SerializeField] private LayerMask groundLayer;
@@ -36,18 +30,17 @@ public class TowerPlacementManager : Singleton<TowerPlacementManager>, IPointerE
     [SerializeField] private Transform towerSelectPanel;
 
     [SerializeField] private GameObject towerEditPanel;
-    [SerializeField] private Button changeTypeButton;
+    [SerializeField] private Button turretUpgradeButton;
     [SerializeField] private Button sellButton;
 
     [SerializeField] private GameObject okButton;
-    [SerializeField] private MeshRenderer rangeIndicator;
     [SerializeField] private Transform content;
     [SerializeField] private Button[] towerButtons;
     [SerializeField] private TurretData[] turretData;
 
     private void Awake()
     {
-        cam = Camera.main;
+        lastIndex = -1;
         eventSystem = EventSystem.current;
         Input.multiTouchEnabled = false;
 
@@ -67,18 +60,10 @@ public class TowerPlacementManager : Singleton<TowerPlacementManager>, IPointerE
         }
 
         okButton.GetComponent<Button>().onClick.AddListener(OkButton);
-        changeTypeButton.onClick.AddListener(TurretChangeType);
+        turretUpgradeButton.onClick.AddListener(TurretUpgrade);
         sellButton.onClick.AddListener(SellTower);
 
         input.onClosePanelEvent += CloseUI;
-    }
-
-    public void OnPointerEnter(PointerEventData eventData)
-    {
-    }
-
-    public void OnPointerExit(PointerEventData eventData)
-    {
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -97,21 +82,78 @@ public class TowerPlacementManager : Singleton<TowerPlacementManager>, IPointerE
         }
     }
 
-    public void OpenTowerPanel(TowerPlacementTile towerPlacementTile, Transform t)
+    public void OpenTowerPanel(TowerPlacementTile tile, Transform t)
     {
-        curSelectedPlaceTile = towerPlacementTile;
+        if (tile == curSelectedPlaceTile) return;
+        CloseUI();
+        curSelectedPlaceTile = tile;
         isTower = false;
         placePos = t.position;
         placeRot = t.rotation;
         if (isTowerPanel) return;
-        // towerSelectPanelTween.Restart();
+        towerSelectPanelTween.Restart();
+    }
+
+    private void OpenEditPanel(Turret t)
+    {
+        if (t == curSelectedTurret) return;
+        CloseUI();
+        turretUpgradeButton.interactable = !t.IsUpgraded;
+        isTower = true;
+
+        curSelectedTurret = t;
+        if (isEditPanel) return;
+        towerEditPanelTween.Restart();
+    }
+
+    private void ResetOutline()
+    {
+        if (curSelectedTurret != null)
+        {
+            curSelectedTurret.Outline.enabled = false;
+        }
+
+        if (curSelectedPlaceTile != null)
+        {
+            curSelectedPlaceTile.Outline.enabled = false;
+        }
+    }
+
+    private void CloseUI()
+    {
+        ResetOutline();
+        lastIndex = -1;
+        if (isTowerPanel)
+        {
+            isTowerPanel = false;
+            towerSelectPanelTween.PlayBackwards();
+        }
+
+        if (isEditPanel)
+        {
+            isEditPanel = false;
+            towerEditPanelTween.PlayBackwards();
+        }
+
+        if (tooltip.gameObject.activeSelf)
+        {
+            tooltip.Hide();
+        }
+
+        if (okButton.gameObject.activeSelf)
+        {
+            okButton.gameObject.SetActive(false);
+        }
+
+        curSelectedTurret = null;
+        curSelectedPlaceTile = null;
     }
 
     private void TowerSelectButton(int index)
     {
         if (lastIndex != index)
         {
-            TowerSelect(index);
+            SelectedOtherButton(index);
         }
         else
         {
@@ -120,7 +162,7 @@ public class TowerPlacementManager : Singleton<TowerPlacementManager>, IPointerE
         }
     }
 
-    private void TowerSelect(int index)
+    private void SelectedOtherButton(int index)
     {
         towerIndex = index;
         lastIndex = index;
@@ -166,54 +208,26 @@ public class TowerPlacementManager : Singleton<TowerPlacementManager>, IPointerE
         curSelectedTurret.gameObject.SetActive(false);
     }
 
-    private void OpenEditPanel(Turret t)
-    {
-        touchPoint = t.transform.position;
-        isTower = true;
-        curSelectedTurret = t;
-        Physics.Raycast(curSelectedTurret.transform.position, Vector3.down, out var hit, 5, groundLayer);
-        rangeIndicator.transform.position = hit.point;
-        rangeIndicator.enabled = true;
-        // towerEditPanelTween.Restart();
-        changeTypeButton.interactable = curSelectedTurret.BaseCount != 1;
-    }
-
-    private void CloseUI()
-    {
-        lastIndex = -1;
-        if (isTowerPanel)
-        {
-            isTowerPanel = false;
-            towerSelectPanelTween.PlayBackwards();
-        }
-
-        if (isEditPanel)
-        {
-            isEditPanel = false;
-            towerEditPanelTween.PlayBackwards();
-        }
-
-        if (tooltip.gameObject.activeSelf)
-        {
-            tooltip.Hide();
-        }
-
-        if (okButton.gameObject.activeSelf)
-        {
-            okButton.gameObject.SetActive(false);
-        }
-    }
 
     private void PlaceTower()
     {
-        if (curSelectedPlaceTile.IsPlaced) return;
-        StackObjectPool.Get<Turret>(turretData[towerIndex].name, placePos + new Vector3(0, 0.5f, 0))
-            .onOpenEditPanelEvent += OpenEditPanel;
-        curSelectedPlaceTile.IsPlaced = true;
+        var t = StackObjectPool.Get<Turret>(turretData[towerIndex].name, placePos + new Vector3(0, 0.5f, 0));
+        t.onOpenEditPanelEvent += OpenEditPanel;
     }
 
-    private void TurretChangeType()
+    private void TurretUpgrade()
     {
-        curSelectedTurret.ChangeTurretType(curSelectedTurret.type == 0 ? 1 : 0);
+        if (curSelectedTurret == null) return;
+        if (curSelectedTurret.IsUpgraded) return;
+        curSelectedTurret.gameObject.SetActive(false);
+        curSelectedTurret =
+            StackObjectPool.Get<Turret>(curSelectedTurret.name + "2", curSelectedTurret.transform.position);
+        curSelectedTurret.onOpenEditPanelEvent += OpenEditPanel;
+        curSelectedTurret.IsUpgraded = true;
+        curSelectedTurret.Upgrade();
+
+        turretUpgradeButton.interactable = false;
+
+        CloseUI();
     }
 }

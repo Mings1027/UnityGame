@@ -1,50 +1,69 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using AttackControl;
+using DG.Tweening;
 using GameControl;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class Turret : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
-    private Transform[] turretBody;
-    private Transform curTurret;
+    private TurretWeapon curTurret;
 
-    [Range(0, 1)] public int type;
-    public int BaseCount => turretBody.Length;
+    private Tween atkDelayTween;
+    private Collider[] targetColliders;
+    private Transform target;
+    private bool isTargeting;
+    private bool attackAble;
 
-    [SerializeField] private int rotateSpeed;
+    public bool IsUpgraded { get; set; }
+    public Outline Outline { get; private set; }
     public event Action<Turret> onOpenEditPanelEvent;
 
+    [SerializeField] private int minDamage, maxDamage;
+    [SerializeField] private int atkRange;
+    [SerializeField] private float atkDelay;
+    [SerializeField] private LayerMask targetLayer;
+    [SerializeField] private int rotateSpeed;
 
     private void Awake()
     {
-        turretBody = new Transform[transform.childCount];
-        for (int i = 0; i < turretBody.Length; i++)
-        {
-            turretBody[i] = transform.GetChild(i);
-        }
+        Outline = GetComponent<Outline>();
+        curTurret = transform.GetChild(0).GetChild(0).GetComponent<TurretWeapon>();
 
-        if (turretBody.Length == 2)
-        {
-            turretBody[1].gameObject.SetActive(false);
-        }
+        targetColliders = new Collider[5];
     }
 
     private void OnEnable()
     {
-        curTurret = turretBody[0].GetChild(0);
-        type = 0;
+        Outline.enabled = false;
+
+        InvokeRepeating(nameof(TargetTracking), 1f, 1f);
     }
 
     private void OnDisable()
     {
         StackObjectPool.ReturnToPool(gameObject);
+        atkDelayTween?.Kill();
+        onOpenEditPanelEvent = null;
     }
 
     private void Update()
     {
-        curTurret.Rotate(Vector3.up, rotateSpeed * Time.deltaTime);
+        if (isTargeting)
+        {
+            if (attackAble)
+            {
+                Attack();
+                StartCoolDown();
+            }
+        }
+        else
+        {
+            curTurret.transform.Rotate(Vector3.up, rotateSpeed * Time.deltaTime);
+        }
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -53,18 +72,37 @@ public class Turret : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
     public void OnPointerUp(PointerEventData eventData)
     {
+        Outline.enabled = true;
         onOpenEditPanelEvent?.Invoke(this);
     }
 
-    public void ChangeTurretType(int index)
+    private void OnDrawGizmos()
     {
-        turretBody[index == 0 ? 1 : 0].gameObject.SetActive(false);
-        turretBody[index].gameObject.SetActive(true);
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, atkRange);
+    }
 
-        curTurret.gameObject.SetActive(false);
-        curTurret = turretBody[index].GetChild(0);
-        curTurret.gameObject.SetActive(true);
+    private void TargetTracking()
+    {
+        var t = SearchTarget.ClosestTarget(transform.position, atkRange, targetColliders, targetLayer);
+        target = t.Item1;
+        isTargeting = t.Item2;
+    }
 
-        type = index;
+    private void Attack()
+    {
+        curTurret.Attack();
+    }
+
+    private void StartCoolDown()
+    {
+        attackAble = false;
+        atkDelayTween.Restart();
+    }
+
+    public void Upgrade()
+    {
+        atkDelayTween?.Kill();
+        atkDelayTween = DOVirtual.DelayedCall(atkDelay, () => attackAble = true, false).SetAutoKill(false);
     }
 }

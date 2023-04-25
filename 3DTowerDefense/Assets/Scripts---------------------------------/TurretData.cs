@@ -12,8 +12,5 @@ public class TurretData : ScriptableObject
     {
         public string turretName;
         public string turretDesc;
-        public int minDamage, maxDamage;
-        public float attackRange;
-        public float attackDelay;
     }
 }
