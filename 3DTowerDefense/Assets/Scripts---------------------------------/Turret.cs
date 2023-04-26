@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using AttackControl;
 using DG.Tweening;
 using GameControl;
+using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -22,6 +23,7 @@ public class Turret : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     public Outline Outline { get; private set; }
     public event Action<Turret> onOpenEditPanelEvent;
 
+    [SerializeField] private int smoothTurnSpeed;
     [SerializeField] private int minDamage, maxDamage;
     [SerializeField] private int atkRange;
     [SerializeField] private float atkDelay;
@@ -54,6 +56,10 @@ public class Turret : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         if (isTargeting)
         {
+            var dir = target.position - curTurret.transform.position;
+            var rot = Quaternion.LookRotation(new Vector3(dir.x, 0, dir.z));
+            curTurret.transform.rotation =
+                Quaternion.Slerp(curTurret.transform.rotation, rot, smoothTurnSpeed * Time.deltaTime);
             if (attackAble)
             {
                 Attack();

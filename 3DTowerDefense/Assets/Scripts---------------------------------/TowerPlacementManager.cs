@@ -1,6 +1,5 @@
 using DG.Tweening;
 using GameControl;
-using ManagerControl;
 using TMPro;
 using ToolTipControl;
 using UnityEngine;
@@ -24,8 +23,8 @@ public class TowerPlacementManager : Singleton<TowerPlacementManager>, IPointerD
 
     private EventSystem eventSystem;
 
-    [SerializeField] private InputManager input;
-    [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private TouchMap touchMap;
+
     [SerializeField] private ToolTipSystem tooltip;
     [SerializeField] private Transform towerSelectPanel;
 
@@ -63,7 +62,7 @@ public class TowerPlacementManager : Singleton<TowerPlacementManager>, IPointerD
         turretUpgradeButton.onClick.AddListener(TurretUpgrade);
         sellButton.onClick.AddListener(SellTower);
 
-        input.onClosePanelEvent += CloseUI;
+        touchMap.onClosePanelEvent += CloseUI;
     }
 
     public void OnPointerDown(PointerEventData eventData)
@@ -85,7 +84,7 @@ public class TowerPlacementManager : Singleton<TowerPlacementManager>, IPointerD
     public void OpenTowerPanel(TowerPlacementTile tile, Transform t)
     {
         if (tile == curSelectedPlaceTile) return;
-        CloseUI();
+        ResetOutline();
         curSelectedPlaceTile = tile;
         isTower = false;
         placePos = t.position;
@@ -97,7 +96,7 @@ public class TowerPlacementManager : Singleton<TowerPlacementManager>, IPointerD
     private void OpenEditPanel(Turret t)
     {
         if (t == curSelectedTurret) return;
-        CloseUI();
+        ResetOutline();
         turretUpgradeButton.interactable = !t.IsUpgraded;
         isTower = true;
 
@@ -117,23 +116,18 @@ public class TowerPlacementManager : Singleton<TowerPlacementManager>, IPointerD
         {
             curSelectedPlaceTile.Outline.enabled = false;
         }
+
+        isTowerPanel = false;
+        towerSelectPanelTween.PlayBackwards();
+        
+        isEditPanel = false;
+        towerEditPanelTween.PlayBackwards();
     }
 
     private void CloseUI()
     {
         ResetOutline();
         lastIndex = -1;
-        if (isTowerPanel)
-        {
-            isTowerPanel = false;
-            towerSelectPanelTween.PlayBackwards();
-        }
-
-        if (isEditPanel)
-        {
-            isEditPanel = false;
-            towerEditPanelTween.PlayBackwards();
-        }
 
         if (tooltip.gameObject.activeSelf)
         {
@@ -186,10 +180,6 @@ public class TowerPlacementManager : Singleton<TowerPlacementManager>, IPointerD
             {
                 SellTower();
             }
-            else
-            {
-                TowerUpgrade();
-            }
         }
         else
         {
@@ -199,16 +189,12 @@ public class TowerPlacementManager : Singleton<TowerPlacementManager>, IPointerD
         CloseUI();
     }
 
-    private void TowerUpgrade()
-    {
-    }
-
     private void SellTower()
     {
         curSelectedTurret.gameObject.SetActive(false);
+        curSelectedTurret = null;
     }
-
-
+    
     private void PlaceTower()
     {
         var t = StackObjectPool.Get<Turret>(turretData[towerIndex].name, placePos + new Vector3(0, 0.5f, 0));

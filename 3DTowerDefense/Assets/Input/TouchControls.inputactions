@@ -2,12 +2,12 @@
     "name": "TouchControls",
     "maps": [
         {
-            "name": "UI",
+            "name": "Touch",
             "id": "b4cc9d02-b1b9-4df0-a4f4-a32a49462b08",
             "actions": [
                 {
                     "name": "TouchPosition",
-                    "type": "PassThrough",
+                    "type": "Value",
                     "id": "dcf5111e-c34f-469f-aa00-5fa256da8372",
                     "expectedControlType": "Vector2",
                     "processors": "",
@@ -16,7 +16,7 @@
                 },
                 {
                     "name": "TouchClick",
-                    "type": "PassThrough",
+                    "type": "Button",
                     "id": "22490d37-281f-4351-b356-60096b2efc4e",
                     "expectedControlType": "Button",
                     "processors": "",
@@ -50,10 +50,10 @@
                 {
                     "name": "",
                     "id": "c556593a-f5b8-4e43-a1d3-ec19b5e36a7e",
-                    "path": "<Touchscreen>/touch*/position",
+                    "path": "<Touchscreen>/position",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "MOBILE",
                     "action": "TouchPosition",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -83,10 +83,10 @@
                 {
                     "name": "",
                     "id": "09423ac9-9ffc-43ac-b7f1-e289405e7555",
-                    "path": "<Touchscreen>/touch*/press",
+                    "path": "<Touchscreen>/Press",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": "MOBILE",
                     "action": "TouchClick",
                     "isComposite": false,
                     "isPartOfComposite": false

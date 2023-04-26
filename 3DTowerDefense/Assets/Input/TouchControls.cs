@@ -26,12 +26,12 @@ namespace TowerDefenseInput
     ""name"": ""TouchControls"",
     ""maps"": [
         {
-            ""name"": ""UI"",
+            ""name"": ""Touch"",
             ""id"": ""b4cc9d02-b1b9-4df0-a4f4-a32a49462b08"",
             ""actions"": [
                 {
                     ""name"": ""TouchPosition"",
-                    ""type"": ""PassThrough"",
+                    ""type"": ""Value"",
                     ""id"": ""dcf5111e-c34f-469f-aa00-5fa256da8372"",
                     ""expectedControlType"": ""Vector2"",
                     ""processors"": """",
@@ -40,7 +40,7 @@ namespace TowerDefenseInput
                 },
                 {
                     ""name"": ""TouchClick"",
-                    ""type"": ""PassThrough"",
+                    ""type"": ""Button"",
                     ""id"": ""22490d37-281f-4351-b356-60096b2efc4e"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
@@ -74,10 +74,10 @@ namespace TowerDefenseInput
                 {
                     ""name"": """",
                     ""id"": ""c556593a-f5b8-4e43-a1d3-ec19b5e36a7e"",
-                    ""path"": ""<Touchscreen>/touch*/position"",
+                    ""path"": ""<Touchscreen>/position"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
+                    ""groups"": ""MOBILE"",
                     ""action"": ""TouchPosition"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
@@ -107,10 +107,10 @@ namespace TowerDefenseInput
                 {
                     ""name"": """",
                     ""id"": ""09423ac9-9ffc-43ac-b7f1-e289405e7555"",
-                    ""path"": ""<Touchscreen>/touch*/press"",
+                    ""path"": ""<Touchscreen>/Press"",
                     ""interactions"": """",
                     ""processors"": """",
-                    ""groups"": """",
+                    ""groups"": ""MOBILE"",
                     ""action"": ""TouchClick"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
@@ -143,10 +143,10 @@ namespace TowerDefenseInput
         }
     ]
 }");
-            // UI
-            m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
-            m_UI_TouchPosition = m_UI.FindAction("TouchPosition", throwIfNotFound: true);
-            m_UI_TouchClick = m_UI.FindAction("TouchClick", throwIfNotFound: true);
+            // Touch
+            m_Touch = asset.FindActionMap("Touch", throwIfNotFound: true);
+            m_Touch_TouchPosition = m_Touch.FindAction("TouchPosition", throwIfNotFound: true);
+            m_Touch_TouchClick = m_Touch.FindAction("TouchClick", throwIfNotFound: true);
         }
 
         public void Dispose()
@@ -205,26 +205,26 @@ namespace TowerDefenseInput
             return asset.FindBinding(bindingMask, out action);
         }
 
-        // UI
-        private readonly InputActionMap m_UI;
-        private List<IUIActions> m_UIActionsCallbackInterfaces = new List<IUIActions>();
-        private readonly InputAction m_UI_TouchPosition;
-        private readonly InputAction m_UI_TouchClick;
-        public struct UIActions
+        // Touch
+        private readonly InputActionMap m_Touch;
+        private List<ITouchActions> m_TouchActionsCallbackInterfaces = new List<ITouchActions>();
+        private readonly InputAction m_Touch_TouchPosition;
+        private readonly InputAction m_Touch_TouchClick;
+        public struct TouchActions
         {
             private @TouchControls m_Wrapper;
-            public UIActions(@TouchControls wrapper) { m_Wrapper = wrapper; }
-            public InputAction @TouchPosition => m_Wrapper.m_UI_TouchPosition;
-            public InputAction @TouchClick => m_Wrapper.m_UI_TouchClick;
-            public InputActionMap Get() { return m_Wrapper.m_UI; }
+            public TouchActions(@TouchControls wrapper) { m_Wrapper = wrapper; }
+            public InputAction @TouchPosition => m_Wrapper.m_Touch_TouchPosition;
+            public InputAction @TouchClick => m_Wrapper.m_Touch_TouchClick;
+            public InputActionMap Get() { return m_Wrapper.m_Touch; }
             public void Enable() { Get().Enable(); }
             public void Disable() { Get().Disable(); }
             public bool enabled => Get().enabled;
-            public static implicit operator InputActionMap(UIActions set) { return set.Get(); }
-            public void AddCallbacks(IUIActions instance)
+            public static implicit operator InputActionMap(TouchActions set) { return set.Get(); }
+            public void AddCallbacks(ITouchActions instance)
             {
-                if (instance == null || m_Wrapper.m_UIActionsCallbackInterfaces.Contains(instance)) return;
-                m_Wrapper.m_UIActionsCallbackInterfaces.Add(instance);
+                if (instance == null || m_Wrapper.m_TouchActionsCallbackInterfaces.Contains(instance)) return;
+                m_Wrapper.m_TouchActionsCallbackInterfaces.Add(instance);
                 @TouchPosition.started += instance.OnTouchPosition;
                 @TouchPosition.performed += instance.OnTouchPosition;
                 @TouchPosition.canceled += instance.OnTouchPosition;
@@ -233,7 +233,7 @@ namespace TowerDefenseInput
                 @TouchClick.canceled += instance.OnTouchClick;
             }
 
-            private void UnregisterCallbacks(IUIActions instance)
+            private void UnregisterCallbacks(ITouchActions instance)
             {
                 @TouchPosition.started -= instance.OnTouchPosition;
                 @TouchPosition.performed -= instance.OnTouchPosition;
@@ -243,21 +243,21 @@ namespace TowerDefenseInput
                 @TouchClick.canceled -= instance.OnTouchClick;
             }
 
-            public void RemoveCallbacks(IUIActions instance)
+            public void RemoveCallbacks(ITouchActions instance)
             {
-                if (m_Wrapper.m_UIActionsCallbackInterfaces.Remove(instance))
+                if (m_Wrapper.m_TouchActionsCallbackInterfaces.Remove(instance))
                     UnregisterCallbacks(instance);
             }
 
-            public void SetCallbacks(IUIActions instance)
+            public void SetCallbacks(ITouchActions instance)
             {
-                foreach (var item in m_Wrapper.m_UIActionsCallbackInterfaces)
+                foreach (var item in m_Wrapper.m_TouchActionsCallbackInterfaces)
                     UnregisterCallbacks(item);
-                m_Wrapper.m_UIActionsCallbackInterfaces.Clear();
+                m_Wrapper.m_TouchActionsCallbackInterfaces.Clear();
                 AddCallbacks(instance);
             }
         }
-        public UIActions @UI => new UIActions(this);
+        public TouchActions @Touch => new TouchActions(this);
         private int m_MOBILESchemeIndex = -1;
         public InputControlScheme MOBILEScheme
         {
@@ -267,7 +267,7 @@ namespace TowerDefenseInput
                 return asset.controlSchemes[m_MOBILESchemeIndex];
             }
         }
-        public interface IUIActions
+        public interface ITouchActions
         {
             void OnTouchPosition(InputAction.CallbackContext context);
             void OnTouchClick(InputAction.CallbackContext context);
