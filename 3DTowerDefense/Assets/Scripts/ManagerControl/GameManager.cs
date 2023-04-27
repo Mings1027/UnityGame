@@ -8,7 +8,6 @@ namespace ManagerControl
     {
         public bool IsPause { get; private set; }
 
-        [SerializeField] private InputManager input;
         [SerializeField] private GameObject menuPanel;
 
         private void Awake()
@@ -16,11 +15,6 @@ namespace ManagerControl
             DOTween.SetTweensCapacity(500, 313);
         }
 
-        private void Start()
-        {
-            // input.onPauseEvent += Pause;
-            // input.onResumeEvent += Resume;
-        }
 
         private void Pause()
         {
