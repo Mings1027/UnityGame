@@ -9,12 +9,13 @@ namespace TurretControl
 {
     public abstract class Turret : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
-        protected TurretWeapon weapon;
-        private Tween atkDelayTween;
-        private Collider[] targetColliders;
-        protected Transform target;
-        private bool isTargeting;
-        protected bool attackAble;
+        private Tween _atkDelayTween;
+        private Collider[] _targetColliders;
+        private bool _isTargeting;
+
+        protected TurretWeapon Weapon;
+        protected Transform Target;
+        protected bool AttackAble;
 
         public bool IsUpgraded { get; set; }
         public Outline Outline { get; private set; }
@@ -30,10 +31,10 @@ namespace TurretControl
         protected virtual void Awake()
         {
             Outline = GetComponent<Outline>();
-            weapon = transform.GetChild(0).GetChild(0).GetComponent<TurretWeapon>();
+            Weapon = transform.GetChild(0).GetChild(0).GetComponent<TurretWeapon>();
 
-            targetColliders = new Collider[5];
-            atkDelayTween = DOVirtual.DelayedCall(atkDelay, () => attackAble = true, false).SetAutoKill(false);
+            _targetColliders = new Collider[5];
+            _atkDelayTween = DOVirtual.DelayedCall(atkDelay, () => AttackAble = true, false).SetAutoKill(false);
         }
 
         private void OnEnable()
@@ -46,19 +47,19 @@ namespace TurretControl
         private void OnDisable()
         {
             StackObjectPool.ReturnToPool(gameObject);
-            atkDelayTween?.Kill();
+            _atkDelayTween?.Kill();
             onOpenEditPanelEvent = null;
         }
 
         private void Update()
         {
-            if (isTargeting)
+            if (_isTargeting)
             {
                 Targeting();
             }
             else
             {
-                weapon.transform.Rotate(Vector3.up, rotateSpeed * Time.deltaTime);
+                Weapon.transform.Rotate(Vector3.up, rotateSpeed * Time.deltaTime);
             }
         }
 
@@ -82,20 +83,20 @@ namespace TurretControl
 
         private void TargetTracking()
         {
-            var t = SearchTarget.ClosestTarget(transform.position, atkRange, targetColliders, targetLayer);
-            target = t.Item1;
-            isTargeting = t.Item2;
+            var t = SearchTarget.ClosestTarget(transform.position, atkRange, _targetColliders, targetLayer);
+            Target = t.Item1;
+            _isTargeting = t.Item2;
         }
 
         protected void Attack()
         {
-            weapon.Attack();
+            Weapon.Attack();
         }
 
         protected void StartCoolDown()
         {
-            attackAble = false;
-            atkDelayTween.Restart();
+            AttackAble = false;
+            _atkDelayTween.Restart();
         }
     }
 }

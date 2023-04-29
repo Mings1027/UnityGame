@@ -1,18 +1,18 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class TowerPlacementTileController : MonoBehaviour
+namespace PlaceControl
 {
-    private void Start()
+    public class TowerPlacementTileController : MonoBehaviour
     {
-        var towerPlacementManager = TowerPlacementManager.Instance;
-        for (int i = 0; i < transform.childCount; i++)
+        private void Start()
         {
-            if (transform.GetChild(i).TryGetComponent(out TowerPlacementTile t))
+            var towerPlacementManager = TowerPlacementManager.Instance;
+            for (int i = 0; i < transform.childCount; i++)
             {
-                t.onOpenTowerPanelEvent += towerPlacementManager.OpenTowerPanel;
+                if (transform.GetChild(i).TryGetComponent(out TowerPlacementTile t))
+                {
+                    t.onOpenTowerPanelEvent += towerPlacementManager.OpenTowerSelectPanel;
+                }
             }
         }
     }

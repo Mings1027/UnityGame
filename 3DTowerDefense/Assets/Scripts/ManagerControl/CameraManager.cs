@@ -14,16 +14,13 @@ namespace ManagerControl
         private float _xRotation;
         private bool _isBusy;
 
-        private int _fingerId1 = -1, _fingerId2 = -1;
-        private Vector2 _startPos1;
-        private Vector2 _startPos2;
-        private bool _isDrawing;
-
         [SerializeField] private float moveSpeed;
+        [SerializeField] private float rotationSpeed;
         [SerializeField] private float zoomSpeed;
         [SerializeField] private float minScale, maxScale;
 
-        [SerializeField] private TextMeshProUGUI text;
+        [SerializeField] private float limitX;
+        [SerializeField] private float limitZ;
 
         private void Awake()
         {
@@ -33,82 +30,52 @@ namespace ManagerControl
         private void LateUpdate()
         {
             CameraMove();
-            SnappedRotate();
-            // CameraZoom();
+            CameraRotate();
+            CameraZoom();
         }
 
         private void CameraMove()
+        {
+            if (Input.touchCount == 2)
+            {
+                var touch = Input.GetTouch(0);
+                if (touch.phase == TouchPhase.Moved)
+                {
+                    var t = transform;
+                    var pos = t.right * (touch.deltaPosition.x * -moveSpeed);
+                    pos += t.forward * (touch.deltaPosition.y * -moveSpeed);
+                    pos.y = 0;
+                    var newPos = t.position + pos * Time.deltaTime;
+
+                    newPos.x = Mathf.Clamp(newPos.x, -limitX, limitX);
+                    newPos.z = Mathf.Clamp(newPos.z, -limitZ, limitZ);
+
+                    transform.position = newPos;
+                }
+                else if (touch.phase == TouchPhase.Ended)
+                {
+                    _isBusy = true;
+                }
+            }
+        }
+
+        private void CameraRotate()
         {
             if (Input.touchCount == 1)
             {
                 var touch = Input.GetTouch(0);
                 if (touch.phase == TouchPhase.Moved)
                 {
-                    var pos = transform.right * (touch.deltaPosition.x * -moveSpeed);
-                    pos += transform.up * (touch.deltaPosition.y * -moveSpeed);
-                    transform.position += pos * Time.deltaTime;
+                    transform.Rotate(new Vector3(_xRotation, -touch.deltaPosition.x * rotationSpeed, 0.0f));
+                    transform.rotation = Quaternion.Euler(_xRotation, transform.rotation.eulerAngles.y, 0.0f);
                 }
-            }
-        }
-
-        private void SnappedRotate()
-        {
-            if (Input.touchCount == 2)
-            {
-                // 두 개의 손가락이 터치되면
-                Touch touch1 = Input.GetTouch(0);
-                Touch touch2 = Input.GetTouch(1);
-
-                if (touch1.phase == TouchPhase.Began && touch2.phase == TouchPhase.Began)
+                else if (touch.phase == TouchPhase.Ended)
                 {
-                    // 두 손가락이 처음 터치될 때
-                    if (_fingerId1 == -1 && _fingerId2 == -1)
-                    {
-                        _fingerId1 = touch1.fingerId;
-                        _fingerId2 = touch2.fingerId;
-                        _startPos1 = touch1.position;
-                        _startPos2 = touch2.position;
-                        _isDrawing = true;
-                    }
-                }
-
-                if (touch1.fingerId == _fingerId1 && touch2.fingerId == _fingerId2)
-                {
-                    // 두 손가락이 움직이는 중일 때
-                    Vector2 currentPos1 = touch1.position;
-                    Vector2 currentPos2 = touch2.position;
-
-                    Vector2 dir1 = currentPos1 - _startPos1;
-                    Vector2 dir2 = currentPos2 - _startPos2;
-
-                    float angle = Vector2.Angle(dir1, dir2);
-                    text.text = angle.ToString(CultureInfo.CurrentCulture);
-                    if (angle is > 315f or < 45f)
-                    {
-                        print("rotate");
-                        // 두 손가락의 이동 벡터가 45도 각도에 가까우면 원을 그리는 동작으로 간주합니다.
-                        // 여기서는 angle이 315도보다 크거나 45도보다 작으면 원을 그리는 동작으로 처리합니다.
-                        // 각도를 변경하여 원 그리는 동작의 정확도를 조절할 수 있습니다.
-                        CameraRotation();
-                        // 원을 그리는 동작을 처리하는 함수를 호출합니다.
-                    }
+                    transform.DORotate(SnappedVector(), 0.5f)
+                        .SetEase(Ease.OutBounce)
+                        .OnComplete(() => _isBusy = false);
                 }
             }
-
-            if (Input.touchCount < 2 && _isDrawing)
-            {
-                // 두 손가락 중 하나가 떼어지면 동작을 종료합니다.
-                _fingerId1 = -1;
-                _fingerId2 = -1;
-                _isDrawing = false;
-            }
-        }
-
-        private void CameraRotation()
-        {
-            transform.DORotate(SnappedVector(), 0.5f)
-                .SetEase(Ease.OutBounce)
-                .OnComplete(() => _isBusy = false);
         }
 
         private Vector3 SnappedVector()

@@ -6,16 +6,16 @@ namespace BulletEffectControl
 {
     public class BulletVFX : MonoBehaviour
     {
-        private ParticleSystem particle;
+        private ParticleSystem _particle;
 
         private void Awake()
         {
-            particle = GetComponent<ParticleSystem>();
+            _particle = GetComponent<ParticleSystem>();
         }
 
         private void OnEnable()
         {
-            particle.Play();
+            _particle.Play();
             Invoke(nameof(DestroyEffect), 1);
         }
 
