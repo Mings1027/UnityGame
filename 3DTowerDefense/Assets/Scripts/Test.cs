@@ -2,17 +2,32 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Test : MonoBehaviour
+public class Test
 {
-    // Start is called before the first frame update
-    void Start()
+    public virtual void AAA()
     {
-        
+        Debug.Log("Test  AAA");
+        BBB();
     }
 
-    // Update is called once per frame
-    void Update()
+    public virtual void BBB()
     {
-        
+        Debug.Log("Test BBB");
+    }
+}
+
+public class Test2 : Test
+{
+    public new void BBB()
+    {
+        Debug.Log("Test2  BBB");
+    }
+}
+
+public class Test3 : Test
+{
+    public override void BBB()
+    {
+        Debug.Log("Test3   BBB");
     }
 }

@@ -9,7 +9,7 @@ namespace ManagerControl
     public class WaveManager : MonoBehaviour
     {
         [Serializable]
-        public class Wave
+        public struct Wave
         {
             public int enemyCount;
             public string name;
@@ -17,14 +17,26 @@ namespace ManagerControl
 
         private bool _startGame;
         private int _curWave;
+        private Transform _spawnPoint;
 
+        [SerializeField] private float spawnDelay;
         [SerializeField] private Wave[] waves;
         [SerializeField] private Transform[] wayPoints;
-        [SerializeField] private Transform spawnPoint;
 
         private void Awake()
         {
             _curWave = -1;
+        }
+
+        private void OnEnable()
+        {
+            Init();
+        }
+
+        private void Init()
+        {
+            _curWave = -1;
+            _spawnPoint = wayPoints[0];
         }
 
         public void StartGame()
@@ -39,7 +51,7 @@ namespace ManagerControl
             var enemyCount = waves[_curWave].enemyCount;
             while (enemyCount > 0)
             {
-                await UniTask.Delay(1000);
+                await UniTask.Delay(TimeSpan.FromSeconds(spawnDelay));
                 enemyCount--;
                 SpawnEnemy();
             }
@@ -49,21 +61,22 @@ namespace ManagerControl
 
         private void SpawnEnemy()
         {
-            var e = StackObjectPool.Get<Enemy>(waves[_curWave].name, spawnPoint.position);
-            e.CurWayPoint = wayPoints[0];
-            e.SetUp();
+            var e = StackObjectPool.Get<Enemy>(waves[_curWave].name, _spawnPoint.position);
+            e.Init(wayPoints[0].position, wayPoints[1].position);
             e.moveToNextWayPointEvent += SetDestination;
         }
 
         private void SetDestination(Enemy enemy)
         {
+            enemy.PrevWayPoint = wayPoints[enemy.WayPointIndex].position;
+
             if (wayPoints[enemy.WayPointIndex++] == wayPoints[^1])
             {
                 enemy.gameObject.SetActive(false);
                 return;
             }
 
-            enemy.CurWayPoint = wayPoints[enemy.WayPointIndex];
+            enemy.CurWayPoint = wayPoints[enemy.WayPointIndex].position;
         }
     }
 }

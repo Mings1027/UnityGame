@@ -1,27 +1,22 @@
 using System;
-using Cysharp.Threading.Tasks;
-using DG.Tweening;
 using GameControl;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace EnemyControl
 {
     public class Enemy : MonoBehaviour
     {
         private Rigidbody _rigid;
-
-        private float _amount;
         private float _lerp;
-        private int _interval;
-        private Vector3 _point;
-
         private Vector3 _prevPos, _curPos, _nextPos;
+        private Vector3 _dir;
 
-        public Transform CurWayPoint;
-        public int WayPointIndex;
+        public Vector3 PrevWayPoint { get; set; }
+        public Vector3 CurWayPoint { get; set; }
+        public int WayPointIndex { get; set; }
 
-        [SerializeField] private AnimationCurve bounceCurve;
+        [SerializeField] private AnimationCurve jumpCurve;
+        [SerializeField] private LayerMask groundLayer;
         [SerializeField] private float moveSpeed;
 
         public event Action<Enemy> moveToNextWayPointEvent;
@@ -31,81 +26,75 @@ namespace EnemyControl
             _rigid = GetComponent<Rigidbody>();
         }
 
-        private void OnEnable()
-        {
-            WayPointIndex = 0;
-        }
-
         private void OnDisable()
         {
             CancelInvoke();
             StackObjectPool.ReturnToPool(gameObject);
+            moveToNextWayPointEvent = null;
         }
 
         private void FixedUpdate()
         {
-            // Move();
+            Move();
         }
 
         private void Update()
         {
-            // CheckArrived();
-            DistanceToWayPoint();
-            BounceMove();
+            CheckGround();
+            CheckArrived();
+        }
+
+        private void LookWayPoint()
+        {
+            _dir = (CurWayPoint - PrevWayPoint).normalized;
+            _rigid.transform.forward = _dir;
+        }
+
+        public void Init(Vector3 firstWayPoint, Vector3 secondWayPoint)
+        {
+            _prevPos = _curPos = _nextPos = _rigid.position;
+            _lerp = 0;
+            WayPointIndex = 0;
+            PrevWayPoint = firstWayPoint;
+            CurWayPoint = secondWayPoint;
+            LookWayPoint();
         }
 
         private void Move()
         {
-            var pos = transform.position;
-            var wayPos = CurWayPoint.position;
+            if (_lerp <= 1)
+            {
+                print("move");
+                _lerp += Time.deltaTime * moveSpeed;
+                _curPos = Vector3.Lerp(_prevPos, _nextPos, _lerp);
+                _curPos.y += jumpCurve.Evaluate(_lerp);
+                _rigid.position = _curPos;
+            }
+        }
 
-            var dir = (wayPos - pos).normalized;
-
-            _rigid.MovePosition(_rigid.position + dir * (Time.fixedDeltaTime * moveSpeed));
-            _rigid.MoveRotation(Quaternion.LookRotation(dir));
+        private void CheckGround()
+        {
+            if (_lerp > 1)
+            {
+                print("check Ground");
+                Debug.DrawRay(transform.position + _dir + Vector3.up, Vector3.down);
+                if (Physics.Raycast(_rigid.position + _dir + Vector3.up, Vector3.down, 10, groundLayer))
+                {
+                    _prevPos = _rigid.position;
+                    _nextPos = _prevPos + _dir;
+                    _lerp = 0;
+                }
+            }
         }
 
         private void CheckArrived()
         {
-            if (Vector3.Distance(transform.position, CurWayPoint.position) <= 0.2f)
+            if (Vector3.Distance(_rigid.position, CurWayPoint) <= 0.5f)
             {
+                print("check Arrived");
                 moveToNextWayPointEvent?.Invoke(this);
+                LookWayPoint();
             }
-        }
-
-        private void DistanceToWayPoint()
-        {
-            if (Vector3.Distance(transform.position, CurWayPoint.position) <= 0.2f)
-            {
-                moveToNextWayPointEvent?.Invoke(this);
-                SetUp();
-            }
-        }
-
-        private void BounceMove()
-        {
-            if (_lerp < 1)
-            {
-                _curPos = Vector3.Lerp(transform.position, _point, _lerp);
-                _curPos.y += bounceCurve.Evaluate(_lerp);
-                _lerp += Time.deltaTime * moveSpeed;
-            }
-            else
-            {
-                _lerp = 0;
-                _nextPos = _point;
-                _amount += _interval;
-            }
-
-            transform.position = _curPos;
-        }
-
-        public void SetUp()
-        {
-            _lerp = 1;
-            var distance = Vector3.Distance(transform.position, CurWayPoint.position);
-            _interval = 1 / Mathf.FloorToInt(distance);
-            _point = Vector3.Lerp(transform.position, CurWayPoint.position, _amount + _interval);
         }
     }
 }
