@@ -1,3 +1,4 @@
+using BulletControl;
 using GameControl;
 using UnityEngine;
 
@@ -8,12 +9,15 @@ namespace TurretControl
         [SerializeField] private Transform[] attackPoint;
         [SerializeField] private string bulletName;
 
-        public void Attack()
+        public void Attack(int damage)
         {
             for (int i = 0; i < attackPoint.Length; i++)
             {
-                StackObjectPool.Get("CannonVFX", attackPoint[i].position);
-                StackObjectPool.Get(bulletName, attackPoint[i].position, attackPoint[i].rotation);
+                var pointPos = attackPoint[i].position;
+                var pointRot = attackPoint[i].rotation;
+                StackObjectPool.Get("BulletExplosionVFX", pointPos);
+                StackObjectPool.Get("BulletShootVFX", pointPos, pointRot);
+                StackObjectPool.Get<Bullet>(bulletName, pointPos, pointRot).damage = damage;
             }
         }
     }

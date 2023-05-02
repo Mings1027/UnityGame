@@ -1,5 +1,6 @@
 using System;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using EnemyControl;
 using GameControl;
 using UnityEngine;
@@ -61,22 +62,15 @@ namespace ManagerControl
 
         private void SpawnEnemy()
         {
-            var e = StackObjectPool.Get<Enemy>(waves[_curWave].name, _spawnPoint.position);
-            e.Init(wayPoints[0].position, wayPoints[1].position);
+            var e = StackObjectPool.Get<Enemy>(waves[_curWave].name, _spawnPoint.position + Vector3.up * 10);
             e.moveToNextWayPointEvent += SetDestination;
+            e.transform.DOMoveY(wayPoints[0].position.y, 1).SetEase(Ease.InQuint)
+                .OnComplete(() => e.Init(true, wayPoints[0].position, wayPoints[1].position));
         }
 
         private void SetDestination(Enemy enemy)
         {
-            enemy.PrevWayPoint = wayPoints[enemy.WayPointIndex].position;
-
-            if (wayPoints[enemy.WayPointIndex++] == wayPoints[^1])
-            {
-                enemy.gameObject.SetActive(false);
-                return;
-            }
-
-            enemy.CurWayPoint = wayPoints[enemy.WayPointIndex].position;
+            enemy.SetDestination(wayPoints);
         }
     }
 }

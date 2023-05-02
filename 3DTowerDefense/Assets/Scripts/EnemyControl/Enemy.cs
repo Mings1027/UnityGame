@@ -11,12 +11,12 @@ namespace EnemyControl
         private Vector3 _prevPos, _curPos, _nextPos;
         private Vector3 _dir;
 
-        public Vector3 PrevWayPoint { get; set; }
-        public Vector3 CurWayPoint { get; set; }
-        public int WayPointIndex { get; set; }
+        private Vector3 _prevWayPoint;
+        private Vector3 _curWayPoint;
+        private int _wayPointIndex;
+        private bool _startMove;
 
         [SerializeField] private AnimationCurve jumpCurve;
-        [SerializeField] private LayerMask groundLayer;
         [SerializeField] private float moveSpeed;
 
         public event Action<Enemy> moveToNextWayPointEvent;
@@ -24,6 +24,11 @@ namespace EnemyControl
         private void Awake()
         {
             _rigid = GetComponent<Rigidbody>();
+        }
+
+        private void OnEnable()
+        {
+            _startMove = false;
         }
 
         private void OnDisable()
@@ -35,66 +40,75 @@ namespace EnemyControl
 
         private void FixedUpdate()
         {
+            if (!_startMove) return;
             Move();
         }
 
         private void Update()
         {
+            if (!_startMove) return;
             CheckGround();
             CheckArrived();
         }
 
         private void LookWayPoint()
         {
-            _dir = (CurWayPoint - PrevWayPoint).normalized;
+            _dir = (_curWayPoint - _prevWayPoint).normalized;
             _rigid.transform.forward = _dir;
-        }
-
-        public void Init(Vector3 firstWayPoint, Vector3 secondWayPoint)
-        {
-            _prevPos = _curPos = _nextPos = _rigid.position;
-            _lerp = 0;
-            WayPointIndex = 0;
-            PrevWayPoint = firstWayPoint;
-            CurWayPoint = secondWayPoint;
-            LookWayPoint();
         }
 
         private void Move()
         {
-            if (_lerp <= 1)
-            {
-                print("move");
-                _lerp += Time.deltaTime * moveSpeed;
-                _curPos = Vector3.Lerp(_prevPos, _nextPos, _lerp);
-                _curPos.y += jumpCurve.Evaluate(_lerp);
-                _rigid.position = _curPos;
-            }
+            if (_lerp > 1) return;
+            _lerp += Time.deltaTime * moveSpeed;
+            _curPos = Vector3.Lerp(_prevPos, _nextPos, _lerp);
+            _curPos.y += jumpCurve.Evaluate(_lerp);
+            _rigid.position = _curPos;
         }
 
         private void CheckGround()
         {
-            if (_lerp > 1)
+            if (_lerp <= 1) return;
+            // Debug.DrawRay(transform.position + _dir + Vector3.up, Vector3.down);
+            // if (Physics.Raycast(_rigid.position + _dir + Vector3.up, Vector3.down, 10, groundLayer))
             {
-                print("check Ground");
-                Debug.DrawRay(transform.position + _dir + Vector3.up, Vector3.down);
-                if (Physics.Raycast(_rigid.position + _dir + Vector3.up, Vector3.down, 10, groundLayer))
-                {
-                    _prevPos = _rigid.position;
-                    _nextPos = _prevPos + _dir;
-                    _lerp = 0;
-                }
+                _prevPos = _rigid.position;
+                // _prevPos.y = 0.5f;
+                _nextPos = _prevPos + _dir;
+                _lerp = 0;
             }
         }
 
         private void CheckArrived()
         {
-            if (Vector3.Distance(_rigid.position, CurWayPoint) <= 0.5f)
+            if (Vector3.Distance(_rigid.position, _curWayPoint) <= 0.5f)
             {
-                print("check Arrived");
                 moveToNextWayPointEvent?.Invoke(this);
                 LookWayPoint();
             }
+        }
+
+        public void Init(bool startMove,Vector3 firstWayPoint, Vector3 secondWayPoint)
+        {
+            _startMove = startMove;
+            _prevPos = _curPos = _nextPos = firstWayPoint;
+            _lerp = 0;
+            _wayPointIndex = 0;
+            _prevWayPoint = firstWayPoint;
+            _curWayPoint = secondWayPoint;
+            LookWayPoint();
+        }
+
+        public void SetDestination(Transform[] waypoint)
+        {
+            _prevWayPoint = waypoint[_wayPointIndex].position;
+            if (waypoint[_wayPointIndex++] == waypoint[^1])
+            {
+                gameObject.SetActive(false);
+                return;
+            }
+
+            _curWayPoint = waypoint[_wayPointIndex].position;
         }
     }
 }

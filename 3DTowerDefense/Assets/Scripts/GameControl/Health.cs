@@ -9,7 +9,7 @@ namespace GameControl
 {
     public class Health : MonoBehaviour
     {
-        private CancellationTokenSource cts;
+        private CancellationTokenSource _cts;
         private Renderer _renderer;
 
         public bool IsDead { get; private set; }
@@ -27,14 +27,15 @@ namespace GameControl
 
         private void OnEnable()
         {
+            Init(maxHealth);
             _renderer.material.color = Color.white;
-            cts?.Dispose();
-            cts = new CancellationTokenSource();
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
         }
 
         private void OnDisable()
         {
-            cts?.Cancel();
+            _cts?.Cancel();
         }
 
         public void Init(int healthValue)
@@ -64,13 +65,13 @@ namespace GameControl
         private async UniTaskVoid HitEffectTask()
         {
             _renderer.material.color = Color.red;
-            await UniTask.Delay(1000, cancellationToken: cts.Token);
+            await UniTask.Delay(300, cancellationToken: _cts.Token);
             _renderer.material.color = Color.white;
         }
 
         private async UniTaskVoid DeadTask()
         {
-            await UniTask.Delay(TimeSpan.FromSeconds(disappearTime), cancellationToken: cts.Token);
+            await UniTask.Delay(TimeSpan.FromSeconds(disappearTime), cancellationToken: _cts.Token);
             gameObject.SetActive(false);
         }
     }

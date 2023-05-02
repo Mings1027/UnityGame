@@ -124,7 +124,7 @@ namespace PlaceControl
 
             _isTowerPanel = false;
             _towerSelectPanelTween.PlayBackwards();
-        
+
             _isEditPanel = false;
             _towerEditPanelTween.PlayBackwards();
         }
@@ -199,10 +199,10 @@ namespace PlaceControl
             _curSelectedTurret.gameObject.SetActive(false);
             _curSelectedTurret = null;
         }
-    
+
         private void PlaceTower()
         {
-            var t = StackObjectPool.Get<Turret>(turretData[_towerIndex].name, _placePos + new Vector3(0, 0.5f, 0));
+            var t = StackObjectPool.Get<Turret>(turretData[_towerIndex].name, _placePos);
             t.onOpenEditPanelEvent += OpenEditPanel;
         }
 

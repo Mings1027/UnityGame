@@ -4,6 +4,7 @@ using DG.Tweening;
 using GameControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using Random = UnityEngine.Random;
 
 namespace TurretControl
 {
@@ -40,14 +41,13 @@ namespace TurretControl
         private void OnEnable()
         {
             Outline.enabled = false;
-
+            AttackAble = true;
             InvokeRepeating(nameof(TargetTracking), 1f, 1f);
         }
 
         private void OnDisable()
         {
             StackObjectPool.ReturnToPool(gameObject);
-            _atkDelayTween?.Kill();
             onOpenEditPanelEvent = null;
         }
 
@@ -61,6 +61,11 @@ namespace TurretControl
             {
                 Weapon.transform.Rotate(Vector3.up, rotateSpeed * Time.deltaTime);
             }
+        }
+
+        private void OnDestroy()
+        {
+            _atkDelayTween?.Kill();
         }
 
         public void OnPointerDown(PointerEventData eventData)
@@ -90,12 +95,13 @@ namespace TurretControl
 
         protected void Attack()
         {
-            Weapon.Attack();
+            Weapon.Attack(Random.Range(minDamage, maxDamage));
         }
 
         protected void StartCoolDown()
         {
             AttackAble = false;
+
             _atkDelayTween.Restart();
         }
     }
