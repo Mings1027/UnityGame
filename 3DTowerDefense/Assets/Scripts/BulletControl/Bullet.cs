@@ -1,3 +1,5 @@
+using System;
+using DG.Tweening;
 using GameControl;
 using UnityEngine;
 
@@ -7,7 +9,10 @@ namespace BulletControl
     {
         private Rigidbody _rigid;
 
-        public int damage;
+        private float _lerp;
+        private int _damage;
+        private Transform _target;
+
         [SerializeField] private float bulletSpeed;
 
         private void Awake()
@@ -18,6 +23,7 @@ namespace BulletControl
         private void OnEnable()
         {
             Invoke(nameof(DestroyBullet), 3);
+            _lerp = 0;
         }
 
         private void OnDisable()
@@ -28,7 +34,7 @@ namespace BulletControl
 
         private void FixedUpdate()
         {
-            _rigid.MovePosition(_rigid.position + _rigid.transform.forward * (bulletSpeed * Time.deltaTime));
+            Shoot();
         }
 
         private void OnTriggerEnter(Collider other)
@@ -40,17 +46,30 @@ namespace BulletControl
             }
         }
 
+        private void Shoot()
+        {
+            if (_lerp > 1) return;
+            _lerp += bulletSpeed * Time.deltaTime;
+            _rigid.position = Vector3.Lerp(_rigid.position, _target.position, _lerp);
+        }
+
         private void Hit(Component col)
         {
             if (col.TryGetComponent(out Health health))
             {
-                health.TakeDamage(damage, gameObject);
+                health.TakeDamage(_damage, gameObject);
             }
         }
 
         private void DestroyBullet()
         {
             gameObject.SetActive(false);
+        }
+
+        public void Init(int damage, Transform target)
+        {
+            _damage = damage;
+            _target = target;
         }
     }
 }

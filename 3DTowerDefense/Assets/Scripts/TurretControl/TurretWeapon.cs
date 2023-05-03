@@ -9,7 +9,7 @@ namespace TurretControl
         [SerializeField] private Transform[] attackPoint;
         [SerializeField] private string bulletName;
 
-        public void Attack(int damage)
+        public void Attack(int damage, Transform target)
         {
             for (int i = 0; i < attackPoint.Length; i++)
             {
@@ -17,7 +17,7 @@ namespace TurretControl
                 var pointRot = attackPoint[i].rotation;
                 StackObjectPool.Get("BulletExplosionVFX", pointPos);
                 StackObjectPool.Get("BulletShootVFX", pointPos, pointRot);
-                StackObjectPool.Get<Bullet>(bulletName, pointPos, pointRot).damage = damage;
+                StackObjectPool.Get<Bullet>(bulletName, pointPos, pointRot).Init(damage, target);
             }
         }
     }

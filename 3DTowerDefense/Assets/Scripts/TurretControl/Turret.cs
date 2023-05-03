@@ -95,13 +95,12 @@ namespace TurretControl
 
         protected void Attack()
         {
-            Weapon.Attack(Random.Range(minDamage, maxDamage));
+            Weapon.Attack(Random.Range(minDamage, maxDamage), Target);
         }
 
         protected void StartCoolDown()
         {
             AttackAble = false;
-
             _atkDelayTween.Restart();
         }
     }
