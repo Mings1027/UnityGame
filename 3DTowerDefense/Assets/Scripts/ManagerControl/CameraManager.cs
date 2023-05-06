@@ -1,8 +1,4 @@
-using System;
-using System.Globalization;
-using Cysharp.Threading.Tasks;
 using DG.Tweening;
-using TMPro;
 using UnityEngine;
 
 namespace ManagerControl
@@ -13,6 +9,8 @@ namespace ManagerControl
 
         private float _xRotation;
         private bool _isBusy;
+
+        private Vector3 touchPos;
 
         [SerializeField] private float moveSpeed;
         [SerializeField] private float rotationSpeed;
@@ -27,54 +25,71 @@ namespace ManagerControl
             _cam = GetComponentInChildren<Camera>();
         }
 
+        private void Update()
+        {
+            WherePoint();
+        }
+
         private void LateUpdate()
         {
-            CameraMove();
-            CameraRotate();
+            CameraController();
             CameraZoom();
         }
 
-        private void CameraMove()
+        private void WherePoint()
         {
-            if (Input.touchCount == 2)
+            if (Input.touchCount != 1) return;
+
+            var touch = Input.GetTouch(0);
+            if (touch.phase == TouchPhase.Began)
             {
-                var touch = Input.GetTouch(0);
-                if (touch.phase == TouchPhase.Moved)
-                {
-                    var t = transform;
-                    var pos = t.right * (touch.deltaPosition.x * -moveSpeed);
-                    pos += t.forward * (touch.deltaPosition.y * -moveSpeed);
-                    pos.y = 0;
-                    var newPos = t.position + pos * Time.deltaTime;
-
-                    newPos.x = Mathf.Clamp(newPos.x, -limitX, limitX);
-                    newPos.z = Mathf.Clamp(newPos.z, -limitZ, limitZ);
-
-                    transform.position = newPos;
-                }
-                else if (touch.phase == TouchPhase.Ended)
-                {
-                    _isBusy = true;
-                }
+                touchPos = Input.GetTouch(0).position;
             }
         }
 
-        private void CameraRotate()
+        private void CameraController()
         {
-            if (Input.touchCount == 1)
+            if (Input.touchCount != 1) return;
+
+            var touch = Input.GetTouch(0);
+
+            if (touchPos.x < Screen.width * 0.5f)
             {
-                var touch = Input.GetTouch(0);
-                if (touch.phase == TouchPhase.Moved)
-                {
-                    transform.Rotate(new Vector3(_xRotation, -touch.deltaPosition.x * rotationSpeed, 0.0f));
-                    transform.rotation = Quaternion.Euler(_xRotation, transform.rotation.eulerAngles.y, 0.0f);
-                }
-                else if (touch.phase == TouchPhase.Ended)
-                {
-                    transform.DORotate(SnappedVector(), 0.5f)
-                        .SetEase(Ease.OutBounce)
-                        .OnComplete(() => _isBusy = false);
-                }
+                CameraMove(touch);
+            }
+            else
+            {
+                CameraRotate(touch);
+            }
+        }
+
+        private void CameraMove(Touch touch)
+        {
+            if (touch.phase != TouchPhase.Moved) return;
+
+            var t = transform;
+            var pos = t.right * (touch.deltaPosition.x * -moveSpeed);
+            pos += t.forward * (touch.deltaPosition.y * -moveSpeed);
+            pos.y = 0;
+            var newPos = t.position + pos * Time.deltaTime;
+
+            newPos.x = Mathf.Clamp(newPos.x, -limitX, limitX);
+            newPos.z = Mathf.Clamp(newPos.z, -limitZ, limitZ);
+
+            transform.position = newPos;
+        }
+
+        private void CameraRotate(Touch touch)
+        {
+            if (touch.phase == TouchPhase.Moved)
+            {
+                transform.Rotate(new Vector3(_xRotation, -touch.deltaPosition.x * rotationSpeed, 0.0f));
+                transform.rotation = Quaternion.Euler(_xRotation, transform.rotation.eulerAngles.y, 0.0f);
+            }
+            else if (touch.phase == TouchPhase.Ended)
+            {
+                transform.DORotate(SnappedVector(), 0.5f)
+                    .SetEase(Ease.OutBounce);
             }
         }
 
@@ -94,31 +109,29 @@ namespace ManagerControl
 
         private void CameraZoom()
         {
-            if (Input.touchCount == 2)
+            if (Input.touchCount != 2) return;
+
+            var firstTouch = Input.GetTouch(0);
+            var secondTouch = Input.GetTouch(1);
+
+            var firstTouchPrevPos = firstTouch.position - firstTouch.deltaPosition;
+            var secondTouchPrevPos = secondTouch.position - secondTouch.deltaPosition;
+
+            var touchPrevPosDiff = (firstTouchPrevPos - secondTouchPrevPos).magnitude;
+            var touchCurPosDiff = (firstTouch.position - secondTouch.position).magnitude;
+
+            var zoomModifier = (firstTouch.deltaPosition - secondTouch.deltaPosition).magnitude * zoomSpeed;
+
+            if (touchPrevPosDiff > touchCurPosDiff)
             {
-                var firstTouch = Input.GetTouch(0);
-                var secondTouch = Input.GetTouch(1);
-
-                var firstTouchPrevPos = firstTouch.position - firstTouch.deltaPosition;
-                var secondTouchPrevPos = secondTouch.position - secondTouch.deltaPosition;
-
-                var touchPrevPosDiff = (firstTouchPrevPos - secondTouchPrevPos).magnitude;
-                var touchCurPosDiff = (firstTouch.position - secondTouch.position).magnitude;
-
-                var zoomModifier = (firstTouch.deltaPosition - secondTouch.deltaPosition).magnitude * zoomSpeed;
-
-                if (touchPrevPosDiff > touchCurPosDiff)
-                {
-                    _cam.orthographicSize += zoomModifier;
-                }
-
-                if (touchPrevPosDiff < touchCurPosDiff)
-                {
-                    _cam.orthographicSize -= zoomModifier;
-                }
-
-                _cam.orthographicSize = Mathf.Clamp(_cam.orthographicSize, minScale, maxScale);
+                _cam.orthographicSize += zoomModifier;
             }
+            else
+            {
+                _cam.orthographicSize -= zoomModifier;
+            }
+
+            _cam.orthographicSize = Mathf.Clamp(_cam.orthographicSize, minScale, maxScale);
         }
     }
 }

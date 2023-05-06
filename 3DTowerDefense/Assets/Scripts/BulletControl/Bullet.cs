@@ -1,5 +1,3 @@
-using System;
-using DG.Tweening;
 using GameControl;
 using UnityEngine;
 
@@ -11,7 +9,8 @@ namespace BulletControl
 
         private float _lerp;
         private int _damage;
-        private Transform _target;
+        private Vector3 _startPos;
+        private Transform _targetPos;
 
         [SerializeField] private float bulletSpeed;
 
@@ -22,8 +21,9 @@ namespace BulletControl
 
         private void OnEnable()
         {
-            Invoke(nameof(DestroyBullet), 3);
+            Invoke(nameof(DestroyBullet), 2);
             _lerp = 0;
+            _startPos = _rigid.position;
         }
 
         private void OnDisable()
@@ -42,15 +42,16 @@ namespace BulletControl
             if (other.CompareTag("Enemy"))
             {
                 Hit(other);
-                DestroyBullet();
             }
+
+            DestroyBullet();
         }
 
         private void Shoot()
         {
             if (_lerp > 1) return;
             _lerp += bulletSpeed * Time.deltaTime;
-            _rigid.position = Vector3.Lerp(_rigid.position, _target.position, _lerp);
+            _rigid.position = Vector3.Lerp(_startPos, _targetPos.position + new Vector3(0, 0.5f, 0), _lerp);
         }
 
         private void Hit(Component col)
@@ -66,10 +67,10 @@ namespace BulletControl
             gameObject.SetActive(false);
         }
 
-        public void Init(int damage, Transform target)
+        public void Init(int damage, Transform targetPos)
         {
             _damage = damage;
-            _target = target;
+            _targetPos = targetPos;
         }
     }
 }

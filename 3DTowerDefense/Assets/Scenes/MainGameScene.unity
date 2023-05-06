@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.1826378, g: 0.2283499, b: 0.30714604, a: 1}
+  m_IndirectSpecularColor: {r: 0.1814514, g: 0.22707169, b: 0.30726165, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -6291,7 +6291,7 @@ Camera:
   far clip plane: 500
   field of view: 60
   orthographic: 1
-  orthographic size: 10.21
+  orthographic size: 10
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -10345,7 +10345,6 @@ GameObject:
   - component: {fileID: 526712266}
   - component: {fileID: 526712268}
   - component: {fileID: 526712267}
-  - component: {fileID: 526712269}
   m_Layer: 0
   m_Name: Tilemap
   m_TagString: Untagged
@@ -11031,19 +11030,6 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
---- !u!65 &526712269
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 526712265}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 24, y: 1, z: 24}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &530086681
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -16987,7 +16973,7 @@ GameObject:
   m_Layer: 0
   m_Name: WayPoints
   m_TagString: Untagged
-  m_Icon: {fileID: 5132851093641282708, guid: 0000000000000000d000000000000000, type: 0}
+  m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -26291,14 +26277,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1240752455}
-  m_LocalRotation: {x: 0.3213938, y: 0.3213938, z: -0.116977744, w: 0.8830223}
-  m_LocalPosition: {x: 49.600002, y: 3, z: -32.2}
+  m_LocalRotation: {x: 0.35355338, y: 0.35355338, z: -0.1464466, w: 0.8535535}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 40, y: 40, z: 0}
+  m_LocalEulerAnglesHint: {x: 45, y: 45, z: 0}
 --- !u!1001 &1249280115
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -30958,9 +30944,9 @@ GameObject:
   - component: {fileID: 1438915537}
   - component: {fileID: 1438915536}
   - component: {fileID: 1438915538}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Grid
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -31004,7 +30990,7 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 24, y: 1, z: 24}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1439336266
 GameObject:
@@ -33670,9 +33656,6 @@ MonoBehaviour:
   - tag: Radiation2
     prefab: {fileID: 1859915266488674, guid: df77dbc62f3147e44992e531b4fa376c, type: 3}
     size: 10
-  - tag: CannonBullet
-    prefab: {fileID: 1000010732017690, guid: bec23dff72f5c7d4ab7318f191df9f5f, type: 3}
-    size: 10
   - tag: BulletExplosionVFX
     prefab: {fileID: 7752237804215187887, guid: e8193c05184f64b21a2cd6f92e9fe01c,
       type: 3}
@@ -33680,6 +33663,12 @@ MonoBehaviour:
   - tag: BulletShootVFX
     prefab: {fileID: 3054687251011799846, guid: 0403dd210b19f4fd7a0ae1a89b8c6807,
       type: 3}
+    size: 10
+  - tag: CannonBullet
+    prefab: {fileID: 1000010732017690, guid: bec23dff72f5c7d4ab7318f191df9f5f, type: 3}
+    size: 10
+  - tag: GunBullet
+    prefab: {fileID: 1000010732017690, guid: 0923ec718bac9b545b964f95c1feeee4, type: 3}
     size: 10
   - tag: Cat
     prefab: {fileID: 5826051727570249080, guid: bfa00374aeaf5bd42bdcacd33470e787,

@@ -4,6 +4,7 @@ using DG.Tweening;
 using GameControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using WeaponControl;
 using Random = UnityEngine.Random;
 
 namespace TurretControl
@@ -14,7 +15,7 @@ namespace TurretControl
         private Collider[] _targetColliders;
         private bool _isTargeting;
 
-        protected TurretWeapon Weapon;
+        protected WeaponController WeaponController;
         protected Transform Target;
         protected bool AttackAble;
 
@@ -28,11 +29,10 @@ namespace TurretControl
         [SerializeField] private LayerMask targetLayer;
         [SerializeField] private int rotateSpeed;
 
-
         protected virtual void Awake()
         {
             Outline = GetComponent<Outline>();
-            Weapon = transform.GetChild(0).GetChild(0).GetComponent<TurretWeapon>();
+            WeaponController = transform.GetChild(0).GetChild(0).GetComponent<WeaponController>();
 
             _targetColliders = new Collider[5];
             _atkDelayTween = DOVirtual.DelayedCall(atkDelay, () => AttackAble = true, false).SetAutoKill(false);
@@ -42,7 +42,7 @@ namespace TurretControl
         {
             Outline.enabled = false;
             AttackAble = true;
-            InvokeRepeating(nameof(TargetTracking), 1f, 1f);
+            InvokeRepeating(nameof(SearchingTarget), 1f, 1f);
         }
 
         private void OnDisable()
@@ -59,7 +59,7 @@ namespace TurretControl
             }
             else
             {
-                Weapon.transform.Rotate(Vector3.up, rotateSpeed * Time.deltaTime);
+                WeaponController.transform.Rotate(Vector3.up, rotateSpeed * Time.deltaTime);
             }
         }
 
@@ -86,7 +86,7 @@ namespace TurretControl
 
         protected abstract void Targeting();
 
-        private void TargetTracking()
+        private void SearchingTarget()
         {
             var t = SearchTarget.ClosestTarget(transform.position, atkRange, _targetColliders, targetLayer);
             Target = t.Item1;
@@ -95,7 +95,7 @@ namespace TurretControl
 
         protected void Attack()
         {
-            Weapon.Attack(Random.Range(minDamage, maxDamage), Target);
+            WeaponController.Attack(Random.Range(minDamage, maxDamage), Target).Forget();
         }
 
         protected void StartCoolDown()

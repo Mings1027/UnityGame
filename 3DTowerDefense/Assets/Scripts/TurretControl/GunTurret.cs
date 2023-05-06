@@ -1,14 +1,13 @@
 using DG.Tweening;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace TurretControl
 {
     public class GunTurret : Turret
     {
         private Sequence _recoilSequence;
-
-        [SerializeField] private Transform[] cannon;
+        private Sequence _recoilTween;
+        private Transform[] _weapon;
 
         [SerializeField] private int smoothTurnSpeed;
         [SerializeField] private float minZ, maxZ;
@@ -16,36 +15,55 @@ namespace TurretControl
         [SerializeField] private Ease firstEase;
         [SerializeField] private Ease secondEase;
 
+        [Space(10)] [SerializeField] private float punchDuration;
+        [SerializeField] private int vibrato;
+        [SerializeField] private float elasticity;
+
         protected override void Awake()
         {
             base.Awake();
 
-            _recoilSequence = DOTween.Sequence().SetAutoKill(false).Pause();
-            foreach (var c in cannon)
+            _weapon = new Transform[WeaponController.transform.childCount];
+            for (var i = 0; i < _weapon.Length; i++)
             {
-                _recoilSequence
-                    .Append(c.transform.DOLocalMoveZ(-minZ, duration).SetEase(firstEase))
-                    .SetSpeedBased()
-                    .Append(c.transform.DOLocalMoveZ(maxZ, duration).SetEase(secondEase))
-                    .SetSpeedBased();
+                _weapon[i] = WeaponController.transform.GetChild(i);
+            }
+
+            //주석부분이 원래 쓰던 로직임
+            //DoPunch왜 하나는 되는데 여러개는 안됨 
+            
+            // _recoilSequence = DOTween.Sequence().SetAutoKill(false).Pause();
+            // foreach (var c in _weapon)
+            // {
+            //     _recoilSequence
+            //         .Append(c.transform.DOLocalMoveZ(-minZ, duration).SetEase(firstEase))
+            //         .SetSpeedBased()
+            //         .Append(c.transform.DOLocalMoveZ(maxZ, duration).SetEase(secondEase))
+            //         .SetSpeedBased();
+            // }
+
+            _recoilTween = DOTween.Sequence().SetAutoKill(false).Pause();
+            foreach (var w in _weapon)
+            {
+                _recoilTween.Append(w.DOPunchPosition(new Vector3(0, 0, w.position.z), punchDuration, vibrato,
+                    elasticity));
             }
         }
 
         protected override void Targeting()
         {
-            var dir = Target.position - Weapon.transform.position;
+            var dir = (Target.position - WeaponController.transform.position).normalized;
             var rot = Quaternion.LookRotation(new Vector3(dir.x, 0, dir.z));
-            Weapon.transform.rotation =
-                Quaternion.Slerp(Weapon.transform.rotation, rot, smoothTurnSpeed * Time.deltaTime);
+            WeaponController.transform.rotation =
+                Quaternion.Slerp(WeaponController.transform.rotation, rot, smoothTurnSpeed * Time.deltaTime);
             var fireRot = Quaternion.Euler(0, rot.eulerAngles.y, 0);
-            if (Quaternion.Angle(Weapon.transform.rotation, fireRot) < 5)
+            if (Quaternion.Angle(WeaponController.transform.rotation, fireRot) >= 5) return;
+            if (AttackAble)
             {
-                if (AttackAble)
-                {
-                    _recoilSequence.Restart();
-                    Attack();
-                    StartCoolDown();
-                }
+                // _recoilSequence.Restart();
+                _recoilTween.Restart();
+                Attack();
+                StartCoolDown();
             }
         }
     }
