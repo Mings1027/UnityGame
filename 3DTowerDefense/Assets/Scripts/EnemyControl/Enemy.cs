@@ -69,11 +69,8 @@ namespace EnemyControl
         private void CheckGround()
         {
             if (_lerp <= 1) return;
-            // Debug.DrawRay(transform.position + _dir + Vector3.up, Vector3.down);
-            // if (Physics.Raycast(_rigid.position + _dir + Vector3.up, Vector3.down, 10, groundLayer))
             {
                 _prevPos = _rigid.position;
-                // _prevPos.y = 0.5f;
                 _nextPos = _prevPos + _dir;
                 _lerp = 0;
             }

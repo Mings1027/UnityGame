@@ -17,6 +17,7 @@ namespace TurretControl
 
         protected WeaponController WeaponController;
         protected Transform Target;
+        protected Vector3 ShootDir;
         protected bool AttackAble;
 
         public bool IsUpgraded { get; set; }
@@ -42,7 +43,7 @@ namespace TurretControl
         {
             Outline.enabled = false;
             AttackAble = true;
-            InvokeRepeating(nameof(SearchingTarget), 1f, 1f);
+            InvokeRepeating(nameof(SearchingTarget), 1f, 0.5f);
         }
 
         private void OnDisable()
@@ -78,7 +79,7 @@ namespace TurretControl
             onOpenEditPanelEvent?.Invoke(this);
         }
 
-        private void OnDrawGizmos()
+        protected virtual void OnDrawGizmos()
         {
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(transform.position, atkRange);
@@ -95,7 +96,7 @@ namespace TurretControl
 
         protected void Attack()
         {
-            WeaponController.Attack(Random.Range(minDamage, maxDamage), Target).Forget();
+            WeaponController.Attack(Random.Range(minDamage, maxDamage), ShootDir).Forget();
         }
 
         protected void StartCoolDown()

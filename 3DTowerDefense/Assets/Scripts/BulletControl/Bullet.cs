@@ -7,10 +7,10 @@ namespace BulletControl
     {
         private Rigidbody _rigid;
 
-        private float _lerp;
         private int _damage;
-        private Vector3 _startPos;
-        private Transform _targetPos;
+        // private float _lerp;
+        // private Transform _targetPos;
+        private Vector3 _dir;
 
         [SerializeField] private float bulletSpeed;
 
@@ -22,8 +22,6 @@ namespace BulletControl
         private void OnEnable()
         {
             Invoke(nameof(DestroyBullet), 2);
-            _lerp = 0;
-            _startPos = _rigid.position;
         }
 
         private void OnDisable()
@@ -35,6 +33,7 @@ namespace BulletControl
         private void FixedUpdate()
         {
             Shoot();
+            // LerpShoot();
         }
 
         private void OnTriggerEnter(Collider other)
@@ -49,10 +48,17 @@ namespace BulletControl
 
         private void Shoot()
         {
-            if (_lerp > 1) return;
-            _lerp += bulletSpeed * Time.deltaTime;
-            _rigid.position = Vector3.Lerp(_startPos, _targetPos.position + new Vector3(0, 0.5f, 0), _lerp);
+            _rigid.MovePosition(_rigid.position + _dir * (bulletSpeed * Time.deltaTime));
         }
+
+        // private void LerpShoot()
+        // {
+        //     if (_lerp <= 1)
+        //     {
+        //         _rigid.position = Vector3.Lerp(_rigid.position, _targetPos.position, _lerp);
+        //         _lerp += bulletSpeed * Time.deltaTime;
+        //     }
+        // }
 
         private void Hit(Component col)
         {
@@ -67,10 +73,12 @@ namespace BulletControl
             gameObject.SetActive(false);
         }
 
-        public void Init(int damage, Transform targetPos)
+        public void Init(int damage, Vector3 dir)
         {
             _damage = damage;
-            _targetPos = targetPos;
+            // _targetPos = targetPos;
+            _dir = dir;
+            // _lerp = 0;
         }
     }
 }
