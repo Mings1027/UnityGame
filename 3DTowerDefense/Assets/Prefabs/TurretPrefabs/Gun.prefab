@@ -95,6 +95,7 @@ GameObject:
   - component: {fileID: 4276325150061980}
   - component: {fileID: 33002932643747282}
   - component: {fileID: 23969425485034026}
+  - component: {fileID: 4433461878242575867}
   m_Layer: 0
   m_Name: Gun
   m_TagString: Untagged
@@ -168,6 +169,19 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &4433461878242575867
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1774389776612332}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aac54fde6a8af4592b946cfda9fd97b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bulletType: 
 --- !u!1 &1859915266488674
 GameObject:
   m_ObjectHideFlags: 0
@@ -228,20 +242,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92fde8867638344eba4701d971304c46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  targetLayer:
+    serializedVersion: 2
+    m_Bits: 256
   minDamage: 0
   maxDamage: 0
   atkRange: 5
   atkDelay: 1
-  targetLayer:
-    serializedVersion: 2
-    m_Bits: 256
   rotateSpeed: 0
+  offsetDistance: 0
   smoothTurnSpeed: 0
-  minZ: 0
-  maxZ: 0
-  duration: 0
-  firstEase: 0
-  secondEase: 0
+  punchDuration: 0.5
+  vibrato: 1
+  elasticity: 0.1
 --- !u!114 &-6144828479346977116
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -357,7 +370,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d680642022d14dc6b722b63f1a87cb9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bulletType: 
 --- !u!1 &7146922615193633926
 GameObject:
   m_ObjectHideFlags: 0

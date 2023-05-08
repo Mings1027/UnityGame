@@ -11,16 +11,20 @@ namespace WeaponControl
 
         private void Awake()
         {
-            _weapons = new Weapon[transform.childCount];
-            for (var i = 0; i < _weapons.Length; i++)
-            {
-                _weapons[i] = transform.GetChild(i).GetComponent<Weapon>();
-            }
-
             _attackPoint = new Transform[transform.childCount];
             for (var i = 0; i < _attackPoint.Length; i++)
             {
                 _attackPoint[i] = transform.GetChild(i).GetChild(0);
+            }
+        }
+
+        public void WeaponInit(float punchDuration, int vibrato, float elasticity)
+        {
+            _weapons = new Weapon[transform.childCount];
+            for (var i = 0; i < _weapons.Length; i++)
+            {
+                _weapons[i] = transform.GetChild(i).GetComponent<Weapon>();
+                _weapons[i].RecoilInit(punchDuration, vibrato, elasticity);
             }
         }
 

@@ -1,55 +1,21 @@
-using DG.Tweening;
 using UnityEngine;
 
 namespace TurretControl
 {
     public class GunTurret : Turret
     {
-        private Sequence _recoilSequence;
-        private Sequence _recoilTween;
-        private Transform[] _weapon;
-
-
         [SerializeField] [Range(0, 1)] private float offsetDistance;
         [SerializeField] private int smoothTurnSpeed;
-        [SerializeField] private float minZ, maxZ;
-        [SerializeField] private float duration;
-        [SerializeField] private Ease firstEase;
-        [SerializeField] private Ease secondEase;
 
-        [Space(10)] [SerializeField] private float punchDuration;
-        [SerializeField] private int vibrato;
-        [SerializeField] private float elasticity;
+        [Header("Weapon Recoil")] [Space(10)] [SerializeField] [Range(0, 2)]
+        private float punchDuration;
 
-        protected override void Awake()
+        [SerializeField] [Range(0, 3)] private int vibrato;
+        [SerializeField] [Range(0, 1)] private float elasticity;
+
+        private void Start()
         {
-            base.Awake();
-
-            _weapon = new Transform[WeaponController.transform.childCount];
-            for (var i = 0; i < _weapon.Length; i++)
-            {
-                _weapon[i] = WeaponController.transform.GetChild(i);
-            }
-
-            //주석부분이 원래 쓰던 로직임
-            //DoPunch왜 하나는 되는데 여러개는 안됨 
-
-            _recoilSequence = DOTween.Sequence().SetAutoKill(false).Pause();
-            foreach (var c in _weapon)
-            {
-                _recoilSequence
-                    .Append(c.transform.DOLocalMoveZ(-minZ, duration).SetEase(firstEase))
-                    .SetSpeedBased()
-                    .Append(c.transform.DOLocalMoveZ(maxZ, duration).SetEase(secondEase))
-                    .SetSpeedBased();
-            }
-
-            // _recoilTween = DOTween.Sequence().SetAutoKill(false).Pause();
-            // foreach (var w in _weapon)
-            // {
-            //     _recoilTween.Append(w.DOPunchPosition(new Vector3(0, 0, w.position.z), punchDuration, vibrato,
-            //         elasticity));
-            // }
+            WeaponController.WeaponInit(punchDuration, vibrato, elasticity);
         }
 
         protected override void Targeting()
@@ -64,13 +30,16 @@ namespace TurretControl
             if (Quaternion.Angle(WeaponController.transform.rotation, fireRot) >= 5) return;
             if (AttackAble)
             {
-                _recoilSequence.Restart();
-                // _recoilTween.Restart();
                 Attack();
                 StartCoolDown();
             }
 
             Debug.DrawRay(WeaponController.transform.position, ShootDir * 5, Color.green);
+        }
+
+        protected override void Attack()
+        {
+            WeaponController.Attack(Damage, ShootDir).Forget();
         }
     }
 }

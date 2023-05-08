@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4938699846511670}
   - component: {fileID: 33175206838966524}
   - component: {fileID: 23440474744458324}
+  - component: {fileID: 1920414581233220949}
   m_Layer: 0
   m_Name: Gun
   m_TagString: Untagged
@@ -84,6 +85,19 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &1920414581233220949
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1291445927575486}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aac54fde6a8af4592b946cfda9fd97b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bulletType: 
 --- !u!1 &1456528219999600
 GameObject:
   m_ObjectHideFlags: 0
@@ -179,6 +193,7 @@ GameObject:
   - component: {fileID: 4184369853337982}
   - component: {fileID: 33141990547958600}
   - component: {fileID: 23036651992582516}
+  - component: {fileID: 2625283909890931217}
   m_Layer: 0
   m_Name: Gun
   m_TagString: Untagged
@@ -252,6 +267,19 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &2625283909890931217
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1459683844823560}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aac54fde6a8af4592b946cfda9fd97b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bulletType: 
 --- !u!1 &1774389776612332
 GameObject:
   m_ObjectHideFlags: 0
@@ -263,6 +291,7 @@ GameObject:
   - component: {fileID: 4276325150061980}
   - component: {fileID: 33002932643747282}
   - component: {fileID: 23969425485034026}
+  - component: {fileID: 2397426594196340364}
   m_Layer: 0
   m_Name: Gun
   m_TagString: Untagged
@@ -336,6 +365,19 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &2397426594196340364
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1774389776612332}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aac54fde6a8af4592b946cfda9fd97b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bulletType: 
 --- !u!1 &1828029213224782
 GameObject:
   m_ObjectHideFlags: 0
@@ -347,6 +389,7 @@ GameObject:
   - component: {fileID: 4266194596248734}
   - component: {fileID: 33638694089949024}
   - component: {fileID: 23301489395013042}
+  - component: {fileID: 9096412952563962347}
   m_Layer: 0
   m_Name: Gun
   m_TagString: Untagged
@@ -420,6 +463,19 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &9096412952563962347
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1828029213224782}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aac54fde6a8af4592b946cfda9fd97b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bulletType: 
 --- !u!1 &1859915266488674
 GameObject:
   m_ObjectHideFlags: 0
@@ -480,20 +536,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92fde8867638344eba4701d971304c46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  targetLayer:
+    serializedVersion: 2
+    m_Bits: 256
   minDamage: 0
   maxDamage: 0
   atkRange: 5
   atkDelay: 1
-  targetLayer:
-    serializedVersion: 2
-    m_Bits: 256
   rotateSpeed: 0
+  offsetDistance: 0
   smoothTurnSpeed: 0
-  minZ: 0
-  maxZ: 0
-  duration: 0
-  firstEase: 0
-  secondEase: 0
+  punchDuration: 0.5
+  vibrato: 1
+  elasticity: 0.1
 --- !u!114 &-6432844694948579396
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -612,7 +667,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8d680642022d14dc6b722b63f1a87cb9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  bulletType: 
 --- !u!1 &1942366166456693271
 GameObject:
   m_ObjectHideFlags: 0

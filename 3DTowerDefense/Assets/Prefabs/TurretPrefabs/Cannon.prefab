@@ -273,24 +273,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92fde8867638344eba4701d971304c46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  targetLayer:
+    serializedVersion: 2
+    m_Bits: 256
   minDamage: 3
   maxDamage: 5
   atkRange: 5
   atkDelay: 1
-  targetLayer:
-    serializedVersion: 2
-    m_Bits: 256
   rotateSpeed: 10
-  offsetDistance: 0.15
+  offsetDistance: 0.2
   smoothTurnSpeed: 10
-  minZ: -0.1
-  maxZ: 0.25
-  duration: 0.25
-  firstEase: 27
-  secondEase: 2
-  punchDuration: 1
+  punchDuration: 0.5
   vibrato: 1
-  elasticity: 0.5
+  elasticity: 0.1
 --- !u!114 &-7000980050615291322
 MonoBehaviour:
   m_ObjectHideFlags: 0
