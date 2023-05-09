@@ -53,8 +53,8 @@ namespace TowerControl
         {
             atkSequence.Restart();
             StackObjectPool
-                .Get<Bullet>("MageBullet", _crystalPositions[TowerLevel].position + new Vector3(0, 3, 0));
-            // .Init(target, Damage);
+                .Get<Bullet>("MageBullet", _crystalPositions[TowerLevel].position + new Vector3(0, 3, 0))
+                .Init(target, Damage);
         }
     }
 }

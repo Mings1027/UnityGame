@@ -15,6 +15,10 @@ namespace ManagerControl
             DOTween.SetTweensCapacity(500, 313);
         }
 
+        private void Start()
+        {
+            
+        }
 
         private void Pause()
         {

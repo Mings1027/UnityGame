@@ -4,23 +4,22 @@ namespace GameControl
 {
     public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
     {
-        private static T instance;
+        private static T _instance;
 
         public static T Instance
         {
             get
             {
-                if (instance != null) return instance;
-                instance = (T)FindObjectOfType(typeof(T));
-                if (instance != null) return instance;
+                if (_instance != null) return _instance;
+                _instance = (T)FindObjectOfType(typeof(T));
+                if (_instance != null) return _instance;
                 var obj = new GameObject();
-                instance = obj.AddComponent(typeof(T)) as T;
+                _instance = obj.AddComponent(typeof(T)) as T;
                 obj.name = typeof(T).ToString();
 
                 DontDestroyOnLoad(obj);
 
-                return instance;
-
+                return _instance;
             }
         }
     }

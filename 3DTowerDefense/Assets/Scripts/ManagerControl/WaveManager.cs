@@ -1,8 +1,9 @@
 using System;
+using System.Linq;
+using System.Threading;
 using Cysharp.Threading.Tasks;
-using DG.Tweening;
-using EnemyControl;
 using GameControl;
+using UnitControl.EnemyControl;
 using UnityEngine;
 
 namespace ManagerControl
@@ -10,37 +11,47 @@ namespace ManagerControl
     public class WaveManager : MonoBehaviour
     {
         [Serializable]
-        public struct Wave
+        public class Wave
         {
-            public int enemyCount;
             public string name;
+            public int enemyCount;
+            public float atkDelay;
+            public int minDamage;
+            public int maxDamage;
+            public int health;
         }
 
         private bool _startGame;
         private int _curWave;
-        private Transform _spawnPoint;
+        private int _enemiesIndex;
+        private CancellationTokenSource cts;
 
-        [SerializeField] private float spawnDelay;
+        private EnemyUnit[] _enemies;
+
         [SerializeField] private Wave[] waves;
-        [SerializeField] private Transform[] wayPoints;
+        [SerializeField] private Transform spawnPoint;
+        [SerializeField] private Transform destinationPoint;
 
         private void Awake()
         {
             _curWave = -1;
+            var maxEnemiesCount = waves.Select(t => t.enemyCount).Prepend(0).Max();
+
+            _enemies = new EnemyUnit[maxEnemiesCount];
         }
 
         private void OnEnable()
         {
-            Init();
+            cts?.Dispose();
+            cts = new CancellationTokenSource();
         }
 
-        private void Init()
+        private void OnDisable()
         {
-            _curWave = -1;
-            _spawnPoint = wayPoints[0];
+            cts?.Cancel();
         }
 
-        public void StartGame()
+        public void StartWave()
         {
             WaveStart().Forget();
             gameObject.SetActive(false);
@@ -48,29 +59,50 @@ namespace ManagerControl
 
         private async UniTaskVoid WaveStart()
         {
+            if (_startGame) return;
+            _startGame = true;
+            _enemiesIndex = -1;
             _curWave++;
+
             var enemyCount = waves[_curWave].enemyCount;
             while (enemyCount > 0)
             {
-                await UniTask.Delay(TimeSpan.FromSeconds(spawnDelay));
+                await UniTask.Delay(1000);
                 enemyCount--;
+                _enemiesIndex++;
                 SpawnEnemy();
             }
-
-            gameObject.SetActive(true);
         }
 
         private void SpawnEnemy()
         {
-            var e = StackObjectPool.Get<Enemy>(waves[_curWave].name, _spawnPoint.position + Vector3.up * 10);
-            e.moveToNextWayPointEvent += SetDestination;
-            e.transform.DOMoveY(wayPoints[0].position.y, 1).SetEase(Ease.InQuint)
-                .OnComplete(() => e.Init(true, wayPoints[0].position, wayPoints[1].position));
+            var e = StackObjectPool.Get<EnemyUnit>(waves[_curWave].name, spawnPoint.position);
+            e.GetComponent<Health>().Init(waves[_curWave].health);
+            e.destination = destinationPoint;
+            e.Number = _enemiesIndex;
+            e.onFinishWaveCheckEvent += RemoveEnemies;
+            _enemies[_enemiesIndex] = e;
+
+            var w = waves[_curWave];
+            e.UnitInit(w.minDamage, w.maxDamage, w.atkDelay);
         }
 
-        private void SetDestination(Enemy enemy)
+        private void RemoveEnemies(int num)
         {
-            enemy.SetDestination(wayPoints);
+            _enemies[num] = null;
+            if (waves.Length - 1 == _curWave)
+            {
+                if (_enemies.All(x => x == null))
+                {
+                    print("Complete");
+                }
+            }
+            else
+            {
+                gameObject.SetActive(true);
+            }
+
+            _startGame = false;
         }
     }
 }

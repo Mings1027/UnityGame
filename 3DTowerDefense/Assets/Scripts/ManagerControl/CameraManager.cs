@@ -10,7 +10,7 @@ namespace ManagerControl
         private float _xRotation;
         private bool _isBusy;
 
-        private Vector3 touchPos;
+        private Vector3 _touchPos;
 
         [SerializeField] private float moveSpeed;
         [SerializeField] private float rotationSpeed;
@@ -43,7 +43,7 @@ namespace ManagerControl
             var touch = Input.GetTouch(0);
             if (touch.phase == TouchPhase.Began)
             {
-                touchPos = Input.GetTouch(0).position;
+                _touchPos = Input.GetTouch(0).position;
             }
         }
 
@@ -53,7 +53,7 @@ namespace ManagerControl
 
             var touch = Input.GetTouch(0);
 
-            if (touchPos.x < Screen.width * 0.5f)
+            if (_touchPos.x < Screen.width * 0.5f)
             {
                 CameraMove(touch);
             }
