@@ -9,26 +9,35 @@ namespace TowerControl
 {
     public class BarracksTower : TowerUnitAttacker
     {
+        private Camera _cam;
         private int _deadUnitCount;
         private Vector3 _pos;
         private BarracksUnit[] _barracksUnits;
 
         public int UnitHealth { get; set; }
 
+        [SerializeField] private LayerMask groundLayer;
+
         protected override void Awake()
         {
             base.Awake();
+            _cam = Camera.main;
             _barracksUnits = new BarracksUnit[3];
         }
 
         //==================================Custom Function====================================================
         //==================================Custom Function====================================================
 
-        public void MoveUnits(Vector3 pos)
+        public void MoveUnit()
         {
-            foreach (var t in _barracksUnits)
+            var ray = _cam.ScreenPointToRay(Input.GetTouch(0).position);
+            if (!Physics.Raycast(ray, out var hit, groundLayer)) return;
+            if (Vector3.Distance(transform.position, hit.point) < TowerRange)
             {
-                t.GoToTargetPosition(pos);
+                foreach (var t in _barracksUnits)
+                {
+                    t.GoToTargetPosition(hit.point);
+                }
             }
         }
 

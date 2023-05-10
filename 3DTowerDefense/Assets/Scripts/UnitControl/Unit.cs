@@ -21,8 +21,7 @@ namespace UnitControl
         protected Transform target;
         protected int Damage => Random.Range(_minDamage, _maxDamage);
         protected int AtkRange => atkRange;
-
-        public bool isMatched;
+        public bool IsMatching { get; private set; }
 
         [SerializeField] private LayerMask targetLayer;
         [SerializeField] private int atkRange;
@@ -35,6 +34,7 @@ namespace UnitControl
             nav = GetComponent<NavMeshAgent>();
             _targetColliders = new Collider[1];
             gameManager = GameManager.Instance;
+            IsMatching = false;
         }
 
         protected virtual void OnEnable()
@@ -73,10 +73,17 @@ namespace UnitControl
 
         private void TrackTarget()
         {
-            var c = SearchTarget.ClosestTarget(transform.position, atkRange, _targetColliders, targetLayer);
+            if (!IsMatching)
+            {
+                var c = SearchTarget.ClosestTarget(transform.position, atkRange, _targetColliders, targetLayer);
 
-            target = c.Item1;
-            isTargeting = c.Item2;
+                if (c.Item1 != null)
+                {
+                    IsMatching = true;
+                    target = c.Item1;
+                    isTargeting = c.Item2;
+                }
+            }
         }
 
         protected void StartCoolDown()

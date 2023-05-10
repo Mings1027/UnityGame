@@ -20,7 +20,7 @@ namespace GameControl
             }
         }
 
-        private static StackObjectPool inst;
+        private static StackObjectPool _inst;
         [SerializeField] private Pool[] pools;
         private Dictionary<string, Stack<GameObject>> _poolDictionary;
 
@@ -32,7 +32,7 @@ namespace GameControl
         {
             Array.Sort(pools);
             
-            inst = Instance;
+            _inst = Instance;
             _poolDictionary = new Dictionary<string, Stack<GameObject>>();
             //미리 생성
             foreach (var pool in pools)
@@ -81,14 +81,14 @@ namespace GameControl
         }
 
         public static GameObject Get(string tag, Vector3 position) =>
-            inst.Spawn(tag, position, Quaternion.identity);
+            _inst.Spawn(tag, position, Quaternion.identity);
 
         public static GameObject Get(string tag, Vector3 position, Quaternion rotation) =>
-            inst.Spawn(tag, position, rotation);
+            _inst.Spawn(tag, position, rotation);
 
         public static T Get<T>(string tag, Vector3 position) where T : Component
         {
-            var obj = inst.Spawn(tag, position, Quaternion.identity);
+            var obj = _inst.Spawn(tag, position, Quaternion.identity);
             if (obj.TryGetComponent(out T component)) return component;
             obj.SetActive(false);
             throw new Exception("Component not found");
@@ -96,7 +96,7 @@ namespace GameControl
 
         public static T Get<T>(string tag, Vector3 position, Quaternion rotation) where T : Component
         {
-            var obj = inst.Spawn(tag, position, rotation);
+            var obj = _inst.Spawn(tag, position, rotation);
             if (obj.TryGetComponent(out T component)) return component;
             obj.SetActive(false);
             throw new Exception("Component not found");
@@ -141,9 +141,9 @@ namespace GameControl
 
         public static void ReturnToPool(GameObject obj)
         {
-            if (!inst._poolDictionary.ContainsKey(obj.name))
+            if (!_inst._poolDictionary.ContainsKey(obj.name))
                 throw new Exception($"Pool with tag {obj.name} doesn't exist.");
-            inst._poolDictionary[obj.name].Push(obj);
+            _inst._poolDictionary[obj.name].Push(obj);
         }
     }
 }
