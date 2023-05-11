@@ -9,9 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3033364790056408665}
+  - component: {fileID: 8150520208397263671}
   - component: {fileID: 3033364790056241782}
   - component: {fileID: 3033364790056241783}
-  - component: {fileID: 8150520208397263671}
   - component: {fileID: 8237270164787910160}
   m_Layer: 9
   m_Name: MageTower
@@ -38,6 +38,19 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!65 &8150520208397263671
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3033364790056241785}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 6, y: 10, z: 6}
+  m_Center: {x: 0, y: 5, z: 0}
 --- !u!114 &3033364790056241782
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -54,8 +67,6 @@ MonoBehaviour:
   targetLayer:
     serializedVersion: 2
     m_Bits: 256
-  crystal: {fileID: 3033364790056408667}
-  crystalPosition: {fileID: 3033364790586221343}
   crystalMesh:
   - {fileID: 4300002, guid: 2efb54d094d718741936869262b2ab69, type: 3}
   - {fileID: 4300002, guid: 2bc0dcbde9d106840bcdedaa3c8189ca, type: 3}
@@ -80,19 +91,6 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
---- !u!65 &8150520208397263671
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3033364790056241785}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 6, y: 10, z: 6}
-  m_Center: {x: 0, y: 5, z: 0}
 --- !u!114 &8237270164787910160
 MonoBehaviour:
   m_ObjectHideFlags: 0

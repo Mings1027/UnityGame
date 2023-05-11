@@ -1,7 +1,10 @@
 using System;
+using AttackControl;
 using GameControl;
+using ManagerControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using Random = UnityEngine.Random;
 
 namespace TowerControl
 {
@@ -12,6 +15,11 @@ namespace TowerControl
         private Outline _outline;
         private MeshFilter _initMesh;
 
+        private int _minDamage, _maxDamage;
+
+        protected float atkRange;
+        protected int Damage => Random.Range(_minDamage, _maxDamage);
+        protected LayerMask TargetLayer => targetLayer;
         protected MeshFilter meshFilter;
         protected bool isUpgrading;
         protected bool isSold;
@@ -31,6 +39,7 @@ namespace TowerControl
         public float TowerRange { get; private set; }
 
         [SerializeField] private Type towerType;
+        [SerializeField] private LayerMask targetLayer;
 
         protected virtual void Awake()
         {
@@ -77,6 +86,8 @@ namespace TowerControl
         //==================================Custom Method====================================================
         //======================================================================================================
 
+        protected abstract void FindingTarget();
+        
         public void TowerLevelUp(int uniqueLevel)
         {
             if (TowerLevel < 2) TowerLevel++;
@@ -97,6 +108,10 @@ namespace TowerControl
             meshFilter.sharedMesh = towerMeshFilter.sharedMesh;
             TowerRange = range;
             _collider.enabled = true;
+
+            _minDamage = minDamage;
+            _maxDamage = maxDamage;
+            atkRange = range;
         }
     }
 }

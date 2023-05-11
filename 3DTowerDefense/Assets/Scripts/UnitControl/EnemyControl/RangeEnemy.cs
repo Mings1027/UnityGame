@@ -8,7 +8,7 @@ namespace UnitControl.EnemyControl
 
         protected override void Attack()
         {
-            SpawnProjectile(target);
+            SpawnProjectile(Target);
         }
     }
 }

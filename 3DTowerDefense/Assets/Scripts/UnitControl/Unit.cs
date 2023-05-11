@@ -1,5 +1,3 @@
-using System;
-using AttackControl;
 using DG.Tweening;
 using ManagerControl;
 using UnityEngine;
@@ -10,18 +8,19 @@ namespace UnitControl
 {
     public abstract class Unit : MonoBehaviour
     {
-        private Collider[] _targetColliders;
         private Tween _delayTween;
         private int _minDamage, _maxDamage;
 
         protected GameManager gameManager;
         protected bool attackAble;
-        protected bool isTargeting;
         protected NavMeshAgent nav;
-        protected Transform target;
+
         protected int Damage => Random.Range(_minDamage, _maxDamage);
         protected int AtkRange => atkRange;
-        public bool IsMatching { get; private set; }
+        protected LayerMask TargetLayer => targetLayer;
+
+        public Transform Target { get; set; }
+        public bool IsTargeting { get; set; }
 
         [SerializeField] private LayerMask targetLayer;
         [SerializeField] private int atkRange;
@@ -32,15 +31,13 @@ namespace UnitControl
         protected virtual void Awake()
         {
             nav = GetComponent<NavMeshAgent>();
-            _targetColliders = new Collider[1];
+
             gameManager = GameManager.Instance;
-            IsMatching = false;
         }
 
         protected virtual void OnEnable()
         {
             attackAble = true;
-            InvokeRepeating(nameof(TrackTarget), 1f, 1f);
         }
 
         protected abstract void Update();
@@ -48,7 +45,7 @@ namespace UnitControl
         private void LateUpdate()
         {
             if (gameManager.IsPause) return;
-            if (!isTargeting) return;
+            if (!IsTargeting) return;
             LookTarget();
         }
 
@@ -63,27 +60,12 @@ namespace UnitControl
             Gizmos.DrawWireSphere(transform.position, atkRange);
         }
 
-        public void UnitInit(int minDamage, int maxDamage, float delay)
+        public void Init(int minDamage, int maxDamage, float delay)
         {
             _minDamage = minDamage;
             _maxDamage = maxDamage;
             _delayTween?.Kill();
             _delayTween = DOVirtual.DelayedCall(delay, () => attackAble = true, false).SetAutoKill(false);
-        }
-
-        private void TrackTarget()
-        {
-            if (!IsMatching)
-            {
-                var c = SearchTarget.ClosestTarget(transform.position, atkRange, _targetColliders, targetLayer);
-
-                if (c.Item1 != null)
-                {
-                    IsMatching = true;
-                    target = c.Item1;
-                    isTargeting = c.Item2;
-                }
-            }
         }
 
         protected void StartCoolDown()
@@ -94,7 +76,7 @@ namespace UnitControl
 
         private void LookTarget()
         {
-            var direction = target.position + target.forward;
+            var direction = Target.position +Target.forward;
             var dir = direction - transform.position;
             var yRot = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
             var lookRot = Quaternion.Euler(0, yRot, 0);

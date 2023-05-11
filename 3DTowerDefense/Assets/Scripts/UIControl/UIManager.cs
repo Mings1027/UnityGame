@@ -58,7 +58,6 @@ namespace UIControl
         private GameObject _moveUnitButton;
 
         [SerializeField] private TowerLevelManager[] towerLevelManagers;
-        [SerializeField] private LayerMask groundLayer;
 
         private void Awake()
         {
@@ -268,7 +267,7 @@ namespace UIControl
         {
             IsMoveUnit = true;
             _moveUnitButton.SetActive(false);
-            ResetUI();
+            CloseUI();
             var moveUnitIndicatorTransform = _moveUnitIndicator.transform;
             moveUnitIndicatorTransform.position = _curSelectedTower.transform.position;
             moveUnitIndicatorTransform.localScale =
@@ -382,7 +381,15 @@ namespace UIControl
 
         public void MoveUnit()
         {
-            _curSelectedTower.GetComponent<BarracksTower>().MoveUnit();
+            if (_curSelectedTower.GetComponent<BarracksUnitTower>().Move())
+            {
+                IsMoveUnit = false;
+            }
+            else
+            {
+                print("Can't Move");
+                // X표시 UI를 나타나게 해준다던가 이펙트표시해주면 좋을듯
+            }
         }
 
         private async UniTaskVoid TowerUpgrade()
@@ -397,7 +404,7 @@ namespace UIControl
 
             if (tempTower.TowerType == Tower.Type.Barracks)
             {
-                tempTower.GetComponent<BarracksTower>().UnitHealth = tl.health;
+                tempTower.GetComponent<BarracksUnitTower>().UnitHealth = tl.health;
             }
 
             await UniTask.Delay(1000);

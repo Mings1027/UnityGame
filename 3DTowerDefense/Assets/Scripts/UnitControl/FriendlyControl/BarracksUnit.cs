@@ -16,6 +16,8 @@ namespace UnitControl.FriendlyControl
         private bool _isMoving;
 
         public event Action<BarracksUnit> onDeadEvent;
+        public bool IsMatching { get; set; }
+
         [SerializeField] private MeleeWeapon meleeWeapon;
         [SerializeField] private AudioClip atkAudio;
 
@@ -25,6 +27,12 @@ namespace UnitControl.FriendlyControl
             audioSource = GetComponent<AudioSource>();
             _anim = GetComponent<Animator>();
             _attackEffectPos = transform.GetChild(0);
+        }
+
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            IsMatching = false;
         }
 
         private void FixedUpdate()
@@ -52,7 +60,7 @@ namespace UnitControl.FriendlyControl
             StackObjectPool.Get("SlashVFX", _attackEffectPos.position,
                 transform.rotation * Quaternion.Euler(0, 90, 0));
             audioSource.PlayOneShot(atkAudio);
-            meleeWeapon.Attack(target, Damage);
+            meleeWeapon.Attack(Target, Damage);
         }
 
         public void GoToTargetPosition(Vector3 pos)

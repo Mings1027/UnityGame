@@ -7,15 +7,15 @@ namespace UnitControl.FriendlyControl
         protected override void Update()
         {
             if (gameManager.IsPause) return;
-            if (!isTargeting) return;
-            if (attackAble && Vector3.Distance(transform.position, target.position) <= nav.stoppingDistance)
+            if (!IsTargeting) return;
+            if (attackAble && Vector3.Distance(transform.position, Target.position) <= nav.stoppingDistance)
             {
                 Attack();
                 StartCoolDown();
             }
             else
             {
-                nav.SetDestination(target.position);
+                nav.SetDestination(Target.position);
             }
         }
     }

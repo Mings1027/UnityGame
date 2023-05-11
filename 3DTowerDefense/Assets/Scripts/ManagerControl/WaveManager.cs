@@ -1,10 +1,14 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameControl;
 using UnitControl.EnemyControl;
+using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace ManagerControl
 {
@@ -13,7 +17,7 @@ namespace ManagerControl
         [Serializable]
         public class Wave
         {
-            public string name;
+            public string enemyName;
             public int enemyCount;
             public float atkDelay;
             public int minDamage;
@@ -21,23 +25,30 @@ namespace ManagerControl
             public int health;
         }
 
+        [Serializable]
+        public class WaveData
+        {
+            public Wave[] waves;
+        }
+
         private bool _startGame;
         private int _curWave;
         private int _enemiesIndex;
         private CancellationTokenSource cts;
 
-        private EnemyUnit[] _enemies;
+        private WaveData waveData;
 
-        [SerializeField] private Wave[] waves;
         [SerializeField] private Transform spawnPoint;
         [SerializeField] private Transform destinationPoint;
 
         private void Awake()
         {
             _curWave = -1;
-            var maxEnemiesCount = waves.Select(t => t.enemyCount).Prepend(0).Max();
-
-            _enemies = new EnemyUnit[maxEnemiesCount];
+            waveData = new WaveData();
+            if (waveData.waves == null)
+            {
+                LoadWaveDataToJson();
+            }
         }
 
         private void OnEnable()
@@ -64,7 +75,7 @@ namespace ManagerControl
             _enemiesIndex = -1;
             _curWave++;
 
-            var enemyCount = waves[_curWave].enemyCount;
+            var enemyCount = waveData.waves[_curWave].enemyCount;
             while (enemyCount > 0)
             {
                 await UniTask.Delay(1000);
@@ -76,33 +87,30 @@ namespace ManagerControl
 
         private void SpawnEnemy()
         {
-            var e = StackObjectPool.Get<EnemyUnit>(waves[_curWave].name, spawnPoint.position);
-            e.GetComponent<Health>().Init(waves[_curWave].health);
+            var e = StackObjectPool.Get<EnemyUnit>(waveData.waves[_curWave].enemyName, spawnPoint.position);
+            e.GetComponent<Health>().Init(waveData.waves[_curWave].health);
             e.destination = destinationPoint;
             e.Number = _enemiesIndex;
-            e.onFinishWaveCheckEvent += RemoveEnemies;
-            _enemies[_enemiesIndex] = e;
+            e.onFinishWaveCheckEvent += CheckWaveFinish;
 
-            var w = waves[_curWave];
-            e.UnitInit(w.minDamage, w.maxDamage, w.atkDelay);
+            var w = waveData.waves[_curWave];
+            e.Init(w.minDamage, w.maxDamage, w.atkDelay);
         }
 
-        private void RemoveEnemies(int num)
+        private void CheckWaveFinish(int num)
         {
-            _enemies[num] = null;
-            if (waves.Length - 1 == _curWave)
+            _enemiesIndex--;
+            if (_enemiesIndex == -1)
             {
-                if (_enemies.All(x => x == null))
-                {
-                    print("Complete");
-                }
+                print("Stage Complete");
+                _startGame = false;
             }
-            else
-            {
-                gameObject.SetActive(true);
-            }
+        }
 
-            _startGame = false;
+        [ContextMenu("From Json Data")]
+        private void LoadWaveDataToJson()
+        {
+            waveData = DataManager.LoadDataFromJson<WaveData>("waveData.json");
         }
     }
 }

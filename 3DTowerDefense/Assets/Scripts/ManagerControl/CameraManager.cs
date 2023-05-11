@@ -83,8 +83,9 @@ namespace ManagerControl
         {
             if (touch.phase == TouchPhase.Moved)
             {
-                transform.Rotate(new Vector3(_xRotation, -touch.deltaPosition.x * rotationSpeed, 0.0f));
-                transform.rotation = Quaternion.Euler(_xRotation, transform.rotation.eulerAngles.y, 0.0f);
+                var t = transform;
+                t.Rotate(new Vector3(_xRotation, touch.deltaPosition.x * rotationSpeed, 0.0f));
+                transform.rotation = Quaternion.Euler(_xRotation, t.rotation.eulerAngles.y, 0.0f);
             }
             else if (touch.phase == TouchPhase.Ended)
             {
