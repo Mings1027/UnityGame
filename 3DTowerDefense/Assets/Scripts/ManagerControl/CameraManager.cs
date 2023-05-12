@@ -25,13 +25,9 @@ namespace ManagerControl
             _cam = GetComponentInChildren<Camera>();
         }
 
-        private void Update()
-        {
-            WherePoint();
-        }
-
         private void LateUpdate()
         {
+            WherePoint();
             CameraController();
             CameraZoom();
         }

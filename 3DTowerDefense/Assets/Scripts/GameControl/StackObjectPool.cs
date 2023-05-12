@@ -80,6 +80,9 @@ namespace GameControl
             }
         }
 
+        public static void Get(string tag, Transform t) =>
+            _inst.Spawn(tag, t.position, t.rotation);
+
         public static GameObject Get(string tag, Vector3 position) =>
             _inst.Spawn(tag, position, Quaternion.identity);
 

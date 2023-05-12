@@ -1,4 +1,3 @@
-using System;
 using BuildControl;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
@@ -30,7 +29,7 @@ namespace UIControl
         public bool IsMoveUnit { get; private set; }
 
 //===================================Init==============================================
-        private BuildingPointController _buildingPointController;
+        private MapController _mapController;
         private EventSystem _eventSystem;
         private Camera _cam;
         private MeshRenderer _towerRangeIndicator;
@@ -64,7 +63,7 @@ namespace UIControl
             Init();
         }
 
-        private void LateUpdate()
+        private void Update()
         {
             if (!_panelIsOpen || _uiTarget == _towerPanels) return;
             _towerPanels.position = _cam.WorldToScreenPoint(_uiTarget.position);
@@ -74,7 +73,7 @@ namespace UIControl
 
         private void Init()
         {
-            _buildingPointController = BuildingPointController.Instance;
+            _mapController = MapController.Instance;
             _eventSystem = EventSystem.current;
             _cam = Camera.main;
             _towerRangeIndicator = transform.Find("TowerRangeIndicator").GetComponent<MeshRenderer>();
@@ -87,7 +86,7 @@ namespace UIControl
                 _towerMesh[i] = towerLevelManagers[i].towerLevels[0].towerMesh.sharedMesh;
             }
 
-            var ui = transform.GetChild(0);
+            var ui = transform.Find("UI");
             _towerPanels = ui.Find("TowerPanels");
             _startGameButton = ui.Find("StartGameButton").gameObject;
             _startGameButton.GetComponent<Button>().onClick.AddListener(StartGameButton);
@@ -139,14 +138,14 @@ namespace UIControl
 
             _towerSelectPanel.SetActive(false);
             _towerEditPanel.SetActive(false);
-            _okButton.gameObject.SetActive(false);
+            _okButton.SetActive(false);
         }
 
         #endregion
 
         private void StartGameButton()
         {
-            _buildingPointController.BuildPointSequence.Restart();
+            _mapController.BuildPointSequence.Restart();
             _startGameButton.SetActive(false);
         }
 
@@ -165,7 +164,6 @@ namespace UIControl
             _uiTarget = _buildingPoint;
             _towerSelectPanel.SetActive(true);
             _towerEditPanel.SetActive(false);
-            _towerPanels.gameObject.SetActive(true);
 
             _towerSelectPanelSequence.Restart();
         }
@@ -233,7 +231,6 @@ namespace UIControl
 
             _towerEditPanel.SetActive(true);
             _towerSelectPanel.SetActive(false);
-            _towerPanels.gameObject.SetActive(true);
 
             _towerEditPanelTween.Restart();
         }
@@ -296,30 +293,13 @@ namespace UIControl
                 _towerEditPanelTween.PlayBackwards();
             }
 
-            ResetUI();
-        }
+            if (_tooltip.gameObject.activeSelf) _tooltip.Hide();
 
-        private void ResetUI()
-        {
-            if (_tooltip.gameObject.activeSelf)
-            {
-                _tooltip.Hide();
-            }
+            if (_okButton.activeSelf) _okButton.SetActive(false);
 
-            if (_okButton.gameObject.activeSelf)
-            {
-                _okButton.SetActive(false);
-            }
+            if (_towerRangeIndicator.enabled) _towerRangeIndicator.enabled = false;
 
-            if (_towerRangeIndicator.enabled)
-            {
-                _towerRangeIndicator.enabled = false;
-            }
-
-            if (_moveUnitIndicator.activeSelf)
-            {
-                _moveUnitIndicator.SetActive(false);
-            }
+            if (_moveUnitIndicator.activeSelf) _moveUnitIndicator.SetActive(false);
 
             if (_curTowerMesh.sharedMesh == null) return;
             _curTowerMesh.sharedMesh = null;
@@ -355,7 +335,6 @@ namespace UIControl
                 TowerBuild();
             }
 
-
             CloseUI();
         }
 
@@ -363,11 +342,8 @@ namespace UIControl
         {
             _isSell = false;
             _curSelectedTower.gameObject.SetActive(false);
-            var towerTransform = _curSelectedTower.transform;
-            var position = towerTransform.position;
-
-            StackObjectPool.Get("BuildSmoke", position);
-            StackObjectPool.Get("BuildingPoint", position, towerTransform.rotation);
+            StackObjectPool.Get("BuildSmoke", _curSelectedTower.transform);
+            StackObjectPool.Get("BuildingPoint", _curSelectedTower.transform);
         }
 
         private void TowerBuild()
