@@ -43,10 +43,10 @@ namespace TowerControl
             atkSequence.Kill();
         }
 
-        public override void ConstructionFinished(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range,
+        public override void TowerSetting(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range,
             float delay)
         {
-            base.ConstructionFinished(towerMeshFilter, minDamage, maxDamage, range, delay);
+            base.TowerSetting(towerMeshFilter, minDamage, maxDamage, range, delay);
             onAttackEvent = null;
             onAttackEvent += TowerLevel != 4 ? SingleShoot : MultiShoot;
         }

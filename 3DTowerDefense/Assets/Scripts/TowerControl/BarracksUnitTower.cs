@@ -1,9 +1,7 @@
-using Cysharp.Threading.Tasks;
 using GameControl;
 using UnitControl.FriendlyControl;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 namespace TowerControl
@@ -11,12 +9,8 @@ namespace TowerControl
     public class BarracksUnitTower : UnitTower
     {
         private Camera _cam;
-        private int _deadUnitCount;
         private Vector3 _pos;
-        private BarracksUnit[] _barracksUnits;
         private Collider[] _targetColliders;
-
-        public int UnitHealth { get; set; }
 
         [SerializeField] private LayerMask moveAreaLayer;
 
@@ -24,7 +18,7 @@ namespace TowerControl
         {
             base.Awake();
             _cam = Camera.main;
-            _barracksUnits = new BarracksUnit[3];
+            units = new FriendlyUnit[3];
             _targetColliders = new Collider[3];
         }
 
@@ -49,10 +43,8 @@ namespace TowerControl
 
             for (var i = 0; i < size; i++)
             {
-                if (_barracksUnits[i].IsMatching) continue;
-                _barracksUnits[i].IsMatching = true;
-                _barracksUnits[i].Target = _targetColliders[i].transform;
-                _barracksUnits[i].IsTargeting = true;
+                units[i].Target = _targetColliders[i].transform;
+                units[i].IsTargeting = true;
             }
         }
 
@@ -60,7 +52,7 @@ namespace TowerControl
         {
             var ray = _cam.ScreenPointToRay(Input.GetTouch(0).position);
             if (!Physics.Raycast(ray, out var hit, moveAreaLayer)) return false;
-            foreach (var t in _barracksUnits)
+            foreach (var t in units)
             {
                 t.GoToTargetPosition(hit.point);
             }
@@ -68,62 +60,26 @@ namespace TowerControl
             return true;
         }
 
-        protected override void UnitDisable()
-        {
-            for (var i = 0; i < _barracksUnits.Length; i++)
-            {
-                if (_barracksUnits[i] != null && _barracksUnits[i].gameObject.activeSelf)
-                {
-                    _barracksUnits[i].gameObject.SetActive(false);
-                    _barracksUnits[i] = null;
-                }
-            }
-        }
-
         protected override void UnitUpgrade(int minDamage, int maxDamage, float delay)
         {
-            for (var i = 0; i < _barracksUnits.Length; i++)
+            for (var i = 0; i < units.Length; i++)
             {
-                if (_barracksUnits[i] != null) _barracksUnits[i].gameObject.SetActive(false);
+                if (units[i] != null) units[i].gameObject.SetActive(false);
 
-                UnitSpawnAndInit(i, UnitHealth);
-                _barracksUnits[i].Init(minDamage, maxDamage, delay);
+                UnitSpawn(i, UnitHealth);
+                units[i].Init(minDamage, maxDamage, delay);
             }
         }
 
-        private void ReSpawn(BarracksUnit b)
-        {
-            if (isSold) return;
-
-            if (b.GetComponent<Health>().IsDead)
-            {
-                _deadUnitCount++;
-            }
-
-            if (_deadUnitCount < 3) return;
-
-            ReSpawnTask().Forget();
-        }
-
-        private async UniTaskVoid ReSpawnTask()
-        {
-            _deadUnitCount = 0;
-            await UniTask.Delay(5000);
-            for (var i = 0; i < _barracksUnits.Length; i++)
-            {
-                UnitSpawnAndInit(i, UnitHealth);
-            }
-        }
-
-        private void UnitSpawnAndInit(int i, int health)
+        protected override void UnitSpawn(int i, int health)
         {
             if (!NavMesh.SamplePosition(transform.position, out var hit, 15, NavMesh.AllAreas)) return;
 
             var unitName = TowerLevel == 4 ? "SpearManUnit" : "SwordManUnit";
             var ranPos = hit.position + Random.insideUnitSphere * 5f;
-            _barracksUnits[i] = StackObjectPool.Get<BarracksUnit>(unitName, ranPos);
-            _barracksUnits[i].GetComponent<Health>().Init(health);
-            _barracksUnits[i].onDeadEvent += ReSpawn;
+            units[i] = StackObjectPool.Get<BarracksUnit>(unitName, ranPos);
+            units[i].GetComponent<Health>().Init(health);
+            units[i].onDeadEvent += ReSpawn;
         }
     }
 }

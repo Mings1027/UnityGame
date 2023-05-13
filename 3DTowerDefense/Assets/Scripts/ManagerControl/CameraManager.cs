@@ -1,16 +1,22 @@
+using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using GameControl;
 using UnityEngine;
 
 namespace ManagerControl
 {
-    public class CameraManager : MonoBehaviour
+    public class CameraManager : Singleton<CameraManager>
     {
         private Camera _cam;
+        private CancellationTokenSource _cts;
 
         private float _xRotation;
-        private bool _isBusy;
+        private float _lerp;
+        private Vector3 _touchStartPos;
 
-        private Vector3 _touchPos;
+        public bool IsMove { get; private set; }
 
         [SerializeField] private float moveSpeed;
         [SerializeField] private float rotationSpeed;
@@ -25,31 +31,40 @@ namespace ManagerControl
             _cam = GetComponentInChildren<Camera>();
         }
 
-        private void LateUpdate()
+        private void OnEnable()
         {
-            WherePoint();
-            CameraController();
-            CameraZoom();
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
         }
 
-        private void WherePoint()
+        private void Update()
         {
-            if (Input.touchCount != 1) return;
-
-            var touch = Input.GetTouch(0);
-            if (touch.phase == TouchPhase.Began)
+            switch (Input.touchCount)
             {
-                _touchPos = Input.GetTouch(0).position;
+                case 1:
+                    CameraMovement();
+                    break;
+                case 2:
+                    CameraZoom();
+                    break;
             }
         }
 
-        private void CameraController()
+        private void OnDisable()
         {
-            if (Input.touchCount != 1) return;
+            _cts?.Cancel();
+        }
 
+        private void CameraMovement()
+        {
             var touch = Input.GetTouch(0);
+            if (touch.phase == TouchPhase.Began)
+            {
+                _touchStartPos = touch.position;
+                _lerp = 1;
+            }
 
-            if (_touchPos.x < Screen.width * 0.5f)
+            if (_touchStartPos.x < Screen.width * 0.5f)
             {
                 CameraMove(touch);
             }
@@ -61,8 +76,29 @@ namespace ManagerControl
 
         private void CameraMove(Touch touch)
         {
-            if (touch.phase != TouchPhase.Moved) return;
+            if (touch.phase == TouchPhase.Moved)
+            {
+                Moving(touch);
+            }
+            else if (touch.phase == TouchPhase.Ended)
+            {
+                MovingAsync(touch).Forget();
+            }
+        }
 
+        private async UniTaskVoid MovingAsync(Touch touch)
+        {
+            _lerp = 0;
+            while (_lerp < 1)
+            {
+                _lerp += Time.deltaTime * moveSpeed;
+                Moving(touch);
+                await UniTask.Yield(cancellationToken: _cts.Token);
+            }
+        }
+
+        private void Moving(Touch touch)
+        {
             var t = transform;
             var pos = t.right * (touch.deltaPosition.x * -moveSpeed);
             pos += t.forward * (touch.deltaPosition.y * -moveSpeed);
@@ -106,8 +142,6 @@ namespace ManagerControl
 
         private void CameraZoom()
         {
-            if (Input.touchCount != 2) return;
-
             var firstTouch = Input.GetTouch(0);
             var secondTouch = Input.GetTouch(1);
 

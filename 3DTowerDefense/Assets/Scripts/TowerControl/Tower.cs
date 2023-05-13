@@ -94,14 +94,14 @@ namespace TowerControl
             else if (uniqueLevel > 0) TowerLevel = uniqueLevel;
         }
 
-        public virtual void UnderConstruction(MeshFilter consMeshFilter)
+        public virtual void TowerInit(MeshFilter consMeshFilter)
         {
             isUpgrading = true;
             _outline.enabled = false;
             meshFilter.sharedMesh = consMeshFilter.sharedMesh;
         }
 
-        public virtual void ConstructionFinished(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range,
+        public virtual void TowerSetting(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range,
             float delay)
         {
             isUpgrading = false;

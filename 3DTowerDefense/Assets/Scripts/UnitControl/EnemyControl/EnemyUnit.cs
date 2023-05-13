@@ -1,5 +1,6 @@
 using System;
 using AttackControl;
+using DG.Tweening;
 using UnityEngine;
 
 namespace UnitControl.EnemyControl
@@ -12,6 +13,7 @@ namespace UnitControl.EnemyControl
         public Transform destination;
 
         public event Action<int> onFinishWaveCheckEvent;
+        [SerializeField] private int atkRange;
 
         protected override void Awake()
         {
@@ -27,10 +29,9 @@ namespace UnitControl.EnemyControl
 
         protected override void Update()
         {
-            if (gameManager.IsPause) return;
             if (IsTargeting)
             {
-                if (Vector3.Distance(transform.position, Target.position) <= AtkRange)
+                if (Vector3.Distance(transform.position, Target.position) <= atkRange)
                 {
                     if (!attackAble) return;
                     nav.isStopped = true;
@@ -53,15 +54,20 @@ namespace UnitControl.EnemyControl
 
         protected override void OnDisable()
         {
-            base.OnDisable();
             onFinishWaveCheckEvent?.Invoke(Number);
             onFinishWaveCheckEvent = null;
+            CancelInvoke();
+        }
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(transform.position, atkRange);
         }
 
         private void Targeting()
         {
-            var c = SearchTarget.ClosestTarget(transform.position, AtkRange, _targetColliders, TargetLayer);
-
+            var c = SearchTarget.ClosestTarget(transform.position, atkRange, _targetColliders, TargetLayer);
             Target = c.Item1;
             IsTargeting = c.Item2;
         }

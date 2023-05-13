@@ -35,10 +35,11 @@ namespace GameControl
             _inst = Instance;
             _poolDictionary = new Dictionary<string, Stack<GameObject>>();
             //미리 생성
-            foreach (var pool in pools)
+            for (var i = 0; i < pools.Length; i++)
             {
+                var pool = pools[i];
                 _poolDictionary.Add(pool.tag, new Stack<GameObject>());
-                for (var i = 0; i < pool.size; i++)
+                for (var j = 0; j < pool.size; j++)
                 {
                     var obj = CreateNewObject(pool.tag, pool.prefab);
                     SortObject(obj);

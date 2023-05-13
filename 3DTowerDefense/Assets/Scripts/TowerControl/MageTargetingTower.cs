@@ -35,16 +35,16 @@ namespace TowerControl
                 .Append(material.DOColor(material.GetColor(EmissionColor), 0.5f));
         }
 
-        public override void UnderConstruction(MeshFilter consMeshFilter)
+        public override void TowerInit(MeshFilter consMeshFilter)
         {
-            base.UnderConstruction(consMeshFilter);
+            base.TowerInit(consMeshFilter);
             crystal.position = transform.position;
         }
 
-        public override void ConstructionFinished(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range,
+        public override void TowerSetting(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range,
             float delay)
         {
-            base.ConstructionFinished(towerMeshFilter, minDamage, maxDamage, range, delay);
+            base.TowerSetting(towerMeshFilter, minDamage, maxDamage, range, delay);
             crystal.position = _crystalPositions[TowerLevel].position;
             _crystalMeshFilter.sharedMesh = crystalMesh[TowerLevel];
         }
