@@ -35,9 +35,9 @@ namespace TowerControl
             UnitDisable();
         }
 
-        public override void TowerInit(MeshFilter consMeshFilter)
+        public override void TowerInit(MeshFilter consMeshFilter, int towerCoin)
         {
-            base.TowerInit(consMeshFilter);
+            base.TowerInit(consMeshFilter, towerCoin);
             UnitDisable();
         }
 

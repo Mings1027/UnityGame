@@ -6,10 +6,7 @@ namespace TowerControl
 {
     public abstract class TargetingTower : Tower
     {
-        private Collider[] _targetColliders;
-
         private Tween _delayTween;
-
 
         private bool attackAble;
 
@@ -21,14 +18,14 @@ namespace TowerControl
         protected override void Awake()
         {
             base.Awake();
-            _targetColliders = new Collider[5];
+            targetColliders = new Collider[5];
         }
 
         protected override void OnEnable()
         {
             base.OnEnable();
             attackAble = true;
-            InvokeRepeating(nameof(FindingTarget), 1f, 1f);
+            InvokeRepeating(nameof(FindingTarget), 1, 1);
         }
 
         private void Update()
@@ -45,11 +42,10 @@ namespace TowerControl
             _delayTween?.Kill();
         }
 
-        protected override void FindingTarget()
+        private void FindingTarget()
         {
-            var c = SearchTarget.ClosestTarget(transform.position, atkRange, _targetColliders, TargetLayer);
-            target = c.Item1;
-            isTargeting = c.Item2;
+            target = SearchTarget.ClosestTarget(transform.position, atkRange, targetColliders, TargetLayer);
+            isTargeting = target != null;
         }
 
         private void StartCoolDown()
@@ -58,9 +54,9 @@ namespace TowerControl
             _delayTween.Restart();
         }
 
-        public override void TowerInit(MeshFilter consMeshFilter)
+        public override void TowerInit(MeshFilter consMeshFilter, int towerCoin)
         {
-            base.TowerInit(consMeshFilter);
+            base.TowerInit(consMeshFilter, towerCoin);
             isUpgrading = true;
         }
 

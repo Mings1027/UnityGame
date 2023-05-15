@@ -31,7 +31,7 @@ namespace GameControl
         private void Awake()
         {
             Array.Sort(pools);
-            
+
             _inst = Instance;
             _poolDictionary = new Dictionary<string, Stack<GameObject>>();
             //미리 생성
@@ -81,7 +81,7 @@ namespace GameControl
             }
         }
 
-        public static void Get(string tag, Transform t) =>
+        public static GameObject Get(string tag, Transform t) =>
             _inst.Spawn(tag, t.position, t.rotation);
 
         public static GameObject Get(string tag, Vector3 position) =>
@@ -89,6 +89,14 @@ namespace GameControl
 
         public static GameObject Get(string tag, Vector3 position, Quaternion rotation) =>
             _inst.Spawn(tag, position, rotation);
+
+        public static T Get<T>(string tag, Transform t) where T : Component
+        {
+            var obj = _inst.Spawn(tag, t.position, t.rotation);
+            if (obj.TryGetComponent(out T component)) return component;
+            obj.SetActive(false);
+            throw new Exception("Component not found");
+        }
 
         public static T Get<T>(string tag, Vector3 position) where T : Component
         {

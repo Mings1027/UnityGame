@@ -10,17 +10,15 @@ namespace UnitControl
         private Tween _delayTween;
         private int _minDamage, _maxDamage;
 
+        protected Collider[] targetColliders;
         protected bool attackAble;
         protected NavMeshAgent nav;
+        protected Transform target;
 
         protected int Damage => Random.Range(_minDamage, _maxDamage);
 
-        protected LayerMask TargetLayer => targetLayer;
+        public bool IsTargeting { get; protected set; }
 
-        public bool IsTargeting { get; set; }
-        public Transform Target { get; set; }
-
-        [SerializeField] private LayerMask targetLayer;
         [SerializeField] [Range(0, 1)] private float smoothTurnSpeed;
 
         protected virtual void Awake()
@@ -30,6 +28,7 @@ namespace UnitControl
 
         protected virtual void OnEnable()
         {
+            IsTargeting = false;
             attackAble = true;
         }
 
@@ -41,7 +40,10 @@ namespace UnitControl
             LookTarget();
         }
 
-        protected abstract void OnDisable();
+        protected virtual void OnDisable()
+        {
+            CancelInvoke();
+        }
 
         protected abstract void Attack();
 
@@ -61,7 +63,7 @@ namespace UnitControl
 
         private void LookTarget()
         {
-            var direction = Target.position + Target.forward;
+            var direction = target.position + target.forward;
             var dir = direction - transform.position;
             var yRot = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
             var lookRot = Quaternion.Euler(0, yRot, 0);

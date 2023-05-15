@@ -5,17 +5,18 @@ namespace AttackControl
 {
     public class SearchTarget : MonoBehaviour
     {
-        public static (Transform, bool) ClosestTarget(Vector3 pos, float range, Collider[] targetColliders,
+        public static Transform ClosestTarget(Vector3 pos, float range, Collider[] targetColliders,
             LayerMask targetLayer)
         {
             var size = Physics.OverlapSphereNonAlloc(pos, range, targetColliders, targetLayer);
-            if (size <= 0) return (null, false);
+            if (size <= 0) return null;
 
             var shortestDistance = Mathf.Infinity;
             Transform nearestTarget = null;
 
             for (var i = 0; i < size; i++)
             {
+                if (targetColliders[i].GetComponent<Unit>().IsTargeting) continue;
                 var distanceToResult =
                     Vector3.SqrMagnitude(pos - targetColliders[i].transform.position);
                 if (distanceToResult >= shortestDistance) continue;
@@ -23,7 +24,7 @@ namespace AttackControl
                 nearestTarget = targetColliders[i].transform;
             }
 
-            return (nearestTarget, true);
+            return nearestTarget;
         }
     }
 }

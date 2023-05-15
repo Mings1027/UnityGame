@@ -1,7 +1,4 @@
 using System;
-using AttackControl;
-using GameControl;
-using ManagerControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using Random = UnityEngine.Random;
@@ -16,13 +13,16 @@ namespace TowerControl
         private MeshFilter _initMesh;
 
         private int _minDamage, _maxDamage;
-
+        
         protected float atkRange;
+        public int TowerCoin { get; private set; }
         protected int Damage => Random.Range(_minDamage, _maxDamage);
         protected LayerMask TargetLayer => targetLayer;
         protected MeshFilter meshFilter;
         protected bool isUpgrading;
         protected bool isSold;
+
+        protected Collider[] targetColliders;
 
         public event Action<Tower, Transform> onOpenTowerEditPanelEvent;
 
@@ -86,16 +86,17 @@ namespace TowerControl
         //==================================Custom Method====================================================
         //======================================================================================================
 
-        protected abstract void FindingTarget();
-        
+        // protected abstract void FindingTarget();
+
         public void TowerLevelUp(int uniqueLevel)
         {
             if (TowerLevel < 2) TowerLevel++;
             else if (uniqueLevel > 0) TowerLevel = uniqueLevel;
         }
 
-        public virtual void TowerInit(MeshFilter consMeshFilter)
+        public virtual void TowerInit(MeshFilter consMeshFilter, int towerCoin)
         {
+            TowerCoin = towerCoin;
             isUpgrading = true;
             _outline.enabled = false;
             meshFilter.sharedMesh = consMeshFilter.sharedMesh;

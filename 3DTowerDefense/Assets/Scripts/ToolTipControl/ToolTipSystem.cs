@@ -1,3 +1,4 @@
+using System;
 using GameControl;
 using UnityEngine;
 
@@ -5,11 +6,17 @@ namespace ToolTipControl
 {
     public class ToolTipSystem : Singleton<ToolTipSystem>
     {
-        [SerializeField] private ToolTip toolTip;
+        private ToolTip toolTip;
 
-        public void Show(Vector3 pos,string content, string header ="")
+        private void Awake()
         {
-            toolTip.SetText(pos,content,header);
+            toolTip = transform.GetChild(0).GetComponent<ToolTip>();
+            toolTip.gameObject.SetActive(false);
+        }
+
+        public void Show(Vector3 pos, string content, string header = "")
+        {
+            toolTip.SetText(pos, content, header);
             toolTip.gameObject.SetActive(true);
         }
 

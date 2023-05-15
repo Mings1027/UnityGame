@@ -1,4 +1,5 @@
 using GameControl;
+using UnitControl.EnemyControl;
 using UnitControl.FriendlyControl;
 using UnityEngine;
 using UnityEngine.AI;
@@ -9,8 +10,8 @@ namespace TowerControl
     public class BarracksUnitTower : UnitTower
     {
         private Camera _cam;
+
         private Vector3 _pos;
-        private Collider[] _targetColliders;
 
         [SerializeField] private LayerMask moveAreaLayer;
 
@@ -19,13 +20,6 @@ namespace TowerControl
             base.Awake();
             _cam = Camera.main;
             units = new FriendlyUnit[3];
-            _targetColliders = new Collider[3];
-        }
-
-        protected override void OnEnable()
-        {
-            base.OnEnable();
-            InvokeRepeating(nameof(FindingTarget), 1, 1);
         }
 
         protected override void OnDisable()
@@ -36,17 +30,6 @@ namespace TowerControl
         //==================================Custom Function====================================================
         //==================================Custom Function====================================================
 
-        protected override void FindingTarget()
-        {
-            var size = Physics.OverlapSphereNonAlloc(transform.position, atkRange, _targetColliders, TargetLayer);
-            if (size <= 0) return;
-
-            for (var i = 0; i < size; i++)
-            {
-                units[i].Target = _targetColliders[i].transform;
-                units[i].IsTargeting = true;
-            }
-        }
 
         public bool Move()
         {

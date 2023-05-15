@@ -1,24 +1,24 @@
 using System;
 using AttackControl;
 using DG.Tweening;
+using UnitControl.FriendlyControl;
 using UnityEngine;
 
 namespace UnitControl.EnemyControl
 {
     public abstract class EnemyUnit : Unit
     {
-        private Collider[] _targetColliders;
-
         public int Number { get; set; }
         public Transform destination;
-
         public event Action<int> onFinishWaveCheckEvent;
+
         [SerializeField] private int atkRange;
+        [SerializeField] private LayerMask targetLayer;
 
         protected override void Awake()
         {
             base.Awake();
-            _targetColliders = new Collider[1];
+            targetColliders = new Collider[3];
         }
 
         protected override void OnEnable()
@@ -31,7 +31,7 @@ namespace UnitControl.EnemyControl
         {
             if (IsTargeting)
             {
-                if (Vector3.Distance(transform.position, Target.position) <= atkRange)
+                if (Vector3.Distance(transform.position, target.position) <= atkRange)
                 {
                     if (!attackAble) return;
                     nav.isStopped = true;
@@ -40,7 +40,7 @@ namespace UnitControl.EnemyControl
                 }
                 else
                 {
-                    nav.SetDestination(Target.position);
+                    nav.SetDestination(target.position);
                 }
             }
             else
@@ -54,9 +54,9 @@ namespace UnitControl.EnemyControl
 
         protected override void OnDisable()
         {
+            base.OnDisable();
             onFinishWaveCheckEvent?.Invoke(Number);
             onFinishWaveCheckEvent = null;
-            CancelInvoke();
         }
 
         private void OnDrawGizmos()
@@ -67,9 +67,8 @@ namespace UnitControl.EnemyControl
 
         private void Targeting()
         {
-            var c = SearchTarget.ClosestTarget(transform.position, atkRange, _targetColliders, TargetLayer);
-            Target = c.Item1;
-            IsTargeting = c.Item2;
+            target = SearchTarget.ClosestTarget(transform.position, atkRange, targetColliders, targetLayer);
+            IsTargeting = target != null;
         }
     }
 }

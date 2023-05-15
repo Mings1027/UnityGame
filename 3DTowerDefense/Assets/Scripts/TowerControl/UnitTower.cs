@@ -1,4 +1,4 @@
-using AttackControl;
+using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using GameControl;
 using UnitControl;
@@ -10,8 +10,15 @@ namespace TowerControl
     public abstract class UnitTower : Tower
     {
         protected FriendlyUnit[] units;
+
         private int deadUnitCount;
         public int UnitHealth { get; set; }
+
+        protected override void Awake()
+        {
+            base.Awake();
+            targetColliders = new Collider[3];
+        }
 
         protected override void OnDisable()
         {
@@ -19,15 +26,13 @@ namespace TowerControl
             UnitDisable(units);
         }
 
-        private void UnitDisable(FriendlyUnit[] u)
+        private void UnitDisable(IList<FriendlyUnit> u)
         {
-            for (var i = 0; i < u.Length; i++)
+            for (var i = 0; i < u.Count; i++)
             {
-                if (u[i] != null && u[i].gameObject.activeSelf)
-                {
-                    u[i].gameObject.SetActive(false);
-                    u[i] = null;
-                }
+                if (u[i] == null || !u[i].gameObject.activeSelf) continue;
+                u[i].gameObject.SetActive(false);
+                u[i] = null;
             }
         }
 
@@ -46,11 +51,11 @@ namespace TowerControl
             ReSpawnTask(units).Forget();
         }
 
-        private async UniTaskVoid ReSpawnTask(FriendlyUnit[] u)
+        private async UniTaskVoid ReSpawnTask(IReadOnlyCollection<FriendlyUnit> u)
         {
             deadUnitCount = 0;
             await UniTask.Delay(5000);
-            for (var i = 0; i < u.Length; i++)
+            for (var i = 0; i < u.Count; i++)
             {
                 UnitSpawn(i, UnitHealth);
             }

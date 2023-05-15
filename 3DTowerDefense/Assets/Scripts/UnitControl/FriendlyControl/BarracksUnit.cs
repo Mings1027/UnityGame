@@ -32,7 +32,7 @@ namespace UnitControl.FriendlyControl
             StackObjectPool.Get("SlashVFX", _attackEffectPos.position,
                 transform.rotation * Quaternion.Euler(0, 90, 0));
             audioSource.PlayOneShot(atkAudio);
-            meleeWeapon.Attack(Target, Damage);
+            meleeWeapon.Attack(target, Damage);
         }
     }
 }
