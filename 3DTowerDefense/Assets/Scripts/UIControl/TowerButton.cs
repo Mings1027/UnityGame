@@ -10,10 +10,8 @@ namespace UIControl
 {
     public class TowerButton : MonoBehaviour
     {
-        private int _towerCoin;
+        public int TowerCoin { get; set; }
 
-        private void Awake()
-        {
-        }
+        
     }
 }

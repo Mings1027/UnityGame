@@ -8,12 +8,7 @@ namespace UnitControl
 {
     public class MoveUnitIndicator : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
-        private UIManager _uiManager;
-
-        private void Awake()
-        {
-            _uiManager = UIManager.Instance;
-        }
+        public event Action onMoveUnitEvent;
 
         public void OnPointerDown(PointerEventData eventData)
         {
@@ -21,7 +16,7 @@ namespace UnitControl
 
         public void OnPointerUp(PointerEventData eventData)
         {
-            _uiManager.MoveUnit();
+            onMoveUnitEvent?.Invoke();
             gameObject.SetActive(false);
         }
     }

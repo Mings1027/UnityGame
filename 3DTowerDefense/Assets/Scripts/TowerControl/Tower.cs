@@ -15,7 +15,6 @@ namespace TowerControl
         private int _minDamage, _maxDamage;
         
         protected float atkRange;
-        public int TowerCoin { get; private set; }
         protected int Damage => Random.Range(_minDamage, _maxDamage);
         protected LayerMask TargetLayer => targetLayer;
         protected MeshFilter meshFilter;
@@ -94,9 +93,8 @@ namespace TowerControl
             else if (uniqueLevel > 0) TowerLevel = uniqueLevel;
         }
 
-        public virtual void TowerInit(MeshFilter consMeshFilter, int towerCoin)
+        public virtual void TowerInit(MeshFilter consMeshFilter)
         {
-            TowerCoin = towerCoin;
             isUpgrading = true;
             _outline.enabled = false;
             meshFilter.sharedMesh = consMeshFilter.sharedMesh;

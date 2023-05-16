@@ -4,6 +4,7 @@ using Cysharp.Threading.Tasks;
 using GameControl;
 using UnitControl.EnemyControl;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace ManagerControl
 {
@@ -33,8 +34,8 @@ namespace ManagerControl
 
         private WaveData waveData;
 
-        [SerializeField] private Transform spawnPoint;
-        [SerializeField] private Transform destinationPoint;
+        public Transform SpawnPoint { get; set; }
+        public Transform DestinationPoint { get; set; }
 
         private void Awake()
         {
@@ -82,9 +83,9 @@ namespace ManagerControl
 
         private void SpawnEnemy()
         {
-            var e = StackObjectPool.Get<EnemyUnit>(waveData.waves[_curWave].enemyName, spawnPoint.position);
+            var e = StackObjectPool.Get<EnemyUnit>(waveData.waves[_curWave].enemyName, SpawnPoint.position);
             e.GetComponent<Health>().Init(waveData.waves[_curWave].health);
-            e.destination = destinationPoint;
+            e.destination = DestinationPoint;
             e.Number = _enemiesIndex;
             e.onFinishWaveCheckEvent += CheckWaveFinish;
 

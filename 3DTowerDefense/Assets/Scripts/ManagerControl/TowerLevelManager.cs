@@ -12,7 +12,6 @@ namespace BuildControl
         {
             public MeshFilter towerMesh;
             public MeshFilter consMesh;
-            public int coin;
             public string towerName;
             public string towerInfo;
             public int minDamage, maxDamage;

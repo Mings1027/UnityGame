@@ -6,7 +6,7 @@ namespace GameControl
     {
         private static T _instance;
 
-        public static T Instance
+        protected static T Instance
         {
             get
             {

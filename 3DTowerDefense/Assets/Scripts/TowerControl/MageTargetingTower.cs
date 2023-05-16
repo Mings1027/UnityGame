@@ -35,9 +35,9 @@ namespace TowerControl
                 .Append(material.DOColor(material.GetColor(EmissionColor), 0.5f));
         }
 
-        public override void TowerInit(MeshFilter consMeshFilter,int towerCoin)
+        public override void TowerInit(MeshFilter consMeshFilter)
         {
-            base.TowerInit(consMeshFilter,towerCoin);
+            base.TowerInit(consMeshFilter);
             crystal.position = transform.position;
         }
 

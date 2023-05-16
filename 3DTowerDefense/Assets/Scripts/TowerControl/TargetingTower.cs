@@ -54,9 +54,9 @@ namespace TowerControl
             _delayTween.Restart();
         }
 
-        public override void TowerInit(MeshFilter consMeshFilter, int towerCoin)
+        public override void TowerInit(MeshFilter consMeshFilter)
         {
-            base.TowerInit(consMeshFilter, towerCoin);
+            base.TowerInit(consMeshFilter);
             isUpgrading = true;
         }
 
