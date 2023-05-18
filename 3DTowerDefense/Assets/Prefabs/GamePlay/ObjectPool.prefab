@@ -1,0 +1,153 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8027855531471706518
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8027855531471706516}
+  - component: {fileID: 8027855531471706519}
+  m_Layer: 0
+  m_Name: ObjectPool
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8027855531471706516
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8027855531471706518}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8027855531471706519
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8027855531471706518}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 702e10604a6f9481a955b7f8b37182ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pools:
+  - tag: ArrowHitSFX
+    prefab: {fileID: 953530123978054383, guid: eaea9681d992d453c8887f8f2165dbac, type: 3}
+    size: 30
+  - tag: ArcherBullet
+    prefab: {fileID: 1102214754406758, guid: a1abe34d22b8be947a05ddbb0137d2d3, type: 3}
+    size: 30
+  - tag: ArcherProjectile
+    prefab: {fileID: 7706801028311746445, guid: b5fdd2d8e79694cc9a686bbfbaf93b47,
+      type: 3}
+    size: 30
+  - tag: ArrowHitVFX
+    prefab: {fileID: 8382068301544357172, guid: 57306482cd2489b44819dcfc9831623a,
+      type: 3}
+    size: 30
+  - tag: ArcherUnit
+    prefab: {fileID: 8360084230518535286, guid: b2a66d2f990441f4ea87d9a6ee5f9093,
+      type: 3}
+    size: 20
+  - tag: ArcherTower
+    prefab: {fileID: 2192198980469555006, guid: e369eafc6fad84c82a24888a011552cb,
+      type: 3}
+    size: 20
+  - tag: ArcherEnemy
+    prefab: {fileID: 4720547442794712445, guid: aa8229f3c922246bdaa74322dbd77ae0,
+      type: 3}
+    size: 30
+  - tag: BulletHitSFX
+    prefab: {fileID: 953530123978054383, guid: 1ef67d3fcbe454d6c97efd054d69922e, type: 3}
+    size: 30
+  - tag: BulletHitVFX
+    prefab: {fileID: 1473840321181740, guid: ddd5890b7dd2ac74ab4caeebf282b3f9, type: 3}
+    size: 30
+  - tag: CanonHitSFX
+    prefab: {fileID: 953530123978054383, guid: b0799921b8d5941e69e6a1544e62922a, type: 3}
+    size: 30
+  - tag: CanonBullet
+    prefab: {fileID: 4134895727443223706, guid: a11f2e7afe49e4b5bad475328834bfe7,
+      type: 3}
+    size: 30
+  - tag: CanonHitVFX
+    prefab: {fileID: 6143467867895953418, guid: be01741081bb2c944aad51a527b3e120,
+      type: 3}
+    size: 30
+  - tag: MageHitSFX
+    prefab: {fileID: 953530123978054383, guid: f4d162e98900b4e7cbaf28d71d7bf4bc, type: 3}
+    size: 30
+  - tag: MageBullet
+    prefab: {fileID: 4848723035775484797, guid: b3b589ea1500e40349ce474b2a467086,
+      type: 3}
+    size: 30
+  - tag: MageHitVFX
+    prefab: {fileID: 8582097823250335858, guid: b1a5f87a8428cbb4cb7966658567b496,
+      type: 3}
+    size: 30
+  - tag: SlashVFX
+    prefab: {fileID: 8792079695798041162, guid: 7923e37648055d34abc4f9ce4dfbbba0,
+      type: 3}
+    size: 30
+  - tag: SlashHitVFX
+    prefab: {fileID: 8031699067492803896, guid: 9c9b72b339e1fde4ea4f9b7a86ef7546,
+      type: 3}
+    size: 30
+  - tag: EnemyArrow
+    prefab: {fileID: 7142660089482767029, guid: 9166d6459eee746b0b147657098aa7ae,
+      type: 3}
+    size: 30
+  - tag: BuildingPoint
+    prefab: {fileID: 1323643566170160, guid: c0ad9e12aa69f14419bc9e45d54eb299, type: 3}
+    size: 10
+  - tag: SwordManUnit
+    prefab: {fileID: 7901291658597421272, guid: f54b13a6fbc3d47ff8bc260b5e9f0a64,
+      type: 3}
+    size: 30
+  - tag: SpearManUnit
+    prefab: {fileID: 4417539079662013206, guid: e65f00d669a55f74eb6840c849c657e1,
+      type: 3}
+    size: 30
+  - tag: BarracksTower
+    prefab: {fileID: 6545304924751771831, guid: b618602a7539e4ff69370c623d04bcde,
+      type: 3}
+    size: 20
+  - tag: CanonTower
+    prefab: {fileID: 8402685592966021926, guid: 7cc8e352e306e435d8e57d78a3d8dd5d,
+      type: 3}
+    size: 20
+  - tag: MageTower
+    prefab: {fileID: 3033364790056241785, guid: 25943dab98ddf4593a4ab9a25c29e8d0,
+      type: 3}
+    size: 20
+  - tag: MageEnemy
+    prefab: {fileID: 7712616592404947846, guid: a67f3e5c82fd741939910d9d248754ab,
+      type: 3}
+    size: 30
+  - tag: SpearManEnemy
+    prefab: {fileID: 6965371322595520466, guid: 27bc6d78554bc4eb489e5c41f8523bf7,
+      type: 3}
+    size: 30
+  - tag: SwordManEnemy
+    prefab: {fileID: 10859800051177605, guid: f99f0cc7ac7b643b1a6860bad1ffaa6c, type: 3}
+    size: 30
+  - tag: BuildSmoke
+    prefab: {fileID: 104829970813648393, guid: d3015b7eea383f64d8b81f965cc466e7, type: 3}
+    size: 30
+  - tag: CanonSmoke
+    prefab: {fileID: 985483039366664255, guid: f91edac4d13fc4343ba96bb6a843ad05, type: 3}
+    size: 30

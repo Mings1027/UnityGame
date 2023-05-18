@@ -1,7 +1,7 @@
 using System.IO;
 using UnityEngine;
 
-namespace GameControl
+namespace ManagerControl
 {
     public static class DataManager
     {

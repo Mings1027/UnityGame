@@ -30,6 +30,11 @@ namespace ManagerControl
             startButton.onClick.AddListener(StartGame);
         }
 
+        private void Start()
+        {
+            startPanel.SetActive(true);
+        }
+
         private void LateUpdate()
         {
             onMoveUIEvent?.Invoke();

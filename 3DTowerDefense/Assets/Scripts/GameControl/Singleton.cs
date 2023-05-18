@@ -6,7 +6,7 @@ namespace GameControl
     {
         private static T _instance;
 
-        protected static T Instance
+        public static T Instance
         {
             get
             {
@@ -17,7 +17,7 @@ namespace GameControl
                 _instance = obj.AddComponent(typeof(T)) as T;
                 obj.name = typeof(T).ToString();
 
-                DontDestroyOnLoad(obj);
+                // DontDestroyOnLoad(obj);
 
                 return _instance;
             }

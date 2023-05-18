@@ -1,18 +1,46 @@
 using System;
-using DG.Tweening;
 using GameControl;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace ManagerControl
 {
     public class GameManager : Singleton<GameManager>
     {
-        private UIManager _uiManager;
+        private WaveManager _waveManager;
+        private Transform spawnPoints;
+        private Transform destinationPoints;
+
+        [SerializeField] private GameObject gamePlayPrefab;
+        [SerializeField] private GameObject mapPrefab;
 
         private void Awake()
         {
-            _uiManager = UIManager.Instance;
+            Instantiate(gamePlayPrefab);
+        }
+
+        private void OnEnable()
+        {
+            _waveManager = WaveManager.Instance;
+            MapInit();
+        }
+
+        private void MapInit()
+        {
+            var map = Instantiate(mapPrefab).transform;
+            spawnPoints = map.transform.Find("Spawn Points");
+            _waveManager.SpawnPointList = new Transform[spawnPoints.childCount];
+
+            for (int i = 0; i < _waveManager.SpawnPointList.Length; i++)
+            {
+                _waveManager.SpawnPointList[i] = spawnPoints.GetChild(i);
+            }
+
+            destinationPoints = map.transform.Find("Destination Points");
+            _waveManager.DestinationPointList = new Transform[destinationPoints.childCount];
+            for (int i = 0; i < _waveManager.DestinationPointList.Length; i++)
+            {
+                _waveManager.DestinationPointList[i] = destinationPoints.GetChild(i);
+            }
         }
     }
 }

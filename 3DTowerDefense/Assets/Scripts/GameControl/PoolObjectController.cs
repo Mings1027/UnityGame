@@ -4,12 +4,13 @@ namespace GameControl
 {
     public class PoolObjectController : MonoBehaviour
     {
+        private float lifeTime;
         [SerializeField] private bool dontDestroy;
-        [SerializeField] private float lifeTime;
 
         private void OnEnable()
         {
             if (dontDestroy) return;
+            lifeTime = 3;
             Invoke(nameof(DestroyObject), lifeTime);
         }
 

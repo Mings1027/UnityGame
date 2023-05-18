@@ -2,18 +2,22 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameControl;
+using UIControl;
 using UnitControl.EnemyControl;
 using UnityEngine;
 using UnityEngine.Serialization;
 
 namespace ManagerControl
 {
-    public class WaveManager : MonoBehaviour
+    public class WaveManager : Singleton<WaveManager>
     {
+        private GamePlayUIController _gamePlayUIController;
+
         [Serializable]
         public class Wave
         {
             public string enemyName;
+            public int enemyCoin;
             public int enemyCount;
             public float atkDelay;
             public int minDamage;
@@ -34,12 +38,16 @@ namespace ManagerControl
 
         private WaveData waveData;
 
-        public Transform SpawnPoint { get; set; }
-        public Transform DestinationPoint { get; set; }
+        private int spawnPointIndex;
+        
+        public Transform[] SpawnPointList { get; set; }
+        public Transform[] DestinationPointList { get; set; }
 
-        private void Awake()
+        private void Start()
         {
+            _gamePlayUIController = GamePlayUIController.Instance;
             _curWave = -1;
+            spawnPointIndex = -1;
             waveData = new WaveData();
             if (waveData.waves == null)
             {
@@ -83,24 +91,28 @@ namespace ManagerControl
 
         private void SpawnEnemy()
         {
-            var e = StackObjectPool.Get<EnemyUnit>(waveData.waves[_curWave].enemyName, SpawnPoint.position);
+            spawnPointIndex++;
+            var e = StackObjectPool.Get<EnemyUnit>(waveData.waves[_curWave].enemyName,
+                SpawnPointList[spawnPointIndex].position);
             e.GetComponent<Health>().Init(waveData.waves[_curWave].health);
-            e.destination = DestinationPoint;
-            e.Number = _enemiesIndex;
             e.onFinishWaveCheckEvent += CheckWaveFinish;
 
             var w = waveData.waves[_curWave];
             e.Init(w.minDamage, w.maxDamage, w.atkDelay);
+            if (spawnPointIndex == SpawnPointList.Length - 1)
+            {
+                spawnPointIndex = -1;
+            }
         }
 
-        private void CheckWaveFinish(int num)
+        private void CheckWaveFinish()
         {
             _enemiesIndex--;
-            if (_enemiesIndex == -1)
-            {
-                print("Stage Complete");
-                _startGame = false;
-            }
+            _gamePlayUIController.IncreaseCoin(waveData.waves[_curWave].enemyCoin);
+            if (_enemiesIndex != -1) return;
+            print("Stage Complete");
+            _startGame = false;
+            gameObject.SetActive(true);
         }
 
         [ContextMenu("From Json Data")]

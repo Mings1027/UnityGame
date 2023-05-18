@@ -3,6 +3,7 @@ using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using GameControl;
 using ManagerControl;
+using MapControl;
 using TMPro;
 using ToolTipControl;
 using TowerControl;
@@ -31,9 +32,8 @@ namespace UIControl
         [SerializeField] private GameObject _okButton;
 
         private int _towerIndex;
-        private TowerButton[] _towerButtons;
+        private GameObject[] _towerButtons;
         private string[] towerNames;
-        private Sequence _buildPointSequence;
         private Sequence _towerSelectPanelSequence;
         private Tween _towerEditPanelTween;
         private int _lastIndex;
@@ -59,6 +59,20 @@ namespace UIControl
 
         [SerializeField] private int towerCoin;
 
+        private int TowerCoin
+        {
+            get
+            {
+                coinText.text = towerCoin.ToString();
+                return towerCoin;
+            }
+            set
+            {
+                towerCoin = value;
+                coinText.text = towerCoin.ToString();
+            }
+        }
+
         private void Awake()
         {
             _cam = Camera.main;
@@ -74,11 +88,11 @@ namespace UIControl
 
             moveUnitIndicator.GetComponent<MoveUnitIndicator>().onMoveUnitEvent += MoveUnit;
 
-            _towerButtons = new TowerButton[towerSelectPanel.transform.childCount];
+            _towerButtons = new GameObject[towerSelectPanel.transform.childCount];
             _towerSelectPanelSequence = DOTween.Sequence().SetAutoKill(false).Pause();
             for (var i = 0; i < _towerButtons.Length; i++)
             {
-                _towerButtons[i] = towerSelectPanel.transform.GetChild(i).GetComponent<TowerButton>();
+                _towerButtons[i] = towerSelectPanel.transform.GetChild(i).gameObject;
                 var index = i;
                 _towerButtons[i].GetComponent<Button>().onClick.AddListener(() => TowerButton(index));
                 _towerSelectPanelSequence.Append(_towerButtons[i].transform.DOScale(1, 0.05f).From(0))
@@ -96,33 +110,24 @@ namespace UIControl
 
         private void Start()
         {
-            var buildPoint = MapController.Instance.transform.GetChild(0);
-            _buildPointSequence = DOTween.Sequence().SetAutoKill(false).Pause();
-            for (int i = 0; i < buildPoint.childCount; i++)
-            {
-                var child = buildPoint.GetChild(i);
-                var p = StackObjectPool.Get<BuildingPoint>("BuildingPoint", child.position + new Vector3(0, 300, 0),
-                    child.rotation);
-                p.onOpenTowerSelectPanelEvent += OpenTowerSelectPanel;
-                _buildPointSequence.Append(p.transform.DOMoveY(0, 0.2f)
-                    .OnComplete(() => StackObjectPool.Get("BuildSmoke", p.transform.position)));
-            }
-
             Init();
         }
 
         private void Init()
         {
-            var uiManager = UIManager.Instance;
-            uiManager.onMoveUIEvent += MoveUI;
-            uiManager.onBuildPointSequenceEvent += () => _buildPointSequence.Restart();
-            MapController.Instance.onCloseUIEvent += Close;
+            UIManager.Instance.onMoveUIEvent += MoveUI;
+            MapController.Instance.onCloseUIEvent += CloseUI;
 
             towerSelectPanel.gameObject.SetActive(false);
             towerEditPanel.SetActive(false);
             _okButton.SetActive(false);
 
             coinText.text = towerCoin.ToString();
+        }
+
+        public void IncreaseCoin(int amount)
+        {
+            TowerCoin += amount;
         }
 
         private void MoveUI()
@@ -143,7 +148,7 @@ namespace UIControl
             }
         }
 
-        private void OpenTowerSelectPanel(Transform t)
+        public void OpenTowerSelectPanel(Transform t)
         {
             CloseUI();
             _isTower = false;
@@ -210,7 +215,7 @@ namespace UIControl
             moveUnitIndicator.SetActive(true);
         }
 
-        public void MoveUnit()
+        private void MoveUnit()
         {
             if (_curSelectedTower.GetComponent<BarracksUnitTower>().Move())
             {
@@ -221,12 +226,6 @@ namespace UIControl
                 print("Can't Move");
                 // X표시 UI를 나타나게 해준다던가 이펙트표시해주면 좋을듯
             }
-        }
-
-        private void Close()
-        {
-            if (_isMoveUnit) return;
-            CloseUI();
         }
 
         private void CloseUI()
@@ -294,8 +293,7 @@ namespace UIControl
             var tl = tlm.towerLevels[tempTower.TowerLevel];
 
             var c = _curSelectedTower.TowerLevel > 3 ? 3 : _curSelectedTower.TowerLevel;
-            towerCoin -= _infoUIController.TowerCoin[c];
-            coinText.text = towerCoin.ToString();
+            TowerCoin -= _infoUIController.TowerCoin[c];
 
             tempTower.TowerInit(tl.consMesh);
 
@@ -342,8 +340,7 @@ namespace UIControl
             StackObjectPool.Get("BuildSmoke", _curSelectedTower.transform);
             StackObjectPool.Get("BuildingPoint", _curSelectedTower.transform);
 
-            towerCoin += _sellTowerCoin;
-            coinText.text = towerCoin.ToString();
+            TowerCoin += _sellTowerCoin;
         }
 
         private void ActiveOkButton(string info, string towerName)

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace BuildControl
+namespace ManagerControl
 {
     [CreateAssetMenu]
     public class TowerLevelManager : ScriptableObject

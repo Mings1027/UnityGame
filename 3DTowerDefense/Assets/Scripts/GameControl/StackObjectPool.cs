@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace GameControl
 {
+    using KeyType = String;
     public class StackObjectPool : Singleton<StackObjectPool>
     {
         [Serializable]
@@ -21,12 +22,13 @@ namespace GameControl
         }
 
         private static StackObjectPool _inst;
-        [SerializeField] private Pool[] pools;
         private Dictionary<string, Stack<GameObject>> _poolDictionary;
 
         private readonly string _info = " 오브젝트에 다음을 적으세요 \nvoid OnDisable()\n{\n" +
                                         "    ObjectPooling.ReturnToPool(gameObject);    // 한 객체에 한번만 \n" +
                                         "    CancelInvoke();    // Mono behaviour에 Invoke가 있다면 \n}";
+
+        [SerializeField] private Pool[] pools;
 
         private void Awake()
         {
@@ -128,7 +130,9 @@ namespace GameControl
                     throw new Exception($"Pool with tag {objTag} doesn't exist.");
 
                 var obj = CreateNewObject(pool.tag, pool.prefab);
+                #if UNITY_EDITOR
                 SortObject(obj);
+                #endif
             }
 
             //스택에서 꺼내 사용

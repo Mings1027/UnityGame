@@ -11,7 +11,7 @@ namespace WeaponControl
         private Vector3 startPos;
         private Transform target;
         private AudioSource audioSource;
-        
+
         [SerializeField] private string tagName;
         [SerializeField] private AnimationCurve curve;
         [SerializeField] private float speed;
@@ -37,6 +37,10 @@ namespace WeaponControl
             if (other.CompareTag(tagName))
             {
                 ProjectileHit(other);
+                gameObject.SetActive(false);
+            }
+            else if (other.CompareTag("Ground"))
+            {
                 gameObject.SetActive(false);
             }
         }

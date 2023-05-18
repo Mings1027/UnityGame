@@ -25,7 +25,7 @@ namespace TowerControl
         {
             base.OnEnable();
             attackAble = true;
-            InvokeRepeating(nameof(FindingTarget), 1, 1);
+            InvokeRepeating(nameof(FindingTarget), 1, 0.5f);
         }
 
         private void Update()

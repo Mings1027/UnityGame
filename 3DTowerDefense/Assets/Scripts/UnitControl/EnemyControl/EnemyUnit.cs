@@ -1,6 +1,7 @@
 using System;
 using AttackControl;
 using DG.Tweening;
+using ManagerControl;
 using UnitControl.FriendlyControl;
 using UnityEngine;
 
@@ -8,9 +9,9 @@ namespace UnitControl.EnemyControl
 {
     public abstract class EnemyUnit : Unit
     {
-        public int Number { get; set; }
-        public Transform destination;
-        public event Action<int> onFinishWaveCheckEvent;
+        private Transform destination;
+
+        public event Action onFinishWaveCheckEvent;
 
         [SerializeField] private int atkRange;
         [SerializeField] private LayerMask targetLayer;
@@ -25,6 +26,7 @@ namespace UnitControl.EnemyControl
         {
             base.OnEnable();
             InvokeRepeating(nameof(Targeting), 1f, 1f);
+            destination = WaveManager.Instance.DestinationPointList[0];
         }
 
         protected override void Update()
@@ -55,7 +57,7 @@ namespace UnitControl.EnemyControl
         protected override void OnDisable()
         {
             base.OnDisable();
-            onFinishWaveCheckEvent?.Invoke(Number);
+            onFinishWaveCheckEvent?.Invoke();
             onFinishWaveCheckEvent = null;
         }
 

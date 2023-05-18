@@ -16,15 +16,11 @@ namespace ManagerControl
         private float _lerp;
         private Vector3 _touchStartPos;
 
-        public bool IsMove { get; private set; }
-
         [SerializeField] private float moveSpeed;
         [SerializeField] private float rotationSpeed;
         [SerializeField] private float zoomSpeed;
-        [SerializeField] private float minScale, maxScale;
-
-        [SerializeField] private float limitX;
-        [SerializeField] private float limitZ;
+        [SerializeField] private Vector2Int scale;
+        [SerializeField] private Vector2Int camPosLimit;
 
         private void Awake()
         {
@@ -105,8 +101,8 @@ namespace ManagerControl
             pos.y = 0;
             var newPos = t.position + pos * Time.deltaTime;
 
-            newPos.x = Mathf.Clamp(newPos.x, -limitX, limitX);
-            newPos.z = Mathf.Clamp(newPos.z, -limitZ, limitZ);
+            newPos.x = Mathf.Clamp(newPos.x, -camPosLimit.x, camPosLimit.x);
+            newPos.z = Mathf.Clamp(newPos.z, -camPosLimit.y, camPosLimit.y);
 
             transform.position = newPos;
         }
@@ -131,10 +127,14 @@ namespace ManagerControl
             var currentY = Mathf.Ceil(transform.rotation.eulerAngles.y);
             var endValue = currentY switch
             {
-                >= 0 and <= 90 => 45.0f,
-                >= 91 and <= 180 => 135.0f,
-                >= 181 and <= 270 => 225.0f,
-                _ => 315.0f
+                <= 45 or >= 315 => 0f,
+                >= 45 and <= 135 => 90f,
+                >= 136 and <= 225 => 180f,
+                _ => 270f
+                // >= 0 and <= 90 => 45.0f,
+                // >= 91 and <= 180 => 135.0f,
+                // >= 181 and <= 270 => 225.0f,
+                // _ => 315.0f
             };
 
             return new Vector3(_xRotation, endValue, 0.0f);
@@ -162,7 +162,7 @@ namespace ManagerControl
                 _cam.orthographicSize -= zoomModifier;
             }
 
-            _cam.orthographicSize = Mathf.Clamp(_cam.orthographicSize, minScale, maxScale);
+            _cam.orthographicSize = Mathf.Clamp(_cam.orthographicSize, scale.x, scale.y);
         }
     }
 }
