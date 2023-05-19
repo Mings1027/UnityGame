@@ -13,45 +13,7 @@ using UnityEngine.UI;
 
 namespace ManagerControl
 {
-    public sealed class UIManager : Singleton<UIManager>
+    public sealed class UIManager : MonoBehaviour
     {
-        private bool IsPause { get; set; }
-        private GameObject _menuPanel;
-        private GameObject _pauseButton;
-
-        [SerializeField] private GameObject startPanel;
-        [SerializeField] private Button startButton;
-
-        public event Action onMoveUIEvent;
-        public event Action onBuildPointSequenceEvent;
-
-        private void Awake()
-        {
-            startButton.onClick.AddListener(StartGame);
-        }
-
-        private void Start()
-        {
-            startPanel.SetActive(true);
-        }
-
-        private void LateUpdate()
-        {
-            onMoveUIEvent?.Invoke();
-        }
-
-        private void StartGame()
-        {
-            onBuildPointSequenceEvent?.Invoke();
-            startPanel.transform.DOMoveY(Screen.height, 0.5f).SetEase(Ease.InBack)
-                .OnComplete(() => startPanel.SetActive(false));
-        }
-
-        private void Pause()
-        {
-            IsPause = !IsPause;
-            Time.timeScale = IsPause ? 0 : 1;
-            _menuPanel.SetActive(IsPause);
-        }
     }
 }

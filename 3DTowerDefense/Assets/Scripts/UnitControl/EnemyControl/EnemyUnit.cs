@@ -26,7 +26,6 @@ namespace UnitControl.EnemyControl
         {
             base.OnEnable();
             InvokeRepeating(nameof(Targeting), 1f, 1f);
-            destination = WaveManager.Instance.DestinationPointList[0];
         }
 
         protected override void Update()
@@ -67,6 +66,10 @@ namespace UnitControl.EnemyControl
             Gizmos.DrawWireSphere(transform.position, atkRange);
         }
 
+        public void SetDestination(Transform pos)
+        {
+            destination = pos;
+        }
         private void Targeting()
         {
             target = SearchTarget.ClosestTarget(transform.position, atkRange, targetColliders, targetLayer);

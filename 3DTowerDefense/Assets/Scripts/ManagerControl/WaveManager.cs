@@ -11,7 +11,10 @@ namespace ManagerControl
 {
     public class WaveManager : Singleton<WaveManager>
     {
-        private GamePlayUIController _gamePlayUIController;
+        private bool _startGame;
+        private int _curWave;
+        private int _enemiesIndex;
+        private CancellationTokenSource cts;
 
         [Serializable]
         public class Wave
@@ -31,21 +34,16 @@ namespace ManagerControl
             public Wave[] waves;
         }
 
-        private bool _startGame;
-        private int _curWave;
-        private int _enemiesIndex;
-        private CancellationTokenSource cts;
-
         private WaveData waveData;
 
         private int spawnPointIndex;
-        
+
+        public event Action<int> onCoinIncreaseEvent;
         public Transform[] SpawnPointList { get; set; }
         public Transform[] DestinationPointList { get; set; }
 
         private void Start()
         {
-            _gamePlayUIController = GamePlayUIController.Instance;
             _curWave = -1;
             spawnPointIndex = -1;
             waveData = new WaveData();
@@ -96,6 +94,7 @@ namespace ManagerControl
                 SpawnPointList[spawnPointIndex].position);
             e.GetComponent<Health>().Init(waveData.waves[_curWave].health);
             e.onFinishWaveCheckEvent += CheckWaveFinish;
+            e.SetDestination(DestinationPointList[0]);
 
             var w = waveData.waves[_curWave];
             e.Init(w.minDamage, w.maxDamage, w.atkDelay);
@@ -108,7 +107,7 @@ namespace ManagerControl
         private void CheckWaveFinish()
         {
             _enemiesIndex--;
-            _gamePlayUIController.IncreaseCoin(waveData.waves[_curWave].enemyCoin);
+            onCoinIncreaseEvent?.Invoke(waveData.waves[_curWave].enemyCoin);
             if (_enemiesIndex != -1) return;
             print("Stage Complete");
             _startGame = false;

@@ -1,4 +1,3 @@
-using BuildControl;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using GameControl;
@@ -10,26 +9,15 @@ using TowerControl;
 using UnitControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace UIControl
 {
-    public class GamePlayUIController : Singleton<GamePlayUIController>
+    public class GamePlayUIController : MonoBehaviour
     {
         private Camera _cam;
         private EventSystem _eventSystem;
         private InformationUIController _infoUIController;
-
-        [SerializeField] private GameObject towerSelectPanel;
-        [SerializeField] private GameObject towerEditPanel;
-        [SerializeField] private GameObject _upgradeButton;
-        [SerializeField] private GameObject _aUpgradeButton;
-        [SerializeField] private GameObject _bUpgradeButton;
-        [SerializeField] private GameObject _moveUnitButton;
-        [SerializeField] private GameObject _sellButton;
-        [SerializeField] private ToolTipSystem _tooltip;
-        [SerializeField] private GameObject _okButton;
 
         private int _towerIndex;
         private GameObject[] _towerButtons;
@@ -50,13 +38,25 @@ namespace UIControl
         private bool _isTowerPanel, isEditPanel;
         private bool _isMoveUnit;
 
+        [SerializeField] private GameObject startPanel;
+        [SerializeField] private Button startButton;
+
+        [SerializeField] private GameObject towerSelectPanel;
+        [SerializeField] private GameObject towerEditPanel;
+        [SerializeField] private ToolTipSystem _tooltip;
+        [SerializeField] private GameObject _upgradeButton;
+        [SerializeField] private GameObject _aUpgradeButton;
+        [SerializeField] private GameObject _bUpgradeButton;
+        [SerializeField] private GameObject _moveUnitButton;
+        [SerializeField] private GameObject _sellButton;
+        [SerializeField] private GameObject _okButton;
+
         [SerializeField] private MeshFilter curTowerMesh;
         [SerializeField] private MeshRenderer towerRangeIndicator;
         [SerializeField] private GameObject moveUnitIndicator;
         [SerializeField] private TowerLevelManager[] towerLevelManagers;
 
         [SerializeField] private TextMeshProUGUI coinText;
-
         [SerializeField] private int towerCoin;
 
         private int TowerCoin
@@ -79,15 +79,39 @@ namespace UIControl
             _eventSystem = EventSystem.current;
             _infoUIController = InformationUIController.Instance;
 
+            startButton.onClick.AddListener(StartGame);
+
             _upgradeButton.GetComponent<Button>().onClick.AddListener(UpgradeButton);
             _aUpgradeButton.GetComponent<Button>().onClick.AddListener(() => UniqueUpgradeButton(3));
             _bUpgradeButton.GetComponent<Button>().onClick.AddListener(() => UniqueUpgradeButton(4));
             _moveUnitButton.GetComponent<Button>().onClick.AddListener(MoveUnitButton);
             _sellButton.GetComponent<Button>().onClick.AddListener(SellButton);
             _okButton.GetComponent<Button>().onClick.AddListener(OkButton);
-
             moveUnitIndicator.GetComponent<MoveUnitIndicator>().onMoveUnitEvent += MoveUnit;
+        }
 
+        private void Start()
+        {
+            Init();
+            startPanel.SetActive(true);
+            towerSelectPanel.SetActive(false);
+            towerEditPanel.SetActive(false);
+            _okButton.SetActive(false);
+        }
+
+        private void LateUpdate()
+        {
+            MoveUI();
+        }
+
+        private void OnDestroy()
+        {
+            _towerSelectPanelSequence?.Kill();
+        }
+
+        private void Init()
+        {
+            coinText.text = towerCoin.ToString();
             _towerButtons = new GameObject[towerSelectPanel.transform.childCount];
             _towerSelectPanelSequence = DOTween.Sequence().SetAutoKill(false).Pause();
             for (var i = 0; i < _towerButtons.Length; i++)
@@ -106,26 +130,18 @@ namespace UIControl
             }
 
             _towerEditPanelTween = towerEditPanel.transform.DOScale(1, 0.05f).From(0).SetAutoKill(false);
+
+            WaveManager.Instance.onCoinIncreaseEvent += IncreaseCoin;
+            GameManager.Instance.Map.GetComponent<MapController>().onCloseUIEvent += CloseUI;
         }
 
-        private void Start()
+        private void StartGame()
         {
-            Init();
+            startPanel.transform.DOMoveY(Screen.height, 0.5f).SetEase(Ease.InBack)
+                .OnComplete(() => startPanel.SetActive(false));
         }
 
-        private void Init()
-        {
-            UIManager.Instance.onMoveUIEvent += MoveUI;
-            MapController.Instance.onCloseUIEvent += CloseUI;
-
-            towerSelectPanel.gameObject.SetActive(false);
-            towerEditPanel.SetActive(false);
-            _okButton.SetActive(false);
-
-            coinText.text = towerCoin.ToString();
-        }
-
-        public void IncreaseCoin(int amount)
+        private void IncreaseCoin(int amount)
         {
             TowerCoin += amount;
         }
@@ -155,8 +171,7 @@ namespace UIControl
             _panelIsOpen = true;
             _isTowerPanel = true;
             _uiTarget = t;
-            if (!towerSelectPanel.activeSelf)
-                towerSelectPanel.SetActive(true);
+            if (!towerSelectPanel.activeSelf) towerSelectPanel.SetActive(true);
             _buildTransform = t;
             _towerSelectPanelSequence.Restart();
         }

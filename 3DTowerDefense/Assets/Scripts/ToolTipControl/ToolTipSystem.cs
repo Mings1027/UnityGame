@@ -1,16 +1,14 @@
-using System;
-using GameControl;
 using UnityEngine;
 
 namespace ToolTipControl
 {
-    public class ToolTipSystem : Singleton<ToolTipSystem>
+    public class ToolTipSystem : MonoBehaviour
     {
         private ToolTip toolTip;
 
         private void Awake()
         {
-            toolTip = transform.GetChild(0).GetComponent<ToolTip>();
+            toolTip = transform.GetComponentInChildren<ToolTip>();
             toolTip.gameObject.SetActive(false);
         }
 

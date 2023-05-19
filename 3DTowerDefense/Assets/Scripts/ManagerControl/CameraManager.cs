@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace ManagerControl
 {
-    public class CameraManager : Singleton<CameraManager>
+    public class CameraManager : MonoBehaviour
     {
         private Camera _cam;
         private CancellationTokenSource _cts;
