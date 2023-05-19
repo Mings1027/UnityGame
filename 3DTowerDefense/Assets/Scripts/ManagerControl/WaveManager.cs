@@ -93,7 +93,7 @@ namespace ManagerControl
             var e = StackObjectPool.Get<EnemyUnit>(waveData.waves[_curWave].enemyName,
                 SpawnPointList[spawnPointIndex].position);
             e.GetComponent<Health>().Init(waveData.waves[_curWave].health);
-            e.onFinishWaveCheckEvent += CheckWaveFinish;
+            e.onWaveEndedEvent += EndedWave;
             e.SetDestination(DestinationPointList[0]);
 
             var w = waveData.waves[_curWave];
@@ -104,7 +104,7 @@ namespace ManagerControl
             }
         }
 
-        private void CheckWaveFinish()
+        private void EndedWave()
         {
             _enemiesIndex--;
             onCoinIncreaseEvent?.Invoke(waveData.waves[_curWave].enemyCoin);

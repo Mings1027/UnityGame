@@ -9,11 +9,11 @@ namespace UIControl
     {
         private bool _isPause;
 
-        public int[] TowerCoin => towerCoin;
-        public int[] GetTowerCoin => getTowerCoin;
-
-        [SerializeField] private int[] towerCoin;
-        [SerializeField] private int[] getTowerCoin;
+        // public int[] TowerCoin => towerCoin;
+        // public int[] GetTowerCoin => getTowerCoin;
+        //
+        // [SerializeField] private int[] towerCoin;
+        // [SerializeField] private int[] getTowerCoin;
 
         [SerializeField] private GameObject menuPanel;
         [SerializeField] private Button pauseButton;

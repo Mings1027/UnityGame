@@ -11,7 +11,7 @@ namespace UnitControl.EnemyControl
     {
         private Transform destination;
 
-        public event Action onFinishWaveCheckEvent;
+        public event Action onWaveEndedEvent;
 
         [SerializeField] private int atkRange;
         [SerializeField] private LayerMask targetLayer;
@@ -56,8 +56,8 @@ namespace UnitControl.EnemyControl
         protected override void OnDisable()
         {
             base.OnDisable();
-            onFinishWaveCheckEvent?.Invoke();
-            onFinishWaveCheckEvent = null;
+            onWaveEndedEvent?.Invoke();
+            onWaveEndedEvent = null;
         }
 
         private void OnDrawGizmos()

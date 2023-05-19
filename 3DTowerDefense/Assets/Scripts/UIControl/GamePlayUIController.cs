@@ -16,8 +16,10 @@ namespace UIControl
     public class GamePlayUIController : MonoBehaviour
     {
         private Camera _cam;
+
         private EventSystem _eventSystem;
-        private InformationUIController _infoUIController;
+
+        private GameManager _gameManager;
 
         private int _towerIndex;
         private GameObject[] _towerButtons;
@@ -59,6 +61,9 @@ namespace UIControl
         [SerializeField] private TextMeshProUGUI coinText;
         [SerializeField] private int towerCoin;
 
+        [SerializeField] private int[] towerBuildCoin;
+
+
         private int TowerCoin
         {
             get
@@ -77,7 +82,6 @@ namespace UIControl
         {
             _cam = Camera.main;
             _eventSystem = EventSystem.current;
-            _infoUIController = InformationUIController.Instance;
 
             startButton.onClick.AddListener(StartGame);
 
@@ -308,7 +312,7 @@ namespace UIControl
             var tl = tlm.towerLevels[tempTower.TowerLevel];
 
             var c = _curSelectedTower.TowerLevel > 3 ? 3 : _curSelectedTower.TowerLevel;
-            TowerCoin -= _infoUIController.TowerCoin[c];
+            TowerCoin -= towerBuildCoin[c];
 
             tempTower.TowerInit(tl.consMesh);
 
@@ -341,11 +345,20 @@ namespace UIControl
         private void SellButton()
         {
             _isSell = true;
-            _sellTowerCoin =
-                _infoUIController.GetTowerCoin[_curSelectedTower.TowerLevel > 3 ? 3 : _curSelectedTower.TowerLevel];
+            _sellTowerCoin = SellTowerCoin(_curSelectedTower.TowerLevel);
             var getCoin = _sellTowerCoin.ToString();
-
             ActiveOkButton(string.Format("이 타워를 처분하면{0} 골드가 반환됩니다.", getCoin), "타워처분");
+        }
+
+        private int SellTowerCoin(int towerLevel)
+        {
+            var sum = 0;
+            for (var i = 0; i < towerLevel; i++)
+            {
+                sum += towerBuildCoin[i];
+            }
+
+            return sum;
         }
 
         private void SellTower()
@@ -367,7 +380,7 @@ namespace UIControl
 
             _okButton.GetComponent<Button>().interactable
                 = _isSell ||
-                  (_isTower && towerCoin >= _infoUIController.TowerCoin[_curSelectedTower.TowerLevel + 1]) ||
+                  (_isTower && towerCoin >= towerBuildCoin[_curSelectedTower.TowerLevel + 1]) ||
                   (!_isTower && towerCoin >= 70);
 
             _okButton.SetActive(true);

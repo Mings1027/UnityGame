@@ -2,7 +2,9 @@ using System;
 using DG.Tweening;
 using GameControl;
 using TMPro;
+using TowerControl;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace ManagerControl
 {
@@ -15,37 +17,13 @@ namespace ManagerControl
         public GameObject Map { get; private set; }
         public GameObject GamePlay { get; private set; }
 
-        private int TowerCoin
-        {
-            get
-            {
-                coinText.text = towerCoin.ToString();
-                return towerCoin;
-            }
-            set
-            {
-                towerCoin = value;
-                coinText.text = towerCoin.ToString();
-            }
-        }
-
         [SerializeField] private GameObject gamePlayPrefab;
         [SerializeField] private GameObject mapPrefab;
-
-        [SerializeField] private TextMeshProUGUI coinText;
-        [SerializeField] private int towerCoin;
-
-        [SerializeField] private int[] towerBuildCoin;
 
         private void Awake()
         {
             GamePlay = Instantiate(gamePlayPrefab);
             Map = Instantiate(mapPrefab);
-        }
-
-        private void Start()
-        {
-            GetCoin(2);
         }
 
         private void OnEnable()
@@ -70,22 +48,6 @@ namespace ManagerControl
             {
                 waveManager.DestinationPointList[i] = destinationPoints.GetChild(i);
             }
-        }
-
-        private void IncreaseCoin(int amount)
-        {
-            TowerCoin += amount;
-        }
-
-        private int GetCoin(int towerLevel)
-        {
-            var sum = 0;
-            for (var i = 0; i < towerLevel; i++)
-            {
-                sum += towerBuildCoin[i];
-            }
-
-            return sum;
         }
     }
 }
