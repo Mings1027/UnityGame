@@ -19,14 +19,11 @@ namespace UIControl
 
         private EventSystem _eventSystem;
 
-        private GameManager _gameManager;
-
         private int _towerIndex;
         private GameObject[] _towerButtons;
         private string[] towerNames;
         private Sequence _towerSelectPanelSequence;
         private Tween _towerEditPanelTween;
-        private int _lastIndex;
         private int _uniqueLevel;
         private int _sellTowerCoin;
 
@@ -63,7 +60,6 @@ namespace UIControl
 
         [SerializeField] private int[] towerBuildCoin;
 
-
         private int TowerCoin
         {
             get
@@ -78,6 +74,9 @@ namespace UIControl
             }
         }
 
+        /*======================================================================================================================
+         *                                        Unity Event
+         ======================================================================================================================*/
         private void Awake()
         {
             _cam = Camera.main;
@@ -86,8 +85,8 @@ namespace UIControl
             startButton.onClick.AddListener(StartGame);
 
             _upgradeButton.GetComponent<Button>().onClick.AddListener(UpgradeButton);
-            _aUpgradeButton.GetComponent<Button>().onClick.AddListener(() => UniqueUpgradeButton(3));
-            _bUpgradeButton.GetComponent<Button>().onClick.AddListener(() => UniqueUpgradeButton(4));
+            _aUpgradeButton.GetComponent<Button>().onClick.AddListener(() => UniqueUpgradeButton(0));
+            _bUpgradeButton.GetComponent<Button>().onClick.AddListener(() => UniqueUpgradeButton(1));
             _moveUnitButton.GetComponent<Button>().onClick.AddListener(MoveUnitButton);
             _sellButton.GetComponent<Button>().onClick.AddListener(SellButton);
             _okButton.GetComponent<Button>().onClick.AddListener(OkButton);
@@ -113,6 +112,9 @@ namespace UIControl
             _towerSelectPanelSequence?.Kill();
         }
 
+        /*======================================================================================================================
+         *                                   Init
+         ======================================================================================================================*/
         private void Init()
         {
             coinText.text = towerCoin.ToString();
@@ -202,24 +204,9 @@ namespace UIControl
             if (!towerRangeIndicator.enabled)
                 towerRangeIndicator.enabled = true;
 
-            switch (t.TowerLevel)
-            {
-                case >= 3:
-                    _upgradeButton.SetActive(false);
-                    _aUpgradeButton.SetActive(false);
-                    _bUpgradeButton.SetActive(false);
-                    break;
-                case 2:
-                    _upgradeButton.SetActive(false);
-                    _aUpgradeButton.SetActive(true);
-                    _bUpgradeButton.SetActive(true);
-                    break;
-                default:
-                    _upgradeButton.SetActive(true);
-                    _aUpgradeButton.SetActive(false);
-                    _bUpgradeButton.SetActive(false);
-                    break;
-            }
+            _upgradeButton.SetActive(t.TowerLevel != 2);
+            _aUpgradeButton.SetActive(!t.IsUniqueTower && t.TowerLevel == 2);
+            _bUpgradeButton.SetActive(!t.IsUniqueTower && t.TowerLevel == 2);
         }
 
         private void MoveUnitButton()
@@ -251,6 +238,7 @@ namespace UIControl
         {
             if (!_panelIsOpen) return;
             _panelIsOpen = false;
+            _isSell = false;
 
             if (_isTowerPanel)
             {
@@ -299,32 +287,38 @@ namespace UIControl
             _curSelectedTower = StackObjectPool.Get<Tower>(towerNames[_towerIndex], _buildTransform);
             _curSelectedTower.onOpenTowerEditPanelEvent += OpenTowerEditPanel;
             _buildTransform.gameObject.SetActive(false);
-
-            TowerUpgrade().Forget();
         }
 
         private async UniTaskVoid TowerUpgrade()
         {
             var tempTower = _curSelectedTower;
-            tempTower.TowerLevelUp(_uniqueLevel);
+            var t = towerLevelManagers[(int)tempTower.TowerType];
+            TowerLevelManager.TowerLevel tt;
+            if (tempTower.TowerLevel != 2)
+            {
+                tempTower.TowerLevelUp();
+                TowerCoin -= towerBuildCoin[_curSelectedTower.TowerLevel];
+                tt = t.towerLevels[tempTower.TowerLevel];
+            }
+            else
+            {
+                tempTower.TowerUniqueLevelUp(_uniqueLevel);
+                TowerCoin -= towerBuildCoin[3];
+                tt = t.towerUniqueLevels[tempTower.TowerUniqueLevel];
+            }
+
             StackObjectPool.Get("BuildSmoke", tempTower.transform.position);
-            var tlm = towerLevelManagers[(int)tempTower.TowerType];
-            var tl = tlm.towerLevels[tempTower.TowerLevel];
-
-            var c = _curSelectedTower.TowerLevel > 3 ? 3 : _curSelectedTower.TowerLevel;
-            TowerCoin -= towerBuildCoin[c];
-
-            tempTower.TowerInit(tl.consMesh);
+            tempTower.TowerInit(tt.consMesh);
 
             if (tempTower.TowerType == Tower.Type.Barracks)
             {
-                tempTower.GetComponent<BarracksUnitTower>().UnitHealth = tl.health;
+                tempTower.GetComponent<BarracksUnitTower>().UnitHealth = tt.health;
             }
 
             await UniTask.Delay(1000);
 
-            tempTower.TowerSetting(tl.towerMesh, tl.minDamage, tl.maxDamage, tl.attackRange,
-                tl.attackDelay);
+            tempTower.TowerSetting(tt.towerMesh, tt.minDamage, tt.maxDamage, tt.attackRange,
+                tt.attackDelay);
         }
 
         private void UpgradeButton()
@@ -337,21 +331,23 @@ namespace UIControl
 
         private void UniqueUpgradeButton(int index)
         {
+            _isSell = false;
             _uniqueLevel = index;
-            var towerLevel = towerLevelManagers[(int)_curSelectedTower.TowerType].towerLevels[index];
+            var towerLevel = towerLevelManagers[(int)_curSelectedTower.TowerType].towerUniqueLevels[index];
             ActiveOkButton(towerLevel.towerInfo, towerLevel.towerName);
         }
 
         private void SellButton()
         {
             _isSell = true;
-            _sellTowerCoin = SellTowerCoin(_curSelectedTower.TowerLevel);
-            var getCoin = _sellTowerCoin.ToString();
-            ActiveOkButton(string.Format("이 타워를 처분하면{0} 골드가 반환됩니다.", getCoin), "타워처분");
+            _sellTowerCoin = SellTowerCoin();
+            ActiveOkButton(string.Format("이 타워를 처분하면{0} 골드가 반환됩니다.", _sellTowerCoin.ToString()), "타워처분");
         }
 
-        private int SellTowerCoin(int towerLevel)
+        private int SellTowerCoin()
         {
+            var towerLevel = _curSelectedTower.IsUniqueTower ? 4 : _curSelectedTower.TowerLevel + 1;
+
             var sum = 0;
             for (var i = 0; i < towerLevel; i++)
             {
@@ -363,7 +359,6 @@ namespace UIControl
 
         private void SellTower()
         {
-            _isSell = false;
             _curSelectedTower.gameObject.SetActive(false);
             StackObjectPool.Get("BuildSmoke", _curSelectedTower.transform);
             StackObjectPool.Get("BuildingPoint", _curSelectedTower.transform);
@@ -378,30 +373,33 @@ namespace UIControl
                 ? _eventSystem.currentSelectedGameObject.transform.position
                 : _towerButtons[_towerIndex].transform.position;
 
-            _okButton.GetComponent<Button>().interactable
-                = _isSell ||
-                  (_isTower && towerCoin >= towerBuildCoin[_curSelectedTower.TowerLevel + 1]) ||
-                  (!_isTower && towerCoin >= 70);
+            _okButton.GetComponent<Button>().interactable = CanBuildCheck();
 
             _okButton.SetActive(true);
         }
 
-        private void OkButton()
+        private bool CanBuildCheck()
         {
+            if (_isSell) return true;
             if (_isTower)
             {
-                if (_isSell)
-                {
-                    SellTower();
-                }
-                else
-                {
-                    TowerUpgrade().Forget();
-                }
+                if (towerCoin >= towerBuildCoin[_curSelectedTower.TowerLevel + 1]) return true;
             }
             else
             {
-                TowerBuild();
+                if (towerCoin >= 70) return true;
+            }
+
+            return false;
+        }
+
+        private void OkButton()
+        {
+            if (_isSell) SellTower();
+            else
+            {
+                if (!_isTower) TowerBuild();
+                TowerUpgrade().Forget();
             }
 
             CloseUI();

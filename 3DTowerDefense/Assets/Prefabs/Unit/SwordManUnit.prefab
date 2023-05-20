@@ -393,13 +393,13 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7962720153826581720}
+  - component: {fileID: -4982384831364881312}
+  - component: {fileID: -5767732746218105816}
+  - component: {fileID: 8316159348194480760}
   - component: {fileID: 8650602279492170497}
   - component: {fileID: 358488334879712116}
   - component: {fileID: 6375777913767831454}
   - component: {fileID: 126665073384172700}
-  - component: {fileID: -4982384831364881312}
-  - component: {fileID: 8316159348194480760}
-  - component: {fileID: -5767732746218105816}
   m_Layer: 6
   m_Name: SwordManUnit
   m_TagString: Unit
@@ -424,6 +424,58 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &-4982384831364881312
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7901291658597421272}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99c5ef611137640f29c97f4e7f8bd65d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  curHealth: 0
+  maxHealth: 30
+  hitWithReference:
+    m_PersistentCalls:
+      m_Calls: []
+  deathWithReference:
+    m_PersistentCalls:
+      m_Calls: []
+  disappearTime: 0
+--- !u!114 &-5767732746218105816
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7901291658597421272}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a4c19757ecdf48b7a0fefc3a85a1999, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dontDestroy: 1
+--- !u!114 &8316159348194480760
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7901291658597421272}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 288b7560274594a4db9715d259f1eead, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  smoothTurnSpeed: 0.5
+  atkRange: 5
+  targetLayer:
+    serializedVersion: 2
+    m_Bits: 256
+  meleeWeapon: {fileID: 3757445608704797434}
 --- !u!95 &8650602279492170497
 Animator:
   serializedVersion: 5
@@ -577,57 +629,3 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &-4982384831364881312
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7901291658597421272}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 99c5ef611137640f29c97f4e7f8bd65d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  curHealth: 0
-  maxHealth: 30
-  hitWithReference:
-    m_PersistentCalls:
-      m_Calls: []
-  deathWithReference:
-    m_PersistentCalls:
-      m_Calls: []
-  disappearTime: 0
---- !u!114 &8316159348194480760
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7901291658597421272}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 288b7560274594a4db9715d259f1eead, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  smoothTurnSpeed: 0.5
-  atkRange: 5
-  targetLayer:
-    serializedVersion: 2
-    m_Bits: 256
-  meleeWeapon: {fileID: 3757445608704797434}
-  atkAudio: {fileID: 8300000, guid: b48e632c5a6c6174e8bccaa9f04d399f, type: 3}
---- !u!114 &-5767732746218105816
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7901291658597421272}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5a4c19757ecdf48b7a0fefc3a85a1999, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  dontDestroy: 1
-  lifeTime: 0

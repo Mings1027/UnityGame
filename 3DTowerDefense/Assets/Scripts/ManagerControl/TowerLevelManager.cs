@@ -6,6 +6,7 @@ namespace ManagerControl
     public class TowerLevelManager : ScriptableObject
     {
         public TowerLevel[] towerLevels;
+        public TowerLevel[] towerUniqueLevels;
 
         [System.Serializable]
         public class TowerLevel

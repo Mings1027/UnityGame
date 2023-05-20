@@ -10,11 +10,12 @@ namespace TowerControl
 {
     public class ArcherTargetingTower : TargetingTower
     {
+        private int archerCount;
         private Vector3 _targetDirection;
         private ArcherUnit[] _archerUnits;
         private Transform[] _archerPos;
 
-        private Action onAttackEvent;
+        private event Action onAttackEvent;
 
         protected override void Awake()
         {
@@ -46,19 +47,28 @@ namespace TowerControl
         {
             base.TowerSetting(towerMeshFilter, minDamage, maxDamage, range, delay);
 
-            var count = TowerLevel == 4 ? 2 : 1;
-            for (var i = 0; i < count; i++)
-            {
-                _archerUnits[i] = StackObjectPool.Get<ArcherUnit>("ArcherUnit", _archerPos[TowerLevel + i].position);
-            }
+            BatchArcher();
 
             onAttackEvent = null;
-            onAttackEvent += TowerLevel switch
+            if (!IsUniqueTower || TowerUniqueLevel == 1)
             {
-                4 => () => MultiArcher().Forget(),
-                3 => () => AmmoSpawn<Bullet>("ArcherBullet", 0).Init(target, Damage),
-                _ => () => AmmoSpawn<Projectile>("ArcherProjectile", 0).Init(target, Damage)
-            };
+                onAttackEvent += () => ProjectileAttack().Forget();
+            }
+            else
+            {
+                onAttackEvent += BulletAttack;
+            }
+        }
+
+        private void BatchArcher()
+        {
+            var count = TowerUniqueLevel == 1 ? 2 : 1;
+            archerCount = count;
+            for (var i = 0; i < count; i++)
+            {
+                var index = !IsUniqueTower ? TowerLevel : TowerUniqueLevel + 3 + i;
+                _archerUnits[i] = StackObjectPool.Get<ArcherUnit>("ArcherUnit", _archerPos[index].position);
+            }
         }
 
         private void UnitDisable()
@@ -76,20 +86,23 @@ namespace TowerControl
             onAttackEvent?.Invoke();
         }
 
-        private async UniTaskVoid MultiArcher()
+        private async UniTaskVoid ProjectileAttack()
         {
-            for (var i = 0; i < 2; i++)
+            for (int i = 0; i < archerCount; i++)
             {
-                AmmoSpawn<Projectile>("ArcherProjectile", i).Init(target, Damage);
-
+                _archerUnits[i].TargetUpdate(target, isTargeting);
+                StackObjectPool.Get("ArrowShootSFX", transform);
+                StackObjectPool.Get<Projectile>("ArcherProjectile", _archerUnits[i].transform.position)
+                    .Init(target, Damage);
                 await UniTask.Delay(500);
             }
         }
 
-        private T AmmoSpawn<T>(string tagName, int index) where T : Component
+        private void BulletAttack()
         {
-            _archerUnits[index].TargetUpdate(target, isTargeting);
-            return StackObjectPool.Get<T>(tagName, _archerUnits[index].transform.position);
+            _archerUnits[0].TargetUpdate(target, isTargeting);
+            StackObjectPool.Get("BulletShootSFX", transform);
+            StackObjectPool.Get<Bullet>("ArcherBullet", _archerUnits[0].transform.position).Init(target, Damage);
         }
     }
 }

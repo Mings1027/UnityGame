@@ -48,7 +48,7 @@ namespace TowerControl
         {
             base.TowerSetting(towerMeshFilter, minDamage, maxDamage, range, delay);
             onAttackEvent = null;
-            onAttackEvent += TowerLevel != 4 ? SingleShoot : MultiShoot;
+            onAttackEvent += TowerUniqueLevel != 1 ? SingleShoot : MultiShoot;
         }
 
         protected override void Attack()
@@ -72,11 +72,13 @@ namespace TowerControl
 
         private void Shoot(Transform t, Vector3 pos)
         {
+            StackObjectPool.Get("CanonShootSFX", transform);
             StackObjectPool.Get("CanonSmoke", pos);
             var m = StackObjectPool.Get<Projectile>("CanonBullet", pos);
             m.Init(t, Damage);
-            if (m.TryGetComponent(out CanonProjectile u))
-                u.CanonMeshFilter.sharedMesh = canonMeshFilters[TowerLevel].sharedMesh;
+            if (!m.TryGetComponent(out CanonProjectile u)) return;
+            var level = IsUniqueTower ? TowerUniqueLevel + 3 : TowerLevel;
+            u.CanonMeshFilter.sharedMesh = canonMeshFilters[level].sharedMesh;
         }
     }
 }

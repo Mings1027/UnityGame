@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &8027855531471706518
+--- !u!1 &8072334713249440889
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,8 +8,8 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 8027855531471706516}
-  - component: {fileID: 8027855531471706519}
+  - component: {fileID: 8072334713249440891}
+  - component: {fileID: 8072334713249440888}
   m_Layer: 0
   m_Name: ObjectPool
   m_TagString: Untagged
@@ -17,13 +17,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &8027855531471706516
+--- !u!4 &8072334713249440891
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8027855531471706518}
+  m_GameObject: {fileID: 8072334713249440889}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -32,13 +32,13 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8027855531471706519
+--- !u!114 &8072334713249440888
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8027855531471706518}
+  m_GameObject: {fileID: 8072334713249440889}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 702e10604a6f9481a955b7f8b37182ec, type: 3}
@@ -47,6 +47,9 @@ MonoBehaviour:
   pools:
   - tag: ArrowHitSFX
     prefab: {fileID: 953530123978054383, guid: eaea9681d992d453c8887f8f2165dbac, type: 3}
+    size: 30
+  - tag: ArrowShootSFX
+    prefab: {fileID: 953530123978054383, guid: 80a327d3bb6224375a83b345522d2d3e, type: 3}
     size: 30
   - tag: ArcherBullet
     prefab: {fileID: 1102214754406758, guid: a1abe34d22b8be947a05ddbb0137d2d3, type: 3}
@@ -77,12 +80,24 @@ MonoBehaviour:
   - tag: BulletHitVFX
     prefab: {fileID: 1473840321181740, guid: ddd5890b7dd2ac74ab4caeebf282b3f9, type: 3}
     size: 30
-  - tag: CanonHitSFX
-    prefab: {fileID: 953530123978054383, guid: b0799921b8d5941e69e6a1544e62922a, type: 3}
+  - tag: BulletShootSFX
+    prefab: {fileID: 953530123978054383, guid: 3e0b15747b8224d60bf019347fcaf513, type: 3}
+    size: 30
+  - tag: BuildSmoke
+    prefab: {fileID: 104829970813648393, guid: d3015b7eea383f64d8b81f965cc466e7, type: 3}
     size: 30
   - tag: CanonBullet
     prefab: {fileID: 4134895727443223706, guid: a11f2e7afe49e4b5bad475328834bfe7,
       type: 3}
+    size: 30
+  - tag: CanonShootSFX
+    prefab: {fileID: 953530123978054383, guid: 5c99c05004e754440842aad77f3c4871, type: 3}
+    size: 30
+  - tag: CanonSmoke
+    prefab: {fileID: 985483039366664255, guid: f91edac4d13fc4343ba96bb6a843ad05, type: 3}
+    size: 30
+  - tag: CanonHitSFX
+    prefab: {fileID: 953530123978054383, guid: b0799921b8d5941e69e6a1544e62922a, type: 3}
     size: 30
   - tag: CanonHitVFX
     prefab: {fileID: 6143467867895953418, guid: be01741081bb2c944aad51a527b3e120,
@@ -144,10 +159,4 @@ MonoBehaviour:
     size: 30
   - tag: SwordManEnemy
     prefab: {fileID: 10859800051177605, guid: f99f0cc7ac7b643b1a6860bad1ffaa6c, type: 3}
-    size: 30
-  - tag: BuildSmoke
-    prefab: {fileID: 104829970813648393, guid: d3015b7eea383f64d8b81f965cc466e7, type: 3}
-    size: 30
-  - tag: CanonSmoke
-    prefab: {fileID: 985483039366664255, guid: f91edac4d13fc4343ba96bb6a843ad05, type: 3}
     size: 30

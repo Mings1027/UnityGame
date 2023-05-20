@@ -9,12 +9,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6965371322595520465}
+  - component: {fileID: 615191486289149194}
+  - component: {fileID: -7420644108356587562}
   - component: {fileID: 6614397972571029523}
   - component: {fileID: 6965371322595520467}
   - component: {fileID: 5208955922669421524}
-  - component: {fileID: 615191486289149194}
   - component: {fileID: 6923145154905633913}
-  - component: {fileID: -7420644108356587562}
   m_Layer: 8
   m_Name: SpearManEnemy
   m_TagString: Enemy
@@ -38,6 +38,40 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &615191486289149194
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6965371322595520466}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99c5ef611137640f29c97f4e7f8bd65d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  curHealth: 0
+  maxHealth: 0
+  hitWithReference:
+    m_PersistentCalls:
+      m_Calls: []
+  deathWithReference:
+    m_PersistentCalls:
+      m_Calls: []
+  disappearTime: 0
+--- !u!114 &-7420644108356587562
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6965371322595520466}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a4c19757ecdf48b7a0fefc3a85a1999, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dontDestroy: 1
 --- !u!95 &6614397972571029523
 Animator:
   serializedVersion: 5
@@ -95,27 +129,6 @@ CapsuleCollider:
   m_Height: 3
   m_Direction: 1
   m_Center: {x: 0, y: 1.8617955, z: 0}
---- !u!114 &615191486289149194
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6965371322595520466}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 99c5ef611137640f29c97f4e7f8bd65d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  curHealth: 0
-  maxHealth: 0
-  hitWithReference:
-    m_PersistentCalls:
-      m_Calls: []
-  deathWithReference:
-    m_PersistentCalls:
-      m_Calls: []
-  disappearTime: 0
 --- !u!114 &6923145154905633913
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -128,26 +141,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 558000a852120469fbe16d74920b59c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  smoothTurnSpeed: 0.1
+  atkRange: 5
   targetLayer:
     serializedVersion: 2
     m_Bits: 64
-  atkRange: 5
-  smoothTurnSpeed: 0.1
-  destination: {fileID: 0}
---- !u!114 &-7420644108356587562
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6965371322595520466}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5a4c19757ecdf48b7a0fefc3a85a1999, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  dontDestroy: 1
-  lifeTime: 0
 --- !u!1 &6966369655745383371
 GameObject:
   m_ObjectHideFlags: 0

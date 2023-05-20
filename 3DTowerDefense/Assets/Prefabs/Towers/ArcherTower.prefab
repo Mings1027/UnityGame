@@ -9,10 +9,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1524347489894540676}
-  - component: {fileID: 3310426110391370158}
-  - component: {fileID: 1433957233540561313}
   - component: {fileID: 9152204915855636318}
+  - component: {fileID: 1433957233540561313}
   - component: {fileID: -279149815441083166}
+  - component: {fileID: 3310426110391370158}
   m_Layer: 9
   m_Name: ArcherTower
   m_TagString: Tower
@@ -37,36 +37,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &3310426110391370158
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2192198980469555006}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 6.4848948, y: 5.3236704, z: 6.7564983}
-  m_Center: {x: 0.00000059604645, y: 2.641955, z: -0.13580096}
---- !u!114 &1433957233540561313
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2192198980469555006}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a8c0e8b4472094397b18e2edefc60b4b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  towerType: 0
-  targetLayer:
-    serializedVersion: 2
-    m_Bits: 256
-  archerPosition: {fileID: 1848096501168417498}
 --- !u!114 &9152204915855636318
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -85,6 +55,22 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
+--- !u!114 &1433957233540561313
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2192198980469555006}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8c0e8b4472094397b18e2edefc60b4b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  towerType: 0
+  targetLayer:
+    serializedVersion: 2
+    m_Bits: 256
 --- !u!114 &-279149815441083166
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -98,7 +84,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dontDestroy: 1
-  lifeTime: 0
+--- !u!65 &3310426110391370158
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2192198980469555006}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 6.4848948, y: 5.3236704, z: 6.7564983}
+  m_Center: {x: 0.00000059604645, y: 2.641955, z: -0.13580096}
 --- !u!1 &2286292466128150576
 GameObject:
   m_ObjectHideFlags: 0

@@ -9,11 +9,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7712616592404947845}
+  - component: {fileID: 832268650158483848}
+  - component: {fileID: -904191142285399274}
   - component: {fileID: 7712616592404947847}
   - component: {fileID: 5198208533031153745}
-  - component: {fileID: 832268650158483848}
   - component: {fileID: 4687016272046448172}
-  - component: {fileID: -904191142285399274}
   m_Layer: 8
   m_Name: MageEnemy
   m_TagString: Enemy
@@ -37,6 +37,40 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &832268650158483848
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7712616592404947846}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99c5ef611137640f29c97f4e7f8bd65d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  curHealth: 0
+  maxHealth: 0
+  hitWithReference:
+    m_PersistentCalls:
+      m_Calls: []
+  deathWithReference:
+    m_PersistentCalls:
+      m_Calls: []
+  disappearTime: 0
+--- !u!114 &-904191142285399274
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7712616592404947846}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a4c19757ecdf48b7a0fefc3a85a1999, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  dontDestroy: 1
 --- !u!195 &7712616592404947847
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -73,27 +107,6 @@ CapsuleCollider:
   m_Height: 4
   m_Direction: 1
   m_Center: {x: 0, y: 2, z: 0}
---- !u!114 &832268650158483848
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7712616592404947846}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 99c5ef611137640f29c97f4e7f8bd65d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  curHealth: 0
-  maxHealth: 0
-  hitWithReference:
-    m_PersistentCalls:
-      m_Calls: []
-  deathWithReference:
-    m_PersistentCalls:
-      m_Calls: []
-  disappearTime: 0
 --- !u!114 &4687016272046448172
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -106,26 +119,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 849ea757fc2324be58da4d452d28b25d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  smoothTurnSpeed: 0.1
+  atkRange: 7
   targetLayer:
     serializedVersion: 2
     m_Bits: 64
-  atkRange: 7
-  smoothTurnSpeed: 0.1
-  destination: {fileID: 0}
---- !u!114 &-904191142285399274
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7712616592404947846}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5a4c19757ecdf48b7a0fefc3a85a1999, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  dontDestroy: 1
-  lifeTime: 0
 --- !u!1 &7713676065723812958
 GameObject:
   m_ObjectHideFlags: 0

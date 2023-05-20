@@ -312,10 +312,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9211979634268707228}
-  - component: {fileID: 2229747408957211237}
-  - component: {fileID: 6072493077216855191}
   - component: {fileID: 7972377439174027485}
+  - component: {fileID: 6072493077216855191}
   - component: {fileID: 7188673151814716823}
+  - component: {fileID: 2229747408957211237}
   m_Layer: 9
   m_Name: CanonTower
   m_TagString: Tower
@@ -341,19 +341,24 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &2229747408957211237
-BoxCollider:
+--- !u!114 &7972377439174027485
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8402685592966021926}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
   m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 7.031395, y: 6.285293, z: 7.031395}
-  m_Center: {x: 0.00000047683716, y: 3.1426466, z: 0.00000047683716}
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  outlineMode: 1
+  outlineColor: {r: 1, g: 1, b: 1, a: 1}
+  outlineWidth: 2
+  precomputeOutline: 0
+  bakeKeys: []
+  bakeValues: []
 --- !u!114 &6072493077216855191
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -376,26 +381,6 @@ MonoBehaviour:
   - {fileID: 3300000, guid: 191cdfe37402a5d408a6b10ce958599b, type: 3}
   - {fileID: 3300000, guid: 9698fdec58ace104b9fda2f1f8ebd90c, type: 3}
   - {fileID: 3300000, guid: 4e043a9655e3bba43b5eb0b9421fc5d7, type: 3}
-  min: -7
-  max: 7
---- !u!114 &7972377439174027485
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8402685592966021926}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  outlineMode: 1
-  outlineColor: {r: 1, g: 1, b: 1, a: 1}
-  outlineWidth: 2
-  precomputeOutline: 0
-  bakeKeys: []
-  bakeValues: []
 --- !u!114 &7188673151814716823
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -409,7 +394,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dontDestroy: 1
-  lifeTime: 0
+--- !u!65 &2229747408957211237
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8402685592966021926}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 7.031395, y: 6.285293, z: 7.031395}
+  m_Center: {x: 0.00000047683716, y: 3.1426466, z: 0.00000047683716}
 --- !u!1 &9159218683725785588
 GameObject:
   m_ObjectHideFlags: 0

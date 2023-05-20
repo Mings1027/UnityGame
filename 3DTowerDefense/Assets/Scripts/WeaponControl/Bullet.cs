@@ -14,17 +14,15 @@ namespace WeaponControl
         protected float BulletSpeed => bulletSpeed;
 
         [SerializeField] private float bulletSpeed;
-        [SerializeField] private AudioClip enableAudio;
 
         private void Awake()
         {
             rigid = GetComponent<Rigidbody>();
-            audioSource = GetComponent<AudioSource>();
         }
 
         protected virtual void OnEnable()
         {
-            audioSource.PlayOneShot(enableAudio);
+            
         }
 
         private void FixedUpdate()

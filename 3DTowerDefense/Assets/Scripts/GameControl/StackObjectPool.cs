@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace GameControl
 {
-    using KeyType = String;
     public class StackObjectPool : Singleton<StackObjectPool>
     {
         [Serializable]
