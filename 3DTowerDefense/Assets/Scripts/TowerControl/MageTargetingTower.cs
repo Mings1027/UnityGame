@@ -10,25 +10,17 @@ namespace TowerControl
         private Sequence atkSequence;
         private Material material;
         private MeshFilter _crystalMeshFilter;
-        private Transform[] _crystalPositions;
-        private Transform crystal;
 
+        [SerializeField] private Transform crystal;
         [SerializeField] private Mesh[] crystalMesh;
+        [SerializeField] private Transform[] crystalPositions;
         private static readonly int EmissionColor = Shader.PropertyToID("_EmissionColor");
 
         protected override void Awake()
         {
             base.Awake();
-            crystal = GameObject.Find("Crystal").transform;
             material = crystal.GetComponent<Renderer>().material;
             _crystalMeshFilter = crystal.GetComponent<MeshFilter>();
-
-            var crystalPosition = GameObject.Find("CrystalPosition").transform;
-            _crystalPositions = new Transform[crystalPosition.childCount];
-            for (var i = 0; i < _crystalPositions.Length; i++)
-            {
-                _crystalPositions[i] = crystalPosition.GetChild(i);
-            }
 
             atkSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(material.DOColor(material.GetColor(EmissionColor) * 2, 0.5f))
@@ -45,14 +37,27 @@ namespace TowerControl
             float delay)
         {
             base.TowerSetting(towerMeshFilter, minDamage, maxDamage, range, delay);
-            crystal.position = _crystalPositions[TowerLevel].position;
-            _crystalMeshFilter.sharedMesh = crystalMesh[TowerLevel];
+            CrystalPosInit();
+        }
+
+        private void CrystalPosInit()
+        {
+            if (IsUniqueTower)
+            {
+                crystal.position = crystalPositions[TowerUniqueLevel + 3].position;
+                _crystalMeshFilter.sharedMesh = crystalMesh[TowerUniqueLevel + 3];
+            }
+            else
+            {
+                crystal.position = crystalPositions[TowerLevel].position;
+                _crystalMeshFilter.sharedMesh = crystalMesh[TowerLevel];
+            }
         }
 
         protected override void Attack()
         {
             atkSequence.Restart();
-            StackObjectPool.Get<Bullet>("MageBullet", _crystalPositions[TowerLevel].position + new Vector3(0, 3, 0))
+            StackObjectPool.Get<Bullet>("MageBullet", crystalPositions[TowerLevel].position + new Vector3(0, 3, 0))
                 .Init(target, Damage);
         }
     }

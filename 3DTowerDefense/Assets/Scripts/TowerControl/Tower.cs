@@ -97,7 +97,6 @@ namespace TowerControl
         public void TowerUniqueLevelUp(int uniqueLevel)
         {
             IsUniqueTower = true;
-            TowerLevel++;
             TowerUniqueLevel = uniqueLevel;
         }
 

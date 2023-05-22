@@ -60,10 +60,10 @@ namespace UnitControl.FriendlyControl
 
         private void OnDrawGizmos()
         {
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(transform.position, atkRange);
-            Gizmos.color = IsTargeting ? Color.cyan : Color.red;
-            Gizmos.DrawSphere(transform.position + new Vector3(0, 2, 0), 1f);
+            // Gizmos.color = Color.red;
+            // Gizmos.DrawWireSphere(transform.position, atkRange);
+            // Gizmos.color = IsTargeting ? Color.cyan : Color.red;
+            // Gizmos.DrawSphere(transform.position + new Vector3(0, 2, 0), 1f);
         }
 
         private void Targeting()

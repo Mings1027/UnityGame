@@ -297,7 +297,7 @@ namespace UIControl
             if (tempTower.TowerLevel != 2)
             {
                 tempTower.TowerLevelUp();
-                TowerCoin -= towerBuildCoin[_curSelectedTower.TowerLevel];
+                TowerCoin -= towerBuildCoin[tempTower.TowerLevel];
                 tt = t.towerLevels[tempTower.TowerLevel];
             }
             else
@@ -319,6 +319,11 @@ namespace UIControl
 
             tempTower.TowerSetting(tt.towerMesh, tt.minDamage, tt.maxDamage, tt.attackRange,
                 tt.attackDelay);
+
+            if (_curSelectedTower.TowerType == Tower.Type.Archer)
+            {
+                
+            }
         }
 
         private void UpgradeButton()

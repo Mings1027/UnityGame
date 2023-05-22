@@ -10,24 +10,17 @@ namespace TowerControl
 {
     public class ArcherTargetingTower : TargetingTower
     {
-        private int archerCount;
+        private int _archerCount;
         private Vector3 _targetDirection;
         private ArcherUnit[] _archerUnits;
-        private Transform[] _archerPos;
+        [SerializeField] private Transform[] archerPos;
 
         private event Action onAttackEvent;
 
         protected override void Awake()
         {
             base.Awake();
-            _archerUnits = new ArcherUnit[2];
-
-            var archerPosition = GameObject.Find("ArcherPosition").transform;
-            _archerPos = new Transform[archerPosition.childCount];
-            for (var i = 0; i < _archerPos.Length; i++)
-            {
-                _archerPos[i] = archerPosition.GetChild(i);
-            }
+            _archerUnits ??= new ArcherUnit[2];
         }
 
         protected override void OnDisable()
@@ -39,7 +32,8 @@ namespace TowerControl
         public override void TowerInit(MeshFilter consMeshFilter)
         {
             base.TowerInit(consMeshFilter);
-            UnitDisable();
+
+            if (_archerUnits[0] != null) _archerUnits[0].gameObject.SetActive(false);
         }
 
         public override void TowerSetting(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range,
@@ -62,12 +56,11 @@ namespace TowerControl
 
         private void BatchArcher()
         {
-            var count = TowerUniqueLevel == 1 ? 2 : 1;
-            archerCount = count;
-            for (var i = 0; i < count; i++)
+            _archerCount = TowerUniqueLevel == 1 ? 2 : 1;
+            for (var i = 0; i < _archerCount; i++)
             {
-                var index = !IsUniqueTower ? TowerLevel : TowerUniqueLevel + 3 + i;
-                _archerUnits[i] = StackObjectPool.Get<ArcherUnit>("ArcherUnit", _archerPos[index].position);
+                var index = IsUniqueTower ? TowerUniqueLevel + 3 + i : TowerLevel;
+                _archerUnits[i] = StackObjectPool.Get<ArcherUnit>("ArcherUnit", archerPos[index]);
             }
         }
 
@@ -88,7 +81,7 @@ namespace TowerControl
 
         private async UniTaskVoid ProjectileAttack()
         {
-            for (int i = 0; i < archerCount; i++)
+            for (int i = 0; i < _archerCount; i++)
             {
                 _archerUnits[i].TargetUpdate(target, isTargeting);
                 StackObjectPool.Get("ArrowShootSFX", transform);
