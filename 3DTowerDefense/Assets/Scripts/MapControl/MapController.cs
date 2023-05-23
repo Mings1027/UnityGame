@@ -12,6 +12,7 @@ namespace MapControl
     public class MapController : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         public event Action onCloseUIEvent;
+        public Transform TowerBuildPoint => towerBuildPoint;
 
         [SerializeField] private Transform towerBuildPoint;
 
@@ -22,7 +23,7 @@ namespace MapControl
 
         private void CreateBuildPoints()
         {
-            var gamePlayUIController = GameManager.Instance.GamePlayPrefab.transform.Find("GamePlay UI")
+            var gamePlayUIController = GameManager.Instance.UIPrefab.transform.Find("GamePlay UI")
                 .GetComponent<GamePlayUIController>();
 
             for (int i = 0; i < towerBuildPoint.childCount; i++)

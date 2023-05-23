@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 
@@ -22,5 +23,11 @@ namespace ManagerControl
         }
 
         [SerializeField] private TextMeshProUGUI coinText;
+        [SerializeField] private int[] stageStartCoin;
+
+        private void Start()
+        {
+            TowerCoin = stageStartCoin[0];
+        }
     }
 }
