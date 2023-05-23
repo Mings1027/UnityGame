@@ -29,8 +29,7 @@ namespace TowerControl
         }
         //==================================Custom Function====================================================
         //==================================Custom Function====================================================
-
-
+        
         public bool Move()
         {
             var ray = _cam.ScreenPointToRay(Input.GetTouch(0).position);

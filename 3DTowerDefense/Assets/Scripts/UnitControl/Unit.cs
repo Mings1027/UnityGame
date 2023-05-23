@@ -1,3 +1,5 @@
+using System;
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.AI;
@@ -7,7 +9,7 @@ namespace UnitControl
 {
     public abstract class Unit : MonoBehaviour
     {
-        private Tween _delayTween;
+        private float atkDelay;
         private int _minDamage, _maxDamage;
 
         protected Collider[] targetColliders;
@@ -47,20 +49,24 @@ namespace UnitControl
 
         protected abstract void Attack();
 
-        protected void StartCoolDown()
+        protected async UniTaskVoid StartCoolDown()
         {
             attackAble = false;
-            _delayTween.Restart();
+            await UniTask.Delay(TimeSpan.FromSeconds(atkDelay));
+            attackAble = true;
         }
 
         public void Init(int minD, int maxD, float delay)
         {
             _minDamage = minD;
             _maxDamage = maxD;
-            _delayTween?.Kill();
-            _delayTween = DOVirtual.DelayedCall(delay, () => attackAble = true, false).SetAutoKill(false);
-        }
+            atkDelay = delay;
+       }
 
+        protected void CheckCanAttack()
+        {
+            
+        }
         private void LookTarget()
         {
             var direction = target.position + target.forward;

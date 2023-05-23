@@ -1,19 +1,26 @@
-using System;
-using BuildControl;
-using Cysharp.Threading.Tasks;
-using DG.Tweening;
-using GameControl;
 using TMPro;
-using ToolTipControl;
-using TowerControl;
-using UIControl;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
 namespace ManagerControl
 {
     public sealed class UIManager : MonoBehaviour
     {
+        private int towerCoin;
+
+        public int TowerCoin
+        {
+            get
+            {
+                coinText.text = towerCoin.ToString();
+                return towerCoin;
+            }
+            set
+            {
+                towerCoin = value;
+                coinText.text = towerCoin.ToString();
+            }
+        }
+
+        [SerializeField] private TextMeshProUGUI coinText;
     }
 }

@@ -16,20 +16,20 @@ namespace UIControl
     public class GamePlayUIController : MonoBehaviour
     {
         private Camera _cam;
-
         private EventSystem _eventSystem;
-
-        private int _towerIndex;
-        private GameObject[] _towerButtons;
-        private string[] towerNames;
-        private Sequence _towerSelectPanelSequence;
+        private Tween _towerSelectPanelTween;
         private Tween _towerEditPanelTween;
-        private int _uniqueLevel;
-        private int _sellTowerCoin;
 
         private Tower _curSelectedTower;
+
         private Transform _buildTransform;
         private Transform _uiTarget;
+        private Transform _okButtonTarget;
+
+        private string[] towerNames;
+        private int _towerIndex;
+        private int _uniqueLevel;
+        private int _sellTowerCoin;
 
         private bool _panelIsOpen;
         private bool _isSell;
@@ -37,12 +37,15 @@ namespace UIControl
         private bool _isTowerPanel, isEditPanel;
         private bool _isMoveUnit;
 
-        [SerializeField] private GameObject startPanel;
+        [SerializeField] private UIManager uiManager;
+
         [SerializeField] private Button startButton;
 
+        [SerializeField] private ToolTipSystem _tooltip;
+
+        [SerializeField] private GameObject startPanel;
         [SerializeField] private GameObject towerSelectPanel;
         [SerializeField] private GameObject towerEditPanel;
-        [SerializeField] private ToolTipSystem _tooltip;
         [SerializeField] private GameObject _upgradeButton;
         [SerializeField] private GameObject _aUpgradeButton;
         [SerializeField] private GameObject _bUpgradeButton;
@@ -55,24 +58,7 @@ namespace UIControl
         [SerializeField] private GameObject moveUnitIndicator;
         [SerializeField] private TowerLevelManager[] towerLevelManagers;
 
-        [SerializeField] private TextMeshProUGUI coinText;
-        [SerializeField] private int towerCoin;
-
         [SerializeField] private int[] towerBuildCoin;
-
-        private int TowerCoin
-        {
-            get
-            {
-                coinText.text = towerCoin.ToString();
-                return towerCoin;
-            }
-            set
-            {
-                towerCoin = value;
-                coinText.text = towerCoin.ToString();
-            }
-        }
 
         /*======================================================================================================================
          *                                        Unity Event
@@ -105,11 +91,16 @@ namespace UIControl
         private void LateUpdate()
         {
             MoveUI();
+            if (_okButton.activeSelf)
+            {
+                _okButton.transform.position = _okButtonTarget.position;
+            }
         }
 
         private void OnDestroy()
         {
-            _towerSelectPanelSequence?.Kill();
+            _towerSelectPanelTween.Kill();
+            _towerEditPanelTween.Kill();
         }
 
         /*======================================================================================================================
@@ -117,39 +108,33 @@ namespace UIControl
          ======================================================================================================================*/
         private void Init()
         {
-            coinText.text = towerCoin.ToString();
-            _towerButtons = new GameObject[towerSelectPanel.transform.childCount];
-            _towerSelectPanelSequence = DOTween.Sequence().SetAutoKill(false).Pause();
-            for (var i = 0; i < _towerButtons.Length; i++)
+            Time.timeScale = 0;
+
+            var towerButtons = new GameObject[towerSelectPanel.transform.childCount];
+            for (var i = 0; i < towerButtons.Length; i++)
             {
-                _towerButtons[i] = towerSelectPanel.transform.GetChild(i).gameObject;
+                towerButtons[i] = towerSelectPanel.transform.GetChild(i).gameObject;
                 var index = i;
-                _towerButtons[i].GetComponent<Button>().onClick.AddListener(() => TowerButton(index));
-                _towerSelectPanelSequence.Append(_towerButtons[i].transform.DOScale(1, 0.05f).From(0))
-                    .Join(_towerButtons[i].transform.DOLocalMove(Vector3.zero, 0.05f).From());
+                towerButtons[i].GetComponent<Button>().onClick.AddListener(() => TowerButton(index));
             }
 
-            towerNames = new string[_towerButtons.Length];
-            for (int i = 0; i < towerNames.Length; i++)
+            towerNames = new string[towerButtons.Length];
+            for (var i = 0; i < towerNames.Length; i++)
             {
-                towerNames[i] = _towerButtons[i].name.Replace("Button", "");
+                towerNames[i] = towerButtons[i].name.Replace("Button", "");
             }
 
-            _towerEditPanelTween = towerEditPanel.transform.DOScale(1, 0.05f).From(0).SetAutoKill(false);
+            _towerSelectPanelTween = towerSelectPanel.transform.DOScale(1, 0.1f).From(0).SetAutoKill(false);
+            _towerEditPanelTween = towerEditPanel.transform.DOScale(1, 0.1f).From(0).SetAutoKill(false);
 
-            WaveManager.Instance.onCoinIncreaseEvent += IncreaseCoin;
             GameManager.Instance.Map.GetComponent<MapController>().onCloseUIEvent += CloseUI;
         }
 
         private void StartGame()
         {
+            Time.timeScale = 1;
             startPanel.transform.DOMoveY(Screen.height, 0.5f).SetEase(Ease.InBack)
                 .OnComplete(() => startPanel.SetActive(false));
-        }
-
-        private void IncreaseCoin(int amount)
-        {
-            TowerCoin += amount;
         }
 
         private void MoveUI()
@@ -179,7 +164,7 @@ namespace UIControl
             _uiTarget = t;
             if (!towerSelectPanel.activeSelf) towerSelectPanel.SetActive(true);
             _buildTransform = t;
-            _towerSelectPanelSequence.Restart();
+            _towerSelectPanelTween.Restart();
         }
 
         private void OpenTowerEditPanel(Tower t, Transform uiTarget)
@@ -243,7 +228,7 @@ namespace UIControl
             if (_isTowerPanel)
             {
                 _isTowerPanel = false;
-                _towerSelectPanelSequence.PlayBackwards();
+                _towerSelectPanelTween.PlayBackwards();
             }
 
             if (isEditPanel)
@@ -297,14 +282,14 @@ namespace UIControl
             if (tempTower.TowerLevel != 2)
             {
                 tempTower.TowerLevelUp();
-                TowerCoin -= towerBuildCoin[tempTower.TowerLevel];
                 tt = t.towerLevels[tempTower.TowerLevel];
+                uiManager.TowerCoin -= towerBuildCoin[tempTower.TowerLevel];
             }
             else
             {
                 tempTower.TowerUniqueLevelUp(_uniqueLevel);
-                TowerCoin -= towerBuildCoin[3];
                 tt = t.towerUniqueLevels[tempTower.TowerUniqueLevel];
+                uiManager.TowerCoin -= towerBuildCoin[3];
             }
 
             StackObjectPool.Get("BuildSmoke", tempTower.transform.position);
@@ -319,11 +304,6 @@ namespace UIControl
 
             tempTower.TowerSetting(tt.towerMesh, tt.minDamage, tt.maxDamage, tt.attackRange,
                 tt.attackDelay);
-
-            if (_curSelectedTower.TowerType == Tower.Type.Archer)
-            {
-                
-            }
         }
 
         private void UpgradeButton()
@@ -368,18 +348,14 @@ namespace UIControl
             StackObjectPool.Get("BuildSmoke", _curSelectedTower.transform);
             StackObjectPool.Get("BuildingPoint", _curSelectedTower.transform);
 
-            TowerCoin += _sellTowerCoin;
+            uiManager.TowerCoin += _sellTowerCoin;
         }
 
         private void ActiveOkButton(string info, string towerName)
         {
             _tooltip.Show(towerSelectPanel.transform.position, info, towerName);
-            _okButton.transform.position = _isTower
-                ? _eventSystem.currentSelectedGameObject.transform.position
-                : _towerButtons[_towerIndex].transform.position;
-
+            _okButtonTarget = _eventSystem.currentSelectedGameObject.transform;
             _okButton.GetComponent<Button>().interactable = CanBuildCheck();
-
             _okButton.SetActive(true);
         }
 
@@ -388,11 +364,11 @@ namespace UIControl
             if (_isSell) return true;
             if (_isTower)
             {
-                if (towerCoin >= towerBuildCoin[_curSelectedTower.TowerLevel + 1]) return true;
+                if (uiManager.TowerCoin >= towerBuildCoin[_curSelectedTower.TowerLevel + 1]) return true;
             }
             else
             {
-                if (towerCoin >= 70) return true;
+                if (uiManager.TowerCoin >= 70) return true;
             }
 
             return false;

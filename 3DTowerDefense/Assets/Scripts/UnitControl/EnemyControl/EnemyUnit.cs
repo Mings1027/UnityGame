@@ -32,12 +32,12 @@ namespace UnitControl.EnemyControl
         {
             if (IsTargeting)
             {
+                if (!attackAble) return;
                 if (Vector3.Distance(transform.position, target.position) <= atkRange)
                 {
-                    if (!attackAble) return;
                     nav.isStopped = true;
                     Attack();
-                    StartCoolDown();
+                    StartCoolDown().Forget();
                 }
                 else
                 {
@@ -70,6 +70,7 @@ namespace UnitControl.EnemyControl
         {
             destination = pos;
         }
+
         private void Targeting()
         {
             target = SearchTarget.ClosestTarget(transform.position, atkRange, targetColliders, targetLayer);

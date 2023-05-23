@@ -11,15 +11,16 @@ namespace ManagerControl
         private Sequence _buildPointSequence;
 
         public GameObject Map { get; private set; }
-        public GameObject GamePlay { get; private set; }
+        public GameObject GamePlayPrefab { get; private set; }
 
         [SerializeField] private GameObject gamePlayPrefab;
         [SerializeField] private GameObject mapPrefab;
 
+        [SerializeField] private int[] stageStartCoin;
+
         private void Awake()
         {
-            GamePlay = Instantiate(gamePlayPrefab);
-            Map = Instantiate(mapPrefab);
+            GamePlayPrefab = Instantiate(gamePlayPrefab);
         }
 
         private void OnEnable()
@@ -29,18 +30,21 @@ namespace ManagerControl
 
         private void MapInit()
         {
-            var waveManager = WaveManager.Instance;
-            spawnPoints = mapPrefab.transform.Find("Spawn Points");
+            Map = Instantiate(mapPrefab);
+            GamePlayPrefab.GetComponent<UIManager>().TowerCoin = stageStartCoin[0];
+            var waveManager = GamePlayPrefab.GetComponentInChildren<WaveManager>();
+
+            spawnPoints = Map.transform.Find("Spawn Points");
             waveManager.SpawnPointList = new Transform[spawnPoints.childCount];
 
-            for (int i = 0; i < waveManager.SpawnPointList.Length; i++)
+            for (var i = 0; i < waveManager.SpawnPointList.Length; i++)
             {
                 waveManager.SpawnPointList[i] = spawnPoints.GetChild(i);
             }
 
-            destinationPoints = mapPrefab.transform.Find("Destination Points");
+            destinationPoints = Map.transform.Find("Destination Points");
             waveManager.DestinationPointList = new Transform[destinationPoints.childCount];
-            for (int i = 0; i < waveManager.DestinationPointList.Length; i++)
+            for (var i = 0; i < waveManager.DestinationPointList.Length; i++)
             {
                 waveManager.DestinationPointList[i] = destinationPoints.GetChild(i);
             }

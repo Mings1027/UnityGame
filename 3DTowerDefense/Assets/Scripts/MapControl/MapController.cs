@@ -22,7 +22,7 @@ namespace MapControl
 
         private void CreateBuildPoints()
         {
-            var gamePlayUIController = GameManager.Instance.GamePlay.transform.Find("GamePlay UI")
+            var gamePlayUIController = GameManager.Instance.GamePlayPrefab.transform.Find("GamePlay UI")
                 .GetComponent<GamePlayUIController>();
 
             for (int i = 0; i < towerBuildPoint.childCount; i++)

@@ -40,10 +40,17 @@ namespace UnitControl.FriendlyControl
         protected override void Update()
         {
             if (!IsTargeting) return;
-            if (attackAble && Vector3.Distance(transform.position, target.position) <= nav.stoppingDistance)
+            if (attackAble)
             {
-                Attack();
-                StartCoolDown();
+                if (Vector3.Distance(transform.position, target.position) <= nav.stoppingDistance)
+                {
+                    Attack();
+                    StartCoolDown().Forget();
+                }
+                else
+                {
+                    nav.SetDestination(target.position);
+                }
             }
             else
             {

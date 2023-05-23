@@ -30,6 +30,7 @@ namespace TowerControl
         public override void TowerInit(MeshFilter consMeshFilter)
         {
             base.TowerInit(consMeshFilter);
+            // 타워 업그레이드 중에 crystal 보이면 어색하기 때문에 crystal을 타워밑으로 옮겨 잠시 숨겨줌
             crystal.position = transform.position;
         }
 
@@ -42,16 +43,9 @@ namespace TowerControl
 
         private void CrystalPosInit()
         {
-            if (IsUniqueTower)
-            {
-                crystal.position = crystalPositions[TowerUniqueLevel + 3].position;
-                _crystalMeshFilter.sharedMesh = crystalMesh[TowerUniqueLevel + 3];
-            }
-            else
-            {
-                crystal.position = crystalPositions[TowerLevel].position;
-                _crystalMeshFilter.sharedMesh = crystalMesh[TowerLevel];
-            }
+            var index = IsUniqueTower ? TowerUniqueLevel + 3 : TowerLevel;
+            crystal.position = crystalPositions[index].position;
+            _crystalMeshFilter.sharedMesh = crystalMesh[index];
         }
 
         protected override void Attack()

@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace UIControl
 {
-    public class InformationUIController : Singleton<InformationUIController>
+    public class InformationUIController : MonoBehaviour
     {
         private bool _isPause;
 

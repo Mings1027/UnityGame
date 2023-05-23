@@ -6,10 +6,11 @@ using UIControl;
 using UnitControl.EnemyControl;
 using UnityEngine;
 using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 namespace ManagerControl
 {
-    public class WaveManager : Singleton<WaveManager>
+    public class WaveManager : MonoBehaviour
     {
         private bool _startGame;
         private int _curWave;
@@ -28,30 +29,24 @@ namespace ManagerControl
             public int health;
         }
 
-        // [Serializable]
-        // public class WaveData
-        // {
-        //     public Wave[] waves;
-        // }
-        //
-        // private WaveData waveData;
-
         private int spawnPointIndex;
 
         public Wave[] waves;
-        public event Action<int> onCoinIncreaseEvent;
         public Transform[] SpawnPointList { get; set; }
         public Transform[] DestinationPointList { get; set; }
+
+        [SerializeField] private UIManager uiManager;
+        [SerializeField] private Button startWaveButton;
+
+        private void Awake()
+        {
+            startWaveButton.onClick.AddListener(StartWave);
+        }
 
         private void Start()
         {
             _curWave = -1;
             spawnPointIndex = -1;
-            // waveData = new WaveData();
-            // if (waveData.waves == null)
-            // {
-            //     LoadWaveDataToJson();
-            // }
         }
 
         private void OnEnable()
@@ -65,10 +60,10 @@ namespace ManagerControl
             cts?.Cancel();
         }
 
-        public void StartWave()
+        private void StartWave()
         {
             WaveStart().Forget();
-            gameObject.SetActive(false);
+            startWaveButton.gameObject.SetActive(false);
         }
 
         private async UniTaskVoid WaveStart()
@@ -81,7 +76,7 @@ namespace ManagerControl
             var enemyCount = waves[_curWave].enemyCount;
             while (enemyCount > 0)
             {
-                await UniTask.Delay(1000);
+                await UniTask.Delay(1000, cancellationToken: cts.Token);
                 enemyCount--;
                 _enemiesIndex++;
                 SpawnEnemy();
@@ -94,7 +89,7 @@ namespace ManagerControl
             var e = StackObjectPool.Get<EnemyUnit>(waves[_curWave].enemyName,
                 SpawnPointList[spawnPointIndex].position);
             e.GetComponent<Health>().Init(waves[_curWave].health);
-            e.onWaveEndedEvent += EndedWave;
+            e.onWaveEndedEvent += IsEndedWave;
             e.SetDestination(DestinationPointList[0]);
 
             var w = waves[_curWave];
@@ -105,14 +100,14 @@ namespace ManagerControl
             }
         }
 
-        private void EndedWave()
+        private void IsEndedWave()
         {
             _enemiesIndex--;
-            onCoinIncreaseEvent?.Invoke(waves[_curWave].enemyCoin);
+            uiManager.TowerCoin += waves[_curWave].enemyCoin;
             if (_enemiesIndex != -1) return;
             print("Stage Complete");
             _startGame = false;
-            gameObject.SetActive(true);
+            startWaveButton.gameObject.SetActive(true);
         }
 
         // [ContextMenu("From Json Data")]
