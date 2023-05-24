@@ -15,12 +15,17 @@ namespace UnitControl.EnemyControl
             _anim = GetComponent<Animator>();
         }
 
+        protected override void Update()
+        {
+            
+        }
+
         protected override void Attack()
         {
             _anim.SetTrigger(IsAttack);
-            if (target.TryGetComponent(out Health h))
+            if (Target.TryGetComponent(out Health h))
             {
-                h.TakeDamage(Damage, target.gameObject);
+                h.TakeDamage(Damage, Target.gameObject);
             }
         }
     }

@@ -11,8 +11,6 @@ namespace TowerControl
     {
         private Camera _cam;
 
-        private Vector3 _pos;
-
         [SerializeField] private LayerMask moveAreaLayer;
 
         protected override void Awake()
@@ -29,11 +27,12 @@ namespace TowerControl
         }
         //==================================Custom Function====================================================
         //==================================Custom Function====================================================
-        
+
         public bool Move()
         {
             var ray = _cam.ScreenPointToRay(Input.GetTouch(0).position);
             if (!Physics.Raycast(ray, out var hit, moveAreaLayer)) return false;
+            unitsPosition = hit.point;
             foreach (var t in units)
             {
                 t.GoToTargetPosition(hit.point);
@@ -56,8 +55,9 @@ namespace TowerControl
         protected override void UnitSpawn(int i, int health)
         {
             if (!NavMesh.SamplePosition(transform.position, out var hit, 15, NavMesh.AllAreas)) return;
-
-            var unitName = TowerLevel == 4 ? "SpearManUnit" : "SwordManUnit";
+            
+            unitsPosition = hit.position;
+            var unitName = IsUniqueTower ? "SpearManUnit" : "SwordManUnit";
             var ranPos = hit.position + Random.insideUnitSphere * 5f;
             units[i] = StackObjectPool.Get<BarracksUnit>(unitName, ranPos);
             units[i].GetComponent<Health>().Init(health);

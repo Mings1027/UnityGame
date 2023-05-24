@@ -29,7 +29,7 @@ namespace UnitControl.FriendlyControl
             StackObjectPool.Get("SwordSlashSFX", transform);
             StackObjectPool.Get("SlashVFX", _attackEffectPos.position,
                 transform.rotation * Quaternion.Euler(0, 90, 0));
-            meleeWeapon.Attack(target, Damage);
+            meleeWeapon.Attack(Target, Damage);
         }
     }
 }

@@ -29,9 +29,16 @@ namespace ManagerControl
             public int health;
         }
 
+        [Serializable]
+        public class WaveData
+        {
+            public Wave[] waveData;
+        }
+
+        [SerializeField] private WaveData waveData;
+
         private int spawnPointIndex;
 
-        public Wave[] waves;
         public Transform[] SpawnPointList { get; set; }
         public Transform[] DestinationPointList { get; set; }
 
@@ -73,7 +80,7 @@ namespace ManagerControl
             _enemiesIndex = -1;
             _curWave++;
 
-            var enemyCount = waves[_curWave].enemyCount;
+            var enemyCount = waveData.waveData[_curWave].enemyCount;
             while (enemyCount > 0)
             {
                 await UniTask.Delay(1000, cancellationToken: cts.Token);
@@ -86,13 +93,13 @@ namespace ManagerControl
         private void SpawnEnemy()
         {
             spawnPointIndex++;
-            var e = StackObjectPool.Get<EnemyUnit>(waves[_curWave].enemyName,
+            var e = StackObjectPool.Get<EnemyUnit>(waveData.waveData[_curWave].enemyName,
                 SpawnPointList[spawnPointIndex].position);
-            e.GetComponent<Health>().Init(waves[_curWave].health);
+            e.GetComponent<Health>().Init(waveData.waveData[_curWave].health);
             e.onWaveEndedEvent += IsEndedWave;
             e.SetDestination(DestinationPointList[0]);
 
-            var w = waves[_curWave];
+            var w = waveData.waveData[_curWave];
             e.Init(w.minDamage, w.maxDamage, w.atkDelay);
             if (spawnPointIndex == SpawnPointList.Length - 1)
             {
@@ -103,17 +110,23 @@ namespace ManagerControl
         private void IsEndedWave()
         {
             _enemiesIndex--;
-            uiManager.TowerCoin += waves[_curWave].enemyCoin;
+            uiManager.TowerCoin += waveData.waveData[_curWave].enemyCoin;
             if (_enemiesIndex != -1) return;
             print("Stage Complete");
             _startGame = false;
             startWaveButton.gameObject.SetActive(true);
         }
 
-        // [ContextMenu("From Json Data")]
-        // private void LoadWaveDataToJson()
-        // {
-        //     waveData = DataManager.LoadDataFromJson<WaveData>("waveData.json");
-        // }
+        [ContextMenu("To Json Data")]
+        private void SaveWaveDateToJson()
+        {
+            DataManager.SaveDataToJson<WaveData>("waveData.json");
+        }
+
+        [ContextMenu("From Json Data")]
+        private void LoadWaveDataToJson()
+        {
+            waveData = DataManager.LoadDataFromJson<WaveData>("waveData.json");
+        }
     }
 }

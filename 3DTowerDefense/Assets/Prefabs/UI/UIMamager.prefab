@@ -4457,35 +4457,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1c72e29ee56744efa7b755f41c9978d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  waves:
-  - enemyName: ArcherEnemy
-    enemyCoin: 10
-    enemyCount: 4
-    atkDelay: 3
-    minDamage: 1
-    maxDamage: 4
-    health: 30
-  - enemyName: MageEnemy
-    enemyCoin: 15
-    enemyCount: 50
-    atkDelay: 0
-    minDamage: 4
-    maxDamage: 8
-    health: 35
-  - enemyName: SpearManEnemy
-    enemyCoin: 20
-    enemyCount: 50
-    atkDelay: 1
-    minDamage: 3
-    maxDamage: 5
-    health: 40
-  - enemyName: SwordManEnemy
-    enemyCoin: 25
-    enemyCount: 50
-    atkDelay: 0.5
-    minDamage: 6
-    maxDamage: 10
-    health: 45
+  waveData:
+    waveData:
+    - enemyName: ArcherEnemy
+      enemyCoin: 10
+      enemyCount: 5
+      atkDelay: 1.5
+      minDamage: 1
+      maxDamage: 2
+      health: 30
+    - enemyName: MageEnemy
+      enemyCoin: 15
+      enemyCount: 10
+      atkDelay: 1
+      minDamage: 3
+      maxDamage: 4
+      health: 35
   uiManager: {fileID: 2903720736770718059}
   startWaveButton: {fileID: 2903720737386251687}
 --- !u!1 &8863085596118077336

@@ -16,11 +16,6 @@ namespace AttackControl
 
             for (var i = 0; i < size; i++)
             {
-                if (targetColliders[i].TryGetComponent(out Unit u))
-                {
-                    if (u.IsTargeting) continue;
-                }
-
                 var distanceToResult =
                     Vector3.SqrMagnitude(pos - targetColliders[i].transform.position);
                 if (distanceToResult >= shortestDistance) continue;

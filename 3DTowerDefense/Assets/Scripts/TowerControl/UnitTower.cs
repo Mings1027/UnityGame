@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using GameControl;
 using UnitControl;
+using UnitControl.EnemyControl;
 using UnitControl.FriendlyControl;
 using UnityEngine;
 
@@ -9,21 +11,54 @@ namespace TowerControl
 {
     public abstract class UnitTower : Tower
     {
-        protected FriendlyUnit[] units;
-
         private int deadUnitCount;
+        private bool isFullSize;
+
+        protected FriendlyUnit[] units;
+        protected Vector3 unitsPosition;
+
         public int UnitHealth { get; set; }
+
+        [SerializeField] private int unitsRange;
 
         protected override void Awake()
         {
             base.Awake();
-            targetColliders = new Collider[3];
+            targetColliders = new Collider[4];
+        }
+
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            isFullSize = false;
+            InvokeRepeating(nameof(Targeting), 1, 1);
         }
 
         protected override void OnDisable()
         {
             base.OnDisable();
             UnitDisable(units);
+        }
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(unitsPosition, unitsRange);
+        }
+
+        private void Targeting()
+        {
+            var size = Physics.OverlapSphereNonAlloc(unitsPosition, unitsRange, targetColliders, TargetLayer);
+            isFullSize = size > 3;
+            if (isFullSize) return;
+            for (var i = 0; i < size; i++)
+            {
+                units[i].Target = targetColliders[i].transform;
+                units[i].IsTargeting = true;
+                var enemy = targetColliders[i].GetComponent<EnemyUnit>();
+                enemy.Target = units[i].transform;
+                enemy.IsTargeting = true;
+            }
         }
 
         private void UnitDisable(IList<FriendlyUnit> u)

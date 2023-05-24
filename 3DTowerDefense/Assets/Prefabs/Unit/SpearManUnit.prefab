@@ -439,12 +439,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   smoothTurnSpeed: 0.5
-  atkRange: 0
-  targetLayer:
-    serializedVersion: 2
-    m_Bits: 256
   meleeWeapon: {fileID: 6545926852812978768}
-  atkAudio: {fileID: 8300000, guid: b48e632c5a6c6174e8bccaa9f04d399f, type: 3}
 --- !u!95 &-8185831219263778597
 Animator:
   serializedVersion: 5
@@ -494,7 +489,7 @@ NavMeshAgent:
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 360
-  m_StoppingDistance: 4
+  m_StoppingDistance: 2
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
