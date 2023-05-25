@@ -1,4 +1,5 @@
 using System;
+using DataControl;
 using GameControl;
 using UnityEngine;
 
@@ -29,7 +30,7 @@ namespace WeaponControl
 
             if (target.TryGetComponent(out Health h))
             {
-                StackObjectPool.Get("SlashHitVFX", hitBox.position);
+                StackObjectPool.Get(PoolObjectName.SlashHitVFX, hitBox.position);
                 h.TakeDamage(damage, target.gameObject);
             }
         }

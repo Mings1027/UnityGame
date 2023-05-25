@@ -1,5 +1,6 @@
 using System;
 using BuildControl;
+using DataControl;
 using DG.Tweening;
 using GameControl;
 using ManagerControl;
@@ -29,7 +30,7 @@ namespace MapControl
             for (int i = 0; i < towerBuildPoint.childCount; i++)
             {
                 var child = towerBuildPoint.GetChild(i);
-                StackObjectPool.Get<BuildingPoint>("BuildingPoint", child.position, child.rotation)
+                StackObjectPool.Get<BuildingPoint>(PoolObjectName.BuildingPoint, child.position, child.rotation)
                     .onOpenTowerSelectPanelEvent += gamePlayUIController.OpenTowerSelectPanel;
             }
         }

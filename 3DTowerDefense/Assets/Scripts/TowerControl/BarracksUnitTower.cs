@@ -1,3 +1,4 @@
+using DataControl;
 using GameControl;
 using UnitControl.EnemyControl;
 using UnitControl.FriendlyControl;
@@ -41,26 +42,25 @@ namespace TowerControl
             return true;
         }
 
-        protected override void UnitUpgrade(int minDamage, int maxDamage, float delay)
+        protected override void UnitUpgrade(int minDamage, int maxDamage, float delay, int health)
         {
             for (var i = 0; i < units.Length; i++)
             {
                 if (units[i] != null) units[i].gameObject.SetActive(false);
 
-                UnitSpawn(i, UnitHealth);
-                units[i].Init(minDamage, maxDamage, delay);
+                UnitSpawn(i);
+                units[i].Init(minDamage, maxDamage, delay, health);
             }
         }
 
-        protected override void UnitSpawn(int i, int health)
+        protected override void UnitSpawn(int i)
         {
             if (!NavMesh.SamplePosition(transform.position, out var hit, 15, NavMesh.AllAreas)) return;
-            
+
             unitsPosition = hit.position;
-            var unitName = IsUniqueTower ? "SpearManUnit" : "SwordManUnit";
+            var unitName = IsUniqueTower ? PoolObjectName.SpearManUnit : PoolObjectName.SwordManUnit;
             var ranPos = hit.position + Random.insideUnitSphere * 5f;
             units[i] = StackObjectPool.Get<BarracksUnit>(unitName, ranPos);
-            units[i].GetComponent<Health>().Init(health);
             units[i].onDeadEvent += ReSpawn;
         }
     }

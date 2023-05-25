@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using AttackControl;
 using Cysharp.Threading.Tasks;
+using GameControl;
 using UnityEngine;
 using UnityEngine.AI;
 using Random = UnityEngine.Random;
@@ -69,11 +70,12 @@ namespace UnitControl
             attackAble = true;
         }
 
-        public void Init(int minD, int maxD, float delay)
+        public void Init(int minD, int maxD, float delay, int health)
         {
             _minDamage = minD;
             _maxDamage = maxD;
             atkDelay = delay;
+            GetComponent<Health>().Init(health);
         }
 
         private void LookTarget()

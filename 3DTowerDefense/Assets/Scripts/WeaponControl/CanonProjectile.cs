@@ -1,3 +1,4 @@
+using DataControl;
 using GameControl;
 using UnityEngine;
 
@@ -32,8 +33,8 @@ namespace WeaponControl
         protected override void ProjectileHit(Collider col)
         {
             var pos = transform.position;
-            StackObjectPool.Get("CanonHitVFX", pos);
-            StackObjectPool.Get("CanonHitSFX", pos);
+            StackObjectPool.Get(PoolObjectName.CanonHitVFX, pos);
+            StackObjectPool.Get(PoolObjectName.CanonHitSfx, pos);
             var size = Physics.OverlapSphereNonAlloc(pos, atkRange, _targetColliders, enemyLayer);
             for (var i = 0; i < size; i++)
             {

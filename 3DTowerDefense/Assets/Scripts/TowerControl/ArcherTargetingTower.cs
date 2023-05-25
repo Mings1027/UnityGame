@@ -1,5 +1,6 @@
 using System;
 using Cysharp.Threading.Tasks;
+using DataControl;
 using DG.Tweening;
 using GameControl;
 using UnitControl;
@@ -37,9 +38,9 @@ namespace TowerControl
         }
 
         public override void TowerSetting(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range,
-            float delay)
+            float delay, int health = 0)
         {
-            base.TowerSetting(towerMeshFilter, minDamage, maxDamage, range, delay);
+            base.TowerSetting(towerMeshFilter, minDamage, maxDamage, range, delay, health);
 
             BatchArcher();
 
@@ -60,7 +61,7 @@ namespace TowerControl
             for (var i = 0; i < _archerCount; i++)
             {
                 var index = IsUniqueTower ? TowerUniqueLevel + 3 + i : TowerLevel;
-                _archerUnits[i] = StackObjectPool.Get<ArcherUnit>("ArcherUnit", archerPos[index]);
+                _archerUnits[i] = StackObjectPool.Get<ArcherUnit>(PoolObjectName.ArcherUnit, archerPos[index]);
             }
         }
 
@@ -81,11 +82,11 @@ namespace TowerControl
 
         private async UniTaskVoid ProjectileAttack()
         {
-            for (int i = 0; i < _archerCount; i++)
+            for (var i = 0; i < _archerCount; i++)
             {
                 _archerUnits[i].TargetUpdate(target, isTargeting);
-                StackObjectPool.Get("ArrowShootSFX", transform);
-                StackObjectPool.Get<Projectile>("ArcherProjectile", _archerUnits[i].transform.position)
+                StackObjectPool.Get(PoolObjectName.ArrowShootSfx, transform);
+                StackObjectPool.Get<Projectile>(PoolObjectName.ArcherProjectile, _archerUnits[i].transform.position)
                     .Init(target, Damage);
                 await UniTask.Delay(500);
             }
@@ -94,8 +95,9 @@ namespace TowerControl
         private void BulletAttack()
         {
             _archerUnits[0].TargetUpdate(target, isTargeting);
-            StackObjectPool.Get("BulletShootSFX", transform);
-            StackObjectPool.Get<Bullet>("ArcherBullet", _archerUnits[0].transform.position).Init(target, Damage);
+            StackObjectPool.Get(PoolObjectName.BulletShootSfx, transform);
+            StackObjectPool.Get<Bullet>(PoolObjectName.ArcherBullet, _archerUnits[0].transform.position)
+                .Init(target, Damage);
         }
     }
 }

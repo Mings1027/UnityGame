@@ -7,7 +7,6 @@ namespace WeaponControl
     public abstract class Bullet : MonoBehaviour
     {
         private int damage;
-        private AudioSource audioSource;
         
         protected Transform target;
         protected Rigidbody rigid;
@@ -32,11 +31,9 @@ namespace WeaponControl
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.CompareTag("Enemy"))
-            {
-                BulletHit(other);
-                gameObject.SetActive(false);
-            }
+            if (!other.CompareTag("Enemy")) return;
+            BulletHit(other);
+            gameObject.SetActive(false);
         }
 
         protected abstract void StraightPath();

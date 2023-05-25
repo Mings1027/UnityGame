@@ -12,7 +12,6 @@ namespace TowerControl
     public abstract class UnitTower : Tower
     {
         private int deadUnitCount;
-        private bool isFullSize;
 
         protected FriendlyUnit[] units;
         protected Vector3 unitsPosition;
@@ -20,6 +19,10 @@ namespace TowerControl
         public int UnitHealth { get; set; }
 
         [SerializeField] private int unitsRange;
+
+        /*=========================================================================================================================================
+        *                                               Unity Event
+        =========================================================================================================================================*/
 
         protected override void Awake()
         {
@@ -30,7 +33,6 @@ namespace TowerControl
         protected override void OnEnable()
         {
             base.OnEnable();
-            isFullSize = false;
             InvokeRepeating(nameof(Targeting), 1, 1);
         }
 
@@ -46,11 +48,18 @@ namespace TowerControl
             Gizmos.DrawWireSphere(unitsPosition, unitsRange);
         }
 
+        /*=========================================================================================================================================
+        *                                               Unity Event
+        =========================================================================================================================================*/
+
+        protected abstract void UnitUpgrade(int minDamage, int maxDamage, float delay, int health);
+        protected abstract void UnitSpawn(int i);
+
         private void Targeting()
         {
             var size = Physics.OverlapSphereNonAlloc(unitsPosition, unitsRange, targetColliders, TargetLayer);
-            isFullSize = size > 3;
-            if (isFullSize) return;
+
+            if (size > 3) return;
             for (var i = 0; i < size; i++)
             {
                 units[i].Target = targetColliders[i].transform;
@@ -71,9 +80,6 @@ namespace TowerControl
             }
         }
 
-        protected abstract void UnitUpgrade(int minDamage, int maxDamage, float delay);
-        protected abstract void UnitSpawn(int i, int health);
-
         protected void ReSpawn(Unit u)
         {
             if (isSold) return;
@@ -92,15 +98,15 @@ namespace TowerControl
             await UniTask.Delay(5000);
             for (var i = 0; i < u.Count; i++)
             {
-                UnitSpawn(i, UnitHealth);
+                UnitSpawn(i);
             }
         }
 
         public override void TowerSetting(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range,
-            float delay)
+            float delay, int health = 0)
         {
-            base.TowerSetting(towerMeshFilter, minDamage, maxDamage, range, delay);
-            UnitUpgrade(minDamage, maxDamage, delay);
+            base.TowerSetting(towerMeshFilter, minDamage, maxDamage, range, delay, health);
+            UnitUpgrade(minDamage, maxDamage, delay, health);
         }
     }
 }

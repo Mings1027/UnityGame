@@ -1,4 +1,5 @@
 using System;
+using DataControl;
 using GameControl;
 using UnityEngine;
 
@@ -16,8 +17,8 @@ namespace WeaponControl
         protected override void ProjectileHit(Collider col)
         {
             var pos = transform.position;
-            StackObjectPool.Get("ArrowHitVFX", pos);
-            StackObjectPool.Get("ArrowHitSFX", pos);
+            StackObjectPool.Get(PoolObjectName.ArrowHitVFX, pos);
+            StackObjectPool.Get(PoolObjectName.ArrowHitSfx, pos);
             Damaging(col);
         }
     }

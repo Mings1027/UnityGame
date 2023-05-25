@@ -95,12 +95,12 @@ namespace ManagerControl
             spawnPointIndex++;
             var e = StackObjectPool.Get<EnemyUnit>(waveData.waveData[_curWave].enemyName,
                 SpawnPointList[spawnPointIndex].position);
-            e.GetComponent<Health>().Init(waveData.waveData[_curWave].health);
+
             e.onWaveEndedEvent += IsEndedWave;
             e.SetDestination(DestinationPointList[0]);
 
             var w = waveData.waveData[_curWave];
-            e.Init(w.minDamage, w.maxDamage, w.atkDelay);
+            e.Init(w.minDamage, w.maxDamage, w.atkDelay, w.health);
             if (spawnPointIndex == SpawnPointList.Length - 1)
             {
                 spawnPointIndex = -1;

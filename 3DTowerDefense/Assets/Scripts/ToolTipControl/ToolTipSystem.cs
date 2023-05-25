@@ -9,13 +9,11 @@ namespace ToolTipControl
         private void Awake()
         {
             toolTip = transform.GetComponentInChildren<ToolTip>();
-            toolTip.gameObject.SetActive(false);
         }
 
         public void Show(Vector3 pos, string content, string header = "")
         {
             toolTip.SetText(pos, content, header);
-            toolTip.gameObject.SetActive(true);
         }
 
         public void Hide()

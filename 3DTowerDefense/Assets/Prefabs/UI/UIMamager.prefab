@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 8493304933164646679}
   - component: {fileID: 4399616385204930221}
   - component: {fileID: 7125255813309837223}
+  - component: {fileID: 2444657355667731438}
   m_Layer: 5
   m_Name: ArcherTowerButton
   m_TagString: Untagged
@@ -121,7 +122,32 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4399616385204930221}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2903720736705858350}
+        m_TargetAssemblyTypeName: UIControl.GamePlayUIController, Assembly-CSharp
+        m_MethodName: TowerButton
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: ArcherTower
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &2444657355667731438
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 661396038016930022}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07cfa617d5eba491f8bcffe9f95cf035, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  towerType: 0
 --- !u!1 &1158954856845405961
 GameObject:
   m_ObjectHideFlags: 0
@@ -364,7 +390,7 @@ RectTransform:
   m_GameObject: {fileID: 2903720736278054532}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2.5, y: 2.5, z: 2.5}
+  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 2903720737776973786}
@@ -373,7 +399,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -120.2}
+  m_AnchoredPosition: {x: 0, y: -70}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2903720736278054528
@@ -1583,6 +1609,7 @@ MonoBehaviour:
   uiManager: {fileID: 2903720736770718059}
   startButton: {fileID: 2903720736278054530}
   _tooltip: {fileID: 4726608535910590863}
+  tooltipTransform: {fileID: 2903720736612321592}
   startPanel: {fileID: 2903720737070373485}
   towerSelectPanel: {fileID: 2903720737936968650}
   towerEditPanel: {fileID: 2903720737158887870}
@@ -1595,7 +1622,7 @@ MonoBehaviour:
   curTowerMesh: {fileID: 2903720736284311122}
   towerRangeIndicator: {fileID: 8863085596118077337}
   moveUnitIndicator: {fileID: 8863085596617466604}
-  towerLevelManagers:
+  towerData:
   - {fileID: 11400000, guid: 3ec0532382c2144d3924e4e6eb3132e2, type: 2}
   - {fileID: 11400000, guid: 15c549c511dc145db8c8e37552d8213a, type: 2}
   - {fileID: 11400000, guid: 90e784d2230af4510b514d2e99204734, type: 2}
@@ -1959,7 +1986,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &2903720737070373482
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1969,7 +1996,7 @@ RectTransform:
   m_GameObject: {fileID: 2903720737070373485}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.1, y: 1.1, z: 1.1}
+  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 2903720736278054533}
@@ -3247,6 +3274,7 @@ GameObject:
   - component: {fileID: 2903720738007953067}
   - component: {fileID: 2903720738007953066}
   - component: {fileID: 2903720738007953069}
+  - component: {fileID: 4062320393098911918}
   m_Layer: 5
   m_Name: MageTowerButton
   m_TagString: Untagged
@@ -3356,7 +3384,32 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2903720738007953066}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2903720736705858350}
+        m_TargetAssemblyTypeName: UIControl.GamePlayUIController, Assembly-CSharp
+        m_MethodName: TowerButton
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: MageTower
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &4062320393098911918
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2903720738007953070}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07cfa617d5eba491f8bcffe9f95cf035, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  towerType: 3
 --- !u!1 &2903720738184683177
 GameObject:
   m_ObjectHideFlags: 0
@@ -4031,6 +4084,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fcf2b0f7fdb2f440da511130f4467a70, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  characterWrapLimit: 55
   headerField: {fileID: 4726608535873763349}
   contentField: {fileID: 4726608536784301245}
 --- !u!1 &4726608536784301187
@@ -4181,6 +4235,7 @@ GameObject:
   - component: {fileID: 1745537190085995044}
   - component: {fileID: 7653803939004738001}
   - component: {fileID: 9094504893884371408}
+  - component: {fileID: 4639565007588420518}
   m_Layer: 5
   m_Name: BarracksTowerButton
   m_TagString: Untagged
@@ -4290,7 +4345,32 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 7653803939004738001}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2903720736705858350}
+        m_TargetAssemblyTypeName: UIControl.GamePlayUIController, Assembly-CSharp
+        m_MethodName: TowerButton
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: BarracksTower
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &4639565007588420518
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6175697617043908941}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07cfa617d5eba491f8bcffe9f95cf035, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  towerType: 1
 --- !u!1 &6776761395338394377
 GameObject:
   m_ObjectHideFlags: 0
@@ -4303,6 +4383,7 @@ GameObject:
   - component: {fileID: 1245161835524559609}
   - component: {fileID: 465750132250420853}
   - component: {fileID: 1697146035727192125}
+  - component: {fileID: 3841900996532189278}
   m_Layer: 5
   m_Name: CanonTowerButton
   m_TagString: Untagged
@@ -4412,7 +4493,32 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 465750132250420853}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 2903720736705858350}
+        m_TargetAssemblyTypeName: UIControl.GamePlayUIController, Assembly-CSharp
+        m_MethodName: TowerButton
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: CanonTower
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &3841900996532189278
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6776761395338394377}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07cfa617d5eba491f8bcffe9f95cf035, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  towerType: 2
 --- !u!1 &7310863900937249567
 GameObject:
   m_ObjectHideFlags: 0

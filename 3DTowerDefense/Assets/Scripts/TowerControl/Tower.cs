@@ -5,15 +5,13 @@ using Random = UnityEngine.Random;
 
 namespace TowerControl
 {
-    public abstract class Tower : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler,
-        IPointerUpHandler
+    public abstract class Tower : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         private Collider _collider;
-        private Outline _outline;
         private MeshFilter _initMesh;
 
         private int _minDamage, _maxDamage;
-        
+
         protected float atkRange;
         protected int Damage => Random.Range(_minDamage, _maxDamage);
         protected LayerMask TargetLayer => targetLayer;
@@ -23,7 +21,7 @@ namespace TowerControl
 
         protected Collider[] targetColliders;
 
-        public event Action<Tower, Transform> onOpenTowerEditPanelEvent;
+        public event Action<Tower> onOpenTowerEditPanelEvent;
 
         public enum Type
         {
@@ -46,7 +44,6 @@ namespace TowerControl
         {
             _collider = GetComponent<Collider>();
             _collider.enabled = false;
-            _outline = GetComponent<Outline>();
             meshFilter = transform.GetChild(0).GetComponent<MeshFilter>();
             _initMesh = meshFilter;
         }
@@ -66,16 +63,6 @@ namespace TowerControl
             onOpenTowerEditPanelEvent = null;
         }
 
-        public void OnPointerEnter(PointerEventData eventData)
-        {
-            _outline.enabled = true;
-        }
-
-        public void OnPointerExit(PointerEventData eventData)
-        {
-            _outline.enabled = false;
-        }
-
         public void OnPointerDown(PointerEventData eventData)
         {
         }
@@ -83,7 +70,7 @@ namespace TowerControl
         public void OnPointerUp(PointerEventData eventData)
         {
             if (isUpgrading) return;
-            onOpenTowerEditPanelEvent?.Invoke(this, transform);
+            onOpenTowerEditPanelEvent?.Invoke(this);
         }
 
         //==================================Custom Method====================================================
@@ -103,12 +90,11 @@ namespace TowerControl
         public virtual void TowerInit(MeshFilter consMeshFilter)
         {
             isUpgrading = true;
-            _outline.enabled = false;
             meshFilter.sharedMesh = consMeshFilter.sharedMesh;
         }
 
         public virtual void TowerSetting(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range,
-            float delay)
+            float delay, int health = 0)
         {
             isUpgrading = false;
             meshFilter.sharedMesh = towerMeshFilter.sharedMesh;

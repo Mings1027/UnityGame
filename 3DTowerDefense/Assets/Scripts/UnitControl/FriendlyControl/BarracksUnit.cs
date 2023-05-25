@@ -1,4 +1,5 @@
 using System;
+using DataControl;
 using GameControl;
 using UnityEngine;
 using WeaponControl;
@@ -26,8 +27,8 @@ namespace UnitControl.FriendlyControl
             if (isMoving) return;
 
             _anim.SetTrigger(IsAttack);
-            StackObjectPool.Get("SwordSlashSFX", transform);
-            StackObjectPool.Get("SlashVFX", _attackEffectPos.position,
+            StackObjectPool.Get(PoolObjectName.SwordSlashSfx, transform);
+            StackObjectPool.Get(PoolObjectName.SlashVFX, _attackEffectPos.position,
                 transform.rotation * Quaternion.Euler(0, 90, 0));
             meleeWeapon.Attack(Target, Damage);
         }

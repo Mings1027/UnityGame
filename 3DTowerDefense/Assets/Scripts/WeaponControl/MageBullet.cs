@@ -1,3 +1,4 @@
+using DataControl;
 using GameControl;
 using UnityEngine;
 
@@ -14,10 +15,9 @@ namespace WeaponControl
 
         protected override void BulletHit(Component other)
         {
-            var pos = transform.position;
-            StackObjectPool.Get("MageHitSFX",pos);
-            StackObjectPool.Get("MageHitVFX", pos);
             base.BulletHit(other);
+            var pos = transform.position;
+            StackObjectPool.Get(PoolObjectName.MageHitVFX, pos);
         }
     }
 }

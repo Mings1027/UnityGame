@@ -1,4 +1,5 @@
 using System;
+using DataControl;
 using DG.Tweening;
 using GameControl;
 using UnityEngine;
@@ -44,9 +45,9 @@ namespace TowerControl
         }
 
         public override void TowerSetting(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range,
-            float delay)
+            float delay, int health = 0)
         {
-            base.TowerSetting(towerMeshFilter, minDamage, maxDamage, range, delay);
+            base.TowerSetting(towerMeshFilter, minDamage, maxDamage, range, delay, health);
             onAttackEvent = null;
             onAttackEvent += TowerUniqueLevel != 1 ? SingleShoot : MultiShoot;
         }
@@ -72,9 +73,9 @@ namespace TowerControl
 
         private void Shoot(Transform t, Vector3 pos)
         {
-            StackObjectPool.Get("CanonShootSFX", transform);
-            StackObjectPool.Get("CanonSmoke", pos);
-            var m = StackObjectPool.Get<Projectile>("CanonBullet", pos);
+            StackObjectPool.Get(PoolObjectName.CanonShootSfx, transform);
+            StackObjectPool.Get(PoolObjectName.CanonSmoke, pos);
+            var m = StackObjectPool.Get<Projectile>(PoolObjectName.CanonBullet, pos);
             m.Init(t, Damage);
             if (!m.TryGetComponent(out CanonProjectile u)) return;
             var level = IsUniqueTower ? TowerUniqueLevel + 3 : TowerLevel;
