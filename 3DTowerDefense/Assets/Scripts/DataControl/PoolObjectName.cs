@@ -35,9 +35,13 @@ namespace DataControl
         
         public const string ArrowShootSfx = "ArrowShootSFX";
         public const string BulletShootSfx = "BulletShootSFX";
+        
         public const string SwordSlashSfx = "SwordSlashSFX";
+        
         public const string CanonShootSfx = "CanonShootSFX";
+        
         public const string MageShootSfx = "MageShootSFX";
+        public const string OrangeMageShootSfx = "OrangeMageShootSFX";
         /*------------------------------------------------------------------------------------------------------------------
         *                                               Hit Sound
         ------------------------------------------------------------------------------------------------------------------*/

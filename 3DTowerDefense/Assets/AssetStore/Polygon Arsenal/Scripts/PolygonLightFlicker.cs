@@ -11,16 +11,16 @@ public float phase = 0.0f; // start point inside on wave cycle
 public float frequency = 0.5f; // cycle frequency per second
  
 // Keep a copy of the original color
-private Color originalColor;
+private Color _originalColor;
  
 // Store the original color
 void Start (){
-    originalColor = GetComponent<Light>().color;
+    _originalColor = GetComponent<Light>().color;
 }
  
 void Update (){
     Light light = GetComponent<Light>();
-    light.color = originalColor * (EvalWave());
+    light.color = _originalColor * (EvalWave());
 }
  
 float EvalWave (){

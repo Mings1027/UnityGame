@@ -1,25 +1,22 @@
-using System;
 using TMPro;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace ToolTipControl
 {
     public class ToolTip : MonoBehaviour
     {
-        private Vector3 _target;
-        private RectTransform rectTransform;
-        private LayoutElement layoutElement;
+        private Transform _target;
+        private RectTransform _rectTransform;
 
         [SerializeField] private int characterWrapLimit;
+        [SerializeField] private LayoutElement layoutElement;
         [SerializeField] private TextMeshProUGUI headerField;
         [SerializeField] private TextMeshProUGUI contentField;
 
         private void Awake()
         {
-            rectTransform = GetComponent<RectTransform>();
-            layoutElement = GetComponent<LayoutElement>();
+            _rectTransform = GetComponent<RectTransform>();
             gameObject.SetActive(false);
         }
 
@@ -31,7 +28,7 @@ namespace ToolTipControl
             }
         }
 
-        public void SetText(Vector3 pos, string content, string header = "")
+        public void SetText(Transform pos, string content, string header = "")
         {
             _target = pos;
 
@@ -56,11 +53,13 @@ namespace ToolTipControl
             var contentLength = contentField.text.Length;
 
             layoutElement.enabled = headerLength > characterWrapLimit || contentLength > characterWrapLimit;
-            var x = _target.x / Screen.width;
-            var y = _target.y / Screen.height;
 
-            rectTransform.pivot = new Vector2(x, y);
-            transform.position = _target;
+            var pos = _target.position;
+            var pivotX = pos.x / Screen.width;
+            var pivotY = pos.y / Screen.height;
+
+            _rectTransform.pivot = new Vector2(pivotX, pivotY);
+            transform.position = pos;
         }
     }
 }

@@ -6,7 +6,7 @@ namespace WeaponControl
 {
     public class MageBullet : Bullet
     {
-        protected override void StraightPath()
+        protected override void AttackPath()
         {
             var dir = (target.position - rigid.position).normalized;
             rigid.velocity = dir * (BulletSpeed * Time.fixedDeltaTime);

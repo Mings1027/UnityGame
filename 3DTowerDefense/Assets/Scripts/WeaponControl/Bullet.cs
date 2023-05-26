@@ -1,4 +1,3 @@
-using DG.Tweening;
 using GameControl;
 using UnityEngine;
 
@@ -6,8 +5,8 @@ namespace WeaponControl
 {
     public abstract class Bullet : MonoBehaviour
     {
-        private int damage;
-        
+        private int _damage;
+
         protected Transform target;
         protected Rigidbody rigid;
         protected float BulletSpeed => bulletSpeed;
@@ -21,12 +20,11 @@ namespace WeaponControl
 
         protected virtual void OnEnable()
         {
-            
         }
 
         private void FixedUpdate()
         {
-            StraightPath();
+            AttackPath();
         }
 
         private void OnTriggerEnter(Collider other)
@@ -36,20 +34,20 @@ namespace WeaponControl
             gameObject.SetActive(false);
         }
 
-        protected abstract void StraightPath();
-        
+        protected abstract void AttackPath();
+
         protected virtual void BulletHit(Component other)
         {
             if (other.TryGetComponent(out Health h))
             {
-                h.TakeDamage(damage, other.gameObject);
+                h.TakeDamage(_damage, other.gameObject);
             }
         }
 
         public void Init(Transform t, int d)
         {
             target = t;
-            damage = d;
+            _damage = d;
         }
     }
 }

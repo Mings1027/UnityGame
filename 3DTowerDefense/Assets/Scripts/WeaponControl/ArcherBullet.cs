@@ -6,20 +6,20 @@ namespace WeaponControl
 {
     public class ArcherBullet : Bullet
     {
-        private float lerp;
-        private Vector3 startPos;
+        private float _lerp;
+        private Vector3 _startPos;
 
         protected override void OnEnable()
         {
             base.OnEnable();
-            lerp = 0;
-            startPos = transform.position;
+            _lerp = 0;
+            _startPos = transform.position;
         }
 
-        protected override void StraightPath()
+        protected override void AttackPath()
         {
-            lerp += BulletSpeed * Time.fixedDeltaTime;
-            rigid.position = Vector3.Lerp(startPos, target.position + new Vector3(0, 1, 0), lerp);
+            _lerp += BulletSpeed * Time.fixedDeltaTime;
+            rigid.position = Vector3.Lerp(_startPos, target.position + new Vector3(0, 1, 0), _lerp);
         }
 
         protected override void BulletHit(Component other)

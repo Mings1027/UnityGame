@@ -9,8 +9,8 @@ namespace TowerControl
 {
     public class MageTargetingTower : TargetingTower
     {
-        private Sequence atkSequence;
-        private Material material;
+        private Sequence _atkSequence;
+        private Material _material;
         private MeshFilter _crystalMeshFilter;
 
         private event Action onAttackEvent;
@@ -23,12 +23,12 @@ namespace TowerControl
         protected override void Awake()
         {
             base.Awake();
-            material = crystal.GetComponent<Renderer>().material;
+            _material = crystal.GetComponent<Renderer>().material;
             _crystalMeshFilter = crystal.GetComponent<MeshFilter>();
 
-            atkSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(material.DOColor(material.GetColor(EmissionColor) * 2, 0.5f))
-                .Append(material.DOColor(material.GetColor(EmissionColor), 0.5f));
+            _atkSequence = DOTween.Sequence().SetAutoKill(false).Pause()
+                .Append(_material.DOColor(_material.GetColor(EmissionColor) * 2, 0.5f))
+                .Append(_material.DOColor(_material.GetColor(EmissionColor), 0.5f));
         }
 
         public override void TowerInit(MeshFilter consMeshFilter)
@@ -70,7 +70,7 @@ namespace TowerControl
 
         protected override void Attack()
         {
-            atkSequence.Restart();
+            _atkSequence.Restart();
             onAttackEvent?.Invoke();
         }
 
@@ -83,9 +83,14 @@ namespace TowerControl
 
         private void OrangeAttack()
         {
-            //오렌지색 공격 소리 넣어야함
+            StackObjectPool.Get(PoolObjectName.OrangeMageShootSfx, transform.position);
             StackObjectPool.Get<Bullet>(PoolObjectName.OrangeMageBullet, crystalPositions[TowerUniqueLevel + 3])
                 .Init(target, Damage);
+        }
+
+        private void PurpleAttack()
+        {
+            
         }
     }
 }

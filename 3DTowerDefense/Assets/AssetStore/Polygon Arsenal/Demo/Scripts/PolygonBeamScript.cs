@@ -12,12 +12,12 @@ public class PolygonBeamScript : MonoBehaviour {
     public GameObject[] beamStartPrefab;
     public GameObject[] beamEndPrefab;
 
-    private int currentBeam = 0;
+    private int _currentBeam = 0;
 
-    private GameObject beamStart;
-    private GameObject beamEnd;
-    private GameObject beam;
-    private LineRenderer line;
+    private GameObject _beamStart;
+    private GameObject _beamEnd;
+    private GameObject _beam;
+    private LineRenderer _line;
 
     [Header("Adjustable Variables")]
     public float beamEndOffset = 1f; //How far from the raycast hit point the end effect is positioned
@@ -35,7 +35,7 @@ public class PolygonBeamScript : MonoBehaviour {
     void Start()
     {
         if (textBeamName)
-            textBeamName.text = beamLineRendererPrefab[currentBeam].name;
+            textBeamName.text = beamLineRendererPrefab[_currentBeam].name;
         if (endOffSetSlider)
             endOffSetSlider.value = beamEndOffset;
         if (scrollSpeedSlider)
@@ -50,16 +50,16 @@ public class PolygonBeamScript : MonoBehaviour {
 
         if (Input.GetMouseButtonDown(0))
         {
-            beamStart = Instantiate(beamStartPrefab[currentBeam], new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
-            beamEnd = Instantiate(beamEndPrefab[currentBeam], new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
-            beam = Instantiate(beamLineRendererPrefab[currentBeam], new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
-            line = beam.GetComponent<LineRenderer>();
+            _beamStart = Instantiate(beamStartPrefab[_currentBeam], new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
+            _beamEnd = Instantiate(beamEndPrefab[_currentBeam], new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
+            _beam = Instantiate(beamLineRendererPrefab[_currentBeam], new Vector3(0, 0, 0), Quaternion.identity) as GameObject;
+            _line = _beam.GetComponent<LineRenderer>();
         }
         if (Input.GetMouseButtonUp(0))
         {
-            Destroy(beamStart);
-            Destroy(beamEnd);
-            Destroy(beam);
+            Destroy(_beamStart);
+            Destroy(_beamEnd);
+            Destroy(_beam);
         }
 
         if (Input.GetMouseButton(0))
@@ -75,45 +75,45 @@ public class PolygonBeamScript : MonoBehaviour {
 		
 		if (Input.GetKeyDown(KeyCode.RightArrow)) //4 next if commands are just hotkeys for cycling beams
         {
-            nextBeam();
+            NextBeam();
         }
 
 		if (Input.GetKeyDown(KeyCode.D))
 		{
-			nextBeam();
+			NextBeam();
 		}
 
 		if (Input.GetKeyDown(KeyCode.A))
 		{
-			previousBeam();
+			PreviousBeam();
 		}
         else if (Input.GetKeyDown(KeyCode.LeftArrow))
         {
-            previousBeam();
+            PreviousBeam();
         }
 		
     }
 
-    public void nextBeam() // Next beam
+    public void NextBeam() // Next beam
     {
-        if (currentBeam < beamLineRendererPrefab.Length - 1)
-            currentBeam++;
+        if (_currentBeam < beamLineRendererPrefab.Length - 1)
+            _currentBeam++;
         else
-            currentBeam = 0;
+            _currentBeam = 0;
 
         if (textBeamName)
-            textBeamName.text = beamLineRendererPrefab[currentBeam].name;
+            textBeamName.text = beamLineRendererPrefab[_currentBeam].name;
     }
 	
-	    public void previousBeam() // Previous beam
+	    public void PreviousBeam() // Previous beam
     {
-        if (currentBeam > - 0)
-            currentBeam--;
+        if (_currentBeam > - 0)
+            _currentBeam--;
         else
-            currentBeam = beamLineRendererPrefab.Length - 1;
+            _currentBeam = beamLineRendererPrefab.Length - 1;
 
         if (textBeamName)
-            textBeamName.text = beamLineRendererPrefab[currentBeam].name;
+            textBeamName.text = beamLineRendererPrefab[_currentBeam].name;
     }
 	
 
@@ -129,9 +129,9 @@ public class PolygonBeamScript : MonoBehaviour {
 
     void ShootBeamInDir(Vector3 start, Vector3 dir)
     {
-        line.positionCount = 2;
-        line.SetPosition(0, start);
-        beamStart.transform.position = start;
+        _line.positionCount = 2;
+        _line.SetPosition(0, start);
+        _beamStart.transform.position = start;
 
         Vector3 end = Vector3.zero;
         RaycastHit hit;
@@ -140,15 +140,15 @@ public class PolygonBeamScript : MonoBehaviour {
         else
             end = transform.position + (dir * 100);
 
-        beamEnd.transform.position = end;
-        line.SetPosition(1, end);
+        _beamEnd.transform.position = end;
+        _line.SetPosition(1, end);
 
-        beamStart.transform.LookAt(beamEnd.transform.position);
-        beamEnd.transform.LookAt(beamStart.transform.position);
+        _beamStart.transform.LookAt(_beamEnd.transform.position);
+        _beamEnd.transform.LookAt(_beamStart.transform.position);
 
         float distance = Vector3.Distance(start, end);
-        line.sharedMaterial.mainTextureScale = new Vector2(distance / textureLengthScale, 1);
-        line.sharedMaterial.mainTextureOffset -= new Vector2(Time.deltaTime * textureScrollSpeed, 0);
+        _line.sharedMaterial.mainTextureScale = new Vector2(distance / textureLengthScale, 1);
+        _line.sharedMaterial.mainTextureOffset -= new Vector2(Time.deltaTime * textureScrollSpeed, 0);
     }
 }
 }

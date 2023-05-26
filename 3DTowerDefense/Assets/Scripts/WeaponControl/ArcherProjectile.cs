@@ -7,7 +7,7 @@ namespace WeaponControl
 {
     public class ArcherProjectile : Projectile
     {
-        private Action arrowPathEvent;
+        private Action _arrowPathEvent;
         
         protected override void FixedUpdate()
         {

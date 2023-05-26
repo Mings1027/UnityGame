@@ -51,6 +51,7 @@ namespace TowerControl
         protected virtual void OnEnable()
         {
             isSold = false;
+            InvokeRepeating(nameof(Targeting), 1, 1);
         }
 
         protected virtual void OnDisable()
@@ -76,6 +77,8 @@ namespace TowerControl
         //==================================Custom Method====================================================
         //======================================================================================================
 
+        protected abstract void Targeting();
+        
         public void TowerLevelUp()
         {
             TowerLevel++;

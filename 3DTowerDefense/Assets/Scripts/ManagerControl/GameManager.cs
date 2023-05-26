@@ -5,9 +5,13 @@ namespace ManagerControl
 {
     public class GameManager : Singleton<GameManager>
     {
-        public GameObject Map { get; private set; }
+        private GameObject Map { get; set; }
+     
+        public bool IsClickBuildPoint { get; set; }
         public GameObject UIPrefab { get; private set; }
+        public CameraManager Cam => cameraManager;
 
+        [SerializeField] private CameraManager cameraManager;
         [SerializeField] private GameObject gamePlayPrefab;
         [SerializeField] private GameObject mapPrefab;
 

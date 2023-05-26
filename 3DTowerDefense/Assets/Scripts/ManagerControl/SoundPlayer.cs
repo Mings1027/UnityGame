@@ -5,16 +5,16 @@ namespace ManagerControl
 {
     public class SoundPlayer : MonoBehaviour
     {
-        private AudioSource audioSource;
+        private AudioSource _audioSource;
         
         private void Awake()
         {
-            audioSource = GetComponent<AudioSource>();
+            _audioSource = GetComponent<AudioSource>();
         }
         
         private void OnEnable()
         {
-            audioSource.PlayOneShot(audioSource.clip);
+            _audioSource.PlayOneShot(_audioSource.clip);
         }
         
     }

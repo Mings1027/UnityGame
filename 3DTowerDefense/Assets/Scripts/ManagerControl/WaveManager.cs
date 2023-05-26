@@ -15,7 +15,7 @@ namespace ManagerControl
         private bool _startGame;
         private int _curWave;
         private int _enemiesIndex;
-        private CancellationTokenSource cts;
+        private CancellationTokenSource _cts;
 
         [Serializable]
         public class Wave
@@ -37,7 +37,7 @@ namespace ManagerControl
 
         [SerializeField] private WaveData waveData;
 
-        private int spawnPointIndex;
+        private int _spawnPointIndex;
 
         public Transform[] SpawnPointList { get; set; }
         public Transform[] DestinationPointList { get; set; }
@@ -53,18 +53,18 @@ namespace ManagerControl
         private void Start()
         {
             _curWave = -1;
-            spawnPointIndex = -1;
+            _spawnPointIndex = -1;
         }
 
         private void OnEnable()
         {
-            cts?.Dispose();
-            cts = new CancellationTokenSource();
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
         }
 
         private void OnDisable()
         {
-            cts?.Cancel();
+            _cts?.Cancel();
         }
 
         private void StartWave()
@@ -83,7 +83,7 @@ namespace ManagerControl
             var enemyCount = waveData.waveData[_curWave].enemyCount;
             while (enemyCount > 0)
             {
-                await UniTask.Delay(1000, cancellationToken: cts.Token);
+                await UniTask.Delay(1000, cancellationToken: _cts.Token);
                 enemyCount--;
                 _enemiesIndex++;
                 SpawnEnemy();
@@ -92,18 +92,18 @@ namespace ManagerControl
 
         private void SpawnEnemy()
         {
-            spawnPointIndex++;
+            _spawnPointIndex++;
             var e = StackObjectPool.Get<EnemyUnit>(waveData.waveData[_curWave].enemyName,
-                SpawnPointList[spawnPointIndex].position);
+                SpawnPointList[_spawnPointIndex].position);
 
             e.onWaveEndedEvent += IsEndedWave;
             e.SetDestination(DestinationPointList[0]);
 
             var w = waveData.waveData[_curWave];
             e.Init(w.minDamage, w.maxDamage, w.atkDelay, w.health);
-            if (spawnPointIndex == SpawnPointList.Length - 1)
+            if (_spawnPointIndex == SpawnPointList.Length - 1)
             {
-                spawnPointIndex = -1;
+                _spawnPointIndex = -1;
             }
         }
 

@@ -1,7 +1,6 @@
-using UnitControl;
 using UnityEngine;
 
-namespace AttackControl
+namespace GameControl
 {
     public class SearchTarget : MonoBehaviour
     {

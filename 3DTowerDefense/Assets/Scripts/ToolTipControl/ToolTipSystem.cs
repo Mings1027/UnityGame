@@ -4,21 +4,21 @@ namespace ToolTipControl
 {
     public class ToolTipSystem : MonoBehaviour
     {
-        private ToolTip toolTip;
+        private ToolTip _toolTip;
 
         private void Awake()
         {
-            toolTip = transform.GetComponentInChildren<ToolTip>();
+            _toolTip = transform.GetComponentInChildren<ToolTip>();
         }
 
-        public void Show(Vector3 pos, string content, string header = "")
+        public void Show(Transform pos, string content, string header = "")
         {
-            toolTip.SetText(pos, content, header);
+            _toolTip.SetText(pos, content, header);
         }
 
         public void Hide()
         {
-            toolTip.gameObject.SetActive(false);
+            _toolTip.gameObject.SetActive(false);
         }
     }
 }

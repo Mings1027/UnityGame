@@ -1,5 +1,5 @@
-using AttackControl;
 using DG.Tweening;
+using GameControl;
 using UnityEngine;
 
 namespace TowerControl
@@ -7,8 +7,7 @@ namespace TowerControl
     public abstract class TargetingTower : Tower
     {
         private Tween _delayTween;
-
-        private bool attackAble;
+        private bool _attackAble;
 
         protected Transform target;
         protected bool isTargeting;
@@ -24,13 +23,12 @@ namespace TowerControl
         protected override void OnEnable()
         {
             base.OnEnable();
-            attackAble = true;
-            InvokeRepeating(nameof(FindingTarget), 1, 0.5f);
+            _attackAble = true;
         }
 
         private void Update()
         {
-            if (isUpgrading || !attackAble || !isTargeting) return;
+            if (isUpgrading || !_attackAble || !isTargeting) return;
             Attack();
             StartCoolDown();
         }
@@ -42,7 +40,7 @@ namespace TowerControl
             _delayTween?.Kill();
         }
 
-        private void FindingTarget()
+        protected override void Targeting()
         {
             target = SearchTarget.ClosestTarget(transform.position, atkRange, targetColliders, TargetLayer);
             isTargeting = target != null;
@@ -50,7 +48,7 @@ namespace TowerControl
 
         private void StartCoolDown()
         {
-            attackAble = false;
+            _attackAble = false;
             _delayTween.Restart();
         }
 
@@ -65,7 +63,7 @@ namespace TowerControl
         {
             base.TowerSetting(towerMeshFilter, minDamage, maxDamage, range, delay, health);
             _delayTween?.Kill();
-            _delayTween = DOVirtual.DelayedCall(delay, () => attackAble = true, false).SetAutoKill(false);
+            _delayTween = DOVirtual.DelayedCall(delay, () => _attackAble = true, false).SetAutoKill(false);
         }
     }
 }

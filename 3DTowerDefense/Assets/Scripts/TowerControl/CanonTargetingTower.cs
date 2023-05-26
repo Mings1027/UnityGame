@@ -9,11 +9,11 @@ namespace TowerControl
 {
     public class CanonTargetingTower : TargetingTower
     {
-        private Sequence atkSequence;
+        private Sequence _atkSequence;
         private Transform[] _singleShootPoints;
         private Transform[] _multiShootPoints;
 
-        private Action<Transform> onAttackEvent;
+        private Action<Transform> _onAttackEvent;
 
         [SerializeField] private MeshFilter[] canonMeshFilters;
 
@@ -34,28 +34,28 @@ namespace TowerControl
                 _multiShootPoints[i] = multiPoint.GetChild(i);
             }
 
-            atkSequence = DOTween.Sequence().SetAutoKill(false).Pause()
+            _atkSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(meshFilter.transform.DOScaleY(0.5f, 0.3f).SetEase(Ease.OutQuint))
                 .Append(meshFilter.transform.DOScaleY(1f, 0.3f).SetEase(Ease.OutQuint));
         }
 
         private void OnDestroy()
         {
-            atkSequence.Kill();
+            _atkSequence.Kill();
         }
 
         public override void TowerSetting(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range,
             float delay, int health = 0)
         {
             base.TowerSetting(towerMeshFilter, minDamage, maxDamage, range, delay, health);
-            onAttackEvent = null;
-            onAttackEvent += TowerUniqueLevel != 1 ? SingleShoot : MultiShoot;
+            _onAttackEvent = null;
+            _onAttackEvent += TowerUniqueLevel != 1 ? SingleShoot : MultiShoot;
         }
 
         protected override void Attack()
         {
-            atkSequence.Restart();
-            onAttackEvent?.Invoke(target);
+            _atkSequence.Restart();
+            _onAttackEvent?.Invoke(target);
         }
 
         private void SingleShoot(Transform endPos)

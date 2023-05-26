@@ -11,12 +11,10 @@ namespace TowerControl
 {
     public abstract class UnitTower : Tower
     {
-        private int deadUnitCount;
+        private int _deadUnitCount;
 
         protected FriendlyUnit[] units;
         protected Vector3 unitsPosition;
-
-        public int UnitHealth { get; set; }
 
         [SerializeField] private int unitsRange;
 
@@ -28,12 +26,6 @@ namespace TowerControl
         {
             base.Awake();
             targetColliders = new Collider[4];
-        }
-
-        protected override void OnEnable()
-        {
-            base.OnEnable();
-            InvokeRepeating(nameof(Targeting), 1, 1);
         }
 
         protected override void OnDisable()
@@ -55,7 +47,7 @@ namespace TowerControl
         protected abstract void UnitUpgrade(int minDamage, int maxDamage, float delay, int health);
         protected abstract void UnitSpawn(int i);
 
-        private void Targeting()
+        protected override void Targeting()
         {
             var size = Physics.OverlapSphereNonAlloc(unitsPosition, unitsRange, targetColliders, TargetLayer);
 
@@ -85,16 +77,16 @@ namespace TowerControl
             if (isSold) return;
             if (u.GetComponent<Health>().IsDead)
             {
-                deadUnitCount++;
+                _deadUnitCount++;
             }
 
-            if (deadUnitCount < 3) return;
+            if (_deadUnitCount < 3) return;
             ReSpawnTask(units).Forget();
         }
 
         private async UniTaskVoid ReSpawnTask(IReadOnlyCollection<FriendlyUnit> u)
         {
-            deadUnitCount = 0;
+            _deadUnitCount = 0;
             await UniTask.Delay(5000);
             for (var i = 0; i < u.Count; i++)
             {

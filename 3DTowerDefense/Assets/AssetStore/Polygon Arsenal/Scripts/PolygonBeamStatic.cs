@@ -13,10 +13,10 @@ public class PolygonBeamStatic : MonoBehaviour
     public GameObject beamStartPrefab; //This is a prefab that is put at the start of the beam.
     public GameObject beamEndPrefab; //Prefab put at end of beam.
 
-    private GameObject beamStart;
-    private GameObject beamEnd;
-    private GameObject beam;
-    private LineRenderer line;
+    private GameObject _beamStart;
+    private GameObject _beamEnd;
+    private GameObject _beam;
+    private LineRenderer _line;
 
     [Header("Beam Options")]
     public bool alwaysOn = true; //Enable this to spawn the beam when script is loaded.
@@ -45,9 +45,9 @@ public class PolygonBeamStatic : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (beam) //Updates the beam
+        if (_beam) //Updates the beam
         {
-            line.SetPosition(0, transform.position);
+            _line.SetPosition(0, transform.position);
 
             Vector3 end;
             RaycastHit hit;
@@ -56,22 +56,22 @@ public class PolygonBeamStatic : MonoBehaviour
             else
                 end = transform.position + (transform.forward * beamLength);
 
-            line.SetPosition(1, end);
+            _line.SetPosition(1, end);
 
-            if (beamStart)
+            if (_beamStart)
             {
-                beamStart.transform.position = transform.position;
-                beamStart.transform.LookAt(end);
+                _beamStart.transform.position = transform.position;
+                _beamStart.transform.LookAt(end);
             }
-            if (beamEnd)
+            if (_beamEnd)
             {
-                beamEnd.transform.position = end;
-                beamEnd.transform.LookAt(beamStart.transform.position);
+                _beamEnd.transform.position = end;
+                _beamEnd.transform.LookAt(_beamStart.transform.position);
             }
 
             float distance = Vector3.Distance(transform.position, end);
-            line.material.mainTextureScale = new Vector2(distance / textureLengthScale, 1); //This sets the scale of the texture so it doesn't look stretched
-            line.material.mainTextureOffset -= new Vector2(Time.deltaTime * textureScrollSpeed, 0); //This scrolls the texture along the beam if not set to 0
+            _line.material.mainTextureScale = new Vector2(distance / textureLengthScale, 1); //This sets the scale of the texture so it doesn't look stretched
+            _line.material.mainTextureOffset -= new Vector2(Time.deltaTime * textureScrollSpeed, 0); //This scrolls the texture along the beam if not set to 0
         }
     }
 
@@ -80,16 +80,16 @@ public class PolygonBeamStatic : MonoBehaviour
         if (beamLineRendererPrefab)
         {
             if (beamStartPrefab)
-                beamStart = Instantiate(beamStartPrefab);
+                _beamStart = Instantiate(beamStartPrefab);
             if (beamEndPrefab)
-                beamEnd = Instantiate(beamEndPrefab);
-            beam = Instantiate(beamLineRendererPrefab);
-            beam.transform.position = transform.position;
-            beam.transform.parent = transform;
-            beam.transform.rotation = transform.rotation;
-            line = beam.GetComponent<LineRenderer>();
-            line.useWorldSpace = true;
-            line.positionCount = 2;
+                _beamEnd = Instantiate(beamEndPrefab);
+            _beam = Instantiate(beamLineRendererPrefab);
+            _beam.transform.position = transform.position;
+            _beam.transform.parent = transform;
+            _beam.transform.rotation = transform.rotation;
+            _line = _beam.GetComponent<LineRenderer>();
+            _line.useWorldSpace = true;
+            _line.positionCount = 2;
         }
         else
             print("Add a hecking prefab with a line renderer to the SciFiBeamStatic script on " + gameObject.name + "! Heck!");
@@ -97,12 +97,12 @@ public class PolygonBeamStatic : MonoBehaviour
 
     public void RemoveBeam() //This function removes the prefab with linerenderer
     {
-        if (beam)
-            Destroy(beam);
-        if (beamStart)
-            Destroy(beamStart);
-        if (beamEnd)
-            Destroy(beamEnd);
+        if (_beam)
+            Destroy(_beam);
+        if (_beamStart)
+            Destroy(_beamStart);
+        if (_beamEnd)
+            Destroy(_beamEnd);
     }
 }
 }

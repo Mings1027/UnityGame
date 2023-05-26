@@ -5,19 +5,19 @@ using UnityEngine;
 
 public class Test : MonoBehaviour
 {
-    private Rigidbody rigid;
+    private Rigidbody _rigid;
 
     [SerializeField] private Transform target;
     [SerializeField] private float moveSpeed;
 
     private void Awake()
     {
-        rigid = GetComponent<Rigidbody>();
+        _rigid = GetComponent<Rigidbody>();
     }
 
     private void FixedUpdate()
     {
-        var pos = Vector3.MoveTowards(rigid.position, target.position, moveSpeed * Time.fixedDeltaTime);
-        rigid.MovePosition(pos);
+        var pos = Vector3.MoveTowards(_rigid.position, target.position, moveSpeed * Time.fixedDeltaTime);
+        _rigid.MovePosition(pos);
     }
 }

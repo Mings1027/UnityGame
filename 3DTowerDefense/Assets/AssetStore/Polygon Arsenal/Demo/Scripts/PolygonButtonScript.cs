@@ -3,17 +3,18 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.Serialization;
 
 namespace PolygonArsenal
 {
     public class PolygonButtonScript : MonoBehaviour
     {
-        public GameObject Button;
-        Text MyButtonText;
-        string projectileParticleName;      // The variable to update the text component of the button
+        [FormerlySerializedAs("Button")] public GameObject button;
+        Text _myButtonText;
+        string _projectileParticleName;      // The variable to update the text component of the button
 
-        PolygonFireProjectile effectScript;        // A variable used to access the list of projectiles
-        PolygonProjectileScript projectileScript;
+        PolygonFireProjectile _effectScript;        // A variable used to access the list of projectiles
+        PolygonProjectileScript _projectileScript;
 
         public float buttonsX;
         public float buttonsY;
@@ -23,26 +24,26 @@ namespace PolygonArsenal
 
         void Start()
         {
-            effectScript = GameObject.Find("PolygonFireProjectile").GetComponent<PolygonFireProjectile>(); // The FireProjectile script needs to be on a gameobject called FireProjectile, or else it won't be found
-            getProjectileNames();
-            MyButtonText = Button.transform.Find("Text").GetComponent<Text>();
-            MyButtonText.text = projectileParticleName;
+            _effectScript = GameObject.Find("PolygonFireProjectile").GetComponent<PolygonFireProjectile>(); // The FireProjectile script needs to be on a gameobject called FireProjectile, or else it won't be found
+            GetProjectileNames();
+            _myButtonText = button.transform.Find("Text").GetComponent<Text>();
+            _myButtonText.text = _projectileParticleName;
         }
 
         void Update()
         {
-            MyButtonText.text = projectileParticleName;
+            _myButtonText.text = _projectileParticleName;
             //		print(projectileParticleName);
         }
 
-        public void getProjectileNames()            // Find and diplay the name of the currently selected projectile
+        public void GetProjectileNames()            // Find and diplay the name of the currently selected projectile
         {
 
-            projectileScript = effectScript.projectiles[effectScript.currentProjectile].GetComponent<PolygonProjectileScript>();// Access the currently selected projectile's 'ProjectileScript'
-            projectileParticleName = projectileScript.projectileParticle.name;  // Assign the name of the currently selected projectile to projectileParticleName
+            _projectileScript = _effectScript.projectiles[_effectScript.currentProjectile].GetComponent<PolygonProjectileScript>();// Access the currently selected projectile's 'ProjectileScript'
+            _projectileParticleName = _projectileScript.projectileParticle.name;  // Assign the name of the currently selected projectile to projectileParticleName
         }
 
-        public bool overButton()        // This function will return either true or false
+        public bool OverButton()        // This function will return either true or false
         {
             Rect button1 = new Rect(buttonsX, buttonsY, buttonsSizeX, buttonsSizeY);
             Rect button2 = new Rect(buttonsX + buttonsDistance, buttonsY, buttonsSizeX, buttonsSizeY);

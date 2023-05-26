@@ -1,6 +1,5 @@
 using System;
 using System.Threading;
-using AttackControl;
 using Cysharp.Threading.Tasks;
 using GameControl;
 using UnityEngine;
@@ -11,7 +10,7 @@ namespace UnitControl
 {
     public abstract class Unit : MonoBehaviour
     {
-        private float atkDelay;
+        private float _atkDelay;
         private int _minDamage, _maxDamage;
         private CancellationTokenSource _cts;
 
@@ -66,7 +65,7 @@ namespace UnitControl
         protected async UniTaskVoid StartCoolDown()
         {
             attackAble = false;
-            await UniTask.Delay(TimeSpan.FromSeconds(atkDelay), cancellationToken: _cts.Token);
+            await UniTask.Delay(TimeSpan.FromSeconds(_atkDelay), cancellationToken: _cts.Token);
             attackAble = true;
         }
 
@@ -74,7 +73,7 @@ namespace UnitControl
         {
             _minDamage = minD;
             _maxDamage = maxD;
-            atkDelay = delay;
+            _atkDelay = delay;
             GetComponent<Health>().Init(health);
         }
 

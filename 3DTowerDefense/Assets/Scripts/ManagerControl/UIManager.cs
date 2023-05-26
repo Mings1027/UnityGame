@@ -6,19 +6,19 @@ namespace ManagerControl
 {
     public sealed class UIManager : MonoBehaviour
     {
-        private int towerCoin;
+        private int _towerCoin;
 
         public int TowerCoin
         {
             get
             {
-                coinText.text = towerCoin.ToString();
-                return towerCoin;
+                coinText.text = _towerCoin.ToString();
+                return _towerCoin;
             }
             set
             {
-                towerCoin = value;
-                coinText.text = towerCoin.ToString();
+                _towerCoin = value;
+                coinText.text = _towerCoin.ToString();
             }
         }
 

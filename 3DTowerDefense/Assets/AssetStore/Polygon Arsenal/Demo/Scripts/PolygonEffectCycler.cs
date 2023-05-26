@@ -13,32 +13,32 @@ namespace PolygonArsenal
         [SerializeField]
         float loopTimeLength = 5f;
 
-        float timeOfLastInstantiate;
+        float _timeOfLastInstantiate;
 
-        GameObject instantiatedEffect;
+        GameObject _instantiatedEffect;
 
-        int effectIndex = 0;
+        int _effectIndex = 0;
 
         // Use this for initialization
         void Start()
         {
-            instantiatedEffect = Instantiate(listOfEffects[effectIndex], transform.position, transform.rotation) as GameObject;
-            effectIndex++;
-            timeOfLastInstantiate = Time.time;
+            _instantiatedEffect = Instantiate(listOfEffects[_effectIndex], transform.position, transform.rotation) as GameObject;
+            _effectIndex++;
+            _timeOfLastInstantiate = Time.time;
         }
 
         // Update is called once per frame
         void Update()
         {
-            if (Time.time >= timeOfLastInstantiate + loopTimeLength)
+            if (Time.time >= _timeOfLastInstantiate + loopTimeLength)
             {
-                Destroy(instantiatedEffect);
-                instantiatedEffect = Instantiate(listOfEffects[effectIndex], transform.position, transform.rotation) as GameObject;
-                timeOfLastInstantiate = Time.time;
-                if (effectIndex < listOfEffects.Count - 1)
-                    effectIndex++;
+                Destroy(_instantiatedEffect);
+                _instantiatedEffect = Instantiate(listOfEffects[_effectIndex], transform.position, transform.rotation) as GameObject;
+                _timeOfLastInstantiate = Time.time;
+                if (_effectIndex < listOfEffects.Count - 1)
+                    _effectIndex++;
                 else
-                    effectIndex = 0;
+                    _effectIndex = 0;
             }
         }
     }
