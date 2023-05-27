@@ -1,7 +1,6 @@
 using System;
 using BuildControl;
 using DataControl;
-using DG.Tweening;
 using GameControl;
 using ManagerControl;
 using UIControl;
@@ -10,9 +9,11 @@ using UnityEngine.EventSystems;
 
 namespace MapControl
 {
-    public class MapController : MonoBehaviour
+    public class MapController : MonoBehaviour, IPointerDownHandler,IPointerUpHandler
     {
         [SerializeField] private Transform towerBuildPoint;
+
+        public event Action onCloseUIEvent;
 
         private void Start()
         {
@@ -29,9 +30,18 @@ namespace MapControl
             {
                 var child = towerBuildPoint.GetChild(i);
                 var b = StackObjectPool.Get<BuildingPoint>(PoolObjectName.BuildingPoint, child);
-                b.onClickBuildPointEvent += () => gameManager.IsClickBuildPoint = true;
-                b.onOpenTowerSelectPanelEvent += gamePlayUIController.OpenTowerSelectPanel;
+                // b.onOpenTowerSelectPanelEvent += gamePlayUIController.OpenTowerSelectPanel;
             }
+        }
+
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            
+        }
+
+        public void OnPointerUp(PointerEventData eventData)
+        {
+            onCloseUIEvent?.Invoke();
         }
     }
 }

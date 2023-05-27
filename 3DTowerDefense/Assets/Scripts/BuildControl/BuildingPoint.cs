@@ -11,7 +11,6 @@ namespace BuildControl
         public event Action onClickBuildPointEvent;
         public event Action<Transform> onOpenTowerSelectPanelEvent;
         
-
         private void OnDisable()
         {
             StackObjectPool.ReturnToPool(gameObject);

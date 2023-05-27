@@ -21,7 +21,7 @@ namespace TowerControl
 
         protected Collider[] targetColliders;
 
-        public event Action<Tower> onOpenTowerEditPanelEvent;
+        // public event Action<Tower> onOpenTowerEditPanelEvent;
 
         public enum Type
         {
@@ -61,7 +61,7 @@ namespace TowerControl
             IsUniqueTower = false;
             isSold = true;
             meshFilter.sharedMesh = _initMesh.sharedMesh;
-            onOpenTowerEditPanelEvent = null;
+            // onOpenTowerEditPanelEvent = null;
         }
 
         public void OnPointerDown(PointerEventData eventData)
@@ -71,7 +71,7 @@ namespace TowerControl
         public void OnPointerUp(PointerEventData eventData)
         {
             if (isUpgrading) return;
-            onOpenTowerEditPanelEvent?.Invoke(this);
+            // onOpenTowerEditPanelEvent?.Invoke(this);
         }
 
         //==================================Custom Method====================================================

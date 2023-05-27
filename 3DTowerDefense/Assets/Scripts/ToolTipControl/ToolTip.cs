@@ -6,17 +6,17 @@ namespace ToolTipControl
 {
     public class ToolTip : MonoBehaviour
     {
-        private Transform _target;
-        private RectTransform _rectTransform;
-
-        [SerializeField] private int characterWrapLimit;
-        [SerializeField] private LayoutElement layoutElement;
+        private RectTransform _target;
+        // private RectTransform _rectTransform;
+        //
+        // [SerializeField] private int characterWrapLimit;
+        // [SerializeField] private LayoutElement layoutElement;
         [SerializeField] private TextMeshProUGUI headerField;
         [SerializeField] private TextMeshProUGUI contentField;
 
         private void Awake()
         {
-            _rectTransform = GetComponent<RectTransform>();
+            // _rectTransform = GetComponent<RectTransform>();
             gameObject.SetActive(false);
         }
 
@@ -30,7 +30,7 @@ namespace ToolTipControl
 
         public void SetText(Transform pos, string content, string header = "")
         {
-            _target = pos;
+            _target = pos.GetComponent<RectTransform>();
 
             if (string.IsNullOrEmpty(header))
             {
@@ -49,17 +49,12 @@ namespace ToolTipControl
 
         private void SetPosition()
         {
-            var headerLength = headerField.text.Length;
-            var contentLength = contentField.text.Length;
+            var screenPos = _target.position;
+            var pos = _target.localPosition;
 
-            layoutElement.enabled = headerLength > characterWrapLimit || contentLength > characterWrapLimit;
+            pos.x = screenPos.x > Screen.width * 0.5f ? pos.x - 200 : pos.x + 200;
 
-            var pos = _target.position;
-            var pivotX = pos.x / Screen.width;
-            var pivotY = pos.y / Screen.height;
-
-            _rectTransform.pivot = new Vector2(pivotX, pivotY);
-            transform.position = pos;
+            transform.localPosition = pos;
         }
     }
 }

@@ -4,12 +4,12 @@ using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using GameControl;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace ManagerControl
 {
     public class CameraManager : MonoBehaviour
     {
-        private GameManager _gameManager;
         private Camera _cam;
         private CancellationTokenSource _cts;
 
@@ -17,8 +17,6 @@ namespace ManagerControl
         private float _lerp;
         private Vector3 _touchStartPos;
         private bool _isMove;
-
-        public event Action onCloseUIEvent;
 
         [SerializeField] private float moveSpeed;
         [SerializeField] private float rotationSpeed;
@@ -28,7 +26,6 @@ namespace ManagerControl
 
         private void Awake()
         {
-            _gameManager = GameManager.Instance;
             _cam = GetComponentInChildren<Camera>();
         }
 
@@ -47,7 +44,7 @@ namespace ManagerControl
                 case 1:
                     var touch = Input.GetTouch(0);
                     CameraMovement(touch);
-                    CloseUI(touch);
+                    
                     break;
                 case 2:
                     CameraZoom();
@@ -58,30 +55,6 @@ namespace ManagerControl
         private void OnDisable()
         {
             _cts?.Cancel();
-        }
-
-        private void CloseUI(Touch touch)
-        {
-            if (touch.phase == TouchPhase.Moved)
-            {
-                _isMove = true;
-            }
-            else if (touch.phase == TouchPhase.Stationary)
-            {
-                _isMove = false;
-            }
-            else if (touch.phase == TouchPhase.Ended)
-            {
-                if (touch.deltaPosition == Vector2.zero)
-                {
-                    _isMove = false;
-                }
-
-                if (!_isMove && !_gameManager.IsClickBuildPoint)
-                {
-                    onCloseUIEvent?.Invoke();
-                }
-            }
         }
 
         private void CameraMovement(Touch touch)
@@ -109,7 +82,12 @@ namespace ManagerControl
         {
             if (touch.phase == TouchPhase.Moved)
             {
+                _isMove = true;
                 Moving(touch);
+            }
+            else if (touch.phase == TouchPhase.Stationary)
+            {
+                _isMove = false;
             }
             else if (touch.phase == TouchPhase.Ended)
             {
@@ -133,6 +111,7 @@ namespace ManagerControl
 
         private async UniTaskVoid MovingAsync(Touch touch)
         {
+            if (!_isMove) return;
             _lerp = 0;
             while (_lerp < 1)
             {
@@ -140,6 +119,8 @@ namespace ManagerControl
                 Moving(touch);
                 await UniTask.Yield(cancellationToken: _cts.Token);
             }
+
+            _isMove = false;
         }
 
         private void CameraRotate(Touch touch)

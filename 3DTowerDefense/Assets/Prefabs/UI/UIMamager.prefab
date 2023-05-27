@@ -13,9 +13,9 @@ GameObject:
   - component: {fileID: 4399616385204930221}
   - component: {fileID: 7125255813309837223}
   - component: {fileID: 2444657355667731438}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: ArcherTowerButton
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -122,19 +122,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 4399616385204930221}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2903720736705858350}
-        m_TargetAssemblyTypeName: UIControl.GamePlayUIController, Assembly-CSharp
-        m_MethodName: TowerSelectButtons
-        m_Mode: 5
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: ArcherTower
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &2444657355667731438
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -161,7 +149,7 @@ GameObject:
   - component: {fileID: 4482525330493192247}
   m_Layer: 5
   m_Name: CoinImage
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -238,7 +226,7 @@ GameObject:
   - component: {fileID: 3585113011594151113}
   m_Layer: 5
   m_Name: CoinText (TMP)
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -372,11 +360,9 @@ GameObject:
   - component: {fileID: 2903720736278054528}
   - component: {fileID: 2903720736278054531}
   - component: {fileID: 2903720736278054530}
-  - component: {fileID: 2903720736278054558}
-  - component: {fileID: 2903720736278054529}
   m_Layer: 5
   m_Name: StartButton
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -484,44 +470,6 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
---- !u!223 &2903720736278054558
-Canvas:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2903720736278054532}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_RenderMode: 2
-  m_Camera: {fileID: 0}
-  m_PlaneDistance: 100
-  m_PixelPerfect: 0
-  m_ReceivesEvents: 1
-  m_OverrideSorting: 0
-  m_OverridePixelPerfect: 0
-  m_SortingBucketNormalizedSize: 0
-  m_AdditionalShaderChannelsFlag: 25
-  m_SortingLayerID: 0
-  m_SortingOrder: 0
-  m_TargetDisplay: 0
---- !u!114 &2903720736278054529
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2903720736278054532}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_IgnoreReversedGraphics: 1
-  m_BlockingObjects: 0
-  m_BlockingMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
 --- !u!1 &2903720736284311127
 GameObject:
   m_ObjectHideFlags: 0
@@ -533,7 +481,7 @@ GameObject:
   - component: {fileID: 2903720736284311124}
   - component: {fileID: 2903720736284311122}
   - component: {fileID: 2903720736284311125}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: CurTowerMesh
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -616,9 +564,9 @@ GameObject:
   - component: {fileID: 2903720736483112724}
   - component: {fileID: 2903720736483112722}
   - component: {fileID: 2903720736483112725}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: Text (TMP)
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -756,7 +704,7 @@ GameObject:
   - component: {fileID: 2903720736504380092}
   m_Layer: 5
   m_Name: Information UI
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -868,9 +816,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2903720736612321592}
-  m_Layer: 5
+  - component: {fileID: 850679313753820385}
+  - component: {fileID: 2833370920943386789}
+  m_Layer: 0
   m_Name: TowerPanels
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -889,16 +839,53 @@ RectTransform:
   m_Children:
   - {fileID: 2903720737936968651}
   - {fileID: 2903720737158887871}
-  - {fileID: 6577385145988228040}
   - {fileID: 2903720737917718139}
   m_Father: {fileID: 2903720736705858322}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!223 &850679313753820385
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2903720736612321595}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 2
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 0
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_AdditionalShaderChannelsFlag: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
+  m_TargetDisplay: 0
+--- !u!114 &2833370920943386789
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2903720736612321595}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!1 &2903720736617159097
 GameObject:
   m_ObjectHideFlags: 0
@@ -910,9 +897,9 @@ GameObject:
   - component: {fileID: 2903720736617159094}
   - component: {fileID: 2903720736617159092}
   - component: {fileID: 2903720736617159095}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: Text (TMP)
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1047,9 +1034,11 @@ GameObject:
   - component: {fileID: 2903720736626353154}
   - component: {fileID: 2903720736626353157}
   - component: {fileID: 2903720736626353156}
-  m_Layer: 5
+  - component: {fileID: 7314875551212025679}
+  - component: {fileID: 4504544604526424170}
+  m_Layer: 0
   m_Name: A UpgradeButton
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1157,6 +1146,44 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!223 &7314875551212025679
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2903720736626353158}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 2
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 0
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_AdditionalShaderChannelsFlag: 25
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
+  m_TargetDisplay: 0
+--- !u!114 &4504544604526424170
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2903720736626353158}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!1 &2903720736660929554
 GameObject:
   m_ObjectHideFlags: 0
@@ -1168,9 +1195,9 @@ GameObject:
   - component: {fileID: 2903720736660929555}
   - component: {fileID: 2903720736660929553}
   - component: {fileID: 2903720736660929552}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: Image
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1244,9 +1271,9 @@ GameObject:
   - component: {fileID: 2903720736684140012}
   - component: {fileID: 2903720736684140010}
   - component: {fileID: 2903720736684140013}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: A Text
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1381,9 +1408,11 @@ GameObject:
   - component: {fileID: 2903720736690055040}
   - component: {fileID: 2903720736690055043}
   - component: {fileID: 2903720736690055042}
-  m_Layer: 5
+  - component: {fileID: 3492706230478175724}
+  - component: {fileID: 3736690035364303256}
+  m_Layer: 0
   m_Name: UpgradeButton
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1491,6 +1520,44 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!223 &3492706230478175724
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2903720736690055044}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 2
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 0
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_AdditionalShaderChannelsFlag: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
+  m_TargetDisplay: 0
+--- !u!114 &3736690035364303256
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2903720736690055044}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!1 &2903720736705858325
 GameObject:
   m_ObjectHideFlags: 0
@@ -1502,9 +1569,8 @@ GameObject:
   - component: {fileID: 2903720736705858322}
   - component: {fileID: 2903720736705858321}
   - component: {fileID: 2903720736705858320}
-  - component: {fileID: 2903720736705858323}
   - component: {fileID: 2903720736705858350}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: GamePlay UI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1523,6 +1589,7 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 1
   m_Children:
+  - {fileID: 2502304125786228035}
   - {fileID: 2903720736612321592}
   - {fileID: 2903720737386251686}
   m_Father: {fileID: 2903720736770718058}
@@ -1577,23 +1644,6 @@ MonoBehaviour:
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
   m_PresetInfoIsWorld: 0
---- !u!114 &2903720736705858323
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2903720736705858325}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_IgnoreReversedGraphics: 1
-  m_BlockingObjects: 0
-  m_BlockingMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
 --- !u!114 &2903720736705858350
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1608,7 +1658,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   uiManager: {fileID: 2903720736770718059}
   startButton: {fileID: 2903720736278054530}
-  tooltip: {fileID: 6577385145988228052}
+  tooltip: {fileID: 2502304125786228063}
   startPanel: {fileID: 2903720737070373485}
   towerSelectPanel: {fileID: 2903720737936968650}
   towerEditPanel: {fileID: 2903720737158887870}
@@ -1783,9 +1833,11 @@ GameObject:
   - component: {fileID: 2903720736922411910}
   - component: {fileID: 2903720736922411913}
   - component: {fileID: 2903720736922411912}
-  m_Layer: 5
+  - component: {fileID: 6638734069719161850}
+  - component: {fileID: 2069654808013982296}
+  m_Layer: 0
   m_Name: MoveUnitButton
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1893,6 +1945,44 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!223 &6638734069719161850
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2903720736922411914}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 2
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 0
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_AdditionalShaderChannelsFlag: 25
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
+  m_TargetDisplay: 0
+--- !u!114 &2069654808013982296
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2903720736922411914}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!1 &2903720736953317003
 GameObject:
   m_ObjectHideFlags: 0
@@ -1906,7 +1996,7 @@ GameObject:
   - component: {fileID: 2903720736953317001}
   m_Layer: 5
   m_Name: MenuPanel
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1982,7 +2072,7 @@ GameObject:
   - component: {fileID: 2903720737070373483}
   m_Layer: 5
   m_Name: StartPanel
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2060,7 +2150,7 @@ GameObject:
   - component: {fileID: 2903720737129369579}
   m_Layer: 5
   m_Name: PauseButton
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2178,13 +2268,13 @@ GameObject:
   m_Component:
   - component: {fileID: 2903720737158887871}
   - component: {fileID: 2903720737158887869}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: TowerEditPanel
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2903720737158887871
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2208,7 +2298,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 50, y: 50}
+  m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2903720737158887869
 CanvasRenderer:
@@ -2230,9 +2320,9 @@ GameObject:
   - component: {fileID: 2903720737386251685}
   - component: {fileID: 2903720737386251684}
   - component: {fileID: 2903720737386251687}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: StartWaveButton
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2251,7 +2341,7 @@ RectTransform:
   m_Children:
   - {fileID: 2903720736617159094}
   m_Father: {fileID: 2903720736705858322}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
@@ -2363,9 +2453,9 @@ GameObject:
   - component: {fileID: 2903720737406807145}
   - component: {fileID: 2903720737406807143}
   - component: {fileID: 2903720737406807142}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: Image
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2439,9 +2529,9 @@ GameObject:
   - component: {fileID: 2903720737552303913}
   - component: {fileID: 2903720737552303911}
   - component: {fileID: 2903720737552303910}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: Image
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2518,7 +2608,7 @@ GameObject:
   - component: {fileID: 4418803027092736930}
   m_Layer: 5
   m_Name: Game Start Canvas
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2616,9 +2706,9 @@ GameObject:
   - component: {fileID: 2903720737605593495}
   - component: {fileID: 2903720737605593493}
   - component: {fileID: 2903720737605593492}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: Image
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2693,9 +2783,11 @@ GameObject:
   - component: {fileID: 2903720737713094110}
   - component: {fileID: 2903720737713094081}
   - component: {fileID: 2903720737713094080}
-  m_Layer: 5
+  - component: {fileID: 5116221049878499297}
+  - component: {fileID: 4981430286847574530}
+  m_Layer: 0
   m_Name: SellButton
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2803,6 +2895,44 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!223 &5116221049878499297
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2903720737713094082}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 2
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 0
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_AdditionalShaderChannelsFlag: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
+  m_TargetDisplay: 0
+--- !u!114 &4981430286847574530
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2903720737713094082}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!1 &2903720737776973789
 GameObject:
   m_ObjectHideFlags: 0
@@ -2816,7 +2946,7 @@ GameObject:
   - component: {fileID: 2903720737776973787}
   m_Layer: 5
   m_Name: Text (TMP)
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2950,9 +3080,9 @@ GameObject:
   - component: {fileID: 2903720737853083719}
   - component: {fileID: 2903720737853083717}
   - component: {fileID: 2903720737853083716}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: Image
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3027,9 +3157,9 @@ GameObject:
   - component: {fileID: 2903720737917718134}
   - component: {fileID: 2903720737917718137}
   - component: {fileID: 2903720737917718136}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: OKButton
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3048,7 +3178,7 @@ RectTransform:
   m_Children:
   - {fileID: 2903720737552303913}
   m_Father: {fileID: 2903720736612321592}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -3147,9 +3277,9 @@ GameObject:
   m_Component:
   - component: {fileID: 2903720737936968651}
   - component: {fileID: 2903720737936968648}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: TowerSelectPanel
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3176,7 +3306,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_SizeDelta: {x: 150, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2903720737936968648
 CanvasRenderer:
@@ -3197,9 +3327,9 @@ GameObject:
   - component: {fileID: 2903720738001813508}
   - component: {fileID: 2903720738001813506}
   - component: {fileID: 2903720738001813509}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: Image
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3275,9 +3405,9 @@ GameObject:
   - component: {fileID: 2903720738007953066}
   - component: {fileID: 2903720738007953069}
   - component: {fileID: 4062320393098911918}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: MageTowerButton
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3384,19 +3514,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2903720738007953066}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2903720736705858350}
-        m_TargetAssemblyTypeName: UIControl.GamePlayUIController, Assembly-CSharp
-        m_MethodName: TowerSelectButtons
-        m_Mode: 5
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: MageTower
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &4062320393098911918
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3421,9 +3539,9 @@ GameObject:
   - component: {fileID: 2903720738184683174}
   - component: {fileID: 2903720738184683172}
   - component: {fileID: 2903720738184683175}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: Text (TMP)
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3557,9 +3675,9 @@ GameObject:
   - component: {fileID: 2903720738204714672}
   - component: {fileID: 2903720738204714830}
   - component: {fileID: 2903720738204714673}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: Image
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3634,9 +3752,11 @@ GameObject:
   - component: {fileID: 2903720738329810240}
   - component: {fileID: 2903720738329810243}
   - component: {fileID: 2903720738329810242}
-  m_Layer: 5
+  - component: {fileID: 6596712747377585083}
+  - component: {fileID: 6649546280090317982}
+  m_Layer: 0
   m_Name: B UpgradeButton
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3744,6 +3864,44 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!223 &6596712747377585083
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2903720738329810244}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 2
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 0
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_AdditionalShaderChannelsFlag: 25
+  m_SortingLayerID: 0
+  m_SortingOrder: 0
+  m_TargetDisplay: 0
+--- !u!114 &6649546280090317982
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2903720738329810244}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
 --- !u!1 &6175697617043908941
 GameObject:
   m_ObjectHideFlags: 0
@@ -3757,9 +3915,9 @@ GameObject:
   - component: {fileID: 7653803939004738001}
   - component: {fileID: 9094504893884371408}
   - component: {fileID: 4639565007588420518}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: BarracksTowerButton
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -3866,19 +4024,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 7653803939004738001}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2903720736705858350}
-        m_TargetAssemblyTypeName: UIControl.GamePlayUIController, Assembly-CSharp
-        m_MethodName: TowerSelectButtons
-        m_Mode: 5
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: BarracksTower
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &4639565007588420518
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3905,9 +4051,9 @@ GameObject:
   - component: {fileID: 465750132250420853}
   - component: {fileID: 1697146035727192125}
   - component: {fileID: 3841900996532189278}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: CanonTowerButton
-  m_TagString: Untagged
+  m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4014,19 +4160,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 465750132250420853}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2903720736705858350}
-        m_TargetAssemblyTypeName: UIControl.GamePlayUIController, Assembly-CSharp
-        m_MethodName: TowerSelectButtons
-        m_Mode: 5
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: CanonTower
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &3841900996532189278
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4113,7 +4247,7 @@ GameObject:
   - component: {fileID: 8863085596118077339}
   - component: {fileID: 8863085596118077338}
   - component: {fileID: 8863085596118077337}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: TowerRangeIndicator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4198,9 +4332,9 @@ GameObject:
   - component: {fileID: 8863085596617466605}
   - component: {fileID: 8863085596617466603}
   - component: {fileID: 8863085596617466600}
-  m_Layer: 5
+  m_Layer: 0
   m_Name: MoveUnitIndicator
-  m_TagString: MoveArea
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4296,12 +4430,12 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
---- !u!1001 &3644484373758043252
+--- !u!1001 &5435184577922188031
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
-    m_TransformParent: {fileID: 2903720736612321592}
+    m_TransformParent: {fileID: 2903720736705858322}
     m_Modifications:
     - target: {fileID: 7625825397154928181, guid: 953509cd130a04ac6b9262651888de1e,
         type: 3}
@@ -4341,37 +4475,37 @@ PrefabInstance:
     - target: {fileID: 7625825397191493564, guid: 953509cd130a04ac6b9262651888de1e,
         type: 3}
       propertyPath: m_RootOrder
-      value: 2
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7625825397191493564, guid: 953509cd130a04ac6b9262651888de1e,
         type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7625825397191493564, guid: 953509cd130a04ac6b9262651888de1e,
         type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0.5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7625825397191493564, guid: 953509cd130a04ac6b9262651888de1e,
         type: 3}
       propertyPath: m_AnchorMin.x
-      value: 0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7625825397191493564, guid: 953509cd130a04ac6b9262651888de1e,
         type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0.5
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7625825397191493564, guid: 953509cd130a04ac6b9262651888de1e,
         type: 3}
       propertyPath: m_SizeDelta.x
-      value: 100
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7625825397191493564, guid: 953509cd130a04ac6b9262651888de1e,
         type: 3}
       propertyPath: m_SizeDelta.y
-      value: 100
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7625825397191493564, guid: 953509cd130a04ac6b9262651888de1e,
         type: 3}
@@ -4470,6 +4604,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7625825398440312273, guid: 953509cd130a04ac6b9262651888de1e,
         type: 3}
+      propertyPath: m_Pivot.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7625825398440312273, guid: 953509cd130a04ac6b9262651888de1e,
+        type: 3}
+      propertyPath: m_Pivot.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7625825398440312273, guid: 953509cd130a04ac6b9262651888de1e,
+        type: 3}
       propertyPath: m_SizeDelta.x
       value: 0
       objectReference: {fileID: 0}
@@ -4478,19 +4622,29 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7625825398440312273, guid: 953509cd130a04ac6b9262651888de1e,
+        type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7625825398440312273, guid: 953509cd130a04ac6b9262651888de1e,
+        type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 953509cd130a04ac6b9262651888de1e, type: 3}
---- !u!224 &6577385145988228040 stripped
+--- !u!224 &2502304125786228035 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 7625825397191493564, guid: 953509cd130a04ac6b9262651888de1e,
     type: 3}
-  m_PrefabInstance: {fileID: 3644484373758043252}
+  m_PrefabInstance: {fileID: 5435184577922188031}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &6577385145988228052 stripped
+--- !u!114 &2502304125786228063 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7625825397191493536, guid: 953509cd130a04ac6b9262651888de1e,
     type: 3}
-  m_PrefabInstance: {fileID: 3644484373758043252}
+  m_PrefabInstance: {fileID: 5435184577922188031}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
