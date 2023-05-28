@@ -42,7 +42,7 @@ namespace TowerControl
             return true;
         }
 
-        protected override void UnitUpgrade(int minDamage, int maxDamage, float delay, int health)
+        protected override void UnitUpgrade(int minDamage, int maxDamage, float delay, float health)
         {
             for (var i = 0; i < units.Length; i++)
             {

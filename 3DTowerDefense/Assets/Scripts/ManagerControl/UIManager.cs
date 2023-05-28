@@ -25,9 +25,9 @@ namespace ManagerControl
         [SerializeField] private TextMeshProUGUI coinText;
         [SerializeField] private int[] stageStartCoin;
 
-        private void Start()
+        public void CoinInit(int index)
         {
-            TowerCoin = stageStartCoin[0];
+            TowerCoin = stageStartCoin[index];
         }
     }
 }

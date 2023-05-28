@@ -8,9 +8,8 @@ namespace BuildControl
     [DisallowMultipleComponent]
     public class BuildingPoint : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
-        public event Action onClickBuildPointEvent;
         public event Action<Transform> onOpenTowerSelectPanelEvent;
-        
+
         private void OnDisable()
         {
             StackObjectPool.ReturnToPool(gameObject);
@@ -18,7 +17,6 @@ namespace BuildControl
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            onClickBuildPointEvent?.Invoke();
         }
 
         public void OnPointerUp(PointerEventData eventData)

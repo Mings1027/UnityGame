@@ -80,18 +80,24 @@ namespace ManagerControl
 
         private void CameraMove(Touch touch)
         {
-            if (touch.phase == TouchPhase.Moved)
+            switch (touch.phase)
             {
-                _isMove = true;
-                Moving(touch);
-            }
-            else if (touch.phase == TouchPhase.Stationary)
-            {
-                _isMove = false;
-            }
-            else if (touch.phase == TouchPhase.Ended)
-            {
-                MovingAsync(touch).Forget();
+                case TouchPhase.Moved:
+                    _isMove = true;
+                    Moving(touch);
+                    break;
+                case TouchPhase.Stationary:
+                    _isMove = false;
+                    break;
+                case TouchPhase.Ended:
+                    MovingAsync(touch).Forget();
+                    break;
+                case TouchPhase.Began:
+                    break;
+                case TouchPhase.Canceled:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
@@ -125,16 +131,27 @@ namespace ManagerControl
 
         private void CameraRotate(Touch touch)
         {
-            if (touch.phase == TouchPhase.Moved)
+            switch (touch.phase)
             {
-                var t = transform;
-                t.Rotate(new Vector3(_xRotation, touch.deltaPosition.x * rotationSpeed, 0.0f));
-                transform.rotation = Quaternion.Euler(_xRotation, t.rotation.eulerAngles.y, 0.0f);
-            }
-            else if (touch.phase == TouchPhase.Ended)
-            {
-                transform.DORotate(SnappedVector(), 0.5f)
-                    .SetEase(Ease.OutBounce);
+                case TouchPhase.Moved:
+                {
+                    var t = transform;
+                    t.Rotate(new Vector3(_xRotation, touch.deltaPosition.x * rotationSpeed, 0.0f));
+                    transform.rotation = Quaternion.Euler(_xRotation, t.rotation.eulerAngles.y, 0.0f);
+                    break;
+                }
+                case TouchPhase.Ended:
+                    transform.DORotate(SnappedVector(), 0.5f)
+                        .SetEase(Ease.OutBounce);
+                    break;
+                case TouchPhase.Began:
+                    break;
+                case TouchPhase.Stationary:
+                    break;
+                case TouchPhase.Canceled:
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 

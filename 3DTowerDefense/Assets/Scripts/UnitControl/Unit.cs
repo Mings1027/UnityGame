@@ -69,7 +69,7 @@ namespace UnitControl
             attackAble = true;
         }
 
-        public void Init(int minD, int maxD, float delay, int health)
+        public void Init(int minD, int maxD, float delay, float health)
         {
             _minDamage = minD;
             _maxDamage = maxD;

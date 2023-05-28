@@ -45,7 +45,7 @@ namespace TowerControl
         }
 
         public override void TowerSetting(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range,
-            float delay, int health = 0)
+            float delay, float health = 0)
         {
             base.TowerSetting(towerMeshFilter, minDamage, maxDamage, range, delay, health);
             _onAttackEvent = null;

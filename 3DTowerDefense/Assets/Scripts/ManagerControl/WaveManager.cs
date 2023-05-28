@@ -26,7 +26,7 @@ namespace ManagerControl
             public float atkDelay;
             public int minDamage;
             public int maxDamage;
-            public int health;
+            public float health;
         }
 
         [Serializable]

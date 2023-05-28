@@ -10,11 +10,11 @@ namespace GameControl
     public class Health : MonoBehaviour
     {
         private CancellationTokenSource _cts;
-        private Renderer _renderer;
 
         public bool IsDead { get; private set; }
 
-        [SerializeField] private int curHealth, maxHealth;
+        [SerializeField] private HealthBar healthBar;
+        [SerializeField] private float curHealth, maxHealth;
         [SerializeField] private UnityEvent<GameObject> hitWithReference;
         [SerializeField] private UnityEvent<GameObject> deathWithReference;
 
@@ -22,12 +22,10 @@ namespace GameControl
 
         private void Awake()
         {
-            _renderer = GetComponentInChildren<Renderer>();
         }
 
         private void OnEnable()
         {
-            _renderer.material.color = Color.white;
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
         }
@@ -37,36 +35,31 @@ namespace GameControl
             _cts?.Cancel();
         }
 
-        public void Init(int healthValue)
+        public void Init(float healthValue)
         {
             curHealth = healthValue;
             maxHealth = healthValue;
             IsDead = false;
         }
 
-        public void TakeDamage(int amount, GameObject sender)
+        public void TakeDamage(float damage, GameObject sender)
         {
             if (IsDead) return;
-            curHealth -= amount;
-            HitEffectTask().Forget();
+            curHealth -= damage;
+            healthBar.UpdateHealthBar(curHealth / maxHealth);
             if (curHealth > 0)
             {
                 hitWithReference?.Invoke(sender);
             }
             else
             {
+                //죽을때 해골 이펙트 띄워도 괜찮을듯
                 deathWithReference?.Invoke(sender);
                 IsDead = true;
                 DeadTask().Forget();
             }
         }
 
-        private async UniTaskVoid HitEffectTask()
-        {
-            _renderer.material.color = Color.red;
-            await UniTask.Delay(1000, cancellationToken: _cts.Token);
-            _renderer.material.color = Color.white;
-        }
 
         private async UniTaskVoid DeadTask()
         {

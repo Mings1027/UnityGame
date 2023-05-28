@@ -18,7 +18,7 @@ namespace DataControl
             public int minDamage, maxDamage;
             public float attackRange;
             public float attackDelay;
-            public int health;
+            public float health;
         }
     }
 }
