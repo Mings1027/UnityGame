@@ -17,7 +17,7 @@ namespace WeaponControl
         {
             base.BulletHit(other);
             var pos = transform.position;
-            StackObjectPool.Get(PoolObjectName.MageHitVFX, pos);
+            ObjectPoolManager.Get(PoolObjectName.MageHitVFX, pos);
         }
     }
 }

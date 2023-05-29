@@ -30,7 +30,7 @@ namespace WeaponControl
 
             if (target.TryGetComponent(out Health h))
             {
-                StackObjectPool.Get(PoolObjectName.SlashHitVFX, hitBox.position);
+                ObjectPoolManager.Get(PoolObjectName.SlashHitVFX, hitBox.position);
                 h.TakeDamage(damage, target.gameObject);
             }
         }

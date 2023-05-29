@@ -21,7 +21,7 @@ namespace GameControl
                 CancelInvoke();
             }
 
-            StackObjectPool.ReturnToPool(gameObject);
+            ObjectPoolManager.ReturnToPool(gameObject);
         }
 
         private void DestroyObject()

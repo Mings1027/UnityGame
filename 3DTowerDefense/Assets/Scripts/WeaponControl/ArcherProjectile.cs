@@ -17,8 +17,8 @@ namespace WeaponControl
         protected override void ProjectileHit(Collider col)
         {
             var pos = transform.position;
-            StackObjectPool.Get(PoolObjectName.ArrowHitVFX, pos);
-            StackObjectPool.Get(PoolObjectName.ArrowHitSfx, pos);
+            ObjectPoolManager.Get(PoolObjectName.ArrowHitVFX, pos);
+            ObjectPoolManager.Get(PoolObjectName.ArrowHitSfx, pos);
             Damaging(col);
         }
     }

@@ -25,8 +25,8 @@ namespace WeaponControl
         protected override void BulletHit(Component other)
         {
             var pos = transform.position;
-            StackObjectPool.Get(PoolObjectName.BulletHitSfx, pos);
-            StackObjectPool.Get(PoolObjectName.BulletHitVFX, pos);
+            ObjectPoolManager.Get(PoolObjectName.BulletHitSfx, pos);
+            ObjectPoolManager.Get(PoolObjectName.BulletHitVFX, pos);
             base.BulletHit(other);
         }
     }

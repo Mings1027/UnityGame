@@ -61,7 +61,7 @@ namespace TowerControl
             for (var i = 0; i < _archerCount; i++)
             {
                 var index = IsUniqueTower ? TowerUniqueLevel + 3 + i : TowerLevel;
-                _archerUnits[i] = StackObjectPool.Get<ArcherUnit>(PoolObjectName.ArcherUnit, archerPos[index]);
+                _archerUnits[i] = ObjectPoolManager.Get<ArcherUnit>(PoolObjectName.ArcherUnit, archerPos[index]);
             }
         }
 
@@ -85,8 +85,8 @@ namespace TowerControl
             for (var i = 0; i < _archerCount; i++)
             {
                 _archerUnits[i].TargetUpdate(target, isTargeting);
-                StackObjectPool.Get(PoolObjectName.ArrowShootSfx, transform);
-                StackObjectPool.Get<Projectile>(PoolObjectName.ArcherProjectile, _archerUnits[i].transform.position)
+                ObjectPoolManager.Get(PoolObjectName.ArrowShootSfx, transform);
+                ObjectPoolManager.Get<Projectile>(PoolObjectName.ArcherProjectile, _archerUnits[i].transform.position)
                     .Init(target, Damage);
                 await UniTask.Delay(500);
             }
@@ -95,8 +95,8 @@ namespace TowerControl
         private void BulletAttack()
         {
             _archerUnits[0].TargetUpdate(target, isTargeting);
-            StackObjectPool.Get(PoolObjectName.BulletShootSfx, transform);
-            StackObjectPool.Get<Bullet>(PoolObjectName.ArcherBullet, _archerUnits[0].transform.position)
+            ObjectPoolManager.Get(PoolObjectName.BulletShootSfx, transform);
+            ObjectPoolManager.Get<Bullet>(PoolObjectName.ArcherBullet, _archerUnits[0].transform.position)
                 .Init(target, Damage);
         }
     }

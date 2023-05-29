@@ -13,7 +13,7 @@ namespace TowerControl
         private Transform[] _singleShootPoints;
         private Transform[] _multiShootPoints;
 
-        private Action<Transform> _onAttackEvent;
+        private event Action<Transform> onAttackEvent;
 
         [SerializeField] private MeshFilter[] canonMeshFilters;
 
@@ -48,14 +48,14 @@ namespace TowerControl
             float delay, float health = 0)
         {
             base.TowerSetting(towerMeshFilter, minDamage, maxDamage, range, delay, health);
-            _onAttackEvent = null;
-            _onAttackEvent += TowerUniqueLevel != 1 ? SingleShoot : MultiShoot;
+            onAttackEvent = null;
+            onAttackEvent += TowerUniqueLevel != 1 ? SingleShoot : MultiShoot;
         }
 
         protected override void Attack()
         {
             _atkSequence.Restart();
-            _onAttackEvent?.Invoke(target);
+            onAttackEvent?.Invoke(target);
         }
 
         private void SingleShoot(Transform endPos)
@@ -73,9 +73,9 @@ namespace TowerControl
 
         private void Shoot(Transform t, Vector3 pos)
         {
-            StackObjectPool.Get(PoolObjectName.CanonShootSfx, transform);
-            StackObjectPool.Get(PoolObjectName.CanonSmoke, pos);
-            var m = StackObjectPool.Get<Projectile>(PoolObjectName.CanonBullet, pos);
+            ObjectPoolManager.Get(PoolObjectName.CanonShootSfx, transform);
+            ObjectPoolManager.Get(PoolObjectName.CanonSmoke, pos);
+            var m = ObjectPoolManager.Get<Projectile>(PoolObjectName.CanonBullet, pos);
             m.Init(t, Damage);
             if (!m.TryGetComponent(out CanonProjectile u)) return;
             var level = IsUniqueTower ? TowerUniqueLevel + 3 : TowerLevel;

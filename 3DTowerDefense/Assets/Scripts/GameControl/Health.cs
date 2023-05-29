@@ -12,6 +12,7 @@ namespace GameControl
         private CancellationTokenSource _cts;
 
         public bool IsDead { get; private set; }
+        public float CurHealth => curHealth;
 
         [SerializeField] private HealthBar healthBar;
         [SerializeField] private float curHealth, maxHealth;
@@ -19,10 +20,6 @@ namespace GameControl
         [SerializeField] private UnityEvent<GameObject> deathWithReference;
 
         [SerializeField] private float disappearTime;
-
-        private void Awake()
-        {
-        }
 
         private void OnEnable()
         {

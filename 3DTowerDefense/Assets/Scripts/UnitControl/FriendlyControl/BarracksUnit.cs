@@ -27,8 +27,8 @@ namespace UnitControl.FriendlyControl
             if (isMoving) return;
 
             _anim.SetTrigger(IsAttack);
-            StackObjectPool.Get(PoolObjectName.SwordSlashSfx, transform);
-            StackObjectPool.Get(PoolObjectName.SlashVFX, _attackEffectPos.position,
+            ObjectPoolManager.Get(PoolObjectName.SwordSlashSfx, transform);
+            ObjectPoolManager.Get(PoolObjectName.SlashVFX, _attackEffectPos.position,
                 transform.rotation * Quaternion.Euler(0, 90, 0));
             meleeWeapon.Attack(Target, Damage);
         }

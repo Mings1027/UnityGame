@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &8072334713249440889
+--- !u!1 &2326560661699753111
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,8 +8,8 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 8072334713249440891}
-  - component: {fileID: 8072334713249440888}
+  - component: {fileID: 2326560661699753109}
+  - component: {fileID: 2326560661699753110}
   m_Layer: 0
   m_Name: ObjectPool
   m_TagString: Untagged
@@ -17,13 +17,13 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &8072334713249440891
+--- !u!4 &2326560661699753109
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8072334713249440889}
+  m_GameObject: {fileID: 2326560661699753111}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -32,13 +32,13 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8072334713249440888
+--- !u!114 &2326560661699753110
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8072334713249440889}
+  m_GameObject: {fileID: 2326560661699753111}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 702e10604a6f9481a955b7f8b37182ec, type: 3}
@@ -103,11 +103,11 @@ MonoBehaviour:
     prefab: {fileID: 6143467867895953418, guid: be01741081bb2c944aad51a527b3e120,
       type: 3}
     size: 30
-  - tag: MageHitSFX
+  - tag: MageShootSFX
     prefab: {fileID: 953530123978054383, guid: f4d162e98900b4e7cbaf28d71d7bf4bc, type: 3}
     size: 30
   - tag: MageBullet
-    prefab: {fileID: 4848723035775484797, guid: b3b589ea1500e40349ce474b2a467086,
+    prefab: {fileID: 8284417177848523532, guid: a6ec7b9220605f5468c94619bc473e20,
       type: 3}
     size: 30
   - tag: MageHitVFX
@@ -159,4 +159,13 @@ MonoBehaviour:
     size: 30
   - tag: SwordManEnemy
     prefab: {fileID: 10859800051177605, guid: f99f0cc7ac7b643b1a6860bad1ffaa6c, type: 3}
+    size: 30
+  - tag: SwordSlashSFX
+    prefab: {fileID: 953530123978054383, guid: 17645f14f7491457ea255ec5324d4530, type: 3}
+    size: 30
+  - tag: OrangeMageBullet
+    prefab: {fileID: 917141743851173677, guid: eee5508da5d43364f9fa8bc98d722490, type: 3}
+    size: 30
+  - tag: OrangeMageShootSFX
+    prefab: {fileID: 953530123978054383, guid: 6a471009398494caaa2d53e01f5d7c99, type: 3}
     size: 30

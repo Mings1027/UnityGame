@@ -12,7 +12,7 @@ namespace BuildControl
 
         private void OnDisable()
         {
-            StackObjectPool.ReturnToPool(gameObject);
+            ObjectPoolManager.ReturnToPool(gameObject);
         }
 
         public void OnPointerDown(PointerEventData eventData)

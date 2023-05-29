@@ -60,7 +60,7 @@ namespace TowerControl
             unitsPosition = hit.position;
             var unitName = IsUniqueTower ? PoolObjectName.SpearManUnit : PoolObjectName.SwordManUnit;
             var ranPos = hit.position + Random.insideUnitSphere * 5f;
-            units[i] = StackObjectPool.Get<BarracksUnit>(unitName, ranPos);
+            units[i] = ObjectPoolManager.Get<BarracksUnit>(unitName, ranPos);
             units[i].onDeadEvent += ReSpawn;
         }
     }

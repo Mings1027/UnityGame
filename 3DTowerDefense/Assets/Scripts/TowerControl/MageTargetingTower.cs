@@ -44,6 +44,7 @@ namespace TowerControl
             base.TowerSetting(towerMeshFilter, minDamage, maxDamage, range, delay, health);
             CrystalPosInit();
             onAttackEvent = null;
+            // onAttackEvent += IsUniqueTower ? TowerUniqueLevel == 0 ? OrangeAttack : PurpleAttack : NormalAttack;
             if (IsUniqueTower)
             {
                 if (TowerUniqueLevel == 0)
@@ -76,15 +77,15 @@ namespace TowerControl
 
         private void NormalAttack()
         {
-            StackObjectPool.Get(PoolObjectName.MageShootSfx, transform.position);
-            StackObjectPool.Get<Bullet>(PoolObjectName.BlueMageBullet, crystalPositions[TowerLevel])
+            ObjectPoolManager.Get(PoolObjectName.MageShootSfx, transform.position);
+            ObjectPoolManager.Get<Bullet>(PoolObjectName.BlueMageBullet, crystalPositions[TowerLevel])
                 .Init(target, Damage);
         }
 
         private void OrangeAttack()
         {
-            StackObjectPool.Get(PoolObjectName.OrangeMageShootSfx, transform.position);
-            StackObjectPool.Get<Bullet>(PoolObjectName.OrangeMageBullet, crystalPositions[TowerUniqueLevel + 3])
+            ObjectPoolManager.Get(PoolObjectName.OrangeMageShootSfx, transform.position);
+            ObjectPoolManager.Get<Bullet>(PoolObjectName.OrangeMageBullet, crystalPositions[TowerUniqueLevel + 3])
                 .Init(target, Damage);
         }
 

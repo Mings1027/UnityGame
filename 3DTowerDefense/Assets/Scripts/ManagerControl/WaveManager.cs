@@ -52,6 +52,11 @@ namespace ManagerControl
 
         private void Start()
         {
+            Init();
+        }
+
+        public void Init()
+        {
             _curWave = -1;
             _spawnPointIndex = -1;
         }
@@ -93,11 +98,13 @@ namespace ManagerControl
         private void SpawnEnemy()
         {
             _spawnPointIndex++;
-            var e = StackObjectPool.Get<EnemyUnit>(waveData.waveData[_curWave].enemyName,
-                SpawnPointList[_spawnPointIndex].position);
+            var e = ObjectPoolManager.Get<EnemyUnit>(waveData.waveData[_curWave].enemyName,
+                SpawnPointList[_spawnPointIndex]);
 
-            e.onWaveEndedEvent += IsEndedWave;
             e.SetDestination(DestinationPointList[0]);
+            e.onDeadEvent += DeadEnemy;
+            e.onCoinEvent += () => uiManager.TowerCoin += waveData.waveData[_curWave].enemyCoin;
+            e.onLifeCountEvent += LifeCount;
 
             var w = waveData.waveData[_curWave];
             e.Init(w.minDamage, w.maxDamage, w.atkDelay, w.health);
@@ -107,14 +114,18 @@ namespace ManagerControl
             }
         }
 
-        private void IsEndedWave()
+        private void DeadEnemy()
         {
             _enemiesIndex--;
-            uiManager.TowerCoin += waveData.waveData[_curWave].enemyCoin;
             if (_enemiesIndex != -1) return;
             print("Stage Complete");
             _startGame = false;
             startWaveButton.gameObject.SetActive(true);
+        }
+
+        private void LifeCount()
+        {
+            uiManager.LifeCount -= 1;
         }
 
         [ContextMenu("To Json Data")]
