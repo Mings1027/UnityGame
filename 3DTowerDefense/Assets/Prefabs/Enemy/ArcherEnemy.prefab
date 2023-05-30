@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 935677572844096963}
   - component: {fileID: 8097934780018617629}
   - component: {fileID: 2331885094223226544}
-  - component: {fileID: 6053629565525463721}
   - component: {fileID: 6808952035858103514}
   - component: {fileID: 3825306303713396164}
+  - component: {fileID: -4517236171541940930}
   m_Layer: 8
   m_Name: ArcherEnemy
   m_TagString: Enemy
@@ -73,28 +73,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dontDestroy: 1
---- !u!195 &6053629565525463721
-NavMeshAgent:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4720547442794712445}
-  m_Enabled: 1
-  m_AgentTypeID: 0
-  m_Radius: 1.5
-  m_Speed: 3
-  m_Acceleration: 8
-  avoidancePriority: 50
-  m_AngularSpeed: 360
-  m_StoppingDistance: 1
-  m_AutoTraverseOffMeshLink: 1
-  m_AutoBraking: 1
-  m_AutoRepath: 1
-  m_Height: 2
-  m_BaseOffset: 0
-  m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 4
 --- !u!136 &6808952035858103514
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -122,6 +100,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   smoothTurnSpeed: 0.1
+  wayPointIndex: 0
+  moveSpeed: 3
+--- !u!54 &-4517236171541940930
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4720547442794712445}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 112
+  m_CollisionDetection: 0
 --- !u!1 &6206751682542536059
 GameObject:
   m_ObjectHideFlags: 0

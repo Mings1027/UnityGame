@@ -1,5 +1,3 @@
-using System;
-using GameControl;
 using UnityEngine;
 using UnityEngine.UI;
 

@@ -5,39 +5,34 @@ namespace UnitControl.FriendlyControl
 {
     public abstract class FriendlyUnit : Unit
     {
+        private Rigidbody _rigid;
         protected bool isMoving;
 
         public event Action<Unit> onDeadEvent;
 
-        private void FixedUpdate()
+        [SerializeField] private float moveSpeed;
+        [SerializeField] private float attackRange;
+
+        protected override void Awake()
         {
-            if (!isMoving) return;
-            if (nav.remainingDistance <= nav.stoppingDistance)
-            {
-                isMoving = false;
-            }
+            base.Awake();
+            _rigid = GetComponent<Rigidbody>();
         }
 
-        protected override void Update()
+        private void FixedUpdate()
         {
             if (IsTargeting)
             {
                 if (attackAble)
                 {
-                    if (Vector3.Distance(transform.position, Target.position) <= nav.stoppingDistance)
+                    if (Vector3.Distance(transform.position, Target.position) <= attackRange)
                     {
                         Attack();
                         StartCoolDown().Forget();
                     }
-                    else
-                    {
-                        nav.SetDestination(Target.position);
-                    }
                 }
-                else
-                {
-                    nav.SetDestination(Target.position);
-                }
+
+                _rigid.MovePosition(_rigid.position + Target.position * (Time.fixedDeltaTime * moveSpeed));
             }
         }
 
@@ -51,7 +46,7 @@ namespace UnitControl.FriendlyControl
         public void GoToTargetPosition(Vector3 pos)
         {
             isMoving = true;
-            nav.SetDestination(pos);
+            _rigid.MovePosition(pos);
         }
     }
 }

@@ -15,7 +15,7 @@ namespace UnitControl
         private CancellationTokenSource _cts;
 
         protected bool attackAble;
-        protected NavMeshAgent nav;
+        // protected NavMeshAgent nav;
         protected int Damage => Random.Range(_minDamage, _maxDamage);
 
         public bool IsTargeting { get; set; }
@@ -25,7 +25,7 @@ namespace UnitControl
 
         protected virtual void Awake()
         {
-            nav = GetComponent<NavMeshAgent>();
+            // nav = GetComponent<NavMeshAgent>();
         }
 
         protected virtual void OnEnable()
@@ -37,8 +37,6 @@ namespace UnitControl
             attackAble = true;
             InvokeRepeating(nameof(CheckTarget), 1, 1);
         }
-
-        protected abstract void Update();
 
         private void LateUpdate()
         {

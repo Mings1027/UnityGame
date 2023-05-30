@@ -7,9 +7,22 @@ namespace MapControl
     public class MapController : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         public Transform TowerBuildPoint => towerBuildPoint;
+        public Transform[] WayPoints => _wayPoints;
+        
         [SerializeField] private Transform towerBuildPoint;
+        [SerializeField] private Transform wayPointParent;
+        private Transform[] _wayPoints;
 
         public event Action onCloseUIEvent;
+
+        private void Start()
+        {
+            _wayPoints = new Transform[wayPointParent.childCount];
+            for (var i = 0; i < _wayPoints.Length; i++)
+            {
+                _wayPoints[i] = wayPointParent.GetChild(i);
+            }
+        }
 
         public void OnPointerDown(PointerEventData eventData)
         {

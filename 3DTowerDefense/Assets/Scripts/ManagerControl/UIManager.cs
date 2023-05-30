@@ -36,8 +36,8 @@ namespace ManagerControl
             {
                 _lifeCount = value;
                 lifeCountText.text = _lifeCount.ToString();
-                if (_lifeCount <= 0)
-                    gamePlayManager.GameOver();
+                if (_lifeCount > 0) return;
+                gamePlayManager.GameOver();
             }
         }
 
@@ -57,6 +57,5 @@ namespace ManagerControl
             TowerCoin = stageStartCoin[index];
             LifeCount = 20;
         }
-
     }
 }

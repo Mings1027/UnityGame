@@ -46,16 +46,11 @@ namespace ManagerControl
 
         [SerializeField] private WaveManager waveManager;
         [SerializeField] private UIManager uiManager;
-
-        [SerializeField] private GameObject mainManuCanvas;
-        [SerializeField] private GameObject stageSelectPanel;
-        [SerializeField] private GameObject startPanel;
-        [SerializeField] private Button startButton;
+        [SerializeField] private MainMenuUIController mainMenuUIController;
+        [SerializeField] private GameOverUIController gameOverUIController;
 
         [SerializeField] private GameObject gamePlayPanel;
         [SerializeField] private GameObject informationPanel;
-
-        [SerializeField] private GameObject gameOverCanvas;
 
         [SerializeField] private ToolTipSystem tooltip;
         [SerializeField] private GameObject towerButtons;
@@ -86,8 +81,6 @@ namespace ManagerControl
         {
             _cam = Camera.main;
             _eventSystem = EventSystem.current;
-
-            startButton.onClick.AddListener(StartGame);
 
             upgradeButton.GetComponent<Button>().onClick.AddListener(UpgradeButton);
             aUpgradeButton.GetComponent<Button>().onClick.AddListener(() => UniqueUpgradeButton(0));
@@ -134,55 +127,44 @@ namespace ManagerControl
             }
 
             _towerSelectPanelTween = gamePlayPanel.transform.DOScale(1, 0.1f).From(0).SetAutoKill(false);
-            _towerSelectPanelTween.PlayBackwards();
-
-            for (var i = 0; i < stageSelectPanel.transform.childCount; i++)
-            {
-                var index = i;
-                stageSelectPanel.transform.GetChild(i).GetComponent<Button>().onClick
-                    .AddListener(() =>
-                    {
-                        MapGenerator(index);
-                        ReStart();
-                    });
-            }
-
-            mainManuCanvas.SetActive(true);
-            stageSelectPanel.SetActive(true);
-            startPanel.SetActive(true);
         }
 
         public void ReStart()
         {
-            mainManuCanvas.SetActive(false);
-            gameOverCanvas.SetActive(false);
+            gameOverUIController.SetGameOverPanel(false);
             gamePlayPanel.SetActive(true);
             informationPanel.SetActive(true);
             uiManager.Init(_selectedStageIndex);
             Close();
         }
 
-        private void StartGame()
-        {
-            mainManuCanvas.transform.GetChild(1).DOMoveY(Screen.height * 3, 1f).SetEase(Ease.InBack);
-        }
-
         public void GameOver()
         {
-            gameOverCanvas.SetActive(true);
+            gameOverUIController.SetGameOverPanel(true);
             gamePlayPanel.SetActive(false);
             informationPanel.SetActive(false);
         }
 
-        private void MapGenerator(int stageIndex)
+        public void MapGenerator(int stageIndex)
         {
             if (_selectedStageIndex == stageIndex) return;
 
             _selectedStageIndex = stageIndex;
             Destroy(_curMap);
             _curMap = Instantiate(mapPrefabs[stageIndex], transform);
+            mainMenuUIController.SetStageSelectPanel(false);
             MapInit();
             BuildPointInit();
+        }
+
+        private void MapInit()
+        {
+            var wayPointsParent = _curMap.transform.Find("WayPointsParent");
+            waveManager.WayPointList = new Transform[wayPointsParent.childCount];
+            for (var i = 0; i < waveManager.WayPointList.Length; i++)
+            {
+                waveManager.WayPointList[i] = wayPointsParent.GetChild(i);
+            }
         }
 
         public void BuildPointInit()
@@ -195,23 +177,6 @@ namespace ManagerControl
                 var child = buildPoint.GetChild(i);
                 ObjectPoolManager.Get<BuildingPoint>(PoolObjectName.BuildingPoint, child)
                     .onOpenTowerSelectPanelEvent += OpenTowerSelectPanel;
-            }
-        }
-
-        private void MapInit()
-        {
-            var spawnPoints = _curMap.transform.Find("Spawn Points");
-            waveManager.SpawnPointList = new Transform[spawnPoints.childCount];
-            for (var i = 0; i < waveManager.SpawnPointList.Length; i++)
-            {
-                waveManager.SpawnPointList[i] = spawnPoints.GetChild(i);
-            }
-
-            var destinationPoints = _curMap.transform.Find("Destination Points");
-            waveManager.DestinationPointList = new Transform[destinationPoints.childCount];
-            for (var i = 0; i < waveManager.DestinationPointList.Length; i++)
-            {
-                waveManager.DestinationPointList[i] = destinationPoints.GetChild(i);
             }
         }
 

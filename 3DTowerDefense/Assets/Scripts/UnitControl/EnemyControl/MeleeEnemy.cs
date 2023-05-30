@@ -15,11 +15,6 @@ namespace UnitControl.EnemyControl
             _anim = GetComponent<Animator>();
         }
 
-        protected override void Update()
-        {
-            
-        }
-
         protected override void Attack()
         {
             _anim.SetTrigger(IsAttack);

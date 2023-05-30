@@ -2,10 +2,8 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameControl;
-using UIControl;
 using UnitControl.EnemyControl;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace ManagerControl
@@ -29,18 +27,9 @@ namespace ManagerControl
             public float health;
         }
 
-        [Serializable]
-        public class WaveData
-        {
-            public Wave[] waveData;
-        }
+        [SerializeField] private Wave[] waves;
 
-        [SerializeField] private WaveData waveData;
-
-        private int _spawnPointIndex;
-
-        public Transform[] SpawnPointList { get; set; }
-        public Transform[] DestinationPointList { get; set; }
+        public Transform[] WayPointList { get; set; }
 
         [SerializeField] private UIManager uiManager;
         [SerializeField] private Button startWaveButton;
@@ -58,7 +47,6 @@ namespace ManagerControl
         public void Init()
         {
             _curWave = -1;
-            _spawnPointIndex = -1;
         }
 
         private void OnEnable()
@@ -85,7 +73,7 @@ namespace ManagerControl
             _enemiesIndex = -1;
             _curWave++;
 
-            var enemyCount = waveData.waveData[_curWave].enemyCount;
+            var enemyCount = waves[_curWave].enemyCount;
             while (enemyCount > 0)
             {
                 await UniTask.Delay(1000, cancellationToken: _cts.Token);
@@ -97,21 +85,28 @@ namespace ManagerControl
 
         private void SpawnEnemy()
         {
-            _spawnPointIndex++;
-            var e = ObjectPoolManager.Get<EnemyUnit>(waveData.waveData[_curWave].enemyName,
-                SpawnPointList[_spawnPointIndex]);
+            var e = ObjectPoolManager.Get<EnemyUnit>(waves[_curWave].enemyName,
+                WayPointList[0]);
 
-            e.SetDestination(DestinationPointList[0]);
+            e.onMoveNextPointEvent += MoveNextPoint;
+            e.SetMovePoint(WayPointList[1].position);
             e.onDeadEvent += DeadEnemy;
-            e.onCoinEvent += () => uiManager.TowerCoin += waveData.waveData[_curWave].enemyCoin;
+            e.onCoinEvent += () => uiManager.TowerCoin += waves[_curWave].enemyCoin;
             e.onLifeCountEvent += LifeCount;
 
-            var w = waveData.waveData[_curWave];
+            var w = waves[_curWave];
             e.Init(w.minDamage, w.maxDamage, w.atkDelay, w.health);
-            if (_spawnPointIndex == SpawnPointList.Length - 1)
+        }
+
+        private void MoveNextPoint(EnemyUnit enemy)
+        {
+            var i = ++enemy.wayPointIndex;
+            if (i >= WayPointList.Length)
             {
-                _spawnPointIndex = -1;
+                enemy.gameObject.SetActive(false);
+                return;
             }
+            enemy.SetMovePoint(WayPointList[i].position);
         }
 
         private void DeadEnemy()
@@ -128,16 +123,16 @@ namespace ManagerControl
             uiManager.LifeCount -= 1;
         }
 
-        [ContextMenu("To Json Data")]
-        private void SaveWaveDateToJson()
-        {
-            DataManager.SaveDataToJson<WaveData>("waveData.json");
-        }
-
-        [ContextMenu("From Json Data")]
-        private void LoadWaveDataToJson()
-        {
-            waveData = DataManager.LoadDataFromJson<WaveData>("waveData.json");
-        }
+        // [ContextMenu("To Json Data")]
+        // private void SaveWaveDateToJson()
+        // {
+        //     DataManager.SaveDataToJson<WaveData>("waveData.json");
+        // }
+        //
+        // [ContextMenu("From Json Data")]
+        // private void LoadWaveDataToJson()
+        // {
+        //     waveData = DataManager.LoadDataFromJson<WaveData>("waveData.json");
+        // }
     }
 }
