@@ -471,7 +471,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 288b7560274594a4db9715d259f1eead, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  smoothTurnSpeed: 0.5
+  targetLayer:
+    serializedVersion: 2
+    m_Bits: 256
+  atkRange: 6
+  turnSpeed: 0.1
   meleeWeapon: {fileID: 3757445608704797434}
 --- !u!95 &8650602279492170497
 Animator:

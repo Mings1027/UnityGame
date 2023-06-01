@@ -7,7 +7,6 @@ namespace MapControl
     public class MapController : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         public Transform TowerBuildPoint => towerBuildPoint;
-        public Transform[] WayPoints => _wayPoints;
         
         [SerializeField] private Transform towerBuildPoint;
         [SerializeField] private Transform wayPointParent;

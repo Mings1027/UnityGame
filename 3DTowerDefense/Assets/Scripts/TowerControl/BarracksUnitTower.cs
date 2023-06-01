@@ -29,14 +29,14 @@ namespace TowerControl
         //==================================Custom Function====================================================
         //==================================Custom Function====================================================
 
-        public bool Move()
+        public bool UnitMove()
         {
             var ray = _cam.ScreenPointToRay(Input.GetTouch(0).position);
             if (!Physics.Raycast(ray, out var hit, moveAreaLayer)) return false;
             unitsPosition = hit.point;
             foreach (var t in units)
             {
-                t.GoToTargetPosition(hit.point);
+                t.GoToTouchPosition(hit.point);
             }
 
             return true;

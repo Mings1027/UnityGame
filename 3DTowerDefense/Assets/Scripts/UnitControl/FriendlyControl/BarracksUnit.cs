@@ -24,13 +24,11 @@ namespace UnitControl.FriendlyControl
 
         protected override void Attack()
         {
-            if (isMoving) return;
-
             _anim.SetTrigger(IsAttack);
             ObjectPoolManager.Get(PoolObjectName.SwordSlashSfx, transform);
             ObjectPoolManager.Get(PoolObjectName.SlashVFX, _attackEffectPos.position,
                 transform.rotation * Quaternion.Euler(0, 90, 0));
-            meleeWeapon.Attack(Target, Damage);
+            meleeWeapon.Attack(target, Damage);
         }
     }
 }

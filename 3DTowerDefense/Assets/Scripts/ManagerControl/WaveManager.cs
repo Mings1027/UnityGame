@@ -2,8 +2,10 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameControl;
+using UIControl;
 using UnitControl.EnemyControl;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace ManagerControl
@@ -31,7 +33,7 @@ namespace ManagerControl
 
         public Transform[] WayPointList { get; set; }
 
-        [SerializeField] private UIManager uiManager;
+        [FormerlySerializedAs("informationUIController")] [SerializeField] private InformationUIController infoUIController;
         [SerializeField] private Button startWaveButton;
 
         private void Awake()
@@ -39,12 +41,7 @@ namespace ManagerControl
             startWaveButton.onClick.AddListener(StartWave);
         }
 
-        private void Start()
-        {
-            Init();
-        }
-
-        public void Init()
+        public void ReStart()
         {
             _curWave = -1;
         }
@@ -88,25 +85,25 @@ namespace ManagerControl
             var e = ObjectPoolManager.Get<EnemyUnit>(waves[_curWave].enemyName,
                 WayPointList[0]);
 
-            e.onMoveNextPointEvent += MoveNextPoint;
             e.SetMovePoint(WayPointList[1].position);
+            e.onMoveNextPointEvent += MoveNextPoint;
             e.onDeadEvent += DeadEnemy;
-            e.onCoinEvent += () => uiManager.TowerCoin += waves[_curWave].enemyCoin;
-            e.onLifeCountEvent += LifeCount;
+            e.onIncreaseCoinEvent += () => infoUIController.IncreaseCoin(waves[_curWave].enemyCoin);
+            e.onLifeCountEvent += infoUIController.DecreaseLifeCount;
 
             var w = waves[_curWave];
             e.Init(w.minDamage, w.maxDamage, w.atkDelay, w.health);
         }
 
-        private void MoveNextPoint(EnemyUnit enemy)
+        private void MoveNextPoint(int index, EnemyUnit enemy)
         {
-            var i = ++enemy.wayPointIndex;
-            if (i >= WayPointList.Length)
+            if (index >= WayPointList.Length - 1)
             {
                 enemy.gameObject.SetActive(false);
                 return;
             }
-            enemy.SetMovePoint(WayPointList[i].position);
+
+            enemy.SetMovePoint(WayPointList[index + 1].position);
         }
 
         private void DeadEnemy()
@@ -116,11 +113,6 @@ namespace ManagerControl
             print("Stage Complete");
             _startGame = false;
             startWaveButton.gameObject.SetActive(true);
-        }
-
-        private void LifeCount()
-        {
-            uiManager.LifeCount -= 1;
         }
 
         // [ContextMenu("To Json Data")]

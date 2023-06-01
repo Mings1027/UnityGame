@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,6 +12,11 @@ namespace GameControl
         private void Awake()
         {
             _cam = Camera.main;
+        }
+
+        private void OnEnable()
+        {
+            healthBarForeground.fillAmount = 1;
         }
 
         private void LateUpdate()

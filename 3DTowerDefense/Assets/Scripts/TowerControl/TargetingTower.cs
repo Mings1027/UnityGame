@@ -24,6 +24,7 @@ namespace TowerControl
         {
             base.OnEnable();
             _attackAble = true;
+            InvokeRepeating(nameof(Targeting), 1, 0.5f);
         }
 
         private void Update()
@@ -40,7 +41,7 @@ namespace TowerControl
             _delayTween?.Kill();
         }
 
-        protected override void Targeting()
+        private void Targeting()
         {
             target = SearchTarget.ClosestTarget(transform.position, atkRange, targetColliders, TargetLayer);
             isTargeting = target != null;

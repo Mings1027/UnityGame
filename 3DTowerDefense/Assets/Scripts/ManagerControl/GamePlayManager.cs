@@ -32,7 +32,6 @@ namespace ManagerControl
 
         private string _towerTypeName;
 
-        private int _selectedStageIndex;
         private int _uniqueLevel;
         private int _sellTowerCoin;
 
@@ -45,23 +44,27 @@ namespace ManagerControl
         private Dictionary<string, TowerData> _towerDictionary;
 
         [SerializeField] private WaveManager waveManager;
-        [SerializeField] private UIManager uiManager;
         [SerializeField] private MainMenuUIController mainMenuUIController;
-        [SerializeField] private GameOverUIController gameOverUIController;
+        [SerializeField] private InformationUIController infoUIController;
 
-        [SerializeField] private GameObject gamePlayPanel;
-        [SerializeField] private GameObject informationPanel;
+        [Header("Game Play")] [Space(10)] [SerializeField]
+        private GameObject gamePlayPanel;
 
-        [SerializeField] private ToolTipSystem tooltip;
         [SerializeField] private GameObject towerButtons;
         [SerializeField] private GameObject towerEditPanel;
-
         [SerializeField] private GameObject upgradeButton;
         [SerializeField] private GameObject aUpgradeButton;
         [SerializeField] private GameObject bUpgradeButton;
         [SerializeField] private GameObject moveUnitButton;
         [SerializeField] private GameObject sellButton;
         [SerializeField] private GameObject okButton;
+        [SerializeField] private ToolTipSystem tooltip;
+
+        [Header("Game Over")] [Space(10)] [SerializeField]
+        private GameObject gameOverPanel;
+
+        [SerializeField] private Button reStartButton;
+        [SerializeField] private Button mainMenuButton;
 
         [SerializeField] private MeshFilter curTowerMesh;
         [SerializeField] private MeshRenderer curTowerMeshRenderer;
@@ -69,8 +72,6 @@ namespace ManagerControl
         [SerializeField] private GameObject moveUnitIndicator;
 
         [SerializeField] private TowerData[] towerData;
-
-        [SerializeField] private int[] towerBuildCoin;
 
         [SerializeField] private GameObject[] mapPrefabs;
 
@@ -93,7 +94,10 @@ namespace ManagerControl
 
         private void Start()
         {
-            Init();
+            waveManager.ReStart();
+            mainMenuUIController.Init();
+            TowerButtonInit();
+            GameOverPanelInit();
             TowerDataInit();
         }
 
@@ -114,10 +118,8 @@ namespace ManagerControl
         /*======================================================================================================================
          *                                   Init
          ======================================================================================================================*/
-        private void Init()
+        private void TowerButtonInit()
         {
-            _selectedStageIndex = -1;
-
             var towerButtonObj = new Button[towerButtons.transform.childCount];
             for (var i = 0; i < towerButtonObj.Length; i++)
             {
@@ -129,27 +131,38 @@ namespace ManagerControl
             _towerSelectPanelTween = gamePlayPanel.transform.DOScale(1, 0.1f).From(0).SetAutoKill(false);
         }
 
+        private void GameOverPanelInit()
+        {
+            reStartButton.onClick.AddListener(() =>
+            {
+                ObjectPoolManager.ReStart();
+                ReStart();
+                BuildPointInit();
+                waveManager.ReStart();
+            });
+            mainMenuButton.onClick.AddListener(() => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex));
+        }
+
         public void ReStart()
         {
-            gameOverUIController.SetGameOverPanel(false);
+            Time.timeScale = 1;
+            gameOverPanel.SetActive(false);
             gamePlayPanel.SetActive(true);
-            informationPanel.SetActive(true);
-            uiManager.Init(_selectedStageIndex);
+            infoUIController.gameObject.SetActive(true);
+            infoUIController.Init();
             Close();
         }
 
         public void GameOver()
         {
-            gameOverUIController.SetGameOverPanel(true);
+            Time.timeScale = 0;
+            gameOverPanel.SetActive(true);
             gamePlayPanel.SetActive(false);
-            informationPanel.SetActive(false);
+            infoUIController.gameObject.SetActive(false);
         }
 
         public void MapGenerator(int stageIndex)
         {
-            if (_selectedStageIndex == stageIndex) return;
-
-            _selectedStageIndex = stageIndex;
             Destroy(_curMap);
             _curMap = Instantiate(mapPrefabs[stageIndex], transform);
             mainMenuUIController.SetStageSelectPanel(false);
@@ -167,7 +180,7 @@ namespace ManagerControl
             }
         }
 
-        public void BuildPointInit()
+        private void BuildPointInit()
         {
             var mapController = _curMap.GetComponent<MapController>();
             mapController.onCloseUIEvent += CloseUI;
@@ -248,7 +261,7 @@ namespace ManagerControl
 
         private void MoveUnit()
         {
-            if (_curSelectedTower.GetComponent<BarracksUnitTower>().Move())
+            if (_curSelectedTower.GetComponent<BarracksUnitTower>().UnitMove())
             {
                 _isMoveUnit = false;
             }
@@ -321,13 +334,13 @@ namespace ManagerControl
             {
                 tempTower.TowerLevelUp();
                 tt = t.towerLevels[tempTower.TowerLevel];
-                uiManager.TowerCoin -= towerBuildCoin[tempTower.TowerLevel];
+                infoUIController.DecreaseCoin(tempTower.TowerLevel);
             }
             else
             {
                 tempTower.TowerUniqueLevelUp(_uniqueLevel);
                 tt = t.towerUniqueLevels[tempTower.TowerUniqueLevel];
-                uiManager.TowerCoin -= towerBuildCoin[3];
+                infoUIController.DecreaseCoin(3);
             }
 
             ObjectPoolManager.Get(PoolObjectName.BuildSmoke, tempTower.transform.position);
@@ -358,21 +371,8 @@ namespace ManagerControl
         private void SellButton()
         {
             _isSell = true;
-            _sellTowerCoin = SellTowerCoin();
+            _sellTowerCoin = infoUIController.GetTowerCoin(_curSelectedTower);
             ActiveOkButton($"이 타워를 처분하면{_sellTowerCoin.ToString()} 골드가 반환됩니다.", "타워처분");
-        }
-
-        private int SellTowerCoin()
-        {
-            var towerLevel = _curSelectedTower.IsUniqueTower ? 4 : _curSelectedTower.TowerLevel + 1;
-
-            var sum = 0;
-            for (var i = 0; i < towerLevel; i++)
-            {
-                sum += towerBuildCoin[i];
-            }
-
-            return sum;
         }
 
         private void SellTower()
@@ -381,7 +381,7 @@ namespace ManagerControl
             ObjectPoolManager.Get(PoolObjectName.BuildSmoke, _curSelectedTower.transform);
             ObjectPoolManager.Get(PoolObjectName.BuildingPoint, _curSelectedTower.transform);
 
-            uiManager.TowerCoin += _sellTowerCoin;
+            infoUIController.IncreaseCoin(_sellTowerCoin);
         }
 
         private void ActiveOkButton(string info, string towerName)
@@ -389,23 +389,9 @@ namespace ManagerControl
             _enableOkBtn = true;
             tooltip.Show(_tooltipTarget, info, towerName);
             _okButtonTarget = _eventSystem.currentSelectedGameObject.transform;
-            okButton.GetComponent<Button>().interactable = CanBuildCheck();
             okButton.SetActive(true);
-        }
-
-        private bool CanBuildCheck()
-        {
-            if (_isSell) return true;
-            if (_isTower)
-            {
-                if (uiManager.TowerCoin >= towerBuildCoin[_curSelectedTower.TowerLevel + 1]) return true;
-            }
-            else
-            {
-                if (uiManager.TowerCoin >= 70) return true;
-            }
-
-            return false;
+            okButton.GetComponent<Button>().interactable
+                = _isSell || infoUIController.CheckBuildCoin(_isTower ? _curSelectedTower.TowerLevel + 1 : 0);
         }
 
         private void OkButton()

@@ -8,21 +8,29 @@ namespace UnitControl.EnemyControl
     {
         private Vector3 _destination;
         private Health _health;
-        private Rigidbody _rigid;
+        private int _wayPointIndex;
 
-        public int wayPointIndex;
-        public event Action<EnemyUnit> onMoveNextPointEvent;
+        public Transform Target { get; set; }
+        public bool IsTargeting { get; set; }
+        public event Action<int, EnemyUnit> onMoveNextPointEvent;
         public event Action onDeadEvent;
-        public event Action onCoinEvent;
+        public event Action onIncreaseCoinEvent;
         public event Action onLifeCountEvent;
 
-        [SerializeField] private float moveSpeed;
+        [SerializeField] [Range(0, 1)] private float turnSpeed;
 
         protected override void Awake()
         {
             base.Awake();
             _health = GetComponent<Health>();
-            _rigid = GetComponent<Rigidbody>();
+        }
+
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            _wayPointIndex = 0;
+            Target = null;
+            IsTargeting = false;
         }
 
         private void FixedUpdate()
@@ -30,22 +38,26 @@ namespace UnitControl.EnemyControl
             if (IsTargeting)
             {
                 if (!attackAble) return;
+
+                nav.isStopped = true;
                 Attack();
                 StartCoolDown().Forget();
             }
             else
             {
-                _rigid.MovePosition( _destination * (Time.fixedDeltaTime * moveSpeed));
-                if (Vector3.Distance(transform.position, _destination) <= 0.2f)
+                nav.isStopped = false;
+                nav.SetDestination(_destination);
+                if (Vector3.Distance(transform.position, _destination) <= nav.stoppingDistance)
                 {
-                    onMoveNextPointEvent?.Invoke(this);
+                    onMoveNextPointEvent?.Invoke(_wayPointIndex, this);
                 }
             }
         }
 
-        public void SetMovePoint(Vector3 pos)
+        private void LateUpdate()
         {
-            _destination = pos;
+            if (!IsTargeting) return;
+            LookTarget();
         }
 
         protected override void OnDisable()
@@ -53,11 +65,25 @@ namespace UnitControl.EnemyControl
             base.OnDisable();
             onDeadEvent?.Invoke();
             if (_health.CurHealth > 0) onLifeCountEvent?.Invoke();
-            else onCoinEvent?.Invoke();
+            else onIncreaseCoinEvent?.Invoke();
 
+            onMoveNextPointEvent = null;
             onDeadEvent = null;
+            onIncreaseCoinEvent = null;
             onLifeCountEvent = null;
-            onCoinEvent = null;
+        }
+
+        public void SetMovePoint(Vector3 pos)
+        {
+            _wayPointIndex++;
+            _destination = pos;
+        }
+
+        private void LookTarget()
+        {
+            var dir = (Target.position - transform.position).normalized;
+            var lookRot = Quaternion.LookRotation(dir);
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, turnSpeed);
         }
     }
 }

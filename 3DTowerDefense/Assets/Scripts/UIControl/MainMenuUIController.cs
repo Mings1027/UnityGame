@@ -29,7 +29,7 @@ namespace UIControl
             }
         }
 
-        private void Start()
+        public void Init()
         {
             stageSelectPanel.SetActive(true);
             startPanel.gameObject.SetActive(true);
@@ -42,7 +42,7 @@ namespace UIControl
 
         private void StartGame()
         {
-            startPanel.DOMoveY(Screen.width * 2, 2).SetEase(Ease.InBack);
+            startPanel.DOMoveY(Screen.width * 2, 1).SetEase(Ease.InBack);
         }
     }
 }

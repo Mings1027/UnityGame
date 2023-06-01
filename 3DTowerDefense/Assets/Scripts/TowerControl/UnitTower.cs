@@ -47,22 +47,7 @@ namespace TowerControl
         protected abstract void UnitUpgrade(int minDamage, int maxDamage, float delay, float health);
         protected abstract void UnitSpawn(int i);
 
-        protected override void Targeting()
-        {
-            var size = Physics.OverlapSphereNonAlloc(unitsPosition, unitsRange, targetColliders, TargetLayer);
-
-            if (size > 3) return;
-            for (var i = 0; i < size; i++)
-            {
-                units[i].Target = targetColliders[i].transform;
-                units[i].IsTargeting = true;
-                var enemy = targetColliders[i].GetComponent<EnemyUnit>();
-                enemy.Target = units[i].transform;
-                enemy.IsTargeting = true;
-            }
-        }
-
-        private void UnitDisable(IList<FriendlyUnit> u)
+        private static void UnitDisable(IList<FriendlyUnit> u)
         {
             for (var i = 0; i < u.Count; i++)
             {
