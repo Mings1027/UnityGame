@@ -30,6 +30,9 @@ namespace ManagerControl
         private Transform _okButtonTarget;
         private Transform _tooltipTarget;
 
+        private Image _aButtonImage;
+        private Image _bButtonImage;
+
         private string _towerTypeName;
 
         private int _uniqueLevel;
@@ -75,6 +78,11 @@ namespace ManagerControl
 
         [SerializeField] private GameObject[] mapPrefabs;
 
+        [SerializeField] private Sprite[] archerUpgradeImages;
+        [SerializeField] private Sprite[] barracksUpgradeImages;
+        [SerializeField] private Sprite[] canonUpgradeImages;
+        [SerializeField] private Sprite[] mageUpgradeImages;
+
         /*======================================================================================================================
          *                                        Unity Event
          ======================================================================================================================*/
@@ -90,6 +98,9 @@ namespace ManagerControl
             sellButton.GetComponent<Button>().onClick.AddListener(SellButton);
             okButton.GetComponent<Button>().onClick.AddListener(OkButton);
             moveUnitIndicator.GetComponent<MoveUnitIndicator>().onMoveUnitEvent += MoveUnit;
+
+            _aButtonImage = aUpgradeButton.transform.GetChild(0).GetComponent<Image>();
+            _bButtonImage = bUpgradeButton.transform.GetChild(0).GetComponent<Image>();
         }
 
         private void Start()
@@ -174,6 +185,7 @@ namespace ManagerControl
         {
             var wayPointsParent = _curMap.transform.Find("WayPointsParent");
             waveManager.WayPointList = new Transform[wayPointsParent.childCount];
+
             for (var i = 0; i < waveManager.WayPointList.Length; i++)
             {
                 waveManager.WayPointList[i] = wayPointsParent.GetChild(i);
@@ -213,6 +225,7 @@ namespace ManagerControl
 
         private void OpenTowerSelectPanel(Transform t)
         {
+            if (_isMoveUnit) return;
             CloseUI();
             _panelIsOpen = true;
             _isTower = false;
@@ -226,6 +239,8 @@ namespace ManagerControl
 
         private void OpenTowerEditPanel(Tower t)
         {
+            if (_isMoveUnit) return;
+            SetUpgradeButtonImage(t);
             CloseUI();
             _panelIsOpen = true;
             _isTower = true;
@@ -245,6 +260,30 @@ namespace ManagerControl
             indicatorTransform.position = _curSelectedTower.transform.position;
             indicatorTransform.localScale = new Vector3(t.TowerRange * 2, 0.1f, t.TowerRange * 2);
             towerRangeIndicator.enabled = true;
+        }
+
+        private void SetUpgradeButtonImage(Tower t)
+        {
+            if (t.GetComponent<Tower>().TowerType == Tower.Type.Archer)
+            {
+                _aButtonImage.sprite = archerUpgradeImages[0];
+                _bButtonImage.sprite = archerUpgradeImages[1];
+            }
+            else if (t.GetComponent<Tower>().TowerType == Tower.Type.Barracks)
+            {
+                _aButtonImage.sprite = barracksUpgradeImages[0];
+                _bButtonImage.sprite = barracksUpgradeImages[1];
+            }
+            else if (t.GetComponent<Tower>().TowerType == Tower.Type.Canon)
+            {
+                _aButtonImage.sprite = canonUpgradeImages[0];
+                _bButtonImage.sprite = canonUpgradeImages[1];
+            }
+            else
+            {
+                _aButtonImage.sprite = mageUpgradeImages[0];
+                _bButtonImage.sprite = mageUpgradeImages[1];
+            }
         }
 
         private void MoveUnitButton()
