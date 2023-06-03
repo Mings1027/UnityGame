@@ -33,7 +33,7 @@ namespace ManagerControl
 
         public Transform[] WayPointList { get; set; }
 
-        [FormerlySerializedAs("informationUIController")] [SerializeField] private InformationUIController infoUIController;
+        [FormerlySerializedAs("informationUIController")] [SerializeField] private InfoUIController infoUIController;
         [SerializeField] private Button startWaveButton;
 
         private void Awake()

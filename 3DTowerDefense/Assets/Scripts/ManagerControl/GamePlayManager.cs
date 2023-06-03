@@ -48,7 +48,7 @@ namespace ManagerControl
 
         [SerializeField] private WaveManager waveManager;
         [SerializeField] private MainMenuUIController mainMenuUIController;
-        [SerializeField] private InformationUIController infoUIController;
+        [SerializeField] private InfoUIController infoUIController;
 
         [Header("Game Play")] [Space(10)] [SerializeField]
         private GameObject gamePlayPanel;
@@ -90,26 +90,17 @@ namespace ManagerControl
         {
             _cam = Camera.main;
             _eventSystem = EventSystem.current;
-
-            upgradeButton.GetComponent<Button>().onClick.AddListener(UpgradeButton);
-            aUpgradeButton.GetComponent<Button>().onClick.AddListener(() => UniqueUpgradeButton(0));
-            bUpgradeButton.GetComponent<Button>().onClick.AddListener(() => UniqueUpgradeButton(1));
-            moveUnitButton.GetComponent<Button>().onClick.AddListener(MoveUnitButton);
-            sellButton.GetComponent<Button>().onClick.AddListener(SellButton);
-            okButton.GetComponent<Button>().onClick.AddListener(OkButton);
+            TowerDataInit();
+            TowerButtonInit();
+            TowerEditButtonInit();
+            GameOverPanelInit();
             moveUnitIndicator.GetComponent<MoveUnitIndicator>().onMoveUnitEvent += MoveUnit;
-
-            _aButtonImage = aUpgradeButton.transform.GetChild(0).GetComponent<Image>();
-            _bButtonImage = bUpgradeButton.transform.GetChild(0).GetComponent<Image>();
         }
 
         private void Start()
         {
             waveManager.ReStart();
             mainMenuUIController.Init();
-            TowerButtonInit();
-            GameOverPanelInit();
-            TowerDataInit();
         }
 
         private void LateUpdate()
@@ -136,10 +127,41 @@ namespace ManagerControl
             {
                 towerButtonObj[i] = towerButtons.transform.GetChild(i).gameObject.GetComponent<Button>();
                 var t = towerButtonObj[i].GetComponent<TowerButton>();
-                towerButtonObj[i].onClick.AddListener(() => TowerSelectButtons(t.TowerTypeName));
+                towerButtonObj[i].onClick.AddListener(() =>
+                {
+                    SoundManager.Instance.PlaySound("ButtonClick");
+                    TowerSelectButtons(t.TowerTypeName);
+                });
             }
 
             _towerSelectPanelTween = gamePlayPanel.transform.DOScale(1, 0.1f).From(0).SetAutoKill(false);
+        }
+
+        private void TowerEditButtonInit()
+        {
+            var editButtons = new[]
+            {
+                upgradeButton.GetComponent<Button>(),
+                aUpgradeButton.GetComponent<Button>(),
+                bUpgradeButton.GetComponent<Button>(),
+                moveUnitButton.GetComponent<Button>(),
+                sellButton.GetComponent<Button>(),
+                okButton.GetComponent<Button>()
+            };
+            foreach (var t in editButtons)
+            {
+                t.onClick.AddListener(() => SoundManager.Instance.PlaySound("ButtonClick"));
+            }
+
+            upgradeButton.GetComponent<Button>().onClick.AddListener(UpgradeButton);
+            aUpgradeButton.GetComponent<Button>().onClick.AddListener(() => UniqueUpgradeButton(0));
+            bUpgradeButton.GetComponent<Button>().onClick.AddListener(() => UniqueUpgradeButton(1));
+
+            moveUnitButton.GetComponent<Button>().onClick.AddListener(MoveUnitButton);
+            sellButton.GetComponent<Button>().onClick.AddListener(SellButton);
+            okButton.GetComponent<Button>().onClick.AddListener(OkButton);
+            _aButtonImage = aUpgradeButton.transform.GetChild(0).GetComponent<Image>();
+            _bButtonImage = bUpgradeButton.transform.GetChild(0).GetComponent<Image>();
         }
 
         private void GameOverPanelInit()
@@ -159,7 +181,6 @@ namespace ManagerControl
             Time.timeScale = 1;
             gameOverPanel.SetActive(false);
             gamePlayPanel.SetActive(true);
-            infoUIController.gameObject.SetActive(true);
             infoUIController.Init();
             Close();
         }
@@ -169,7 +190,6 @@ namespace ManagerControl
             Time.timeScale = 0;
             gameOverPanel.SetActive(true);
             gamePlayPanel.SetActive(false);
-            infoUIController.gameObject.SetActive(false);
         }
 
         public void MapGenerator(int stageIndex)
@@ -416,6 +436,9 @@ namespace ManagerControl
 
         private void SellTower()
         {
+            SoundManager.Instance.PlaySound(_curSelectedTower.IsUniqueTower ? "SellTower3" :
+                _curSelectedTower.TowerLevel > 0 ? "SellTower2" : "SellTower1");
+
             _curSelectedTower.gameObject.SetActive(false);
             ObjectPoolManager.Get(PoolObjectName.BuildSmoke, _curSelectedTower.transform);
             ObjectPoolManager.Get(PoolObjectName.BuildingPoint, _curSelectedTower.transform);

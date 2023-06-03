@@ -1,3 +1,4 @@
+using DG.Tweening;
 using ManagerControl;
 using TMPro;
 using TowerControl;
@@ -6,11 +7,14 @@ using UnityEngine.UI;
 
 namespace UIControl
 {
-    public class InformationUIController : MonoBehaviour
+    public class InfoUIController : MonoBehaviour
     {
         private int _towerCoin;
         private int _lifeCount;
-        private bool _isPause;
+        private Tween _menuPanelTween;
+        private Tween _gameUITween;
+        
+        public bool IsPause { get; private set; }
 
         [SerializeField] private GamePlayManager gamePlayManager;
 
@@ -19,23 +23,51 @@ namespace UIControl
         [SerializeField] private int[] stageStartCoin;
         [SerializeField] private int[] towerBuildCoin;
 
-        [SerializeField] private GameObject menuPanel;
+        [SerializeField] private Transform gameUI;
+        [SerializeField] private Transform menuPanel;
         [SerializeField] private Button pauseButton;
+        [SerializeField] private Button resumeButton;
+        [SerializeField] private Button bgmButton;
+        [SerializeField] private Sprite musicOnImage;
+        [SerializeField] private Sprite musicOffImage;
 
         private void Awake()
         {
             pauseButton.onClick.AddListener(Pause);
+            resumeButton.onClick.AddListener(Resume);
+            bgmButton.onClick.AddListener(BGMButton);
+
+            _gameUITween = gameUI.DOLocalMoveY(0, 0.5f)
+                .From(Screen.height).SetUpdate(true).SetAutoKill(false).Pause();
+
+            _menuPanelTween = menuPanel.DOLocalMoveY(0, 0.5f)
+                .From(Screen.height).SetEase(Ease.OutBack).SetUpdate(true).SetAutoKill(false).Pause();
         }
 
         private void Pause()
         {
-            _isPause = !_isPause;
-            Time.timeScale = _isPause ? 0 : 1;
-            menuPanel.SetActive(_isPause);
+            IsPause = true;
+            Time.timeScale = 0;
+            _gameUITween.PlayBackwards();
+            _menuPanelTween.Restart();
+        }
+
+        private void Resume()
+        {
+            IsPause = false;
+            Time.timeScale = 1;
+            _menuPanelTween.PlayBackwards();
+            _gameUITween.Restart();
+        }
+
+        private void BGMButton()
+        {
+            bgmButton.image.sprite = SoundManager.Instance.BGMToggle() ? musicOnImage : musicOffImage;
         }
 
         public void Init()
         {
+            _gameUITween.Restart();
             _towerCoin = stageStartCoin[0];
             coinText.text = _towerCoin.ToString();
             _lifeCount = 20;

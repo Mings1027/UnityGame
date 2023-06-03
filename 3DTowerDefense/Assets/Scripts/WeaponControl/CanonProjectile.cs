@@ -25,6 +25,13 @@ namespace WeaponControl
             ParabolaPath();
         }
 
+        protected override void OnTriggerEnter(Collider other)
+        {
+            if (!other.CompareTag("Ground")) return;
+            ProjectileHit(other);
+            gameObject.SetActive(false);
+        }
+
         private void OnDrawGizmos()
         {
             Gizmos.DrawWireSphere(transform.position, atkRange);

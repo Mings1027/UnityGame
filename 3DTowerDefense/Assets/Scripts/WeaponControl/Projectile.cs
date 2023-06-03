@@ -12,36 +12,22 @@ namespace WeaponControl
         private Vector3 _startPos;
         private Transform _target;
 
-        [SerializeField] private string tagName;
         [SerializeField] private AnimationCurve curve;
         [SerializeField] private float speed;
 
         protected virtual void Awake()
         {
-            
         }
 
         protected virtual void OnEnable()
         {
             _lerp = 0;
             _startPos = transform.position;
-
         }
 
         protected abstract void FixedUpdate();
 
-        private void OnTriggerEnter(Collider other)
-        {
-            if (other.CompareTag(tagName))
-            {
-                ProjectileHit(other);
-                gameObject.SetActive(false);
-            }
-            else if (other.CompareTag("Ground"))
-            {
-                gameObject.SetActive(false);
-            }
-        }
+        protected abstract void OnTriggerEnter(Collider other);
 
         protected void ParabolaPath()
         {
