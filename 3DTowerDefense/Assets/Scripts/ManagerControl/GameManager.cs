@@ -1,6 +1,4 @@
-using UIControl;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace ManagerControl
 {
@@ -8,7 +6,7 @@ namespace ManagerControl
     {
         [SerializeField] private GameObject gamePlayPrefab;
   
-        private void Awake()
+        private void OnEnable()
         {
             Instantiate(gamePlayPrefab, transform);
         }

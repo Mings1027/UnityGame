@@ -13,6 +13,7 @@ namespace ToolTipControl
 
         public void Show(Transform pos, string content, string header = "")
         {
+            toolTip.gameObject.SetActive(true);
             toolTip.SetText(pos, content, header);
         }
 

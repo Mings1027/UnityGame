@@ -1,4 +1,6 @@
+using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace UIControl
 {
@@ -13,7 +15,6 @@ namespace UIControl
         }
 
         public string TowerTypeName => towerType.ToString();
-
         [SerializeField] private TowerType towerType;
     }
 }

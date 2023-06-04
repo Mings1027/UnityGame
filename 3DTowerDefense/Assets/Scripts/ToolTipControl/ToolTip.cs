@@ -7,18 +7,9 @@ namespace ToolTipControl
     public class ToolTip : MonoBehaviour
     {
         private RectTransform _target;
-        // private RectTransform _rectTransform;
-        //
-        // [SerializeField] private int characterWrapLimit;
-        // [SerializeField] private LayoutElement layoutElement;
+
         [SerializeField] private TextMeshProUGUI headerField;
         [SerializeField] private TextMeshProUGUI contentField;
-
-        private void Awake()
-        {
-            // _rectTransform = GetComponent<RectTransform>();
-            gameObject.SetActive(false);
-        }
 
         private void Update()
         {
@@ -44,7 +35,6 @@ namespace ToolTipControl
 
             contentField.text = content;
             SetPosition();
-            gameObject.SetActive(true);
         }
 
         private void SetPosition()

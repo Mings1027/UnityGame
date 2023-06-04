@@ -14886,7 +14886,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b574b856abeb243aebd0b8e2769417d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  tagName: Enemy
   curve:
     serializedVersion: 2
     m_Curve:
@@ -14921,6 +14920,10 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   speed: 1.5
+  jumpPower: 10
+  numJump: 1
+  duration: 1
+  tagName: Enemy
 --- !u!136 &2312138824256600604
 CapsuleCollider:
   m_ObjectHideFlags: 0

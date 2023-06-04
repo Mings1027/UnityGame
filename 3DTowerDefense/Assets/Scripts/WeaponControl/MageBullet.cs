@@ -8,16 +8,19 @@ namespace WeaponControl
     {
         protected override void AttackPath()
         {
-            var dir = (target.position - rigid.position).normalized;
-            rigid.velocity = dir * (BulletSpeed * Time.fixedDeltaTime);
-            transform.forward = dir;
+            var dir = (target.position - transform.position).normalized;
+            // var velocity = dir * BulletSpeed;
+            // rigid.position = velocity * Time.fixedDeltaTime;
+            rigid.MovePosition(rigid.transform.position + dir * (BulletSpeed * Time.fixedDeltaTime));
+            // rigid.velocity = dir * (BulletSpeed * Time.fixedDeltaTime);
+            // rigid.transform.forward = dir;
         }
 
         protected override void BulletHit(Component other)
         {
-            base.BulletHit(other);
             var pos = transform.position;
             ObjectPoolManager.Get(PoolObjectName.MageHitVFX, pos);
+            base.BulletHit(other);
         }
     }
 }

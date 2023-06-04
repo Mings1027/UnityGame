@@ -86,7 +86,7 @@ namespace TowerControl
             {
                 _archerUnits[i].TargetUpdate(target, isTargeting);
                 ObjectPoolManager.Get(PoolObjectName.ArrowShootSfx, transform);
-                ObjectPoolManager.Get<Projectile>(PoolObjectName.ArcherProjectile, _archerUnits[i].transform.position)
+                ObjectPoolManager.Get<ArcherProjectile>(PoolObjectName.ArcherProjectile, _archerUnits[i].transform.position)
                     .Init(target, Damage);
                 await UniTask.Delay(500);
             }

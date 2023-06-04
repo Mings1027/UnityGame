@@ -10,7 +10,7 @@ namespace UnitControl.EnemyControl
         protected override void SpawnProjectile(Transform t)
         {
             var position = transform.position;
-            var p = ObjectPoolManager.Get<Projectile>(PoolObjectName.EnemyArrow, position, Quaternion.Euler(-90, 0, 0));
+            var p = ObjectPoolManager.Get<ArcherProjectile>(PoolObjectName.EnemyArrow, position, Quaternion.Euler(-90, 0, 0));
             p.Init(t, Damage);
         }
     }

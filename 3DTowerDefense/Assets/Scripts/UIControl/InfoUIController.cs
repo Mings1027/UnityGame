@@ -3,6 +3,7 @@ using ManagerControl;
 using TMPro;
 using TowerControl;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace UIControl
@@ -13,7 +14,7 @@ namespace UIControl
         private int _lifeCount;
         private Tween _menuPanelTween;
         private Tween _gameUITween;
-        
+
         public bool IsPause { get; private set; }
 
         [SerializeField] private GamePlayManager gamePlayManager;
@@ -28,6 +29,7 @@ namespace UIControl
         [SerializeField] private Button pauseButton;
         [SerializeField] private Button resumeButton;
         [SerializeField] private Button bgmButton;
+        [SerializeField] private Button mainMenuButton;
         [SerializeField] private Sprite musicOnImage;
         [SerializeField] private Sprite musicOffImage;
 
@@ -36,6 +38,7 @@ namespace UIControl
             pauseButton.onClick.AddListener(Pause);
             resumeButton.onClick.AddListener(Resume);
             bgmButton.onClick.AddListener(BGMButton);
+            mainMenuButton.onClick.AddListener(() => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex));
 
             _gameUITween = gameUI.DOLocalMoveY(0, 0.5f)
                 .From(Screen.height).SetUpdate(true).SetAutoKill(false).Pause();

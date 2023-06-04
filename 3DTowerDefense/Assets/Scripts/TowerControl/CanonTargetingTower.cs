@@ -75,8 +75,8 @@ namespace TowerControl
         {
             ObjectPoolManager.Get(PoolObjectName.CanonShootSfx, transform);
             ObjectPoolManager.Get(PoolObjectName.CanonSmoke, pos);
-            var m = ObjectPoolManager.Get<Projectile>(PoolObjectName.CanonBullet, pos);
-            m.Init(t, Damage);
+            var m = ObjectPoolManager.Get<CanonProjectile>(PoolObjectName.CanonBullet, pos);
+            m.Init(t.position, Damage);
             if (!m.TryGetComponent(out CanonProjectile u)) return;
             var level = IsUniqueTower ? TowerUniqueLevel + 3 : TowerLevel;
             u.CanonMeshFilter.sharedMesh = canonMeshFilters[level].sharedMesh;
