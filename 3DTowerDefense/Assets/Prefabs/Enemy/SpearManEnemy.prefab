@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 6965371322595520465}
   - component: {fileID: 615191486289149194}
   - component: {fileID: -7420644108356587562}
+  - component: {fileID: 6923145154905633913}
   - component: {fileID: 6614397972571029523}
   - component: {fileID: 5208955922669421524}
-  - component: {fileID: 6923145154905633913}
   - component: {fileID: -1008509656102679074}
   m_Layer: 8
   m_Name: SpearManEnemy
@@ -74,6 +74,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dontDestroy: 1
+--- !u!114 &6923145154905633913
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6965371322595520466}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 558000a852120469fbe16d74920b59c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  turnSpeed: 0.1
 --- !u!95 &6614397972571029523
 Animator:
   serializedVersion: 5
@@ -109,19 +125,6 @@ CapsuleCollider:
   m_Height: 3
   m_Direction: 1
   m_Center: {x: 0, y: 1.8617955, z: 0}
---- !u!114 &6923145154905633913
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6965371322595520466}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 558000a852120469fbe16d74920b59c4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  turnSpeed: 0.1
 --- !u!195 &-1008509656102679074
 NavMeshAgent:
   m_ObjectHideFlags: 0

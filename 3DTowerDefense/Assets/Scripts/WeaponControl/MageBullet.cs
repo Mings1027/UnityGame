@@ -1,5 +1,6 @@
 using DataControl;
 using GameControl;
+using UnitControl.EnemyControl;
 using UnityEngine;
 
 namespace WeaponControl
@@ -8,12 +9,8 @@ namespace WeaponControl
     {
         protected override void AttackPath()
         {
-            var dir = (target.position - transform.position).normalized;
-            // var velocity = dir * BulletSpeed;
-            // rigid.position = velocity * Time.fixedDeltaTime;
-            rigid.MovePosition(rigid.transform.position + dir * (BulletSpeed * Time.fixedDeltaTime));
-            // rigid.velocity = dir * (BulletSpeed * Time.fixedDeltaTime);
-            // rigid.transform.forward = dir;
+            var dir = (target.position + target.up - transform.position).normalized;
+            rigid.velocity = dir * (BulletSpeed * Time.fixedDeltaTime);
         }
 
         protected override void BulletHit(Component other)

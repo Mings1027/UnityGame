@@ -10,17 +10,6 @@ namespace TowerControl
 {
     public class BarracksUnitTower : UnitTower
     {
-        private Camera _cam;
-
-        [SerializeField] private LayerMask moveAreaLayer;
-
-        protected override void Awake()
-        {
-            base.Awake();
-            _cam = Camera.main;
-            units = new FriendlyUnit[3];
-        }
-
         protected override void OnDisable()
         {
             base.OnDisable();
@@ -29,14 +18,20 @@ namespace TowerControl
         //==================================Custom Function====================================================
         //==================================Custom Function====================================================
 
-        public bool UnitMove()
+        protected override void Init()
         {
-            var ray = _cam.ScreenPointToRay(Input.GetTouch(0).position);
-            if (!Physics.Raycast(ray, out var hit, moveAreaLayer)) return false;
-            unitsPosition = hit.point;
-            foreach (var t in units)
+            base.Init();
+            units = new FriendlyUnit[3];
+        }
+
+        public bool UnitMove(Vector3 touchPos)
+        {
+            if (Vector3.Distance(transform.position, touchPos) >= TowerRange) return false;
+
+            for (var i = 0; i < units.Length; i++)
             {
-                t.GoToTouchPosition(hit.point);
+                var t = units[i];
+                t.GoToTouchPosition(touchPos);
             }
 
             return true;
@@ -57,7 +52,6 @@ namespace TowerControl
         {
             if (!NavMesh.SamplePosition(transform.position, out var hit, 15, NavMesh.AllAreas)) return;
 
-            unitsPosition = hit.position;
             var unitName = IsUniqueTower ? PoolObjectName.SpearManUnit : PoolObjectName.SwordManUnit;
             var ranPos = hit.position + Random.insideUnitSphere * 5f;
             units[i] = ObjectPoolManager.Get<BarracksUnit>(unitName, ranPos);

@@ -74,7 +74,7 @@ namespace ManagerControl
         [SerializeField] private MeshFilter curTowerMesh;
         [SerializeField] private MeshRenderer curTowerMeshRenderer;
         [SerializeField] private MeshRenderer towerRangeIndicator;
-        [SerializeField] private GameObject moveUnitIndicator;
+        [SerializeField] private MoveUnitIndicator moveUnitIndicator;
 
         [SerializeField] private TowerData[] towerData;
 
@@ -96,7 +96,6 @@ namespace ManagerControl
             TowerButtonInit();
             TowerEditButtonInit();
             GameOverPanelInit();
-            moveUnitIndicator.GetComponent<MoveUnitIndicator>().onMoveUnitEvent += MoveUnit;
         }
 
         private void Start()
@@ -129,7 +128,6 @@ namespace ManagerControl
             for (var i = 0; i < towerButtonObj.Length; i++)
             {
                 towerButtonObj[i] = towerButtons.transform.GetChild(i).GetChild(0).GetComponent<Button>();
-                print(towerButtonObj[i]);
                 var t = towerButtonObj[i].GetComponent<TowerButton>();
                 var index = i;
                 towerButtonObj[i].onClick.AddListener(() => { TowerSelectButtons(t.TowerTypeName, index); });
@@ -165,6 +163,8 @@ namespace ManagerControl
             okButton.GetComponent<Button>().onClick.AddListener(OkButton);
             _aButtonImage = aUpgradeButton.transform.GetChild(0).GetComponent<Image>();
             _bButtonImage = bUpgradeButton.transform.GetChild(0).GetComponent<Image>();
+
+            moveUnitIndicator.onMoveUnitEvent += () => _isMoveUnit = false;
         }
         
         private void GameOverPanelInit()
@@ -314,24 +314,12 @@ namespace ManagerControl
             _isMoveUnit = true;
             moveUnitButton.SetActive(false);
             CloseUI();
+            moveUnitIndicator.BarracksTower = _curSelectedTower.GetComponent<BarracksUnitTower>();
             var moveUnitIndicatorTransform = moveUnitIndicator.transform;
             moveUnitIndicatorTransform.position = _curSelectedTower.transform.position;
             moveUnitIndicatorTransform.localScale =
                 new Vector3(_curSelectedTower.TowerRange * 2, 0.1f, _curSelectedTower.TowerRange * 2);
-            moveUnitIndicator.SetActive(true);
-        }
-
-        private void MoveUnit()
-        {
-            if (_curSelectedTower.GetComponent<BarracksUnitTower>().UnitMove())
-            {
-                _isMoveUnit = false;
-            }
-            else
-            {
-                print("Can't Move");
-                // X표시 UI를 나타나게 해준다던가 이펙트표시해주면 좋을듯
-            }
+            moveUnitIndicator.gameObject.SetActive(true);
         }
 
         private void CloseUI()
@@ -354,7 +342,7 @@ namespace ManagerControl
             if (towerButtons.gameObject.activeSelf) towerButtons.gameObject.SetActive(false);
             if (towerEditPanel.activeSelf) towerEditPanel.SetActive(false);
             if (towerRangeIndicator.enabled) towerRangeIndicator.enabled = false;
-            if (moveUnitIndicator.activeSelf) moveUnitIndicator.SetActive(false);
+            if (moveUnitIndicator.gameObject.activeSelf) moveUnitIndicator.gameObject.SetActive(false);
             if (okButton.activeSelf) okButton.SetActive(false);
             if (sellButton.activeSelf) sellButton.SetActive(false);
             curTowerMeshRenderer.enabled = false;

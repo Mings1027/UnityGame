@@ -17,9 +17,15 @@ namespace TowerControl
 
         [SerializeField] private MeshFilter[] canonMeshFilters;
 
-        protected override void Awake()
+        private void OnDestroy()
         {
-            base.Awake();
+            _atkSequence.Kill();
+        }
+
+        protected override void Init()
+        {
+            base.Init();
+            targetColliders = new Collider[5];
             var singlePoint = GameObject.Find("SingleShootPoint").transform;
             _singleShootPoints = new Transform[singlePoint.childCount];
             for (var i = 0; i < _singleShootPoints.Length; i++)
@@ -37,11 +43,6 @@ namespace TowerControl
             _atkSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(meshFilter.transform.DOScaleY(0.5f, 0.3f).SetEase(Ease.OutQuint))
                 .Append(meshFilter.transform.DOScaleY(1f, 0.3f).SetEase(Ease.OutQuint));
-        }
-
-        private void OnDestroy()
-        {
-            _atkSequence.Kill();
         }
 
         public override void TowerSetting(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range,

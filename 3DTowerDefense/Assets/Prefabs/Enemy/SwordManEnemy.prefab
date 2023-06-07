@@ -346,9 +346,9 @@ GameObject:
   - component: {fileID: 10859800051177606}
   - component: {fileID: 7433286837059750528}
   - component: {fileID: 8425172523074764605}
+  - component: {fileID: 4243633212556056026}
   - component: {fileID: -3692400187074213520}
   - component: {fileID: 6269060457891663113}
-  - component: {fileID: 4243633212556056026}
   - component: {fileID: 7438216865503244874}
   m_Layer: 8
   m_Name: SwordManEnemy
@@ -409,6 +409,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dontDestroy: 1
+--- !u!114 &4243633212556056026
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 10859800051177605}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 558000a852120469fbe16d74920b59c4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  turnSpeed: 0.1
 --- !u!95 &-3692400187074213520
 Animator:
   serializedVersion: 5
@@ -444,19 +460,6 @@ CapsuleCollider:
   m_Height: 4
   m_Direction: 1
   m_Center: {x: 0, y: 2.5, z: 0}
---- !u!114 &4243633212556056026
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 10859800051177605}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 558000a852120469fbe16d74920b59c4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  turnSpeed: 0.1
 --- !u!195 &7438216865503244874
 NavMeshAgent:
   m_ObjectHideFlags: 0

@@ -14,7 +14,8 @@ namespace UnitControl
         private float _atkDelay;
         private int _minDamage, _maxDamage;
 
-        private CancellationTokenSource _cts;
+        protected Collider[] targetColliders;
+        protected CancellationTokenSource cts;
 
         protected NavMeshAgent nav;
         protected bool attackAble;
@@ -27,15 +28,14 @@ namespace UnitControl
 
         protected virtual void OnEnable()
         {
-            _cts?.Dispose();
-            _cts = new CancellationTokenSource();
+            cts?.Dispose();
+            cts = new CancellationTokenSource();
             attackAble = true;
         }
 
         protected virtual void OnDisable()
         {
-            _cts?.Cancel();
-            CancelInvoke();
+            cts?.Cancel();
         }
 
         protected abstract void Attack();
@@ -43,7 +43,7 @@ namespace UnitControl
         protected async UniTaskVoid StartCoolDown()
         {
             attackAble = false;
-            await UniTask.Delay(TimeSpan.FromSeconds(_atkDelay), cancellationToken: _cts.Token);
+            await UniTask.Delay(TimeSpan.FromSeconds(_atkDelay), cancellationToken: cts.Token);
             attackAble = true;
         }
 

@@ -1,4 +1,5 @@
 using System;
+using Cysharp.Threading.Tasks;
 using GameControl;
 using UnityEngine;
 
@@ -9,6 +10,7 @@ namespace UnitControl.EnemyControl
         private Vector3 _destination;
         private Health _health;
         private int _wayPointIndex;
+        private bool _isSpeedDeBuffed;
 
         public Transform Target { get; set; }
         public bool IsTargeting { get; set; }
@@ -84,6 +86,16 @@ namespace UnitControl.EnemyControl
             var dir = (Target.position - transform.position).normalized;
             var lookRot = Quaternion.LookRotation(dir);
             transform.rotation = Quaternion.Slerp(transform.rotation, lookRot, turnSpeed);
+        }
+
+        public async UniTaskVoid SlowMovement(float deBuffTime, float decreaseSpeed)
+        {
+            if (_isSpeedDeBuffed) return;
+            _isSpeedDeBuffed = true;
+            nav.speed -= decreaseSpeed;
+            await UniTask.Delay(TimeSpan.FromSeconds(deBuffTime), cancellationToken: cts.Token);
+            nav.speed += decreaseSpeed;
+            _isSpeedDeBuffed = false;
         }
     }
 }

@@ -12,13 +12,9 @@ namespace TowerControl
         protected Transform target;
         protected bool isTargeting;
 
+        protected Collider[] targetColliders;
+        
         protected abstract void Attack();
-
-        protected override void Awake()
-        {
-            base.Awake();
-            targetColliders = new Collider[5];
-        }
 
         protected override void OnEnable()
         {

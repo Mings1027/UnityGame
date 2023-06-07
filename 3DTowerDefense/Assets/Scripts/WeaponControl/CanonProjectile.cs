@@ -21,11 +21,6 @@ namespace WeaponControl
             _targetColliders = new Collider[5];
         }
 
-        protected override void FixedUpdate()
-        {
-            ParabolaPath();
-        }
-
         protected override void OnTriggerEnter(Collider other)
         {
             if (!other.CompareTag("Ground")) return;

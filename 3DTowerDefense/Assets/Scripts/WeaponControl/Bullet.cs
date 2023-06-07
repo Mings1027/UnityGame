@@ -13,7 +13,7 @@ namespace WeaponControl
 
         [SerializeField] private float bulletSpeed;
 
-        private void Awake()
+        protected virtual void Awake()
         {
             rigid = GetComponent<Rigidbody>();
         }
@@ -27,7 +27,7 @@ namespace WeaponControl
             AttackPath();
         }
 
-        private void OnTriggerEnter(Collider other)
+        protected virtual void OnTriggerEnter(Collider other)
         {
             if (!other.CompareTag("Enemy")) return;
             BulletHit(other);

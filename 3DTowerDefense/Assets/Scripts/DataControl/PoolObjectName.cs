@@ -20,8 +20,9 @@ namespace DataControl
         ==================================================================================================================*/
         public const string ArcherBullet = "ArcherBullet";
         public const string ArcherProjectile = "ArcherProjectile";
-        public const string BlueMageBullet = "MageBullet";
-        public const string OrangeMageBullet = "OrangeMageBullet";
+        public const string MageBullet = "MageBullet";
+        public const string SlowDownMageBullet = "SlowDownMageBullet";
+        public const string PenetrationMageBullet = "PenetrationMageBullet";
         public const string CanonBullet = "CanonBullet";
 
         public const string EnemyArrow = "EnemyArrow";
@@ -41,7 +42,8 @@ namespace DataControl
         public const string CanonShootSfx = "CanonShootSFX";
         
         public const string MageShootSfx = "MageShootSFX";
-        public const string OrangeMageShootSfx = "OrangeMageShootSFX";
+        public const string SlowDownMageShootSfx = "SlowDownMageShootSfx";
+        public const string PenetrationMageShootSfx = "PenetrationMageShootSfx";
         /*------------------------------------------------------------------------------------------------------------------
         *                                               Hit Sound
         ------------------------------------------------------------------------------------------------------------------*/

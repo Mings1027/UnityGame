@@ -28,7 +28,10 @@ namespace WeaponControl
             startPos = transform.position;
         }
 
-        protected abstract void FixedUpdate();
+        protected virtual void FixedUpdate()
+        {
+            ParabolaPath();
+        }
 
         protected abstract void OnTriggerEnter(Collider other);
 

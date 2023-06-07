@@ -14,7 +14,6 @@ namespace TowerControl
         private int _deadUnitCount;
 
         protected FriendlyUnit[] units;
-        protected Vector3 unitsPosition;
 
         [SerializeField] private int unitsRange;
 
@@ -22,23 +21,12 @@ namespace TowerControl
         *                                               Unity Event
         =========================================================================================================================================*/
 
-        protected override void Awake()
-        {
-            base.Awake();
-            targetColliders = new Collider[4];
-        }
-
         protected override void OnDisable()
         {
             base.OnDisable();
             UnitDisable(units);
         }
 
-        private void OnDrawGizmos()
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(unitsPosition, unitsRange);
-        }
 
         /*=========================================================================================================================================
         *                                               Unity Event

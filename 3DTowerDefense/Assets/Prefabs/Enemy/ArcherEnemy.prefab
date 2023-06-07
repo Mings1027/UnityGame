@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 935677572844096963}
   - component: {fileID: 8097934780018617629}
   - component: {fileID: 2331885094223226544}
-  - component: {fileID: 6808952035858103514}
   - component: {fileID: 3825306303713396164}
+  - component: {fileID: 6808952035858103514}
   - component: {fileID: 5325122407077720056}
   m_Layer: 8
   m_Name: ArcherEnemy
@@ -73,6 +73,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dontDestroy: 1
+--- !u!114 &3825306303713396164
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4720547442794712445}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58753f37b083349a4ad998f4b0c8573f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  turnSpeed: 0.1
 --- !u!136 &6808952035858103514
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -87,19 +100,6 @@ CapsuleCollider:
   m_Height: 4
   m_Direction: 1
   m_Center: {x: 0, y: 2.5, z: 0}
---- !u!114 &3825306303713396164
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4720547442794712445}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 58753f37b083349a4ad998f4b0c8573f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  turnSpeed: 0.1
 --- !u!195 &5325122407077720056
 NavMeshAgent:
   m_ObjectHideFlags: 0

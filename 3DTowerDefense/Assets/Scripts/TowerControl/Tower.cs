@@ -19,7 +19,6 @@ namespace TowerControl
         protected bool isUpgrading;
         protected bool isSold;
 
-        protected Collider[] targetColliders;
 
         public event Action<Tower> onOpenTowerEditPanelEvent;
 
@@ -40,18 +39,15 @@ namespace TowerControl
         [SerializeField] private Type towerType;
         [SerializeField] private LayerMask targetLayer;
 
-        protected virtual void Awake()
+        private void Awake()
         {
-            _collider = GetComponent<Collider>();
-            _collider.enabled = false;
-            meshFilter = transform.GetChild(0).GetComponent<MeshFilter>();
-            _initMesh = meshFilter;
+            Init();
         }
 
         protected virtual void OnEnable()
         {
             isSold = false;
-         }
+        }
 
         protected virtual void OnDisable()
         {
@@ -75,7 +71,15 @@ namespace TowerControl
 
         //==================================Custom Method====================================================
         //======================================================================================================
-        
+
+        protected virtual void Init()
+        {
+            _collider = GetComponent<Collider>();
+            _collider.enabled = false;
+            meshFilter = transform.GetChild(0).GetComponent<MeshFilter>();
+            _initMesh = meshFilter;
+        }
+
         public void TowerLevelUp()
         {
             TowerLevel++;

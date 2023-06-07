@@ -10,11 +10,6 @@ namespace WeaponControl
         private Transform _target;
         [SerializeField] private string tagName;
 
-        protected override void FixedUpdate()
-        {
-            ParabolaPath();
-        }
-
         protected override void OnTriggerEnter(Collider other)
         {
             if (other.CompareTag(tagName))

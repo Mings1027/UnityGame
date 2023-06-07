@@ -18,16 +18,17 @@ namespace TowerControl
 
         private event Action onAttackEvent;
 
-        protected override void Awake()
-        {
-            base.Awake();
-            _archerUnits ??= new ArcherUnit[2];
-        }
-
         protected override void OnDisable()
         {
             base.OnDisable();
             UnitDisable();
+        }
+
+        protected override void Init()
+        {
+            base.Init();
+            targetColliders = new Collider[5];
+            _archerUnits ??= new ArcherUnit[2];
         }
 
         public override void TowerInit(MeshFilter consMeshFilter)
@@ -86,7 +87,8 @@ namespace TowerControl
             {
                 _archerUnits[i].TargetUpdate(target, isTargeting);
                 ObjectPoolManager.Get(PoolObjectName.ArrowShootSfx, transform);
-                ObjectPoolManager.Get<ArcherProjectile>(PoolObjectName.ArcherProjectile, _archerUnits[i].transform.position)
+                ObjectPoolManager
+                    .Get<ArcherProjectile>(PoolObjectName.ArcherProjectile, _archerUnits[i].transform.position)
                     .Init(target, Damage);
                 await UniTask.Delay(500);
             }

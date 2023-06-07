@@ -20,9 +20,10 @@ namespace TowerControl
         [SerializeField] private Transform[] crystalPositions;
         private static readonly int EmissionColor = Shader.PropertyToID("_EmissionColor");
 
-        protected override void Awake()
+        protected override void Init()
         {
-            base.Awake();
+            base.Init();
+            targetColliders = new Collider[3];
             _material = crystal.GetComponent<Renderer>().material;
             _crystalMeshFilter = crystal.GetComponent<MeshFilter>();
 
@@ -44,22 +45,22 @@ namespace TowerControl
             base.TowerSetting(towerMeshFilter, minDamage, maxDamage, range, delay, health);
             CrystalPosInit();
             onAttackEvent = null;
-            // onAttackEvent += IsUniqueTower ? TowerUniqueLevel == 0 ? OrangeAttack : PurpleAttack : NormalAttack;
-            if (IsUniqueTower)
-            {
-                if (TowerUniqueLevel == 0)
-                {
-                    onAttackEvent += OrangeAttack;
-                }
-                else
-                {
-                    //PurpleAttack 등록해줘야함
-                }
-            }
-            else
-            {
-                onAttackEvent += NormalAttack;
-            }
+            onAttackEvent += IsUniqueTower ? TowerUniqueLevel == 0 ? SlowDownAttack : PenetrationAttack : NormalAttack;
+            // if (IsUniqueTower)
+            // {
+            //     if (TowerUniqueLevel == 0)
+            //     {
+            //         onAttackEvent += SlowDownAttack;
+            //     }
+            //     else
+            //     {
+            //         onAttackEvent += PenetrationAttack;
+            //     }
+            // }
+            // else
+            // {
+            //     onAttackEvent += NormalAttack;
+            // }
         }
 
         private void CrystalPosInit()
@@ -77,20 +78,29 @@ namespace TowerControl
 
         private void NormalAttack()
         {
-            ObjectPoolManager.Get(PoolObjectName.MageShootSfx, transform.position);
-            ObjectPoolManager.Get<Bullet>(PoolObjectName.BlueMageBullet, crystalPositions[TowerLevel])
+            ObjectPoolManager.Get(PoolObjectName.MageShootSfx, transform);
+            ObjectPoolManager.Get<MageBullet>(PoolObjectName.MageBullet, crystalPositions[TowerLevel])
                 .Init(target, Damage);
         }
 
-        private void OrangeAttack()
+        private void SlowDownAttack()
         {
-            ObjectPoolManager.Get(PoolObjectName.OrangeMageShootSfx, transform.position);
-            ObjectPoolManager.Get<Bullet>(PoolObjectName.OrangeMageBullet, crystalPositions[TowerUniqueLevel + 3])
+            ObjectPoolManager.Get(PoolObjectName.SlowDownMageShootSfx, transform);
+            ObjectPoolManager
+                .Get<SlowDownMageBullet>(PoolObjectName.SlowDownMageBullet, crystalPositions[TowerUniqueLevel + 3])
                 .Init(target, Damage);
         }
 
-        private void PurpleAttack()
+        private void PenetrationAttack()
         {
+            ObjectPoolManager.Get(PoolObjectName.PenetrationMageShootSfx, transform);
+            var p = ObjectPoolManager.Get<PenetrationMageBullet>(PoolObjectName.PenetrationMageBullet,
+                crystalPositions[TowerUniqueLevel + 3]);
+            p.Init(target, Damage);
+
+            var size = Physics.OverlapSphereNonAlloc(transform.position, TowerRange, targetColliders, TargetLayer);
+
+            p.UpdateTarget(size, targetColliders);
             //범위에 들어온 적 순서데로 발사체가 관통하며 공격 전기 이펙트 처럼 하면 좋겟는데 어케 만들지..
         }
     }

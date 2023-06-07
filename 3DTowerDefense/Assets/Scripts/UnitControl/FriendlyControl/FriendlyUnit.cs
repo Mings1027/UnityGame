@@ -1,4 +1,5 @@
 using System;
+using GameControl;
 using UnitControl.EnemyControl;
 using UnityEngine;
 using UnityEngine.AI;
@@ -7,7 +8,6 @@ namespace UnitControl.FriendlyControl
 {
     public abstract class FriendlyUnit : Unit
     {
-        private Collider[] _targetColliders;
         private bool _isTargeting;
         private Vector3 _touchPos;
 
@@ -23,7 +23,7 @@ namespace UnitControl.FriendlyControl
         protected override void Awake()
         {
             base.Awake();
-            _targetColliders = new Collider[2];
+            targetColliders = new Collider[2];
         }
 
         protected override void OnEnable()
@@ -67,6 +67,8 @@ namespace UnitControl.FriendlyControl
         protected override void OnDisable()
         {
             base.OnDisable();
+            CancelInvoke();
+            TargetReset();
             onDeadEvent?.Invoke(this);
             onDeadEvent = null;
         }
@@ -96,9 +98,8 @@ namespace UnitControl.FriendlyControl
             if (_isMoving) return;
             if (target == null)
             {
-                var t = SearchTargetPlease();
-                target = t.Item1;
-                _isTargeting = t.Item2;
+                target = SearchTarget.ClosestTarget(transform.position, atkRange, targetColliders, targetLayer);
+                _isTargeting = target != null;
             }
             else
             {
@@ -116,23 +117,33 @@ namespace UnitControl.FriendlyControl
             }
         }
 
-        private (Transform, bool) SearchTargetPlease()
+        private void TargetReset()
         {
-            var size = Physics.OverlapSphereNonAlloc(transform.position, atkRange, _targetColliders, targetLayer);
-            if (size <= 0) return (null, false);
-
-            var shortestDistance = Mathf.Infinity;
-            Transform nearestTarget = null;
-
-            for (var i = 0; i < size; i++)
-            {
-                var disToTarget = Vector3.SqrMagnitude(transform.position - _targetColliders[i].transform.position);
-                if (disToTarget >= shortestDistance) continue;
-                shortestDistance = disToTarget;
-                nearestTarget = _targetColliders[i].transform;
-            }
-
-            return (nearestTarget, true);
+            if (!_isTargeting) return;
+            var e = target.GetComponent<EnemyUnit>();
+            e.Target = null;
+            e.IsTargeting = false;
+            target = null;
+            _isTargeting = false;
         }
+
+        // private (Transform, bool) SearchTargetPlease()
+        // {
+        //     var size = Physics.OverlapSphereNonAlloc(transform.position, atkRange, targetColliders, targetLayer);
+        //     if (size <= 0) return (null, false);
+        //
+        //     var shortestDistance = Mathf.Infinity;
+        //     Transform nearestTarget = null;
+        //
+        //     for (var i = 0; i < size; i++)
+        //     {
+        //         var disToTarget = Vector3.SqrMagnitude(transform.position - targetColliders[i].transform.position);
+        //         if (disToTarget >= shortestDistance) continue;
+        //         shortestDistance = disToTarget;
+        //         nearestTarget = targetColliders[i].transform;
+        //     }
+        //
+        //     return (nearestTarget, true);
+        // }
     }
 }

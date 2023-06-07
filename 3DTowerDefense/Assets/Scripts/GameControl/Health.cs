@@ -25,6 +25,8 @@ namespace GameControl
         {
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
+            curHealth = maxHealth;
+            IsDead = false;
         }
 
         private void OnDisable()

@@ -46,7 +46,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 03fef53cd1bec459386a52c88363a9fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  smoothTurnSpeed: 0
+  targetLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  atkRange: 0
+  turnSpeed: 0
 --- !u!114 &2226921518607690517
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -60,7 +64,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dontDestroy: 1
-  lifeTime: 0
 --- !u!1 &6157758749145665941
 GameObject:
   m_ObjectHideFlags: 0
@@ -123,7 +126,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ed9f29ddef3dac64dbba787a64fa05ba, type: 2}
+  - {fileID: 2100000, guid: c717fb89e24ff384785039c0f1169eee, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
