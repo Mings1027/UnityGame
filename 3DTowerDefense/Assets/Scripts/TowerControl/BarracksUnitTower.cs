@@ -26,7 +26,7 @@ namespace TowerControl
 
         public bool UnitMove(Vector3 touchPos)
         {
-            if (Vector3.Distance(transform.position, touchPos) >= TowerRange) return false;
+            if (Vector3.Distance(transform.position, touchPos) >= 15) return false;
 
             for (var i = 0; i < units.Length; i++)
             {

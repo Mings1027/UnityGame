@@ -42,7 +42,6 @@ namespace UIControl
 
         private void StartGame()
         {
-            print("s");
             Time.timeScale = 1;
             startPanel.DOMoveY(Screen.width * 2, 1).SetEase(Ease.InBack);
             SoundManager.Instance.PlayBGM();

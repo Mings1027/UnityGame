@@ -7,6 +7,7 @@ namespace GameControl
     public class HealthBar : MonoBehaviour
     {
         private Camera _cam;
+        private Quaternion _previousRotation;
         [SerializeField] private Image healthBarForeground;
 
         private void Awake()
@@ -21,7 +22,11 @@ namespace GameControl
 
         private void LateUpdate()
         {
-            transform.LookAt(_cam.transform,Vector3.up);
+            if (_cam.transform.rotation == _previousRotation) return;
+
+            var rotation = _cam.transform.rotation;
+            transform.rotation = rotation;
+            _previousRotation = rotation;
         }
 
         public void UpdateHealthBar(float amount)

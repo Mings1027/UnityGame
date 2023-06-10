@@ -11,25 +11,25 @@ namespace UIControl
         private int _lastIndex;
         [SerializeField] private Sprite okSprite;
 
-        [SerializeField] private Button[] towerButtons;
-        [SerializeField] private Sprite[] defaultSprites;
+        private Button[] _towerButtons;
+        private Sprite[] _defaultSprites;
 
         private void Awake()
         {
             _lastIndex = -1;
-            towerButtons = new Button[transform.childCount];
-            defaultSprites = new Sprite[towerButtons.Length];
+            _towerButtons = new Button[transform.childCount];
+            _defaultSprites = new Sprite[_towerButtons.Length];
 
-            for (var i = 0; i < towerButtons.Length; i++)
+            for (var i = 0; i < _towerButtons.Length; i++)
             {
-                towerButtons[i] = transform.GetChild(i).GetChild(0).GetComponent<Button>();
+                _towerButtons[i] = transform.GetChild(i).GetChild(0).GetComponent<Button>();
                 var index = i;
-                towerButtons[i].onClick.AddListener(() =>
+                _towerButtons[i].onClick.AddListener(() =>
                 {
                     CheckButton(index);
                     SoundManager.Instance.PlaySound("ButtonClick");
                 });
-                defaultSprites[i] = towerButtons[i].image.sprite;
+                _defaultSprites[i] = _towerButtons[i].image.sprite;
             }
             gameObject.SetActive(false);
         }
@@ -37,7 +37,7 @@ namespace UIControl
         public void DefaultSprite()
         {
             if (_lastIndex == -1) return;
-            towerButtons[_lastIndex].image.sprite = defaultSprites[_lastIndex];
+            _towerButtons[_lastIndex].image.sprite = _defaultSprites[_lastIndex];
             _lastIndex = -1;
         }
 
@@ -45,12 +45,12 @@ namespace UIControl
         {
             if (_lastIndex != -1)
             {
-                towerButtons[_lastIndex].image.sprite = defaultSprites[_lastIndex];
+                _towerButtons[_lastIndex].image.sprite = _defaultSprites[_lastIndex];
             }
 
             _lastIndex = index;
 
-            towerButtons[index].image.sprite = okSprite;
+            _towerButtons[index].image.sprite = okSprite;
         }
     }
 }

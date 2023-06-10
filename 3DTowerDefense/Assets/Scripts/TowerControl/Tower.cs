@@ -5,7 +5,7 @@ using Random = UnityEngine.Random;
 
 namespace TowerControl
 {
-    public abstract class Tower : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+    public abstract class Tower : MonoBehaviour
     {
         private Collider _collider;
         private MeshFilter _initMesh;
@@ -18,9 +18,6 @@ namespace TowerControl
         protected MeshFilter meshFilter;
         protected bool isUpgrading;
         protected bool isSold;
-
-
-        public event Action<Tower> onOpenTowerEditPanelEvent;
 
         public enum Type
         {
@@ -56,17 +53,6 @@ namespace TowerControl
             IsUniqueTower = false;
             isSold = true;
             meshFilter.sharedMesh = _initMesh.sharedMesh;
-            onOpenTowerEditPanelEvent = null;
-        }
-
-        public void OnPointerDown(PointerEventData eventData)
-        {
-        }
-
-        public void OnPointerUp(PointerEventData eventData)
-        {
-            if (isUpgrading) return;
-            onOpenTowerEditPanelEvent?.Invoke(this);
         }
 
         //==================================Custom Method====================================================

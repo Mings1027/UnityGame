@@ -1,18 +1,14 @@
-using System;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 namespace MapControl
 {
-    public class MapController : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+    public class MapController : MonoBehaviour
     {
         public Transform TowerBuildPoint => towerBuildPoint;
 
         [SerializeField] private Transform towerBuildPoint;
         [SerializeField] private Transform wayPointParent;
         private Transform[] _wayPoints;
-
-        public event Action onCloseUIEvent;
 
         private void Start()
         {
@@ -21,22 +17,6 @@ namespace MapControl
             {
                 _wayPoints[i] = wayPointParent.GetChild(i);
             }
-        }
-
-        private void OnDestroy()
-        {
-            onCloseUIEvent = null;
-        }
-
-        public void OnPointerDown(PointerEventData eventData)
-        {
-        }
-
-        public void OnPointerUp(PointerEventData eventData)
-        {
-            if (Input.touchCount <= 0) return;
-            if (Input.GetTouch(0).deltaPosition != Vector2.zero) return;
-            onCloseUIEvent?.Invoke();
         }
     }
 }
