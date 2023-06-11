@@ -2,9 +2,7 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
-using GameControl;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 namespace ManagerControl
 {
@@ -17,7 +15,7 @@ namespace ManagerControl
         private float _lerp;
         private Vector3 _touchStartPos;
         private bool _isMove;
-
+        
         [SerializeField] private float moveSpeed;
         [SerializeField] private float rotationSpeed;
         [SerializeField] private float zoomSpeed;
@@ -43,8 +41,7 @@ namespace ManagerControl
             {
                 case 1:
                     var touch = Input.GetTouch(0);
-                    CameraMovement(touch);
-                    
+                    CameraMovementPlease(touch);
                     break;
                 case 2:
                     CameraZoom();
@@ -57,47 +54,38 @@ namespace ManagerControl
             _cts?.Cancel();
         }
 
-        private void CameraMovement(Touch touch)
+        private void CameraMovementPlease(Touch touch)
         {
             if (touch.phase == TouchPhase.Began)
             {
                 _touchStartPos = touch.position;
-                if (_touchStartPos.x < Screen.width * 0.5f)
-                {
-                    _lerp = 1;
-                }
+                _lerp = _touchStartPos.x < Screen.width * 0.5f ? 1 : 0;
             }
 
-            if (_touchStartPos.x < Screen.width * 0.5f)
+            if (_lerp <= 0)
             {
-                CameraMove(touch);
+                CameraRotate(touch);
             }
             else
             {
-                CameraRotate(touch);
+                CameraMove(touch);
             }
         }
 
         private void CameraMove(Touch touch)
         {
-            switch (touch.phase)
+            if (touch.phase == TouchPhase.Moved)
             {
-                case TouchPhase.Moved:
-                    _isMove = true;
-                    Moving(touch);
-                    break;
-                case TouchPhase.Stationary:
-                    _isMove = false;
-                    break;
-                case TouchPhase.Ended:
-                    MovingAsync(touch).Forget();
-                    break;
-                case TouchPhase.Began:
-                    break;
-                case TouchPhase.Canceled:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
+                _isMove = true;
+                Moving(touch);
+            }
+            else if (touch.phase == TouchPhase.Stationary)
+            {
+                _isMove = false;
+            }
+            else if (touch.phase == TouchPhase.Ended)
+            {
+                MovingAsync(touch).Forget();
             }
         }
 
