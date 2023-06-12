@@ -1,27 +1,14 @@
-using System;
 using GameControl;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 namespace BuildControl
 {
     [DisallowMultipleComponent]
-    public class BuildingPoint : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+    public class BuildingPoint : MonoBehaviour
     {
-        public event Action<Transform> onOpenTowerSelectPanelEvent;
-
         private void OnDisable()
         {
             ObjectPoolManager.ReturnToPool(gameObject);
-        }
-
-        public void OnPointerDown(PointerEventData eventData)
-        {
-        }
-
-        public void OnPointerUp(PointerEventData eventData)
-        {
-            onOpenTowerSelectPanelEvent?.Invoke(transform);
         }
     }
 }

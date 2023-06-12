@@ -52,7 +52,7 @@ namespace ManagerControl
         [SerializeField] private MainMenuUIController mainMenuUIController;
         [SerializeField] private InfoUIController infoUIController;
 
-        [Header("Game Play")] [Space(10)] [SerializeField]
+        [Header("---Game Play---")] [Space(10)] [SerializeField]
         private GameObject gamePlayPanel;
 
         [SerializeField] private TowerButtonController towerButtons;
@@ -65,7 +65,7 @@ namespace ManagerControl
         [SerializeField] private GameObject okButton;
         [SerializeField] private ToolTipSystem tooltip;
 
-        [Header("Game Over")] [Space(10)] [SerializeField]
+        [Header("---Game Over---")] [Space(10)] [SerializeField]
         private GameObject gameOverPanel;
 
         [SerializeField] private Button reStartButton;
@@ -121,6 +121,18 @@ namespace ManagerControl
         /*======================================================================================================================
          *                                   Init
          ======================================================================================================================*/
+
+        private void TowerDataInit()
+        {
+            _towerDictionary = new Dictionary<string, TowerData>
+            {
+                { "ArcherTower", towerData[0] },
+                { "BarracksTower", towerData[1] },
+                { "CanonTower", towerData[2] },
+                { "MageTower", towerData[3] }
+            };
+        }
+
         private void TowerButtonInit()
         {
             _lastSelectedTowerButtonIndex = -1;
@@ -149,7 +161,7 @@ namespace ManagerControl
             };
             foreach (var t in editButtons)
             {
-                t.onClick.AddListener(() => { SoundManager.Instance.PlaySound("ButtonClick"); });
+                t.onClick.AddListener(() => { SoundManager.Instance.PlaySound("ButtonSound"); });
             }
 
             upgradeButton.GetComponent<Button>().onClick.AddListener(UpgradeButton);
@@ -223,50 +235,41 @@ namespace ManagerControl
             }
         }
 
-        private void TowerDataInit()
-        {
-            _towerDictionary = new Dictionary<string, TowerData>
-            {
-                { "ArcherTower", towerData[0] },
-                { "BarracksTower", towerData[1] },
-                { "CanonTower", towerData[2] },
-                { "MageTower", towerData[3] }
-            };
-        }
-
         private void MoveUI()
         {
             if (!_panelIsOpen) return;
             var targetPos = _cam.WorldToScreenPoint(_curUITarget.position);
-            gamePlayPanel.transform.position = Vector3.Lerp(gamePlayPanel.transform.position, targetPos, 1);
+            gamePlayPanel.transform.position = targetPos;
         }
 
         public void SetUIButton()
         {
+            if (_isMoveUnit) return;
             if (Input.touchCount <= 0) return;
             var touch = Input.GetTouch(0);
             Physics.Raycast(_cam.ScreenPointToRay(touch.position), out var hit);
             if (hit.collider.CompareTag("Tower"))
             {
-                OpenTowerEditPanel(hit.collider.GetComponent<Tower>());
+                SoundManager.Instance.PlaySound("BuildPointTowerSound");
+                OpenTowerEditPanel(hit);
             }
             else if (hit.collider.CompareTag("BuildingPoint"))
             {
-                OpenTowerSelectPanel(hit.transform);
+                SoundManager.Instance.PlaySound("BuildPointTowerSound");
+                OpenTowerSelectPanel(hit);
             }
             else
             {
                 if (touch.deltaPosition != Vector2.zero) return;
-                print("closeui");
                 CloseUI();
             }
         }
 
-        private void OpenTowerSelectPanel(Transform t)
+        private void OpenTowerSelectPanel(RaycastHit hit)
         {
-            if (_isMoveUnit) return;
             CloseUI();
             _panelIsOpen = true;
+            var t = hit.transform;
             _curUITarget = t;
             _buildTransform = t;
             _tooltipTarget = towerButtons.transform;
@@ -275,30 +278,30 @@ namespace ManagerControl
             _towerSelectPanelTween.Restart();
         }
 
-        private void OpenTowerEditPanel(Tower t)
+        private void OpenTowerEditPanel(RaycastHit hit)
         {
-            if (_isMoveUnit) return;
             CloseUI();
-            SetUpgradeButtonImage(t);
+            var tower = hit.transform.GetComponent<Tower>();
+            SetUpgradeButtonImage(tower);
             _panelIsOpen = true;
             _isTower = true;
-            _curUITarget = t.transform;
-            _curSelectedTower = t;
+            _curUITarget = hit.transform;
+            _curSelectedTower = tower;
             _tooltipTarget = towerEditPanel.transform;
 
             towerEditPanel.SetActive(true);
-            upgradeButton.SetActive(t.TowerLevel != 2);
-            aUpgradeButton.SetActive(!t.IsUniqueTower && t.TowerLevel == 2);
-            bUpgradeButton.SetActive(!t.IsUniqueTower && t.TowerLevel == 2);
-            moveUnitButton.SetActive(t.TowerType == Tower.Type.Barracks);
+            upgradeButton.SetActive(tower.TowerLevel != 2);
+            aUpgradeButton.SetActive(!tower.IsUniqueTower && tower.TowerLevel == 2);
+            bUpgradeButton.SetActive(!tower.IsUniqueTower && tower.TowerLevel == 2);
+            moveUnitButton.SetActive(tower.TowerType == Tower.Type.Barracks);
             sellButton.SetActive(true);
             _towerSelectPanelTween.Restart();
 
             var indicatorTransform = towerRangeIndicator.transform;
             indicatorTransform.position = _curSelectedTower.transform.position;
-            indicatorTransform.localScale = t.TowerType == Tower.Type.Barracks
+            indicatorTransform.localScale = tower.TowerType == Tower.Type.Barracks
                 ? new Vector3(30, 0.1f, 30)
-                : new Vector3(t.TowerRange * 2, 0.1f, t.TowerRange * 2);
+                : new Vector3(tower.TowerRange * 2, 0.1f, tower.TowerRange * 2);
 
             towerRangeIndicator.enabled = true;
         }
@@ -332,7 +335,7 @@ namespace ManagerControl
         {
             _isMoveUnit = true;
             moveUnitButton.SetActive(false);
-            // CloseUI();
+            CloseUI();
             moveUnitIndicator.BarracksTower = _curSelectedTower.GetComponent<BarracksUnitTower>();
             var moveUnitIndicatorTransform = moveUnitIndicator.transform;
             moveUnitIndicatorTransform.position = _curSelectedTower.transform.position;

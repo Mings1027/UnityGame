@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace ManagerControl
+namespace SoundControl
 {
     public class SoundPlayer : MonoBehaviour
     {

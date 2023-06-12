@@ -1,5 +1,5 @@
 using System;
-using ManagerControl;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,43 +7,58 @@ namespace UIControl
 {
     public class TowerEditButtonController : MonoBehaviour
     {
-        private int _lastIndex;
+        private string _lastSelectedName;
+        private Dictionary<string, Button> _towerEditButtonsDic;
+
         [SerializeField] private Sprite okSprite;
+        [SerializeField] private Sprite[] _defaultSprites;
         [SerializeField] private Button[] editButtons;
-        [SerializeField] private Sprite[] defaultSprites;
+
+        [SerializeField] private Button upgradeButton;
+        [SerializeField] private Button aUpgradeButton;
+        [SerializeField] private Button bUpgradeButton;
+        [SerializeField] private Button moveUnitButton;
+        [SerializeField] private Button sellButton;
 
         private void Awake()
         {
-            editButtons = new Button[transform.childCount];
-            defaultSprites = new Sprite[editButtons.Length];
-            for (int i = 0; i < editButtons.Length; i++)
+            _towerEditButtonsDic = new Dictionary<string, Button>
             {
-                editButtons[i] = transform.GetChild(i).GetChild(0).GetComponent<Button>();
-                editButtons[i].onClick.AddListener(() => { SoundManager.Instance.PlaySound("ButtonClick"); });
-                defaultSprites[i] = editButtons[i].image.sprite;
+                { "UpgradeButton", upgradeButton },
+                { "AUpgradeButton", aUpgradeButton },
+                { "BUpgradeButton", bUpgradeButton },
+                { "MoveUnitButton", moveUnitButton },
+                { "SellButton", sellButton }
+            };
+
+            for (var i = 0; i < editButtons.Length; i++)
+            {
+                editButtons[i] = transform.GetChild(i).GetComponent<Button>();
+                var index = i;
+                editButtons[i].onClick.AddListener(() => TowerEditButton(transform.GetChild(index).name));
             }
 
-            gameObject.SetActive(false);
-        }
-
-        public void DefaultSprite()
-        {
-            if (_lastIndex == -1) return;
-            editButtons[_lastIndex].image.sprite = defaultSprites[_lastIndex];
-            _lastIndex = -1;
-        }
-
-        public bool ClickButton(int index)
-        {
-            if (_lastIndex != -1)
+            for (var i = 0; i < _defaultSprites.Length; i++)
             {
-                editButtons[_lastIndex].image.sprite = defaultSprites[_lastIndex];
-                return true;
+                _defaultSprites[i] = editButtons[i].image.sprite;
+            }
+        }
+
+        private void BtnInit()
+        {
+            
+        }
+
+        private void TowerEditButton(string editBtnName)
+        {
+            if (editBtnName == _lastSelectedName)
+            {
+                //okButton
+                return;
             }
 
-            _lastIndex = index;
-            editButtons[index].image.sprite = okSprite;
-            return false;
+            _lastSelectedName = editBtnName;
+            
         }
     }
 }

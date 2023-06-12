@@ -14,6 +14,8 @@ namespace UnitControl.FriendlyControl
         protected Transform target;
         private bool _isMoving;
 
+        private Collider[] _targetColliders;
+
         public event Action<Unit> onDeadEvent;
 
         [SerializeField] private LayerMask targetLayer;
@@ -23,7 +25,7 @@ namespace UnitControl.FriendlyControl
         protected override void Awake()
         {
             base.Awake();
-            targetColliders = new Collider[2];
+            _targetColliders = new Collider[2];
         }
 
         protected override void OnEnable()
@@ -67,7 +69,6 @@ namespace UnitControl.FriendlyControl
         protected override void OnDisable()
         {
             base.OnDisable();
-            CancelInvoke();
             TargetReset();
             onDeadEvent?.Invoke(this);
             onDeadEvent = null;
@@ -98,7 +99,7 @@ namespace UnitControl.FriendlyControl
             if (_isMoving) return;
             if (target == null)
             {
-                target = SearchTarget.ClosestTarget(transform.position, atkRange, targetColliders, targetLayer);
+                target = SearchTarget.ClosestTarget(transform.position, atkRange, _targetColliders, targetLayer);
                 _isTargeting = target != null;
             }
             else

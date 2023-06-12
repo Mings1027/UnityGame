@@ -14,7 +14,6 @@ namespace UnitControl
         private float _atkDelay;
         private int _minDamage, _maxDamage;
 
-        protected Collider[] targetColliders;
         protected CancellationTokenSource cts;
 
         protected NavMeshAgent nav;

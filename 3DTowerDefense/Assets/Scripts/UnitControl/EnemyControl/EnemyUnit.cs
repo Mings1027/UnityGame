@@ -25,7 +25,6 @@ namespace UnitControl.EnemyControl
         {
             base.Awake();
             _health = GetComponent<Health>();
-            targetColliders = new Collider[2];
         }
 
         protected override void OnEnable()

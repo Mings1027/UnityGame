@@ -27,18 +27,12 @@ namespace UIControl
                 _towerButtons[i].onClick.AddListener(() =>
                 {
                     CheckButton(index);
-                    SoundManager.Instance.PlaySound("ButtonClick");
+                    SoundManager.Instance.PlaySound("ButtonSound");
                 });
                 _defaultSprites[i] = _towerButtons[i].image.sprite;
             }
-            gameObject.SetActive(false);
-        }
 
-        public void DefaultSprite()
-        {
-            if (_lastIndex == -1) return;
-            _towerButtons[_lastIndex].image.sprite = _defaultSprites[_lastIndex];
-            _lastIndex = -1;
+            gameObject.SetActive(false);
         }
 
         private void CheckButton(int index)
@@ -51,6 +45,13 @@ namespace UIControl
             _lastIndex = index;
 
             _towerButtons[index].image.sprite = okSprite;
+        }
+
+        public void DefaultSprite()
+        {
+            if (_lastIndex == -1) return;
+            _towerButtons[_lastIndex].image.sprite = _defaultSprites[_lastIndex];
+            _lastIndex = -1;
         }
     }
 }

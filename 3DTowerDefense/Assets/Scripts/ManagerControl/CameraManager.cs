@@ -11,11 +11,10 @@ namespace ManagerControl
         private Camera _cam;
         private CancellationTokenSource _cts;
 
-        private float _xRotation;
         private float _lerp;
         private Vector3 _touchStartPos;
-        private bool _isMove;
-        
+        private bool _isLeft;
+
         [SerializeField] private float moveSpeed;
         [SerializeField] private float rotationSpeed;
         [SerializeField] private float zoomSpeed;
@@ -24,7 +23,7 @@ namespace ManagerControl
 
         private void Awake()
         {
-            _cam = GetComponentInChildren<Camera>();
+            _cam = Camera.main;
         }
 
         private void OnEnable()
@@ -40,8 +39,7 @@ namespace ManagerControl
             switch (Input.touchCount)
             {
                 case 1:
-                    var touch = Input.GetTouch(0);
-                    CameraMovementPlease(touch);
+                    CameraControl();
                     break;
                 case 2:
                     CameraZoom();
@@ -54,21 +52,23 @@ namespace ManagerControl
             _cts?.Cancel();
         }
 
-        private void CameraMovementPlease(Touch touch)
+        private void CameraControl()
         {
+            var touch = Input.GetTouch(0);
+          
             if (touch.phase == TouchPhase.Began)
             {
-                _touchStartPos = touch.position;
-                _lerp = _touchStartPos.x < Screen.width * 0.5f ? 1 : 0;
+                _lerp = 1;
+                _isLeft = touch.position.x < Screen.width * 0.5f;
             }
 
-            if (_lerp <= 0)
+            if (_isLeft)
             {
-                CameraRotate(touch);
+                CameraMove(touch);
             }
             else
             {
-                CameraMove(touch);
+                CameraRotate(touch);
             }
         }
 
@@ -76,12 +76,7 @@ namespace ManagerControl
         {
             if (touch.phase == TouchPhase.Moved)
             {
-                _isMove = true;
                 Moving(touch);
-            }
-            else if (touch.phase == TouchPhase.Stationary)
-            {
-                _isMove = false;
             }
             else if (touch.phase == TouchPhase.Ended)
             {
@@ -105,7 +100,6 @@ namespace ManagerControl
 
         private async UniTaskVoid MovingAsync(Touch touch)
         {
-            if (!_isMove) return;
             _lerp = 0;
             while (_lerp < 1)
             {
@@ -114,7 +108,6 @@ namespace ManagerControl
                 await UniTask.Yield(cancellationToken: _cts.Token);
             }
 
-            _isMove = false;
         }
 
         private void CameraRotate(Touch touch)
@@ -124,8 +117,8 @@ namespace ManagerControl
                 case TouchPhase.Moved:
                 {
                     var t = transform;
-                    t.Rotate(new Vector3(_xRotation, touch.deltaPosition.x * rotationSpeed, 0.0f));
-                    transform.rotation = Quaternion.Euler(_xRotation, t.rotation.eulerAngles.y, 0.0f);
+                    t.Rotate(new Vector3(0.0f, touch.deltaPosition.x * rotationSpeed, 0.0f));
+                    transform.rotation = Quaternion.Euler(0.0f, t.rotation.eulerAngles.y, 0.0f);
                     break;
                 }
                 case TouchPhase.Ended:
@@ -158,7 +151,7 @@ namespace ManagerControl
                 // _ => 315.0f
             };
 
-            return new Vector3(_xRotation, endValue, 0.0f);
+            return new Vector3(0.0f, endValue, 0.0f);
         }
 
         private void CameraZoom()

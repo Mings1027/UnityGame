@@ -33,7 +33,7 @@ namespace TowerControl
         protected override void OnDisable()
         {
             base.OnDisable();
-            CancelInvoke();
+            // CancelInvoke();
             _delayTween?.Kill();
         }
 

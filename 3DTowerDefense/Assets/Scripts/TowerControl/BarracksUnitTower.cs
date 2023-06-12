@@ -24,17 +24,13 @@ namespace TowerControl
             units = new FriendlyUnit[3];
         }
 
-        public bool UnitMove(Vector3 touchPos)
+        public void UnitMove(Vector3 touchPos)
         {
-            if (Vector3.Distance(transform.position, touchPos) >= 15) return false;
-
             for (var i = 0; i < units.Length; i++)
             {
                 var t = units[i];
                 t.GoToTouchPosition(touchPos);
             }
-
-            return true;
         }
 
         protected override void UnitUpgrade(int minDamage, int maxDamage, float delay, float health)
