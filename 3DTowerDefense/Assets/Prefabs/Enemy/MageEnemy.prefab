@@ -50,15 +50,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 99c5ef611137640f29c97f4e7f8bd65d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isEnemy: 1
   healthBar: {fileID: 1434840180845902626}
   curHealth: 0
   maxHealth: 0
-  hitWithReference:
-    m_PersistentCalls:
-      m_Calls: []
-  deathWithReference:
-    m_PersistentCalls:
-      m_Calls: []
   disappearTime: 0
 --- !u!114 &-904191142285399274
 MonoBehaviour:
@@ -85,9 +80,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 849ea757fc2324be58da4d452d28b25d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetLayer:
-    serializedVersion: 2
-    m_Bits: 64
   turnSpeed: 0.1
 --- !u!136 &5198208533031153745
 CapsuleCollider:

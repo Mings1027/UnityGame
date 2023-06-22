@@ -1,4 +1,3 @@
-using System;
 using DG.Tweening;
 using ManagerControl;
 using UnityEngine;
@@ -9,6 +8,7 @@ namespace UIControl
     public class MainMenuUIController : MonoBehaviour
     {
         [SerializeField] private GamePlayManager gamePlayManager;
+        [SerializeField] private CameraManager cameraManager;
 
         [SerializeField] private GameObject stageSelectPanel;
         [SerializeField] private Transform startPanel;
@@ -25,6 +25,7 @@ namespace UIControl
                     {
                         gamePlayManager.MapGenerator(index);
                         gamePlayManager.ReStart();
+                        cameraManager.enabled = true;
                     });
             }
         }

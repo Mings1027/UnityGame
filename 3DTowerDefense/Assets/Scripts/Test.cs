@@ -2,22 +2,25 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class Test : MonoBehaviour
 {
-    private Rigidbody _rigid;
-
-    [SerializeField] private Transform target;
-    [SerializeField] private float moveSpeed;
+    private NavMeshSurface _navMeshSurface;
 
     private void Awake()
     {
-        _rigid = GetComponent<Rigidbody>();
+        _navMeshSurface = GetComponent<NavMeshSurface>();
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
-        var pos = Vector3.MoveTowards(_rigid.position, target.position, moveSpeed * Time.fixedDeltaTime);
-        _rigid.MovePosition(pos);
+#if UNITY_EDITOR
+        Debug.Log("editor");
+#endif
+
+#if UNITY_IOS
+        Debug.Log("ios");
+#endif
     }
 }

@@ -8,8 +8,9 @@ namespace ToolTipControl
     {
         private RectTransform _target;
 
-        [SerializeField] private TextMeshProUGUI headerField;
-        [SerializeField] private TextMeshProUGUI contentField;
+        [SerializeField] private Text headerText;
+
+        [SerializeField] private Text contentText;
 
         private void Update()
         {
@@ -25,15 +26,15 @@ namespace ToolTipControl
 
             if (string.IsNullOrEmpty(header))
             {
-                headerField.gameObject.SetActive(false);
+                headerText.gameObject.SetActive(false);
             }
             else
             {
-                headerField.gameObject.SetActive(true);
-                headerField.text = header;
+                headerText.gameObject.SetActive(true);
+                headerText.text = header;
             }
 
-            contentField.text = content;
+            contentText.text = content;
             SetPosition();
         }
 

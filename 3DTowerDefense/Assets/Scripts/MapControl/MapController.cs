@@ -4,11 +4,12 @@ namespace MapControl
 {
     public class MapController : MonoBehaviour
     {
+        private Transform[] _wayPoints;
+
         public Transform TowerBuildPoint => towerBuildPoint;
 
         [SerializeField] private Transform towerBuildPoint;
         [SerializeField] private Transform wayPointParent;
-        private Transform[] _wayPoints;
 
         private void Start()
         {

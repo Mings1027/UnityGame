@@ -11,6 +11,7 @@ using TowerControl;
 using UIControl;
 using UnitControl;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -52,11 +53,12 @@ namespace ManagerControl
         private Action _moveUnitButtonEvent;
         private Action _sellButtonEvent;
 
+        [SerializeField] private bool isEditor;
         [SerializeField] private WaveManager waveManager;
         [SerializeField] private MainMenuUIController mainMenuUIController;
         [SerializeField] private InfoUIController infoUIController;
 
-        [Header("---Game Play---")] [Space(10)] [SerializeField]
+        [Header("---Game Play---")] [SerializeField, Space(10)]
         private GameObject gamePlayPanel;
 
         [SerializeField] private TowerButtonController towerButtons;
@@ -69,7 +71,7 @@ namespace ManagerControl
         [SerializeField] private GameObject okButton;
         [SerializeField] private ToolTipSystem tooltip;
 
-        [Header("---Game Over---")] [Space(10)] [SerializeField]
+        [Header("---Game Over---")] [SerializeField, Space(10)]
         private GameObject gameOverPanel;
 
         [SerializeField] private Button reStartButton;
@@ -81,7 +83,6 @@ namespace ManagerControl
         [SerializeField] private MoveUnitIndicator moveUnitIndicator;
 
         [SerializeField] private TowerData[] towerData;
-
         [SerializeField] private GameObject[] mapPrefabs;
 
         [SerializeField] private Sprite[] archerUpgradeImages;
@@ -255,32 +256,42 @@ namespace ManagerControl
             gamePlayPanel.transform.position = targetPos;
         }
 
+        private Vector3 _prevMousePos;
+
         public void SetUIButton()
         {
             if (_isMoveUnit) return;
-            if (Input.touchCount <= 0) return;
+
             var touch = Input.GetTouch(0);
-            Physics.Raycast(_cam.ScreenPointToRay(touch.position), out var hit);
+            CheckWhatIsIt(touch.position, touch.deltaPosition);
+        }
+
+        private void CheckWhatIsIt(Vector3 clickPos, Vector2 delta)
+        {
+            if (delta != Vector2.zero) return;
+
+            Physics.Raycast(_cam.ScreenPointToRay(clickPos), out var hit);
+
             if (hit.collider.CompareTag("Tower"))
             {
-                SoundManager.Instance.PlaySound("BuildPointTowerSound");
+                SoundManager.Instance.PlaySound("BuildPointSound");
+                CloseUI();
                 OpenTowerEditPanel(hit);
             }
             else if (hit.collider.CompareTag("BuildingPoint"))
             {
-                SoundManager.Instance.PlaySound("BuildPointTowerSound");
+                SoundManager.Instance.PlaySound("BuildPointSound");
+                CloseUI();
                 OpenTowerSelectPanel(hit);
             }
             else
             {
-                if (touch.deltaPosition != Vector2.zero) return;
                 CloseUI();
             }
         }
 
         private void OpenTowerSelectPanel(RaycastHit hit)
         {
-            CloseUI();
             _panelIsOpen = true;
             var t = hit.transform;
             _curUITarget = t;
@@ -289,6 +300,34 @@ namespace ManagerControl
 
             towerButtons.gameObject.SetActive(true);
             _towerSelectPanelTween.Restart();
+        }
+
+        private void OpenTowerEditPanel(RaycastHit hit)
+        {
+            var tower = hit.transform.GetComponent<Tower>();
+            if (tower.TowerLevel == 2) SetUpgradeButtonImage(tower);
+            _panelIsOpen = true;
+            _isTower = true;
+            _curUITarget = hit.transform;
+            _curSelectedTower = tower;
+            _tooltipTarget = towerEditButtons.transform;
+
+            towerEditButtons.gameObject.SetActive(true);
+            var canUpgrade = infoUIController.CheckBuildCoin(_isTower ? _curSelectedTower.TowerLevel + 1 : 0);
+            upgradeButton.SetActive(canUpgrade && tower.TowerLevel != 2);
+            aUpgradeButton.SetActive(canUpgrade && !tower.IsUniqueTower && tower.TowerLevel == 2);
+            bUpgradeButton.SetActive(canUpgrade && !tower.IsUniqueTower && tower.TowerLevel == 2);
+            moveUnitButton.SetActive(tower.TowerType == Tower.Type.Barracks);
+            sellButton.SetActive(true);
+            _towerSelectPanelTween.Restart();
+
+            var indicatorTransform = towerRangeIndicator.transform;
+            indicatorTransform.position = _curSelectedTower.transform.position;
+            indicatorTransform.localScale = tower.TowerType == Tower.Type.Barracks
+                ? new Vector3(30, 0.1f, 30)
+                : new Vector3(tower.TowerRange * 2, 0.1f, tower.TowerRange * 2);
+
+            towerRangeIndicator.enabled = true;
         }
 
         private void TowerSelectButtons(string towerName, int index)
@@ -327,35 +366,6 @@ namespace ManagerControl
 
             _lastSelectedEditButtonIndex = index;
             _towerEditBtnDic[index].Invoke();
-        }
-
-        private void OpenTowerEditPanel(RaycastHit hit)
-        {
-            CloseUI();
-            var tower = hit.transform.GetComponent<Tower>();
-            if (tower.TowerLevel == 2) SetUpgradeButtonImage(tower);
-            _panelIsOpen = true;
-            _isTower = true;
-            _curUITarget = hit.transform;
-            _curSelectedTower = tower;
-            _tooltipTarget = towerEditButtons.transform;
-
-            towerEditButtons.gameObject.SetActive(true);
-            var canUpgrade = infoUIController.CheckBuildCoin(_isTower ? _curSelectedTower.TowerLevel + 1 : 0);
-            upgradeButton.SetActive(canUpgrade && tower.TowerLevel != 2);
-            aUpgradeButton.SetActive(canUpgrade && !tower.IsUniqueTower && tower.TowerLevel == 2);
-            bUpgradeButton.SetActive(canUpgrade && !tower.IsUniqueTower && tower.TowerLevel == 2);
-            moveUnitButton.SetActive(tower.TowerType == Tower.Type.Barracks);
-            sellButton.SetActive(true);
-            _towerSelectPanelTween.Restart();
-
-            var indicatorTransform = towerRangeIndicator.transform;
-            indicatorTransform.position = _curSelectedTower.transform.position;
-            indicatorTransform.localScale = tower.TowerType == Tower.Type.Barracks
-                ? new Vector3(30, 0.1f, 30)
-                : new Vector3(tower.TowerRange * 2, 0.1f, tower.TowerRange * 2);
-
-            towerRangeIndicator.enabled = true;
         }
 
         private void SetUpgradeButtonImage(Tower t)

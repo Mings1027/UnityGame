@@ -1,6 +1,5 @@
 using System;
 using Cysharp.Threading.Tasks;
-using GameControl;
 using UnityEngine;
 
 namespace UnitControl.EnemyControl
@@ -8,24 +7,14 @@ namespace UnitControl.EnemyControl
     public abstract class EnemyUnit : Unit
     {
         private Vector3 _destination;
-        private Health _health;
         private int _wayPointIndex;
         private bool _isSpeedDeBuffed;
 
         public Transform Target { get; set; }
         public bool IsTargeting { get; set; }
         public event Action<int, EnemyUnit> onMoveNextPointEvent;
-        public event Action onDeadEvent;
-        public event Action onIncreaseCoinEvent;
-        public event Action onLifeCountEvent;
 
         [SerializeField] [Range(0, 1)] private float turnSpeed;
-
-        protected override void Awake()
-        {
-            base.Awake();
-            _health = GetComponent<Health>();
-        }
 
         protected override void OnEnable()
         {
@@ -65,14 +54,7 @@ namespace UnitControl.EnemyControl
         protected override void OnDisable()
         {
             base.OnDisable();
-            onDeadEvent?.Invoke();
-            if (_health.CurHealth > 0) onLifeCountEvent?.Invoke();
-            else onIncreaseCoinEvent?.Invoke();
-
             onMoveNextPointEvent = null;
-            onDeadEvent = null;
-            onIncreaseCoinEvent = null;
-            onLifeCountEvent = null;
         }
 
         public void SetMovePoint(Vector3 pos)

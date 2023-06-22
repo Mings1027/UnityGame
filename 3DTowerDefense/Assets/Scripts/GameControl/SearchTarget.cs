@@ -10,7 +10,7 @@ namespace GameControl
             var size = Physics.OverlapSphereNonAlloc(pos, range, targetColliders, targetLayer);
             if (size <= 0) return null;
 
-            var shortestDistance = Mathf.Infinity;
+            var shortestDistance = Vector3.SqrMagnitude(pos - targetColliders[0].transform.position);
             Transform nearestTarget = null;
 
             for (var i = 0; i < size; i++)

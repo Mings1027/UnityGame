@@ -14,7 +14,7 @@ namespace ManagerControl
     {
         private bool _startGame;
         private int _curWave;
-        private int _enemiesIndex;
+        private int _remainingEnemyCount;
         private CancellationTokenSource _cts;
 
         [Serializable]
@@ -33,7 +33,9 @@ namespace ManagerControl
 
         public Transform[] WayPointList { get; set; }
 
-        [FormerlySerializedAs("informationUIController")] [SerializeField] private InfoUIController infoUIController;
+        [FormerlySerializedAs("informationUIController")] [SerializeField]
+        private InfoUIController infoUIController;
+
         [SerializeField] private Button startWaveButton;
 
         private void Awake()
@@ -67,7 +69,7 @@ namespace ManagerControl
         {
             if (_startGame) return;
             _startGame = true;
-            _enemiesIndex = -1;
+            _remainingEnemyCount = 0;
             _curWave++;
 
             var enemyCount = waves[_curWave].enemyCount;
@@ -75,24 +77,26 @@ namespace ManagerControl
             {
                 await UniTask.Delay(1000, cancellationToken: _cts.Token);
                 enemyCount--;
-                _enemiesIndex++;
+                _remainingEnemyCount++;
                 SpawnEnemy();
             }
         }
 
         private void SpawnEnemy()
         {
-            var e = ObjectPoolManager.Get<EnemyUnit>(waves[_curWave].enemyName,
+            var enemyUnit = ObjectPoolManager.Get<EnemyUnit>(waves[_curWave].enemyName,
                 WayPointList[0]);
 
-            e.SetMovePoint(WayPointList[1].position);
-            e.onMoveNextPointEvent += MoveNextPoint;
-            e.onDeadEvent += DeadEnemy;
-            e.onIncreaseCoinEvent += () => infoUIController.IncreaseCoin(waves[_curWave].enemyCoin);
-            e.onLifeCountEvent += infoUIController.DecreaseLifeCount;
+            enemyUnit.SetMovePoint(WayPointList[1].position);
+            enemyUnit.onMoveNextPointEvent += MoveNextPoint;
+
+            var enemyHealth = enemyUnit.GetComponent<Health>();
+            enemyHealth.onDeadEvent += DeadEnemy;
+            enemyHealth.onIncreaseCoinEvent += () => infoUIController.IncreaseCoin(waves[_curWave].enemyCoin);
+            enemyHealth.onDecreaseLifeCountEvent += infoUIController.DecreaseLifeCount;
 
             var w = waves[_curWave];
-            e.Init(w.minDamage, w.maxDamage, w.atkDelay, w.health);
+            enemyUnit.Init(w.minDamage, w.maxDamage, w.atkDelay, w.health);
         }
 
         private void MoveNextPoint(int index, EnemyUnit enemy)
@@ -108,8 +112,8 @@ namespace ManagerControl
 
         private void DeadEnemy()
         {
-            _enemiesIndex--;
-            if (_enemiesIndex != -1) return;
+            _remainingEnemyCount--;
+            if (_remainingEnemyCount != 0) return;
             print("Stage Complete");
             _startGame = false;
             startWaveButton.gameObject.SetActive(true);

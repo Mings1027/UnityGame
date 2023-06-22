@@ -1,3 +1,5 @@
+using System;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace GameControl
@@ -6,6 +8,11 @@ namespace GameControl
     {
         private float _lifeTime;
         [SerializeField] private bool dontDestroy;
+
+        private void Awake()
+        {
+            _lifeTime = 3;
+        }
 
         private void OnEnable()
         {

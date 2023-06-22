@@ -69,6 +69,7 @@ namespace UnitControl.FriendlyControl
         protected override void OnDisable()
         {
             base.OnDisable();
+            CancelInvoke();
             TargetReset();
             onDeadEvent?.Invoke(this);
             onDeadEvent = null;

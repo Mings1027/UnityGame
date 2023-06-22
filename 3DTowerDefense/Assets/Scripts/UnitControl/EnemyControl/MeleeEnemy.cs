@@ -20,7 +20,7 @@ namespace UnitControl.EnemyControl
             _anim.SetTrigger(IsAttack);
             if (Target.TryGetComponent(out Health h))
             {
-                h.TakeDamage(Damage, Target.gameObject);
+                h.TakeDamage(Damage);
             }
         }
     }

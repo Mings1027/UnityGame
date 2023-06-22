@@ -40,7 +40,7 @@ namespace WeaponControl
         {
             if (other.TryGetComponent(out Health h))
             {
-                h.TakeDamage(_damage, other.gameObject);
+                h.TakeDamage(_damage);
             }
         }
 

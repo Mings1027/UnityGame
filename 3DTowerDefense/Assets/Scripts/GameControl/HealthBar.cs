@@ -7,15 +7,14 @@ namespace GameControl
 {
     public class HealthBar : MonoBehaviour
     {
-        private Transform _body;
         private Camera _cam;
-        private Quaternion _previousBodyRotation;
+        private Quaternion _previousRotation;
+        
         [SerializeField] private Image healthBarForeground;
 
         private void Awake()
         {
             _cam = Camera.main;
-            _body = transform.parent;
         }
 
         private void OnEnable()
@@ -25,10 +24,10 @@ namespace GameControl
 
         private void LateUpdate()
         {
-            if (_body.rotation == _previousBodyRotation) return;
-
-            transform.rotation = _cam.transform.rotation;
-            _previousBodyRotation = _body.rotation;
+            if (_cam.transform.rotation == transform.rotation) return;
+            
+            var rotation = _cam.transform.rotation;
+            transform.rotation = rotation;
         }
 
         private void FourDirection()
@@ -50,8 +49,7 @@ namespace GameControl
                 transform.rotation = new Quaternion(45, 270, 0, 1);
             }
         }
-
-
+        
         public void UpdateHealthBar(float amount)
         {
             healthBarForeground.fillAmount = amount;

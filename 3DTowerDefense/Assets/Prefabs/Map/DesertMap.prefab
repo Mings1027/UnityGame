@@ -42,7 +42,6 @@ GameObject:
   - component: {fileID: 3873982298159659998}
   - component: {fileID: 4916331215329549121}
   - component: {fileID: 5862555306684804419}
-  - component: {fileID: 3873982298159659969}
   m_Layer: 15
   m_Name: Baked_Walkable
   m_TagString: Untagged
@@ -93,7 +92,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -7095294566459320187, guid: 2bbf0565be05f400c92b49cf7862048c, type: 3}
+  - {fileID: -7095294566459320187, guid: a8e5816edc2374fe28db7f3c002831c9, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -115,35 +114,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &3873982298159659969
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2424693735176170535}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a5ac11cc976e418e8d13136b07e1f52, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_AgentTypeID: 0
-  m_CollectObjects: 0
-  m_Size: {x: 10, y: 10, z: 10}
-  m_Center: {x: 0, y: 2, z: 0}
-  m_LayerMask:
-    serializedVersion: 2
-    m_Bits: 32768
-  m_UseGeometry: 0
-  m_DefaultArea: 0
-  m_IgnoreNavMeshAgent: 1
-  m_IgnoreNavMeshObstacle: 1
-  m_OverrideTileSize: 0
-  m_TileSize: 256
-  m_OverrideVoxelSize: 0
-  m_VoxelSize: 0.16666667
-  m_BuildHeightMesh: 0
-  m_NavMeshData: {fileID: 23800000, guid: 5f0b66f1b3e0843b2ac14a0d14926ef8, type: 2}
 --- !u!1 &4748641543242173950
 GameObject:
   m_ObjectHideFlags: 0
@@ -155,8 +125,8 @@ GameObject:
   - component: {fileID: 5870283696033459642}
   - component: {fileID: 344253256290610074}
   - component: {fileID: 3931800101046299879}
-  m_Layer: 0
-  m_Name: Baked_Environment_2
+  m_Layer: 15
+  m_Name: Environment_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -205,7 +175,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -7095294566459320187, guid: e53f5f43e4d58457daee5ebf0c84eb27, type: 3}
+  - {fileID: -7095294566459320187, guid: a8e5816edc2374fe28db7f3c002831c9, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -693,6 +663,7 @@ GameObject:
   - component: {fileID: 7307969870117759253}
   - component: {fileID: 7307969870117759255}
   - component: {fileID: 4081031485000540772}
+  - component: {fileID: 92961150993004703}
   m_Layer: 0
   m_Name: DesertMap
   m_TagString: Ground
@@ -746,6 +717,35 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 150, y: 0, z: 150}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &92961150993004703
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7307969870117759250}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a5ac11cc976e418e8d13136b07e1f52, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AgentTypeID: 0
+  m_CollectObjects: 2
+  m_Size: {x: 10, y: 10, z: 10}
+  m_Center: {x: 0, y: 2, z: 0}
+  m_LayerMask:
+    serializedVersion: 2
+    m_Bits: 32768
+  m_UseGeometry: 0
+  m_DefaultArea: 0
+  m_IgnoreNavMeshAgent: 1
+  m_IgnoreNavMeshObstacle: 1
+  m_OverrideTileSize: 0
+  m_TileSize: 256
+  m_OverrideVoxelSize: 0
+  m_VoxelSize: 0.16666667
+  m_BuildHeightMesh: 0
+  m_NavMeshData: {fileID: 23800000, guid: 9dbf0d0fdd3f4486c9e6939265f255f4, type: 2}
 --- !u!1 &7307969870158438051
 GameObject:
   m_ObjectHideFlags: 0
@@ -1627,7 +1627,7 @@ GameObject:
   - component: {fileID: 1810306641459014482}
   - component: {fileID: 7600007188045944962}
   m_Layer: 0
-  m_Name: Baked_Wall
+  m_Name: Wall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1709,8 +1709,8 @@ GameObject:
   - component: {fileID: 2643447240952586202}
   - component: {fileID: 6784812654148026665}
   - component: {fileID: 7013593753516226528}
-  m_Layer: 0
-  m_Name: Baked_Environment
+  m_Layer: 15
+  m_Name: Environment
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1759,7 +1759,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: -7095294566459320187, guid: dd7438aa9620b48f7b11d27d69bb9029, type: 3}
+  - {fileID: -7095294566459320187, guid: a8e5816edc2374fe28db7f3c002831c9, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

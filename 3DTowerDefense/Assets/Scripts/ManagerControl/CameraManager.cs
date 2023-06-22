@@ -55,7 +55,7 @@ namespace ManagerControl
         private void CameraControl()
         {
             var touch = Input.GetTouch(0);
-          
+
             if (touch.phase == TouchPhase.Began)
             {
                 _lerp = 1;
@@ -107,7 +107,6 @@ namespace ManagerControl
                 Moving(touch);
                 await UniTask.Yield(cancellationToken: _cts.Token);
             }
-
         }
 
         private void CameraRotate(Touch touch)
@@ -141,14 +140,14 @@ namespace ManagerControl
             var currentY = Mathf.Ceil(transform.rotation.eulerAngles.y);
             var endValue = currentY switch
             {
-                <= 45 or >= 315 => 0f,
-                >= 45 and <= 135 => 90f,
-                >= 136 and <= 225 => 180f,
-                _ => 270f
-                // >= 0 and <= 90 => 45.0f,
-                // >= 91 and <= 180 => 135.0f,
-                // >= 181 and <= 270 => 225.0f,
-                // _ => 315.0f
+                // <= 45 or >= 315 => 0f,
+                // >= 45 and <= 135 => 90f,
+                // >= 136 and <= 225 => 180f,
+                // _ => 270f
+                >= 0 and <= 90 => 45.0f,
+                >= 91 and <= 180 => 135.0f,
+                >= 181 and <= 270 => 225.0f,
+                _ => 315.0f
             };
 
             return new Vector3(0.0f, endValue, 0.0f);

@@ -1,7 +1,6 @@
 using System;
 using Cysharp.Threading.Tasks;
 using DataControl;
-using DG.Tweening;
 using GameControl;
 using UnitControl;
 using UnityEngine;
@@ -13,8 +12,10 @@ namespace TowerControl
     {
         private int _archerCount;
         private Vector3 _targetDirection;
-        private ArcherUnit[] _archerUnits;
+        private GameObject[] _archerUnits;
+
         [SerializeField] private Transform[] archerPos;
+        [SerializeField] private float smoothTurnSpeed;
 
         private event Action onAttackEvent;
 
@@ -24,11 +25,25 @@ namespace TowerControl
             UnitDisable();
         }
 
+        private void LateUpdate()
+        {
+            if (!isTargeting) return;
+            for (var i = 0; i < _archerCount; i++)
+            {
+                var targetPos = target.position + target.forward;
+                var dir = targetPos - transform.position;
+                var yRot = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
+                var lookRot = Quaternion.Euler(0, yRot, 0);
+                _archerUnits[i].transform.rotation =
+                    Quaternion.Lerp(_archerUnits[i].transform.rotation, lookRot, smoothTurnSpeed);
+            }
+        }
+
         protected override void Init()
         {
             base.Init();
             targetColliders = new Collider[5];
-            _archerUnits ??= new ArcherUnit[2];
+            _archerUnits = new GameObject[2];
         }
 
         public override void TowerInit(MeshFilter consMeshFilter)
@@ -62,7 +77,7 @@ namespace TowerControl
             for (var i = 0; i < _archerCount; i++)
             {
                 var index = IsUniqueTower ? TowerUniqueLevel + 3 + i : TowerLevel;
-                _archerUnits[i] = ObjectPoolManager.Get<ArcherUnit>(PoolObjectName.ArcherUnit, archerPos[index]);
+                _archerUnits[i] = ObjectPoolManager.Get(PoolObjectName.ArcherUnit, archerPos[index]);
             }
         }
 
@@ -85,7 +100,6 @@ namespace TowerControl
         {
             for (var i = 0; i < _archerCount; i++)
             {
-                _archerUnits[i].TargetUpdate(target, isTargeting);
                 ObjectPoolManager.Get(PoolObjectName.ArrowShootSfx, transform);
                 ObjectPoolManager
                     .Get<ArcherProjectile>(PoolObjectName.ArcherProjectile, _archerUnits[i].transform.position)
@@ -96,7 +110,6 @@ namespace TowerControl
 
         private void BulletAttack()
         {
-            _archerUnits[0].TargetUpdate(target, isTargeting);
             ObjectPoolManager.Get(PoolObjectName.BulletShootSfx, transform);
             ObjectPoolManager.Get<Bullet>(PoolObjectName.ArcherBullet, _archerUnits[0].transform.position)
                 .Init(target, Damage);

@@ -1,9 +1,7 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using DG.Tweening;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace GameControl
 {
@@ -12,13 +10,11 @@ namespace GameControl
         private CancellationTokenSource _cts;
 
         public bool IsDead { get; private set; }
-        public float CurHealth => curHealth;
+        public event Action onDeadEvent, onIncreaseCoinEvent, onDecreaseLifeCountEvent;
 
+        [SerializeField] private bool isEnemy;
         [SerializeField] private HealthBar healthBar;
         [SerializeField] private float curHealth, maxHealth;
-        [SerializeField] private UnityEvent<GameObject> hitWithReference;
-        [SerializeField] private UnityEvent<GameObject> deathWithReference;
-
         [SerializeField] private float disappearTime;
 
         private void OnEnable()
@@ -32,6 +28,17 @@ namespace GameControl
         private void OnDisable()
         {
             _cts?.Cancel();
+
+            if (!isEnemy) return;
+            onDeadEvent?.Invoke();
+            if (curHealth > 0)
+            {
+                onDecreaseLifeCountEvent?.Invoke();
+            }
+            else
+            {
+                onIncreaseCoinEvent?.Invoke();
+            }
         }
 
         public void Init(float healthValue)
@@ -41,24 +48,17 @@ namespace GameControl
             IsDead = false;
         }
 
-        public void TakeDamage(float damage, GameObject sender)
+        public void TakeDamage(float damage)
         {
             if (IsDead) return;
             curHealth -= damage;
             healthBar.UpdateHealthBar(curHealth / maxHealth);
-            if (curHealth > 0)
-            {
-                hitWithReference?.Invoke(sender);
-            }
-            else
-            {
-                //죽을때 해골 이펙트 띄워도 괜찮을듯
-                deathWithReference?.Invoke(sender);
-                IsDead = true;
-                DeadTask().Forget();
-            }
-        }
 
+            if (curHealth > 0) return;
+            //죽을때 해골 이펙트 띄워도 괜찮을듯
+            IsDead = true;
+            DeadTask().Forget();
+        }
 
         private async UniTaskVoid DeadTask()
         {

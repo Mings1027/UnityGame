@@ -518,6 +518,7 @@ GameObject:
   - component: {fileID: 3435807842958083963}
   - component: {fileID: 1238505424333003674}
   - component: {fileID: 2793373246413110757}
+  - component: {fileID: 4602603006114646797}
   m_Layer: 0
   m_Name: DungeonMap
   m_TagString: Ground
@@ -571,6 +572,35 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 150, y: 0, z: 150}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &4602603006114646797
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3435807842958083962}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a5ac11cc976e418e8d13136b07e1f52, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_AgentTypeID: 0
+  m_CollectObjects: 2
+  m_Size: {x: 10, y: 10, z: 10}
+  m_Center: {x: 0, y: 2, z: 0}
+  m_LayerMask:
+    serializedVersion: 2
+    m_Bits: 32768
+  m_UseGeometry: 0
+  m_DefaultArea: 0
+  m_IgnoreNavMeshAgent: 1
+  m_IgnoreNavMeshObstacle: 1
+  m_OverrideTileSize: 0
+  m_TileSize: 256
+  m_OverrideVoxelSize: 0
+  m_VoxelSize: 0.16666667
+  m_BuildHeightMesh: 0
+  m_NavMeshData: {fileID: 23800000, guid: 8bf16a11eb0b641daa6077ef026b8197, type: 2}
 --- !u!1 &3435807844496128671
 GameObject:
   m_ObjectHideFlags: 0
@@ -1474,7 +1504,6 @@ GameObject:
   - component: {fileID: 2519778605451866888}
   - component: {fileID: 5998096045901203847}
   - component: {fileID: 1538989779378057247}
-  - component: {fileID: 8024356689585883472}
   m_Layer: 15
   m_Name: Walkable
   m_TagString: Untagged
@@ -1547,35 +1576,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &8024356689585883472
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7334642573484071948}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a5ac11cc976e418e8d13136b07e1f52, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_AgentTypeID: 0
-  m_CollectObjects: 2
-  m_Size: {x: 10, y: 10, z: 10}
-  m_Center: {x: 0, y: 2, z: 0}
-  m_LayerMask:
-    serializedVersion: 2
-    m_Bits: 32768
-  m_UseGeometry: 0
-  m_DefaultArea: 0
-  m_IgnoreNavMeshAgent: 1
-  m_IgnoreNavMeshObstacle: 1
-  m_OverrideTileSize: 0
-  m_TileSize: 256
-  m_OverrideVoxelSize: 0
-  m_VoxelSize: 0.16666667
-  m_BuildHeightMesh: 0
-  m_NavMeshData: {fileID: 23800000, guid: bfe418b4fadb94569974e31816b4113a, type: 2}
 --- !u!1 &7564543192534896220
 GameObject:
   m_ObjectHideFlags: 0
