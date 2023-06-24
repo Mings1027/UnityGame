@@ -13,6 +13,7 @@ using UnitControl;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace ManagerControl
@@ -53,7 +54,6 @@ namespace ManagerControl
         private Action _moveUnitButtonEvent;
         private Action _sellButtonEvent;
 
-        [SerializeField] private bool isEditor;
         [SerializeField] private WaveManager waveManager;
         [SerializeField] private MainMenuUIController mainMenuUIController;
         [SerializeField] private InfoUIController infoUIController;
@@ -61,6 +61,7 @@ namespace ManagerControl
         [Header("---Game Play---")] [SerializeField, Space(10)]
         private GameObject gamePlayPanel;
 
+        [SerializeField] private GameObject towerButtonsPanel;
         [SerializeField] private TowerButtonController towerButtons;
         [SerializeField] private TowerEditButtonController towerEditButtons;
         [SerializeField] private GameObject upgradeButton;
@@ -68,7 +69,6 @@ namespace ManagerControl
         [SerializeField] private GameObject bUpgradeButton;
         [SerializeField] private GameObject moveUnitButton;
         [SerializeField] private GameObject sellButton;
-        [SerializeField] private GameObject okButton;
         [SerializeField] private ToolTipSystem tooltip;
 
         [Header("---Game Over---")] [SerializeField, Space(10)]
@@ -111,10 +111,6 @@ namespace ManagerControl
         private void LateUpdate()
         {
             MoveUI();
-            // if (_enableOkBtn)
-            // {
-            //     okButton.transform.position = _okButtonTarget.position;
-            // }
         }
 
         private void OnDestroy()
@@ -153,7 +149,7 @@ namespace ManagerControl
                 });
             }
 
-            _towerSelectPanelTween = gamePlayPanel.transform.DOScale(1, 0.1f).From(0).SetAutoKill(false);
+            _towerSelectPanelTween = towerButtonsPanel.transform.DOScale(1, 0.1f).From(0).SetAutoKill(false);
         }
 
         private void TowerEditButtonInit()
@@ -253,10 +249,8 @@ namespace ManagerControl
         {
             if (!_panelIsOpen) return;
             var targetPos = _cam.WorldToScreenPoint(_curUITarget.position);
-            gamePlayPanel.transform.position = targetPos;
+            towerButtonsPanel.transform.position = targetPos;
         }
-
-        private Vector3 _prevMousePos;
 
         public void SetUIButton()
         {
@@ -419,7 +413,6 @@ namespace ManagerControl
             if (towerEditButtons.gameObject.activeSelf) towerEditButtons.gameObject.SetActive(false);
             if (towerRangeIndicator.enabled) towerRangeIndicator.enabled = false;
             if (moveUnitIndicator.gameObject.activeSelf) moveUnitIndicator.gameObject.SetActive(false);
-            if (okButton.activeSelf) okButton.SetActive(false);
             if (sellButton.activeSelf) sellButton.SetActive(false);
             curTowerMeshRenderer.enabled = false;
         }

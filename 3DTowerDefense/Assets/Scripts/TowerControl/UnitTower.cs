@@ -14,8 +14,7 @@ namespace TowerControl
         private int _deadUnitCount;
 
         protected FriendlyUnit[] units;
-
-        [SerializeField] private int unitsRange;
+        protected Vector3 unitSpawnPosition;
 
         /*=========================================================================================================================================
         *                                               Unity Event
@@ -33,7 +32,7 @@ namespace TowerControl
         =========================================================================================================================================*/
 
         protected abstract void UnitUpgrade(int minDamage, int maxDamage, float delay, float health);
-        protected abstract void UnitSpawn(int i);
+        protected abstract void UnitSpawn(Vector3 position, int i);
 
         private static void UnitDisable(IList<FriendlyUnit> u)
         {
@@ -63,7 +62,7 @@ namespace TowerControl
             await UniTask.Delay(5000);
             for (var i = 0; i < u.Count; i++)
             {
-                UnitSpawn(i);
+                UnitSpawn(unitSpawnPosition, i);
             }
         }
 

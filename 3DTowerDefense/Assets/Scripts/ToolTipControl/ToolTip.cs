@@ -8,9 +8,9 @@ namespace ToolTipControl
     {
         private RectTransform _target;
 
-        [SerializeField] private Text headerText;
+        [SerializeField] private TextMeshProUGUI headerText;
 
-        [SerializeField] private Text contentText;
+        [SerializeField] private TextMeshProUGUI contentText;
 
         private void Update()
         {
@@ -43,7 +43,7 @@ namespace ToolTipControl
             var screenPos = _target.position;
             var pos = _target.localPosition;
 
-            pos.x = screenPos.x > Screen.width * 0.5f ? pos.x - 200 : pos.x + 200;
+            pos.x = screenPos.x > Screen.width * 0.5f ? pos.x - 700 : pos.x + 700;
 
             transform.localPosition = pos;
         }

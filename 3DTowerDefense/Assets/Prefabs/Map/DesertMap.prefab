@@ -42,8 +42,9 @@ GameObject:
   - component: {fileID: 3873982298159659998}
   - component: {fileID: 4916331215329549121}
   - component: {fileID: 5862555306684804419}
+  - component: {fileID: 4078229657992450270}
   m_Layer: 15
-  m_Name: Baked_Walkable
+  m_Name: WalkableGround
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -114,6 +115,20 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!64 &4078229657992450270
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2424693735176170535}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 5079557251910558636, guid: 2bbf0565be05f400c92b49cf7862048c, type: 3}
 --- !u!1 &4748641543242173950
 GameObject:
   m_ObjectHideFlags: 0

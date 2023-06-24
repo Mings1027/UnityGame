@@ -41,10 +41,10 @@ namespace UIControl
             mainMenuButton.onClick.AddListener(() => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex));
 
             _gameUITween = gameUI.DOLocalMoveY(0, 0.5f)
-                .From(Screen.height).SetUpdate(true).SetAutoKill(false).Pause();
+                .From(Screen.width).SetUpdate(true).SetAutoKill(false).Pause();
 
             _menuPanelTween = menuPanel.DOLocalMoveY(0, 0.5f)
-                .From(Screen.height).SetEase(Ease.OutBack).SetUpdate(true).SetAutoKill(false).Pause();
+                .From(Screen.width).SetEase(Ease.OutBack).SetUpdate(true).SetAutoKill(false).Pause();
         }
 
         private void Pause()

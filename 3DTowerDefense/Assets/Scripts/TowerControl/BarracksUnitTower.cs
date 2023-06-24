@@ -1,3 +1,4 @@
+using System;
 using DataControl;
 using GameControl;
 using UnitControl.EnemyControl;
@@ -10,10 +11,35 @@ namespace TowerControl
 {
     public class BarracksUnitTower : UnitTower
     {
+        private Collider[] _unitCenterPos;
+        private Vector3[] _spawnDirections;
+
+        [SerializeField] private LayerMask groundLayer;
+
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            _unitCenterPos = new Collider[1];
+            _spawnDirections = new[]
+            {
+                transform.position + Vector3.forward * 10, transform.position + Vector3.back * 10,
+                transform.position + Vector3.left * 10, transform.position + Vector3.right * 10
+            };
+        }
+
         protected override void OnDisable()
         {
             base.OnDisable();
             CancelInvoke();
+        }
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.red;
+            foreach (var dir in _spawnDirections)
+            {
+                Gizmos.DrawSphere(dir, 1);
+            }
         }
         //==================================Custom Function====================================================
         //==================================Custom Function====================================================
@@ -35,21 +61,44 @@ namespace TowerControl
 
         protected override void UnitUpgrade(int minDamage, int maxDamage, float delay, float health)
         {
-            for (var i = 0; i < units.Length; i++)
+            foreach (var u in units)
             {
-                if (units[i] != null) units[i].gameObject.SetActive(false);
+                if (u != null) u.gameObject.SetActive(false);
+            }
 
-                UnitSpawn(i);
-                units[i].Init(minDamage, maxDamage, delay, health);
+            if (unitSpawnPosition == Vector3.zero)
+            {
+                // Spawn The Tower Once
+                // ↑ ↓ ← → Four Direction Check Ground and Unit Spawn 
+                foreach (var dir in _spawnDirections)
+                {
+                    var size = Physics.OverlapSphereNonAlloc(dir, 1, _unitCenterPos, groundLayer);
+                    if (size <= 0) continue;
+                    unitSpawnPosition = dir;
+                    for (var i = 0; i < units.Length; i++)
+                    {
+                        UnitSpawn(unitSpawnPosition, i);
+                        units[i].Init(minDamage, maxDamage, delay, health);
+                    }
+
+                    break;
+                }
+            }
+            else
+            {
+                // Level up after being spawned
+                for (var i = 0; i < units.Length; i++)
+                {
+                    UnitSpawn(unitSpawnPosition, i);
+                    units[i].Init(minDamage, maxDamage, delay, health);
+                }
             }
         }
 
-        protected override void UnitSpawn(int i)
+        protected override void UnitSpawn(Vector3 pos, int i)
         {
-            if (!NavMesh.SamplePosition(transform.position, out var hit, 15, NavMesh.AllAreas)) return;
-
             var unitName = IsUniqueTower ? PoolObjectName.SpearManUnit : PoolObjectName.SwordManUnit;
-            var ranPos = hit.position + Random.insideUnitSphere * 5f;
+            var ranPos = pos + Random.insideUnitSphere * 2f;
             units[i] = ObjectPoolManager.Get<BarracksUnit>(unitName, ranPos);
             units[i].onDeadEvent += ReSpawn;
         }
