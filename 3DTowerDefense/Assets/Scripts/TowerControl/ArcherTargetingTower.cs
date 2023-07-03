@@ -17,7 +17,12 @@ namespace TowerControl
         [SerializeField] private Transform[] archerPos;
         [SerializeField] private float smoothTurnSpeed;
 
-        private event Action onAttackEvent;
+
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            onAttackEvent += () => ProjectileAttack().Forget();
+        }
 
         protected override void OnDisable()
         {
@@ -46,29 +51,28 @@ namespace TowerControl
             _archerUnits = new GameObject[2];
         }
 
-        public override void TowerInit(MeshFilter consMeshFilter)
+        public override void TowerInit(MeshFilter consMeshFilter, int minDamage, int maxDamage, float attackRange,
+            float attackDelay, float health = 0)
         {
-            base.TowerInit(consMeshFilter);
+            base.TowerInit(consMeshFilter, minDamage, maxDamage, attackRange, attackDelay, health);
 
             if (_archerUnits[0] != null) _archerUnits[0].gameObject.SetActive(false);
+            BatchArcher();
         }
 
-        public override void TowerSetting(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range,
-            float delay, float health = 0)
+        public override void TowerSetting(MeshFilter towerMeshFilter)
         {
-            base.TowerSetting(towerMeshFilter, minDamage, maxDamage, range, delay, health);
+            base.TowerSetting(towerMeshFilter);
 
-            BatchArcher();
+            for (var i = 0; i < _archerCount; i++)
+            {
+                _archerUnits[i].transform.GetChild(0).gameObject.SetActive(true);
+            }
 
+            if (!IsUniqueTower || TowerUniqueLevel == 1) return;
+            
             onAttackEvent = null;
-            if (!IsUniqueTower || TowerUniqueLevel == 1)
-            {
-                onAttackEvent += () => ProjectileAttack().Forget();
-            }
-            else
-            {
-                onAttackEvent += BulletAttack;
-            }
+            onAttackEvent += BulletAttack;
         }
 
         private void BatchArcher()
@@ -78,6 +82,7 @@ namespace TowerControl
             {
                 var index = IsUniqueTower ? TowerUniqueLevel + 3 + i : TowerLevel;
                 _archerUnits[i] = ObjectPoolManager.Get(PoolObjectName.ArcherUnit, archerPos[index]);
+                _archerUnits[i].transform.GetChild(0).gameObject.SetActive(false);
             }
         }
 
@@ -91,10 +96,10 @@ namespace TowerControl
             }
         }
 
-        protected override void Attack()
-        {
-            onAttackEvent?.Invoke();
-        }
+        // protected override void Attack()
+        // {
+        //     onAttackEvent.Invoke();
+        // }
 
         private async UniTaskVoid ProjectileAttack()
         {

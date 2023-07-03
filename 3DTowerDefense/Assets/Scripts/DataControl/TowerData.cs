@@ -5,6 +5,8 @@ namespace DataControl
     [CreateAssetMenu]
     public class TowerData : ScriptableObject
     {
+        // Unit Tower doesn't need attackRange
+        public bool unitTower;
         public TowerLevelData[] towerLevels;
         public TowerLevelData[] towerUniqueLevels;
 

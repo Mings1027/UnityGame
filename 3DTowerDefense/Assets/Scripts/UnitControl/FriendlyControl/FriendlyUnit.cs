@@ -16,7 +16,7 @@ namespace UnitControl.FriendlyControl
 
         private Collider[] _targetColliders;
 
-        public event Action<Unit> onDeadEvent;
+        public event Action<Unit> OnDeadEvent;
 
         [SerializeField] private LayerMask targetLayer;
         [SerializeField] private int atkRange;
@@ -71,8 +71,8 @@ namespace UnitControl.FriendlyControl
             base.OnDisable();
             CancelInvoke();
             TargetReset();
-            onDeadEvent?.Invoke(this);
-            onDeadEvent = null;
+            OnDeadEvent?.Invoke(this);
+            OnDeadEvent = null;
         }
 
         private void OnDrawGizmos()

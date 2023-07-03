@@ -1,4 +1,3 @@
-using System;
 using GameControl;
 using UnityEngine;
 
@@ -47,10 +46,5 @@ namespace WeaponControl
             }
         }
 
-        // public void Init(Transform target, int damage)
-        // {
-        //     _target = target;
-        //     _damage = damage;
-        // }
     }
 }

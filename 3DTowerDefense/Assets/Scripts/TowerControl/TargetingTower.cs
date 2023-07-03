@@ -1,6 +1,8 @@
+using System;
 using DG.Tweening;
 using GameControl;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace TowerControl
 {
@@ -8,13 +10,24 @@ namespace TowerControl
     {
         private Tween _delayTween;
         private bool _attackAble;
+        private int _minDamage, _maxDamage;
 
+        public float TowerRange { get; private set; }
+        protected LayerMask TargetLayer => targetLayer;
+        protected int Damage => Random.Range(_minDamage, _maxDamage);
         protected Transform target;
         protected bool isTargeting;
 
+        protected Action onAttackEvent;
         protected Collider[] targetColliders;
-        
-        protected abstract void Attack();
+
+        [SerializeField] private LayerMask targetLayer;
+
+        protected override void Awake()
+        {
+            base.Awake();
+            onAttackEvent = () => { };
+        }
 
         protected override void OnEnable()
         {
@@ -37,9 +50,14 @@ namespace TowerControl
             _delayTween?.Kill();
         }
 
+        protected virtual void Attack()
+        {
+            onAttackEvent.Invoke();
+        }
+
         private void Targeting()
         {
-            target = SearchTarget.ClosestTarget(transform.position, atkRange, targetColliders, TargetLayer);
+            target = SearchTarget.ClosestTarget(transform.position, TowerRange, targetColliders, TargetLayer);
             isTargeting = target != null;
         }
 
@@ -49,18 +67,16 @@ namespace TowerControl
             _delayTween.Restart();
         }
 
-        public override void TowerInit(MeshFilter consMeshFilter)
+        public override void TowerInit(MeshFilter consMeshFilter, int minDamage, int maxDamage, float attackRange,
+            float attackDelay, float health = 0)
         {
-            base.TowerInit(consMeshFilter);
-            isUpgrading = true;
-        }
+            base.TowerInit(consMeshFilter, minDamage, maxDamage, attackRange, attackDelay, health);
 
-        public override void TowerSetting(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range,
-            float delay, float health = 0)
-        {
-            base.TowerSetting(towerMeshFilter, minDamage, maxDamage, range, delay, health);
+            TowerRange = attackRange;
+            _minDamage = minDamage;
+            _maxDamage = maxDamage;
             _delayTween?.Kill();
-            _delayTween = DOVirtual.DelayedCall(delay, () => _attackAble = true, false).SetAutoKill(false);
+            _delayTween = DOVirtual.DelayedCall(attackDelay, () => _attackAble = true, false).SetAutoKill(false);
         }
     }
 }

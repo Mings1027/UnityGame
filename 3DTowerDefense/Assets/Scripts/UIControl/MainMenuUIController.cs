@@ -1,3 +1,4 @@
+using System;
 using DG.Tweening;
 using ManagerControl;
 using UnityEngine;
@@ -8,6 +9,7 @@ namespace UIControl
     public class MainMenuUIController : MonoBehaviour
     {
         [SerializeField] private GamePlayManager gamePlayManager;
+        [SerializeField] private InfoUIController infoUIController;
         [SerializeField] private CameraManager cameraManager;
 
         [SerializeField] private GameObject stageSelectPanel;
@@ -23,22 +25,19 @@ namespace UIControl
                 stageSelectPanel.transform.GetChild(i).GetComponent<Button>().onClick
                     .AddListener(() =>
                     {
+                        stageSelectPanel.SetActive(false);
                         gamePlayManager.MapGenerator(index);
                         gamePlayManager.ReStart();
+                        infoUIController.Init(index);
                         cameraManager.enabled = true;
                     });
             }
         }
 
-        public void Init()
+        private void Start()
         {
             stageSelectPanel.SetActive(true);
             startPanel.gameObject.SetActive(true);
-        }
-
-        public void SetStageSelectPanel(bool isActive)
-        {
-            stageSelectPanel.SetActive(isActive);
         }
 
         private void StartGame()

@@ -13,12 +13,22 @@ namespace TowerControl
         private Material _material;
         private MeshFilter _crystalMeshFilter;
 
-        private event Action onAttackEvent;
-
         [SerializeField] private Transform crystal;
         [SerializeField] private Mesh[] crystalMesh;
         [SerializeField] private Transform[] crystalPositions;
         private static readonly int EmissionColor = Shader.PropertyToID("_EmissionColor");
+
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            onAttackEvent += NormalAttack;
+        }
+
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+            onAttackEvent = null;
+        }
 
         protected override void Init()
         {
@@ -32,35 +42,23 @@ namespace TowerControl
                 .Append(_material.DOColor(_material.GetColor(EmissionColor), 0.5f));
         }
 
-        public override void TowerInit(MeshFilter consMeshFilter)
+        public override void TowerInit(MeshFilter consMeshFilter, int minDamage, int maxDamage, float attackRange,
+            float attackDelay, float health = 0)
         {
-            base.TowerInit(consMeshFilter);
+            base.TowerInit(consMeshFilter, minDamage, maxDamage, attackRange, attackDelay, health);
             // 타워 업그레이드 중에 crystal 보이면 어색하기 때문에 crystal을 타워밑으로 옮겨 잠시 숨겨줌
             crystal.position = transform.position;
         }
 
-        public override void TowerSetting(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range,
-            float delay, float health = 0)
+        public override void TowerSetting(MeshFilter towerMeshFilter)
         {
-            base.TowerSetting(towerMeshFilter, minDamage, maxDamage, range, delay, health);
+            base.TowerSetting(towerMeshFilter);
             CrystalPosInit();
+
+            if (!IsUniqueTower) return;
+
             onAttackEvent = null;
-            onAttackEvent += IsUniqueTower ? TowerUniqueLevel == 0 ? SlowDownAttack : PenetrationAttack : NormalAttack;
-            // if (IsUniqueTower)
-            // {
-            //     if (TowerUniqueLevel == 0)
-            //     {
-            //         onAttackEvent += SlowDownAttack;
-            //     }
-            //     else
-            //     {
-            //         onAttackEvent += PenetrationAttack;
-            //     }
-            // }
-            // else
-            // {
-            //     onAttackEvent += NormalAttack;
-            // }
+            onAttackEvent += TowerUniqueLevel == 0 ? SlowDownAttack : PenetrationAttack;
         }
 
         private void CrystalPosInit()
@@ -72,8 +70,8 @@ namespace TowerControl
 
         protected override void Attack()
         {
+            base.Attack();
             _atkSequence.Restart();
-            onAttackEvent?.Invoke();
         }
 
         private void NormalAttack()

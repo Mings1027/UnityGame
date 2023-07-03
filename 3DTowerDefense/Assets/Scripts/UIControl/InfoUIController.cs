@@ -41,10 +41,10 @@ namespace UIControl
             mainMenuButton.onClick.AddListener(() => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex));
 
             _gameUITween = gameUI.DOLocalMoveY(0, 0.5f)
-                .From(Screen.width).SetUpdate(true).SetAutoKill(false).Pause();
+                .From(Screen.width * 3).SetUpdate(true).SetAutoKill(false).Pause();
 
             _menuPanelTween = menuPanel.DOLocalMoveY(0, 0.5f)
-                .From(Screen.width).SetEase(Ease.OutBack).SetUpdate(true).SetAutoKill(false).Pause();
+                .From(Screen.width * 3).SetEase(Ease.OutBack).SetUpdate(true).SetAutoKill(false).Pause();
         }
 
         private void Pause()
@@ -68,10 +68,10 @@ namespace UIControl
             bgmButton.image.sprite = SoundManager.Instance.BGMToggle() ? musicOnImage : musicOffImage;
         }
 
-        public void Init()
+        public void Init(int stageIndex)
         {
             _gameUITween.Restart();
-            _towerCoin = stageStartCoin[0];
+            _towerCoin = stageStartCoin[stageIndex];
             coinText.text = _towerCoin.ToString();
             _lifeCount = 20;
             lifeCountText.text = _lifeCount.ToString();

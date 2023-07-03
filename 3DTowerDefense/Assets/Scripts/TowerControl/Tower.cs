@@ -1,7 +1,4 @@
-using System;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using Random = UnityEngine.Random;
 
 namespace TowerControl
 {
@@ -10,11 +7,6 @@ namespace TowerControl
         private Collider _collider;
         private MeshFilter _initMesh;
 
-        private int _minDamage, _maxDamage;
-
-        protected float atkRange;
-        protected int Damage => Random.Range(_minDamage, _maxDamage);
-        protected LayerMask TargetLayer => targetLayer;
         protected MeshFilter meshFilter;
         protected bool isUpgrading;
         protected bool isSold;
@@ -31,12 +23,10 @@ namespace TowerControl
         public bool IsUniqueTower { get; private set; }
         public int TowerLevel { get; private set; }
         public int TowerUniqueLevel { get; private set; }
-        public float TowerRange { get; private set; }
 
         [SerializeField] private Type towerType;
-        [SerializeField] private LayerMask targetLayer;
 
-        private void Awake()
+        protected virtual void Awake()
         {
             Init();
         }
@@ -77,23 +67,19 @@ namespace TowerControl
             TowerUniqueLevel = uniqueLevel;
         }
 
-        public virtual void TowerInit(MeshFilter consMeshFilter)
+        public virtual void TowerInit(MeshFilter consMeshFilter, int minDamage, int maxDamage, float attackRange,
+            float attackDelay, float health = 0)
         {
             isUpgrading = true;
             meshFilter.sharedMesh = consMeshFilter.sharedMesh;
+
         }
 
-        public virtual void TowerSetting(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range,
-            float delay, float health = 0)
+        public virtual void TowerSetting(MeshFilter towerMeshFilter)
         {
             isUpgrading = false;
             meshFilter.sharedMesh = towerMeshFilter.sharedMesh;
-            TowerRange = range;
             _collider.enabled = true;
-
-            _minDamage = minDamage;
-            _maxDamage = maxDamage;
-            atkRange = range;
         }
     }
 }

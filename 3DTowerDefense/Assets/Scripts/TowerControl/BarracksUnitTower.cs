@@ -20,10 +20,11 @@ namespace TowerControl
         {
             base.OnEnable();
             _unitCenterPos = new Collider[1];
+            var position = transform.position;
             _spawnDirections = new[]
             {
-                transform.position + Vector3.forward * 10, transform.position + Vector3.back * 10,
-                transform.position + Vector3.left * 10, transform.position + Vector3.right * 10
+                position + Vector3.forward * 10, position + Vector3.back * 10,
+                position + Vector3.left * 10, position + Vector3.right * 10
             };
         }
 
@@ -33,14 +34,6 @@ namespace TowerControl
             CancelInvoke();
         }
 
-        private void OnDrawGizmos()
-        {
-            Gizmos.color = Color.red;
-            foreach (var dir in _spawnDirections)
-            {
-                Gizmos.DrawSphere(dir, 1);
-            }
-        }
         //==================================Custom Function====================================================
         //==================================Custom Function====================================================
 
@@ -100,7 +93,7 @@ namespace TowerControl
             var unitName = IsUniqueTower ? PoolObjectName.SpearManUnit : PoolObjectName.SwordManUnit;
             var ranPos = pos + Random.insideUnitSphere * 2f;
             units[i] = ObjectPoolManager.Get<BarracksUnit>(unitName, ranPos);
-            units[i].onDeadEvent += ReSpawn;
+            units[i].OnDeadEvent += ReSpawn;
         }
     }
 }

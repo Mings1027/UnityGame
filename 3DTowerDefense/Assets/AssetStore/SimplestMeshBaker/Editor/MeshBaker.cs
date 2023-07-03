@@ -301,6 +301,7 @@ namespace SimplestMeshBaker
         private static void Bake(Mesh mesh, List<Vector3> vertexes, List<Vector3> normals, List<Vector4> tangents, 
             List<Color> colors, List<Vector2> uvs, List<int> triangles, Material material)
         {
+            Debug.Log(vertexes.Count + mesh.vertexCount);
             //mesh may not have more than 65000 vertices.
             if (vertexes.Count + mesh.vertexCount > MAX_VERTEX_COUNT_PER_ONE_OBJECT)
             {

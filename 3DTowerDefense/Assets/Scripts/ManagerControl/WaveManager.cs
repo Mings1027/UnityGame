@@ -33,8 +33,7 @@ namespace ManagerControl
 
         public Transform[] WayPointList { get; set; }
 
-        [FormerlySerializedAs("informationUIController")] [SerializeField]
-        private InfoUIController infoUIController;
+        [SerializeField] private InfoUIController infoUIController;
 
         [SerializeField] private Button startWaveButton;
 
@@ -69,15 +68,14 @@ namespace ManagerControl
         {
             if (_startGame) return;
             _startGame = true;
-            _remainingEnemyCount = 0;
             _curWave++;
 
             var enemyCount = waves[_curWave].enemyCount;
+            _remainingEnemyCount = enemyCount;
             while (enemyCount > 0)
             {
                 await UniTask.Delay(1000, cancellationToken: _cts.Token);
                 enemyCount--;
-                _remainingEnemyCount++;
                 SpawnEnemy();
             }
         }
@@ -91,9 +89,9 @@ namespace ManagerControl
             enemyUnit.onMoveNextPointEvent += MoveNextPoint;
 
             var enemyHealth = enemyUnit.GetComponent<Health>();
-            enemyHealth.onDeadEvent += DeadEnemy;
-            enemyHealth.onIncreaseCoinEvent += () => infoUIController.IncreaseCoin(waves[_curWave].enemyCoin);
-            enemyHealth.onDecreaseLifeCountEvent += infoUIController.DecreaseLifeCount;
+            enemyHealth.OnDeadEvent += DeadEnemy;
+            enemyHealth.OnIncreaseCoinEvent += () => infoUIController.IncreaseCoin(waves[_curWave].enemyCoin);
+            enemyHealth.OnDecreaseLifeCountEvent += infoUIController.DecreaseLifeCount;
 
             var w = waves[_curWave];
             enemyUnit.Init(w.minDamage, w.maxDamage, w.atkDelay, w.health);

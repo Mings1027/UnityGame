@@ -13,9 +13,20 @@ namespace TowerControl
         private Transform[] _singleShootPoints;
         private Transform[] _multiShootPoints;
 
-        private event Action<Transform> onAttackEvent;
 
         [SerializeField] private MeshFilter[] canonMeshFilters;
+
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            onAttackEvent += SingleShoot;
+        }
+
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+            onAttackEvent = null;
+        }
 
         private void OnDestroy()
         {
@@ -45,30 +56,34 @@ namespace TowerControl
                 .Append(meshFilter.transform.DOScaleY(1f, 0.3f).SetEase(Ease.OutQuint));
         }
 
-        public override void TowerSetting(MeshFilter towerMeshFilter, int minDamage, int maxDamage, float range,
-            float delay, float health = 0)
+        public override void TowerInit(MeshFilter consMeshFilter, int minDamage, int maxDamage, float attackRange,
+            float attackDelay, float health = 0)
         {
-            base.TowerSetting(towerMeshFilter, minDamage, maxDamage, range, delay, health);
+            base.TowerInit(consMeshFilter, minDamage, maxDamage, attackRange, attackDelay, health);
+
+            if (TowerUniqueLevel != 1) return;
+
             onAttackEvent = null;
-            onAttackEvent += TowerUniqueLevel != 1 ? SingleShoot : MultiShoot;
+            onAttackEvent += MultiShoot;
         }
 
         protected override void Attack()
         {
+            base.Attack();
             _atkSequence.Restart();
-            onAttackEvent?.Invoke(target);
+            // onAttackEvent.Invoke();
         }
 
-        private void SingleShoot(Transform endPos)
+        private void SingleShoot()
         {
-            Shoot(endPos, _singleShootPoints[TowerLevel].position + new Vector3(0, 1, 0));
+            Shoot(target, _singleShootPoints[TowerLevel].position + new Vector3(0, 1, 0));
         }
 
-        private void MultiShoot(Transform endPos)
+        private void MultiShoot()
         {
             for (var i = 0; i < 3; i++)
             {
-                Shoot(endPos, _multiShootPoints[i].position + new Vector3(0, 1, 0));
+                Shoot(target, _multiShootPoints[i].position + new Vector3(0, 1, 0));
             }
         }
 
@@ -78,6 +93,7 @@ namespace TowerControl
             ObjectPoolManager.Get(PoolObjectName.CanonSmoke, pos);
             var m = ObjectPoolManager.Get<CanonProjectile>(PoolObjectName.CanonBullet, pos);
             m.Init(t.position, Damage);
+            
             if (!m.TryGetComponent(out CanonProjectile u)) return;
             var level = IsUniqueTower ? TowerUniqueLevel + 3 : TowerLevel;
             u.CanonMeshFilter.sharedMesh = canonMeshFilters[level].sharedMesh;

@@ -11,8 +11,9 @@ namespace UnitControl
     {
         private Camera _cam;
         private Sequence _cantMoveImageSequence;
+        private bool _hasTower;
 
-        public event Action onMoveUnitEvent;
+        public event Action OnMoveUnitEvent;
         public BarracksUnitTower BarracksTower { get; set; }
 
         [SerializeField] private GameObject cantMoveImage;
@@ -22,14 +23,14 @@ namespace UnitControl
             _cam = Camera.main;
             _cantMoveImageSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(cantMoveImage.transform.DOScale(new Vector3(1, 1), 0.5f).From(0.5f).SetEase(Ease.OutBounce))
-                .Join(cantMoveImage.GetComponent<Image>().DOFade(0, 1f).From(1));
+                .Join(cantMoveImage.GetComponent<Image>().DOFade(0, 0.5f).From(1));
         }
 
         private void Update()
         {
             if (Input.touchCount <= 0) return;
             var touch = Input.GetTouch(0);
-            if (touch.phase != TouchPhase.Ended) return;
+            if (touch.phase != TouchPhase.Began) return;
 
             CheckCanMoveUnit(touch);
         }
@@ -43,9 +44,9 @@ namespace UnitControl
                 && Vector3.Distance(transform.position, physicsHit.point) < transform.localScale.x * 0.5f)
             {
                 BarracksTower.UnitMove(unitCenterPos.position);
-                onMoveUnitEvent?.Invoke();
-                gameObject.SetActive(false);
+                OnMoveUnitEvent?.Invoke();
                 cantMoveImage.SetActive(false);
+                BarracksTower = null;
             }
             else
             {

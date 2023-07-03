@@ -10,7 +10,7 @@ namespace GameControl
         private CancellationTokenSource _cts;
 
         public bool IsDead { get; private set; }
-        public event Action onDeadEvent, onIncreaseCoinEvent, onDecreaseLifeCountEvent;
+        public event Action OnDeadEvent, OnIncreaseCoinEvent, OnDecreaseLifeCountEvent;
 
         [SerializeField] private bool isEnemy;
         [SerializeField] private HealthBar healthBar;
@@ -30,14 +30,14 @@ namespace GameControl
             _cts?.Cancel();
 
             if (!isEnemy) return;
-            onDeadEvent?.Invoke();
+            OnDeadEvent?.Invoke();
             if (curHealth > 0)
             {
-                onDecreaseLifeCountEvent?.Invoke();
+                OnDecreaseLifeCountEvent?.Invoke();
             }
             else
             {
-                onIncreaseCoinEvent?.Invoke();
+                OnIncreaseCoinEvent?.Invoke();
             }
         }
 
