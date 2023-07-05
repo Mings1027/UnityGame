@@ -22,13 +22,13 @@ namespace GameControl
             healthBarForeground.fillAmount = 1;
         }
 
-        private void LateUpdate()
-        {
-            if (_cam.transform.rotation == transform.rotation) return;
-            
-            var rotation = _cam.transform.rotation;
-            transform.rotation = rotation;
-        }
+        // private void LateUpdate()
+        // {
+        //     if (_cam.transform.rotation == transform.rotation) return;
+        //     
+        //     var rotation = _cam.transform.rotation;
+        //     transform.rotation = rotation;
+        // }
 
         private void FourDirection()
         {

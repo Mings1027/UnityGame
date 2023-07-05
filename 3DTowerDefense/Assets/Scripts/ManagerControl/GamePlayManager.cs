@@ -153,7 +153,7 @@ namespace ManagerControl
                 {
                     SoundManager.Instance.PlaySound("ButtonSound");
                     var towerType = _towerSelectButtons[index].name.Replace("Button", "");
-                    TowerSelectButtons(towerType, index);
+                    ClickTowerButtons(towerType, index);
                 });
             }
 
@@ -184,7 +184,7 @@ namespace ManagerControl
                 towerEditButtons.transform.GetChild(i).GetComponent<Button>().onClick.AddListener(() =>
                 {
                     SoundManager.Instance.PlaySound("ButtonSound");
-                    TowerEditButtons(index);
+                    ClickEditButtons(index);
                 });
             }
 
@@ -245,11 +245,11 @@ namespace ManagerControl
         private void MapInit()
         {
             var wayPointsParent = _curMap.transform.Find("WayPointsParent");
-            waveManager.WayPointList = new Transform[wayPointsParent.childCount];
+            waveManager.WayPointList = new Vector3[wayPointsParent.childCount];
 
             for (var i = 0; i < waveManager.WayPointList.Length; i++)
             {
-                waveManager.WayPointList[i] = wayPointsParent.GetChild(i);
+                waveManager.WayPointList[i] = wayPointsParent.GetChild(i).position;
             }
         }
 
@@ -289,13 +289,14 @@ namespace ManagerControl
             {
                 SoundManager.Instance.PlaySound("BuildPointSound");
                 ResetUI();
-                OpenTowerEditPanel(hit);
+                SetEditButtons(hit);
+                OpenEditButtonPanel();
             }
             else if (hit.collider.CompareTag("BuildingPoint"))
             {
                 SoundManager.Instance.PlaySound("BuildPointSound");
                 ResetUI();
-                OpenTowerSelectPanel(hit);
+                OpenTowerButtonPanel(hit);
             }
             else
             {
@@ -307,7 +308,7 @@ namespace ManagerControl
             }
         }
 
-        private void OpenTowerSelectPanel(RaycastHit hit)
+        private void OpenTowerButtonPanel(RaycastHit hit)
         {
             _towerSelectPanelTween.Restart();
             if (!towerButtons.gameObject.activeSelf) towerButtons.gameObject.SetActive(true);
@@ -320,24 +321,12 @@ namespace ManagerControl
             _tooltipTarget = towerButtons.transform;
         }
 
-        private void OpenTowerEditPanel(RaycastHit hit)
+        private void OpenEditButtonPanel()
         {
             _towerSelectPanelTween.Restart();
             if (!towerEditButtons.gameObject.activeSelf) towerEditButtons.gameObject.SetActive(true);
             _panelIsOpen = true;
             _isTower = true;
-
-            var tower = hit.transform.GetComponent<Tower>();
-            if (tower.TowerLevel == 2) SetUpgradeButtonImage(tower);
-            _curUITarget = hit.transform;
-            _curSelectedTower = tower;
-            _tooltipTarget = towerEditButtons.transform;
-
-            upgradeButton.SetActive(tower.TowerLevel != 2);
-            aUpgradeButton.SetActive(!tower.IsUniqueTower && tower.TowerLevel == 2);
-            bUpgradeButton.SetActive(!tower.IsUniqueTower && tower.TowerLevel == 2);
-            moveUnitButton.SetActive(tower.TowerType == Tower.Type.Barracks);
-            sellButton.SetActive(true);
 
             if (_curSelectedTower.TowerType == Tower.Type.Barracks) return;
             var targetingTower = _curSelectedTower.GetComponent<TargetingTower>();
@@ -349,7 +338,22 @@ namespace ManagerControl
             towerRangeIndicator.enabled = true;
         }
 
-        private void TowerSelectButtons(string towerName, int index)
+        private void SetEditButtons(RaycastHit hit)
+        {
+            var tower = hit.transform.GetComponent<Tower>();
+            if (tower.TowerLevel == 2) SetUpgradeButtonImage(tower);
+            _curUITarget = hit.transform;
+            _curSelectedTower = tower;
+            _tooltipTarget = towerEditButtons.transform;
+
+            upgradeButton.SetActive(tower.TowerLevel != 2);
+            aUpgradeButton.SetActive(!tower.IsUniqueTower && tower.TowerLevel == 2);
+            bUpgradeButton.SetActive(!tower.IsUniqueTower && tower.TowerLevel == 2);
+            moveUnitButton.SetActive(tower.TowerType == Tower.Type.Barracks);
+            sellButton.SetActive(true);
+        }
+
+        private void ClickTowerButtons(string towerName, int index)
         {
             if (index == _lastSelectedTowerButtonIndex)
             {
@@ -359,6 +363,11 @@ namespace ManagerControl
             }
 
             _lastSelectedTowerButtonIndex = index;
+            ShowSelectTower(towerName);
+        }
+
+        private void ShowSelectTower(string towerName)
+        {
             var tempTower = _towerDictionary[towerName].towerLevels[0];
             _towerTypeName = towerName;
 
@@ -369,34 +378,46 @@ namespace ManagerControl
 
             if (_towerDictionary[towerName].unitTower)
             {
-                towerRangeIndicator.enabled = false;
-
-                var moveIndicatorTransform = moveUnitSprite.transform;
-                moveIndicatorTransform.localScale = new Vector3(moveUnitRange, moveUnitRange);
-                moveIndicatorTransform.position = curTowerMesh.transform.position;
-                moveUnitSprite.enabled = true;
+                ShowUnitTowerInfo();
             }
             else
             {
-                moveUnitSprite.enabled = false;
-
-                var indicatorTransform = towerRangeIndicator.transform;
-                indicatorTransform.position = curTowerMesh.transform.position;
-                var range = tempTower.attackRange * 2;
-                indicatorTransform.localScale = new Vector3(range, range);
-
-                if (towerRangeIndicator.enabled) return;
-                towerRangeIndicator.enabled = true;
+                ShowTargetingTowerInfo(tempTower);
             }
         }
 
-        private void TowerEditButtons(int index)
+        private void ShowUnitTowerInfo()
+        {
+            towerRangeIndicator.enabled = false;
+
+            var moveIndicatorTransform = moveUnitSprite.transform;
+            moveIndicatorTransform.localScale = new Vector3(moveUnitRange, moveUnitRange);
+            moveIndicatorTransform.position = curTowerMesh.transform.position;
+            moveUnitSprite.enabled = true;
+        }
+
+        private void ShowTargetingTowerInfo(TowerData.TowerLevelData tempTower)
+        {
+            moveUnitSprite.enabled = false;
+
+            var indicatorTransform = towerRangeIndicator.transform;
+            indicatorTransform.position = curTowerMesh.transform.position;
+            var range = tempTower.attackRange * 2;
+            indicatorTransform.localScale = new Vector3(range, range);
+
+            if (towerRangeIndicator.enabled) return;
+            towerRangeIndicator.enabled = true;
+        }
+
+        private void ClickEditButtons(int index)
         {
             if (index == _lastSelectedEditButtonIndex)
             {
-                if (!infoUIController.CheckBuildCoin(_curSelectedTower.TowerLevel + 1)) return;
-                OkButton();
-                return;
+                if (infoUIController.CheckBuildCoin(_curSelectedTower.TowerLevel + 1) || _isSell)
+                {
+                    OkButton();
+                    return;
+                }
             }
 
             _lastSelectedEditButtonIndex = index;

@@ -16,6 +16,7 @@ namespace UnitControl
         public event Action OnMoveUnitEvent;
         public BarracksUnitTower BarracksTower { get; set; }
 
+        [SerializeField] private LayerMask walkableLayer;
         [SerializeField] private GameObject cantMoveImage;
 
         private void Awake()
@@ -39,11 +40,10 @@ namespace UnitControl
         {
             var ray = _cam.ScreenPointToRay(touch.position);
             Physics.Raycast(ray, out var physicsHit);
-
-            if (NavMesh.SamplePosition(physicsHit.point, out var unitCenterPos, 1, NavMesh.AllAreas)
-                && Vector3.Distance(transform.position, physicsHit.point) < transform.localScale.x * 0.5f)
+            if (physicsHit.collider.CompareTag("WalkableGround") &&
+                Vector3.Distance(transform.position, physicsHit.point) < transform.localScale.x * 0.5f)
             {
-                BarracksTower.UnitMove(unitCenterPos.position);
+                BarracksTower.UnitMove(physicsHit.point);
                 OnMoveUnitEvent?.Invoke();
                 cantMoveImage.SetActive(false);
                 BarracksTower = null;

@@ -1,6 +1,6 @@
 namespace DataControl
 {
-    public abstract class PoolObjectName
+    public static class PoolObjectName
     {
         /*==================================================================================================================
         *                                              Tower  
@@ -12,8 +12,8 @@ namespace DataControl
         *                                              Unit  
         ==================================================================================================================*/
         public const string ArcherUnit = "ArcherUnit";
-        public const string SwordManUnit = "SwordManUnit";
-        public const string SpearManUnit = "SpearManUnit";
+        public const string PuddingJellyUnit = "PuddingJellyUnit";
+        public const string BearJellyUnit = "BearJellyUnit";
 
         /*==================================================================================================================
         *                                              Bullet  

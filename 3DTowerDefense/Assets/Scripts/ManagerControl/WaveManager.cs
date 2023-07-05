@@ -31,7 +31,7 @@ namespace ManagerControl
 
         [SerializeField] private Wave[] waves;
 
-        public Transform[] WayPointList { get; set; }
+        public Vector3[] WayPointList { get; set; }
 
         [SerializeField] private InfoUIController infoUIController;
 
@@ -85,8 +85,8 @@ namespace ManagerControl
             var enemyUnit = ObjectPoolManager.Get<EnemyUnit>(waves[_curWave].enemyName,
                 WayPointList[0]);
 
-            enemyUnit.SetMovePoint(WayPointList[1].position);
-            enemyUnit.onMoveNextPointEvent += MoveNextPoint;
+            enemyUnit.SetMovePoint(WayPointList[1]);
+            enemyUnit.OnMoveNextPointEvent += MoveNextPoint;
 
             var enemyHealth = enemyUnit.GetComponent<Health>();
             enemyHealth.OnDeadEvent += DeadEnemy;
@@ -105,7 +105,7 @@ namespace ManagerControl
                 return;
             }
 
-            enemy.SetMovePoint(WayPointList[index + 1].position);
+            enemy.SetMovePoint(WayPointList[index + 1]);
         }
 
         private void DeadEnemy()

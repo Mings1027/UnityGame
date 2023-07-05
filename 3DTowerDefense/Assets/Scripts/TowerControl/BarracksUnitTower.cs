@@ -48,7 +48,9 @@ namespace TowerControl
             for (var i = 0; i < units.Length; i++)
             {
                 var t = units[i];
-                t.GoToTouchPosition(touchPos);
+                var touchRanPos = touchPos + Random.insideUnitSphere * 2;
+                touchRanPos.y = touchPos.y;
+                t.GoToTouchPosition(touchRanPos).Forget();
             }
         }
 
@@ -90,8 +92,9 @@ namespace TowerControl
 
         protected override void UnitSpawn(Vector3 pos, int i)
         {
-            var unitName = IsUniqueTower ? PoolObjectName.SpearManUnit : PoolObjectName.SwordManUnit;
+            var unitName = IsUniqueTower ? PoolObjectName.BearJellyUnit : PoolObjectName.PuddingJellyUnit;
             var ranPos = pos + Random.insideUnitSphere * 2f;
+            ranPos.y = 1;
             units[i] = ObjectPoolManager.Get<BarracksUnit>(unitName, ranPos);
             units[i].OnDeadEvent += ReSpawn;
         }

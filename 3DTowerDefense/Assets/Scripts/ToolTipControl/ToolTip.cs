@@ -1,4 +1,3 @@
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -8,9 +7,9 @@ namespace ToolTipControl
     {
         private RectTransform _target;
 
-        [SerializeField] private TextMeshProUGUI headerText;
+        [SerializeField] private Text headerText;
 
-        [SerializeField] private TextMeshProUGUI contentText;
+        [SerializeField] private Text contentText;
 
         private void Update()
         {

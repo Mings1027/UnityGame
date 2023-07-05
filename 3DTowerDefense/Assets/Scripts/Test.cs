@@ -1,26 +1,45 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.AI;
 
 public class Test : MonoBehaviour
 {
-    private NavMeshSurface _navMeshSurface;
+    private Tween _wayPointTween;
+
+    [SerializeField] private Transform wayPointParent;
+    [SerializeField] private float speed;
+    [SerializeField] private PathType pathType;
+    [SerializeField] private PathMode pathMode;
+    [SerializeField] private Vector3[] wayPoints;
 
     private void Awake()
     {
-        _navMeshSurface = GetComponent<NavMeshSurface>();
+        wayPoints = new Vector3[wayPointParent.childCount];
+        for (int i = 0; i < wayPoints.Length; i++)
+        {
+            wayPoints[i] = wayPointParent.GetChild(i).position;
+        }
+
+        _wayPointTween = transform.DOPath(wayPoints, speed, pathType, pathMode).SetAutoKill(false).Pause();
+    }
+
+    private void Start()
+    {
+        _wayPointTween.Restart();
     }
 
     private void Update()
     {
-#if UNITY_EDITOR
-        Debug.Log("editor");
-#endif
-
-#if UNITY_IOS
-        Debug.Log("ios");
-#endif
+        if (Input.GetKeyDown(KeyCode.A))
+        {
+            _wayPointTween.Play();
+        }
+        else if (Input.GetKeyDown(KeyCode.Space))
+        {
+            _wayPointTween.Pause();
+        }
     }
 }

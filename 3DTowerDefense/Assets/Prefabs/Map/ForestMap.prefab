@@ -5056,7 +5056,7 @@ GameObject:
   - component: {fileID: 5160273492175432242}
   m_Layer: 15
   m_Name: NotWalkable1
-  m_TagString: Untagged
+  m_TagString: WalkableGround
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5139,7 +5139,7 @@ GameObject:
   - component: {fileID: 7221581830405472795}
   m_Layer: 15
   m_Name: NotWalkable
-  m_TagString: Untagged
+  m_TagString: WalkableGround
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -6034,7 +6034,6 @@ GameObject:
   - component: {fileID: 4053517026103270741}
   - component: {fileID: 6792478229202043752}
   - component: {fileID: 2278744087436982612}
-  - component: {fileID: 1468864804848284673}
   m_Layer: 0
   m_Name: ForestMap
   m_TagString: Ground
@@ -6087,35 +6086,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 150, y: 0, z: 150}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &1468864804848284673
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4053517026103270742}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7a5ac11cc976e418e8d13136b07e1f52, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_AgentTypeID: 0
-  m_CollectObjects: 2
-  m_Size: {x: 200, y: 1, z: 200}
-  m_Center: {x: 0, y: 0, z: 0}
-  m_LayerMask:
-    serializedVersion: 2
-    m_Bits: 32768
-  m_UseGeometry: 0
-  m_DefaultArea: 0
-  m_IgnoreNavMeshAgent: 1
-  m_IgnoreNavMeshObstacle: 1
-  m_OverrideTileSize: 0
-  m_TileSize: 256
-  m_OverrideVoxelSize: 0
-  m_VoxelSize: 0.16666667
-  m_BuildHeightMesh: 0
-  m_NavMeshData: {fileID: 23800000, guid: 93f9fece159f545d6b6d99d334d5c2c9, type: 2}
 --- !u!1 &4053517026125650334
 GameObject:
   m_ObjectHideFlags: 0
@@ -6171,7 +6141,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4053517026126906369}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -7146,7 +7116,7 @@ GameObject:
   - component: {fileID: 8091323634094974366}
   m_Layer: 15
   m_Name: Walkable
-  m_TagString: Ground
+  m_TagString: WalkableGround
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

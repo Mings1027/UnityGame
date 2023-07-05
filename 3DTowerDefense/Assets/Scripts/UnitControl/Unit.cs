@@ -3,7 +3,6 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameControl;
 using UnityEngine;
-using UnityEngine.AI;
 using Random = UnityEngine.Random;
 
 namespace UnitControl
@@ -14,22 +13,24 @@ namespace UnitControl
         private float _atkDelay;
         private int _minDamage, _maxDamage;
 
+        protected Animator anim;
+        protected Rigidbody rigid;
         protected CancellationTokenSource cts;
-
-        protected NavMeshAgent nav;
-        protected bool attackAble;
+        
+        protected bool isCoolingDown;
         protected int Damage => Random.Range(_minDamage, _maxDamage);
 
         protected virtual void Awake()
         {
-            nav = GetComponent<NavMeshAgent>();
+            anim = GetComponent<Animator>();
+            rigid = GetComponent<Rigidbody>();
         }
 
         protected virtual void OnEnable()
         {
             cts?.Dispose();
             cts = new CancellationTokenSource();
-            attackAble = true;
+            isCoolingDown = true;
         }
 
         protected virtual void OnDisable()
@@ -41,9 +42,9 @@ namespace UnitControl
 
         protected async UniTaskVoid StartCoolDown()
         {
-            attackAble = false;
+            isCoolingDown = false;
             await UniTask.Delay(TimeSpan.FromSeconds(_atkDelay), cancellationToken: cts.Token);
-            attackAble = true;
+            isCoolingDown = true;
         }
 
         public void Init(int minD, int maxD, float delay, float health)
