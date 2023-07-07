@@ -156,17 +156,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   musicSource: {fileID: 1391763412}
   effectsSource: {fileID: 912063407}
+  musicSounds:
+  - {fileID: 8300000, guid: fbd50b6f750f01a42a40ead806f44a8e, type: 3}
+  - {fileID: 8300000, guid: 0ecff765080014867b0627e9b37d2e0d, type: 3}
   effectSounds:
-  - effectName: ButtonSound
-    effectSource: {fileID: 8300000, guid: 625ad317b451ec147984e94636d712a6, type: 3}
-  - effectName: SellTower1
-    effectSource: {fileID: 8300000, guid: 98825dcf1281f42c286ba3a76aa2e490, type: 3}
-  - effectName: SellTower2
-    effectSource: {fileID: 8300000, guid: 9f1f37735305c4cc99b07c19fe48675d, type: 3}
-  - effectName: SellTower3
-    effectSource: {fileID: 8300000, guid: d0440e1e7ebf542a1884646f52220a69, type: 3}
-  - effectName: BuildPointSound
-    effectSource: {fileID: 8300000, guid: 41fe389abc552ae4ea67e78dcfbfa9fb, type: 3}
+  - {fileID: 8300000, guid: 625ad317b451ec147984e94636d712a6, type: 3}
+  - {fileID: 8300000, guid: 41fe389abc552ae4ea67e78dcfbfa9fb, type: 3}
+  - {fileID: 8300000, guid: 98825dcf1281f42c286ba3a76aa2e490, type: 3}
+  - {fileID: 8300000, guid: 9f1f37735305c4cc99b07c19fe48675d, type: 3}
+  - {fileID: 8300000, guid: d0440e1e7ebf542a1884646f52220a69, type: 3}
 --- !u!4 &214224844
 Transform:
   m_ObjectHideFlags: 0
@@ -823,7 +821,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 0ecff765080014867b0627e9b37d2e0d, type: 3}
+  m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
   m_Volume: 0.062
   m_Pitch: 1

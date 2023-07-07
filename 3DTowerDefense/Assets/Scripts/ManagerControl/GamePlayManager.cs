@@ -148,7 +148,7 @@ namespace ManagerControl
                 var index = i;
                 _towerSelectButtons[i].onClick.AddListener(() =>
                 {
-                    SoundManager.Instance.PlaySound("ButtonSound");
+                    SoundManager.Instance.PlaySound(SoundManager.ButtonSound);
                     var towerType = _towerSelectButtons[index].name.Replace("Button", "");
                     ClickTowerButtons(towerType, index);
                 });
@@ -180,7 +180,7 @@ namespace ManagerControl
                 var index = i;
                 towerEditButtons.transform.GetChild(i).GetComponent<Button>().onClick.AddListener(() =>
                 {
-                    SoundManager.Instance.PlaySound("ButtonSound");
+                    SoundManager.Instance.PlaySound(SoundManager.ButtonSound);
                     ClickEditButtons(index);
                 });
             }
@@ -277,14 +277,14 @@ namespace ManagerControl
 
             if (hit.collider.CompareTag("Tower"))
             {
-                SoundManager.Instance.PlaySound("BuildPointSound");
+                SoundManager.Instance.PlaySound(SoundManager.BuildPointSound);
                 ResetUI();
                 SetEditButtons(hit);
                 OpenEditButtonPanel();
             }
             else if (hit.collider.CompareTag("BuildingPoint"))
             {
-                SoundManager.Instance.PlaySound("BuildPointSound");
+                SoundManager.Instance.PlaySound(SoundManager.BuildPointSound);
                 ResetUI();
                 OpenTowerButtonPanel(hit);
             }
@@ -552,8 +552,8 @@ namespace ManagerControl
 
         private void SellTower()
         {
-            SoundManager.Instance.PlaySound(_curSelectedTower.IsUniqueTower ? "SellTower3" :
-                _curSelectedTower.TowerLevel > 0 ? "SellTower2" : "SellTower1");
+            SoundManager.Instance.PlaySound(_curSelectedTower.IsUniqueTower ? SoundManager.SellSound3 :
+                _curSelectedTower.TowerLevel > 0 ? SoundManager.SellSound2 : SoundManager.SellSound1);
 
             _curSelectedTower.gameObject.SetActive(false);
             ObjectPoolManager.Get(PoolObjectName.BuildSmoke, _curSelectedTower.transform);

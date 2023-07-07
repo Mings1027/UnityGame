@@ -25,6 +25,7 @@ namespace UIControl
                 stageSelectPanel.transform.GetChild(i).GetComponent<Button>().onClick
                     .AddListener(() =>
                     {
+                        SoundManager.Instance.PlayBGM(SoundManager.ForestBGM);
                         stageSelectPanel.SetActive(false);
                         gamePlayManager.MapGenerator(index);
                         gamePlayManager.ReStart();
@@ -44,7 +45,7 @@ namespace UIControl
         {
             Time.timeScale = 1;
             startPanel.DOMoveY(Screen.width * 2, 1).SetEase(Ease.InBack);
-            SoundManager.Instance.PlayBGM();
+            SoundManager.Instance.PlayBGM(SoundManager.BGM);
         }
     }
 }
