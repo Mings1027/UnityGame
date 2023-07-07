@@ -14836,9 +14836,9 @@ GameObject:
   - component: {fileID: 7706801028311746438}
   - component: {fileID: 7706801028311746440}
   - component: {fileID: 7706801028311746442}
-  - component: {fileID: 2312138824256600604}
   - component: {fileID: 5403301033657038312}
-  m_Layer: 0
+  - component: {fileID: 3764962313010044446}
+  m_Layer: 12
   m_Name: ArcherProjectile
   m_TagString: UnitAmmo
   m_Icon: {fileID: 0}
@@ -14921,20 +14921,6 @@ MonoBehaviour:
     m_RotationOrder: 4
   speed: 1.5
   tagName: Enemy
---- !u!136 &2312138824256600604
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7706801028311746445}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  m_Radius: 0.1
-  m_Height: 0.6
-  m_Direction: 2
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &5403301033657038312
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -14951,3 +14937,16 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
+--- !u!135 &3764962313010044446
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7706801028311746445}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.25
+  m_Center: {x: 0, y: 0, z: 0}

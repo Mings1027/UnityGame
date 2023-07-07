@@ -11,13 +11,10 @@ namespace UnitControl
     {
         private Camera _cam;
         private Sequence _cantMoveImageSequence;
-        private bool _hasTower;
-
-        public event Action OnMoveUnitEvent;
         public BarracksUnitTower BarracksTower { get; set; }
 
         [SerializeField] private LayerMask walkableLayer;
-        [SerializeField] private GameObject cantMoveImage;
+        [SerializeField] private Image cantMoveImage;
 
         private void Awake()
         {
@@ -31,7 +28,8 @@ namespace UnitControl
         {
             if (Input.touchCount <= 0) return;
             var touch = Input.GetTouch(0);
-            if (touch.phase != TouchPhase.Began) return;
+            if (touch.phase != TouchPhase.Ended) return;
+            if (touch.deltaPosition != Vector2.zero) return;
 
             CheckCanMoveUnit(touch);
         }
@@ -39,21 +37,22 @@ namespace UnitControl
         private void CheckCanMoveUnit(Touch touch)
         {
             var ray = _cam.ScreenPointToRay(touch.position);
-            Physics.Raycast(ray, out var physicsHit);
-            if (physicsHit.collider.CompareTag("WalkableGround") &&
-                Vector3.Distance(transform.position, physicsHit.point) < transform.localScale.x * 0.5f)
+            var isWalkable = Physics.Raycast(ray, out var physicsHit, walkableLayer);
+
+            if (isWalkable && Vector3.Distance(transform.position, physicsHit.point) <= transform.localScale.x * 0.5f)
             {
                 BarracksTower.UnitMove(physicsHit.point);
-                OnMoveUnitEvent?.Invoke();
-                cantMoveImage.SetActive(false);
                 BarracksTower = null;
+                gameObject.SetActive(false);
+                if (!cantMoveImage.enabled) return;
+                cantMoveImage.enabled = false;
             }
             else
             {
                 cantMoveImage.transform.position = _cam.WorldToScreenPoint(physicsHit.point);
                 _cantMoveImageSequence.Restart();
-                if (cantMoveImage.activeSelf) return;
-                cantMoveImage.SetActive(true);
+                if (cantMoveImage.enabled) return;
+                cantMoveImage.enabled = true;
             }
         }
     }

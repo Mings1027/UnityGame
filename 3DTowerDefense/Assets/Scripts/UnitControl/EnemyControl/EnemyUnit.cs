@@ -8,6 +8,7 @@ namespace UnitControl.EnemyControl
     {
         private Vector3 _destination;
         private int _wayPointIndex;
+        private bool _isMove;
         private bool _isSpeedDeBuffed;
         private static readonly int Walk = Animator.StringToHash("isWalk");
         private static readonly int IsAttack = Animator.StringToHash("isAttack");
@@ -25,39 +26,59 @@ namespace UnitControl.EnemyControl
             _wayPointIndex = 0;
             Target = null;
             IsTargeting = false;
-            InvokeRepeating(nameof(CheckTarget), 1, 1);
         }
 
-        private void FixedUpdate()
+        private void Update()
         {
             if (IsTargeting)
             {
-                anim.SetBool(Walk, false);
-                if (!isCoolingDown) return;
-
-                anim.SetTrigger(IsAttack);
-                Attack();
-                StartCoolDown().Forget();
+                DoAttack();
             }
             else
             {
-                var position = rigid.position;
-                var dir = (_destination - position).normalized;
-                var moveVec = dir * (moveSpeed * Time.deltaTime);
-                anim.SetBool(Walk, true);
-                rigid.MovePosition(position + moveVec);
-                if (Vector3.Distance(transform.position, _destination) <= 1)
-                {
-                    OnMoveNextPointEvent?.Invoke(_wayPointIndex, this);
-                }
+                MoveWayPoint();
             }
+        }
+
+        private void LateUpdate()
+        {
+            anim.SetBool(Walk, _isMove);
         }
 
         protected override void OnDisable()
         {
             base.OnDisable();
             OnMoveNextPointEvent = null;
-            CancelInvoke();
+        }
+
+        private void DoAttack()
+        {
+            if (!isCoolingDown) return;
+            if (!Target.gameObject.activeSelf)
+            {
+                Target = null;
+                IsTargeting = false;
+                return;
+            }
+
+            _isMove = false;
+
+            anim.SetTrigger(IsAttack);
+            Attack();
+            StartCoolDown().Forget();
+        }
+
+        private void MoveWayPoint()
+        {
+            _isMove = true;
+            var position = rigid.position;
+            var dir = (_destination - position).normalized;
+            var moveVec = dir * (moveSpeed * Time.deltaTime);
+            rigid.MovePosition(position + moveVec);
+            if (Vector3.Distance(transform.position, _destination) <= 1)
+            {
+                OnMoveNextPointEvent?.Invoke(_wayPointIndex, this);
+            }
         }
 
         public void SetMovePoint(Vector3 pos)
@@ -74,14 +95,6 @@ namespace UnitControl.EnemyControl
             await UniTask.Delay(TimeSpan.FromSeconds(deBuffTime), cancellationToken: cts.Token);
             moveSpeed += decreaseSpeed;
             _isSpeedDeBuffed = false;
-        }
-
-        private void CheckTarget()
-        {
-            if (Target == null) return;
-            if (Target.gameObject.activeSelf) return;
-            Target = null;
-            IsTargeting = false;
         }
     }
 }

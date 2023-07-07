@@ -14686,9 +14686,9 @@ GameObject:
   - component: {fileID: 7142660089482767019}
   - component: {fileID: 7142660089482767016}
   - component: {fileID: 7142660089482767030}
-  - component: {fileID: 9005441598264593429}
   - component: {fileID: 7142660089482767017}
-  m_Layer: 0
+  - component: {fileID: 3094866682079682893}
+  m_Layer: 13
   m_Name: EnemyArrow
   m_TagString: EnemyAmmo
   m_Icon: {fileID: 0}
@@ -14771,20 +14771,6 @@ MonoBehaviour:
     m_RotationOrder: 4
   speed: 2
   tagName: Unit
---- !u!136 &9005441598264593429
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7142660089482767029}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  m_Radius: 0.1
-  m_Height: 0.6
-  m_Direction: 2
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!54 &7142660089482767017
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -14801,3 +14787,16 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
+--- !u!135 &3094866682079682893
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7142660089482767029}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.25
+  m_Center: {x: 0, y: 0, z: 0}

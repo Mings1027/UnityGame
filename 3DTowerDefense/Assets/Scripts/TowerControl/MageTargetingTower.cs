@@ -24,12 +24,6 @@ namespace TowerControl
             onAttackEvent += NormalAttack;
         }
 
-        protected override void OnDisable()
-        {
-            base.OnDisable();
-            onAttackEvent = null;
-        }
-
         protected override void Init()
         {
             base.Init();
@@ -59,6 +53,7 @@ namespace TowerControl
 
             onAttackEvent = null;
             onAttackEvent += TowerUniqueLevel == 0 ? SlowDownAttack : PenetrationAttack;
+            print(onAttackEvent.Method);
         }
 
         private void CrystalPosInit()

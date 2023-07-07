@@ -29,8 +29,11 @@ namespace WeaponControl
 
         protected virtual void OnTriggerEnter(Collider other)
         {
-            if (!other.CompareTag("Enemy")) return;
-            BulletHit(other);
+            if (other.CompareTag("Enemy"))
+            {
+                BulletHit(other);
+            }
+
             gameObject.SetActive(false);
         }
 

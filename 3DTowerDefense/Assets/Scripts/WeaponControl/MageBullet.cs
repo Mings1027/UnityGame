@@ -15,9 +15,9 @@ namespace WeaponControl
 
         protected override void BulletHit(Component other)
         {
+            base.BulletHit(other);
             var pos = transform.position;
             ObjectPoolManager.Get(PoolObjectName.MageHitVFX, pos);
-            base.BulletHit(other);
         }
     }
 }

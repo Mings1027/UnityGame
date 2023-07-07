@@ -14,12 +14,9 @@ namespace WeaponControl
             if (other.CompareTag(tagName))
             {
                 ProjectileHit(other);
-                gameObject.SetActive(false);
             }
-            else if (other.CompareTag("Ground"))
-            {
-                gameObject.SetActive(false);
-            }
+
+            gameObject.SetActive(false);
         }
 
         protected override void ParabolaPath()

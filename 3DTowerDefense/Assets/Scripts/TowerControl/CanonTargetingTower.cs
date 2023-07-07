@@ -22,12 +22,6 @@ namespace TowerControl
             onAttackEvent += SingleShoot;
         }
 
-        protected override void OnDisable()
-        {
-            base.OnDisable();
-            onAttackEvent = null;
-        }
-
         private void OnDestroy()
         {
             _atkSequence.Kill();

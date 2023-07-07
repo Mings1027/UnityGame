@@ -2207,34 +2207,34 @@ MonoBehaviour:
     minDamage: 1
     maxDamage: 2
     health: 30
-  - enemyName: TurtleShell
+  - enemyName: Jelly1
     enemyCoin: 15
-    enemyCount: 15
+    enemyCount: 20
     atkDelay: 1
     minDamage: 3
     maxDamage: 4
-    health: 35
-  - enemyName: SwordManEnemy
+    health: 20
+  - enemyName: Jelly2
     enemyCoin: 15
-    enemyCount: 10
+    enemyCount: 20
+    atkDelay: 1
+    minDamage: 3
+    maxDamage: 4
+    health: 60
+  - enemyName: Jelly3
+    enemyCoin: 20
+    enemyCount: 25
     atkDelay: 1
     minDamage: 3
     maxDamage: 4
     health: 100
-  - enemyName: Slime
-    enemyCoin: 20
-    enemyCount: 15
-    atkDelay: 1
-    minDamage: 3
-    maxDamage: 4
-    health: 150
-  - enemyName: TurtleShell
+  - enemyName: Jelly4
     enemyCoin: 25
-    enemyCount: 15
+    enemyCount: 25
     atkDelay: 1
     minDamage: 5
     maxDamage: 6
-    health: 200
+    health: 120
   infoUIController: {fileID: 944869154944949430}
   startWaveButton: {fileID: 8782742701740400506}
 --- !u!1 &3868361734115124532
@@ -2548,7 +2548,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1315690962166703054
 Transform:
   m_ObjectHideFlags: 0
@@ -2624,15 +2624,15 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4056428088785059250}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 960488cde653e4bfc910970bf877f3e1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   walkableLayer:
     serializedVersion: 2
-    m_Bits: 0
-  cantMoveImage: {fileID: 7750433508684630838}
+    m_Bits: 32768
+  cantMoveImage: {fileID: 7718880278538762127}
 --- !u!1 &4060673602762051179
 GameObject:
   m_ObjectHideFlags: 0
@@ -5594,7 +5594,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &2311104981242384244
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5630,7 +5630,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7750433508684630838}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 

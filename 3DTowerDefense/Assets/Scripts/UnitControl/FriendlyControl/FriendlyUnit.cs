@@ -40,10 +40,12 @@ namespace UnitControl.FriendlyControl
         protected override void OnEnable()
         {
             base.OnEnable();
+            target = null;
+            _isTargeting = false;
             InvokeRepeating(nameof(Targeting), 1f, 1f);
         }
 
-        private void FixedUpdate()
+        private void Update()
         {
             if (_isMoving) return;
             if (!_isTargeting) return;
@@ -59,14 +61,13 @@ namespace UnitControl.FriendlyControl
 
         private void LateUpdate()
         {
-            Animation();
+            anim.SetBool(IsWalk, _isMoving || _isTargeting);
         }
 
         protected override void OnDisable()
         {
             base.OnDisable();
             CancelInvoke();
-            TargetReset();
             OnDeadEvent?.Invoke(this);
             OnDeadEvent = null;
         }
@@ -75,94 +76,59 @@ namespace UnitControl.FriendlyControl
         {
             Gizmos.color = Color.cyan;
             Gizmos.DrawWireSphere(transform.position, atkRange);
+            if (!_isTargeting) return;
+            Gizmos.color = Color.red;
+            Gizmos.DrawSphere(target.position + new Vector3(0, 3, 0), 1);
         }
 /*==============================================================================================================================================
                                                     Unity Event                                                                                 
 =====================================================================================================================================================*/
 
+        public void MoveToTouchPos(Vector3 pos)
+        {
+            var ranPos = pos + Random.insideUnitSphere * 3f;
+            ranPos.y = 1;
+            rigid.DOKill();
+            rigid.DOMove(ranPos, moveSpeed).SetSpeedBased()
+                .OnStart(() => _isMoving = true)
+                .OnComplete(() => _isMoving = false);
+        }
+
         private void ChaseTarget()
         {
             var targetPos = target.position + Random.insideUnitSphere * 2;
-            var dir = (targetPos - rigid.position).normalized;
-            rigid.velocity = dir * moveSpeed;
+            var position = rigid.position;
+            var dir = (targetPos - position).normalized;
+            var moveVec = dir * (moveSpeed * Time.deltaTime);
+            rigid.MovePosition(position + moveVec);
         }
 
         private void DoAttack()
         {
             if (!isCoolingDown) return;
 
-            rigid.velocity = Vector3.zero;
+            if (!target.gameObject.activeSelf)
+            {
+                target = null;
+                _isTargeting = false;
+                return;
+            }
+
             anim.SetTrigger(IsAttack);
             Attack();
             StartCoolDown().Forget();
-            if (!target.gameObject.activeSelf)
-            {
-                _isTargeting = false;
-            }
-        }
-
-        public async UniTaskVoid GoToTouchPosition(Vector3 pos)
-        {
-            _isMoving = true;
-            isCoolingDown = false;
-            await rigid.DOMove(pos, moveSpeed).SetSpeedBased().WithCancellation(cts.Token);
-            _isMoving = false;
-        }
-
-        private void Animation()
-        {
-            anim.SetBool(IsWalk, _isMoving || _isTargeting);
         }
 
         private void Targeting()
         {
             if (_isMoving) return;
-            if (target == null)
-            {
-                target = SearchTarget.ClosestTarget(transform.position, atkRange, _targetColliders, targetLayer);
-                _isTargeting = target != null;
-            }
-            else
-            {
-                if (target.gameObject.activeSelf)
-                {
-                    var e = target.GetComponent<EnemyUnit>();
-                    e.Target = transform;
-                    e.IsTargeting = true;
-                }
-                else
-                {
-                    target = null;
-                    _isTargeting = false;
-                }
-            }
-        }
-
-        private void TargetingPlease()
-        {
-            if (_isMoving) return;
             target = SearchTarget.ClosestTarget(transform.position, atkRange, _targetColliders, targetLayer);
             _isTargeting = target != null;
 
-            if (_isTargeting)
-            {
-                if (target.gameObject.activeSelf)
-                {
-                    var e = target.GetComponent<EnemyUnit>();
-                    e.Target = transform;
-                    e.IsTargeting = true;
-                }
-            }
-        }
-
-        private void TargetReset()
-        {
             if (!_isTargeting) return;
             var e = target.GetComponent<EnemyUnit>();
-            e.Target = null;
-            e.IsTargeting = false;
-            target = null;
-            _isTargeting = false;
+            e.Target = transform;
+            e.IsTargeting = true;
         }
     }
 }

@@ -24,6 +24,7 @@ namespace WeaponControl
         protected override void OnTriggerEnter(Collider other)
         {
             if (!other.CompareTag("Ground")) return;
+
             ProjectileHit(other);
             gameObject.SetActive(false);
         }

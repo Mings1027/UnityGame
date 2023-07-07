@@ -11,9 +11,7 @@ using TowerControl;
 using UIControl;
 using UnitControl;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace ManagerControl
@@ -44,7 +42,6 @@ namespace ManagerControl
         private bool _panelIsOpen;
         private bool _isSell;
         private bool _isTower;
-        private bool _isMoveUnit;
 
         private Button[] _towerSelectButtons;
 
@@ -190,13 +187,6 @@ namespace ManagerControl
 
             _aButtonImage = aUpgradeButton.transform.GetChild(0).GetComponent<Image>();
             _bButtonImage = bUpgradeButton.transform.GetChild(0).GetComponent<Image>();
-
-            moveUnitIndicator.OnMoveUnitEvent += () =>
-            {
-                _isMoveUnit = false;
-                moveUnitIndicator.enabled = false;
-                moveUnitSprite.enabled = false;
-            };
         }
 
         private void GameOverPanelInit()
@@ -273,7 +263,7 @@ namespace ManagerControl
 
         private void SetUIButton()
         {
-            if (_isMoveUnit) return;
+            if (moveUnitIndicator.gameObject.activeSelf) return;
 
             var touch = Input.GetTouch(0);
             CheckWhatIsIt(touch.position, touch.deltaPosition);
@@ -478,8 +468,7 @@ namespace ManagerControl
             if (towerRangeIndicator.enabled) towerRangeIndicator.enabled = false;
             if (!moveUnitSprite.enabled) return;
 
-            moveUnitSprite.enabled = false;
-            moveUnitIndicator.enabled = false;
+            moveUnitIndicator.gameObject.SetActive(false);
         }
 
         private void TowerBuild()
@@ -543,7 +532,6 @@ namespace ManagerControl
 
         private void MoveUnitButton()
         {
-            _isMoveUnit = true;
             moveUnitButton.SetActive(false);
             OffButtons();
             OffIndicator();
@@ -552,8 +540,7 @@ namespace ManagerControl
             var moveIndicatorTransform = moveUnitIndicator.transform;
             moveIndicatorTransform.position = _curSelectedTower.transform.position;
             moveIndicatorTransform.localScale = new Vector3(moveUnitRange, moveUnitRange);
-            moveUnitIndicator.enabled = true;
-            moveUnitSprite.enabled = true;
+            moveUnitIndicator.gameObject.SetActive(true);
         }
 
         private void SellButton()
