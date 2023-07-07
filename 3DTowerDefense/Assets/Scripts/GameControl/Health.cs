@@ -30,15 +30,19 @@ namespace GameControl
             _cts?.Cancel();
 
             if (!isEnemy) return;
-            OnDeadEvent?.Invoke();
             if (curHealth > 0)
             {
                 OnDecreaseLifeCountEvent?.Invoke();
             }
             else
             {
+                OnDeadEvent?.Invoke();
                 OnIncreaseCoinEvent?.Invoke();
             }
+
+            OnDeadEvent = null;
+            OnIncreaseCoinEvent = null;
+            OnDecreaseLifeCountEvent = null;
         }
 
         public void Init(float healthValue)

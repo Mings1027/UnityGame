@@ -65,7 +65,6 @@ namespace TowerControl
         {
             base.Attack();
             _atkSequence.Restart();
-            // onAttackEvent.Invoke();
         }
 
         private void SingleShoot()

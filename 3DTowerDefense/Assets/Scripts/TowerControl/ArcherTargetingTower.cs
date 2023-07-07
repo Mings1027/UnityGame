@@ -1,8 +1,6 @@
-using System;
 using Cysharp.Threading.Tasks;
 using DataControl;
 using GameControl;
-using UnitControl;
 using UnityEngine;
 using WeaponControl;
 
@@ -11,7 +9,7 @@ namespace TowerControl
     public class ArcherTargetingTower : TargetingTower
     {
         private int _archerCount;
-        private Vector3 _targetDirection;
+        private Transform _targetPos;
         private GameObject[] _archerUnits;
 
         [SerializeField] private Transform[] archerPos;
@@ -33,9 +31,10 @@ namespace TowerControl
         private void LateUpdate()
         {
             if (!isTargeting) return;
+            var targetPos = target.position + target.forward;
+
             for (var i = 0; i < _archerCount; i++)
             {
-                var targetPos = target.position + target.forward;
                 var dir = targetPos - transform.position;
                 var yRot = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
                 var lookRot = Quaternion.Euler(0, yRot, 0);
@@ -56,7 +55,6 @@ namespace TowerControl
         {
             base.TowerInit(consMeshFilter, minDamage, maxDamage, attackRange, attackDelay, health);
 
-            if (_archerUnits[0] != null) _archerUnits[0].gameObject.SetActive(false);
             BatchArcher();
         }
 
@@ -70,13 +68,15 @@ namespace TowerControl
             }
 
             if (!IsUniqueTower || TowerUniqueLevel == 1) return;
-            
+
             onAttackEvent = null;
             onAttackEvent += BulletAttack;
         }
 
         private void BatchArcher()
         {
+            if (_archerUnits[0] != null) _archerUnits[0].gameObject.SetActive(false);
+
             _archerCount = TowerUniqueLevel == 1 ? 2 : 1;
             for (var i = 0; i < _archerCount; i++)
             {
@@ -96,11 +96,6 @@ namespace TowerControl
             }
         }
 
-        // protected override void Attack()
-        // {
-        //     onAttackEvent.Invoke();
-        // }
-
         private async UniTaskVoid ProjectileAttack()
         {
             for (var i = 0; i < _archerCount; i++)
@@ -109,6 +104,7 @@ namespace TowerControl
                 ObjectPoolManager
                     .Get<ArcherProjectile>(PoolObjectName.ArcherProjectile, _archerUnits[i].transform.position)
                     .Init(target, Damage);
+                if (!target.gameObject.activeSelf) break;
                 await UniTask.Delay(500);
             }
         }
