@@ -36,17 +36,17 @@ namespace TowerControl
                 .Append(_material.DOColor(_material.GetColor(EmissionColor), 0.5f));
         }
 
-        public override void TowerInit(MeshFilter consMeshFilter, int minDamage, int maxDamage, float attackRange,
+        public override void BuildTowerWithDelay(MeshFilter consMeshFilter, int minDamage, int maxDamage, float attackRange,
             float attackDelay, float health = 0)
         {
-            base.TowerInit(consMeshFilter, minDamage, maxDamage, attackRange, attackDelay, health);
+            base.BuildTowerWithDelay(consMeshFilter, minDamage, maxDamage, attackRange, attackDelay, health);
             // 타워 업그레이드 중에 crystal 보이면 어색하기 때문에 crystal을 타워밑으로 옮겨 잠시 숨겨줌
             crystal.position = transform.position;
         }
 
-        public override void TowerSetting(MeshFilter towerMeshFilter)
+        public override void BuildTower(MeshFilter towerMeshFilter)
         {
-            base.TowerSetting(towerMeshFilter);
+            base.BuildTower(towerMeshFilter);
             CrystalPosInit();
 
             if (!IsUniqueTower) return;
@@ -91,9 +91,7 @@ namespace TowerControl
                 crystalPositions[TowerUniqueLevel + 3]);
             p.Init(target, Damage);
 
-            var size = Physics.OverlapSphereNonAlloc(transform.position, TowerRange, targetColliders, TargetLayer);
-
-            p.UpdateTarget(size, targetColliders);
+            p.UpdateTarget(targetColliders.Length, targetColliders);
             //범위에 들어온 적 순서데로 발사체가 관통하며 공격 전기 이펙트 처럼 하면 좋겟는데 어케 만들지..
         }
     }

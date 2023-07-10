@@ -56,16 +56,16 @@ namespace TowerControl
             _spawnDirections = new Vector3[4];
         }
 
-        public override void TowerInit(MeshFilter consMeshFilter, int minDamage, int maxDamage, float attackRange,
+        public override void BuildTowerWithDelay(MeshFilter consMeshFilter, int minDamage, int maxDamage, float attackRange,
             float attackDelay, float health = 0)
         {
-            base.TowerInit(consMeshFilter, minDamage, maxDamage, attackRange, attackDelay, health);
+            base.BuildTowerWithDelay(consMeshFilter, minDamage, maxDamage, attackRange, attackDelay, health);
             UnitControl(minDamage, maxDamage, attackDelay, health);
         }
 
-        public override void TowerSetting(MeshFilter towerMeshFilter)
+        public override void BuildTower(MeshFilter towerMeshFilter)
         {
-            base.TowerSetting(towerMeshFilter);
+            base.BuildTower(towerMeshFilter);
             for (int i = 0; i < _units.Length; i++)
             {
                 _units[i].MoveToTouchPos(_unitSpawnPosition);
@@ -84,7 +84,10 @@ namespace TowerControl
             }
 
             // Upgrade
-            UnitInit(minDamage, maxDamage, delay, health);
+            for (var i = 0; i < _units.Length; i++)
+            {
+                _units[i].Init(minDamage, maxDamage, delay, health);
+            }
         }
 
         private void SpawnUnitOnTowerSpawn()
@@ -123,14 +126,6 @@ namespace TowerControl
             var unit = ObjectPoolManager.Get<BarracksUnit>(unitName, pos);
             unit.OnDeadEvent += UnitReSpawn;
             return unit;
-        }
-
-        private void UnitInit(int minDamage, int maxDamage, float delay, float health)
-        {
-            for (var i = 0; i < _units.Length; i++)
-            {
-                _units[i].Init(minDamage, maxDamage, delay, health);
-            }
         }
 
         private void UnitDisable(IList<FriendlyUnit> u)

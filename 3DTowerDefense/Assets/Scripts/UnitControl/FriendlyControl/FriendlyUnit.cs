@@ -122,8 +122,9 @@ namespace UnitControl.FriendlyControl
         private void Targeting()
         {
             if (_isMoving) return;
-            target = SearchTarget.ClosestTarget(transform.position, atkRange, _targetColliders, targetLayer);
-            _isTargeting = target != null;
+            var t = SearchTarget.ClosestTarget(transform.position, atkRange, _targetColliders, targetLayer);
+            target = t.Item1;
+            _isTargeting = t.Item2;
 
             if (!_isTargeting) return;
             var e = target.GetComponent<EnemyUnit>();

@@ -12,8 +12,7 @@ namespace TowerControl
         private Sequence _atkSequence;
         private Transform[] _singleShootPoints;
         private Transform[] _multiShootPoints;
-
-
+        
         [SerializeField] private MeshFilter[] canonMeshFilters;
 
         protected override void OnEnable()
@@ -50,10 +49,10 @@ namespace TowerControl
                 .Append(meshFilter.transform.DOScaleY(1f, 0.3f).SetEase(Ease.OutQuint));
         }
 
-        public override void TowerInit(MeshFilter consMeshFilter, int minDamage, int maxDamage, float attackRange,
+        public override void BuildTowerWithDelay(MeshFilter consMeshFilter, int minDamage, int maxDamage, float attackRange,
             float attackDelay, float health = 0)
         {
-            base.TowerInit(consMeshFilter, minDamage, maxDamage, attackRange, attackDelay, health);
+            base.BuildTowerWithDelay(consMeshFilter, minDamage, maxDamage, attackRange, attackDelay, health);
 
             if (TowerUniqueLevel != 1) return;
 

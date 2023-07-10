@@ -1,5 +1,7 @@
+using System;
 using Cysharp.Threading.Tasks;
 using DataControl;
+using DG.Tweening;
 using GameControl;
 using UnityEngine;
 using WeaponControl;
@@ -9,17 +11,16 @@ namespace TowerControl
     public class ArcherTargetingTower : TargetingTower
     {
         private int _archerCount;
-        private Transform _targetPos;
-        private GameObject[] _archerUnits;
 
-        [SerializeField] private Transform[] archerPos;
-        [SerializeField] private float smoothTurnSpeed;
-
+        [SerializeField] private GameObject[] archerUnits;
+        [SerializeField] private Vector3[] archerPos;
+        [SerializeField, Range(0, 1)] private float smoothTurnSpeed;
 
         protected override void OnEnable()
         {
             base.OnEnable();
-            onAttackEvent += () => ProjectileAttack().Forget();
+            onAttackEvent = null;
+            onAttackEvent += OneArcherAttack;
         }
 
         protected override void OnDisable()
@@ -31,88 +32,101 @@ namespace TowerControl
         private void LateUpdate()
         {
             if (!isTargeting) return;
-            var targetPos = target.position + target.forward;
-
-            for (var i = 0; i < _archerCount; i++)
-            {
-                var dir = targetPos - transform.position;
-                var yRot = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
-                var lookRot = Quaternion.Euler(0, yRot, 0);
-                _archerUnits[i].transform.rotation =
-                    Quaternion.Lerp(_archerUnits[i].transform.rotation, lookRot, smoothTurnSpeed);
-            }
+            ArcherLookTarget();
         }
 
         protected override void Init()
         {
             base.Init();
             targetColliders = new Collider[5];
-            _archerUnits = new GameObject[2];
         }
 
-        public override void TowerInit(MeshFilter consMeshFilter, int minDamage, int maxDamage, float attackRange,
-            float attackDelay, float health = 0)
+        public override void BuildTowerWithDelay(MeshFilter consMeshFilter, int minDamage, int maxDamage,
+            float attackRange, float attackDelay, float health = 0)
         {
-            base.TowerInit(consMeshFilter, minDamage, maxDamage, attackRange, attackDelay, health);
-
-            BatchArcher();
-        }
-
-        public override void TowerSetting(MeshFilter towerMeshFilter)
-        {
-            base.TowerSetting(towerMeshFilter);
-
-            for (var i = 0; i < _archerCount; i++)
-            {
-                _archerUnits[i].transform.GetChild(0).gameObject.SetActive(true);
-            }
-
-            if (!IsUniqueTower || TowerUniqueLevel == 1) return;
-
-            onAttackEvent = null;
-            onAttackEvent += BulletAttack;
-        }
-
-        private void BatchArcher()
-        {
-            if (_archerUnits[0] != null) _archerUnits[0].gameObject.SetActive(false);
+            base.BuildTowerWithDelay(consMeshFilter, minDamage, maxDamage, attackRange, attackDelay, health);
 
             _archerCount = TowerUniqueLevel == 1 ? 2 : 1;
             for (var i = 0; i < _archerCount; i++)
             {
+                archerUnits[i].SetActive(false);
+            }
+        }
+
+        public override void BuildTower(MeshFilter towerMeshFilter)
+        {
+            base.BuildTower(towerMeshFilter);
+
+            BatchArcher();
+            if (IsUniqueTower)
+            {
+                if (TowerUniqueLevel == 1)
+                {
+                    onAttackEvent = null;
+                    onAttackEvent += () => TwoArcherAttack().Forget();
+                }
+                else
+                {
+                    onAttackEvent = null;
+                    onAttackEvent += BulletAttack;
+                }
+            }
+
+            print(onAttackEvent.Method);
+        }
+
+        private void BatchArcher()
+        {
+            for (var i = 0; i < _archerCount; i++)
+            {
                 var index = IsUniqueTower ? TowerUniqueLevel + 3 + i : TowerLevel;
-                _archerUnits[i] = ObjectPoolManager.Get(PoolObjectName.ArcherUnit, archerPos[index]);
-                _archerUnits[i].transform.GetChild(0).gameObject.SetActive(false);
+                archerUnits[i].transform.localPosition = archerPos[index];
+                archerUnits[i].SetActive(true);
+            }
+        }
+
+        private void ArcherLookTarget()
+        {
+            var targetPos = target.position + target.forward;
+            for (var i = 0; i < _archerCount; i++)
+            {
+                var dir = targetPos - transform.position;
+                var yRot = Mathf.Atan2(dir.x, dir.z) * Mathf.Rad2Deg;
+                var lookRot = Quaternion.Euler(0, yRot, 0);
+                archerUnits[i].transform.rotation =
+                    Quaternion.Lerp(archerUnits[i].transform.rotation, lookRot, smoothTurnSpeed);
             }
         }
 
         private void UnitDisable()
         {
-            for (var i = 0; i < _archerUnits.Length; i++)
+            for (var i = 0; i < archerUnits.Length; i++)
             {
-                if (_archerUnits[i] == null || !_archerUnits[i].gameObject.activeSelf) continue;
-                _archerUnits[i].gameObject.SetActive(false);
-                _archerUnits[i] = null;
+                if (archerUnits[i].gameObject.activeSelf) archerUnits[i].SetActive(false);
             }
         }
 
-        private async UniTaskVoid ProjectileAttack()
+        private void OneArcherAttack()
         {
-            for (var i = 0; i < _archerCount; i++)
-            {
-                ObjectPoolManager.Get(PoolObjectName.ArrowShootSfx, transform);
-                ObjectPoolManager
-                    .Get<ArcherProjectile>(PoolObjectName.ArcherProjectile, _archerUnits[i].transform.position)
-                    .Init(target, Damage);
-                if (!target.gameObject.activeSelf) break;
-                await UniTask.Delay(500);
-            }
+            ObjectPoolManager.Get(PoolObjectName.ArrowShootSfx, transform);
+            ObjectPoolManager.Get<ArcherProjectile>(PoolObjectName.ArcherProjectile, archerUnits[0].transform.position)
+                .Init(target, Damage);
+        }
+
+        private async UniTaskVoid TwoArcherAttack()
+        {
+            OneArcherAttack();
+            await UniTask.Delay(500);
+            if (!target.gameObject.activeSelf) return;
+            ObjectPoolManager.Get(PoolObjectName.ArrowShootSfx, transform);
+            ObjectPoolManager.Get<ArcherProjectile>(PoolObjectName.ArcherProjectile, archerUnits[1].transform.position)
+                .Init(target, Damage);
         }
 
         private void BulletAttack()
         {
             ObjectPoolManager.Get(PoolObjectName.BulletShootSfx, transform);
-            ObjectPoolManager.Get<Bullet>(PoolObjectName.ArcherBullet, _archerUnits[0].transform.position)
+            ObjectPoolManager.Get<Bullet>(PoolObjectName.ArcherBullet, archerUnits[0].transform.position)
                 .Init(target, Damage);
         }
     }

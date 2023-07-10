@@ -4,11 +4,11 @@ namespace GameControl
 {
     public class SearchTarget : MonoBehaviour
     {
-        public static Transform ClosestTarget(Vector3 pos, float range, Collider[] targetColliders,
+        public static (Transform, bool) ClosestTarget(Vector3 pos, float range, Collider[] targetColliders,
             LayerMask targetLayer)
         {
             var size = Physics.OverlapSphereNonAlloc(pos, range, targetColliders, targetLayer);
-            if (size <= 0) return null;
+            if (size <= 0) return (null, false);
 
             var shortestDistance = Mathf.Infinity;
             Transform nearestTarget = null;
@@ -22,7 +22,7 @@ namespace GameControl
                 nearestTarget = targetColliders[i].transform;
             }
 
-            return nearestTarget;
+            return (nearestTarget, true);
         }
     }
 }

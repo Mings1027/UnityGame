@@ -34,15 +34,20 @@ namespace ManagerControl
 
         private string _towerTypeName;
 
-        private int _uniqueLevel;
-        private int _sellTowerCoin;
-        private int _lastSelectedTowerButtonIndex;
-        private int _lastSelectedEditButtonIndex;
+        [Serializable]
+        private struct GamePlayInfo
+        {
+            public int _uniqueLevel;
+            public int _sellTowerCoin;
+            public int _lastSelectedTowerButtonIndex;
+            public int _lastSelectedEditButtonIndex;
 
-        private bool _panelIsOpen;
-        private bool _isSell;
-        private bool _isTower;
+            public bool _panelIsOpen;
+            public bool _isSell;
+            public bool _isTower;
+        }
 
+        private GamePlayInfo gamePlayInfo;
         private Button[] _towerSelectButtons;
 
         private Dictionary<string, TowerData> _towerDictionary;
@@ -140,7 +145,7 @@ namespace ManagerControl
 
         private void TowerButtonsInit()
         {
-            _lastSelectedTowerButtonIndex = -1;
+           gamePlayInfo. _lastSelectedTowerButtonIndex = -1;
             _towerSelectButtons = new Button[towerButtons.transform.childCount];
             for (var i = 0; i < _towerSelectButtons.Length; i++)
             {
@@ -159,7 +164,7 @@ namespace ManagerControl
 
         private void TowerEditButtonInit()
         {
-            _lastSelectedEditButtonIndex = -1;
+            gamePlayInfo._lastSelectedEditButtonIndex = -1;
             _upgradeButtonEvent += UpgradeButton;
             _aUpgradeButtonEvent += AUniqueUpgradeButton;
             _bUpgradeButtonEvent += BUniqueUpgradeButton;
@@ -256,7 +261,7 @@ namespace ManagerControl
 
         private void MoveUI()
         {
-            if (!_panelIsOpen) return;
+            if (!gamePlayInfo._panelIsOpen) return;
             var targetPos = _cam.WorldToScreenPoint(_curUITarget.position);
             towerButtonsPanel.transform.position = targetPos;
         }
@@ -290,9 +295,9 @@ namespace ManagerControl
             }
             else
             {
-                _panelIsOpen = false;
-                _isTower = false;
-                _isSell = false;
+                gamePlayInfo._panelIsOpen = false;
+                gamePlayInfo._isTower = false;
+                gamePlayInfo._isSell = false;
                 _towerSelectPanelTween.PlayBackwards();
                 OffIndicator();
             }
@@ -304,7 +309,7 @@ namespace ManagerControl
             if (!towerButtons.gameObject.activeSelf) towerButtons.gameObject.SetActive(true);
             if (_curUITarget == hit.transform) return;
 
-            _panelIsOpen = true;
+            gamePlayInfo._panelIsOpen = true;
 
             var t = hit.transform;
             _curUITarget = t;
@@ -315,15 +320,15 @@ namespace ManagerControl
         {
             _towerSelectPanelTween.Restart();
             if (!towerEditButtons.gameObject.activeSelf) towerEditButtons.gameObject.SetActive(true);
-            _panelIsOpen = true;
-            _isTower = true;
+            gamePlayInfo._panelIsOpen = true;
+            gamePlayInfo._isTower = true;
 
             if (_curSelectedTower.TowerType == Tower.Type.Barracks) return;
             var targetingTower = _curSelectedTower.GetComponent<TargetingTower>();
             var indicatorTransform = towerRangeIndicator.transform;
             indicatorTransform.position = _curSelectedTower.transform.position;
             indicatorTransform.localScale =
-                new Vector3(targetingTower.TowerRange * 2, targetingTower.TowerRange * 2, 0);
+                new Vector3(targetingTower.TowerStat.towerRange * 2, targetingTower.TowerStat.towerRange * 2, 0);
 
             towerRangeIndicator.enabled = true;
         }
@@ -345,14 +350,14 @@ namespace ManagerControl
 
         private void ClickTowerButtons(string towerName, int index)
         {
-            if (index == _lastSelectedTowerButtonIndex)
+            if (index == gamePlayInfo._lastSelectedTowerButtonIndex)
             {
                 if (!infoUIController.CheckBuildCoin(0)) return;
                 OkButton();
                 return;
             }
 
-            _lastSelectedTowerButtonIndex = index;
+            gamePlayInfo._lastSelectedTowerButtonIndex = index;
             ShowSelectTower(towerName);
         }
 
@@ -401,16 +406,16 @@ namespace ManagerControl
 
         private void ClickEditButtons(int index)
         {
-            if (index == _lastSelectedEditButtonIndex)
+            if (index == gamePlayInfo._lastSelectedEditButtonIndex)
             {
-                if (infoUIController.CheckBuildCoin(_curSelectedTower.TowerLevel + 1) || _isSell)
+                if (infoUIController.CheckBuildCoin(_curSelectedTower.TowerLevel + 1) || gamePlayInfo._isSell)
                 {
                     OkButton();
                     return;
                 }
             }
 
-            _lastSelectedEditButtonIndex = index;
+            gamePlayInfo._lastSelectedEditButtonIndex = index;
             _towerEditBtnDic[index].Invoke();
         }
 
@@ -443,10 +448,10 @@ namespace ManagerControl
 
         private void ResetUI()
         {
-            _isTower = false;
-            _isSell = false;
-            _lastSelectedTowerButtonIndex = -1;
-            _lastSelectedEditButtonIndex = -1;
+            gamePlayInfo._isTower = false;
+            gamePlayInfo._isSell = false;
+            gamePlayInfo._lastSelectedTowerButtonIndex = -1;
+            gamePlayInfo._lastSelectedEditButtonIndex = -1;
             towerButtons.DefaultSprite();
             towerEditButtons.DefaultSprite();
             tooltip.Hide();
@@ -492,23 +497,23 @@ namespace ManagerControl
             }
             else
             {
-                tempTower.TowerUniqueLevelUp(_uniqueLevel);
+                tempTower.TowerUniqueLevelUp(gamePlayInfo._uniqueLevel);
                 tt = t.towerUniqueLevels[tempTower.TowerUniqueLevel];
                 infoUIController.DecreaseCoin(3);
             }
 
             ObjectPoolManager.Get(PoolObjectName.BuildSmoke, tempTower.transform.position);
 
-            tempTower.TowerInit(tt.consMesh, tt.minDamage, tt.maxDamage, tt.attackRange, tt.attackDelay, tt.health);
+            tempTower.BuildTowerWithDelay(tt.consMesh, tt.minDamage, tt.maxDamage, tt.attackRange, tt.attackDelay, tt.health);
 
             await UniTask.Delay(1000);
 
-            tempTower.TowerSetting(tt.towerMesh);
+            tempTower.BuildTower(tt.towerMesh);
         }
 
         private void UpgradeButton()
         {
-            _isSell = false;
+            gamePlayInfo.    _isSell = false;
             var towerLevel = towerData[(int)_curSelectedTower.TowerType]
                 .towerLevels[_curSelectedTower.TowerLevel + 1];
             tooltip.Show(_tooltipTarget, towerLevel.towerInfo, towerLevel.towerName);
@@ -516,16 +521,16 @@ namespace ManagerControl
 
         private void AUniqueUpgradeButton()
         {
-            _isSell = false;
-            _uniqueLevel = 0;
+            gamePlayInfo._isSell = false;
+            gamePlayInfo._uniqueLevel = 0;
             var towerLevel = towerData[(int)_curSelectedTower.TowerType].towerUniqueLevels[0];
             tooltip.Show(_tooltipTarget, towerLevel.towerInfo, towerLevel.towerName);
         }
 
         private void BUniqueUpgradeButton()
         {
-            _isSell = false;
-            _uniqueLevel = 1;
+            gamePlayInfo._isSell = false;
+            gamePlayInfo._uniqueLevel = 1;
             var towerLevel = towerData[(int)_curSelectedTower.TowerType].towerUniqueLevels[1];
             tooltip.Show(_tooltipTarget, towerLevel.towerInfo, towerLevel.towerName);
         }
@@ -545,9 +550,9 @@ namespace ManagerControl
 
         private void SellButton()
         {
-            _isSell = true;
-            _sellTowerCoin = infoUIController.GetTowerCoin(_curSelectedTower);
-            tooltip.Show(_tooltipTarget, $"이 타워를 처분하면{_sellTowerCoin.ToString()} 골드가 반환됩니다.", "타워처분");
+            gamePlayInfo._isSell = true;
+            gamePlayInfo._sellTowerCoin = infoUIController.GetTowerCoin(_curSelectedTower);
+            tooltip.Show(_tooltipTarget, $"이 타워를 처분하면{gamePlayInfo._sellTowerCoin.ToString()} 골드가 반환됩니다.", "타워처분");
         }
 
         private void SellTower()
@@ -559,15 +564,15 @@ namespace ManagerControl
             ObjectPoolManager.Get(PoolObjectName.BuildSmoke, _curSelectedTower.transform);
             ObjectPoolManager.Get(PoolObjectName.BuildingPoint, _curSelectedTower.transform);
 
-            infoUIController.IncreaseCoin(_sellTowerCoin);
+            infoUIController.IncreaseCoin(gamePlayInfo._sellTowerCoin);
         }
 
         private void OkButton()
         {
-            if (_isSell) SellTower();
+            if (gamePlayInfo._isSell) SellTower();
             else
             {
-                if (!_isTower) TowerBuild();
+                if (!gamePlayInfo._isTower) TowerBuild();
                 TowerUpgrade().Forget();
             }
 

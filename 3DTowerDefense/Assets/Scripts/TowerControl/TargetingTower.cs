@@ -8,18 +8,31 @@ namespace TowerControl
 {
     public abstract class TargetingTower : Tower
     {
-        private Tween _delayTween;
-        private bool _attackAble;
-        private int _minDamage, _maxDamage;
+        [Serializable]
+        public struct TowerStatus
+        {
+            public float towerRange;
+            public int minDamage;
+            public int maxDamage;
 
-        public float TowerRange { get; private set; }
-        protected LayerMask TargetLayer => targetLayer;
-        protected int Damage => Random.Range(_minDamage, _maxDamage);
+            public TowerStatus(float towerRange, int minDamage, int maxDamage)
+            {
+                this.towerRange = towerRange;
+                this.minDamage = minDamage;
+                this.maxDamage = maxDamage;
+            }
+        }
+
+        public TowerStatus TowerStat { get; private set; }
+
+        protected int Damage => Random.Range(TowerStat.minDamage, TowerStat.maxDamage);
         protected Transform target;
         protected bool isTargeting;
-
         protected Action onAttackEvent;
         protected Collider[] targetColliders;
+
+        private Tween _delayTween;
+        private bool _attackAble;
 
         [SerializeField] private LayerMask targetLayer;
 
@@ -46,7 +59,6 @@ namespace TowerControl
         protected override void OnDisable()
         {
             base.OnDisable();
-            onAttackEvent = null;
             CancelInvoke();
             _delayTween?.Kill();
         }
@@ -58,8 +70,10 @@ namespace TowerControl
 
         private void Targeting()
         {
-            target = SearchTarget.ClosestTarget(transform.position, TowerRange, targetColliders, TargetLayer);
-            isTargeting = target != null;
+            var t = SearchTarget.ClosestTarget(transform.position, TowerStat.towerRange, targetColliders,
+                targetLayer);
+            target = t.Item1;
+            isTargeting = t.Item2;
         }
 
         private void StartCoolDown()
@@ -68,14 +82,13 @@ namespace TowerControl
             _delayTween.Restart();
         }
 
-        public override void TowerInit(MeshFilter consMeshFilter, int minDamage, int maxDamage, float attackRange,
+        public override void BuildTowerWithDelay(MeshFilter consMeshFilter, int minDamage, int maxDamage, float attackRange,
             float attackDelay, float health = 0)
         {
-            base.TowerInit(consMeshFilter, minDamage, maxDamage, attackRange, attackDelay, health);
+            base.BuildTowerWithDelay(consMeshFilter, minDamage, maxDamage, attackRange, attackDelay, health);
 
-            TowerRange = attackRange;
-            _minDamage = minDamage;
-            _maxDamage = maxDamage;
+            TowerStat = new TowerStatus(attackRange, minDamage, maxDamage);
+
             _delayTween?.Kill();
             _delayTween = DOVirtual.DelayedCall(attackDelay, () => _attackAble = true, false).SetAutoKill(false);
         }
