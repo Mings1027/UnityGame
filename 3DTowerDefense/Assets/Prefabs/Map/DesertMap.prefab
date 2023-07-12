@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 3086935791738622454}
   - component: {fileID: 1355891357645317843}
   - component: {fileID: 3342550571868636968}
-  m_Layer: 15
+  m_Layer: 0
   m_Name: Baked_Mesh
-  m_TagString: WalkableGround
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1001,7 +1001,7 @@ GameObject:
   - component: {fileID: 7628595163904599834}
   m_Layer: 0
   m_Name: DesertMap
-  m_TagString: Ground
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1428,7 +1428,6 @@ GameObject:
   - component: {fileID: 1666523773811346490}
   - component: {fileID: 7214488324531218042}
   - component: {fileID: 1021721057405271355}
-  - component: {fileID: 6138565469309061396}
   m_Layer: 0
   m_Name: Fog
   m_TagString: Untagged
@@ -1501,20 +1500,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &6138565469309061396
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3919190748435559185}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &5649255577989690912
 GameObject:
   m_ObjectHideFlags: 0
@@ -1655,9 +1640,9 @@ GameObject:
   - component: {fileID: 1533153859886538303}
   - component: {fileID: 11101342637025341}
   - component: {fileID: 7630296397475337632}
-  m_Layer: 15
+  m_Layer: 7
   m_Name: WalkableGround
-  m_TagString: WalkableGround
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

@@ -4956,7 +4956,6 @@ GameObject:
   - component: {fileID: 7221504596350522895}
   - component: {fileID: 2460802226346888678}
   - component: {fileID: 1731804592144766137}
-  - component: {fileID: 5272004309176599938}
   m_Layer: 0
   m_Name: Fog
   m_TagString: Untagged
@@ -5029,20 +5028,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &5272004309176599938
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3632203600011093401}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &3773313272898895020
 GameObject:
   m_ObjectHideFlags: 0
@@ -5054,9 +5039,9 @@ GameObject:
   - component: {fileID: 1559299021401046011}
   - component: {fileID: 6041720330100836579}
   - component: {fileID: 5160273492175432242}
-  m_Layer: 15
+  m_Layer: 0
   m_Name: NotWalkable1
-  m_TagString: WalkableGround
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5137,9 +5122,9 @@ GameObject:
   - component: {fileID: 2822081678655831322}
   - component: {fileID: 6910822453803262118}
   - component: {fileID: 7221581830405472795}
-  m_Layer: 15
+  m_Layer: 0
   m_Name: NotWalkable
-  m_TagString: WalkableGround
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -6036,7 +6021,7 @@ GameObject:
   - component: {fileID: 2278744087436982612}
   m_Layer: 0
   m_Name: ForestMap
-  m_TagString: Ground
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -7114,9 +7099,9 @@ GameObject:
   - component: {fileID: 4742497299249426940}
   - component: {fileID: 555824797265037412}
   - component: {fileID: 8091323634094974366}
-  m_Layer: 15
+  m_Layer: 7
   m_Name: Walkable
-  m_TagString: WalkableGround
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

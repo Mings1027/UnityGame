@@ -12,6 +12,7 @@ namespace UnitControl
         private Camera _cam;
         private Sequence _cantMoveImageSequence;
         public BarracksUnitTower BarracksTower { get; set; }
+        public event Action OffIndicatorAction;
 
         [SerializeField] private LayerMask walkableLayer;
         [SerializeField] private Image cantMoveImage;
@@ -19,9 +20,18 @@ namespace UnitControl
         private void Awake()
         {
             _cam = Camera.main;
+        }
+
+        private void OnEnable()
+        {
             _cantMoveImageSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(cantMoveImage.transform.DOScale(new Vector3(1, 1), 0.5f).From(0.5f).SetEase(Ease.OutBounce))
                 .Join(cantMoveImage.GetComponent<Image>().DOFade(0, 0.5f).From(1));
+        }
+
+        private void OnDisable()
+        {
+            _cantMoveImageSequence.Kill();
         }
 
         private void Update()
@@ -43,7 +53,7 @@ namespace UnitControl
             {
                 BarracksTower.UnitMove(physicsHit.point);
                 BarracksTower = null;
-                gameObject.SetActive(false);
+                OffIndicatorAction?.Invoke();
                 if (!cantMoveImage.enabled) return;
                 cantMoveImage.enabled = false;
             }

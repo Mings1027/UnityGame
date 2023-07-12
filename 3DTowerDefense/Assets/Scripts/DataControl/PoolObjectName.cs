@@ -11,7 +11,7 @@ namespace DataControl
         /*==================================================================================================================
         *                                              Unit  
         ==================================================================================================================*/
-        public const string ArcherUnit = "ArcherUnit";
+        // public const string ArcherUnit = "ArcherUnit";
         public const string PuddingJellyUnit = "PuddingJellyUnit";
         public const string BearJellyUnit = "BearJellyUnit";
 

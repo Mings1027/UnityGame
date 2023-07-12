@@ -58,21 +58,18 @@ namespace TowerControl
             base.BuildTower(towerMeshFilter);
 
             BatchArcher();
-            if (IsUniqueTower)
+            if (!IsUniqueTower) return;
+            
+            if (TowerUniqueLevel == 1)
             {
-                if (TowerUniqueLevel == 1)
-                {
-                    onAttackEvent = null;
-                    onAttackEvent += () => TwoArcherAttack().Forget();
-                }
-                else
-                {
-                    onAttackEvent = null;
-                    onAttackEvent += BulletAttack;
-                }
+                onAttackEvent = null;
+                onAttackEvent += () => TwoArcherAttack().Forget();
             }
-
-            print(onAttackEvent.Method);
+            else
+            {
+                onAttackEvent = null;
+                onAttackEvent += BulletAttack;
+            }
         }
 
         private void BatchArcher()

@@ -22,6 +22,15 @@ namespace TowerControl
         {
             base.OnEnable();
             onAttackEvent += NormalAttack;
+            _atkSequence = DOTween.Sequence().SetAutoKill(false).Pause()
+                .Append(_material.DOColor(_material.GetColor(EmissionColor) * 2, 0.5f))
+                .Append(_material.DOColor(_material.GetColor(EmissionColor), 0.5f));
+        }
+
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+            _atkSequence.Kill();
         }
 
         protected override void Init()
@@ -30,13 +39,10 @@ namespace TowerControl
             targetColliders = new Collider[3];
             _material = crystal.GetComponent<Renderer>().material;
             _crystalMeshFilter = crystal.GetComponent<MeshFilter>();
-
-            _atkSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(_material.DOColor(_material.GetColor(EmissionColor) * 2, 0.5f))
-                .Append(_material.DOColor(_material.GetColor(EmissionColor), 0.5f));
         }
 
-        public override void BuildTowerWithDelay(MeshFilter consMeshFilter, int minDamage, int maxDamage, float attackRange,
+        public override void BuildTowerWithDelay(MeshFilter consMeshFilter, int minDamage, int maxDamage,
+            float attackRange,
             float attackDelay, float health = 0)
         {
             base.BuildTowerWithDelay(consMeshFilter, minDamage, maxDamage, attackRange, attackDelay, health);
@@ -53,7 +59,6 @@ namespace TowerControl
 
             onAttackEvent = null;
             onAttackEvent += TowerUniqueLevel == 0 ? SlowDownAttack : PenetrationAttack;
-            print(onAttackEvent.Method);
         }
 
         private void CrystalPosInit()

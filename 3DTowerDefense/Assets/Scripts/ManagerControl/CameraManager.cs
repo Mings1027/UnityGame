@@ -1,7 +1,5 @@
-using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using DG.Tweening;
 using UnityEngine;
 
 namespace ManagerControl
@@ -16,7 +14,6 @@ namespace ManagerControl
         private bool _isLeft;
 
         [SerializeField] private float moveSpeed;
-        [SerializeField] private float rotationSpeed;
         [SerializeField] private float zoomSpeed;
         [SerializeField] private Vector2Int scale;
         [SerializeField] private Vector2Int camPosLimit;
@@ -63,14 +60,14 @@ namespace ManagerControl
                 _isLeft = touch.position.x < Screen.width * 0.5f;
             }
 
-            if (_isLeft)
+            // if (_isLeft)
             {
                 CameraMove(touch);
             }
-            else
-            {
-                CameraRotate(touch);
-            }
+            // else
+            // {
+            //     CameraRotate(touch);
+            // }
         }
 
         private void CameraMove(Touch touch)
@@ -110,49 +107,49 @@ namespace ManagerControl
             }
         }
 
-        private void CameraRotate(Touch touch)
-        {
-            switch (touch.phase)
-            {
-                case TouchPhase.Moved:
-                {
-                    var t = transform;
-                    t.Rotate(new Vector3(0.0f, touch.deltaPosition.x * rotationSpeed, 0.0f));
-                    transform.rotation = Quaternion.Euler(0.0f, t.rotation.eulerAngles.y, 0.0f);
-                    break;
-                }
-                case TouchPhase.Ended:
-                    transform.DORotate(SnappedVector(), 0.5f)
-                        .SetEase(Ease.OutBounce);
-                    break;
-                case TouchPhase.Began:
-                    break;
-                case TouchPhase.Stationary:
-                    break;
-                case TouchPhase.Canceled:
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        private Vector3 SnappedVector()
-        {
-            var currentY = Mathf.Ceil(transform.rotation.eulerAngles.y);
-            var endValue = currentY switch
-            {
-                // <= 45 or >= 315 => 0f,
-                // >= 45 and <= 135 => 90f,
-                // >= 136 and <= 225 => 180f,
-                // _ => 270f
-                >= 0 and <= 90 => 45.0f,
-                >= 91 and <= 180 => 135.0f,
-                >= 181 and <= 270 => 225.0f,
-                _ => 315.0f
-            };
-
-            return new Vector3(0.0f, endValue, 0.0f);
-        }
+        // private void CameraRotate(Touch touch)
+        // {
+        //     switch (touch.phase)
+        //     {
+        //         case TouchPhase.Moved:
+        //         {
+        //             var t = transform;
+        //             t.Rotate(new Vector3(0.0f, touch.deltaPosition.x * rotationSpeed, 0.0f));
+        //             transform.rotation = Quaternion.Euler(0.0f, t.rotation.eulerAngles.y, 0.0f);
+        //             break;
+        //         }
+        //         case TouchPhase.Ended:
+        //             transform.DORotate(SnappedVector(), 0.5f)
+        //                 .SetEase(Ease.OutBounce);
+        //             break;
+        //         case TouchPhase.Began:
+        //             break;
+        //         case TouchPhase.Stationary:
+        //             break;
+        //         case TouchPhase.Canceled:
+        //             break;
+        //         default:
+        //             throw new ArgumentOutOfRangeException();
+        //     }
+        // }
+        //
+        // private Vector3 SnappedVector()
+        // {
+        //     var currentY = Mathf.Ceil(transform.rotation.eulerAngles.y);
+        //     var endValue = currentY switch
+        //     {
+        //         // <= 45 or >= 315 => 0f,
+        //         // >= 45 and <= 135 => 90f,
+        //         // >= 136 and <= 225 => 180f,
+        //         // _ => 270f
+        //         >= 0 and <= 90 => 45.0f,
+        //         >= 91 and <= 180 => 135.0f,
+        //         >= 181 and <= 270 => 225.0f,
+        //         _ => 315.0f
+        //     };
+        //
+        //     return new Vector3(0.0f, endValue, 0.0f);
+        // }
 
         private void CameraZoom()
         {

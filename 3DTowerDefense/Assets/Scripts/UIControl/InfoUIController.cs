@@ -1,3 +1,4 @@
+using System;
 using DG.Tweening;
 using ManagerControl;
 using TMPro;
@@ -39,12 +40,21 @@ namespace UIControl
             resumeButton.onClick.AddListener(Resume);
             bgmButton.onClick.AddListener(BGMButton);
             mainMenuButton.onClick.AddListener(() => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex));
+        }
 
+        private void OnEnable()
+        {
             _gameUITween = gameUI.DOLocalMoveY(0, 0.5f)
                 .From(Screen.width * 3).SetUpdate(true).SetAutoKill(false).Pause();
 
             _menuPanelTween = menuPanel.DOLocalMoveY(0, 0.5f)
                 .From(Screen.width * 3).SetEase(Ease.OutBack).SetUpdate(true).SetAutoKill(false).Pause();
+        }
+
+        private void OnDestroy()
+        {
+            _gameUITween.Kill();
+            _menuPanelTween.Kill();
         }
 
         private void Pause()

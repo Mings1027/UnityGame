@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DataControl;
-using DG.Tweening;
 using GameControl;
 using UnitControl;
 using UnitControl.FriendlyControl;
@@ -14,8 +13,8 @@ namespace TowerControl
     public abstract class UnitTower : Tower
     {
         private int _deadUnitCount;
+        private bool _unitIsFull;
         private CancellationTokenSource _cts;
-        private Vector3[] _spawnDirections;
 
         private FriendlyUnit[] _units;
         private Vector3 _unitSpawnPosition;
@@ -32,11 +31,6 @@ namespace TowerControl
             base.OnEnable();
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
-            var position = transform.position;
-            _spawnDirections[0] = position + Vector3.forward * 10;
-            _spawnDirections[1] = position + Vector3.back * 10;
-            _spawnDirections[2] = position + Vector3.left * 10;
-            _spawnDirections[3] = position + Vector3.right * 10;
         }
 
         protected override void OnDisable()
@@ -53,71 +47,70 @@ namespace TowerControl
         {
             base.Init();
             _units = new FriendlyUnit[unitCount];
-            _spawnDirections = new Vector3[4];
         }
 
-        public override void BuildTowerWithDelay(MeshFilter consMeshFilter, int minDamage, int maxDamage, float attackRange,
+        public override void BuildTowerWithDelay(MeshFilter consMeshFilter, int minDamage, int maxDamage,
+            float attackRange,
             float attackDelay, float health = 0)
         {
             base.BuildTowerWithDelay(consMeshFilter, minDamage, maxDamage, attackRange, attackDelay, health);
-            UnitControl(minDamage, maxDamage, attackDelay, health);
+
+            if (TowerLevel == 0)
+            {
+                SpawnUnitOnTowerSpawn(minDamage, maxDamage, attackDelay, health);
+            }
+            else if (IsUniqueTower)
+            {
+                SpawnUniqueUnit(minDamage, maxDamage, attackDelay, health);
+            }
         }
 
         public override void BuildTower(MeshFilter towerMeshFilter)
         {
             base.BuildTower(towerMeshFilter);
+            if (TowerLevel != 0) return;
             for (int i = 0; i < _units.Length; i++)
             {
                 _units[i].MoveToTouchPos(_unitSpawnPosition);
             }
         }
 
-        private void UnitControl(int minDamage, int maxDamage, float delay, float health)
-        {
-            if (TowerLevel == 0)
-            {
-                SpawnUnitOnTowerSpawn();
-            }
-            else if (IsUniqueTower)
-            {
-                SpawnUniqueUnit();
-            }
-
-            // Upgrade
-            for (var i = 0; i < _units.Length; i++)
-            {
-                _units[i].Init(minDamage, maxDamage, delay, health);
-            }
-        }
-
-        private void SpawnUnitOnTowerSpawn()
+        private void SpawnUnitOnTowerSpawn(int minDamage, int maxDamage, float delay, float health)
         {
             // Call Only once when tower spawn
-            // ↑ ↓ ← → Four Direction Check Ground and Unit Spawn 
-            var position = transform.position;
-            foreach (var dir in _spawnDirections)
-            {
-                var rayDir = dir - position;
-                var ray = new Ray(position, rayDir);
-                if (!Physics.SphereCast(ray, 1, 10, groundLayer)) continue;
 
-                _unitSpawnPosition = dir;
-                for (var i = 0; i < _units.Length; i++)
-                {
-                    _units[i] = UnitSpawn(PoolObjectName.PuddingJellyUnit, transform.position);
-                }
-
-                break;
-            }
-        }
-
-        private void SpawnUniqueUnit()
-        {
+            _unitSpawnPosition = transform.position - transform.forward * 10;
             for (var i = 0; i < _units.Length; i++)
             {
-                _units[i].gameObject.SetActive(false);
-                var prevUnitPos = _units[i].transform.position;
-                _units[i] = UnitSpawn(PoolObjectName.BearJellyUnit, prevUnitPos);
+                _units[i] = UnitSpawn(PoolObjectName.PuddingJellyUnit, transform.position);
+                _units[i].Init(minDamage, maxDamage, delay, health);
+            }
+
+            _unitIsFull = true;
+        }
+
+        private void SpawnUniqueUnit(int minDamage, int maxDamage, float delay, float health)
+        {
+            if (_unitIsFull)
+            {
+                for (var i = 0; i < _units.Length; i++)
+                {
+                    _units[i].gameObject.SetActive(false);
+                    var prevUnitPos = _units[i].transform.position;
+                    _units[i] = UnitSpawn(PoolObjectName.BearJellyUnit, prevUnitPos);
+                    _units[i].Init(minDamage, maxDamage, delay, health);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < _units.Length; i++)
+                {
+                    _units[i] = UnitSpawn(PoolObjectName.BearJellyUnit, transform.position);
+                    _units[i].Init(minDamage, maxDamage, delay, health);
+                }
+
+                UnitMove(_unitSpawnPosition);
+                _unitIsFull = true;
             }
         }
 
@@ -137,6 +130,7 @@ namespace TowerControl
                 u[i] = null;
             }
 
+            _unitIsFull = false;
             _unitSpawnPosition = Vector3.zero;
         }
 
@@ -157,13 +151,17 @@ namespace TowerControl
             }
 
             if (_deadUnitCount < 3) return;
+            _unitIsFull = false;
             UnitReSpawnDelay().Forget();
         }
 
         private async UniTaskVoid UnitReSpawnDelay()
         {
             _deadUnitCount = 0;
+
             await UniTask.Delay(5000, cancellationToken: _cts.Token);
+
+            if (_unitIsFull) return;
             var unitName = IsUniqueTower ? PoolObjectName.BearJellyUnit : PoolObjectName.PuddingJellyUnit;
             for (var i = 0; i < _units.Length; i++)
             {

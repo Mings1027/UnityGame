@@ -8,6 +8,8 @@ namespace ManagerControl
     {
         public const string BGM = "BGM";
         public const string ForestBGM = "ForestBGM";
+       
+        public const string TowerBuildSound = "TowerBuildSound";
         public const string ButtonSound = "ButtonSound";
         public const string BuildPointSound = "BuildPointSound";
         public const string SellSound1 = "SellSound1";

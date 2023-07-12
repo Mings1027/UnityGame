@@ -67,12 +67,12 @@ namespace TowerControl
             TowerUniqueLevel = uniqueLevel;
         }
 
-        public virtual void BuildTowerWithDelay(MeshFilter consMeshFilter, int minDamage, int maxDamage, float attackRange,
-            float attackDelay, float health = 0)
+        public virtual void BuildTowerWithDelay(MeshFilter consMeshFilter, int minDamage, int maxDamage,
+            float attackRange, float attackDelay, float health = 0)
         {
             isUpgrading = true;
+            _collider.enabled = false;
             meshFilter.sharedMesh = consMeshFilter.sharedMesh;
-
         }
 
         public virtual void BuildTower(MeshFilter towerMeshFilter)
