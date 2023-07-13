@@ -21,7 +21,7 @@ namespace UnitControl.FriendlyControl
 
         protected Transform target;
 
-        public event Action<Unit> OnDeadEvent;
+        public event Action<FriendlyUnit> OnDeadEvent;
 
         [SerializeField] private LayerMask targetLayer;
         [SerializeField] private int atkRange;
@@ -69,7 +69,7 @@ namespace UnitControl.FriendlyControl
             base.OnDisable();
             CancelInvoke();
             OnDeadEvent?.Invoke(this);
-            OnDeadEvent = null;
+            // OnDeadEvent = null;
         }
 
         private void OnDrawGizmos()

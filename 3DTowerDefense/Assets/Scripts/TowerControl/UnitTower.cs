@@ -16,16 +16,12 @@ namespace TowerControl
         private bool _unitIsFull;
         private CancellationTokenSource _cts;
 
-        private FriendlyUnit[] _units;
         private Vector3 _unitSpawnPosition;
 
-        [SerializeField] private LayerMask groundLayer;
-
         [SerializeField] private int unitCount;
+        [SerializeField] private FriendlyUnit[] units;
+        [SerializeField] private Sprite[] unitSprites;
 
-        /*=========================================================================================================================================
-        *                                               Unity Event
-        =========================================================================================================================================*/
         protected override void OnEnable()
         {
             base.OnEnable();
@@ -37,112 +33,93 @@ namespace TowerControl
         {
             base.OnDisable();
             _cts?.Cancel();
-            UnitDisable(_units);
+            UnitDisable();
+            _unitSpawnPosition = Vector3.zero;
         }
 
-        /*=========================================================================================================================================
-        *                                               Unity Event
-        =========================================================================================================================================*/
-        protected override void Init()
+        public override void BuildTowerDelay(MeshFilter consMeshFilter, int minDamage, int maxDamage, float attackRange,
+            float attackDelay,
+            float health = 0)
         {
-            base.Init();
-            _units = new FriendlyUnit[unitCount];
-        }
-
-        public override void BuildTowerWithDelay(MeshFilter consMeshFilter, int minDamage, int maxDamage,
-            float attackRange,
-            float attackDelay, float health = 0)
-        {
-            base.BuildTowerWithDelay(consMeshFilter, minDamage, maxDamage, attackRange, attackDelay, health);
+            base.BuildTowerDelay(consMeshFilter, minDamage, maxDamage, attackRange, attackDelay, health);
 
             if (TowerLevel == 0)
             {
-                SpawnUnitOnTowerSpawn(minDamage, maxDamage, attackDelay, health);
+                UnitSpawn(minDamage, maxDamage, attackDelay, health);
+                var t = transform;
+                _unitSpawnPosition = t.position - t.forward * 10;
             }
-            else if (IsUniqueTower)
+            else
             {
-                SpawnUniqueUnit(minDamage, maxDamage, attackDelay, health);
+                UnitUpgrade(minDamage, maxDamage, attackDelay, health);
             }
         }
 
         public override void BuildTower(MeshFilter towerMeshFilter)
         {
             base.BuildTower(towerMeshFilter);
-            if (TowerLevel != 0) return;
-            for (int i = 0; i < _units.Length; i++)
+
+            if (TowerLevel == 0)
             {
-                _units[i].MoveToTouchPos(_unitSpawnPosition);
+                UnitMove(_unitSpawnPosition);
+            }
+            else if (IsUniqueTower)
+            {
+                for (int i = 0; i < unitCount; i++)
+                {
+                    ChangeUnitSprite(units[i], 1);
+                }
             }
         }
 
-        private void SpawnUnitOnTowerSpawn(int minDamage, int maxDamage, float delay, float health)
+        private void UnitSpawn(int minDamage, int maxDamage, float delay, float health)
         {
-            // Call Only once when tower spawn
-
-            _unitSpawnPosition = transform.position - transform.forward * 10;
-            for (var i = 0; i < _units.Length; i++)
+            for (int i = 0; i < unitCount; i++)
             {
-                _units[i] = UnitSpawn(PoolObjectName.PuddingJellyUnit, transform.position);
-                _units[i].Init(minDamage, maxDamage, delay, health);
+                units[i].transform.position = transform.position;
+                units[i].gameObject.SetActive(true);
+                units[i].Init(minDamage, maxDamage, delay, health);
+                units[i].OnDeadEvent += ReSpawnUnit;
             }
 
             _unitIsFull = true;
         }
 
-        private void SpawnUniqueUnit(int minDamage, int maxDamage, float delay, float health)
+        private void UnitDisable()
         {
-            if (_unitIsFull)
+            for (int i = 0; i < unitCount; i++)
             {
-                for (var i = 0; i < _units.Length; i++)
-                {
-                    _units[i].gameObject.SetActive(false);
-                    var prevUnitPos = _units[i].transform.position;
-                    _units[i] = UnitSpawn(PoolObjectName.BearJellyUnit, prevUnitPos);
-                    _units[i].Init(minDamage, maxDamage, delay, health);
-                }
-            }
-            else
-            {
-                for (int i = 0; i < _units.Length; i++)
-                {
-                    _units[i] = UnitSpawn(PoolObjectName.BearJellyUnit, transform.position);
-                    _units[i].Init(minDamage, maxDamage, delay, health);
-                }
-
-                UnitMove(_unitSpawnPosition);
-                _unitIsFull = true;
-            }
-        }
-
-        private FriendlyUnit UnitSpawn(string unitName, Vector3 pos)
-        {
-            var unit = ObjectPoolManager.Get<BarracksUnit>(unitName, pos);
-            unit.OnDeadEvent += UnitReSpawn;
-            return unit;
-        }
-
-        private void UnitDisable(IList<FriendlyUnit> u)
-        {
-            for (var i = 0; i < u.Count; i++)
-            {
-                if (u[i] == null || !u[i].gameObject.activeSelf) continue;
-                u[i].gameObject.SetActive(false);
-                u[i] = null;
+                units[i].gameObject.SetActive(false);
+                ChangeUnitSprite(units[i], 0);
             }
 
             _unitIsFull = false;
-            _unitSpawnPosition = Vector3.zero;
+        }
+
+        private void UnitUpgrade(int minDamage, int maxDamage, float delay, float health)
+        {
+            for (int i = 0; i < unitCount; i++)
+            {
+                units[i].Init(minDamage, maxDamage, delay, health);
+            }
+        }
+
+        private void ChangeUnitSprite(FriendlyUnit unit, int unitSpriteIndex)
+        {
+            var unitSprite = unit.transform.GetChild(0).GetComponent<SpriteRenderer>();
+            unitSprite.sprite = unitSprites[unitSpriteIndex];
         }
 
         public void UnitMove(Vector3 touchPos)
         {
-            for (int i = 0; i < _units.Length; i++)
+            _unitSpawnPosition = touchPos;
+            for (int i = 0; i < unitCount; i++)
             {
-                _units[i].MoveToTouchPos(touchPos);
+                units[i].MoveToTouchPos(_unitSpawnPosition);
             }
         }
 
-        private void UnitReSpawn(Unit u)
+        private void ReSpawnUnit(FriendlyUnit u)
         {
             if (isSold) return;
             if (u.GetComponent<Health>().IsDead)
@@ -151,23 +128,24 @@ namespace TowerControl
             }
 
             if (_deadUnitCount < 3) return;
-            _unitIsFull = false;
-            UnitReSpawnDelay().Forget();
+            ReSpawnDelay().Forget();
         }
 
-        private async UniTaskVoid UnitReSpawnDelay()
+        private async UniTaskVoid ReSpawnDelay()
         {
             _deadUnitCount = 0;
+            _unitIsFull = false;
 
             await UniTask.Delay(5000, cancellationToken: _cts.Token);
 
             if (_unitIsFull) return;
-            var unitName = IsUniqueTower ? PoolObjectName.BearJellyUnit : PoolObjectName.PuddingJellyUnit;
-            for (var i = 0; i < _units.Length; i++)
+            for (int i = 0; i < unitCount; i++)
             {
-                _units[i] = UnitSpawn(unitName, transform.position);
-                _units[i].MoveToTouchPos(_unitSpawnPosition);
+                units[i].transform.position = transform.position;
+                units[i].gameObject.SetActive(true);
             }
+
+            UnitMove(_unitSpawnPosition);
         }
     }
 }

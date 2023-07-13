@@ -41,11 +41,11 @@ namespace TowerControl
             _crystalMeshFilter = crystal.GetComponent<MeshFilter>();
         }
 
-        public override void BuildTowerWithDelay(MeshFilter consMeshFilter, int minDamage, int maxDamage,
+        public override void BuildTowerDelay(MeshFilter consMeshFilter, int minDamage, int maxDamage,
             float attackRange,
             float attackDelay, float health = 0)
         {
-            base.BuildTowerWithDelay(consMeshFilter, minDamage, maxDamage, attackRange, attackDelay, health);
+            base.BuildTowerDelay(consMeshFilter, minDamage, maxDamage, attackRange, attackDelay, health);
             // 타워 업그레이드 중에 crystal 보이면 어색하기 때문에 crystal을 타워밑으로 옮겨 잠시 숨겨줌
             crystal.position = transform.position;
         }

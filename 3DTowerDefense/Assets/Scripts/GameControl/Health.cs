@@ -36,9 +36,10 @@ namespace GameControl
             }
             else
             {
-                OnDeadEvent?.Invoke();
                 OnIncreaseCoinEvent?.Invoke();
             }
+
+            OnDeadEvent?.Invoke();
 
             OnDeadEvent = null;
             OnIncreaseCoinEvent = null;

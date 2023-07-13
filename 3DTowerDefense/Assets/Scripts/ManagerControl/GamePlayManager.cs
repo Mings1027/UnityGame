@@ -519,7 +519,7 @@ namespace ManagerControl
 
             ObjectPoolManager.Get(PoolObjectName.BuildSmoke, tempTower.transform.position);
 
-            tempTower.BuildTowerWithDelay(tt.consMesh, tt.minDamage, tt.maxDamage, tt.attackRange, tt.attackDelay,
+            tempTower.BuildTowerDelay(tt.consMesh, tt.minDamage, tt.maxDamage, tt.attackRange, tt.attackDelay,
                 tt.health);
 
             await UniTask.Delay(1000);

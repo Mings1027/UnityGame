@@ -82,10 +82,10 @@ namespace TowerControl
             _delayTween.Restart();
         }
 
-        public override void BuildTowerWithDelay(MeshFilter consMeshFilter, int minDamage, int maxDamage, float attackRange,
+        public override void BuildTowerDelay(MeshFilter consMeshFilter, int minDamage, int maxDamage, float attackRange,
             float attackDelay, float health = 0)
         {
-            base.BuildTowerWithDelay(consMeshFilter, minDamage, maxDamage, attackRange, attackDelay, health);
+            base.BuildTowerDelay(consMeshFilter, minDamage, maxDamage, attackRange, attackDelay, health);
 
             TowerStat = new TowerStatus(attackRange, minDamage, maxDamage);
 

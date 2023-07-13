@@ -67,7 +67,7 @@ namespace TowerControl
             TowerUniqueLevel = uniqueLevel;
         }
 
-        public virtual void BuildTowerWithDelay(MeshFilter consMeshFilter, int minDamage, int maxDamage,
+        public virtual void BuildTowerDelay(MeshFilter consMeshFilter, int minDamage, int maxDamage,
             float attackRange, float attackDelay, float health = 0)
         {
             isUpgrading = true;

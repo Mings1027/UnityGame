@@ -41,10 +41,10 @@ namespace TowerControl
             targetColliders = new Collider[5];
         }
 
-        public override void BuildTowerWithDelay(MeshFilter consMeshFilter, int minDamage, int maxDamage,
+        public override void BuildTowerDelay(MeshFilter consMeshFilter, int minDamage, int maxDamage,
             float attackRange, float attackDelay, float health = 0)
         {
-            base.BuildTowerWithDelay(consMeshFilter, minDamage, maxDamage, attackRange, attackDelay, health);
+            base.BuildTowerDelay(consMeshFilter, minDamage, maxDamage, attackRange, attackDelay, health);
 
             _archerCount = TowerUniqueLevel == 1 ? 2 : 1;
             for (var i = 0; i < _archerCount; i++)

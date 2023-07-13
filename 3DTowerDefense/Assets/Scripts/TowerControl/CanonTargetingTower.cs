@@ -50,10 +50,10 @@ namespace TowerControl
                 .Append(meshFilter.transform.DOScaleY(1f, 0.3f).SetEase(Ease.OutQuint));
         }
 
-        public override void BuildTowerWithDelay(MeshFilter consMeshFilter, int minDamage, int maxDamage, float attackRange,
+        public override void BuildTowerDelay(MeshFilter consMeshFilter, int minDamage, int maxDamage, float attackRange,
             float attackDelay, float health = 0)
         {
-            base.BuildTowerWithDelay(consMeshFilter, minDamage, maxDamage, attackRange, attackDelay, health);
+            base.BuildTowerDelay(consMeshFilter, minDamage, maxDamage, attackRange, attackDelay, health);
 
             if (TowerUniqueLevel != 1) return;
 
