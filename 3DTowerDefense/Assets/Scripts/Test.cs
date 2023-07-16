@@ -1,41 +1,78 @@
 using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class Test : MonoBehaviour
 {
-    private Tween _wayPointTween;
+    public void onSetting()
 
-    [SerializeField] private Transform wayPointParent;
-    [SerializeField] private float speed;
-    [SerializeField] private PathType pathType;
-    [SerializeField] private PathMode pathMode;
-    [SerializeField] private Vector3[] wayPoints;
-
-    private void Awake()
     {
-        wayPoints = new Vector3[wayPointParent.childCount];
-        for (int i = 0; i < wayPoints.Length; i++)
+        var cam = GetComponent<Camera>();
+
+        var rect = cam.rect;
+
+        var scaleheight = ((float)Screen.width / Screen.height) / ((float)16 / 9); // (가로 / 세로)
+
+        var scalewidth = 1f / scaleheight;
+
+        if (scaleheight < 1)
+
         {
-            wayPoints[i] = wayPointParent.GetChild(i).position;
+            rect.height = scaleheight;
+
+            rect.y = (1f - scaleheight) / 2f;
         }
 
-        _wayPointTween = transform.DOPath(wayPoints, speed, pathType, pathMode).SetAutoKill(false).Pause();
+        else
+
+        {
+            rect.width = scalewidth;
+
+            rect.x = (1f - scalewidth) / 2f;
+        }
+
+        cam.rect = rect;
     }
 
-    private void Start()
+
+    public void OnReset()
+
     {
-        _wayPointTween.Restart();
+        var camera = GetComponent<Camera>();
+
+        camera.rect = new Rect(0, 0, 1, 1);
     }
 
-    private void Update()
+
+    private void OnEnable()
+
     {
-        if (Input.GetKeyDown(KeyCode.A))
-        {
-            _wayPointTween.Play();
-        }
-        else if (Input.GetKeyDown(KeyCode.Space))
-        {
-            _wayPointTween.Pause();
-        }
+#if !UNITY_EDITOR
+RenderPipelineManager.beginCameraRendering += RenderPipelineManager_endCameraRendering;
+
+#endif
+    }
+
+    private void OnDisable()
+
+    {
+#if !UNITY_EDITOR
+RenderPipelineManager.beginCameraRendering -= RenderPipelineManager_endCameraRendering;
+
+#endif
+    }
+
+
+    private void RenderPipelineManager_endCameraRendering(ScriptableRenderContext context, Camera camera)
+
+    {
+        GL.Clear(true, true, Color.black);
+    }
+
+
+    private void OnPreCull()
+
+    {
+        GL.Clear(true, true, Color.black);
     }
 }

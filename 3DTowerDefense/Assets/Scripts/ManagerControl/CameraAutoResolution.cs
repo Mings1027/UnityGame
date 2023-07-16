@@ -14,7 +14,7 @@ namespace ManagerControl
             var cam = GetComponent<Camera>();
             var rect = cam.rect;
             var scaleHeight = (float)Screen.width / Screen.height / ((float)16 / 9); // (가로 / 세로)
-            var scaleWidth = 1f / scaleHeight;
+            // var scaleWidth = 1f / scaleHeight;
             if (scaleHeight < 1)
             {
                 rect.height = scaleHeight;
@@ -31,6 +31,6 @@ namespace ManagerControl
             cam.rect = rect;
         }
 
-        private void OnPreCull() => GL.Clear(true, true, Color.black);
+        // private void OnPreCull() => GL.Clear(true, true, Color.black);
     }
 }

@@ -2,13 +2,14 @@ using System;
 using DG.Tweening;
 using ManagerControl;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace UIControl
 {
     public class MainMenuUIController : MonoBehaviour
     {
-        [SerializeField] private GamePlayManager gamePlayManager;
+        [FormerlySerializedAs("gamePlayManager")] [SerializeField] private GameController gameController;
         [SerializeField] private InfoUIController infoUIController;
         [SerializeField] private CameraManager cameraManager;
 
@@ -27,8 +28,8 @@ namespace UIControl
                     {
                         SoundManager.Instance.PlayBGM(SoundManager.ForestBGM);
                         stageSelectPanel.SetActive(false);
-                        gamePlayManager.MapGenerator(index);
-                        gamePlayManager.ReStart();
+                        gameController.MapGenerator(index);
+                        gameController.ReStart();
                         infoUIController.Init(index);
                         cameraManager.enabled = true;
                     });

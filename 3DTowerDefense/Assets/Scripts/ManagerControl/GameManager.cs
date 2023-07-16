@@ -22,7 +22,7 @@ namespace ManagerControl
             Instantiate(gamePlayPrefab, transform);
         }
 
-        private async UniTaskVoid OnGUI()
+        private void OnGUI()
         {
             var position = new Rect(width, height, Screen.width, Screen.height);
 
@@ -30,14 +30,16 @@ namespace ManagerControl
             var ms = Time.deltaTime * 1000f;
             var text = $"{fps:N1} FPS {ms:N1}ms";
 
-            var style = new GUIStyle();
-
-            style.fontSize = fontSize;
-            style.normal.textColor = color;
+            var style = new GUIStyle
+            {
+                fontSize = fontSize,
+                normal =
+                {
+                    textColor = color
+                }
+            };
 
             GUI.Label(position, text, style);
-
-            await UniTask.Delay(1000);
         }
     }
 }

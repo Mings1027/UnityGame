@@ -5,6 +5,7 @@ using TMPro;
 using TowerControl;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace UIControl
@@ -18,7 +19,7 @@ namespace UIControl
 
         public bool IsPause { get; private set; }
 
-        [SerializeField] private GamePlayManager gamePlayManager;
+        [FormerlySerializedAs("gamePlayManager")] [SerializeField] private GameController gameController;
 
         [SerializeField] private TextMeshProUGUI lifeCountText;
         [SerializeField] private TextMeshProUGUI coinText;
@@ -122,7 +123,7 @@ namespace UIControl
             _lifeCount -= 1;
             lifeCountText.text = _lifeCount.ToString();
             if (_lifeCount > 0) return;
-            gamePlayManager.GameOver();
+            gameController.GameOver();
         }
     }
 }

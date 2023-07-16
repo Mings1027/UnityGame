@@ -17,7 +17,7 @@ using UnityEngine.UI;
 
 namespace ManagerControl
 {
-    public class GamePlayManager : MonoBehaviour
+    public class GameController : MonoBehaviour
     {
         private Camera _cam;
 
