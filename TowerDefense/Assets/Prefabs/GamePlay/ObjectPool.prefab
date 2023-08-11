@@ -1,0 +1,144 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2326560661699753111
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2326560661699753109}
+  - component: {fileID: 2326560661699753110}
+  m_Layer: 0
+  m_Name: ObjectPool
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2326560661699753109
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2326560661699753111}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2326560661699753110
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2326560661699753111}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 702e10604a6f9481a955b7f8b37182ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pools:
+  - tag: ArrowHitSFX
+    prefab: {fileID: 953530123978054383, guid: eaea9681d992d453c8887f8f2165dbac, type: 3}
+    size: 10
+  - tag: ArrowShootSFX
+    prefab: {fileID: 953530123978054383, guid: 80a327d3bb6224375a83b345522d2d3e, type: 3}
+    size: 10
+  - tag: BallistaBullet
+    prefab: {fileID: 6524074330689740267, guid: 592f6e92fcbbc0249bf7b09b8fd025b6,
+      type: 3}
+    size: 10
+  - tag: BallistaProjectile
+    prefab: {fileID: 4610523606844660466, guid: 7b23a2b6573388d4ca27fc52e79beb6d,
+      type: 3}
+    size: 10
+  - tag: BallistaTower
+    prefab: {fileID: 6197179999279106558, guid: 6853988c5ba6a624baae558e60c7705a,
+      type: 3}
+    size: 10
+  - tag: BulletHitSFX
+    prefab: {fileID: 953530123978054383, guid: 1ef67d3fcbe454d6c97efd054d69922e, type: 3}
+    size: 10
+  - tag: BulletShootSFX
+    prefab: {fileID: 953530123978054383, guid: 3e0b15747b8224d60bf019347fcaf513, type: 3}
+    size: 10
+  - tag: BuildSmoke
+    prefab: {fileID: 104829970813648393, guid: d3015b7eea383f64d8b81f965cc466e7, type: 3}
+    size: 1
+  - tag: ExpandMapSmoke
+    prefab: {fileID: 104829970813648393, guid: aa039729dad71dd4ca877cd0101dea8c, type: 3}
+    size: 1
+  - tag: CanonBullet
+    prefab: {fileID: 9118208001047860730, guid: 5449547b948e90a4aa4bc6869064ecb6,
+      type: 3}
+    size: 10
+  - tag: CanonShootSFX
+    prefab: {fileID: 953530123978054383, guid: 5c99c05004e754440842aad77f3c4871, type: 3}
+    size: 10
+  - tag: CanonHitSFX
+    prefab: {fileID: 953530123978054383, guid: b0799921b8d5941e69e6a1544e62922a, type: 3}
+    size: 10
+  - tag: CanonHitVFX
+    prefab: {fileID: 4936878332485049037, guid: 99c796eedc9c261438e8e56caf158eba,
+      type: 3}
+    size: 10
+  - tag: MageShootSFX
+    prefab: {fileID: 953530123978054383, guid: f4d162e98900b4e7cbaf28d71d7bf4bc, type: 3}
+    size: 10
+  - tag: MageBullet
+    prefab: {fileID: 2676114535170603306, guid: d0e1d1cd82acbe241aef6fbf1edfd7a0,
+      type: 3}
+    size: 10
+  - tag: BarracksTower
+    prefab: {fileID: 3847918098510183265, guid: 8d942512867e1284e9d6225db845f190,
+      type: 3}
+    size: 10
+  - tag: CanonTower
+    prefab: {fileID: 7895117123715481240, guid: 210d26a116210b7448e11f2f1b8c04fa,
+      type: 3}
+    size: 10
+  - tag: MageTower
+    prefab: {fileID: 4440219121197004554, guid: c6d784db220a82540bcd8c36e16873db,
+      type: 3}
+    size: 10
+  - tag: SlowDownMageBullet
+    prefab: {fileID: 3070217262080830845, guid: 2b8d0a8d0f420cf46a4d93c6bf764b6c,
+      type: 3}
+    size: 10
+  - tag: SlowDownMageShootSfx
+    prefab: {fileID: 953530123978054383, guid: 6a471009398494caaa2d53e01f5d7c99, type: 3}
+    size: 10
+  - tag: SpreadMageBullet
+    prefab: {fileID: 5476483626155123522, guid: 1c3ce54586442d344b26aaf0115d0625,
+      type: 3}
+    size: 10
+  - tag: SpreadMageShootSfx
+    prefab: {fileID: 953530123978054383, guid: 4696e6da34a7b4b5fa9916a29136f3e5, type: 3}
+    size: 10
+  - tag: Goblin
+    prefab: {fileID: 5137451470882268708, guid: 05c180e2af3adb64f9d3b6924bbadd53,
+      type: 3}
+    size: 10
+  - tag: Orc
+    prefab: {fileID: 7444029544577177143, guid: 0689c6b1c35665144b7e410abbb79ae0,
+      type: 3}
+    size: 10
+  - tag: ArmoredGoblin
+    prefab: {fileID: 2231750944910142623, guid: 01e330b33e0693548b109d4612bd0656,
+      type: 3}
+    size: 10
+  - tag: ArmoredOrc
+    prefab: {fileID: 1565534273846441980, guid: 35e8468446503864a85bb94f2af98115,
+      type: 3}
+    size: 10
+  - tag: Ooogie
+    prefab: {fileID: 8503625774716829267, guid: f606a14d312c3cf47a04cb666d2fe075,
+      type: 3}
+    size: 10
