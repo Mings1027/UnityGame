@@ -85,7 +85,7 @@ namespace ManagerControl
 
                         var waveIndex = j;
                         enemyHealth.OnIncreaseCoinEvent += () =>
-                            TowerManager.Instance.IncreaseCoin(waves[waveIndex].enemyCoin);
+                            TowerManager.Instance.IncreaseGold(waves[waveIndex].enemyCoin);
                         enemyHealth.OnDecreaseLifeCountEvent +=
                             TowerManager.Instance.DecreaseLifeCount;
 

@@ -15,14 +15,15 @@ namespace ManagerControl
         private bool _canPlace;
 
         private MeshRenderer _cursorMeshRenderer;
+        private float gridSize;
 
         [SerializeField] private Transform cubeCursor;
-        [SerializeField] private float gridSize;
 
         private void Awake()
         {
             _towerManager = TowerManager.Instance;
             _cam = Camera.main;
+            gridSize = cubeCursor.transform.lossyScale.x;
             _inverseGridSize = 1 / gridSize;
             _cursorMeshRenderer = cubeCursor.GetComponent<MeshRenderer>();
         }
@@ -36,13 +37,15 @@ namespace ManagerControl
         private void Update()
         {
             if (!_isPlacingTower) return;
-            if (Input.GetMouseButton(0))
+            if (Input.touchCount <= 0) return;
+            var touch = Input.GetTouch(0);
+            if (touch.phase == TouchPhase.Moved)
             {
-                SnapToGrid(Input.mousePosition);
-                // CheckCanPlace();
+                SnapToGrid(touch.position);
+
                 CheckPlacement();
             }
-            else if (Input.GetMouseButtonUp(0))
+            else if (touch.phase == TouchPhase.Ended)
             {
                 if (_canPlace)
                 {
@@ -68,6 +71,11 @@ namespace ManagerControl
 
         public void StartPlacement(string towerName)
         {
+            if (!_towerManager.CheckGold())
+            {
+                StopPlacement();
+                return;
+            }
             _towerManager.ResetUI();
             _isPlacingTower = true;
             _selectedTowerName = towerName;

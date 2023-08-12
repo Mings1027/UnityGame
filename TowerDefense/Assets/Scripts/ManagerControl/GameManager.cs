@@ -8,11 +8,14 @@ namespace ManagerControl
 {
     public class GameManager : MonoBehaviour
     {
-        [SerializeField] private GameObject towerManagerObj;
         private void Awake()
         {
             Application.targetFrameRate = 60;
-            Instantiate(towerManagerObj);
+            var sources = Resources.LoadAll<GameObject>("Prefabs");
+            for (int i = 0; i < sources.Length; i++)
+            {
+                Instantiate(sources[i]);
+            }
         }
     }
 }

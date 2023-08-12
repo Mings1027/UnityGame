@@ -1,5 +1,3 @@
-using System;
-using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using ManagerControl;
 using MapControl;
@@ -41,7 +39,9 @@ namespace UIControl
             SoundManager.Instance.PlayBGM();
             MapController.Instance.GenerateInitMap();
             gameObject.SetActive(false);
+            cam.transform.GetComponentInParent<CameraManager>().enabled = true;
             cam.orthographic = true;
+            cam.transform.localPosition = new Vector3(0, 30, -30);
         }
     }
 }

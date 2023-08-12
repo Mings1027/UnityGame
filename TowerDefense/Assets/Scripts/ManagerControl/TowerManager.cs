@@ -1,6 +1,5 @@
-using System;
-using System.Collections.Generic;
 using System.Globalization;
+using Cysharp.Threading.Tasks;
 using DataControl;
 using DG.Tweening;
 using GameControl;
@@ -8,10 +7,10 @@ using TMPro;
 using TowerControl;
 using UIControl;
 using UnitControl;
-using Unity.Jobs;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace ManagerControl
@@ -28,16 +27,19 @@ namespace ManagerControl
         private Tower _curSelectedTower;
 
         private bool _isPanelOpen;
+        private bool _isTower;
 
-        private int _sellTowerCoin;
+        private int _sellTowerGold;
 
         //  HUD
         public bool IsPause { get; private set; }
 
-        private int _towerCoin;
+        private int _towerGold;
         private int _lifeCount;
         private bool _isSpeedUp;
+        private bool _callNotEnoughTween;
         private Tween _menuPanelTween;
+        private Tween _notEnoughGoldTween;
 
         [Header("----------Tower Buttons----------")] [SerializeField]
         private Transform towerButtons;
@@ -59,8 +61,8 @@ namespace ManagerControl
         [Header("------------HUD------------")] [SerializeField]
         private GameObject hudPanel;
 
-        [SerializeField] private int[] towerBuildCoin;
-        [SerializeField] private int startCoin;
+        [SerializeField] private int[] towerBuildGold;
+        [SerializeField] private int startGold;
 
         [SerializeField] private Transform menuPanel;
         [SerializeField] private Button pauseButton;
@@ -71,8 +73,9 @@ namespace ManagerControl
         [SerializeField] private Sprite musicOnImage;
         [SerializeField] private Sprite musicOffImage;
 
+        [SerializeField] private GameObject notEnoughGoldPanel;
         [SerializeField] private TextMeshProUGUI lifeCountText;
-        [SerializeField] private TextMeshProUGUI coinText;
+        [SerializeField] private TextMeshProUGUI goldText;
         [SerializeField] private TextMeshProUGUI speedUpText;
 
         [Header("----------Game Over----------")] [SerializeField, Space(10)]
@@ -98,6 +101,7 @@ namespace ManagerControl
         {
             hudPanel.SetActive(false);
             _menuPanelTween.PlayBackwards();
+            _notEnoughGoldTween.PlayBackwards();
             moveUnitIndicator.gameObject.SetActive(false);
             gameOverPanel.SetActive(false);
             offUIButton.gameObject.SetActive(false);
@@ -114,7 +118,7 @@ namespace ManagerControl
             {
                 var towerBtn = towerButtons.GetChild(i);
                 _showTowerBtnSequence.Append(towerBtn.DOLocalMoveY(-150, 0.1f)
-                                                     .From().SetEase(Ease.OutBack).SetRelative());
+                    .From().SetEase(Ease.OutBack).SetRelative());
                 var eventTrigger = towerBtn.GetComponent<EventTrigger>();
                 var entry = new EventTrigger.Entry
                 {
@@ -141,8 +145,8 @@ namespace ManagerControl
 
         private void MenuButtonInit()
         {
-            _towerCoin = startCoin;
-            coinText.text = _towerCoin.ToString();
+            _towerGold = startGold;
+            goldText.text = _towerGold.ToString();
             _lifeCount = 20;
             lifeCountText.text = _lifeCount.ToString();
             speedUpText.text = "x1";
@@ -154,10 +158,12 @@ namespace ManagerControl
                 SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex));
             speedUpButton.onClick.AddListener(SpeedUp);
 
-            _menuPanelTween = menuPanel.DOScale(new Vector3(1, 1, 1), 0.25f)
-                                       .From(0).SetAutoKill(false)
-                                       .SetEase(Ease.OutBack)
-                                       .SetUpdate(true);
+            _menuPanelTween = menuPanel.DOScale(1, 0.25f)
+                .From(0).SetAutoKill(false)
+                .SetEase(Ease.OutBack)
+                .SetUpdate(true);
+            _notEnoughGoldTween = notEnoughGoldPanel.transform.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBounce)
+                .SetAutoKill(false);
         }
 
         private void GameOverPanelInit()
@@ -238,12 +244,12 @@ namespace ManagerControl
             var towerLevel = towerData[(int)_curSelectedTower.towerTypeEnum];
             var towerLevelData = towerLevel.towerLevels[_curSelectedTower.TowerLevel];
 
-            _sellTowerCoin = GetTowerCoin(_curSelectedTower);
+            _sellTowerGold = GetTowerGold(_curSelectedTower);
 
             towerInfoUI.SetText(_curSelectedTower.TowerLevel.ToString(), towerLevelData.damage.ToString(),
                 towerLevelData.attackRange.ToString(),
                 towerLevelData.attackDelay.ToString(CultureInfo.InvariantCulture),
-                _sellTowerCoin.ToString(),
+                _sellTowerGold.ToString(),
                 towerTierName[_curSelectedTower.TowerLevel] + towerLevel.towerName);
 
             if (_curSelectedTower.TryGetComponent(out TargetingTower targetingTower))
@@ -258,12 +264,18 @@ namespace ManagerControl
 
         private void TowerUpgrade()
         {
+            if (!CheckGold())
+            {
+                notEnoughGoldPanel.transform.DOScale(1, 0.1f).SetEase(Ease.OutBounce);
+                return;
+            }
+
             var tempTower = _curSelectedTower;
             var t = towerData[(int)tempTower.towerTypeEnum];
 
             tempTower.TowerLevelUp();
             var tt = t.towerLevels[tempTower.TowerLevel];
-            DecreaseCoin(tempTower.TowerLevel);
+            DecreaseGold(tempTower.TowerLevel);
 
             ObjectPoolManager.Get(PoolObjectName.BuildSmoke, tempTower.transform.position);
 
@@ -296,7 +308,7 @@ namespace ManagerControl
             ObjectPoolManager.Get(PoolObjectName.BuildSmoke, _curSelectedTower.transform);
             // ObjectPoolManager.Get(PoolObjectName.BuildingPoint, _curSelectedTower.transform);
 
-            IncreaseCoin(_sellTowerCoin);
+            IncreaseGold(_sellTowerGold);
             ResetUI();
         }
 
@@ -318,6 +330,25 @@ namespace ManagerControl
             _towerSelectPanelTween.PlayBackwards();
             OffIndicator();
         }
+
+        public bool CheckGold()
+        {
+            var enoughGold = _towerGold > towerBuildGold[_isTower ? _curSelectedTower.TowerLevel + 1 : 0];
+            if (enoughGold) return true;
+            NotEnoughGoldPrint().Forget();
+            return false;
+        }
+
+        private async UniTaskVoid NotEnoughGoldPrint()
+        {
+            if (_callNotEnoughTween) return;
+            _callNotEnoughTween = true;
+            notEnoughGoldPanel.transform.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBounce);
+            await UniTask.Delay(1000);
+            notEnoughGoldPanel.transform.DOScale(0, 0.2f);
+            _callNotEnoughTween = false;
+        }
+
 
         #region HUD
 
@@ -354,25 +385,25 @@ namespace ManagerControl
             speedUpText.text = "x1";
         }
 
-        public void IncreaseCoin(int amount)
+        public void IncreaseGold(int amount)
         {
-            _towerCoin += amount;
-            coinText.text = _towerCoin.ToString();
+            _towerGold += amount;
+            goldText.text = _towerGold.ToString();
         }
 
-        private void DecreaseCoin(int index)
+        private void DecreaseGold(int index)
         {
-            _towerCoin -= towerBuildCoin[index];
-            coinText.text = _towerCoin.ToString();
+            _towerGold -= towerBuildGold[index];
+            goldText.text = _towerGold.ToString();
         }
 
-        private int GetTowerCoin(Tower tower)
+        private int GetTowerGold(Tower tower)
         {
             var towerLevel = tower.TowerLevel + 1;
             var sum = 0;
             for (var i = 0; i < towerLevel; i++)
             {
-                sum += towerBuildCoin[i];
+                sum += towerBuildGold[i];
             }
 
             return sum;
