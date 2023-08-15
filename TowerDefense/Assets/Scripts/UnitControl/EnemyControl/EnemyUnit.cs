@@ -10,7 +10,7 @@ namespace UnitControl.EnemyControl
     {
         private Animator anim;
         private EnemyAI _enemyAI;
-        private Health _health;
+        private EnemyHealth _health;
         private Collider[] targetCollider;
         private CancellationTokenSource cts;
 
@@ -36,7 +36,7 @@ namespace UnitControl.EnemyControl
         {
             anim = GetComponentInChildren<Animator>();
             _enemyAI = GetComponent<EnemyAI>();
-            _health = GetComponent<Health>();
+            _health = GetComponent<EnemyHealth>();
             targetCollider = new Collider[3];
         }
 
@@ -103,7 +103,7 @@ namespace UnitControl.EnemyControl
 
         protected virtual void Attack()
         {
-            if (Target.TryGetComponent(out Health h))
+            if (Target.TryGetComponent(out UnitHealth h))
             {
                 h.TakeDamage(damage);
             }
@@ -140,5 +140,6 @@ namespace UnitControl.EnemyControl
             damage = attackDamage;
             _health.Init(health);
         }
+
     }
 }

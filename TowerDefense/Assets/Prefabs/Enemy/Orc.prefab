@@ -116,11 +116,11 @@ GameObject:
   - component: {fileID: 7783717427408882829}
   - component: {fileID: 2708912814268590630}
   - component: {fileID: 7750669394422016888}
-  - component: {fileID: 7964928618072184878}
   - component: {fileID: 513591126038657662}
   - component: {fileID: 7907278170578097262}
   - component: {fileID: 6878466653494350823}
   - component: {fileID: 6784675649490158308}
+  - component: {fileID: 207832781509443480}
   m_Layer: 8
   m_Name: Orc
   m_TagString: Enemy
@@ -174,23 +174,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.7, y: 1, z: 0.7}
   m_Center: {x: 0, y: 0.5, z: 0}
---- !u!114 &7964928618072184878
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7444029544577177143}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 99c5ef611137640f29c97f4e7f8bd65d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  isEnemy: 1
-  healthBar: {fileID: 7523184002321304590}
-  curHealth: 0
-  maxHealth: 0
-  disappearTime: 0
 --- !u!114 &513591126038657662
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -249,7 +232,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 558000a852120469fbe16d74920b59c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackRange: 0
   targetLayer:
     serializedVersion: 2
     m_Bits: 512
@@ -267,6 +249,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lifeTime: 0
   dontDestroy: 1
+--- !u!114 &207832781509443480
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7444029544577177143}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96d76ba783f5b4ae28ff5ce4bc83363c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  curHealth: 0
+  maxHealth: 0
+  disappearTime: 0
 --- !u!1001 &8446531050592723847
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -392,15 +389,3 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 8446531050592723847}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &7523184002321304590 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2116600293484507017, guid: b64739a954d264fe4beccf1f08a0242a,
-    type: 3}
-  m_PrefabInstance: {fileID: 8446531050592723847}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 83810fbcacb2e48daa54604e95dc5de7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

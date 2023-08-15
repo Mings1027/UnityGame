@@ -12,7 +12,7 @@ namespace ManagerControl
         {
             Application.targetFrameRate = 60;
             var sources = Resources.LoadAll<GameObject>("Prefabs");
-            for (int i = 0; i < sources.Length; i++)
+            for (var i = 0; i < sources.Length; i++)
             {
                 Instantiate(sources[i]);
             }

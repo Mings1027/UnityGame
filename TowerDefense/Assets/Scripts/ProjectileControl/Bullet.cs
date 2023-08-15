@@ -53,7 +53,7 @@ namespace ProjectileControl
 
         protected virtual void BulletHit(Component other)
         {
-            if (other.TryGetComponent(out Health h))
+            if (other.TryGetComponent(out EnemyHealth h))
             {
                 h.TakeDamage(_damage);
             }

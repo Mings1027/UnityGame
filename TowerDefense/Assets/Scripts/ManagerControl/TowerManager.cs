@@ -19,7 +19,6 @@ namespace ManagerControl
     {
         //  Tower Buttons
         private Sequence _showTowerBtnSequence;
-
         private bool _isShowTowerBtn;
 
         //  Tower Panel
@@ -384,13 +383,7 @@ namespace ManagerControl
             Time.timeScale = 1f;
             speedUpText.text = "x1";
         }
-
-        public void IncreaseGold(int amount)
-        {
-            _towerGold += amount;
-            goldText.text = _towerGold.ToString();
-        }
-
+        
         private void DecreaseGold(int index)
         {
             _towerGold -= towerBuildGold[index];
@@ -407,6 +400,12 @@ namespace ManagerControl
             }
 
             return sum;
+        }
+
+        public void IncreaseGold(int amount)
+        {
+            _towerGold += amount;
+            goldText.text = _towerGold.ToString();
         }
 
         public void DecreaseLifeCount()

@@ -11,11 +11,11 @@ GameObject:
   - component: {fileID: 2229903641968422214}
   - component: {fileID: -2128745275332548178}
   - component: {fileID: 1835371815948372651}
-  - component: {fileID: 7163454974743656566}
   - component: {fileID: -4747944058146755768}
   - component: {fileID: 3531947632296585881}
   - component: {fileID: 1682816916621831720}
   - component: {fileID: -8099749830417582750}
+  - component: {fileID: -1596177289262035391}
   m_Layer: 8
   m_Name: ArmoredOrc
   m_TagString: Enemy
@@ -69,23 +69,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.7, y: 1, z: 0.7}
   m_Center: {x: 0, y: 0.5, z: 0}
---- !u!114 &7163454974743656566
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1565534273846441980}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 99c5ef611137640f29c97f4e7f8bd65d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  isEnemy: 1
-  healthBar: {fileID: 5742491084044257323}
-  curHealth: 0
-  maxHealth: 0
-  disappearTime: 0
 --- !u!114 &-4747944058146755768
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -144,7 +127,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 558000a852120469fbe16d74920b59c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackRange: 0
   targetLayer:
     serializedVersion: 2
     m_Bits: 512
@@ -162,6 +144,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lifeTime: 0
   dontDestroy: 1
+--- !u!114 &-1596177289262035391
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1565534273846441980}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96d76ba783f5b4ae28ff5ce4bc83363c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  healthBar: {fileID: 0}
+  curHealth: 0
+  maxHealth: 0
+  disappearTime: 0
 --- !u!1 &7508677884890025765
 GameObject:
   m_ObjectHideFlags: 0
@@ -386,18 +384,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b64739a954d264fe4beccf1f08a0242a, type: 3}
---- !u!114 &5742491084044257323 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2116600293484507017, guid: b64739a954d264fe4beccf1f08a0242a,
-    type: 3}
-  m_PrefabInstance: {fileID: 5975927026311227298}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 83810fbcacb2e48daa54604e95dc5de7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!224 &6945782510741590141 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3641900902776862687, guid: b64739a954d264fe4beccf1f08a0242a,

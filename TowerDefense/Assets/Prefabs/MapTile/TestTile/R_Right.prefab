@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 8410718614943349879}
   - component: {fileID: 1216470377278685632}
   m_Layer: 12
-  m_Name: NotRoadCollider
-  m_TagString: NotRoad
+  m_Name: PlacementTile
+  m_TagString: Placement
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
@@ -43,8 +43,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 18, y: 1, z: 6}
-  m_Center: {x: 0, y: 0, z: 6}
+  m_Size: {x: 18, y: 0, z: 6}
+  m_Center: {x: 0, y: 0.5, z: 6}
 --- !u!1 &2200619137849376913
 GameObject:
   m_ObjectHideFlags: 0
@@ -139,8 +139,8 @@ GameObject:
   - component: {fileID: 5412784736910810930}
   - component: {fileID: 3406751369367151237}
   m_Layer: 12
-  m_Name: NotRoadCollider (2)
-  m_TagString: NotRoad
+  m_Name: PlacementTile_2
+  m_TagString: Placement
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
@@ -171,8 +171,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 6, y: 1, z: 6}
-  m_Center: {x: 6, y: 0, z: -6}
+  m_Size: {x: 6, y: 0, z: 6}
+  m_Center: {x: 6, y: 0.5, z: -6}
 --- !u!1 &4017861217671263616
 GameObject:
   m_ObjectHideFlags: 0
@@ -184,8 +184,8 @@ GameObject:
   - component: {fileID: 6156482187790898508}
   - component: {fileID: 3542383155690744059}
   m_Layer: 12
-  m_Name: NotRoadCollider (1)
-  m_TagString: NotRoad
+  m_Name: PlacementTile_1
+  m_TagString: Placement
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 2147483647
@@ -216,8 +216,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 6, y: 1, z: 12}
-  m_Center: {x: -6, y: 0, z: -3}
+  m_Size: {x: 6, y: 0, z: 12}
+  m_Center: {x: -6, y: 0.5, z: -3}
 --- !u!1 &4875811574713139041
 GameObject:
   m_ObjectHideFlags: 0
@@ -363,8 +363,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 18, y: 0.2, z: 18}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 18, y: 0, z: 18}
+  m_Center: {x: 0, y: 0.1, z: 0}
 --- !u!114 &70304977723323710
 MonoBehaviour:
   m_ObjectHideFlags: 0

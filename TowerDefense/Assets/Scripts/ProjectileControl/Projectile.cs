@@ -13,6 +13,7 @@ namespace ProjectileControl
 
         protected Transform target;
         protected Vector3 targetEndPos;
+        private SphereCollider sphereCollider;
         private MeshRenderer _meshRenderer;
         private ParticleSystem _particle;
         private int _damage;
@@ -24,6 +25,7 @@ namespace ProjectileControl
         protected virtual void Awake()
         {
             _rigid = GetComponent<Rigidbody>();
+            sphereCollider = GetComponent<SphereCollider>();
             _meshRenderer = transform.GetChild(0).GetComponent<MeshRenderer>();
             _particle = transform.GetChild(1).GetComponent<ParticleSystem>();
         }
@@ -32,6 +34,7 @@ namespace ProjectileControl
         {
             _lerp = 0;
             _startPos = transform.position;
+            sphereCollider.enabled = true;
             _meshRenderer.enabled = true;
         }
 
@@ -41,6 +44,7 @@ namespace ProjectileControl
         {
             if (other.CompareTag(tagName))
             {
+                sphereCollider.enabled = false;
                 ProjectileHit(other);
             }
 
@@ -66,7 +70,7 @@ namespace ProjectileControl
 
         protected void Damaging(Collider col)
         {
-            if (col.TryGetComponent(out Health h))
+            if (col.TryGetComponent(out EnemyHealth h))
             {
                 h.TakeDamage(_damage);
             }

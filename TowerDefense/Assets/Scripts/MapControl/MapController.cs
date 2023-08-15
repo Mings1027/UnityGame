@@ -168,18 +168,15 @@ namespace MapControl
 
             SetNewMapForward(newMapPos);
 
-            CheckButtonPlacement(newMapPos);
+            SetButtonsPosition(newMapPos);
+
+            SetWayPoints();
 
             DisableExpandButtons();
 
             CombineMesh();
 
-            AddWayPoints();
-
             WaveManager.Instance.StartWave(_wayPoints);
-           
-            if (_map.Count >= mapCount) return;
-            PlaceExpandButtons();
         }
 
         private void InitAdjacentState()
@@ -295,7 +292,7 @@ namespace MapControl
             _newMapObject.transform.forward = _newMapForward;
         }
 
-        private void CheckButtonPlacement(Vector3 newMapPos)
+        private void SetButtonsPosition(Vector3 newMapPos)
         {
             _expandButtonPosHashSet.RemoveWhere(p => p == newMapPos);
             _newMapObject.TryGetComponent(out MapData mapData);
@@ -315,28 +312,7 @@ namespace MapControl
             }
         }
 
-        //Call When Wave is over
-        private void PlaceExpandButtons()
-        {
-            _expandButtonPosList.Clear();
-            _expandButtonPosList = _expandButtonPosHashSet.ToList();
-
-            for (int i = 0; i < _expandButtonPosList.Count; i++)
-            {
-                _expandButtons[i].transform.position = _expandButtonPosList[i];
-                _expandButtons[i].gameObject.SetActive(true);
-            }
-        }
-
-        private void DisableExpandButtons()
-        {
-            for (var i = 0; i < _expandButtonPosList.Count; i++)
-            {
-                if (_expandButtons[i].gameObject.activeSelf) _expandButtons[i].gameObject.SetActive(false);
-            }
-        }
-
-        private void AddWayPoints()
+        private void SetWayPoints()
         {
             _newMapObject.TryGetComponent(out MapData mapData);
 
@@ -359,23 +335,25 @@ namespace MapControl
             }
         }
 
-        private bool CanAddToList(Vector3 point)
+        //Call When Wave is over
+        private void PlaceExpandButtons()
         {
-            _newMapPosition = _newMapObject.transform.position;
-            _dirToWayPoint = (point - _newMapPosition).normalized;
-            if (_dirToWayPoint == Vector3.zero) return false;
-            var ray = new Ray(_newMapPosition, _dirToWayPoint);
-            if (!Physics.SphereCast(ray, 2, mapSize, groundLayer))
-            {
-                var finalPos = _newMapPosition + _dirToWayPoint * mapSize;
-                if ((finalPos.x >= -maxMapWidth && finalPos.x <= maxMapWidth) ||
-                    (finalPos.z >= -maxMapHeight && finalPos.z <= maxMapHeight))
-                {
-                    return true;
-                }
-            }
+            _expandButtonPosList.Clear();
+            _expandButtonPosList = _expandButtonPosHashSet.ToList();
 
-            return false;
+            for (int i = 0; i < _expandButtonPosList.Count; i++)
+            {
+                _expandButtons[i].transform.position = _expandButtonPosList[i];
+                _expandButtons[i].gameObject.SetActive(true);
+            }
+        }
+
+        private void DisableExpandButtons()
+        {
+            for (var i = 0; i < _expandButtonPosList.Count; i++)
+            {
+                if (_expandButtons[i].gameObject.activeSelf) _expandButtons[i].gameObject.SetActive(false);
+            }
         }
 
         private void CombineMesh()
@@ -416,6 +394,19 @@ namespace MapControl
             AssetDatabase.CreateAsset(_meshFilter.mesh, AssetDatabase.GenerateUniqueAssetPath(path));
             AssetDatabase.SaveAssets();
 #endif
+        }
+
+        private bool CanAddToList(Vector3 point)
+        {
+            _newMapPosition = _newMapObject.transform.position;
+            _dirToWayPoint = (point - _newMapPosition).normalized;
+            if (_dirToWayPoint == Vector3.zero) return false;
+            var ray = new Ray(_newMapPosition, _dirToWayPoint);
+            if (Physics.SphereCast(ray, 2, mapSize, groundLayer)) return false;
+
+            var finalPos = _newMapPosition + _dirToWayPoint * mapSize;
+            return (finalPos.x >= -maxMapWidth && finalPos.x <= maxMapWidth) ||
+                   (finalPos.z >= -maxMapHeight && finalPos.z <= maxMapHeight);
         }
     }
 }

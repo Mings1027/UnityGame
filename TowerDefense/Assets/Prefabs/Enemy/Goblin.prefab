@@ -116,11 +116,11 @@ GameObject:
   - component: {fileID: 5476434631497530526}
   - component: {fileID: 877372810}
   - component: {fileID: 5443318359757413235}
-  - component: {fileID: 2135345923971180286}
   - component: {fileID: 270471490450318254}
   - component: {fileID: 1275403297}
   - component: {fileID: 563516386315017436}
   - component: {fileID: 5505562832261564001}
+  - component: {fileID: -8827860696667863715}
   m_Layer: 8
   m_Name: Goblin
   m_TagString: Enemy
@@ -174,23 +174,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 0.5, y: 0.7, z: 0.5}
   m_Center: {x: 0, y: 0.35, z: 0}
---- !u!114 &2135345923971180286
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5137451470882268708}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 99c5ef611137640f29c97f4e7f8bd65d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  isEnemy: 1
-  healthBar: {fileID: 6256944596318365501}
-  curHealth: 0
-  maxHealth: 0
-  disappearTime: 0
 --- !u!114 &270471490450318254
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -249,7 +232,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 558000a852120469fbe16d74920b59c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackRange: 0
   targetLayer:
     serializedVersion: 2
     m_Bits: 512
@@ -267,6 +249,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lifeTime: 0
   dontDestroy: 1
+--- !u!114 &-8827860696667863715
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5137451470882268708}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96d76ba783f5b4ae28ff5ce4bc83363c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  curHealth: 0
+  maxHealth: 0
+  disappearTime: 0
 --- !u!1001 &5443318358847686836
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -401,18 +398,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b64739a954d264fe4beccf1f08a0242a, type: 3}
---- !u!114 &6256944596318365501 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2116600293484507017, guid: b64739a954d264fe4beccf1f08a0242a,
-    type: 3}
-  m_PrefabInstance: {fileID: 5443318358847686836}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 83810fbcacb2e48daa54604e95dc5de7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!224 &8719017971328679787 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3641900902776862687, guid: b64739a954d264fe4beccf1f08a0242a,

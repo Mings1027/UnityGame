@@ -116,11 +116,11 @@ GameObject:
   - component: {fileID: 9027784561054606569}
   - component: {fileID: 6657030392791238323}
   - component: {fileID: 8846084823955473152}
-  - component: {fileID: 5013642509331221500}
   - component: {fileID: -9180215901456976174}
   - component: {fileID: -176754651313601381}
   - component: {fileID: 3928924965633840016}
   - component: {fileID: 3689382510746105214}
+  - component: {fileID: -7080144855764388378}
   m_Layer: 8
   m_Name: Ooogie
   m_TagString: Enemy
@@ -174,23 +174,6 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1.5, y: 2, z: 0.7}
   m_Center: {x: 0, y: 1, z: 0}
---- !u!114 &5013642509331221500
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8503625774716829267}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 99c5ef611137640f29c97f4e7f8bd65d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  isEnemy: 1
-  healthBar: {fileID: 4409169565633767282}
-  curHealth: 0
-  maxHealth: 0
-  disappearTime: 0
 --- !u!114 &-9180215901456976174
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -249,7 +232,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 558000a852120469fbe16d74920b59c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackRange: 0
   targetLayer:
     serializedVersion: 2
     m_Bits: 512
@@ -267,6 +249,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lifeTime: 0
   dontDestroy: 1
+--- !u!114 &-7080144855764388378
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8503625774716829267}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 96d76ba783f5b4ae28ff5ce4bc83363c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  curHealth: 0
+  maxHealth: 0
+  disappearTime: 0
 --- !u!1001 &2337131378932566267
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -392,15 +389,3 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 2337131378932566267}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &4409169565633767282 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2116600293484507017, guid: b64739a954d264fe4beccf1f08a0242a,
-    type: 3}
-  m_PrefabInstance: {fileID: 2337131378932566267}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 83810fbcacb2e48daa54604e95dc5de7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

@@ -80,7 +80,7 @@ namespace ManagerControl
                     if (waves[j].startSpawnWave <= _curWave)
                     {
                         var enemyUnit = ObjectPoolManager.Get<EnemyUnit>(waves[j].enemyName, wayPointsArray[i]);
-                        var enemyHealth = enemyUnit.GetComponent<Health>();
+                        var enemyHealth = enemyUnit.GetComponent<EnemyHealth>();
                         enemyHealth.OnDeadEvent += DeadEnemy;
 
                         var waveIndex = j;

@@ -5,17 +5,20 @@ using UnityEngine;
 
 namespace GameControl
 {
-    public class Health : MonoBehaviour
+    public class UnitHealth : MonoBehaviour
     {
         private CancellationTokenSource _cts;
+        private HealthBar healthBar;
 
         public bool IsDead { get; private set; }
-        public event Action OnDeadEvent, OnIncreaseCoinEvent, OnDecreaseLifeCountEvent;
 
-        [SerializeField] private bool isEnemy;
-        [SerializeField] private HealthBar healthBar;
         [SerializeField] private float curHealth, maxHealth;
         [SerializeField] private float disappearTime;
+
+        private void Awake()
+        {
+            healthBar = GetComponentInChildren<HealthBar>();
+        }
 
         private void OnEnable()
         {
@@ -28,21 +31,6 @@ namespace GameControl
         private void OnDisable()
         {
             _cts?.Cancel();
-
-            if (!isEnemy) return;
-            OnDeadEvent?.Invoke();
-            if (curHealth > 0)
-            {
-                OnDecreaseLifeCountEvent?.Invoke();
-            }
-            else
-            {
-                OnIncreaseCoinEvent?.Invoke();
-            }
-
-            OnDeadEvent = null;
-            OnDecreaseLifeCountEvent = null;
-            OnIncreaseCoinEvent = null;
         }
 
         public void Init(float healthValue)

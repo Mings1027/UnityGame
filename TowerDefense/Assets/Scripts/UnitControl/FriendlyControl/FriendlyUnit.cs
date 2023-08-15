@@ -14,7 +14,7 @@ namespace UnitControl.FriendlyControl
     {
         private Animator _anim;
         private Rigidbody _rigid;
-        private Health _health;
+        private UnitHealth unitHealth;
         private Collider[] _targetColliders;
         private CancellationTokenSource cts;
 
@@ -45,7 +45,7 @@ namespace UnitControl.FriendlyControl
         private void Awake()
         {
             _anim = GetComponentInChildren<Animator>();
-            _health = GetComponent<Health>();
+            unitHealth = GetComponent<UnitHealth>();
             _rigid = GetComponent<Rigidbody>();
             _targetColliders = new Collider[2];
         }
@@ -103,7 +103,7 @@ namespace UnitControl.FriendlyControl
 
         protected virtual void Attack()
         {
-            if (target.TryGetComponent(out Health h))
+            if (target.TryGetComponent(out EnemyHealth h))
             {
                 h.TakeDamage(_damage);
             }
@@ -161,7 +161,7 @@ namespace UnitControl.FriendlyControl
         {
             _damage = damage;
             _atkDelay = attackDelay;
-            _health.Init(health);
+            unitHealth.Init(health);
         }
     }
 }

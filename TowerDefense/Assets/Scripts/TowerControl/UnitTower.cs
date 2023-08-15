@@ -129,7 +129,7 @@ namespace TowerControl
         private void UnitReSpawn(FriendlyUnit u)
         {
             if (isSold) return;
-            if (u.GetComponent<Health>().IsDead)
+            if (u.GetComponent<UnitHealth>().IsDead)
             {
                 _deadUnitCount++;
             }
