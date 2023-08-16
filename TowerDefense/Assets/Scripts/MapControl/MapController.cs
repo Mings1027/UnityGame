@@ -1,11 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
-using Cysharp.Threading.Tasks;
+using DataControl;
 using GameControl;
 using ManagerControl;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
 namespace MapControl
@@ -34,7 +33,7 @@ namespace MapControl
         private HashSet<Vector3> _expandButtonPosHashSet;
         private List<Vector3> _expandButtonPosList;
 
-        private Button[] _expandButtons;
+        private List<ExpandMapButton> _expandButtons;
 
         private MapData[] _neighborMapArray;
 
@@ -94,7 +93,7 @@ namespace MapControl
 
             _expandButtonPosHashSet = new HashSet<Vector3>();
             _expandButtonPosList = new List<Vector3>();
-            _expandButtons = new Button[40];
+            _expandButtons = new List<ExpandMapButton>(50);
             _neighborMapArray = new MapData[4];
             _isNullMapArray = new bool[4];
             _isConnectedArray = new bool[4];
@@ -118,11 +117,11 @@ namespace MapControl
 
         private void Start()
         {
-            for (var i = 0; i < 40; i++)
-            {
-                _expandButtons[i] = Instantiate(expandBtn, expandBtnParent).GetComponent<Button>();
-                _expandButtons[i].gameObject.SetActive(false);
-            }
+            // for (var i = 0; i < 40; i++)
+            // {
+            //     _expandButtons[i] = Instantiate(expandBtn, expandBtnParent).GetComponent<ExpandMapButton>();
+            //     _expandButtons[i].gameObject.SetActive(false);
+            // }
 
             PlaceStartMap();
             WaveManager.Instance.OnPlaceExpandBtnEvent += PlaceExpandButtons;
@@ -338,13 +337,15 @@ namespace MapControl
         //Call When Wave is over
         private void PlaceExpandButtons()
         {
+            if (_map.Count > mapCount) return;
             _expandButtonPosList.Clear();
+            _expandButtons.Clear();
             _expandButtonPosList = _expandButtonPosHashSet.ToList();
 
             for (int i = 0; i < _expandButtonPosList.Count; i++)
             {
-                _expandButtons[i].transform.position = _expandButtonPosList[i];
-                _expandButtons[i].gameObject.SetActive(true);
+                _expandButtons.Add(ObjectPoolManager.GetUI<ExpandMapButton>(PoolObjectName.ExpandButton));
+                _expandButtons[i].targetPos = _expandButtonPosList[i];
             }
         }
 

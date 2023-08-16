@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace GameControl
 {
-    public class ObjectPoolManager : MonoBehaviour
+    public class ObjectPoolManager : Singleton<ObjectPoolManager>
     {
         [Serializable]
         public class Pool : IComparable<Pool>
@@ -20,22 +20,39 @@ namespace GameControl
             }
         }
 
+        [Serializable]
+        public class UIPool
+        {
+            public string tag;
+            public GameObject prefab;
+            public int size;
+        }
+
         private static ObjectPoolManager _inst;
         private Dictionary<string, Stack<GameObject>> _poolDictionary;
+        private Transform canvasForUIPool;
+
 
         private readonly string _info = " 오브젝트에 다음을 적으세요 \nvoid OnDisable()\n{\n" +
                                         "    ObjectPooling.ReturnToPool(gameObject);    // 한 객체에 한번만 \n" +
                                         "    CancelInvoke();    // Mono behaviour에 Invoke가 있다면 \n}";
 
         [SerializeField] private Pool[] pools;
+        [SerializeField] private UIPool[] uiPools;
 
         private void Awake()
         {
             Array.Sort(pools);
 
             _inst = this;
-            // _inst = Instance;
             _poolDictionary = new Dictionary<string, Stack<GameObject>>();
+            canvasForUIPool = transform.GetChild(0);
+            PoolInit();
+            UIPoolInit();
+        }
+
+        private void PoolInit()
+        {
             //미리 생성
             for (var i = 0; i < pools.Length; i++)
             {
@@ -54,32 +71,21 @@ namespace GameControl
             }
         }
 
-        private GameObject CreateNewObject(string objTag, GameObject prefab)
+        private void UIPoolInit()
         {
-            var obj = Instantiate(prefab, transform);
-            obj.name = objTag;
-            obj.SetActive(false);
-            return obj;
-        }
-
-        private void SortObject(GameObject obj)
-        {
-            var isFind = false;
-            for (var i = 0; i < transform.childCount; i++)
+            for (int i = 0; i < uiPools.Length; i++)
             {
-                if (i == transform.childCount - 1)
+                var uiPool = uiPools[i];
+                _poolDictionary.Add(uiPool.tag, new Stack<GameObject>());
+                for (int j = 0; j < uiPool.size; j++)
                 {
-                    obj.transform.SetSiblingIndex(i);
-                    break;
+                    CreateUIObject(uiPool.tag, uiPool.prefab);
                 }
 
-                if (transform.GetChild(i).name == obj.name)
-                    isFind = true;
-                else if (isFind)
-                {
-                    obj.transform.SetSiblingIndex(i);
-                    break;
-                }
+                if (_poolDictionary[uiPool.tag].Count <= 0)
+                    print($"{uiPool.tag}{_info}");
+                else if (_poolDictionary[uiPool.tag].Count != uiPool.size)
+                    print($"{uiPool.tag}에 ReturnToPool이 중복됩니다.");
             }
         }
 
@@ -116,6 +122,23 @@ namespace GameControl
             throw new Exception("Component not found");
         }
 
+        public static GameObject GetUI(string tag) => _inst.UISpawn(tag);
+
+        public static T GetUI<T>(string tag)
+        {
+            var obj = _inst.UISpawn(tag);
+            if (obj.TryGetComponent(out T component)) return component;
+            obj.SetActive(false);
+            throw new Exception("Component not found");
+        }
+
+        public static void ReturnToPool(GameObject obj)
+        {
+            if (!_inst._poolDictionary.ContainsKey(obj.name))
+                throw new Exception($"Pool with tag {obj.name} doesn't exist.");
+            _inst._poolDictionary[obj.name].Push(obj);
+        }
+
         private GameObject Spawn(string objTag, Vector3 position, Quaternion rotation)
         {
             if (!_poolDictionary.ContainsKey(objTag))
@@ -142,6 +165,26 @@ namespace GameControl
             return poolObj;
         }
 
+        private GameObject UISpawn(string objTag)
+        {
+            if (!_poolDictionary.ContainsKey(objTag))
+                throw new Exception($"Pool with tag {objTag} doesn't exist.");
+
+            //스택에 없으면 새로 추가
+            var poolStack = _poolDictionary[objTag];
+            if (poolStack.Count <= 0)
+            {
+                var uiPool = GetUIPoolWithTag(objTag);
+                if (uiPool == null)
+                    throw new Exception($"Pool with tag {objTag} doesn't exist.");
+                CreateUIObject(uiPool.tag, uiPool.prefab);
+            }
+
+            var uiPoolObj = poolStack.Pop();
+            uiPoolObj.SetActive(true);
+            return uiPoolObj;
+        }
+
         private Pool GetPoolWithTag(string objTag)
         {
             for (var i = 0; i < pools.Length; i++)
@@ -155,11 +198,53 @@ namespace GameControl
             return null;
         }
 
-        public static void ReturnToPool(GameObject obj)
+        private UIPool GetUIPoolWithTag(string objTag)
         {
-            if (!_inst._poolDictionary.ContainsKey(obj.name))
-                throw new Exception($"Pool with tag {obj.name} doesn't exist.");
-            _inst._poolDictionary[obj.name].Push(obj);
+            for (var i = 0; i < uiPools.Length; i++)
+            {
+                if (uiPools[i].tag == objTag)
+                {
+                    return uiPools[i];
+                }
+            }
+
+            return null;
+        }
+
+        private GameObject CreateNewObject(string objTag, GameObject prefab)
+        {
+            var obj = Instantiate(prefab, transform);
+            obj.name = objTag;
+            obj.SetActive(false);
+            return obj;
+        }
+
+        private void CreateUIObject(string objTag, GameObject prefab)
+        {
+            var obj = Instantiate(prefab, canvasForUIPool);
+            obj.name = objTag;
+            obj.SetActive(false);
+        }
+
+        private void SortObject(GameObject obj)
+        {
+            var isFind = false;
+            for (var i = 0; i < transform.childCount; i++)
+            {
+                if (i == transform.childCount - 1)
+                {
+                    obj.transform.SetSiblingIndex(i);
+                    break;
+                }
+
+                if (transform.GetChild(i).name == obj.name)
+                    isFind = true;
+                else if (isFind)
+                {
+                    obj.transform.SetSiblingIndex(i);
+                    break;
+                }
+            }
         }
     }
 }

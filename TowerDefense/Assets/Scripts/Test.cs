@@ -9,31 +9,29 @@ using UnityEngine.EventSystems;
 public class Test : MonoBehaviour
 {
     private Camera cam;
-    private RaycastHit hit;
-    [SerializeField] private LayerMask groundLayer;
+
+    [SerializeField] private List<Vector3> testList;
 
     private void Awake()
     {
         cam = Camera.main;
+        testList = new List<Vector3>();
     }
 
-    private void Update()
+    private void Start()
     {
-        var ray = cam.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out hit, Mathf.Infinity))
-        {
-            if (hit.collider.CompareTag("Ground"))
-            {
-                print(hit.collider);
-            }
-        }
+        testList.Add(Vector3.up);
+        testList.Add(Vector3.right);
+        testList.Add(Vector3.left);
+        testList.Add(Vector3.down);
 
-        print(Physics.Raycast(ray, out hit, Mathf.Infinity, groundLayer));
+        testList.Remove(Vector3.right);
     }
+
+    
 
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.red;
-        Gizmos.DrawSphere(hit.point, 1);
+        
     }
 }
