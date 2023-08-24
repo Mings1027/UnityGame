@@ -1,46 +1,73 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using DataControl;
 using GameControl;
-using UnitControl;
 using UnitControl.FriendlyControl;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace TowerControl
 {
     public class UnitTower : Tower
     {
+        private enum UnitType
+        {
+            AssassinUnit,
+            DefenderUnit
+        }
+
         private int _deadUnitCount;
+        private string unitTypeName;
         private CancellationTokenSource _cts;
         private Vector3[] _spawnDirections;
-
-        private Vector3 _curPos;
         private Vector3 _unitSpawnPosition;
 
-        [SerializeField] private FriendlyUnit[] units;
+        private FriendlyUnit[] units;
 
+        [SerializeField] private UnitType unitType;
         [SerializeField] private float maxDistance;
         [SerializeField] private float[] unitHealth;
 
         /*=========================================================================================================================================
         *                                               Unity Event
         =========================================================================================================================================*/
+        protected override void Awake()
+        {
+            base.Awake();
+            units = new FriendlyUnit[3];
+            unitTypeName = unitType.ToString();
+        }
+
         protected override void OnEnable()
         {
             base.OnEnable();
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
+            _deadUnitCount = 0;
         }
 
         protected override void OnDisable()
         {
             base.OnDisable();
             _cts?.Cancel();
-            for (var i = 0; i < units.Length; i++)
-            {
-                units[i].transform.position = Vector3.zero;
-            }
+            if (!isSpawn) return;
 
             isSpawn = false;
+
+            for (var i = 0; i < units.Length; i++)
+            {
+                units[i].gameObject.SetActive(false);
+                units[i] = null;
+            }
+        }
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.cyan;
+            for (var i = 0; i < _spawnDirections.Length; i++)
+            {
+                Gizmos.DrawSphere(transform.position + _spawnDirections[i] * maxDistance, 0.5f);
+            }
         }
 
         /*=========================================================================================================================================
@@ -80,31 +107,21 @@ namespace TowerControl
                     if (hit.collider.CompareTag("Ground"))
                     {
                         _unitSpawnPosition = hit.point;
-                        for (var i = 0; i < units.Length; i++)
-                        {
-                            units[i].OnDeadEvent += UnitReSpawn;
-                            UnitSpawnTest(units[i]).Forget();
-                        }
-
+                        UnitSpawn();
                         break;
                     }
                 }
-            }
-        }
 
-        private async UniTaskVoid UnitSpawnTest(Component unit)
-        {
-            var firstPos = transform.position;
-            var secondPos = (_unitSpawnPosition + firstPos) * 1f + new Vector3(0, 5, 0);
-            float lerp = 0;
-            while (lerp < 1)
-            {
-                lerp += Time.deltaTime;
-                firstPos = Vector3.Lerp(firstPos, secondPos, lerp);
-                secondPos = Vector3.Lerp(secondPos, _unitSpawnPosition, lerp);
-                _curPos = Vector3.Lerp(firstPos, secondPos, lerp);
-                unit.transform.position = _curPos;
-                await UniTask.Yield();
+                if (Physics.Raycast(transform.position + dir * maxDistance * 2 + Vector3.up, Vector3.down,
+                        out var secondHit))
+                {
+                    if (secondHit.collider.CompareTag("Ground"))
+                    {
+                        _unitSpawnPosition = secondHit.point;
+                        UnitSpawn();
+                        break;
+                    }
+                }
             }
         }
 
@@ -122,6 +139,9 @@ namespace TowerControl
         {
             for (var i = 0; i < units.Length; i++)
             {
+                touchPos = new Vector3(touchPos.x + Random.insideUnitCircle.x, 0,
+                    touchPos.z + Random.insideUnitCircle.y);
+
                 units[i].MoveToTouchPos(touchPos);
             }
         }
@@ -129,10 +149,8 @@ namespace TowerControl
         private void UnitReSpawn(FriendlyUnit u)
         {
             if (isSold) return;
-            if (u.GetComponent<UnitHealth>().IsDead)
-            {
-                _deadUnitCount++;
-            }
+
+            _deadUnitCount++;
 
             if (_deadUnitCount < 3) return;
             _deadUnitCount = 0;
@@ -143,16 +161,21 @@ namespace TowerControl
         {
             await UniTask.Delay(5000, cancellationToken: _cts.Token);
 
+            UnitSpawn();
+        }
+
+        private void UnitSpawn()
+        {
             for (var i = 0; i < units.Length; i++)
             {
-                units[i].transform.position = transform.position;
-                units[i].gameObject.SetActive(true);
+                units[i] = null;
+                var ranPos = new Vector3(_unitSpawnPosition.x + Random.insideUnitCircle.x, 0,
+                    _unitSpawnPosition.z + Random.insideUnitCircle.y);
+                units[i] = ObjectPoolManager.Get<FriendlyUnit>(unitTypeName, ranPos);
+                units[i].OnDeadEvent += UnitReSpawn;
             }
 
-            for (var i = 0; i < units.Length; i++)
-            {
-                units[i].MoveToTouchPos(_unitSpawnPosition);
-            }
+            ObjectPoolManager.Get(PoolObjectName.UnitSpawnSmoke, _unitSpawnPosition);
         }
     }
 }

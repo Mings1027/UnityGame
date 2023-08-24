@@ -1,4 +1,3 @@
-using Cysharp.Threading.Tasks;
 using DataControl;
 using GameControl;
 using ProjectileControl;
@@ -10,16 +9,16 @@ namespace TowerControl
     {
         private int _archerCount;
         private Vector3 _targetDirection;
-        private Transform _secondClosestTarget;
+        private int effectsIndex;
 
         [SerializeField] private Transform ballista;
         [SerializeField] private Transform firePos;
         [SerializeField] private float smoothTurnSpeed;
 
-        protected override void OnEnable()
+        protected override void OnDisable()
         {
-            base.OnEnable();
-            onAttackEvent += OneShotAttack;
+            base.OnDisable();
+            effectsIndex = 0;
         }
 
         private void LateUpdate()
@@ -32,18 +31,28 @@ namespace TowerControl
             ballista.rotation = Quaternion.Slerp(ballista.rotation, rotGoal, smoothTurnSpeed);
         }
 
-        protected override void Init()
+        public override void TowerSetting(MeshFilter towerMesh, int damageData, int attackRangeData,
+            float attackDelayData)
         {
-            base.Init();
-            targetColliders = new Collider[5];
+            base.TowerSetting(towerMesh, damageData, attackRangeData, attackDelayData);
+
+            if (TowerLevel != 0 && TowerLevel % 2 == 0)
+            {
+                effectsIndex++;
+            }
         }
 
-        private void OneShotAttack()
+        protected override void Attack()
         {
-            ObjectPoolManager.Get(PoolObjectName.ArrowShootSfx, transform);
+            ObjectPoolManager.Get(PoolObjectName.BallistaShootSfx, transform);
             var bullet = ObjectPoolManager.Get<BallistaProjectile>(PoolObjectName.BallistaProjectile, firePos.position);
             bullet.Init(target, damage);
-        }
 
+            for (int i = 0; i <= effectsIndex; i++)
+            {
+                ObjectPoolManager.Get<FollowProjectile>(PoolObjectName.ballistaVfx[i], transform).target =
+                    bullet.transform;
+            }
+        }
     }
 }

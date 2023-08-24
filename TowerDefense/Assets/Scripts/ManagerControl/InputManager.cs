@@ -71,13 +71,14 @@ namespace ManagerControl
             _isPlacingTower = false;
             _cameraManager.enabled = true;
             _cursorMeshRenderer.enabled = false;
+            placeTowerButton.enabled = false;
             enabled = false;
             _gridPos = Vector3.zero + Vector3.down * 5;
         }
 
         public void StartPlacement(string towerName)
         {
-            if (!_towerManager.CheckGold())
+            if (!_towerManager.EnoughGold())
             {
                 StopPlacement();
                 return;
@@ -87,6 +88,7 @@ namespace ManagerControl
             _isPlacingTower = true;
             _selectedTowerName = towerName;
             _cameraManager.enabled = false;
+            placeTowerButton.enabled = true;
         }
 
         private void GetPlacementPos()

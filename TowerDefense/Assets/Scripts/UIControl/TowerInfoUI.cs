@@ -28,11 +28,11 @@ namespace UIControl
         {
             _cam = Camera.main;
 
-            _levelTxt = "Level :";
+            _levelTxt = "Level : ";
             _damageTxt = "Damage : ";
             _rangeTxt = "Range : ";
             _fireRateTxt = "Fire Rate : ";
-            _sellCoinTxt = "Sell : ";
+            _sellCoinTxt = "Sell";
 
             gameObject.SetActive(false);
         }
@@ -47,24 +47,14 @@ namespace UIControl
             _followTowerPos = towerPos;
         }
 
-        public void SetText(string level, string damage, string range, string delay, string sellCoin,
-            string towerName = "")
+        public void SetTowerInfo(TowerInfo towerInfo)
         {
-            if (string.IsNullOrEmpty(towerName))
-            {
-                towerNameText.gameObject.SetActive(false);
-            }
-            else
-            {
-                towerNameText.gameObject.SetActive(true);
-                towerNameText.text = towerName;
-            }
-
-            levelText.text = _levelTxt + level;
-            damageText.text = _damageTxt + damage;
-            attackRangeText.text = _rangeTxt + range;
-            attackDelayText.text = _fireRateTxt + delay;
-            sellCoinText.text = _sellCoinTxt + sellCoin;
+            towerNameText.text = towerInfo.towerName;
+            levelText.text = _levelTxt + towerInfo.level;
+            damageText.text = _damageTxt + towerInfo.damage;
+            attackRangeText.text = _rangeTxt + towerInfo.range;
+            attackDelayText.text = _fireRateTxt + towerInfo.delay;
+            sellCoinText.text = _sellCoinTxt + "(" + towerInfo.sellCoin + "g)";
         }
     }
 }

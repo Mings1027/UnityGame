@@ -1,5 +1,6 @@
 using DataControl;
 using GameControl;
+using InterfaceControl;
 using UnityEngine;
 
 namespace ProjectileControl
@@ -14,9 +15,14 @@ namespace ProjectileControl
         protected override void ProjectileHit(Collider col)
         {
             var pos = transform.position;
-            // ObjectPoolManager.Get(PoolObjectName.ArrowHitVFX, pos);
-            ObjectPoolManager.Get(PoolObjectName.ArrowHitSfx, pos);
-            Damaging(col);
+            ObjectPoolManager.Get(PoolObjectName.BallistaHitSfx, pos);
+            ApplyDamage(col);
+        }
+        
+        public void Init(Transform t, int dmg)
+        {
+            target = t;
+            damage = dmg;
         }
     }
 }

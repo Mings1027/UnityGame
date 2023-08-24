@@ -2,30 +2,31 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using GameControl;
+using ManagerControl;
+using StatusControl;
+using TowerControl;
 using UnityEngine;
 
 namespace UnitControl.EnemyControl
 {
-    public abstract class EnemyUnit : MonoBehaviour
+    public class EnemyUnit : MonoBehaviour
     {
-        private Animator anim;
+        private Animator _anim;
+        private Rigidbody rigid;
         private EnemyAI _enemyAI;
-        private EnemyHealth _health;
         private Collider[] targetCollider;
         private CancellationTokenSource cts;
+        private AttackPoint attackPoint;
+        private Transform target;
+        private Transform t;
 
-        private bool isCoolingDown;
-        private bool _isSpeedDeBuffed;
+        private bool isAttack;
+        private bool _isTargeting;
+        private int _attackRange;
+        private float _atkDelay;
 
         private static readonly int IsWalk = Animator.StringToHash("isWalk");
         private static readonly int IsAttack = Animator.StringToHash("isAttack");
-
-        protected Transform Target { get; private set; }
-        protected int damage;
-
-        private bool isTargeting;
-        private int _attackRange;
-        private float _atkDelay;
 
         [SerializeField] private LayerMask targetLayer;
 /*==============================================================================================================================================
@@ -34,25 +35,34 @@ namespace UnitControl.EnemyControl
 
         private void Awake()
         {
-            anim = GetComponentInChildren<Animator>();
+            _anim = GetComponentInChildren<Animator>();
+            rigid = GetComponent<Rigidbody>();
             _enemyAI = GetComponent<EnemyAI>();
-            _health = GetComponent<EnemyHealth>();
             targetCollider = new Collider[3];
+            attackPoint = GetComponentInChildren<AttackPoint>();
+            t = transform;
+            attackPoint.gameObject.SetActive(false);
         }
 
         private void OnEnable()
         {
             cts?.Dispose();
             cts = new CancellationTokenSource();
-            isCoolingDown = true;
-            Target = null;
-            isTargeting = false;
+            target = null;
+            _isTargeting = false;
+            isAttack = false;
             InvokeRepeating(nameof(Targeting), 0, 1);
         }
 
-        private void Update()
+        private void FixedUpdate()
         {
-            if (isTargeting)
+            if (!_isTargeting) return;
+
+            if (Vector3.Distance(t.position, target.position) > 1)
+            {
+                ChaseTarget();
+            }
+            else
             {
                 DoAttack();
             }
@@ -60,7 +70,7 @@ namespace UnitControl.EnemyControl
 
         private void LateUpdate()
         {
-            anim.SetBool(IsWalk, _enemyAI.CanMove);
+            _anim.SetBool(IsWalk, _enemyAI.CanMove);
         }
 
         private void OnDisable()
@@ -68,78 +78,64 @@ namespace UnitControl.EnemyControl
             cts?.Cancel();
         }
 
-        private void OnTriggerEnter(Collider other)
-        {
-            if (other.CompareTag("DefenseTower"))
-            {
-                gameObject.SetActive(false);
-            }
-        }
-
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(transform.position, _attackRange);
+            Gizmos.DrawWireSphere(t.position, _attackRange);
         }
         /*==============================================================================================================================================
                                                     Unity Event
 =====================================================================================================================================================*/
 
+        private void ChaseTarget()
+        {
+            var targetPos = target.position;
+            var position = rigid.position;
+            var dir = (targetPos - position).normalized;
+            var moveVec = dir * (_enemyAI.MoveSpeed * Time.deltaTime);
+            rigid.MovePosition(position + moveVec);
+            t.forward = (targetPos - position).normalized;
+        }
+
         private void DoAttack()
         {
-            if (!isCoolingDown) return;
-            if (!Target.gameObject.activeSelf)
+            if (isAttack) return;
+            if (!target.gameObject.activeSelf)
             {
-                Target = null;
-                isTargeting = false;
-                _enemyAI.CanMove = true;
+                target = null;
+                _isTargeting = false;
                 return;
             }
 
-            anim.SetTrigger(IsAttack);
-            Attack();
-            StartCoolDown().Forget();
+            t.forward = (target.position - t.position).normalized;
+            Attack().Forget();
         }
 
-        protected virtual void Attack()
+        private async UniTaskVoid Attack()
         {
-            if (Target.TryGetComponent(out UnitHealth h))
-            {
-                h.TakeDamage(damage);
-            }
-        }
-
-        private async UniTaskVoid StartCoolDown()
-        {
-            isCoolingDown = false;
+            _isTargeting = false;
+            isAttack = true;
+            _anim.SetTrigger(IsAttack);
+            attackPoint.target = target;
+            attackPoint.gameObject.SetActive(true);
             await UniTask.Delay(TimeSpan.FromSeconds(_atkDelay), cancellationToken: cts.Token);
-            isCoolingDown = true;
-        }
-
-        public async UniTaskVoid SlowMovement(float deBuffTime, float decreaseSpeed)
-        {
-            if (_isSpeedDeBuffed) return;
-            _isSpeedDeBuffed = true;
-            _enemyAI.MoveSpeed -= decreaseSpeed;
-            await UniTask.Delay(TimeSpan.FromSeconds(deBuffTime), cancellationToken: cts.Token);
-            _enemyAI.MoveSpeed += decreaseSpeed;
-            _isSpeedDeBuffed = false;
+            attackPoint.gameObject.SetActive(false);
+            isAttack = false;
         }
 
         private void Targeting()
         {
-            Target = SearchTarget.ClosestTarget(transform.position, _attackRange, targetCollider, targetLayer);
-            isTargeting = Target != null;
-            _enemyAI.CanMove = !isTargeting;
+            if (isAttack) return;
+            target = SearchTarget.ClosestTarget(transform.position, _attackRange, targetCollider, targetLayer);
+            _isTargeting = target != null;
+            _enemyAI.CanMove = !_isTargeting;
         }
 
-        public void Init(int attackRange, float attackDelay, int attackDamage, float health)
+        public void Init(Wave wave)
         {
-            _attackRange = attackRange;
-            _atkDelay = attackDelay;
-            damage = attackDamage;
-            _health.Init(health);
+            _attackRange = wave.atkRange;
+            _atkDelay = wave.atkDelay;
+            attackPoint.damage = wave.damage;
         }
-
     }
 }

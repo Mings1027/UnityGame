@@ -11,7 +11,7 @@ namespace UnitControl
     {
         private Camera _cam;
         private Sequence _cantMoveImageSequence;
-        public UnitTower UnitTower { get; set; }
+        public UnitTower UnitTower { private get; set; }
 
         [SerializeField] private Image cantMoveImage;
 
@@ -19,14 +19,9 @@ namespace UnitControl
         {
             _cam = Camera.main;
             _cantMoveImageSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                                            .Append(cantMoveImage.transform.DOScale(new Vector3(1, 1), 0.5f).From(0.5f)
-                                                                 .SetEase(Ease.OutBounce))
-                                            .Join(cantMoveImage.GetComponent<Image>().DOFade(0, 0.5f).From(1));
-        }
-
-        private void OnDisable()
-        {
-            cantMoveImage.enabled = false;
+                .Append(cantMoveImage.transform.DOScale(new Vector3(1, 1), 0.5f).From(0)
+                    .SetEase(Ease.OutBounce))
+                .Join(cantMoveImage.DOFade(0, 0.5f).From(1));
         }
 
         private void Update()
@@ -39,29 +34,25 @@ namespace UnitControl
             CheckCanMoveUnit(touch);
         }
 
+        private void OnDestroy()
+        {
+            _cantMoveImageSequence.Kill();
+        }
+
         private void CheckCanMoveUnit(Touch touch)
         {
             var ray = _cam.ScreenPointToRay(touch.position);
-            if (Physics.Raycast(ray, out var physicsHit))
+            if (Physics.Raycast(ray, out var physicsHit) && physicsHit.collider.CompareTag("Ground") &&
+                Vector3.Distance(transform.position, physicsHit.point) <= transform.localScale.x * 0.5f)
             {
-                if (physicsHit.collider.CompareTag("Ground"))
-                {
-                    if (Vector3.Distance(transform.position, physicsHit.point) <= transform.localScale.x * 0.5f)
-                    {
-                        UnitTower.UnitMove(physicsHit.point);
-                        UnitTower = null;
-                        gameObject.SetActive(false);
-                        if (!cantMoveImage.enabled) return;
-                        cantMoveImage.enabled = false;
-                    }
-                }
-                else
-                {
-                    cantMoveImage.transform.position = _cam.WorldToScreenPoint(physicsHit.point);
-                    _cantMoveImageSequence.Restart();
-                    if (cantMoveImage.enabled) return;
-                    cantMoveImage.enabled = true;
-                }
+                UnitTower.UnitMove(physicsHit.point);
+                UnitTower = null;
+                gameObject.SetActive(false);
+            }
+            else
+            {
+                cantMoveImage.transform.position = Input.mousePosition;
+                _cantMoveImageSequence.Restart();
             }
         }
     }

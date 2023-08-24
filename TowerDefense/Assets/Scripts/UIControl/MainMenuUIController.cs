@@ -1,4 +1,3 @@
-using DG.Tweening;
 using ManagerControl;
 using MapControl;
 using UnityEngine;
@@ -8,13 +7,14 @@ namespace UIControl
 {
     public class MainMenuUIController : MonoBehaviour
     {
-        private Tween camRotateTween;
-        private Camera cam;
+        private CameraManager cameraManager;
         [SerializeField] private Button startButton;
+        [SerializeField] private int rotateSpeed;
 
         private void Awake()
         {
-            cam = Camera.main;
+            cameraManager = FindObjectOfType<CameraManager>();
+
             startButton.onClick.AddListener(() =>
             {
                 StartGame();
@@ -22,26 +22,24 @@ namespace UIControl
             });
         }
 
-        private void Start()
+        private void OnEnable()
         {
-            camRotateTween = cam.transform.parent.DORotate(new Vector3(0, 360, 0), 10f, RotateMode.FastBeyond360)
-                .SetLoops(-1, LoopType.Restart).SetRelative().SetEase(Ease.Linear);
+            Time.timeScale = 1;
         }
 
-        private void OnDisable()
+        private void Update()
         {
-            camRotateTween.Kill();
-            cam.transform.parent.rotation = Quaternion.Euler(0, 45, 0);
+            var rotAmount = Time.deltaTime * rotateSpeed;
+            cameraManager.transform.Rotate(Vector3.up, rotAmount);
         }
 
         private void StartGame()
         {
             SoundManager.Instance.PlayBGM();
             MapController.Instance.GenerateInitMap();
+            cameraManager.enabled = true;
+
             gameObject.SetActive(false);
-            cam.transform.GetComponentInParent<CameraManager>().enabled = true;
-            cam.orthographic = true;
-            cam.transform.localPosition = new Vector3(0, 30, -30);
         }
     }
 }

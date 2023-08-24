@@ -6,11 +6,13 @@ namespace TowerControl
 {
     public abstract class Tower : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
-        private Collider _collider;
-        private MeshFilter _initMesh;
+        private BoxCollider boxCollider;
+        private MeshFilter _defaultMesh;
+        private MeshRenderer meshRenderer;
 
         protected MeshFilter meshFilter;
-        protected bool isUpgrading;
+
+        // protected bool isUpgrading;
         protected bool isSold;
         protected bool isSpawn;
 
@@ -26,11 +28,9 @@ namespace TowerControl
         }
 
         public int TowerLevel { get; private set; }
-        public bool IsUnitTower => isUnitTower;
         public TowerTypeEnum towerTypeEnum => towerType;
 
         [SerializeField] private TowerTypeEnum towerType;
-        [SerializeField] private bool isUnitTower;
 
         protected virtual void Awake()
         {
@@ -46,18 +46,27 @@ namespace TowerControl
         {
             TowerLevel = -1;
             isSold = true;
-            meshFilter.sharedMesh = _initMesh.sharedMesh;
+            meshFilter.sharedMesh = _defaultMesh.sharedMesh;
             OnClickTower = null;
         }
 
+        public void OnPointerDown(PointerEventData eventData)
+        {
+        }
+
+        public void OnPointerUp(PointerEventData eventData)
+        {
+            OnClickTower?.Invoke(this);
+        }
         //==================================Custom Method====================================================
         //======================================================================================================
 
         protected virtual void Init()
         {
-            _collider = GetComponent<Collider>();
+            boxCollider = GetComponent<BoxCollider>();
             meshFilter = transform.GetChild(0).GetComponent<MeshFilter>();
-            _initMesh = meshFilter;
+            meshRenderer = transform.GetChild(0).GetComponent<MeshRenderer>();
+            _defaultMesh = meshFilter;
         }
 
         public void TowerLevelUp()
@@ -68,19 +77,18 @@ namespace TowerControl
         public virtual void TowerSetting(MeshFilter towerMesh, int damageData, int attackRangeData,
             float attackDelayData)
         {
-            isUpgrading = false;
             meshFilter.sharedMesh = towerMesh.sharedMesh;
-            _collider.enabled = true;
+            boxCollider.enabled = true;
+
+            ColliderSize();
         }
 
-
-        public void OnPointerDown(PointerEventData eventData)
+        private void ColliderSize()
         {
-        }
-
-        public void OnPointerUp(PointerEventData eventData)
-        {
-            OnClickTower?.Invoke(this);
+            var rendererY = meshRenderer.bounds.size.y;
+            var size = boxCollider.size;
+            size = new Vector3(size.x, rendererY, size.z);
+            boxCollider.size = size;
         }
     }
 }

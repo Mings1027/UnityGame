@@ -1,7 +1,3 @@
-using System;
-using DataControl;
-using GameControl;
-using ManagerControl;
 using UnityEngine;
 
 namespace MapControl
@@ -23,10 +19,7 @@ namespace MapControl
 
         public void ExpandMap()
         {
-            var position = transform.position;
             MapController.Instance.ExpandMap(targetPos);
-            ObjectPoolManager.Get(PoolObjectName.ExpandMapSmoke, position);
-
             gameObject.SetActive(false);
         }
     }

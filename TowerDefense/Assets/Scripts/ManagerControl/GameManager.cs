@@ -1,7 +1,3 @@
-using System;
-using GameControl;
-using MapControl;
-using UIControl;
 using UnityEngine;
 
 namespace ManagerControl

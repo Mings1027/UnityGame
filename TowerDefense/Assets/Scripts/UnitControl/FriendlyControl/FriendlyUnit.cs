@@ -3,6 +3,8 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using GameControl;
+using InterfaceControl;
+using StatusControl;
 using UnitControl.EnemyControl;
 using UnityEngine;
 using UnityEngine.AI;
@@ -14,18 +16,18 @@ namespace UnitControl.FriendlyControl
     {
         private Animator _anim;
         private Rigidbody _rigid;
-        private UnitHealth unitHealth;
+        private Health health;
         private Collider[] _targetColliders;
         private CancellationTokenSource cts;
+        private AttackPoint attackPoint;
+        private Transform t;
 
         private Vector3 touchPos;
 
-        private int _damage;
         private float _atkDelay;
-        private bool _isMoving;
         private bool _isTargeting;
-        private bool _isChasing;
-        private bool isCoolingDown;
+        private bool _isMoving;
+        private bool isAttack;
 
         private static readonly int IsWalk = Animator.StringToHash("isWalk");
         private static readonly int IsAttack = Animator.StringToHash("isAttack");
@@ -45,42 +47,44 @@ namespace UnitControl.FriendlyControl
         private void Awake()
         {
             _anim = GetComponentInChildren<Animator>();
-            unitHealth = GetComponent<UnitHealth>();
             _rigid = GetComponent<Rigidbody>();
+            health = GetComponent<Health>();
             _targetColliders = new Collider[2];
+            attackPoint = GetComponentInChildren<AttackPoint>();
+            t = transform;
+            attackPoint.gameObject.SetActive(false);
         }
 
         private void OnEnable()
         {
             cts?.Dispose();
             cts = new CancellationTokenSource();
-            isCoolingDown = true;
 
             target = null;
             _isTargeting = false;
+            _isMoving = false;
+            isAttack = false;
             InvokeRepeating(nameof(Targeting), 1f, 1f);
         }
 
-        private void Update()
+        private void FixedUpdate()
         {
             if (_isMoving) return;
             if (!_isTargeting) return;
 
-            if (Vector3.Distance(transform.position, target.position) > 1)
+            if (Vector3.Distance(t.position, target.position) > 1)
             {
-                _isChasing = true;
                 ChaseTarget();
             }
             else
             {
-                _isChasing = false;
                 DoAttack();
             }
         }
 
         private void LateUpdate()
         {
-            _anim.SetBool(IsWalk, _isMoving || _isChasing);
+            _anim.SetBool(IsWalk, _isMoving || _isTargeting);
         }
 
         private void OnDisable()
@@ -94,42 +98,26 @@ namespace UnitControl.FriendlyControl
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(transform.position, atkRange);
+            Gizmos.DrawWireSphere(t.position, atkRange);
         }
 
         /*==============================================================================================================================================
                                                     Unity Event
 =====================================================================================================================================================*/
 
-        protected virtual void Attack()
-        {
-            if (target.TryGetComponent(out EnemyHealth h))
-            {
-                h.TakeDamage(_damage);
-            }
-        }
-
-        private async UniTaskVoid StartCoolDown()
-        {
-            isCoolingDown = false;
-            await UniTask.Delay(TimeSpan.FromSeconds(_atkDelay), cancellationToken: cts.Token);
-            isCoolingDown = true;
-        }
-
         private void ChaseTarget()
         {
-            var targetPos = target.position + new Vector3(Random.insideUnitCircle.x, 0, Random.insideUnitCircle.y) * 2;
+            var targetPos = target.position;
             var position = _rigid.position;
             var dir = (targetPos - position).normalized;
             var moveVec = dir * (moveSpeed * Time.deltaTime);
             _rigid.MovePosition(position + moveVec);
-            _rigid.MoveRotation(Quaternion.LookRotation(target.position - _rigid.position, Vector3.up));
+            t.forward = (targetPos - position).normalized;
         }
 
         private void DoAttack()
         {
-            if (!isCoolingDown) return;
-
+            if (isAttack) return;
             if (!target.gameObject.activeSelf)
             {
                 target = null;
@@ -137,13 +125,25 @@ namespace UnitControl.FriendlyControl
                 return;
             }
 
+            t.forward = (target.position - t.position).normalized;
+            Attack().Forget();
+        }
+
+        private async UniTaskVoid Attack()
+        {
+            _isTargeting = false;
+            isAttack = true;
             _anim.SetTrigger(IsAttack);
-            Attack();
-            StartCoolDown().Forget();
+            attackPoint.target = target;
+            attackPoint.gameObject.SetActive(true);
+            await UniTask.Delay(TimeSpan.FromSeconds(_atkDelay), cancellationToken: cts.Token);
+            attackPoint.gameObject.SetActive(false);
+            isAttack = false;
         }
 
         private void Targeting()
         {
+            if (isAttack) return;
             if (_isMoving) return;
             target = SearchTarget.ClosestTarget(transform.position, atkRange, _targetColliders, targetLayer);
             _isTargeting = target != null;
@@ -152,16 +152,15 @@ namespace UnitControl.FriendlyControl
         public void MoveToTouchPos(Vector3 pos)
         {
             _isMoving = true;
-            pos = new Vector3(pos.x + Random.insideUnitCircle.x, pos.y, pos.z + Random.insideUnitCircle.y);
-            _rigid.DOMove(pos, moveSpeed).SetSpeedBased().OnComplete(() => _isMoving = false);
+            _rigid.DOMove(pos, moveSpeed).SetSpeedBased().SetEase(Ease.Linear).OnComplete(() => _isMoving = false);
             _rigid.MoveRotation(Quaternion.LookRotation(pos - _rigid.position));
         }
 
-        public void Init(int damage, float attackDelay, float health)
+        public void Init(int damage, float attackDelay, float healthAmount)
         {
-            _damage = damage;
+            attackPoint.damage = damage;
             _atkDelay = attackDelay;
-            unitHealth.Init(health);
+            health.Init(healthAmount);
         }
     }
 }

@@ -57,6 +57,8 @@ namespace GameControl
             for (var i = 0; i < pools.Length; i++)
             {
                 var pool = pools[i];
+                if (pool.prefab == null)
+                    throw new Exception($"{pool.tag} doesn't exist");
                 _poolDictionary.Add(pool.tag, new Stack<GameObject>());
                 for (var j = 0; j < pool.size; j++)
                 {
@@ -76,6 +78,8 @@ namespace GameControl
             for (int i = 0; i < uiPools.Length; i++)
             {
                 var uiPool = uiPools[i];
+                if (uiPool.prefab == null)
+                    throw new Exception($"{uiPool.tag} doesn't exist");
                 _poolDictionary.Add(uiPool.tag, new Stack<GameObject>());
                 for (int j = 0; j < uiPool.size; j++)
                 {
@@ -177,7 +181,10 @@ namespace GameControl
                 var uiPool = GetUIPoolWithTag(objTag);
                 if (uiPool == null)
                     throw new Exception($"Pool with tag {objTag} doesn't exist.");
-                CreateUIObject(uiPool.tag, uiPool.prefab);
+                var obj = CreateUIObject(uiPool.tag, uiPool.prefab);
+#if UNITY_EDITOR
+                SortObject(obj);
+#endif
             }
 
             var uiPoolObj = poolStack.Pop();
@@ -219,11 +226,12 @@ namespace GameControl
             return obj;
         }
 
-        private void CreateUIObject(string objTag, GameObject prefab)
+        private GameObject CreateUIObject(string objTag, GameObject prefab)
         {
             var obj = Instantiate(prefab, canvasForUIPool);
             obj.name = objTag;
             obj.SetActive(false);
+            return obj;
         }
 
         private void SortObject(GameObject obj)

@@ -1,10 +1,7 @@
-using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
-using GameControl;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace ManagerControl
 {
@@ -16,15 +13,13 @@ namespace ManagerControl
         private float _lerp;
 
         private Touch _firstTouch, _secondTouch;
-        private Vector3 prevPos, curPos, newPos;
-        private Vector3 movePos;
+        private Vector3 curPos, newPos;
 
         [SerializeField] private float moveSpeed;
         [SerializeField] private float rotationSpeed;
         [SerializeField] private float zoomSpeed;
 
         [SerializeField] private Vector2Int camSizeMinMax;
-
         [SerializeField] private Vector2Int camPosLimit;
 
         private void Awake()
@@ -37,6 +32,8 @@ namespace ManagerControl
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
             transform.rotation = Quaternion.Euler(0, 45, 0);
+            _cam.orthographic = true;
+            _cam.transform.localPosition = new Vector3(0, 30, -30);
         }
 
         private void LateUpdate()
@@ -48,9 +45,12 @@ namespace ManagerControl
                 CameraRotate();
             }
 
-            CameraMovement();
             if (Input.touchCount == 2)
             {
+                _firstTouch = Input.GetTouch(0);
+                _secondTouch = Input.GetTouch(1);
+
+                CameraMovement();
                 CameraZoom();
             }
         }
@@ -60,45 +60,27 @@ namespace ManagerControl
             _cts?.Cancel();
         }
 
-        private void CameraMove()
+        private bool IsInBounds(Vector3 position)
         {
-            _firstTouch = Input.GetTouch(0);
-            _secondTouch = Input.GetTouch(1);
-
-            if (_secondTouch.phase == TouchPhase.Moved)
-            {
-                var t = transform;
-                var pos = t.right * (_secondTouch.deltaPosition.x * -moveSpeed);
-                pos += t.forward * (_secondTouch.deltaPosition.y * -moveSpeed);
-                pos.y = 0;
-                newPos = t.position + pos * Time.deltaTime;
-
-                newPos.x = Mathf.Clamp(newPos.x, -camPosLimit.x, camPosLimit.x);
-                newPos.z = Mathf.Clamp(newPos.z, -camPosLimit.y, camPosLimit.y);
-
-                transform.position = newPos;
-            }
+            return position.x > -camPosLimit.x &&
+                   position.x < camPosLimit.x &&
+                   position.z > -camPosLimit.y &&
+                   position.z < camPosLimit.y;
         }
 
         private void CameraMovement()
         {
-            if (Input.touchCount == 2)
+            if (_firstTouch.phase == TouchPhase.Moved || _secondTouch.phase == TouchPhase.Moved)
             {
-                _firstTouch = Input.GetTouch(0);
-                _secondTouch = Input.GetTouch(1);
-
-                if (_firstTouch.phase == TouchPhase.Moved || _secondTouch.phase == TouchPhase.Moved)
-                {
-                    CamMoveTest();
-                }
-                else if (_firstTouch.phase == TouchPhase.Ended || _secondTouch.phase == TouchPhase.Ended)
-                {
-                    MovingAsync().Forget();
-                }
+                CamMove();
+            }
+            else if (_firstTouch.phase == TouchPhase.Ended || _secondTouch.phase == TouchPhase.Ended)
+            {
+                MovingAsync().Forget();
             }
         }
 
-        private void CamMoveTest()
+        private void CamMove()
         {
             var pos = (_firstTouch.deltaPosition + _secondTouch.deltaPosition) * 0.5f;
             var t = transform;
@@ -107,24 +89,10 @@ namespace ManagerControl
             curPos.y = 0;
             newPos = t.position + curPos * Time.deltaTime;
 
-            newPos.x = Mathf.Clamp(newPos.x, -camPosLimit.x, camPosLimit.x);
-            newPos.z = Mathf.Clamp(newPos.z, -camPosLimit.y, camPosLimit.y);
-
-            transform.position = newPos;
-        }
-
-        private void Moving(Touch touch)
-        {
-            var t = transform;
-            var pos = t.right * (touch.deltaPosition.x * -moveSpeed);
-            pos += t.forward * (touch.deltaPosition.y * -moveSpeed);
-            pos.y = 0;
-            var newPos = t.position + pos * Time.deltaTime;
-
-            newPos.x = Mathf.Clamp(newPos.x, -camPosLimit.x, camPosLimit.x);
-            newPos.z = Mathf.Clamp(newPos.z, -camPosLimit.y, camPosLimit.y);
-
-            transform.position = newPos;
+            if (IsInBounds(newPos))
+            {
+                transform.position = newPos;
+            }
         }
 
         private async UniTaskVoid MovingAsync()
@@ -133,7 +101,7 @@ namespace ManagerControl
             while (_lerp < 1)
             {
                 _lerp += Time.deltaTime * moveSpeed;
-                CamMoveTest();
+                CamMove();
                 await UniTask.Yield(cancellationToken: _cts.Token);
             }
         }
@@ -150,7 +118,7 @@ namespace ManagerControl
             else if (_firstTouch.phase == TouchPhase.Ended)
             {
                 transform.DORotate(SnappedVector(), 0.5f)
-                    .SetEase(Ease.OutBounce);
+                    .SetEase(Ease.OutBounce).SetLink(gameObject);
             }
         }
 

@@ -11,8 +11,6 @@ namespace MapControl
 {
     public class MapController : Singleton<MapController>
     {
-        [SerializeField] private int saveMeshCount;
-
         private MeshFilter _meshFilter;
         private MeshRenderer _meshRenderer;
 
@@ -46,8 +44,6 @@ namespace MapControl
         private HashSet<Vector3> _wayPoints;
 
         [SerializeField] private float mapSize;
-        [SerializeField] private Transform expandBtnParent;
-        [SerializeField] private GameObject expandBtn;
         [SerializeField] private GameObject[] mapPrefabs;
         [SerializeField] private GameObject[] uniqueMap;
         [SerializeField] private LayerMask groundLayer;
@@ -117,14 +113,8 @@ namespace MapControl
 
         private void Start()
         {
-            // for (var i = 0; i < 40; i++)
-            // {
-            //     _expandButtons[i] = Instantiate(expandBtn, expandBtnParent).GetComponent<ExpandMapButton>();
-            //     _expandButtons[i].gameObject.SetActive(false);
-            // }
-
             PlaceStartMap();
-            WaveManager.Instance.OnPlaceExpandBtnEvent += PlaceExpandButtons;
+            WaveManager.Instance.OnPlaceExpandButton += PlaceExpandButtons;
         }
 
         public void GenerateInitMap()
@@ -163,7 +153,11 @@ namespace MapControl
 
             CheckConnectedDirection(newMapPos);
 
+            CheckConnection();
+
             PlaceNewMap();
+
+            ObjectPoolManager.Get(PoolObjectName.ExpandMapSmoke, newMapPos);
 
             SetNewMapForward(newMapPos);
 
@@ -175,7 +169,7 @@ namespace MapControl
 
             CombineMesh();
 
-            WaveManager.Instance.StartWave(_wayPoints);
+            WaveManager.Instance.StartWave(_wayPoints.ToArray());
         }
 
         private void InitAdjacentState()
@@ -226,7 +220,7 @@ namespace MapControl
             }
         }
 
-        private void PlaceNewMap()
+        private void CheckConnection()
         {
             _connectionString = null;
             _nullMapIndexString = null;
@@ -243,38 +237,32 @@ namespace MapControl
                     if (_isConnectedArray[i]) _connectionString += i;
                 }
             }
-
-            if (_connectionString == null) return;
-
-            if (_connectionString.Length == 1)
-            {
-                HandleSingleConnection();
-            }
-            else
-            {
-                HandleMultiConnection();
-            }
         }
 
-        private void HandleSingleConnection()
+        private void PlaceNewMap()
+        {
+            if (_connectionString == null) return;
+            var prefabInstantiate = _connectionString.Length == 1 ? IfSingleConnection() : IfMultipleConnection();
+
+            _newMapObject = Instantiate(prefabInstantiate, transform);
+            _map.Add(_newMapObject);
+        }
+
+        private GameObject IfSingleConnection()
         {
             if (_nullMapIndexString == null || CanSpawnPortal())
             {
-                _newMapObject = Instantiate(uniqueMap[0], transform);
-                _map.Add(_newMapObject);
-                return;
+                return uniqueMap[0];
             }
 
             _connectionString += _nullMapIndexString[Random.Range(0, _nullMapIndexString.Length)];
             _connectionString = string.Concat(_connectionString.OrderBy(c => c));
-            _newMapObject = Instantiate(_mapDictionary[_directionMappingDic[_connectionString]], transform);
-            _map.Add(_newMapObject);
+            return _mapDictionary[_directionMappingDic[_connectionString]];
         }
 
-        private void HandleMultiConnection()
+        private GameObject IfMultipleConnection()
         {
-            _newMapObject = Instantiate(_mapDictionary[_directionMappingDic[_connectionString]], transform);
-            _map.Add(_newMapObject);
+            return _mapDictionary[_directionMappingDic[_connectionString]];
         }
 
         private bool CanSpawnPortal()
@@ -339,10 +327,9 @@ namespace MapControl
         {
             if (_map.Count > mapCount) return;
             _expandButtonPosList.Clear();
-            _expandButtons.Clear();
             _expandButtonPosList = _expandButtonPosHashSet.ToList();
 
-            for (int i = 0; i < _expandButtonPosList.Count; i++)
+            for (var i = 0; i < _expandButtonPosList.Count; i++)
             {
                 _expandButtons.Add(ObjectPoolManager.GetUI<ExpandMapButton>(PoolObjectName.ExpandButton));
                 _expandButtons[i].targetPos = _expandButtonPosList[i];
@@ -355,6 +342,8 @@ namespace MapControl
             {
                 if (_expandButtons[i].gameObject.activeSelf) _expandButtons[i].gameObject.SetActive(false);
             }
+
+            _expandButtons.Clear();
         }
 
         private void CombineMesh()
@@ -389,12 +378,11 @@ namespace MapControl
                 if (_meshFilters[i].TryGetComponent(out MeshRenderer meshRenderer))
                     meshRenderer.enabled = false;
             }
-#if UNITY_EDITOR
-            if (saveMeshCount >= 1) return;
-            const string path = "Assets/Meshes/Map.asset";
-            AssetDatabase.CreateAsset(_meshFilter.mesh, AssetDatabase.GenerateUniqueAssetPath(path));
-            AssetDatabase.SaveAssets();
-#endif
+// #if UNITY_EDITOR
+//             const string path = "Assets/Meshes/Map.asset";
+//             AssetDatabase.CreateAsset(_meshFilter.mesh, AssetDatabase.GenerateUniqueAssetPath(path));
+//             AssetDatabase.SaveAssets();
+// #endif
         }
 
         private bool CanAddToList(Vector3 point)

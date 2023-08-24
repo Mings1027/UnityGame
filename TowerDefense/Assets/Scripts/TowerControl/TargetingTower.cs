@@ -1,4 +1,3 @@
-using System;
 using DG.Tweening;
 using GameControl;
 using UnityEngine;
@@ -8,33 +7,26 @@ namespace TowerControl
     public abstract class TargetingTower : Tower
     {
         private Tween _delayTween;
-        private bool _attackAble;
-        public float TowerRange { get; private set; }
+        private Collider[] targetColliders;
+        private bool _isAttack;
+
         protected Transform target;
         protected int damage;
         protected bool isTargeting;
 
-        protected Action onAttackEvent;
-        protected Collider[] targetColliders;
+        public float TowerRange { get; private set; }
 
         [SerializeField] private LayerMask targetLayer;
-
-        protected override void Awake()
-        {
-            base.Awake();
-            onAttackEvent = () => { };
-        }
 
         protected override void OnEnable()
         {
             base.OnEnable();
-            _attackAble = true;
             InvokeRepeating(nameof(Targeting), 1, 0.5f);
         }
 
-        private void Update()
+        private void FixedUpdate()
         {
-            if (isUpgrading || !_attackAble || !isTargeting) return;
+            if (_isAttack || !isTargeting) return;
             Attack();
             StartCoolDown();
         }
@@ -42,8 +34,11 @@ namespace TowerControl
         protected override void OnDisable()
         {
             base.OnDisable();
-            onAttackEvent = null;
             CancelInvoke();
+        }
+
+        private void OnDestroy()
+        {
             _delayTween?.Kill();
         }
 
@@ -52,20 +47,23 @@ namespace TowerControl
             Gizmos.DrawWireSphere(transform.position, TowerRange);
         }
 
+        protected override void Init()
+        {
+            base.Init();
+            targetColliders = new Collider[3];
+        }
+
         private void Targeting()
         {
             target = SearchTarget.ClosestTarget(transform.position, TowerRange, targetColliders, targetLayer);
             isTargeting = target != null;
         }
 
-        protected virtual void Attack()
-        {
-            onAttackEvent.Invoke();
-        }
+        protected abstract void Attack();
 
         private void StartCoolDown()
         {
-            _attackAble = false;
+            _isAttack = true;
             _delayTween.Restart();
         }
 
@@ -76,8 +74,7 @@ namespace TowerControl
 
             damage = damageData;
             TowerRange = attackRangeData;
-            _delayTween?.Kill();
-            _delayTween = DOVirtual.DelayedCall(attackDelayData, () => _attackAble = true, false).SetAutoKill(false);
+            _delayTween = DOVirtual.DelayedCall(attackDelayData, () => _isAttack = false, false).SetAutoKill(false);
         }
     }
 }
