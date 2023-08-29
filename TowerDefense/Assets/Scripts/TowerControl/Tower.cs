@@ -1,4 +1,5 @@
 using System;
+using ManagerControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -6,31 +7,20 @@ namespace TowerControl
 {
     public abstract class Tower : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
-        private BoxCollider boxCollider;
+        private BoxCollider _boxCollider;
         private MeshFilter _defaultMesh;
-        private MeshRenderer meshRenderer;
-
+        private MeshRenderer _meshRenderer;
+        private Outline _outline;
+        
         protected MeshFilter meshFilter;
-
-        // protected bool isUpgrading;
         protected bool isSold;
-        protected bool isSpawn;
 
         public event Action<Tower> OnClickTower;
-
-        public enum TowerTypeEnum
-        {
-            Ballista,
-            Barracks,
-            Canon,
-            Mage,
-            Defender
-        }
-
+        
         public int TowerLevel { get; private set; }
-        public TowerTypeEnum towerTypeEnum => towerType;
+        public TowerType towerTypeEnum => towerType;
 
-        [SerializeField] private TowerTypeEnum towerType;
+        [SerializeField] private TowerType towerType;
 
         protected virtual void Awake()
         {
@@ -56,6 +46,7 @@ namespace TowerControl
 
         public void OnPointerUp(PointerEventData eventData)
         {
+            _outline.enabled = true;
             OnClickTower?.Invoke(this);
         }
         //==================================Custom Method====================================================
@@ -63,10 +54,12 @@ namespace TowerControl
 
         protected virtual void Init()
         {
-            boxCollider = GetComponent<BoxCollider>();
+            _boxCollider = GetComponent<BoxCollider>();
             meshFilter = transform.GetChild(0).GetComponent<MeshFilter>();
-            meshRenderer = transform.GetChild(0).GetComponent<MeshRenderer>();
+            _meshRenderer = transform.GetChild(0).GetComponent<MeshRenderer>();
             _defaultMesh = meshFilter;
+
+            _outline = GetComponent<Outline>();
         }
 
         public void TowerLevelUp()
@@ -74,21 +67,26 @@ namespace TowerControl
             TowerLevel++;
         }
 
-        public virtual void TowerSetting(MeshFilter towerMesh, int damageData, int attackRangeData,
+        public virtual void TowerSetting(MeshFilter towerMesh, int damageData, int rangeData,
             float attackDelayData)
         {
             meshFilter.sharedMesh = towerMesh.sharedMesh;
-            boxCollider.enabled = true;
+            _boxCollider.enabled = true;
 
             ColliderSize();
         }
 
+        public void DisableOutline()
+        {
+            _outline.enabled = false;
+        }
+
         private void ColliderSize()
         {
-            var rendererY = meshRenderer.bounds.size.y;
-            var size = boxCollider.size;
+            var rendererY = _meshRenderer.bounds.size.y;
+            var size = _boxCollider.size;
             size = new Vector3(size.x, rendererY, size.z);
-            boxCollider.size = size;
+            _boxCollider.size = size;
         }
     }
 }

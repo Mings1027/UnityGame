@@ -7,13 +7,6 @@ using UnityEngine;
 
 namespace TowerControl
 {
-    [Serializable]
-    public struct SpeedDeBuffData
-    {
-        public float deBuffTime;
-        public float decreaseSpeed;
-    }
-
     public class MageTargetingTower : TargetingTower
     {
         private Sequence _atkSequence;
@@ -21,7 +14,7 @@ namespace TowerControl
         [SerializeField] private Transform crystal;
         [SerializeField] private Mesh[] crystalMesh;
         [SerializeField] private LayerMask towerLayer;
-        [SerializeField] private SpeedDeBuffData[] speedDeBuffData;
+        [SerializeField] private DeBuffData deBuffData;
 
         protected override void Init()
         {
@@ -34,10 +27,10 @@ namespace TowerControl
             _crystalMeshFilter = crystal.GetComponent<MeshFilter>();
         }
 
-        public override void TowerSetting(MeshFilter towerMesh, int damageData, int attackRangeData,
+        public override void TowerSetting(MeshFilter towerMesh, int damageData, int rangeData,
             float attackDelayData)
         {
-            base.TowerSetting(towerMesh, damageData, attackRangeData, attackDelayData);
+            base.TowerSetting(towerMesh, damageData, rangeData, attackDelayData);
             CrystalInit();
         }
 
@@ -54,7 +47,7 @@ namespace TowerControl
             ObjectPoolManager.Get(PoolObjectName.MageShootSfx, transform);
             var p = ObjectPoolManager.Get<MageBullet>(PoolObjectName.MageBullet, crystal.position);
 
-            p.Init(target, damage, speedDeBuffData[TowerLevel]);
+            p.Init(target, damage, deBuffData.speedDeBuffData[TowerLevel]);
         }
     }
 }

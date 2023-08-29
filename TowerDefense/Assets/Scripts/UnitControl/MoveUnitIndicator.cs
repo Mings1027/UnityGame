@@ -1,27 +1,37 @@
-using System;
 using DG.Tweening;
+using ManagerControl;
 using TowerControl;
 using UnityEngine;
-using UnityEngine.AI;
 using UnityEngine.UI;
 
 namespace UnitControl
 {
     public class MoveUnitIndicator : MonoBehaviour
     {
+        private TowerManager _towerManager;
         private Camera _cam;
         private Sequence _cantMoveImageSequence;
         public UnitTower UnitTower { private get; set; }
 
         [SerializeField] private Image cantMoveImage;
+        [SerializeField] private GameObject unitCenterIndicator;
 
         private void Awake()
         {
+            _towerManager = TowerManager.Instance;
             _cam = Camera.main;
             _cantMoveImageSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(cantMoveImage.transform.DOScale(new Vector3(1, 1), 0.5f).From(0)
                     .SetEase(Ease.OutBounce))
                 .Join(cantMoveImage.DOFade(0, 0.5f).From(1));
+            unitCenterIndicator.SetActive(false);
+        }
+
+        private void OnEnable()
+        {
+            if (UnitTower == null) return;
+            unitCenterIndicator.SetActive(true);
+            unitCenterIndicator.transform.position = UnitTower.unitCenterPos;
         }
 
         private void Update()
@@ -43,10 +53,13 @@ namespace UnitControl
         {
             var ray = _cam.ScreenPointToRay(touch.position);
             if (Physics.Raycast(ray, out var physicsHit) && physicsHit.collider.CompareTag("Ground") &&
-                Vector3.Distance(transform.position, physicsHit.point) <= transform.localScale.x * 0.5f)
+                Vector3.Distance(transform.position, physicsHit.point) <= transform.localScale.x)
             {
+                _towerManager.RewindCamState();
+                _towerManager.ResetUI();
                 UnitTower.UnitMove(physicsHit.point);
                 UnitTower = null;
+                unitCenterIndicator.SetActive(false);
                 gameObject.SetActive(false);
             }
             else

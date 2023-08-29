@@ -1,14 +1,13 @@
 using DG.Tweening;
 using GameControl;
+using ManagerControl;
 using UnityEngine;
 
 namespace TowerControl
 {
     public abstract class TargetingTower : Tower
     {
-        private Tween _delayTween;
-        private Collider[] targetColliders;
-        private bool _isAttack;
+        private Collider[] _targetColliders;
 
         protected Transform target;
         protected int damage;
@@ -18,28 +17,10 @@ namespace TowerControl
 
         [SerializeField] private LayerMask targetLayer;
 
-        protected override void OnEnable()
-        {
-            base.OnEnable();
-            InvokeRepeating(nameof(Targeting), 1, 0.5f);
-        }
-
-        private void FixedUpdate()
-        {
-            if (_isAttack || !isTargeting) return;
-            Attack();
-            StartCoolDown();
-        }
-
         protected override void OnDisable()
         {
             base.OnDisable();
             CancelInvoke();
-        }
-
-        private void OnDestroy()
-        {
-            _delayTween?.Kill();
         }
 
         private void OnDrawGizmos()
@@ -50,31 +31,31 @@ namespace TowerControl
         protected override void Init()
         {
             base.Init();
-            targetColliders = new Collider[3];
+            _targetColliders = new Collider[3];
         }
 
         private void Targeting()
         {
-            target = SearchTarget.ClosestTarget(transform.position, TowerRange, targetColliders, targetLayer);
+            target = SearchTarget.ClosestTarget(transform.position, TowerRange, _targetColliders, targetLayer);
             isTargeting = target != null;
+
+            if (!isTargeting) return;
+            
+            Attack();
         }
 
         protected abstract void Attack();
 
-        private void StartCoolDown()
-        {
-            _isAttack = true;
-            _delayTween.Restart();
-        }
-
-        public override void TowerSetting(MeshFilter towerMesh, int damageData, int attackRangeData,
+        public override void TowerSetting(MeshFilter towerMesh, int damageData, int rangeData,
             float attackDelayData)
         {
-            base.TowerSetting(towerMesh, damageData, attackRangeData, attackDelayData);
+            base.TowerSetting(towerMesh, damageData, rangeData, attackDelayData);
 
             damage = damageData;
-            TowerRange = attackRangeData;
-            _delayTween = DOVirtual.DelayedCall(attackDelayData, () => _isAttack = false, false).SetAutoKill(false);
+            TowerRange = rangeData;
+
+            CancelInvoke();
+            InvokeRepeating(nameof(Targeting), 1, attackDelayData);
         }
     }
 }

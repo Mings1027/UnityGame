@@ -12,17 +12,39 @@ namespace TowerControl
     {
         private enum UnitType
         {
-            AssassinUnit,
-            DefenderUnit
+            Assassin,
+            Defender
         }
 
+        private bool _isUnitSpawn;
         private int _deadUnitCount;
-        private string unitTypeName;
+        private string _unitTypeName;
         private CancellationTokenSource _cts;
         private Vector3[] _spawnDirections;
         private Vector3 _unitSpawnPosition;
 
-        private FriendlyUnit[] units;
+        private FriendlyUnit[] _units;
+
+        public Vector3 unitCenterPos
+        {
+            get
+            {
+                var count = 0;
+                var center = Vector3.zero;
+                for (int i = 0; i < _units.Length; i++)
+                {
+                    if (_units[i].gameObject.activeSelf)
+                    {
+                        count++;
+                        center += _units[i].transform.position;
+                    }
+                }
+
+                return center / count;
+            }
+        }
+
+        public float MoveUnitRange { get; private set; }
 
         [SerializeField] private UnitType unitType;
         [SerializeField] private float maxDistance;
@@ -34,8 +56,8 @@ namespace TowerControl
         protected override void Awake()
         {
             base.Awake();
-            units = new FriendlyUnit[3];
-            unitTypeName = unitType.ToString();
+            _units = new FriendlyUnit[3];
+            _unitTypeName = unitType.ToString();
         }
 
         protected override void OnEnable()
@@ -50,25 +72,25 @@ namespace TowerControl
         {
             base.OnDisable();
             _cts?.Cancel();
-            if (!isSpawn) return;
+            if (!_isUnitSpawn) return;
 
-            isSpawn = false;
+            _isUnitSpawn = false;
 
-            for (var i = 0; i < units.Length; i++)
+            for (var i = 0; i < _units.Length; i++)
             {
-                units[i].gameObject.SetActive(false);
-                units[i] = null;
+                _units[i].gameObject.SetActive(false);
+                _units[i] = null;
             }
         }
 
-        private void OnDrawGizmos()
-        {
-            Gizmos.color = Color.cyan;
-            for (var i = 0; i < _spawnDirections.Length; i++)
-            {
-                Gizmos.DrawSphere(transform.position + _spawnDirections[i] * maxDistance, 0.5f);
-            }
-        }
+        // private void OnDrawGizmos()
+        // {
+        //     Gizmos.color = Color.cyan;
+        //     for (var i = 0; i < _spawnDirections.Length; i++)
+        //     {
+        //         Gizmos.DrawSphere(transform.position + _spawnDirections[i] * maxDistance, 0.5f);
+        //     }
+        // }
 
         /*=========================================================================================================================================
         *                                               Unity Event
@@ -78,18 +100,22 @@ namespace TowerControl
             base.Init();
             _spawnDirections = new[]
             {
-                Vector3.back, Vector3.forward, Vector3.left, Vector3.right
+                Vector3.forward, Vector3.back, Vector3.left, Vector3.right,
+                new Vector3(1, 0, 1), new Vector3(-1, 0, -1),
+                new Vector3(-1, 0, 1), new Vector3(1, 0, -1)
             };
         }
 
-        public override void TowerSetting(MeshFilter towerMesh, int damageData, int attackRangeData,
+        public override void TowerSetting(MeshFilter towerMesh, int damageData, int rangeData,
             float attackDelayData)
         {
-            base.TowerSetting(towerMesh, damageData, attackRangeData, attackDelayData);
+            base.TowerSetting(towerMesh, damageData, rangeData, attackDelayData);
 
-            if (!isSpawn)
+            MoveUnitRange = rangeData;
+
+            if (!_isUnitSpawn)
             {
-                isSpawn = true;
+                _isUnitSpawn = true;
                 SpawnUnitOnTowerSpawn();
             }
 
@@ -100,8 +126,9 @@ namespace TowerControl
         {
             // Call Only once when tower spawn
             // ↑ ↓ ← → Four Direction Check Ground and Unit Spawn 
-            foreach (var dir in _spawnDirections)
+            for (var i = 0; i < _spawnDirections.Length; i++)
             {
+                var dir = _spawnDirections[i];
                 if (Physics.Raycast(transform.position + dir * maxDistance + Vector3.up, Vector3.down, out var hit))
                 {
                     if (hit.collider.CompareTag("Ground"))
@@ -111,38 +138,42 @@ namespace TowerControl
                         break;
                     }
                 }
-
-                if (Physics.Raycast(transform.position + dir * maxDistance * 2 + Vector3.up, Vector3.down,
-                        out var secondHit))
-                {
-                    if (secondHit.collider.CompareTag("Ground"))
-                    {
-                        _unitSpawnPosition = secondHit.point;
-                        UnitSpawn();
-                        break;
-                    }
-                }
             }
+        }
+
+        private void UnitSpawn()
+        {
+            for (var i = 0; i < _units.Length; i++)
+            {
+                _units[i] = null;
+                var ranPos = new Vector3(_unitSpawnPosition.x + Random.insideUnitCircle.x, 0,
+                    _unitSpawnPosition.z + Random.insideUnitCircle.y);
+                _units[i] = ObjectPoolManager.Get<FriendlyUnit>(_unitTypeName, ranPos);
+                _units[i].OnDeadEvent += UnitReSpawn;
+                _units[i].towerType = unitType.ToString();
+            }
+
+            ObjectPoolManager.Get(PoolObjectName.UnitSpawnSmoke, _unitSpawnPosition);
         }
 
         private void UnitInit(int damage, float delay)
         {
             var health = unitHealth[TowerLevel];
 
-            for (var i = 0; i < units.Length; i++)
+            for (var i = 0; i < _units.Length; i++)
             {
-                units[i].Init(damage, delay, health);
+                _units[i].Init(damage, delay, health);
             }
         }
 
         public void UnitMove(Vector3 touchPos)
         {
-            for (var i = 0; i < units.Length; i++)
+            for (var i = 0; i < _units.Length; i++)
             {
                 touchPos = new Vector3(touchPos.x + Random.insideUnitCircle.x, 0,
                     touchPos.z + Random.insideUnitCircle.y);
 
-                units[i].MoveToTouchPos(touchPos);
+                _units[i].MoveToTouchPos(touchPos);
             }
         }
 
@@ -162,20 +193,6 @@ namespace TowerControl
             await UniTask.Delay(5000, cancellationToken: _cts.Token);
 
             UnitSpawn();
-        }
-
-        private void UnitSpawn()
-        {
-            for (var i = 0; i < units.Length; i++)
-            {
-                units[i] = null;
-                var ranPos = new Vector3(_unitSpawnPosition.x + Random.insideUnitCircle.x, 0,
-                    _unitSpawnPosition.z + Random.insideUnitCircle.y);
-                units[i] = ObjectPoolManager.Get<FriendlyUnit>(unitTypeName, ranPos);
-                units[i].OnDeadEvent += UnitReSpawn;
-            }
-
-            ObjectPoolManager.Get(PoolObjectName.UnitSpawnSmoke, _unitSpawnPosition);
         }
     }
 }

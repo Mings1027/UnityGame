@@ -1,9 +1,6 @@
-using System;
 using DataControl;
-using GameControl;
 using InterfaceControl;
-using StatusControl;
-using TowerControl;
+using ManagerControl;
 using UnitControl.EnemyControl;
 using UnityEngine;
 
@@ -12,57 +9,66 @@ namespace ProjectileControl
     public sealed class MageBullet : MonoBehaviour
     {
         private Transform _target;
+        private Rigidbody _rigid;
         private int _damage;
-        private Transform t;
 
-        private SphereCollider sphereCollider;
-        private ParticleSystem particle;
-        private SpeedDeBuffData _speedDeBuffData;
+        private SphereCollider _sphereCollider;
+        private DeBuffData.SpeedDeBuffData _speedDeBuffData;
 
-        private float timeSinceLastUpdate;
+        private float _timeSinceLastUpdate;
+        private bool _isArrived;
+        private string _towerName;
 
         [SerializeField] private float bulletSpeed;
         [SerializeField] private float updateInterval;
 
         private void Awake()
         {
-            t = transform;
-            sphereCollider = GetComponent<SphereCollider>();
-            particle = GetComponentInChildren<ParticleSystem>();
+            _rigid = GetComponent<Rigidbody>();
+            _sphereCollider = GetComponent<SphereCollider>();
+            _towerName = TowerType.Mage.ToString();
         }
 
         private void OnEnable()
         {
-            sphereCollider.enabled = true;
+            _sphereCollider.enabled = true;
         }
 
-        private void Update()
+        private void FixedUpdate()
         {
+            if (_isArrived) return;
             ProjectilePath();
+        }
+
+        private void OnDisable()
+        {
+            _isArrived = false;
         }
 
         private void OnTriggerEnter(Collider other)
         {
-            sphereCollider.enabled = false;
-            particle.Stop();
-         
+            _isArrived = true;
+            _sphereCollider.enabled = false;
+
             WhenHitEnemy(other);
         }
 
         private void ProjectilePath()
         {
-            timeSinceLastUpdate += Time.deltaTime;
-            if (timeSinceLastUpdate < updateInterval) return;
+            _timeSinceLastUpdate += Time.deltaTime;
+            if (_timeSinceLastUpdate < updateInterval) return;
 
-            var dir = (_target.position - t.position).normalized;
-            transform.position += dir * (bulletSpeed * timeSinceLastUpdate);
-            timeSinceLastUpdate = 0;
+            var rigidPos = _rigid.position;
+            var dir = (_target.position - rigidPos).normalized;
+            _rigid.MovePosition(rigidPos + dir * (bulletSpeed * Time.deltaTime));
+            _timeSinceLastUpdate = 0;
         }
 
-        public void Init(Transform target, int damage, SpeedDeBuffData speedDeBuffData)
+        public void Init(Transform target, int damage, DeBuffData.SpeedDeBuffData speedDeBuffData)
         {
             _target = target;
             _damage = damage;
+
             _speedDeBuffData = speedDeBuffData;
         }
 
@@ -71,6 +77,7 @@ namespace ProjectileControl
             if (other.TryGetComponent(out IDamageable damageable))
             {
                 damageable.Damage(_damage);
+                DataManager.Instance.SumDamage(_towerName, _damage);
             }
 
             if (other.TryGetComponent(out EnemyStatus e))

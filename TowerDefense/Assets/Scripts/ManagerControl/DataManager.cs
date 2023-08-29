@@ -1,22 +1,53 @@
+using System;
+using System.Collections.Generic;
 using System.IO;
+using GameControl;
 using UnityEngine;
 
 namespace ManagerControl
 {
-    public static class DataManager
+    public class DataManager : Singleton<DataManager>
     {
-        public static void SaveDataToJson<T>(string fileName)
+        private string _path;
+
+        private Dictionary<string, int> _damageDic;
+
+        private void Awake()
         {
-            var jsonData = JsonUtility.ToJson(typeof(T), true);
-            var path = Path.Combine(Application.dataPath, fileName);
-            File.WriteAllText(path, jsonData);
+            _path = Application.persistentDataPath + "/damage";
+            if (File.Exists(_path))
+            {
+                LoadDamageData();
+            }
+            else
+            {
+                _damageDic = new Dictionary<string, int>
+                {
+                    { "Ballista", 0 },
+                    { "Assassin", 0 },
+                    { "Canon", 0 },
+                    { "Defender", 0 },
+                    { "Mage", 0 }
+                };
+            }
         }
 
-        public static T LoadDataFromJson<T>(string fileName)
+
+        public void SumDamage(string towerType, int damage)
         {
-            var path = Path.Combine(Application.dataPath, fileName);
-            var jsonData = File.ReadAllText(path);
-            return JsonUtility.FromJson<T>(jsonData);
+            _damageDic[towerType] += damage;
+        }
+
+        public void SaveDamageData()
+        {
+            var data = DictionaryJsonUtility.ToJson(_damageDic);
+            File.WriteAllText(_path, data);
+        }
+
+        public void LoadDamageData()
+        {
+            var data = File.ReadAllText(_path);
+            _damageDic = DictionaryJsonUtility.FromJson<string, int>(data);
         }
     }
 }

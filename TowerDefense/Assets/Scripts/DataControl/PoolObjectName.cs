@@ -16,7 +16,7 @@ namespace DataControl
         ==================================================================================================================*/
         public const string BallistaProjectile = "BallistaProjectile";
         public const string MageBullet = "MageBullet";
-        public const string CanonBullet = "CanonBullet";
+        public const string CanonProjectile = "CanonProjectile";
 
         public const string EnemyArrow = "EnemyArrow";
 
@@ -40,10 +40,9 @@ namespace DataControl
         /*==================================================================================================================
         *                                              Effect
         ==================================================================================================================*/
-        public static string[] ballistaVfx = { BallistaVfx1, BallistaVfx2, BallistaVfx3 };
-
-        private const string BallistaVfx1 = "BallistaVfx1";
-        private const string BallistaVfx2 = "BallistaVfx2";
-        private const string BallistaVfx3 = "BallistaVfx3";
+     
+        // private const string BallistaVfx1 = "BallistaVfx1";
+        // private const string BallistaVfx2 = "BallistaVfx2";
+        // private const string BallistaVfx3 = "BallistaVfx3";
     }
 }

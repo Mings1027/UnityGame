@@ -10,11 +10,10 @@ namespace UnitControl.EnemyControl
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.CompareTag("DefenseTower"))
-            {
-                OnDecreaseLifeCount?.Invoke();
-                gameObject.SetActive(false);
-            }
+            if (!other.CompareTag("Destination")) return;
+            
+            OnDecreaseLifeCount?.Invoke();
+            gameObject.SetActive(false);
         }
 
         private void OnDisable()

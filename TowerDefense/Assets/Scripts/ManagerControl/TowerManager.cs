@@ -1,5 +1,3 @@
-using System;
-using System.Globalization;
 using Cysharp.Threading.Tasks;
 using DataControl;
 using DG.Tweening;
@@ -11,7 +9,6 @@ using UnitControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace ManagerControl
@@ -28,7 +25,9 @@ namespace ManagerControl
 
     public class TowerManager : Singleton<TowerManager>
     {
-        private TowerInfo towerInfo;
+        private TowerInfo _towerInfo;
+
+        private Camera _cam;
 
         //  Tower Buttons
         private Sequence _showTowerBtnSequence;
@@ -42,16 +41,20 @@ namespace ManagerControl
         private bool _isTower;
 
         private int _sellTowerGold;
+        private float _prevSize;
+        private Vector3 _prevPos;
 
         //  HUD
         public bool IsPause { get; private set; }
 
         private int _towerGold;
-        private int curSpeed;
+        private int _curSpeed;
         private bool _isSpeedUp;
         private bool _callNotEnoughTween;
         private Tween _menuPanelTween;
         private Tween _notEnoughGoldTween;
+
+        private CameraManager _cameraManager;
 
         [Header("----------Tower Buttons----------")] [SerializeField]
         private Transform towerButtons;
@@ -95,15 +98,19 @@ namespace ManagerControl
         private GameObject gameOverPanel;
 
         [SerializeField] private Button reStartButton;
-        [SerializeField] private SpriteRenderer towerRangeIndicator;
+
+        [Header("----------Indicator----------")] [SerializeField]
+        private GameObject towerRangeIndicator;
+
         [SerializeField] private MoveUnitIndicator moveUnitIndicator;
-        [SerializeField] private float moveUnitRange;
 
         /*=================================================================================================================
     *                                                  Unity Event                                                             *
     //================================================================================================================*/
         private void Awake()
         {
+            _cam = Camera.main;
+            _cameraManager = GameObject.Find("CameraManager").GetComponent<CameraManager>();
             TowerButtonInit();
             TowerEditButtonInit();
             MenuButtonInit();
@@ -118,6 +125,7 @@ namespace ManagerControl
             moveUnitIndicator.gameObject.SetActive(false);
             gameOverPanel.SetActive(false);
             offUIButton.gameObject.SetActive(false);
+            IndicatorInit();
         }
 
         private void OnDestroy()
@@ -139,19 +147,6 @@ namespace ManagerControl
                 var towerBtn = towerButtons.GetChild(i);
                 _showTowerBtnSequence.Append(towerBtn.DOLocalMoveY(-200, 0.1f)
                     .From().SetEase(Ease.InOutBack).SetRelative());
-                var eventTrigger = towerBtn.GetComponent<EventTrigger>();
-                var entry = new EventTrigger.Entry
-                {
-                    eventID = EventTriggerType.PointerDown
-                };
-                var towerBtnName = towerBtn.name.Replace("Button", "");
-
-                entry.callback.AddListener(_ =>
-                {
-                    inputManager.enabled = true;
-                    inputManager.StartPlacement(towerBtnName);
-                });
-                eventTrigger.triggers.Add(entry);
             }
         }
 
@@ -159,14 +154,18 @@ namespace ManagerControl
         {
             _towerSelectPanelTween = towerInfoUI.transform.DOScale(1, 0.1f).From(0).SetAutoKill(false);
             upgradeButton.GetComponent<Button>().onClick.AddListener(TowerUpgrade);
-            moveUnitButton.GetComponent<Button>().onClick.AddListener(MoveUnitButton);
+            moveUnitButton.GetComponent<Button>().onClick.AddListener(() =>
+            {
+                FocusUnitTower();
+                MoveUnitButton();
+            });
             sellTowerButton.GetComponent<Button>().onClick.AddListener(SellTower);
         }
 
         private void MenuButtonInit()
         {
             _towerGold = startGold;
-            curSpeed = 1;
+            _curSpeed = 1;
             goldText.text = _towerGold.ToString();
             lifeCountText.text = lifeCount.ToString();
             speedUpText.text = "x1";
@@ -174,7 +173,11 @@ namespace ManagerControl
             pauseButton.onClick.AddListener(Pause);
             resumeButton.onClick.AddListener(Resume);
             bgmButton.onClick.AddListener(BGMButton);
-            returnToMainMenuButton.onClick.AddListener(() => SceneManager.LoadScene(0));
+            returnToMainMenuButton.onClick.AddListener(() =>
+            {
+                SceneManager.LoadScene(0);
+                DataManager.Instance.SaveDamageData();
+            });
             speedUpButton.onClick.AddListener(SpeedUp);
 
             _menuPanelTween = menuPanel.DOScale(1, 0.25f)
@@ -188,6 +191,12 @@ namespace ManagerControl
         private void GameOverPanelInit()
         {
             reStartButton.onClick.AddListener(() => SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex));
+        }
+
+        private void IndicatorInit()
+        {
+            towerRangeIndicator.SetActive(false);
+            moveUnitIndicator.gameObject.SetActive(false);
         }
 
         public void PlaceTower(string towerName, Vector3 snappedPos)
@@ -207,6 +216,7 @@ namespace ManagerControl
         {
             gameOverPanel.SetActive(true);
             Time.timeScale = 0;
+            DataManager.Instance.SaveDamageData();
         }
 
         public void ShowTowerButtons()
@@ -257,14 +267,14 @@ namespace ManagerControl
             var towerLevel = towerData[(int)_curSelectedTower.towerTypeEnum];
             var towerLevelData = towerLevel.towerLevels[_curSelectedTower.TowerLevel];
 
-            towerInfo.towerName = towerTierName[_curSelectedTower.TowerLevel] + towerLevel.towerName;
-            towerInfo.level = _curSelectedTower.TowerLevel + 1;
-            towerInfo.damage = towerLevelData.damage;
-            towerInfo.range = towerLevelData.attackRange;
-            towerInfo.delay = towerLevelData.attackDelay;
-            towerInfo.sellCoin = _sellTowerGold = GetTowerGold(_curSelectedTower);
+            _towerInfo.towerName = towerTierName[_curSelectedTower.TowerLevel] + towerLevel.towerName;
+            _towerInfo.level = _curSelectedTower.TowerLevel + 1;
+            _towerInfo.damage = towerLevelData.damage;
+            _towerInfo.range = towerLevelData.attackRange;
+            _towerInfo.delay = towerLevelData.attackDelay;
+            _towerInfo.sellCoin = _sellTowerGold = GetTowerGold(_curSelectedTower);
 
-            towerInfoUI.SetTowerInfo(towerInfo);
+            towerInfoUI.SetTowerInfo(_towerInfo);
 
             SetTargetingTowerIndicator();
         }
@@ -276,8 +286,8 @@ namespace ManagerControl
             var pos = targetingTower.transform.position;
             indicatorTransform.position = pos + new Vector3(0, 0.1f, 0);
             indicatorTransform.localScale =
-                new Vector3(targetingTower.TowerRange * 2, targetingTower.TowerRange * 2, 0);
-            if (!towerRangeIndicator.enabled) towerRangeIndicator.enabled = true;
+                new Vector3(targetingTower.TowerRange, 0.2f, targetingTower.TowerRange);
+            if (!towerRangeIndicator.activeSelf) towerRangeIndicator.SetActive(true);
         }
 
         private void TowerUpgrade()
@@ -298,22 +308,35 @@ namespace ManagerControl
 
             tempTower.TowerSetting(tt.towerMesh, tt.damage, tt.attackRange, tt.attackDelay);
             upgradeButton.SetActive(tempTower.TowerLevel != 4);
-
+            tempTower.DisableOutline();
             if (!_isPanelOpen) return;
             UpdateTowerInfo();
+        }
+
+        private void FocusUnitTower()
+        {
+            _prevSize = _cam.orthographicSize;
+            _prevPos = _cameraManager.transform.position;
+            _cam.DOOrthoSize(10, 0.5f).SetEase(Ease.OutExpo);
+            _cameraManager.transform.DOMove(_curSelectedTower.transform.position, 0.5f).SetEase(Ease.OutExpo);
+        }
+
+        public void RewindCamState()
+        {
+            _cam.DOOrthoSize(_prevSize, 0.5f).SetEase(Ease.OutExpo);
+            _cameraManager.transform.DOMove(_prevPos, 0.5f).SetEase(Ease.OutExpo);
         }
 
         private void MoveUnitButton()
         {
             moveUnitButton.SetActive(false);
             towerInfoUI.gameObject.SetActive(false);
-            // OffIndicator();
 
-            moveUnitIndicator.UnitTower = _curSelectedTower.GetComponent<UnitTower>();
+            _curSelectedTower.TryGetComponent(out UnitTower unitTower);
+            moveUnitIndicator.UnitTower = unitTower;
             var moveIndicatorTransform = moveUnitIndicator.transform;
-            var pos = _curSelectedTower.transform.position;
-            moveIndicatorTransform.position = pos + new Vector3(0, 0.1f, 0);
-            moveIndicatorTransform.localScale = new Vector3(moveUnitRange, moveUnitRange);
+            moveIndicatorTransform.position = _curSelectedTower.transform.position + new Vector3(0, 0.1f, 0);
+            moveIndicatorTransform.localScale = new Vector3(unitTower.MoveUnitRange, 0.2f, unitTower.MoveUnitRange);
             moveUnitIndicator.gameObject.SetActive(true);
         }
 
@@ -331,7 +354,7 @@ namespace ManagerControl
 
         private void OffIndicator()
         {
-            if (towerRangeIndicator.enabled) towerRangeIndicator.enabled = false;
+            if (towerRangeIndicator.activeSelf) towerRangeIndicator.SetActive(false);
             if (!moveUnitIndicator.enabled) return;
 
             moveUnitIndicator.gameObject.SetActive(false);
@@ -346,6 +369,7 @@ namespace ManagerControl
             _isPanelOpen = false;
             _towerSelectPanelTween.PlayBackwards();
             OffIndicator();
+            _curSelectedTower.DisableOutline();
         }
 
         public bool EnoughGold()
@@ -389,9 +413,9 @@ namespace ManagerControl
 
         private void SpeedUp()
         {
-            curSpeed = curSpeed % 3 + 1;
-            Time.timeScale = curSpeed;
-            speedUpText.text = $"x{curSpeed}";
+            _curSpeed = _curSpeed % 3 + 1;
+            Time.timeScale = _curSpeed;
+            speedUpText.text = $"x{_curSpeed}";
         }
 
         private void DecreaseGold(int index)

@@ -7,8 +7,13 @@ using UnityEngine.SceneManagement;
 
 public class Test : MonoBehaviour
 {
-    private void OnTriggerStay(Collider other)
+    private void OnEnable()
     {
-        print("1");
+        InvokeRepeating(nameof(Attack), 0, 1);
+    }
+
+    private void Attack()
+    {
+        print("13123123");
     }
 }

@@ -61,18 +61,7 @@ namespace MapControl
 
         private void ComponentInit()
         {
-            if (_meshFilter == null)
-            {
-                _meshFilter = gameObject.AddComponent<MeshFilter>();
-            }
-
             _meshFilter = GetComponent<MeshFilter>();
-
-            if (_meshRenderer == null)
-            {
-                _meshRenderer = gameObject.AddComponent<MeshRenderer>();
-            }
-
             _meshRenderer = GetComponent<MeshRenderer>();
         }
 

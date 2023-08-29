@@ -91,7 +91,7 @@ namespace ManagerControl
 
             if (IsInBounds(newPos))
             {
-                transform.position = newPos;
+                t.position = newPos;
             }
         }
 

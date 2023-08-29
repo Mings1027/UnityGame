@@ -9,13 +9,18 @@ namespace ManagerControl
         private TowerManager _towerManager;
         private Camera _cam;
         private CameraManager _cameraManager;
+        private Vector3 _prevCursorPos;
         private Vector3 _gridPos;
         private bool _isPlacingTower;
+        private bool _isUnitTower;
         private string _selectedTowerName;
         private bool _canPlace;
 
-        private MeshRenderer _cursorMeshRenderer;
+        private Vector3[] _checkDir;
 
+        private MeshRenderer _cursorMeshRenderer;
+        private Ray _mouseRay;
+        private RaycastHit _mouseRaycastHit;
         [SerializeField] private Image placeTowerButton;
         [SerializeField] private Transform cubeCursor;
         [SerializeField] private Grid grid;
@@ -27,13 +32,14 @@ namespace ManagerControl
             _towerManager = TowerManager.Instance;
             _cam = Camera.main;
             _cursorMeshRenderer = cubeCursor.GetComponent<MeshRenderer>();
-            var eventTrigger = placeTowerButton.GetComponent<EventTrigger>();
-            var entryDrop = new EventTrigger.Entry
+            placeTowerButton.GetComponent<PlaceTowerController>().OnPlaceTower += PlaceTower;
+
+            _checkDir = new[]
             {
-                eventID = EventTriggerType.Drop
+                Vector3.forward, Vector3.back, Vector3.left, Vector3.right,
+                new Vector3(1, 0, 1), new Vector3(-1, 0, -1),
+                new Vector3(-1, 0, 1), new Vector3(1, 0, -1)
             };
-            entryDrop.callback.AddListener((e) => PlaceTower());
-            eventTrigger.triggers.Add(entryDrop);
         }
 
         private void Start()
@@ -48,8 +54,8 @@ namespace ManagerControl
 
             if (Input.GetMouseButton(0))
             {
-                GetPlacementPos();
-                MoveTowerButton();
+                MoveCursor();
+                CheckCanPlace();
             }
             else if (Input.GetMouseButtonUp(0))
             {
@@ -62,8 +68,8 @@ namespace ManagerControl
 
         private void OnDrawGizmos()
         {
-            Gizmos.color = Color.cyan;
-            Gizmos.DrawWireSphere(_gridPos, 1f);
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(_gridPos + Vector3.up * 5, 1);
         }
 
         private void StopPlacement()
@@ -76,7 +82,7 @@ namespace ManagerControl
             _gridPos = Vector3.zero + Vector3.down * 5;
         }
 
-        public void StartPlacement(string towerName)
+        public void StartPlacement(string towerName, bool isUnitTower)
         {
             if (!_towerManager.EnoughGold())
             {
@@ -86,34 +92,59 @@ namespace ManagerControl
 
             _towerManager.ResetUI();
             _isPlacingTower = true;
+            _isUnitTower = isUnitTower;
             _selectedTowerName = towerName;
             _cameraManager.enabled = false;
             placeTowerButton.enabled = true;
         }
 
-        private void GetPlacementPos()
+        private void MoveCursor()
         {
-            var ray = _cam.ScreenPointToRay(Input.mousePosition);
-
-            if (!Physics.Raycast(ray, out var hit, 100, placementLayer))
-            {
-                _canPlace = false;
-                _cursorMeshRenderer.enabled = false;
-                return;
-            }
-
-            var cellPos = grid.WorldToCell(hit.point);
+            _mouseRay = _cam.ScreenPointToRay(Input.mousePosition);
+            Physics.Raycast(_mouseRay, out _mouseRaycastHit, 100);
+            var cellPos = grid.WorldToCell(_mouseRaycastHit.point);
             _gridPos = grid.CellToWorld(cellPos) + new Vector3(1.5f, 2f, 1.5f);
-
-            _canPlace = !Physics.CheckSphere(_gridPos, 1, towerLayer);
-            _cursorMeshRenderer.enabled = _canPlace;
-
             cubeCursor.transform.position = _gridPos;
+            placeTowerButton.transform.position = Input.mousePosition;
         }
 
-        private void MoveTowerButton()
+        private void CheckCanPlace()
         {
-            placeTowerButton.transform.position = Input.mousePosition;
+            _canPlace = CheckPlacementTile() &&
+                        !Physics.CheckSphere(_gridPos, 1, towerLayer) &&
+                        (!_isUnitTower || CheckPlaceUnitTower());
+
+            _cursorMeshRenderer.enabled = _canPlace;
+        }
+
+        private bool CheckPlacementTile()
+        {
+            if (Physics.Raycast(_gridPos + Vector3.up * 5, Vector3.down, out var hit, 10))
+            {
+                if (hit.collider.CompareTag("Placement"))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool CheckPlaceUnitTower()
+        {
+            for (var i = 0; i < _checkDir.Length; i++)
+            {
+                if (Physics.Raycast(_gridPos + _checkDir[i] * 3 + Vector3.up, Vector3.down,
+                        out var hit))
+                {
+                    if (hit.collider.CompareTag("Ground"))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
         }
 
         private void PlaceTower()

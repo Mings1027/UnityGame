@@ -4,37 +4,35 @@ using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using GameControl;
 using InterfaceControl;
+using ManagerControl;
 using StatusControl;
-using UnitControl.EnemyControl;
 using UnityEngine;
-using UnityEngine.AI;
-using Random = UnityEngine.Random;
 
 namespace UnitControl.FriendlyControl
 {
-    public class FriendlyUnit : MonoBehaviour
+    public sealed class FriendlyUnit : MonoBehaviour
     {
         private Animator _anim;
         private Rigidbody _rigid;
-        private Health health;
+        private Health _health;
         private Collider[] _targetColliders;
-        private CancellationTokenSource cts;
-        private AttackPoint attackPoint;
-        private Transform t;
+        private CancellationTokenSource _cts;
+        private Transform _t;
+        private Transform _target;
 
-        private Vector3 touchPos;
+        private Vector3 _touchPos;
 
+        private int _damage;
         private float _atkDelay;
         private bool _isTargeting;
         private bool _isMoving;
-        private bool isAttack;
+        private bool _isAttack;
 
         private static readonly int IsWalk = Animator.StringToHash("isWalk");
         private static readonly int IsAttack = Animator.StringToHash("isAttack");
 
-        private Transform target;
-
         public event Action<FriendlyUnit> OnDeadEvent;
+        public string towerType { get; set; }
 
         [SerializeField] private LayerMask targetLayer;
         [SerializeField] private int atkRange;
@@ -48,22 +46,20 @@ namespace UnitControl.FriendlyControl
         {
             _anim = GetComponentInChildren<Animator>();
             _rigid = GetComponent<Rigidbody>();
-            health = GetComponent<Health>();
+            _health = GetComponent<Health>();
             _targetColliders = new Collider[2];
-            attackPoint = GetComponentInChildren<AttackPoint>();
-            t = transform;
-            attackPoint.gameObject.SetActive(false);
+            _t = transform;
         }
 
         private void OnEnable()
         {
-            cts?.Dispose();
-            cts = new CancellationTokenSource();
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
 
-            target = null;
+            _target = null;
             _isTargeting = false;
             _isMoving = false;
-            isAttack = false;
+            _isAttack = false;
             InvokeRepeating(nameof(Targeting), 1f, 1f);
         }
 
@@ -72,13 +68,9 @@ namespace UnitControl.FriendlyControl
             if (_isMoving) return;
             if (!_isTargeting) return;
 
-            if (Vector3.Distance(t.position, target.position) > 1)
+            if (Vector3.Distance(_t.position, _target.position) > 1)
             {
                 ChaseTarget();
-            }
-            else
-            {
-                DoAttack();
             }
         }
 
@@ -89,7 +81,7 @@ namespace UnitControl.FriendlyControl
 
         private void OnDisable()
         {
-            cts?.Cancel();
+            _cts?.Cancel();
             CancelInvoke();
             OnDeadEvent?.Invoke(this);
             OnDeadEvent = null;
@@ -98,7 +90,7 @@ namespace UnitControl.FriendlyControl
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(t.position, atkRange);
+            Gizmos.DrawWireSphere(_t.position, atkRange);
         }
 
         /*==============================================================================================================================================
@@ -107,46 +99,57 @@ namespace UnitControl.FriendlyControl
 
         private void ChaseTarget()
         {
-            var targetPos = target.position;
+            var targetPos = _target.position;
             var position = _rigid.position;
             var dir = (targetPos - position).normalized;
             var moveVec = dir * (moveSpeed * Time.deltaTime);
             _rigid.MovePosition(position + moveVec);
-            t.forward = (targetPos - position).normalized;
+            _t.forward = (targetPos - position).normalized;
         }
 
         private void DoAttack()
         {
-            if (isAttack) return;
-            if (!target.gameObject.activeSelf)
+            if (_isAttack) return;
+            if (!_target.gameObject.activeSelf)
             {
-                target = null;
+                _target = null;
                 _isTargeting = false;
                 return;
             }
 
-            t.forward = (target.position - t.position).normalized;
+            _t.forward = (_target.position - _t.position).normalized;
             Attack().Forget();
         }
 
         private async UniTaskVoid Attack()
         {
             _isTargeting = false;
-            isAttack = true;
+            _isAttack = true;
             _anim.SetTrigger(IsAttack);
-            attackPoint.target = target;
-            attackPoint.gameObject.SetActive(true);
-            await UniTask.Delay(TimeSpan.FromSeconds(_atkDelay), cancellationToken: cts.Token);
-            attackPoint.gameObject.SetActive(false);
-            isAttack = false;
+            if (_target.TryGetComponent(out IDamageable damageable))
+            {
+                damageable.Damage(_damage);
+                DataManager.Instance.SumDamage(towerType, _damage);
+            }
+
+            await UniTask.Delay(TimeSpan.FromSeconds(_atkDelay), cancellationToken: _cts.Token);
+            _isAttack = false;
         }
 
         private void Targeting()
         {
-            if (isAttack) return;
+            if (_isAttack) return;
             if (_isMoving) return;
-            target = SearchTarget.ClosestTarget(transform.position, atkRange, _targetColliders, targetLayer);
-            _isTargeting = target != null;
+            _target = SearchTarget.ClosestTarget(transform.position, atkRange, _targetColliders, targetLayer);
+            _isTargeting = _target != null;
+
+            if (_isTargeting)
+            {
+                if (Vector3.Distance(_t.position, _target.position) <= 1)
+                {
+                    DoAttack();
+                }
+            }
         }
 
         public void MoveToTouchPos(Vector3 pos)
@@ -158,9 +161,9 @@ namespace UnitControl.FriendlyControl
 
         public void Init(int damage, float attackDelay, float healthAmount)
         {
-            attackPoint.damage = damage;
+            _damage = damage;
             _atkDelay = attackDelay;
-            health.Init(healthAmount);
+            _health.Init(healthAmount);
         }
     }
 }

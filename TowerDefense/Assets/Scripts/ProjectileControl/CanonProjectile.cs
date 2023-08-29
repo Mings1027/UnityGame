@@ -1,26 +1,40 @@
 using DataControl;
 using GameControl;
-using InterfaceControl;
+using ManagerControl;
 using UnityEngine;
 
 namespace ProjectileControl
 {
     public class CanonProjectile : Projectile
     {
+        private Vector3 _targetEndPos;
         private Collider[] _targetColliders;
 
+        [SerializeField] private Transform effects;
         [SerializeField] private ParticleSystem explosionParticle;
         [SerializeField] private LayerMask enemyLayer;
         [SerializeField] private float atkRange;
 
-        private void Awake()
+        protected override void Awake()
         {
+            base.Awake();
             _targetColliders = new Collider[5];
+            towerName = TowerType.Canon.ToString();
         }
 
         protected override void FixedUpdate()
         {
-            ParabolaPath(targetEndPos);
+            if (isArrived) return;
+            ParabolaPath(_targetEndPos);
+        }
+
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+            for (var i = 0; i < effects.childCount; i++)
+            {
+                effects.GetChild(i).gameObject.SetActive(false);
+            }
         }
 
         private void OnDrawGizmos()
@@ -40,12 +54,17 @@ namespace ProjectileControl
             }
         }
 
-        public void Init(Vector3 t, int dmg)
+        public void Init(Vector3 t, int dmg, int effectCount)
         {
             Physics.Raycast(t + Vector3.up * 2, Vector3.down, out var hit, 10);
-            targetEndPos = hit.point;
-            targetEndPos.y = 0;
+            _targetEndPos = hit.point;
+            _targetEndPos.y = 0;
             damage = dmg;
+
+            for (var i = 0; i < effectCount; i++)
+            {
+                effects.GetChild(i).gameObject.SetActive(true);
+            }
         }
     }
 }

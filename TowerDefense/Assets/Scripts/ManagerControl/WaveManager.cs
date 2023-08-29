@@ -3,35 +3,34 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using DataControl;
 using GameControl;
 using StatusControl;
+using TMPro;
 using UnitControl.EnemyControl;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace ManagerControl
 {
-    [Serializable]
-    public struct Wave
-    {
-        public int startSpawnWave;
-        public string enemyName;
-        public int enemyCoin;
-        public int atkRange;
-        public float atkDelay;
-        public int damage;
-        public float health;
-    }
-
     public class WaveManager : Singleton<WaveManager>
     {
         private bool _startGame;
         private int _curWave;
         private int _remainingEnemyCount;
         private CancellationTokenSource _cts;
+        private TMP_Text _waveText;
+        private GameObject _waveTextImage;
 
         public event Action OnPlaceExpandButton;
+        [SerializeField] private WaveData waveData;
 
-        [SerializeField] private Wave[] waves;
+        private void Awake()
+        {
+            _waveTextImage = GetComponentInChildren<Image>().gameObject;
+            _waveTextImage.SetActive(false);
+            _waveText = _waveTextImage.GetComponentInChildren<TMP_Text>();
+        }
 
         private void OnEnable()
         {
@@ -45,12 +44,18 @@ namespace ManagerControl
             _cts?.Cancel();
         }
 
+        public void StartGame()
+        {
+            _waveTextImage.SetActive(true);
+        }
+
         public void StartWave(Vector3[] wayPoints)
         {
             if (_startGame) return;
             _startGame = true;
             _curWave++;
 
+            _waveText.text = "Wave : " + _curWave;
             var wayPointsArray = wayPoints.ToArray();
 
             WaveInit(wayPointsArray);
@@ -61,9 +66,9 @@ namespace ManagerControl
         {
             for (var i = 0; i < wayPointsArray.Length; i++)
             {
-                for (var j = 0; j < waves.Length; j++)
+                for (var j = 0; j < waveData.enemyWaves.Length; j++)
                 {
-                    if (waves[j].startSpawnWave <= _curWave)
+                    if (waveData.enemyWaves[j].startSpawnWave <= _curWave)
                     {
                         _remainingEnemyCount++;
                     }
@@ -80,7 +85,7 @@ namespace ManagerControl
                     i = 0;
                 }
 
-                for (var j = 0; j < waves.Length; j++)
+                for (var j = 0; j < waveData.enemyWaves.Length; j++)
                 {
                     await UniTask.Delay(200, cancellationToken: _cts.Token);
                     EnemyInit(wayPointsArray, i, j);
@@ -90,12 +95,12 @@ namespace ManagerControl
 
         private void EnemyInit(IReadOnlyList<Vector3> wayPointsArray, int i, int j)
         {
-            if (waves[j].startSpawnWave > _curWave) return;
+            if (waveData.enemyWaves[j].startSpawnWave > _curWave) return;
 
             var waveIndex = j;
-            var wave = waves[j];
+            var wave = waveData.enemyWaves[j];
 
-            var enemyUnit = ObjectPoolManager.Get<EnemyUnit>(waves[j].enemyName, wayPointsArray[i]);
+            var enemyUnit = ObjectPoolManager.Get<EnemyUnit>(waveData.enemyWaves[j].enemyName, wayPointsArray[i]);
             enemyUnit.Init(wave);
 
             var disableEnemy = enemyUnit.GetComponent<DisableEnemyHandler>();
@@ -104,7 +109,7 @@ namespace ManagerControl
 
             var enemyHealth = enemyUnit.GetComponent<Health>();
             enemyHealth.Init(wave.health);
-            enemyHealth.OnDie += () => TowerManager.Instance.IncreaseGold(waves[waveIndex].enemyCoin);
+            enemyHealth.OnDie += () => TowerManager.Instance.IncreaseGold(waveData.enemyWaves[waveIndex].enemyCoin);
         }
 
         private void UpdateEnemyCount()

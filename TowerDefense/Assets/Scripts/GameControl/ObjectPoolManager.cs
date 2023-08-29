@@ -30,7 +30,7 @@ namespace GameControl
 
         private static ObjectPoolManager _inst;
         private Dictionary<string, Stack<GameObject>> _poolDictionary;
-        private Transform canvasForUIPool;
+        private Transform _canvasForUIPool;
 
 
         private readonly string _info = " 오브젝트에 다음을 적으세요 \nvoid OnDisable()\n{\n" +
@@ -46,7 +46,7 @@ namespace GameControl
 
             _inst = this;
             _poolDictionary = new Dictionary<string, Stack<GameObject>>();
-            canvasForUIPool = transform.GetChild(0);
+            _canvasForUIPool = transform.GetChild(0);
             PoolInit();
             UIPoolInit();
         }
@@ -75,13 +75,13 @@ namespace GameControl
 
         private void UIPoolInit()
         {
-            for (int i = 0; i < uiPools.Length; i++)
+            for (var i = 0; i < uiPools.Length; i++)
             {
                 var uiPool = uiPools[i];
                 if (uiPool.prefab == null)
                     throw new Exception($"{uiPool.tag} doesn't exist");
                 _poolDictionary.Add(uiPool.tag, new Stack<GameObject>());
-                for (int j = 0; j < uiPool.size; j++)
+                for (var j = 0; j < uiPool.size; j++)
                 {
                     CreateUIObject(uiPool.tag, uiPool.prefab);
                 }
@@ -228,7 +228,7 @@ namespace GameControl
 
         private GameObject CreateUIObject(string objTag, GameObject prefab)
         {
-            var obj = Instantiate(prefab, canvasForUIPool);
+            var obj = Instantiate(prefab, _canvasForUIPool);
             obj.name = objTag;
             obj.SetActive(false);
             return obj;

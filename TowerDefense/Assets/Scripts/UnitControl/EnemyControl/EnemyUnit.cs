@@ -1,10 +1,9 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using DataControl;
 using GameControl;
-using ManagerControl;
-using StatusControl;
-using TowerControl;
+using InterfaceControl;
 using UnityEngine;
 
 namespace UnitControl.EnemyControl
@@ -12,16 +11,16 @@ namespace UnitControl.EnemyControl
     public class EnemyUnit : MonoBehaviour
     {
         private Animator _anim;
-        private Rigidbody rigid;
+        private Rigidbody _rigid;
         private EnemyAI _enemyAI;
-        private Collider[] targetCollider;
-        private CancellationTokenSource cts;
-        private AttackPoint attackPoint;
-        private Transform target;
-        private Transform t;
+        private Collider[] _targetCollider;
+        private CancellationTokenSource _cts;
+        private Transform _target;
+        private Transform _t;
 
-        private bool isAttack;
+        private bool _isAttack;
         private bool _isTargeting;
+        private int _damage;
         private int _attackRange;
         private float _atkDelay;
 
@@ -36,21 +35,19 @@ namespace UnitControl.EnemyControl
         private void Awake()
         {
             _anim = GetComponentInChildren<Animator>();
-            rigid = GetComponent<Rigidbody>();
+            _rigid = GetComponent<Rigidbody>();
             _enemyAI = GetComponent<EnemyAI>();
-            targetCollider = new Collider[3];
-            attackPoint = GetComponentInChildren<AttackPoint>();
-            t = transform;
-            attackPoint.gameObject.SetActive(false);
+            _targetCollider = new Collider[3];
+            _t = transform;
         }
 
         private void OnEnable()
         {
-            cts?.Dispose();
-            cts = new CancellationTokenSource();
-            target = null;
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
+            _target = null;
             _isTargeting = false;
-            isAttack = false;
+            _isAttack = false;
             InvokeRepeating(nameof(Targeting), 0, 1);
         }
 
@@ -58,13 +55,9 @@ namespace UnitControl.EnemyControl
         {
             if (!_isTargeting) return;
 
-            if (Vector3.Distance(t.position, target.position) > 1)
+            if (Vector3.Distance(_t.position, _target.position) > 1)
             {
                 ChaseTarget();
-            }
-            else
-            {
-                DoAttack();
             }
         }
 
@@ -75,13 +68,13 @@ namespace UnitControl.EnemyControl
 
         private void OnDisable()
         {
-            cts?.Cancel();
+            _cts?.Cancel();
         }
 
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(t.position, _attackRange);
+            Gizmos.DrawWireSphere(_t.position, _attackRange);
         }
         /*==============================================================================================================================================
                                                     Unity Event
@@ -89,53 +82,63 @@ namespace UnitControl.EnemyControl
 
         private void ChaseTarget()
         {
-            var targetPos = target.position;
-            var position = rigid.position;
+            var targetPos = _target.position;
+            var position = _rigid.position;
             var dir = (targetPos - position).normalized;
             var moveVec = dir * (_enemyAI.MoveSpeed * Time.deltaTime);
-            rigid.MovePosition(position + moveVec);
-            t.forward = (targetPos - position).normalized;
+            _rigid.MovePosition(position + moveVec);
+            _t.forward = (targetPos - position).normalized;
         }
 
         private void DoAttack()
         {
-            if (isAttack) return;
-            if (!target.gameObject.activeSelf)
+            if (_isAttack) return;
+            if (!_target.gameObject.activeSelf)
             {
-                target = null;
+                _target = null;
                 _isTargeting = false;
                 return;
             }
 
-            t.forward = (target.position - t.position).normalized;
+            _t.forward = (_target.position - _t.position).normalized;
             Attack().Forget();
         }
 
         private async UniTaskVoid Attack()
         {
             _isTargeting = false;
-            isAttack = true;
+            _isAttack = true;
             _anim.SetTrigger(IsAttack);
-            attackPoint.target = target;
-            attackPoint.gameObject.SetActive(true);
-            await UniTask.Delay(TimeSpan.FromSeconds(_atkDelay), cancellationToken: cts.Token);
-            attackPoint.gameObject.SetActive(false);
-            isAttack = false;
+            if (_target.TryGetComponent(out IDamageable damageable))
+            {
+                damageable.Damage(_damage);
+            }
+            await UniTask.Delay(TimeSpan.FromSeconds(_atkDelay), cancellationToken: _cts.Token);
+
+            _isAttack = false;
         }
 
         private void Targeting()
         {
-            if (isAttack) return;
-            target = SearchTarget.ClosestTarget(transform.position, _attackRange, targetCollider, targetLayer);
-            _isTargeting = target != null;
+            if (_isAttack) return;
+            _target = SearchTarget.ClosestTarget(transform.position, _attackRange, _targetCollider, targetLayer);
+            _isTargeting = _target != null;
             _enemyAI.CanMove = !_isTargeting;
+
+            if (_isTargeting)
+            {
+                if (Vector3.Distance(_t.position, _target.position) <= 1)
+                {
+                    DoAttack();
+                }
+            }
         }
 
-        public void Init(Wave wave)
+        public void Init(WaveData.EnemyWave wave)
         {
             _attackRange = wave.atkRange;
             _atkDelay = wave.atkDelay;
-            attackPoint.damage = wave.damage;
+            _damage = wave.damage;
         }
     }
 }

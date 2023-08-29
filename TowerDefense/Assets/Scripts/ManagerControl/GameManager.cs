@@ -1,8 +1,11 @@
+using System;
+using System.Collections.Generic;
+using GameControl;
 using UnityEngine;
 
 namespace ManagerControl
 {
-    public class GameManager : MonoBehaviour
+    public class GameManager : Singleton<GameManager>
     {
         private void Awake()
         {
@@ -12,6 +15,16 @@ namespace ManagerControl
             {
                 Instantiate(sources[i]);
             }
+
         }
+    }
+
+    public enum TowerType
+    {
+        Ballista,
+        Assassin,
+        Canon,
+        Mage,
+        Defender
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using DataControl;
 using TowerControl;
 using UnityEngine;
 
@@ -8,43 +9,47 @@ namespace UnitControl.EnemyControl
 {
     public class EnemyStatus : MonoBehaviour
     {
-        private CancellationTokenSource cts;
-        private EnemyAI enemyAI;
-        private bool isSlowed;
-        private float defaultSpeed;
+        private CancellationTokenSource _cts;
+        private EnemyAI _enemyAI;
+        private bool _isSlowed;
+        private float _defaultSpeed;
+
+        [SerializeField] private float slowImmunityTime;
 
         private void Awake()
         {
-            enemyAI = GetComponent<EnemyAI>();
-            defaultSpeed = enemyAI.MoveSpeed;
+            _enemyAI = GetComponent<EnemyAI>();
+            _defaultSpeed = _enemyAI.MoveSpeed;
         }
 
         private void OnEnable()
         {
-            cts?.Dispose();
-            cts = new CancellationTokenSource();
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
             StatusInit();
         }
 
         private void OnDisable()
         {
-            cts?.Cancel();
+            _cts?.Cancel();
         }
 
         private void StatusInit()
         {
-            isSlowed = false;
-            enemyAI.MoveSpeed = defaultSpeed;
+            _isSlowed = false;
+            _enemyAI.MoveSpeed = _defaultSpeed;
         }
 
-        public async UniTaskVoid SlowEffect(SpeedDeBuffData speedDeBuffData)
+        public async UniTaskVoid SlowEffect(DeBuffData.SpeedDeBuffData speedDeBuffData)
         {
-            if (isSlowed) return;
-            isSlowed = true;
-            enemyAI.MoveSpeed -= speedDeBuffData.decreaseSpeed;
-            await UniTask.Delay(TimeSpan.FromSeconds(speedDeBuffData.deBuffTime), cancellationToken: cts.Token);
-            enemyAI.MoveSpeed += speedDeBuffData.decreaseSpeed;
-            isSlowed = false;
+            if (_isSlowed) return;
+            _isSlowed = true;
+            _enemyAI.MoveSpeed -= speedDeBuffData.decreaseSpeed;
+            if (_enemyAI.MoveSpeed < 0.5f) _enemyAI.MoveSpeed = 0.5f;
+            await UniTask.Delay(TimeSpan.FromSeconds(speedDeBuffData.deBuffTime), cancellationToken: _cts.Token);
+            _enemyAI.MoveSpeed += speedDeBuffData.decreaseSpeed;
+            await UniTask.Delay(TimeSpan.FromSeconds(slowImmunityTime), cancellationToken: _cts.Token);
+            _isSlowed = false;
         }
     }
 }
