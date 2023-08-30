@@ -1,11 +1,8 @@
-using System;
-using System.Collections.Generic;
-using GameControl;
 using UnityEngine;
 
 namespace ManagerControl
 {
-    public class GameManager : Singleton<GameManager>
+    public class GameManager : MonoBehaviour
     {
         private void Awake()
         {

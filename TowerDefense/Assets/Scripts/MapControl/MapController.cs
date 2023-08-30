@@ -320,8 +320,9 @@ namespace MapControl
 
             for (var i = 0; i < _expandButtonPosList.Count; i++)
             {
-                _expandButtons.Add(ObjectPoolManager.GetUI<ExpandMapButton>(PoolObjectName.ExpandButton));
-                _expandButtons[i].targetPos = _expandButtonPosList[i];
+                _expandButtons.Add(
+                    ObjectPoolManager.Get<ExpandMapButton>(
+                        PoolObjectName.ExpandButton, _expandButtonPosList[i], Quaternion.Euler(0, 45, 0)));
             }
         }
 

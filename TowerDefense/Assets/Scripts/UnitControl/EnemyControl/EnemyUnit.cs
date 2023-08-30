@@ -74,7 +74,7 @@ namespace UnitControl.EnemyControl
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(_t.position, _attackRange);
+            Gizmos.DrawWireSphere(transform.position, _attackRange);
         }
         /*==============================================================================================================================================
                                                     Unity Event

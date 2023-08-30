@@ -1,20 +1,22 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using GameControl;
+using TMPro;
 using UnityEngine;
 
 namespace ManagerControl
 {
-    public class DataManager : Singleton<DataManager>
+    public class DataManager : MonoBehaviour
     {
-        private string _path;
-
-        private Dictionary<string, int> _damageDic;
+        private static string _path;
+        private static Dictionary<string, int> _damageDic;
 
         private void Awake()
         {
             _path = Application.persistentDataPath + "/damage";
+
             if (File.Exists(_path))
             {
                 LoadDamageData();
@@ -32,19 +34,19 @@ namespace ManagerControl
             }
         }
 
-
-        public void SumDamage(string towerType, int damage)
+        public static void SumDamage(string towerType, int damage)
         {
             _damageDic[towerType] += damage;
         }
 
-        public void SaveDamageData()
+        public static void SaveDamageData()
         {
             var data = DictionaryJsonUtility.ToJson(_damageDic);
             File.WriteAllText(_path, data);
+            TowerManager.Instance.SetDamageText(_damageDic);
         }
 
-        public void LoadDamageData()
+        public static void LoadDamageData()
         {
             var data = File.ReadAllText(_path);
             _damageDic = DictionaryJsonUtility.FromJson<string, int>(data);

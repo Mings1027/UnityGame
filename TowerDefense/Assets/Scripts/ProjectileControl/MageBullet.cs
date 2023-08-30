@@ -77,7 +77,7 @@ namespace ProjectileControl
             if (other.TryGetComponent(out IDamageable damageable))
             {
                 damageable.Damage(_damage);
-                DataManager.Instance.SumDamage(_towerName, _damage);
+                DataManager.SumDamage(_towerName, _damage);
             }
 
             if (other.TryGetComponent(out EnemyStatus e))

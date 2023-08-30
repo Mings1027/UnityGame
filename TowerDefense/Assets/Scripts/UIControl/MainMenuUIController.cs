@@ -8,7 +8,7 @@ namespace UIControl
     public class MainMenuUIController : MonoBehaviour
     {
         private CameraManager _cameraManager;
-        
+
         [SerializeField] private Button startButton;
         [SerializeField] private int rotateSpeed;
 
@@ -16,17 +16,12 @@ namespace UIControl
         {
             _cameraManager = FindObjectOfType<CameraManager>();
 
-            startButton.onClick.AddListener(() =>
-            {
-                StartGame();
-                WaveManager.Instance.StartGame();
-                TowerManager.Instance.GameStart();
-            });
+            startButton.onClick.AddListener(StartGame);
         }
 
         private void OnEnable()
         {
-            Time.timeScale = 1;
+            Time.timeScale = 1; 
         }
 
         private void Update()
@@ -39,9 +34,10 @@ namespace UIControl
         {
             SoundManager.Instance.PlayBGM();
             MapController.Instance.GenerateInitMap();
+            WaveManager.Instance.ActiveWave();
+            TowerManager.Instance.GameStart();
             _cameraManager.enabled = true;
-
-            gameObject.SetActive(false);
+            Destroy(gameObject);
         }
     }
 }

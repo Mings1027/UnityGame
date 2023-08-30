@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using DataControl;
 using DG.Tweening;
@@ -7,7 +9,6 @@ using TowerControl;
 using UIControl;
 using UnitControl;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -26,11 +27,10 @@ namespace ManagerControl
     public class TowerManager : Singleton<TowerManager>
     {
         private TowerInfo _towerInfo;
-
         private Camera _cam;
 
         //  Tower Buttons
-        private Sequence _showTowerBtnSequence;
+        private Sequence _onOffTowerBtnSequence;
         private bool _isShowTowerBtn;
 
         //  Tower Panel
@@ -44,6 +44,9 @@ namespace ManagerControl
         private float _prevSize;
         private Vector3 _prevPos;
 
+        // Damage Data
+        private TMP_Text[] _damageTexts;
+
         //  HUD
         public bool IsPause { get; private set; }
 
@@ -51,13 +54,17 @@ namespace ManagerControl
         private int _curSpeed;
         private bool _isSpeedUp;
         private bool _callNotEnoughTween;
-        private Tween _menuPanelTween;
+
+        private Sequence _pauseSequence;
         private Tween _notEnoughGoldTween;
 
         private CameraManager _cameraManager;
 
         [Header("----------Tower Buttons----------")] [SerializeField]
         private Transform towerButtons;
+
+        [SerializeField] private Button showTowerButton;
+        [SerializeField] private Button hideTowerButton;
 
         [SerializeField] private InputManager inputManager;
 
@@ -73,17 +80,22 @@ namespace ManagerControl
         [SerializeField] private GameObject moveUnitButton;
         [SerializeField] private GameObject sellTowerButton;
 
+        [Header("------------Damage Data----------")] [SerializeField]
+        private GameObject damagePanel;
+
         [Header("------------HUD------------")] [SerializeField]
         private GameObject hudPanel;
 
         [SerializeField] private int[] towerBuildGold;
         [SerializeField] private int startGold;
 
-        [SerializeField] private Transform menuPanel;
+        [SerializeField] private Transform pausePanel;
         [SerializeField] private Button pauseButton;
         [SerializeField] private Button resumeButton;
         [SerializeField] private Button bgmButton;
-        [SerializeField] private Button returnToMainMenuButton;
+
+        [SerializeField] private Button gameEndButton;
+        [SerializeField] private Button mainMenuButton;
         [SerializeField] private Button speedUpButton;
         [SerializeField] private Sprite musicOnImage;
         [SerializeField] private Sprite musicOffImage;
@@ -110,17 +122,18 @@ namespace ManagerControl
         private void Awake()
         {
             _cam = Camera.main;
-            _cameraManager = GameObject.Find("CameraManager").GetComponent<CameraManager>();
+            _cameraManager = FindObjectOfType<CameraManager>();
+            TweenInit();
             TowerButtonInit();
             TowerEditButtonInit();
             MenuButtonInit();
+            DamageTextInit();
             GameOverPanelInit();
         }
 
         private void Start()
         {
             hudPanel.SetActive(false);
-            _menuPanelTween.PlayBackwards();
             _notEnoughGoldTween.PlayBackwards();
             moveUnitIndicator.gameObject.SetActive(false);
             gameOverPanel.SetActive(false);
@@ -132,34 +145,57 @@ namespace ManagerControl
         {
             _towerSelectPanelTween.Kill();
             _notEnoughGoldTween.Kill();
-            _menuPanelTween.Kill();
+            _pauseSequence.Kill();
+            _onOffTowerBtnSequence.Kill();
         }
 
         /*=================================================================================================================
     *                                                  Unity Event                                                             *
     //================================================================================================================*/
 
+        #region Init
+
+        private void TweenInit()
+        {
+            _onOffTowerBtnSequence = DOTween.Sequence().SetAutoKill(false).Pause();
+            _onOffTowerBtnSequence
+                .Append(showTowerButton.transform.DOLocalMoveY(-200, 0.5f).SetEase(Ease.InOutBack))
+                .Join(towerButtons.DOLocalMoveY(250, 0.5f).SetEase(Ease.InOutBack))
+                .SetRelative();
+
+            _towerSelectPanelTween =
+                towerInfoUI.transform.DOScale(1, 0.15f).From(0).SetEase(Ease.OutBack).SetAutoKill(false);
+
+            _pauseSequence = DOTween.Sequence().SetAutoKill(false).SetUpdate(true).Pause();
+            _pauseSequence
+                .Append(pausePanel.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBack))
+                .Join(pauseButton.transform.DOLocalMoveX(500, 0.5f).SetEase(Ease.OutBack))
+                .SetRelative()
+                .PrependCallback(() => _cameraManager.enabled = !_cameraManager.enabled);
+
+            _notEnoughGoldTween = notEnoughGoldPanel.transform.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBounce)
+                .SetAutoKill(false);
+        }
+
         private void TowerButtonInit()
         {
-            _showTowerBtnSequence = DOTween.Sequence().SetAutoKill(false).Pause();
-            for (var i = 0; i < towerButtons.childCount; i++)
-            {
-                var towerBtn = towerButtons.GetChild(i);
-                _showTowerBtnSequence.Append(towerBtn.DOLocalMoveY(-200, 0.1f)
-                    .From().SetEase(Ease.InOutBack).SetRelative());
-            }
+            showTowerButton.onClick.AddListener(ShowTowerButtons);
+            hideTowerButton.onClick.AddListener(HideTowerButtons);
+            hideTowerButton.gameObject.SetActive(false);
         }
 
         private void TowerEditButtonInit()
         {
-            _towerSelectPanelTween = towerInfoUI.transform.DOScale(1, 0.1f).From(0).SetAutoKill(false);
-            upgradeButton.GetComponent<Button>().onClick.AddListener(TowerUpgrade);
-            moveUnitButton.GetComponent<Button>().onClick.AddListener(() =>
+            upgradeButton.TryGetComponent(out Button upgradeBtn);
+            upgradeBtn.onClick.AddListener(TowerUpgrade);
+            moveUnitButton.TryGetComponent(out Button moveUnitBtn);
+            moveUnitBtn.onClick.AddListener(() =>
             {
                 FocusUnitTower();
                 MoveUnitButton();
             });
-            sellTowerButton.GetComponent<Button>().onClick.AddListener(SellTower);
+            sellTowerButton.TryGetComponent(out Button sellTowerBtn);
+            sellTowerBtn.onClick.AddListener(SellTower);
         }
 
         private void MenuButtonInit()
@@ -173,19 +209,26 @@ namespace ManagerControl
             pauseButton.onClick.AddListener(Pause);
             resumeButton.onClick.AddListener(Resume);
             bgmButton.onClick.AddListener(BGMButton);
-            returnToMainMenuButton.onClick.AddListener(() =>
+            gameEndButton.onClick.AddListener(() =>
             {
-                SceneManager.LoadScene(0);
-                DataManager.Instance.SaveDamageData();
+                // _pausePanelTween.PlayBackwards();
+                DataManager.SaveDamageData();
+                damagePanel.SetActive(true);
+                damagePanel.transform.DOScale(1, 0.25f).SetEase(Ease.OutBack).SetUpdate(true);
             });
+            mainMenuButton.onClick.AddListener(() => SceneManager.LoadScene(0));
             speedUpButton.onClick.AddListener(SpeedUp);
+        }
 
-            _menuPanelTween = menuPanel.DOScale(1, 0.25f)
-                .From(0).SetAutoKill(false)
-                .SetEase(Ease.OutBack)
-                .SetUpdate(true);
-            _notEnoughGoldTween = notEnoughGoldPanel.transform.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBounce)
-                .SetAutoKill(false);
+        private void DamageTextInit()
+        {
+            damagePanel.SetActive(false);
+            var damageTextPanel = damagePanel.transform.GetChild(0);
+            _damageTexts = new TMP_Text[damageTextPanel.childCount];
+            for (var i = 0; i < _damageTexts.Length; i++)
+            {
+                _damageTexts[i] = damageTextPanel.GetChild(i).GetChild(0).GetComponent<TMP_Text>();
+            }
         }
 
         private void GameOverPanelInit()
@@ -199,6 +242,17 @@ namespace ManagerControl
             moveUnitIndicator.gameObject.SetActive(false);
         }
 
+        #endregion
+
+        public void SetDamageText(Dictionary<string, int> damageDic)
+        {
+            var damageArray = damageDic.Values.ToArray();
+            for (var i = 0; i < damageArray.Length; i++)
+            {
+                _damageTexts[i].text = damageArray[i].ToString();
+            }
+        }
+
         public void PlaceTower(string towerName, Vector3 snappedPos)
         {
             _curSelectedTower = ObjectPoolManager.Get<Tower>(towerName, snappedPos);
@@ -210,40 +264,41 @@ namespace ManagerControl
         {
             hudPanel.SetActive(true);
             Time.timeScale = 1;
+            _cam.DOOrthoSize(20, 1).From(100).SetEase(Ease.InCubic);
         }
 
         private void GameOver()
         {
             gameOverPanel.SetActive(true);
             Time.timeScale = 0;
-            DataManager.Instance.SaveDamageData();
+            DataManager.SaveDamageData();
         }
 
-        public void ShowTowerButtons()
+        private void ShowTowerButtons()
         {
-            if (!_isShowTowerBtn)
-            {
-                _isShowTowerBtn = true;
-                _showTowerBtnSequence.Restart();
-                inputManager.enabled = true;
-            }
-            else
-            {
-                _isShowTowerBtn = false;
-                _showTowerBtnSequence.PlayBackwards();
-                inputManager.enabled = false;
-            }
+            if (_isShowTowerBtn) return;
+            _isShowTowerBtn = true;
+            inputManager.enabled = true;
+            _onOffTowerBtnSequence.Restart();
+            hideTowerButton.gameObject.SetActive(true);
+        }
+
+        private void HideTowerButtons()
+        {
+            if (!_isShowTowerBtn) return;
+            if (Input.GetTouch(0).deltaPosition != Vector2.zero) return;
+            _isShowTowerBtn = false;
+            inputManager.enabled = false;
+            _onOffTowerBtnSequence.PlayBackwards();
+            hideTowerButton.gameObject.SetActive(false);
         }
 
         private void ClickTower(Tower clickedTower)
         {
             _isTower = true;
-            towerInfoUI.enabled = true;
-            // OffIndicator();
             _isPanelOpen = true;
 
             _curSelectedTower = clickedTower;
-            towerInfoUI.SetFollowTarget(_curSelectedTower.transform.position);
 
             upgradeButton.SetActive(_curSelectedTower.TowerLevel != 4);
             moveUnitButton.SetActive(_curSelectedTower.TryGetComponent(out UnitTower _));
@@ -256,6 +311,8 @@ namespace ManagerControl
         {
             _towerSelectPanelTween.Restart();
 
+            towerInfoUI.enabled = true;
+            towerInfoUI.SetFollowTarget(_curSelectedTower.transform.position);
             if (!towerInfoUI.gameObject.activeSelf) towerInfoUI.gameObject.SetActive(true);
             offUIButton.gameObject.SetActive(true);
 
@@ -294,7 +351,7 @@ namespace ManagerControl
         {
             if (!EnoughGold())
             {
-                notEnoughGoldPanel.transform.DOScale(1, 0.1f).SetEase(Ease.OutBounce);
+                _notEnoughGoldTween.Restart();
                 return;
             }
 
@@ -376,17 +433,17 @@ namespace ManagerControl
         {
             var enoughGold = _towerGold > towerBuildGold[_isTower ? _curSelectedTower.TowerLevel + 1 : 0];
             if (enoughGold) return true;
-            NotEnoughGoldPrint().Forget();
+            NotEnoughGoldPopUp().Forget();
             return false;
         }
 
-        private async UniTaskVoid NotEnoughGoldPrint()
+        private async UniTaskVoid NotEnoughGoldPopUp()
         {
             if (_callNotEnoughTween) return;
             _callNotEnoughTween = true;
-            notEnoughGoldPanel.transform.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBounce);
+            _notEnoughGoldTween.Restart();
             await UniTask.Delay(1000);
-            notEnoughGoldPanel.transform.DOScale(0, 0.2f);
+            _notEnoughGoldTween.PlayBackwards();
             _callNotEnoughTween = false;
         }
 
@@ -396,14 +453,20 @@ namespace ManagerControl
         {
             IsPause = true;
             Time.timeScale = 0;
-            _menuPanelTween.Restart();
+            // _cameraManager.enabled = false;
+            // _pausePanelTween.Restart();
+            // _pauseButtonTween.Restart();
+            _pauseSequence.Restart();
         }
 
         private void Resume()
         {
             IsPause = false;
-            Time.timeScale = 1;
-            _menuPanelTween.PlayBackwards();
+            Time.timeScale = _curSpeed;
+            // _cameraManager.enabled = true;
+            // _pausePanelTween.PlayBackwards();
+            // _pauseButtonTween.PlayBackwards();
+            _pauseSequence.PlayBackwards();
         }
 
         private void BGMButton()

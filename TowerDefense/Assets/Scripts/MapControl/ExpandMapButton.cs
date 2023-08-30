@@ -1,26 +1,23 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace MapControl
 {
-    public class ExpandMapButton : MonoBehaviour
+    public class ExpandMapButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
-        private Camera _cam;
-        public Vector3 targetPos { get; set; }
-
-        private void Awake()
+        private void ExpandMap()
         {
-            _cam = Camera.main;
-        }
-        
-        private void LateUpdate()
-        {
-            transform.position = _cam.WorldToScreenPoint(targetPos);
-        }
-
-        public void ExpandMap()
-        {
-            MapController.Instance.ExpandMap(targetPos);
+            MapController.Instance.ExpandMap(transform.position);
             gameObject.SetActive(false);
+        }
+
+        public void OnPointerDown(PointerEventData eventData)
+        {
+        }
+
+        public void OnPointerUp(PointerEventData eventData)
+        {
+            ExpandMap();
         }
     }
 }

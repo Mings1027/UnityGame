@@ -44,7 +44,7 @@ namespace ManagerControl
             _cts?.Cancel();
         }
 
-        public void StartGame()
+        public void ActiveWave()
         {
             _waveTextImage.SetActive(true);
         }

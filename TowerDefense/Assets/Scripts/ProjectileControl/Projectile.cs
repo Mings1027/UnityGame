@@ -70,7 +70,7 @@ namespace ProjectileControl
             if (col.TryGetComponent(out IDamageable damageable))
             {
                 damageable.Damage(damage);
-                DataManager.Instance.SumDamage(towerName, damage);
+                DataManager.SumDamage(towerName, damage);
             }
         }
     }

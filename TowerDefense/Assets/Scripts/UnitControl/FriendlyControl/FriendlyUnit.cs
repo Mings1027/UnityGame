@@ -129,7 +129,7 @@ namespace UnitControl.FriendlyControl
             if (_target.TryGetComponent(out IDamageable damageable))
             {
                 damageable.Damage(_damage);
-                DataManager.Instance.SumDamage(towerType, _damage);
+                DataManager.SumDamage(towerType, _damage);
             }
 
             await UniTask.Delay(TimeSpan.FromSeconds(_atkDelay), cancellationToken: _cts.Token);
