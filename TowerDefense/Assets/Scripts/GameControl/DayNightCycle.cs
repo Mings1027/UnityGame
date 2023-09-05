@@ -51,11 +51,9 @@ namespace GameControl
             {
                 var absDotProduct = _dotProduct * -1;
                 RenderSettings.ambientLight = Color.Lerp(sunsetColor, nightTimeColor, sunCurve.Evaluate(absDotProduct));
-                _cam.backgroundColor = Color.Lerp(morningColor,nightColor, sunCurve.Evaluate(absDotProduct));
+                _cam.backgroundColor = Color.Lerp(morningColor, nightColor, sunCurve.Evaluate(absDotProduct));
                 lerp = absDotProduct;
             }
-
-
         }
 
         // private void OnDrawGizmos()

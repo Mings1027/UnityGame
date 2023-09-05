@@ -3,7 +3,6 @@ using System.Linq;
 using DataControl;
 using GameControl;
 using ManagerControl;
-using UnityEditor;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -59,6 +58,23 @@ namespace MapControl
             MapDataInit();
         }
 
+        private void Start()
+        {
+            PlaceStartMap();
+            WaveManager.Instance.OnPlaceExpandButton += PlaceExpandButtons;
+        }
+
+        private void PlaceStartMap()
+        {
+            var ranIndex = Random.Range(0, _directionMappingDic.Count);
+            _connectionString = _directionMappingDic.Keys.ToArray()[ranIndex];
+
+            _newMapObject = Instantiate(_mapDictionary[_directionMappingDic[_connectionString]], transform);
+
+            SetNewMapForward();
+            _map.Add(_newMapObject);
+        }
+
         private void ComponentInit()
         {
             _meshFilter = GetComponent<MeshFilter>();
@@ -100,29 +116,10 @@ namespace MapControl
             _wayPoints = new HashSet<Vector3>();
         }
 
-        private void Start()
-        {
-            PlaceStartMap();
-            WaveManager.Instance.OnPlaceExpandButton += PlaceExpandButtons;
-        }
-
         public void GenerateInitMap()
         {
             InitExpandButtonPosition();
             PlaceExpandButtons();
-        }
-
-        private void PlaceStartMap()
-        {
-            var ranIndex = Random.Range(0, _directionMappingDic.Count);
-            _connectionString = _directionMappingDic.Keys.ToArray()[ranIndex];
-
-            var newMap = Instantiate(_mapDictionary[_directionMappingDic[_connectionString]], transform);
-
-            var firstIndex = int.Parse(_connectionString[0].ToString());
-            _newMapForward = -_checkDirection[firstIndex];
-            newMap.transform.forward = _newMapForward;
-            _map.Add(newMap);
         }
 
         private void InitExpandButtonPosition()
