@@ -264,7 +264,7 @@ namespace ManagerControl
         {
             hudPanel.SetActive(true);
             Time.timeScale = 1;
-            _cam.DOOrthoSize(20, 1).From(100).SetEase(Ease.InCubic);
+            _cam.DOOrthoSize(20, 1).From(100).SetEase(Ease.OutQuad);
         }
 
         private void GameOver()

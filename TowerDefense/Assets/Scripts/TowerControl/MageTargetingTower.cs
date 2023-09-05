@@ -25,6 +25,8 @@ namespace TowerControl
                 .SetLoops(2, LoopType.Yoyo);
 
             _crystalMeshFilter = crystal.GetComponent<MeshFilter>();
+
+            effectName = new[] { "MageVfx1", "MageVfx2", "MageVfx3" };
         }
 
         public override void TowerSetting(MeshFilter towerMesh, int damageData, int rangeData,
@@ -48,6 +50,8 @@ namespace TowerControl
             var p = ObjectPoolManager.Get<MageBullet>(PoolObjectName.MageBullet, crystal.position);
 
             p.Init(target, damage, deBuffData.speedDeBuffData[TowerLevel]);
+
+            EffectAttack(p.transform);
         }
     }
 }

@@ -40,9 +40,6 @@ namespace DataControl
         /*==================================================================================================================
         *                                              Effect
         ==================================================================================================================*/
-     
-        // private const string BallistaVfx1 = "BallistaVfx1";
-        // private const string BallistaVfx2 = "BallistaVfx2";
-        // private const string BallistaVfx3 = "BallistaVfx3";
+        public const string CanonHitVfx = "CanonHitVfx";
     }
 }

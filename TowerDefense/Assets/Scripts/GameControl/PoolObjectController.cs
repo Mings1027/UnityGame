@@ -13,7 +13,8 @@ namespace GameControl
         private void Awake()
         {
             if (dontDestroy) return;
-            lifeTime = 3;
+            if (lifeTime == 0)
+                lifeTime = 3;
         }
 
         private void OnEnable()

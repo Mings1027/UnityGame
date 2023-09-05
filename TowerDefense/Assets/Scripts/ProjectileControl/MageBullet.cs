@@ -12,7 +12,6 @@ namespace ProjectileControl
         private Rigidbody _rigid;
         private int _damage;
 
-        private SphereCollider _sphereCollider;
         private DeBuffData.SpeedDeBuffData _speedDeBuffData;
 
         private float _timeSinceLastUpdate;
@@ -25,13 +24,7 @@ namespace ProjectileControl
         private void Awake()
         {
             _rigid = GetComponent<Rigidbody>();
-            _sphereCollider = GetComponent<SphereCollider>();
             _towerName = TowerType.Mage.ToString();
-        }
-
-        private void OnEnable()
-        {
-            _sphereCollider.enabled = true;
         }
 
         private void FixedUpdate()
@@ -48,7 +41,7 @@ namespace ProjectileControl
         private void OnTriggerEnter(Collider other)
         {
             _isArrived = true;
-            _sphereCollider.enabled = false;
+            gameObject.SetActive(false);
 
             WhenHitEnemy(other);
         }

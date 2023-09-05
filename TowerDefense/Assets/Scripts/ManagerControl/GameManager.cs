@@ -6,7 +6,7 @@ namespace ManagerControl
     {
         private void Awake()
         {
-            Application.targetFrameRate = 60;
+            Application.targetFrameRate = 30;
             var sources = Resources.LoadAll<GameObject>("Prefabs");
             for (var i = 0; i < sources.Length; i++)
             {

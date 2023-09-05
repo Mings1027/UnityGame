@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace GameControl
 {
-    public class ObjectPoolManager : Singleton<ObjectPoolManager>
+    public class ObjectPoolManager : MonoBehaviour
     {
         [Serializable]
         public class Pool : IComparable<Pool>
@@ -31,11 +31,12 @@ namespace GameControl
 
         private void Awake()
         {
-            Array.Sort(pools);
-
             _inst = this;
             _poolDictionary = new Dictionary<string, Stack<GameObject>>();
             PoolInit();
+#if UNITY_EDITOR
+            Array.Sort(pools);
+#endif
         }
 
         private void PoolInit()
@@ -44,6 +45,7 @@ namespace GameControl
             for (var i = 0; i < pools.Length; i++)
             {
                 var pool = pools[i];
+                pool.tag = pool.prefab.name;
                 if (pool.prefab == null)
                     throw new Exception($"{pool.tag} doesn't exist");
                 _poolDictionary.Add(pool.tag, new Stack<GameObject>());
@@ -113,7 +115,7 @@ namespace GameControl
                 if (pool == null)
                     throw new Exception($"Pool with tag {objTag} doesn't exist.");
 
-                var obj = CreateNewObject(pool.tag, pool.prefab);
+                var obj = CreateNewObject(objTag, pool.prefab);
 #if UNITY_EDITOR
                 SortObject(obj);
 #endif

@@ -22,7 +22,7 @@ namespace ProjectileControl
                 return;
             }
 
-            transform.position = target.position;
+            transform.position = target.position + Random.insideUnitSphere * 0.1f;
         }
 
         private void OnDisable()

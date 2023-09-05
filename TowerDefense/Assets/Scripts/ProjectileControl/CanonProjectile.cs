@@ -10,8 +10,6 @@ namespace ProjectileControl
         private Vector3 _targetEndPos;
         private Collider[] _targetColliders;
 
-        [SerializeField] private Transform effects;
-        [SerializeField] private ParticleSystem explosionParticle;
         [SerializeField] private LayerMask enemyLayer;
         [SerializeField] private float atkRange;
 
@@ -24,17 +22,7 @@ namespace ProjectileControl
 
         protected override void FixedUpdate()
         {
-            if (isArrived) return;
             ParabolaPath(_targetEndPos);
-        }
-
-        protected override void OnDisable()
-        {
-            base.OnDisable();
-            for (var i = 0; i < effects.childCount; i++)
-            {
-                effects.GetChild(i).gameObject.SetActive(false);
-            }
         }
 
         private void OnDrawGizmos()
@@ -45,8 +33,10 @@ namespace ProjectileControl
         protected override void ProjectileHit(Collider col)
         {
             var pos = transform.position;
-            explosionParticle.Play();
+            
+            ObjectPoolManager.Get(PoolObjectName.CanonHitVfx, pos);
             ObjectPoolManager.Get(PoolObjectName.CanonHitSfx, pos);
+
             var size = Physics.OverlapSphereNonAlloc(pos, atkRange, _targetColliders, enemyLayer);
             for (var i = 0; i < size; i++)
             {
@@ -54,17 +44,12 @@ namespace ProjectileControl
             }
         }
 
-        public void Init(Vector3 t, int dmg, int effectCount)
+        public void Init(Vector3 t, int dmg)
         {
             Physics.Raycast(t + Vector3.up * 2, Vector3.down, out var hit, 10);
             _targetEndPos = hit.point;
             _targetEndPos.y = 0;
             damage = dmg;
-
-            for (var i = 0; i < effectCount; i++)
-            {
-                effects.GetChild(i).gameObject.SetActive(true);
-            }
         }
     }
 }

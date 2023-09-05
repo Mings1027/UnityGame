@@ -8,13 +8,10 @@ namespace ProjectileControl
     public abstract class Projectile : MonoBehaviour
     {
         private Rigidbody _rigid;
-        private MeshRenderer _meshRenderer;
-        private SphereCollider _sphereCollider;
         private Vector3 _curPos;
         private Vector3 _startPos;
         private float _lerp;
 
-        protected bool isArrived;
         protected int damage;
         protected string towerName;
 
@@ -24,8 +21,6 @@ namespace ProjectileControl
         protected virtual void Awake()
         {
             _rigid = GetComponent<Rigidbody>();
-            _meshRenderer = GetComponentInChildren<MeshRenderer>();
-            _sphereCollider = GetComponent<SphereCollider>();
         }
 
         protected virtual void OnEnable()
@@ -37,17 +32,12 @@ namespace ProjectileControl
 
         protected virtual void OnDisable()
         {
-            isArrived = false;
             _lerp = 0;
-            _meshRenderer.enabled = true;
-            _sphereCollider.enabled = true;
         }
 
         protected virtual void OnTriggerEnter(Collider other)
         {
-            isArrived = true;
-            _meshRenderer.enabled = false;
-            _sphereCollider.enabled = false;
+            gameObject.SetActive(false);
             ProjectileHit(other);
         }
 

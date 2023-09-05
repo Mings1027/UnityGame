@@ -144,11 +144,11 @@ namespace MapControl
 
             CheckConnection();
 
-            PlaceNewMap();
+            PlaceNewMap(newMapPos);
 
             ObjectPoolManager.Get(PoolObjectName.ExpandMapSmoke, newMapPos);
 
-            SetNewMapForward(newMapPos);
+            SetNewMapForward();
 
             SetButtonsPosition(newMapPos);
 
@@ -228,13 +228,20 @@ namespace MapControl
             }
         }
 
-        private void PlaceNewMap()
+        private void PlaceNewMap(Vector3 newMapPos)
         {
             if (_connectionString == null) return;
             var prefabInstantiate = _connectionString.Length == 1 ? IfSingleConnection() : IfMultipleConnection();
 
-            _newMapObject = Instantiate(prefabInstantiate, transform);
+            _newMapObject = Instantiate(prefabInstantiate, newMapPos, Quaternion.identity, transform);
             _map.Add(_newMapObject);
+        }
+
+        private void SetNewMapForward()
+        {
+            var firstIndex = int.Parse(_connectionString[0].ToString());
+            _newMapForward = -_checkDirection[firstIndex];
+            _newMapObject.transform.forward = _newMapForward;
         }
 
         private GameObject IfSingleConnection()
@@ -258,14 +265,6 @@ namespace MapControl
         {
             var ranProbability = Random.Range(0, 100);
             return ranProbability <= portalSpawnProbability;
-        }
-
-        private void SetNewMapForward(Vector3 newMapPos)
-        {
-            var firstIndex = int.Parse(_connectionString[0].ToString());
-            _newMapForward = -_checkDirection[firstIndex];
-            _newMapObject.transform.position = newMapPos;
-            _newMapObject.transform.forward = _newMapForward;
         }
 
         private void SetButtonsPosition(Vector3 newMapPos)

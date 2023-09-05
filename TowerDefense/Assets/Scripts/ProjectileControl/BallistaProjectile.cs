@@ -8,7 +8,6 @@ namespace ProjectileControl
     public class BallistaProjectile : Projectile
     {
         private Transform _target;
-        [SerializeField] private Transform effects;
 
         protected override void Awake()
         {
@@ -18,17 +17,7 @@ namespace ProjectileControl
 
         protected override void FixedUpdate()
         {
-            if (isArrived) return;
             ParabolaPath(_target.position);
-        }
-
-        protected override void OnDisable()
-        {
-            base.OnDisable();
-            for (var i = 0; i < effects.childCount; i++)
-            {
-                effects.GetChild(i).gameObject.SetActive(false);
-            }
         }
 
         protected override void ProjectileHit(Collider col)
@@ -37,15 +26,10 @@ namespace ProjectileControl
             ApplyDamage(col);
         }
 
-        public void Init(Transform t, int dmg, int effectCount)
+        public void Init(Transform t, int dmg)
         {
             _target = t;
             damage = dmg;
-
-            for (var i = 0; i < effectCount; i++)
-            {
-                effects.GetChild(i).gameObject.SetActive(true);
-            }
         }
     }
 }

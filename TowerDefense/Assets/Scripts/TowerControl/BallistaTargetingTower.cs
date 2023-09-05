@@ -9,16 +9,15 @@ namespace TowerControl
     {
         private int _archerCount;
         private Vector3 _targetDirection;
-        private int effectsCount;
 
         [SerializeField] private Transform ballista;
         [SerializeField] private Transform firePos;
         [SerializeField] private float smoothTurnSpeed;
 
-        protected override void OnDisable()
+        protected override void Init()
         {
-            base.OnDisable();
-            effectsCount = 0;
+            base.Init();
+            effectName = new[] { "BallistaVfx1", "BallistaVfx2", "BallistaVfx3" };
         }
 
         private void LateUpdate()
@@ -31,22 +30,13 @@ namespace TowerControl
             ballista.rotation = Quaternion.Slerp(ballista.rotation, rotGoal, smoothTurnSpeed);
         }
 
-        public override void TowerSetting(MeshFilter towerMesh, int damageData, int rangeData,
-            float attackDelayData)
-        {
-            base.TowerSetting(towerMesh, damageData, rangeData, attackDelayData);
-
-            if (TowerLevel % 2 == 0)
-            {
-                effectsCount++;
-            }
-        }
-
         protected override void Attack()
         {
             ObjectPoolManager.Get(PoolObjectName.BallistaShootSfx, transform);
             var bullet = ObjectPoolManager.Get<BallistaProjectile>(PoolObjectName.BallistaProjectile, firePos.position);
-            bullet.Init(target, damage, effectsCount);
+            bullet.Init(target, damage);
+
+            EffectAttack(bullet.transform);
         }
     }
 }
