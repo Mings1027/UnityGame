@@ -5,10 +5,9 @@ namespace MapControl
 {
     public class ExpandMapButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
-        private void ExpandMap()
+        public void ExpandMap()
         {
             MapController.Instance.ExpandMap(transform.position);
-            gameObject.SetActive(false);
         }
 
         public void OnPointerDown(PointerEventData eventData)

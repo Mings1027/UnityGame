@@ -13,7 +13,7 @@ namespace ManagerControl
         private float _lerp;
 
         private Touch _firstTouch, _secondTouch;
-        private Vector3 curPos, newPos;
+        private Vector3 _curPos, _newPos;
 
         [SerializeField] private float moveSpeed;
         [SerializeField] private float rotationSpeed;
@@ -33,7 +33,7 @@ namespace ManagerControl
             _cts = new CancellationTokenSource();
             transform.rotation = Quaternion.Euler(0, 45, 0);
             _cam.orthographic = true;
-            _cam.transform.localPosition = new Vector3(0, 30, -30);
+            _cam.transform.localPosition = new Vector3(0, 40, -40);
         }
 
         private void LateUpdate()
@@ -84,14 +84,14 @@ namespace ManagerControl
         {
             var pos = (_firstTouch.deltaPosition + _secondTouch.deltaPosition) * 0.5f;
             var t = transform;
-            curPos = t.right * (-moveSpeed * pos.x);
-            curPos += t.forward * (pos.y * -moveSpeed);
-            curPos.y = 0;
-            newPos = t.position + curPos * Time.deltaTime;
+            _curPos = t.right * (-moveSpeed * pos.x);
+            _curPos += t.forward * (pos.y * -moveSpeed);
+            _curPos.y = 0;
+            _newPos = t.position + _curPos * Time.deltaTime;
 
-            if (IsInBounds(newPos))
+            if (IsInBounds(_newPos))
             {
-                t.position = newPos;
+                t.position = _newPos;
             }
         }
 

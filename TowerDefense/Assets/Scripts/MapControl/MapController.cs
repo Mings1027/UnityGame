@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Cysharp.Threading.Tasks;
 using DataControl;
 using GameControl;
 using ManagerControl;
@@ -42,15 +44,16 @@ namespace MapControl
 
         private HashSet<Vector3> _wayPoints;
 
-        [SerializeField] private float mapSize;
+        [SerializeField] private int mapSize;
         [SerializeField] private GameObject[] mapPrefabs;
         [SerializeField] private GameObject[] uniqueMap;
         [SerializeField] private LayerMask groundLayer;
         [SerializeField, Range(0, 100)] private int portalSpawnProbability;
         [SerializeField] private int maxMapWidth;
         [SerializeField] private int maxMapHeight;
+#if UNITY_EDITOR
         [SerializeField] private int mapCount;
-
+#endif
         private void Awake()
         {
             ComponentInit();
@@ -63,7 +66,16 @@ namespace MapControl
             PlaceStartMap();
             WaveManager.Instance.OnPlaceExpandButton += PlaceExpandButtons;
         }
-
+#if UNITY_EDITOR
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.red;
+            foreach (var way in _wayPoints)
+            {
+                Gizmos.DrawSphere(way, 1);
+            }
+        }
+#endif
         private void PlaceStartMap()
         {
             var ranIndex = Random.Range(0, _directionMappingDic.Count);
@@ -108,18 +120,39 @@ namespace MapControl
 
             _directionMappingDic = new Dictionary<string, string>
             {
-                { "01", "S" }, { "02", "L" }, { "03", "R" }, { "12", "R" }, { "13", "L" }, { "23", "S" },
-                { "012", "SL" }, { "013", "SR" }, { "023", "LR" }, { "123", "LR" },
-                { "0123", "SLR" }
+                { "01", "F" }, { "02", "L" }, { "03", "R" }, { "12", "R" }, { "13", "L" }, { "23", "F" },
+                { "012", "FL" }, { "013", "FR" }, { "023", "LR" }, { "123", "LR" },
+                { "0123", "FLR" }
             };
 
             _wayPoints = new HashSet<Vector3>();
         }
 
-        public void GenerateInitMap()
+        public async UniTaskVoid GenerateInitMap()
         {
             InitExpandButtonPosition();
             PlaceExpandButtons();
+
+            // while (mapCount > _map.Count)
+            // {
+            //     var index = 0;
+            //     for (int i = 0; i < _expandButtons.Count; i++)
+            //     {
+            //         if (_expandButtons[i].gameObject.activeSelf)
+            //         {
+            //             var ran = Random.Range(0, 2);
+            //             if (ran == 1)
+            //             {
+            //                 index = i;
+            //                 break;
+            //             }
+            //         }
+            //     }
+            //
+            //     _expandButtons[index].ExpandMap();
+            //     await UniTask.Yield();
+            //     PlaceExpandButtons();
+            // }
         }
 
         private void InitExpandButtonPosition()
@@ -147,9 +180,9 @@ namespace MapControl
 
             SetNewMapForward();
 
-            SetButtonsPosition(newMapPos);
-
             SetWayPoints();
+
+            SetButtonsPosition(newMapPos);
 
             DisableExpandButtons();
 
@@ -195,10 +228,10 @@ namespace MapControl
 
                 var neighborPos = _neighborMapArray[i].transform.position;
                 var neighborToNewMapDir = (newMapPos - neighborPos).normalized;
-                var neighborWayPoints = _neighborMapArray[i].WayPoints;
-                for (var j = 0; j < neighborWayPoints.Length; j++)
+                var neighborWayPoints = _neighborMapArray[i].wayPointList;
+                for (var j = 0; j < neighborWayPoints.Count; j++)
                 {
-                    var dir = (neighborWayPoints[j].position - neighborPos).normalized;
+                    var dir = (neighborWayPoints[j] - neighborPos).normalized;
 
                     if (neighborToNewMapDir != dir) continue;
                     _isConnectedArray[i] = true;
@@ -239,6 +272,8 @@ namespace MapControl
             var firstIndex = int.Parse(_connectionString[0].ToString());
             _newMapForward = -_checkDirection[firstIndex];
             _newMapObject.transform.forward = _newMapForward;
+            _newMapObject.TryGetComponent(out MapData map);
+            map.SetWayPoint();
         }
 
         private GameObject IfSingleConnection()
@@ -264,33 +299,18 @@ namespace MapControl
             return ranProbability <= portalSpawnProbability;
         }
 
-        private void SetButtonsPosition(Vector3 newMapPos)
-        {
-            _expandButtonPosHashSet.RemoveWhere(p => p == newMapPos);
-            _newMapObject.TryGetComponent(out MapData mapData);
-            _newMapWayPoints.Clear();
-            for (var i = 0; i < mapData.WayPoints.Length; i++)
-            {
-                _newMapWayPoints.Add(mapData.WayPoints[i].position);
-            }
-
-
-            for (var i = 0; i < _newMapWayPoints.Count; i++)
-            {
-                if (CanAddToList(_newMapWayPoints[i]))
-                {
-                    _expandButtonPosHashSet.Add(_newMapPosition + _dirToWayPoint * mapSize);
-                }
-            }
-        }
-
         private void SetWayPoints()
         {
             _newMapObject.TryGetComponent(out MapData mapData);
-
-            for (var i = 0; i < mapData.WayPoints.Length; i++)
+            _newMapWayPoints.Clear();
+            for (var i = 0; i < mapData.wayPointList.Count; i++)
             {
-                _wayPoints.RemoveWhere(p => p == mapData.WayPoints[i].position);
+                _newMapWayPoints.Add(mapData.wayPointList[i]);
+            }
+
+            for (var i = 0; i < mapData.wayPointList.Count; i++)
+            {
+                _wayPoints.RemoveWhere(p => p == mapData.wayPointList[i]);
             }
 
             for (var i = 0; i < _newMapWayPoints.Count; i++)
@@ -301,10 +321,34 @@ namespace MapControl
                 }
             }
 
-            if (mapData.WayPoints.Length == 1)
+            //For Portal Map
+            if (mapData.wayPointList.Count == 1)
             {
                 _wayPoints.Add(_newMapObject.transform.position);
             }
+        }
+
+        private void SetButtonsPosition(Vector3 newMapPos)
+        {
+            _expandButtonPosHashSet.RemoveWhere(p => p == newMapPos);
+
+            for (var i = 0; i < _newMapWayPoints.Count; i++)
+            {
+                if (CanAddToList(_newMapWayPoints[i]))
+                {
+                    _expandButtonPosHashSet.Add(_newMapPosition + _dirToWayPoint * mapSize);
+                }
+            }
+        }
+
+        private void DisableExpandButtons()
+        {
+            for (var i = 0; i < _expandButtonPosList.Count; i++)
+            {
+                if (_expandButtons[i].gameObject.activeSelf) _expandButtons[i].gameObject.SetActive(false);
+            }
+
+            _expandButtons.Clear();
         }
 
         //Call When Wave is over
@@ -320,16 +364,6 @@ namespace MapControl
                     ObjectPoolManager.Get<ExpandMapButton>(
                         PoolObjectName.ExpandButton, _expandButtonPosList[i], Quaternion.Euler(0, 45, 0)));
             }
-        }
-
-        private void DisableExpandButtons()
-        {
-            for (var i = 0; i < _expandButtonPosList.Count; i++)
-            {
-                if (_expandButtons[i].gameObject.activeSelf) _expandButtons[i].gameObject.SetActive(false);
-            }
-
-            _expandButtons.Clear();
         }
 
         private void CombineMesh()
@@ -362,7 +396,9 @@ namespace MapControl
             for (var i = 0; i < _meshFilters.Count; i++)
             {
                 if (_meshFilters[i].TryGetComponent(out MeshRenderer meshRenderer))
-                    meshRenderer.enabled = false;
+                {
+                    Destroy(meshRenderer);
+                }
             }
 // #if UNITY_EDITOR
 //             const string path = "Assets/Meshes/Map.asset";
@@ -379,9 +415,8 @@ namespace MapControl
             var ray = new Ray(_newMapPosition, _dirToWayPoint);
             if (Physics.SphereCast(ray, 2, mapSize, groundLayer)) return false;
 
-            var finalPos = _newMapPosition + _dirToWayPoint * mapSize;
-            return (finalPos.x >= -maxMapWidth && finalPos.x <= maxMapWidth) ||
-                   (finalPos.z >= -maxMapHeight && finalPos.z <= maxMapHeight);
+            return point.x >= -maxMapWidth && point.x <= maxMapWidth &&
+                   point.z >= -maxMapHeight && point.z <= maxMapHeight;
         }
     }
 }
