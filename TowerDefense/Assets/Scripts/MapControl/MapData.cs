@@ -23,8 +23,7 @@ namespace MapControl
             wayPointList = new List<Vector3>();
         }
         
-
-        public void SetWayPoint()
+        public void SetWayPoint(int halfMapSize)
         {
             wayPointList.Add(-transform.forward);
 
@@ -45,7 +44,7 @@ namespace MapControl
 
             for (int i = 0; i < wayPointList.Count; i++)
             {
-                wayPointList[i] *= 9;
+                wayPointList[i] *= halfMapSize;
                 wayPointList[i] += transform.position;
             }
         }

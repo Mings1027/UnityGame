@@ -103,16 +103,15 @@ namespace ManagerControl
             var enemyUnit = ObjectPoolManager.Get<EnemyUnit>(waveData.enemyWaves[j].enemyName, wayPointsArray[i]);
             enemyUnit.Init(wave);
 
-            var disableEnemy = enemyUnit.GetComponent<DisableEnemyHandler>();
-            disableEnemy.OnDecreaseLifeCount += TowerManager.Instance.DecreaseLifeCount;
-            disableEnemy.OnUpdateEnemyCount += UpdateEnemyCount;
-
-            var enemyHealth = enemyUnit.GetComponent<Health>();
+            var enemyHealth = enemyUnit.GetComponent<EnemyHealth>();
+            enemyHealth.OnDecreaseLifeCountEvent += TowerManager.Instance.DecreaseLifeCountEvent;
+            enemyHealth.OnUpdateEnemyCountEvent += UpdateEnemyCountEvent;
+            enemyHealth.OnDieEvent +=
+                () => TowerManager.Instance.IncreaseGold(waveData.enemyWaves[waveIndex].enemyCoin);
             enemyHealth.Init(wave.health);
-            enemyHealth.OnDie += () => TowerManager.Instance.IncreaseGold(waveData.enemyWaves[waveIndex].enemyCoin);
         }
 
-        private void UpdateEnemyCount()
+        private void UpdateEnemyCountEvent()
         {
             if (!_startGame) return;
             _remainingEnemyCount--;

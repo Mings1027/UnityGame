@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -5,10 +6,7 @@ namespace MapControl
 {
     public class ExpandMapButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
-        public void ExpandMap()
-        {
-            MapController.Instance.ExpandMap(transform.position);
-        }
+        public event Action<Vector3> OnExpandMapEvent;
 
         public void OnPointerDown(PointerEventData eventData)
         {
@@ -16,7 +14,17 @@ namespace MapControl
 
         public void OnPointerUp(PointerEventData eventData)
         {
-            ExpandMap();
+            OnExpandMapEvent?.Invoke(transform.position);
+        }
+
+        public void Expand()
+        {
+            OnExpandMapEvent?.Invoke(transform.position);
+        }
+
+        private void OnDisable()
+        {
+            OnExpandMapEvent = null;
         }
     }
 }

@@ -1,34 +1,43 @@
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace ProjectileControl
 {
     public class FollowProjectile : MonoBehaviour
     {
-        private bool isTargeting;
+        private bool _isTargeting;
+        private ParticleSystem _particleSystem;
 
         public Transform target { get; set; }
 
+        private void Awake()
+        {
+            _particleSystem = GetComponent<ParticleSystem>();
+        }
+
         private void OnEnable()
         {
-            isTargeting = true;
+            _particleSystem.Play();
+            _isTargeting = true;
         }
 
         private void FixedUpdate()
         {
-            if (!isTargeting) return;
+            if (!_isTargeting) return;
             if (!target.gameObject.activeSelf)
             {
-                isTargeting = false;
+                _isTargeting = false;
                 return;
             }
 
-            transform.position = target.position + Random.insideUnitSphere * 0.1f;
+            transform.position = target.position;
         }
 
         private void OnDisable()
         {
             target = null;
-            isTargeting = false;
+            _isTargeting = false;
+            _particleSystem.Stop();
         }
     }
 }

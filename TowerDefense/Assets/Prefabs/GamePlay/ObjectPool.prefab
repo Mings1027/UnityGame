@@ -45,21 +45,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pools:
-  - tag: ArrowHitSFX
-    prefab: {fileID: 953530123978054383, guid: eaea9681d992d453c8887f8f2165dbac, type: 3}
-    size: 10
-  - tag: ArrowShootSFX
-    prefab: {fileID: 953530123978054383, guid: 80a327d3bb6224375a83b345522d2d3e, type: 3}
-    size: 10
   - tag: BallistaProjectile
-    prefab: {fileID: 6657280961342496678, guid: 7b23a2b6573388d4ca27fc52e79beb6d,
+    prefab: {fileID: 4239686126468880624, guid: c66fa031cf9db4ac08bcc4f48aed3242,
       type: 3}
-    size: 10
-  - tag: BulletHitSFX
-    prefab: {fileID: 953530123978054383, guid: 1ef67d3fcbe454d6c97efd054d69922e, type: 3}
-    size: 10
-  - tag: BulletShootSFX
-    prefab: {fileID: 953530123978054383, guid: 3e0b15747b8224d60bf019347fcaf513, type: 3}
     size: 10
   - tag: BuildSmoke
     prefab: {fileID: 104829970813648393, guid: d3015b7eea383f64d8b81f965cc466e7, type: 3}
@@ -71,65 +59,11 @@ MonoBehaviour:
     prefab: {fileID: 104829970813648393, guid: d8fe01f37611a48f4ad3a7b61cbf23aa, type: 3}
     size: 1
   - tag: CanonProjectile
-    prefab: {fileID: 801532688620828538, guid: 4d518478452cf43caac5b5938c3d5a53, type: 3}
-    size: 10
-  - tag: CanonShootSFX
-    prefab: {fileID: 953530123978054383, guid: 5c99c05004e754440842aad77f3c4871, type: 3}
-    size: 10
-  - tag: CanonHitSFX
-    prefab: {fileID: 953530123978054383, guid: b0799921b8d5941e69e6a1544e62922a, type: 3}
-    size: 10
-  - tag: MageShootSFX
-    prefab: {fileID: 953530123978054383, guid: f4d162e98900b4e7cbaf28d71d7bf4bc, type: 3}
+    prefab: {fileID: 4239686126468880624, guid: 0d362d985f8944c67b24ff151d961565,
+      type: 3}
     size: 10
   - tag: MageBullet
     prefab: {fileID: 2676114535170603306, guid: d0e1d1cd82acbe241aef6fbf1edfd7a0,
-      type: 3}
-    size: 10
-  - tag: BallistaTower
-    prefab: {fileID: 6197179999279106558, guid: 6853988c5ba6a624baae558e60c7705a,
-      type: 3}
-    size: 10
-  - tag: AssassinTower
-    prefab: {fileID: 3847918098510183265, guid: 8d942512867e1284e9d6225db845f190,
-      type: 3}
-    size: 10
-  - tag: CanonTower
-    prefab: {fileID: 7895117123715481240, guid: 210d26a116210b7448e11f2f1b8c04fa,
-      type: 3}
-    size: 10
-  - tag: MageTower
-    prefab: {fileID: 4440219121197004554, guid: c6d784db220a82540bcd8c36e16873db,
-      type: 3}
-    size: 10
-  - tag: DefenderTower
-    prefab: {fileID: 1910714280161815426, guid: 7a286ab122b55db4b9b902a02b52e0f4,
-      type: 3}
-    size: 10
-  - tag: SlowDownMageShootSfx
-    prefab: {fileID: 953530123978054383, guid: 6a471009398494caaa2d53e01f5d7c99, type: 3}
-    size: 10
-  - tag: SpreadMageShootSfx
-    prefab: {fileID: 953530123978054383, guid: 4696e6da34a7b4b5fa9916a29136f3e5, type: 3}
-    size: 10
-  - tag: Goblin
-    prefab: {fileID: 5137451470882268708, guid: 26813a717945c42dc9dfc569dedaeeb7,
-      type: 3}
-    size: 10
-  - tag: Orc
-    prefab: {fileID: 7444029544577177143, guid: 0689c6b1c35665144b7e410abbb79ae0,
-      type: 3}
-    size: 10
-  - tag: ArmoredGoblin
-    prefab: {fileID: 2231750944910142623, guid: 01e330b33e0693548b109d4612bd0656,
-      type: 3}
-    size: 10
-  - tag: ArmoredOrc
-    prefab: {fileID: 1565534273846441980, guid: 35e8468446503864a85bb94f2af98115,
-      type: 3}
-    size: 10
-  - tag: Ooogie
-    prefab: {fileID: 8503625774716829267, guid: f606a14d312c3cf47a04cb666d2fe075,
       type: 3}
     size: 10
   - tag: Assassin
@@ -138,10 +72,6 @@ MonoBehaviour:
     size: 10
   - tag: Defender
     prefab: {fileID: 7952787121515888648, guid: dc369a6f3c15b504d8c82970cd3a98bb,
-      type: 3}
-    size: 10
-  - tag: ExpandButton
-    prefab: {fileID: 1617147681613039483, guid: 506d7111a4e0f478a9c37a963004c54b,
       type: 3}
     size: 10
   - tag: BallistaVfx1
@@ -184,3 +114,27 @@ MonoBehaviour:
     prefab: {fileID: 4936878332485049037, guid: 99c796eedc9c261438e8e56caf158eba,
       type: 3}
     size: 3
+  - tag: ArmoredGoblin
+    prefab: {fileID: 2231750944910142623, guid: 01e330b33e0693548b109d4612bd0656,
+      type: 3}
+    size: 3
+  - tag: ArmoredOrc
+    prefab: {fileID: 1565534273846441980, guid: 35e8468446503864a85bb94f2af98115,
+      type: 3}
+    size: 3
+  - tag: Goblin
+    prefab: {fileID: 5137451470882268708, guid: 26813a717945c42dc9dfc569dedaeeb7,
+      type: 3}
+    size: 3
+  - tag: Ooogie
+    prefab: {fileID: 8503625774716829267, guid: f606a14d312c3cf47a04cb666d2fe075,
+      type: 3}
+    size: 3
+  - tag: Orc
+    prefab: {fileID: 7444029544577177143, guid: 0689c6b1c35665144b7e410abbb79ae0,
+      type: 3}
+    size: 3
+  - tag: BloodVfx
+    prefab: {fileID: 6427543683923275176, guid: c82aa05a03c904f02ad609d612c3c02e,
+      type: 3}
+    size: 20

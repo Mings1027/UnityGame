@@ -1,5 +1,7 @@
 using DataControl;
+using DG.Tweening;
 using GameControl;
+using InterfaceControl;
 using ManagerControl;
 using UnityEngine;
 
@@ -17,13 +19,17 @@ namespace ProjectileControl
 
         protected override void FixedUpdate()
         {
-            ParabolaPath(_target.position);
+            ParabolaPath(_target.transform.position);
         }
 
-        protected override void ProjectileHit(Collider col)
+        protected override void TryHit()
         {
-            ObjectPoolManager.Get(PoolObjectName.BallistaHitSfx, transform.position);
-            ApplyDamage(col);
+            if (_target == null) return;
+            if (_target.TryGetComponent(out IDamageable damageable))
+            {
+                damageable.Damage(damage);
+                DataManager.SumDamage(towerName, damage);
+            }
         }
 
         public void Init(Transform t, int dmg)

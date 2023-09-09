@@ -29,6 +29,8 @@ namespace ManagerControl
         private TowerInfo _towerInfo;
         private Camera _cam;
 
+        private Dictionary<string, GameObject> _towerDictionary;
+
         //  Tower Buttons
         private Sequence _onOffTowerBtnSequence;
         private bool _isShowTowerBtn;
@@ -59,6 +61,9 @@ namespace ManagerControl
         private Tween _notEnoughGoldTween;
 
         private CameraManager _cameraManager;
+        private string[] _towerName;
+
+        [SerializeField] private GameObject[] towerArray;
 
         [Header("----------Tower Buttons----------")] [SerializeField]
         private Transform towerButtons;
@@ -112,7 +117,9 @@ namespace ManagerControl
         [SerializeField] private Button reStartButton;
 
         [Header("----------Indicator----------")] [SerializeField]
-        private GameObject towerRangeIndicator;
+        private MeshRenderer towerRangeIndicator;
+
+        [SerializeField] private MeshRenderer selectedTowerIndicator;
 
         [SerializeField] private MoveUnitIndicator moveUnitIndicator;
 
@@ -123,6 +130,7 @@ namespace ManagerControl
         {
             _cam = Camera.main;
             _cameraManager = FindObjectOfType<CameraManager>();
+            TowerInit();
             TweenInit();
             TowerButtonInit();
             TowerEditButtonInit();
@@ -135,7 +143,6 @@ namespace ManagerControl
         {
             hudPanel.SetActive(false);
             _notEnoughGoldTween.PlayBackwards();
-            moveUnitIndicator.gameObject.SetActive(false);
             gameOverPanel.SetActive(false);
             offUIButton.gameObject.SetActive(false);
             IndicatorInit();
@@ -155,22 +162,33 @@ namespace ManagerControl
 
         #region Init
 
+        private void TowerInit()
+        {
+            _towerName = new string[towerArray.Length];
+            for (int i = 0; i < _towerName.Length; i++)
+            {
+                _towerName[i] = towerArray[i].name;
+            }
+
+            _towerDictionary = new Dictionary<string, GameObject>();
+            for (int i = 0; i < towerArray.Length; i++)
+            {
+                _towerDictionary.Add(_towerName[i], towerArray[i]);
+            }
+        }
+
         private void TweenInit()
         {
-            _onOffTowerBtnSequence = DOTween.Sequence().SetAutoKill(false).Pause();
-            _onOffTowerBtnSequence
-                .Append(showTowerButton.transform.DOLocalMoveY(-200, 0.5f).SetEase(Ease.InOutBack))
-                .Join(towerButtons.DOLocalMoveY(250, 0.5f).SetEase(Ease.InOutBack))
-                .SetRelative();
+            _onOffTowerBtnSequence = DOTween.Sequence().SetAutoKill(false).Pause()
+                .Append(showTowerButton.transform.DOLocalMoveY(-650, 0.5f).From(-450).SetEase(Ease.InOutBack))
+                .Join(towerButtons.DOLocalMoveY(-200, 0.5f).From(true).SetEase(Ease.InOutBack));
 
             _towerSelectPanelTween =
                 towerInfoUI.transform.DOScale(1, 0.15f).From(0).SetEase(Ease.OutBack).SetAutoKill(false);
 
-            _pauseSequence = DOTween.Sequence().SetAutoKill(false).SetUpdate(true).Pause();
-            _pauseSequence
-                .Append(pausePanel.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBack))
-                .Join(pauseButton.transform.DOLocalMoveX(500, 0.5f).SetEase(Ease.OutBack))
-                .SetRelative()
+            _pauseSequence = DOTween.Sequence().SetAutoKill(false).SetUpdate(true).Pause()
+                .Append(pausePanel.DOLocalMoveY(0, 0.5f).From(1200).SetEase(Ease.OutBack))
+                .Join(pauseButton.transform.DOLocalMoveY(665, 0.5f).From(465).SetEase(Ease.InOutBack))
                 .PrependCallback(() => _cameraManager.enabled = !_cameraManager.enabled);
 
             _notEnoughGoldTween = notEnoughGoldPanel.transform.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBounce)
@@ -211,7 +229,6 @@ namespace ManagerControl
             bgmButton.onClick.AddListener(BGMButton);
             gameEndButton.onClick.AddListener(() =>
             {
-                // _pausePanelTween.PlayBackwards();
                 DataManager.SaveDamageData();
                 damagePanel.SetActive(true);
                 damagePanel.transform.DOScale(1, 0.25f).SetEase(Ease.OutBack).SetUpdate(true);
@@ -238,8 +255,9 @@ namespace ManagerControl
 
         private void IndicatorInit()
         {
-            towerRangeIndicator.SetActive(false);
-            moveUnitIndicator.gameObject.SetActive(false);
+            towerRangeIndicator.enabled = false;
+            selectedTowerIndicator.enabled = false;
+            moveUnitIndicator.enabled = false;
         }
 
         #endregion
@@ -253,9 +271,26 @@ namespace ManagerControl
             }
         }
 
+        public void PlaceUnitTower(string towerName, Vector3 snappedPos, RaycastHit hit)
+        {
+            var unitTower = Instantiate(_towerDictionary[towerName], snappedPos, Quaternion.identity)
+                .GetComponent<UnitTower>();
+            unitTower.unitSpawnPosition = hit.point;
+            _curSelectedTower = unitTower;
+#if UNITY_EDITOR
+            _curSelectedTower.transform.SetParent(transform);
+#endif
+            _curSelectedTower.OnClickTower += ClickTower;
+            TowerUpgrade();
+        }
+
         public void PlaceTower(string towerName, Vector3 snappedPos)
         {
-            _curSelectedTower = ObjectPoolManager.Get<Tower>(towerName, snappedPos);
+            _curSelectedTower = Instantiate(_towerDictionary[towerName], snappedPos, Quaternion.identity)
+                .GetComponent<Tower>();
+#if UNITY_EDITOR
+            _curSelectedTower.transform.SetParent(transform);
+#endif
             _curSelectedTower.OnClickTower += ClickTower;
             TowerUpgrade();
         }
@@ -270,6 +305,7 @@ namespace ManagerControl
         private void GameOver()
         {
             gameOverPanel.SetActive(true);
+            _cameraManager.enabled = false;
             Time.timeScale = 0;
             DataManager.SaveDamageData();
         }
@@ -299,6 +335,10 @@ namespace ManagerControl
             _isPanelOpen = true;
 
             _curSelectedTower = clickedTower;
+
+            selectedTowerIndicator.transform.position = _curSelectedTower.transform.position;
+            if (!selectedTowerIndicator.enabled)
+                selectedTowerIndicator.enabled = true;
 
             upgradeButton.SetActive(_curSelectedTower.TowerLevel != 4);
             moveUnitButton.SetActive(_curSelectedTower.TryGetComponent(out UnitTower _));
@@ -344,11 +384,12 @@ namespace ManagerControl
             indicatorTransform.position = pos + new Vector3(0, 0.1f, 0);
             indicatorTransform.localScale =
                 new Vector3(targetingTower.TowerRange, 0.2f, targetingTower.TowerRange);
-            if (!towerRangeIndicator.activeSelf) towerRangeIndicator.SetActive(true);
+            if (!towerRangeIndicator.enabled) towerRangeIndicator.enabled = true;
         }
 
         private void TowerUpgrade()
         {
+            SoundManager.Instance.PlaySound(StringManager.ButtonSound);
             if (!EnoughGold())
             {
                 _notEnoughGoldTween.Restart();
@@ -361,11 +402,10 @@ namespace ManagerControl
             var tt = t.towerLevels[tempTower.TowerLevel];
             DecreaseGold(tempTower.TowerLevel);
 
-            ObjectPoolManager.Get(PoolObjectName.BuildSmoke, tempTower.transform.position);
+            ObjectPoolManager.Get(StringManager.BuildSmoke, tempTower.transform.position);
 
             tempTower.TowerSetting(tt.towerMesh, tt.damage, tt.attackRange, tt.attackDelay);
             upgradeButton.SetActive(tempTower.TowerLevel != 4);
-            tempTower.DisableOutline();
             if (!_isPanelOpen) return;
             UpdateTowerInfo();
         }
@@ -374,27 +414,30 @@ namespace ManagerControl
         {
             _prevSize = _cam.orthographicSize;
             _prevPos = _cameraManager.transform.position;
-            _cam.DOOrthoSize(10, 0.5f).SetEase(Ease.OutExpo);
-            _cameraManager.transform.DOMove(_curSelectedTower.transform.position, 0.5f).SetEase(Ease.OutExpo);
+            _cameraManager.transform.DOMove(_curSelectedTower.transform.position, 0.5f).SetEase(Ease.InSine);
+            _cam.DOOrthoSize(10, 0.5f).SetEase(Ease.InSine);
         }
 
         public void RewindCamState()
         {
-            _cam.DOOrthoSize(_prevSize, 0.5f).SetEase(Ease.OutExpo);
-            _cameraManager.transform.DOMove(_prevPos, 0.5f).SetEase(Ease.OutExpo);
+            _cameraManager.transform.DOMove(_prevPos, 0.5f).SetEase(Ease.InSine);
+            _cam.DOOrthoSize(_prevSize, 0.5f).SetEase(Ease.InSine);
         }
 
         private void MoveUnitButton()
         {
+            SoundManager.Instance.PlaySound(StringManager.ButtonSound);
             moveUnitButton.SetActive(false);
             towerInfoUI.gameObject.SetActive(false);
 
             _curSelectedTower.TryGetComponent(out UnitTower unitTower);
             moveUnitIndicator.UnitTower = unitTower;
-            var moveIndicatorTransform = moveUnitIndicator.transform;
-            moveIndicatorTransform.position = _curSelectedTower.transform.position + new Vector3(0, 0.1f, 0);
-            moveIndicatorTransform.localScale = new Vector3(unitTower.MoveUnitRange, 0.2f, unitTower.MoveUnitRange);
-            moveUnitIndicator.gameObject.SetActive(true);
+            moveUnitIndicator.distance = unitTower.MoveUnitRange;
+            moveUnitIndicator.enabled = true;
+            var indicatorTransform = towerRangeIndicator.transform;
+            indicatorTransform.position = _curSelectedTower.transform.position + new Vector3(0, 0.1f, 0);
+            indicatorTransform.localScale = new Vector3(unitTower.MoveUnitRange, 0.2f, unitTower.MoveUnitRange);
+            if (!towerRangeIndicator.enabled) towerRangeIndicator.enabled = true;
         }
 
         private void SellTower()
@@ -402,8 +445,8 @@ namespace ManagerControl
             SoundManager.Instance.PlaySound(_curSelectedTower.TowerLevel < 2 ? "SellTower1" :
                 _curSelectedTower.TowerLevel < 4 ? "SellTower2" : "SellTower3");
 
-            _curSelectedTower.gameObject.SetActive(false);
-            ObjectPoolManager.Get(PoolObjectName.BuildSmoke, _curSelectedTower.transform);
+            ObjectPoolManager.Get(StringManager.BuildSmoke, _curSelectedTower.transform);
+            Destroy(_curSelectedTower.gameObject);
 
             IncreaseGold(_sellTowerGold);
             ResetUI();
@@ -411,22 +454,23 @@ namespace ManagerControl
 
         private void OffIndicator()
         {
-            if (towerRangeIndicator.activeSelf) towerRangeIndicator.SetActive(false);
+            if (towerRangeIndicator.enabled) towerRangeIndicator.enabled = false;
             if (!moveUnitIndicator.enabled) return;
 
-            moveUnitIndicator.gameObject.SetActive(false);
+            moveUnitIndicator.enabled = false;
         }
 
         public void ResetUI()
         {
             if (!_isPanelOpen) return;
             _isTower = false;
+            _curSelectedTower = null;
             offUIButton.gameObject.SetActive(false);
             towerInfoUI.enabled = false;
             _isPanelOpen = false;
             _towerSelectPanelTween.PlayBackwards();
             OffIndicator();
-            _curSelectedTower.DisableOutline();
+            selectedTowerIndicator.enabled = false;
         }
 
         public bool EnoughGold()
@@ -453,9 +497,6 @@ namespace ManagerControl
         {
             IsPause = true;
             Time.timeScale = 0;
-            // _cameraManager.enabled = false;
-            // _pausePanelTween.Restart();
-            // _pauseButtonTween.Restart();
             _pauseSequence.Restart();
         }
 
@@ -463,9 +504,6 @@ namespace ManagerControl
         {
             IsPause = false;
             Time.timeScale = _curSpeed;
-            // _cameraManager.enabled = true;
-            // _pausePanelTween.PlayBackwards();
-            // _pauseButtonTween.PlayBackwards();
             _pauseSequence.PlayBackwards();
         }
 
@@ -505,7 +543,7 @@ namespace ManagerControl
             goldText.text = _towerGold.ToString();
         }
 
-        public void DecreaseLifeCount()
+        public void DecreaseLifeCountEvent()
         {
             if (lifeCount == 0) return;
             lifeCount -= 1;

@@ -31,10 +31,10 @@ namespace TowerControl
         {
             _atkSequence.Restart();
             canonSmoke.Play();
-            ObjectPoolManager.Get(PoolObjectName.CanonShootSfx, transform);
-            var bullet = ObjectPoolManager.Get<CanonProjectile>(PoolObjectName.CanonProjectile,
+            var bullet = ObjectPoolManager.Get<CanonProjectile>(StringManager.CanonProjectile,
                 transform.position + new Vector3(0, 2, 0));
-            bullet.Init(target.position, damage);
+            var t = target.transform;
+            bullet.Init(t.position + t.forward * 2, damage);
 
             EffectAttack(bullet.transform);
         }

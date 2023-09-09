@@ -1,6 +1,8 @@
 using DataControl;
 using GameControl;
+using InterfaceControl;
 using ManagerControl;
+using SoundControl;
 using UnityEngine;
 
 namespace ProjectileControl
@@ -30,19 +32,27 @@ namespace ProjectileControl
             Gizmos.DrawWireSphere(transform.position, atkRange);
         }
 
-        protected override void ProjectileHit(Collider col)
+        protected override void TryHit()
         {
             var pos = transform.position;
-            
-            ObjectPoolManager.Get(PoolObjectName.CanonHitVfx, pos);
-            ObjectPoolManager.Get(PoolObjectName.CanonHitSfx, pos);
 
             var size = Physics.OverlapSphereNonAlloc(pos, atkRange, _targetColliders, enemyLayer);
+
+            if (size <= 0) return;
+            
+            ObjectPoolManager.Get<SoundPlayer>(StringManager.CanonHitVfx, pos).Play();
+
             for (var i = 0; i < size; i++)
             {
-                ApplyDamage(_targetColliders[i]);
+                // ObjectPoolManager.Get(StringManager.BloodVfx, _targetColliders[i].transform.position);
+                if (_targetColliders[i].TryGetComponent(out IDamageable damageable))
+                {
+                    damageable.Damage(damage);
+                    DataManager.SumDamage(towerName, damage);
+                }
             }
         }
+
 
         public void Init(Vector3 t, int dmg)
         {

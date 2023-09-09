@@ -24,22 +24,5 @@ namespace GameControl
 
             return nearestTarget;
         }
-
-        public static void SortTargetByDistance(Vector3 pos, Collider[] targetColliders)
-        {
-            for (var i = 0; i < targetColliders.Length - 1; i++)
-            {
-                var curTarget = targetColliders[i];
-                var curDistance = Vector3.SqrMagnitude(pos - curTarget.transform.position);
-                var j = i - 1;
-                while (j >= 0 && Vector3.SqrMagnitude(pos - targetColliders[j].transform.position) > curDistance)
-                {
-                    targetColliders[j + 1] = targetColliders[j];
-                    j--;
-                }
-
-                targetColliders[j + 1] = curTarget;
-            }
-        }
     }
 }

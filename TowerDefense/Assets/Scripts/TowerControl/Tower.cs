@@ -8,9 +8,7 @@ namespace TowerControl
     public abstract class Tower : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         private BoxCollider _boxCollider;
-        private MeshFilter _defaultMesh;
         private MeshRenderer _meshRenderer;
-        private Outline _outline;
         
         protected MeshFilter meshFilter;
         protected bool isSold;
@@ -30,14 +28,12 @@ namespace TowerControl
         protected virtual void OnEnable()
         {
             isSold = false;
+            TowerLevel = -1;
         }
 
         protected virtual void OnDisable()
         {
-            TowerLevel = -1;
-            isSold = true;
-            meshFilter.sharedMesh = _defaultMesh.sharedMesh;
-            OnClickTower = null;
+            // OnClickTower = null;
         }
 
         public void OnPointerDown(PointerEventData eventData)
@@ -46,7 +42,6 @@ namespace TowerControl
 
         public void OnPointerUp(PointerEventData eventData)
         {
-            _outline.enabled = true;
             OnClickTower?.Invoke(this);
         }
         //==================================Custom Method====================================================
@@ -57,9 +52,6 @@ namespace TowerControl
             _boxCollider = GetComponent<BoxCollider>();
             meshFilter = transform.GetChild(0).GetComponent<MeshFilter>();
             _meshRenderer = transform.GetChild(0).GetComponent<MeshRenderer>();
-            _defaultMesh = meshFilter;
-
-            _outline = GetComponent<Outline>();
         }
 
         public void TowerLevelUp()
@@ -74,11 +66,6 @@ namespace TowerControl
             _boxCollider.enabled = true;
 
             ColliderSize();
-        }
-
-        public void DisableOutline()
-        {
-            _outline.enabled = false;
         }
 
         private void ColliderSize()

@@ -5,16 +5,15 @@ namespace SoundControl
     public class SoundPlayer : MonoBehaviour
     {
         private AudioSource _audioSource;
-        
+
         private void Awake()
         {
             _audioSource = GetComponent<AudioSource>();
         }
-        
-        private void OnEnable()
+
+        public void Play()
         {
             _audioSource.PlayOneShot(_audioSource.clip);
         }
-        
     }
 }

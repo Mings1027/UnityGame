@@ -11,6 +11,8 @@ namespace ManagerControl
         private CameraManager _cameraManager;
         private Vector3 _prevCursorPos;
         private Vector3 _gridPos;
+        private Vector3 _curPos;
+        private bool _isChecked;
         private bool _isPlacingTower;
         private bool _isUnitTower;
         private string _selectedTowerName;
@@ -21,10 +23,10 @@ namespace ManagerControl
         private MeshRenderer _cursorMeshRenderer;
         private Ray _mouseRay;
         private RaycastHit _mouseRaycastHit;
+        private RaycastHit _canPlaceHit;
         [SerializeField] private Image placeTowerButton;
         [SerializeField] private Transform cubeCursor;
         [SerializeField] private Grid grid;
-        [SerializeField] private LayerMask placementLayer;
         [SerializeField] private LayerMask towerLayer;
 
         private void Awake()
@@ -55,6 +57,7 @@ namespace ManagerControl
             if (Input.GetMouseButton(0))
             {
                 MoveCursor();
+
                 CheckCanPlace();
             }
             else if (Input.GetMouseButtonUp(0))
@@ -84,13 +87,13 @@ namespace ManagerControl
 
         public void StartPlacement(string towerName, bool isUnitTower)
         {
+            _towerManager.ResetUI();
             if (!_towerManager.EnoughGold())
             {
                 StopPlacement();
                 return;
             }
 
-            _towerManager.ResetUI();
             _isPlacingTower = true;
             _isUnitTower = isUnitTower;
             _selectedTowerName = towerName;
@@ -104,24 +107,30 @@ namespace ManagerControl
             Physics.Raycast(_mouseRay, out _mouseRaycastHit, 100);
             var cellPos = grid.WorldToCell(_mouseRaycastHit.point);
             _gridPos = grid.CellToWorld(cellPos) + new Vector3(1.5f, 2f, 1.5f);
-            cubeCursor.transform.position = _gridPos;
+
+            if (_curPos == _gridPos) return;
+            _isChecked = false;
+            _curPos = _gridPos;
+            cubeCursor.transform.position = _curPos;
             placeTowerButton.transform.position = Input.mousePosition;
         }
 
         private void CheckCanPlace()
         {
-            _canPlace = CheckPlacementTile() &&
-                        !Physics.CheckSphere(_gridPos, 1, towerLayer) &&
+            if (_isChecked) return;
+            if (_curPos != _gridPos) return;
+            _canPlace = !Physics.CheckSphere(_gridPos, 1, towerLayer) && CheckPlacementTile() &&
                         (!_isUnitTower || CheckPlaceUnitTower());
 
             _cursorMeshRenderer.enabled = _canPlace;
+            _isChecked = true;
         }
 
         private bool CheckPlacementTile()
         {
-            if (Physics.Raycast(_gridPos + Vector3.up * 5, Vector3.down, out var hit, 10))
+            if (Physics.Raycast(_gridPos + Vector3.up * 5, Vector3.down, out _canPlaceHit, 10))
             {
-                if (hit.collider.CompareTag("Placement"))
+                if (_canPlaceHit.collider.CompareTag("Placement"))
                 {
                     return true;
                 }
@@ -135,9 +144,9 @@ namespace ManagerControl
             for (var i = 0; i < _checkDir.Length; i++)
             {
                 if (Physics.Raycast(_gridPos + _checkDir[i] * 3 + Vector3.up, Vector3.down,
-                        out var hit))
+                        out _canPlaceHit))
                 {
-                    if (hit.collider.CompareTag("Ground"))
+                    if (_canPlaceHit.collider.CompareTag("Ground"))
                     {
                         return true;
                     }
@@ -152,7 +161,14 @@ namespace ManagerControl
             if (!_canPlace) return;
             _gridPos = cubeCursor.transform.position;
             _gridPos.y = 0.5f;
-            _towerManager.PlaceTower(_selectedTowerName, _gridPos);
+            if (_isUnitTower)
+            {
+                _towerManager.PlaceUnitTower(_selectedTowerName, _gridPos, _canPlaceHit);
+            }
+            else
+            {
+                _towerManager.PlaceTower(_selectedTowerName, _gridPos);
+            }
         }
     }
 }

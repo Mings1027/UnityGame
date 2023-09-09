@@ -45,7 +45,7 @@ namespace UIControl
         public void SetFollowTarget(Vector3 towerPos)
         {
             _followTowerPos = towerPos;
-            transform.position =  _cam.WorldToScreenPoint(_followTowerPos);
+            // transform.position = _cam.WorldToScreenPoint(_followTowerPos);
         }
 
         public void SetTowerInfo(TowerInfo towerInfo)

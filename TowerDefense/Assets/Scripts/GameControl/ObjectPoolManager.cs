@@ -45,7 +45,7 @@ namespace GameControl
             for (var i = 0; i < pools.Length; i++)
             {
                 var pool = pools[i];
-                pool.tag = pool.prefab.name;
+                // pool.tag = pool.prefab.name;
                 if (pool.prefab == null)
                     throw new Exception($"{pool.tag} doesn't exist");
                 _poolDictionary.Add(pool.tag, new Stack<GameObject>());

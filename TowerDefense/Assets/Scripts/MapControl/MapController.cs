@@ -1,16 +1,15 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using Cysharp.Threading.Tasks;
 using DataControl;
 using GameControl;
 using ManagerControl;
+using UIControl;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace MapControl
 {
-    public class MapController : Singleton<MapController>
+    public class MapController : MonoBehaviour
     {
         private MeshFilter _meshFilter;
         private MeshRenderer _meshRenderer;
@@ -42,18 +41,21 @@ namespace MapControl
         private Dictionary<string, GameObject> _mapDictionary;
         private Dictionary<string, string> _directionMappingDic;
 
-        private HashSet<Vector3> _wayPoints;
+        private HashSet<Vector3> _wayPointsHashSet;
 
         [SerializeField] private int mapSize;
+        [SerializeField] private GameObject expandButtonObject;
         [SerializeField] private GameObject[] mapPrefabs;
         [SerializeField] private GameObject[] uniqueMap;
         [SerializeField] private LayerMask groundLayer;
         [SerializeField, Range(0, 100)] private int portalSpawnProbability;
-        [SerializeField] private int maxMapWidth;
-        [SerializeField] private int maxMapHeight;
+        [SerializeField] private int maxSize;
 #if UNITY_EDITOR
         [SerializeField] private int mapCount;
 #endif
+
+        #region Unity Event
+
         private void Awake()
         {
             ComponentInit();
@@ -64,28 +66,26 @@ namespace MapControl
         private void Start()
         {
             PlaceStartMap();
+
             WaveManager.Instance.OnPlaceExpandButton += PlaceExpandButtons;
+
+            TowerManager.Instance.transform.GetComponentInChildren<MainMenuUIController>().OnGenerateInitMapEvent +=
+                GenerateInitMap;
         }
 #if UNITY_EDITOR
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.red;
-            foreach (var way in _wayPoints)
+            foreach (var way in _wayPointsHashSet)
             {
                 Gizmos.DrawSphere(way, 1);
             }
         }
 #endif
-        private void PlaceStartMap()
-        {
-            var ranIndex = Random.Range(0, _directionMappingDic.Count);
-            _connectionString = _directionMappingDic.Keys.ToArray()[ranIndex];
 
-            _newMapObject = Instantiate(_mapDictionary[_directionMappingDic[_connectionString]], transform);
+        #endregion
 
-            SetNewMapForward();
-            _map.Add(_newMapObject);
-        }
+        #region Init
 
         private void ComponentInit()
         {
@@ -107,6 +107,12 @@ namespace MapControl
             _expandButtonPosHashSet = new HashSet<Vector3>();
             _expandButtonPosList = new List<Vector3>();
             _expandButtons = new List<ExpandMapButton>(50);
+            for (int i = 0; i < 10; i++)
+            {
+                _expandButtons.Add(Instantiate(expandButtonObject, transform).GetComponent<ExpandMapButton>());
+                _expandButtons[i].gameObject.SetActive(false);
+            }
+
             _neighborMapArray = new MapData[4];
             _isNullMapArray = new bool[4];
             _isConnectedArray = new bool[4];
@@ -125,10 +131,21 @@ namespace MapControl
                 { "0123", "FLR" }
             };
 
-            _wayPoints = new HashSet<Vector3>();
+            _wayPointsHashSet = new HashSet<Vector3>();
         }
 
-        public async UniTaskVoid GenerateInitMap()
+        private void PlaceStartMap()
+        {
+            var ranIndex = Random.Range(0, _directionMappingDic.Count);
+            _connectionString = _directionMappingDic.Keys.ToArray()[ranIndex];
+
+            _newMapObject = Instantiate(_mapDictionary[_directionMappingDic[_connectionString]], transform);
+
+            SetNewMapForward();
+            _map.Add(_newMapObject);
+        }
+
+        private void GenerateInitMap()
         {
             InitExpandButtonPosition();
             PlaceExpandButtons();
@@ -149,7 +166,7 @@ namespace MapControl
             //         }
             //     }
             //
-            //     _expandButtons[index].ExpandMap();
+            //     _expandButtons[index].Expand();
             //     await UniTask.Yield();
             //     PlaceExpandButtons();
             // }
@@ -164,7 +181,9 @@ namespace MapControl
             }
         }
 
-        public void ExpandMap(Vector3 newMapPos)
+        #endregion
+
+        private void ExpandMap(Vector3 newMapPos)
         {
             InitAdjacentState();
 
@@ -176,19 +195,19 @@ namespace MapControl
 
             PlaceNewMap(newMapPos);
 
-            ObjectPoolManager.Get(PoolObjectName.ExpandMapSmoke, newMapPos);
+            ObjectPoolManager.Get(StringManager.ExpandMapSmoke, newMapPos);
 
             SetNewMapForward();
 
-            SetWayPoints();
+            RemovePoints(newMapPos);
 
-            SetButtonsPosition(newMapPos);
+            SetPoints();
 
             DisableExpandButtons();
 
             CombineMesh();
 
-            WaveManager.Instance.StartWave(_wayPoints.ToArray());
+            WaveManager.Instance.StartWave(_wayPointsHashSet.ToArray());
         }
 
         private void InitAdjacentState()
@@ -273,7 +292,7 @@ namespace MapControl
             _newMapForward = -_checkDirection[firstIndex];
             _newMapObject.transform.forward = _newMapForward;
             _newMapObject.TryGetComponent(out MapData map);
-            map.SetWayPoint();
+            map.SetWayPoint(mapSize / 2);
         }
 
         private GameObject IfSingleConnection()
@@ -299,7 +318,7 @@ namespace MapControl
             return ranProbability <= portalSpawnProbability;
         }
 
-        private void SetWayPoints()
+        private void RemovePoints(Vector3 newMapPos)
         {
             _newMapObject.TryGetComponent(out MapData mapData);
             _newMapWayPoints.Clear();
@@ -308,35 +327,30 @@ namespace MapControl
                 _newMapWayPoints.Add(mapData.wayPointList[i]);
             }
 
-            for (var i = 0; i < mapData.wayPointList.Count; i++)
-            {
-                _wayPoints.RemoveWhere(p => p == mapData.wayPointList[i]);
-            }
-
             for (var i = 0; i < _newMapWayPoints.Count; i++)
             {
-                if (CanAddToList(_newMapWayPoints[i]))
-                {
-                    _wayPoints.Add(_newMapPosition + _dirToWayPoint * mapSize * 0.5f);
-                }
+                _wayPointsHashSet.RemoveWhere(p => p == _newMapWayPoints[i]);
             }
 
-            //For Portal Map
-            if (mapData.wayPointList.Count == 1)
-            {
-                _wayPoints.Add(_newMapObject.transform.position);
-            }
+            _expandButtonPosHashSet.RemoveWhere(p => p == newMapPos);
         }
 
-        private void SetButtonsPosition(Vector3 newMapPos)
+        private void SetPoints()
         {
-            _expandButtonPosHashSet.RemoveWhere(p => p == newMapPos);
+            //For Portal Map
+            if (_newMapWayPoints.Count == 1)
+            {
+                _wayPointsHashSet.Add(_newMapObject.transform.position);
+                return;
+            }
 
             for (var i = 0; i < _newMapWayPoints.Count; i++)
             {
-                if (CanAddToList(_newMapWayPoints[i]))
+                if (CanAddWayPoints(_newMapWayPoints[i]))
                 {
-                    _expandButtonPosHashSet.Add(_newMapPosition + _dirToWayPoint * mapSize);
+                    _wayPointsHashSet.Add(_newMapPosition + _dirToWayPoint * mapSize * 0.5f);
+                    if (CheckLimitMap(_newMapWayPoints[i]))
+                        _expandButtonPosHashSet.Add(_newMapPosition + _dirToWayPoint * mapSize);
                 }
             }
         }
@@ -348,21 +362,25 @@ namespace MapControl
                 if (_expandButtons[i].gameObject.activeSelf) _expandButtons[i].gameObject.SetActive(false);
             }
 
-            _expandButtons.Clear();
+            // _expandButtons.Clear();
         }
 
         //Call When Wave is over
         private void PlaceExpandButtons()
         {
-            if (_map.Count > mapCount) return;
             _expandButtonPosList.Clear();
             _expandButtonPosList = _expandButtonPosHashSet.ToList();
 
             for (var i = 0; i < _expandButtonPosList.Count; i++)
             {
-                _expandButtons.Add(
-                    ObjectPoolManager.Get<ExpandMapButton>(
-                        PoolObjectName.ExpandButton, _expandButtonPosList[i], Quaternion.Euler(0, 45, 0)));
+                if (_expandButtons[i] == null)
+                {
+                    _expandButtons.Add(Instantiate(expandButtonObject, transform).GetComponent<ExpandMapButton>());
+                }
+
+                _expandButtons[i].transform.SetPositionAndRotation(_expandButtonPosList[i], Quaternion.Euler(0, 45, 0));
+                _expandButtons[i].gameObject.SetActive(true);
+                _expandButtons[i].OnExpandMapEvent += ExpandMap;
             }
         }
 
@@ -407,16 +425,22 @@ namespace MapControl
 // #endif
         }
 
-        private bool CanAddToList(Vector3 point)
+        // You can add wayPoints where no ground.
+        private bool CanAddWayPoints(Vector3 newWayPoint)
         {
             _newMapPosition = _newMapObject.transform.position;
-            _dirToWayPoint = (point - _newMapPosition).normalized;
+            _dirToWayPoint = (newWayPoint - _newMapPosition).normalized;
             if (_dirToWayPoint == Vector3.zero) return false;
             var ray = new Ray(_newMapPosition, _dirToWayPoint);
-            if (Physics.SphereCast(ray, 2, mapSize, groundLayer)) return false;
+            return !Physics.SphereCast(ray, 2, mapSize, groundLayer);
+        }
 
-            return point.x >= -maxMapWidth && point.x <= maxMapWidth &&
-                   point.z >= -maxMapHeight && point.z <= maxMapHeight;
+        // You can add newMap in maxSize
+        private bool CheckLimitMap(Vector3 newWayPoint)
+        {
+            var setMapSize = maxSize * mapSize;
+            return newWayPoint.x >= -setMapSize && newWayPoint.x <= setMapSize &&
+                   newWayPoint.z >= -setMapSize && newWayPoint.z <= setMapSize;
         }
     }
 }

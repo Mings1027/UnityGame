@@ -1,5 +1,9 @@
 using System;
+using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using UnityEngine;
+using UnityEngine.Serialization;
+using Random = UnityEngine.Random;
 
 namespace GameControl
 {
@@ -7,6 +11,8 @@ namespace GameControl
     {
         private Camera _cam;
         private float _dotProduct;
+        private bool _isNightStarted;
+
         [SerializeField] private Transform directionalLight;
         [SerializeField] private AnimationCurve sunCurve;
         [SerializeField] private Color dayTimeColor;
@@ -22,6 +28,11 @@ namespace GameControl
         [SerializeField] private float timeSpeed;
         [SerializeField, Range(0, 1)] private float lerp;
 
+        [FormerlySerializedAs("startParticle")] [SerializeField]
+        private ParticleSystem starParticle;
+
+        [SerializeField] private ParticleSystem cloudParticle;
+
         private void Awake()
         {
             _cam = Camera.main;
@@ -31,6 +42,11 @@ namespace GameControl
         {
             RotateCycle();
             LerpAmbientLight();
+        }
+
+        private void OnDisable()
+        {
+            CancelInvoke();
         }
 
         private void RotateCycle()
@@ -46,6 +62,10 @@ namespace GameControl
                 RenderSettings.ambientLight = Color.Lerp(sunsetColor, dayTimeColor, sunCurve.Evaluate(_dotProduct));
                 _cam.backgroundColor = Color.Lerp(morningColor, afternoonColor, sunCurve.Evaluate(_dotProduct));
                 lerp = _dotProduct;
+                if (!_isNightStarted) return;
+                _isNightStarted = false;
+                cloudParticle.Play();
+                starParticle.Stop();
             }
             else
             {
@@ -53,15 +73,11 @@ namespace GameControl
                 RenderSettings.ambientLight = Color.Lerp(sunsetColor, nightTimeColor, sunCurve.Evaluate(absDotProduct));
                 _cam.backgroundColor = Color.Lerp(morningColor, nightColor, sunCurve.Evaluate(absDotProduct));
                 lerp = absDotProduct;
+                if (_isNightStarted) return;
+                _isNightStarted = true;
+                starParticle.Play();
+                cloudParticle.Stop();
             }
         }
-
-        // private void OnDrawGizmos()
-        // {
-        //     var c = RenderSettings.ambientLight;
-        //     c.a = 255;
-        //     Gizmos.color = c;
-        //     Gizmos.DrawSphere(Vector3.zero, 5);
-        // }
     }
 }

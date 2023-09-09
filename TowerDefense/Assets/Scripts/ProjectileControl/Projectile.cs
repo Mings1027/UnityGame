@@ -1,4 +1,5 @@
 using System;
+using DG.Tweening;
 using InterfaceControl;
 using ManagerControl;
 using UnityEngine;
@@ -33,12 +34,7 @@ namespace ProjectileControl
         protected virtual void OnDisable()
         {
             _lerp = 0;
-        }
-
-        protected virtual void OnTriggerEnter(Collider other)
-        {
-            gameObject.SetActive(false);
-            ProjectileHit(other);
+            TryHit();
         }
 
         protected void ParabolaPath(Vector3 endPos)
@@ -51,17 +47,10 @@ namespace ProjectileControl
             var dir = (_curPos - rigidPos).normalized;
             _rigid.position = _curPos;
             _rigid.MoveRotation(Quaternion.LookRotation(dir));
+
+            if (_lerp >= 1) gameObject.SetActive(false);
         }
 
-        protected abstract void ProjectileHit(Collider col);
-
-        protected void ApplyDamage(Collider col)
-        {
-            if (col.TryGetComponent(out IDamageable damageable))
-            {
-                damageable.Damage(damage);
-                DataManager.SumDamage(towerName, damage);
-            }
-        }
+        protected abstract void TryHit();
     }
 }

@@ -20,8 +20,7 @@ namespace TowerControl
         private int _deadUnitCount;
         private string _unitTypeName;
         private CancellationTokenSource _cts;
-        private Vector3[] _spawnDirections;
-        private Vector3 _unitSpawnPosition;
+        public Vector3 unitSpawnPosition { get; set; }
 
         private FriendlyUnit[] _units;
 
@@ -83,28 +82,10 @@ namespace TowerControl
             }
         }
 
-        // private void OnDrawGizmos()
-        // {
-        //     Gizmos.color = Color.cyan;
-        //     for (var i = 0; i < _spawnDirections.Length; i++)
-        //     {
-        //         Gizmos.DrawSphere(transform.position + _spawnDirections[i] * maxDistance, 0.5f);
-        //     }
-        // }
-
         /*=========================================================================================================================================
         *                                               Unity Event
         =========================================================================================================================================*/
-        protected override void Init()
-        {
-            base.Init();
-            _spawnDirections = new[]
-            {
-                Vector3.forward, Vector3.back, Vector3.left, Vector3.right,
-                new Vector3(1, 0, 1), new Vector3(-1, 0, -1),
-                new Vector3(-1, 0, 1), new Vector3(1, 0, -1)
-            };
-        }
+
 
         public override void TowerSetting(MeshFilter towerMesh, int damageData, int rangeData,
             float attackDelayData)
@@ -116,44 +97,27 @@ namespace TowerControl
             if (!_isUnitSpawn)
             {
                 _isUnitSpawn = true;
-                SpawnUnitOnTowerSpawn();
+                UnitSpawn();
             }
 
             UnitInit(damageData, attackDelayData);
         }
 
-        private void SpawnUnitOnTowerSpawn()
-        {
-            // Call Only once when tower spawn
-            // ↑ ↓ ← → Four Direction Check Ground and Unit Spawn 
-            for (var i = 0; i < _spawnDirections.Length; i++)
-            {
-                var dir = _spawnDirections[i];
-                if (Physics.Raycast(transform.position + dir * maxDistance + Vector3.up, Vector3.down, out var hit))
-                {
-                    if (hit.collider.CompareTag("Ground"))
-                    {
-                        _unitSpawnPosition = hit.point;
-                        UnitSpawn();
-                        break;
-                    }
-                }
-            }
-        }
 
         private void UnitSpawn()
         {
             for (var i = 0; i < _units.Length; i++)
             {
                 _units[i] = null;
-                var ranPos = new Vector3(_unitSpawnPosition.x + Random.insideUnitCircle.x, 0,
-                    _unitSpawnPosition.z + Random.insideUnitCircle.y);
-                _units[i] = ObjectPoolManager.Get<FriendlyUnit>(_unitTypeName, ranPos);
+                var angle = Mathf.PI * 0.5f - i * (Mathf.PI * 2f) / _units.Length;
+                var pos = unitSpawnPosition + new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle));
+                _units[i] = ObjectPoolManager.Get<FriendlyUnit>(_unitTypeName, pos);
                 _units[i].OnDeadEvent += UnitReSpawn;
                 _units[i].towerType = unitType.ToString();
+                _units[i].parentTower = this;
             }
 
-            ObjectPoolManager.Get(PoolObjectName.UnitSpawnSmoke, _unitSpawnPosition);
+            ObjectPoolManager.Get(StringManager.UnitSpawnSmoke, unitSpawnPosition);
         }
 
         private void UnitInit(int damage, float delay)
@@ -170,10 +134,10 @@ namespace TowerControl
         {
             for (var i = 0; i < _units.Length; i++)
             {
-                touchPos = new Vector3(touchPos.x + Random.insideUnitCircle.x, 0,
-                    touchPos.z + Random.insideUnitCircle.y);
+                var angle = Mathf.PI * 0.5f - i * (Mathf.PI * 2f) / _units.Length;
+                var pos = touchPos + new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle));
 
-                _units[i].MoveToTouchPos(touchPos);
+                _units[i].MoveToTouchPos(pos);
             }
         }
 

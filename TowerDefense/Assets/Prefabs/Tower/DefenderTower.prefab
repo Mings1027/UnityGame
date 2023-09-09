@@ -10,8 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1283499708106404152}
   - component: {fileID: 1910714280161815425}
-  - component: {fileID: 905833317073363220}
-  - component: {fileID: -8670031001212265320}
   - component: {fileID: -8716987100225762846}
   m_Layer: 3
   m_Name: DefenderTower
@@ -57,38 +55,6 @@ MonoBehaviour:
   - 900
   - 1200
   - 1500
---- !u!114 &905833317073363220
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1910714280161815426}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5a4c19757ecdf48b7a0fefc3a85a1999, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lifeTime: 0
-  dontDestroy: 1
---- !u!114 &-8670031001212265320
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1910714280161815426}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  outlineMode: 0
-  outlineColor: {r: 1, g: 1, b: 1, a: 1}
-  outlineWidth: 2
-  precomputeOutline: 0
-  bakeKeys: []
-  bakeValues: []
 --- !u!65 &-8716987100225762846
 BoxCollider:
   m_ObjectHideFlags: 0

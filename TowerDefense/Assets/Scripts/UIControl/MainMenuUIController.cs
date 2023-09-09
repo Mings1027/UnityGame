@@ -1,3 +1,4 @@
+using System;
 using ManagerControl;
 using MapControl;
 using UnityEngine;
@@ -9,6 +10,8 @@ namespace UIControl
     {
         private CameraManager _cameraManager;
 
+        public event Action OnGenerateInitMapEvent;
+        
         [SerializeField] private Button startButton;
         [SerializeField] private int rotateSpeed;
 
@@ -33,9 +36,11 @@ namespace UIControl
         private void StartGame()
         {
             SoundManager.Instance.PlayBGM();
-            MapController.Instance.GenerateInitMap();
             WaveManager.Instance.ActiveWave();
             TowerManager.Instance.GameStart();
+            
+            OnGenerateInitMapEvent?.Invoke();
+            
             _cameraManager.enabled = true;
             Destroy(gameObject);
         }

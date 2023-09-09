@@ -1,5 +1,3 @@
-using System;
-using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace GameControl
@@ -8,18 +6,14 @@ namespace GameControl
     public class PoolObjectController : MonoBehaviour
     {
         [SerializeField] private float lifeTime;
-        [SerializeField] private bool dontDestroy;
 
         private void Awake()
         {
-            if (dontDestroy) return;
-            if (lifeTime == 0)
-                lifeTime = 3;
+            if (lifeTime == 0) lifeTime = 3;
         }
 
         private void OnEnable()
         {
-            if (dontDestroy) return;
             Invoke(nameof(DestroyObject), lifeTime);
         }
 

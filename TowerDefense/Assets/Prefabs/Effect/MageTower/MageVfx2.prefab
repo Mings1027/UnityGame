@@ -49,10 +49,10 @@ ParticleSystem:
   cullingMode: 0
   ringBufferMode: 0
   ringBufferLoopRange: {x: 0, y: 1}
-  emitterVelocityMode: 1
+  emitterVelocityMode: 0
   looping: 0
   prewarm: 0
-  playOnAwake: 1
+  playOnAwake: 0
   useUnscaledTime: 0
   autoRandomSeed: 1
   startDelay:
@@ -1307,8 +1307,8 @@ ParticleSystem:
       maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
-        key0: {r: 0.6611541, g: 0.8867924, b: 0.18823427, a: 1}
-        key1: {r: 0.08802067, g: 0.8113208, b: 0.3792824, a: 1}
+        key0: {r: 0, g: 0.406003, b: 1, a: 1}
+        key1: {r: 0.5911555, g: 0.26352793, b: 0.8867924, a: 1}
         key2: {r: 0.5188679, g: 0.5188679, b: 0.5188679, a: 0}
         key3: {r: 0, g: 0, b: 0, a: 0}
         key4: {r: 0, g: 0, b: 0, a: 0}
@@ -1336,8 +1336,8 @@ ParticleSystem:
         m_NumAlphaKeys: 2
       minGradient:
         serializedVersion: 2
-        key0: {r: 0, g: 1, b: 0.033423424, a: 1}
-        key1: {r: 0.9433962, g: 0.7466261, b: 0.04004982, a: 1}
+        key0: {r: 0, g: 0.5638194, b: 1, a: 1}
+        key1: {r: 0.72881514, g: 0.039215684, b: 0.94509804, a: 1}
         key2: {r: 1, g: 1, b: 1, a: 0}
         key3: {r: 0, g: 0, b: 0, a: 0}
         key4: {r: 0, g: 0, b: 0, a: 0}
@@ -4840,4 +4840,3 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lifeTime: 4
-  dontDestroy: 0

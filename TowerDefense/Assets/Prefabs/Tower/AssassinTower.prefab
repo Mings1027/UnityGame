@@ -10,8 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4480340227697582555}
   - component: {fileID: -362340267191676559}
-  - component: {fileID: 4480340227697582557}
-  - component: {fileID: -7053588444237467267}
   - component: {fileID: 4480340227697582556}
   m_Layer: 3
   m_Name: AssassinTower
@@ -57,38 +55,6 @@ MonoBehaviour:
   - 300
   - 400
   - 500
---- !u!114 &4480340227697582557
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3847918098510183265}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5a4c19757ecdf48b7a0fefc3a85a1999, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  lifeTime: 0
-  dontDestroy: 1
---- !u!114 &-7053588444237467267
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3847918098510183265}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5fea29bb7c508c244a1f805a5fd3fc4d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  outlineMode: 0
-  outlineColor: {r: 1, g: 1, b: 1, a: 1}
-  outlineWidth: 2
-  precomputeOutline: 0
-  bakeKeys: []
-  bakeValues: []
 --- !u!65 &4480340227697582556
 BoxCollider:
   m_ObjectHideFlags: 0

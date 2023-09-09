@@ -46,8 +46,7 @@ namespace TowerControl
         protected override void Attack()
         {
             _atkSequence.Restart();
-            ObjectPoolManager.Get(PoolObjectName.MageShootSfx, transform);
-            var p = ObjectPoolManager.Get<MageBullet>(PoolObjectName.MageBullet, crystal.position);
+            var p = ObjectPoolManager.Get<MageBullet>(StringManager.MageBullet, crystal.position);
 
             p.Init(target, damage, deBuffData.speedDeBuffData[TowerLevel]);
 
