@@ -4,6 +4,7 @@ using DataControl;
 using GameControl;
 using UnitControl.FriendlyControl;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using Random = UnityEngine.Random;
 
 namespace TowerControl
@@ -43,10 +44,7 @@ namespace TowerControl
             }
         }
 
-        public float MoveUnitRange { get; private set; }
-
         [SerializeField] private UnitType unitType;
-        [SerializeField] private float maxDistance;
         [SerializeField] private float[] unitHealth;
 
         /*=========================================================================================================================================
@@ -82,6 +80,14 @@ namespace TowerControl
             }
         }
 
+        public override void OnPointerUp(PointerEventData eventData)
+        {
+            base.OnPointerUp(eventData);
+            for (int i = 0; i < _units.Length; i++)
+            {
+                _units[i].Indicator.enabled = true;
+            }
+        }
         /*=========================================================================================================================================
         *                                               Unity Event
         =========================================================================================================================================*/
@@ -91,8 +97,6 @@ namespace TowerControl
             float attackDelayData)
         {
             base.TowerSetting(towerMesh, damageData, rangeData, attackDelayData);
-
-            MoveUnitRange = rangeData;
 
             if (!_isUnitSpawn)
             {
@@ -112,12 +116,11 @@ namespace TowerControl
                 var angle = Mathf.PI * 0.5f - i * (Mathf.PI * 2f) / _units.Length;
                 var pos = unitSpawnPosition + new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle));
                 _units[i] = ObjectPoolManager.Get<FriendlyUnit>(_unitTypeName, pos);
+                ObjectPoolManager.Get(StringManager.UnitSpawnSmoke, pos);
                 _units[i].OnDeadEvent += UnitReSpawn;
                 _units[i].towerType = unitType.ToString();
                 _units[i].parentTower = this;
             }
-
-            ObjectPoolManager.Get(StringManager.UnitSpawnSmoke, unitSpawnPosition);
         }
 
         private void UnitInit(int damage, float delay)
@@ -138,6 +141,14 @@ namespace TowerControl
                 var pos = touchPos + new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle));
 
                 _units[i].MoveToTouchPos(pos);
+            }
+        }
+
+        public void OffUnitIndicator()
+        {
+            for (int i = 0; i < _units.Length; i++)
+            {
+                _units[i].Indicator.enabled = false;
             }
         }
 

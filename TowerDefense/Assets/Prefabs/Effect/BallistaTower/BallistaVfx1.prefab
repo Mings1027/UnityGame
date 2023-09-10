@@ -11,8 +11,8 @@ GameObject:
   - component: {fileID: 5567036183305444108}
   - component: {fileID: 5202288905184978429}
   - component: {fileID: 1815264944847378248}
-  - component: {fileID: 9160416208921679073}
-  - component: {fileID: 4338827499371687998}
+  - component: {fileID: 5670039263760545150}
+  - component: {fileID: -8063178819852005013}
   m_Layer: 0
   m_Name: BallistaVfx1
   m_TagString: Untagged
@@ -52,7 +52,7 @@ ParticleSystem:
   emitterVelocityMode: 0
   looping: 0
   prewarm: 0
-  playOnAwake: 0
+  playOnAwake: 1
   useUnscaledTime: 0
   autoRandomSeed: 1
   startDelay:
@@ -4815,7 +4815,7 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
---- !u!114 &9160416208921679073
+--- !u!114 &5670039263760545150
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4827,7 +4827,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6677de85ff745458a9086e693c103098, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &4338827499371687998
+--- !u!114 &-8063178819852005013
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4836,7 +4836,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 3501180831514234340}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5a4c19757ecdf48b7a0fefc3a85a1999, type: 3}
+  m_Script: {fileID: 11500000, guid: 203af783626fc4fbda229c5ec018c747, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  lifeTime: 3

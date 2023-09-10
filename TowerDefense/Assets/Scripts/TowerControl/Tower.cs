@@ -15,6 +15,7 @@ namespace TowerControl
 
         public event Action<Tower> OnClickTower;
         
+        public float TowerRange { get; private set; }
         public int TowerLevel { get; private set; }
         public TowerType towerTypeEnum => towerType;
 
@@ -40,7 +41,7 @@ namespace TowerControl
         {
         }
 
-        public void OnPointerUp(PointerEventData eventData)
+        public virtual void OnPointerUp(PointerEventData eventData)
         {
             OnClickTower?.Invoke(this);
         }
@@ -62,6 +63,7 @@ namespace TowerControl
         public virtual void TowerSetting(MeshFilter towerMesh, int damageData, int rangeData,
             float attackDelayData)
         {
+            TowerRange = rangeData;
             meshFilter.sharedMesh = towerMesh.sharedMesh;
             _boxCollider.enabled = true;
 

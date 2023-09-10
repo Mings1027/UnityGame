@@ -18,6 +18,7 @@ namespace UnitControl.FriendlyControl
         private AudioSource _audioSource;
         private Animator _anim;
         private Rigidbody _rigid;
+        private SphereCollider _sphereCollider;
         private Health _health;
         private Collider[] _targetColliders;
         private CancellationTokenSource _cts;
@@ -40,9 +41,11 @@ namespace UnitControl.FriendlyControl
 
         public event Action<FriendlyUnit> OnDeadEvent;
         public string towerType { get; set; }
+        public MeshRenderer Indicator => indicator;
 
         public UnitTower parentTower { get; set; }
 
+        [SerializeField] private MeshRenderer indicator;
         [SerializeField] private LayerMask targetLayer;
         [SerializeField] private int atkRange;
         [SerializeField] private float moveSpeed;
@@ -57,6 +60,7 @@ namespace UnitControl.FriendlyControl
             _audioSource = GetComponent<AudioSource>();
             _anim = GetComponentInChildren<Animator>();
             _rigid = GetComponent<Rigidbody>();
+            _sphereCollider = GetComponent<SphereCollider>();
             _health = GetComponent<Health>();
             _targetColliders = new Collider[2];
             _t = transform;
@@ -74,6 +78,7 @@ namespace UnitControl.FriendlyControl
             _isAttack = false;
             _curPos = transform.position;
             _health.OnDeadEvent += DeadAnimation;
+            indicator.enabled = false;
             InvokeRepeating(nameof(Targeting), 1f, 1f);
         }
 
@@ -87,7 +92,7 @@ namespace UnitControl.FriendlyControl
 
             if (!_isTargeting) return;
 
-            if (Vector3.Distance(_t.position, _target.position) > 1)
+            if (Vector3.Distance(_t.position, _target.position) > _sphereCollider.radius * 2)
             {
                 ChaseTarget();
             }
@@ -111,7 +116,7 @@ namespace UnitControl.FriendlyControl
         private void OnDrawGizmos()
         {
             if (_t == null) return;
-            Gizmos.color = Color.green;
+            Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(_t.position, atkRange);
         }
 
@@ -194,7 +199,7 @@ namespace UnitControl.FriendlyControl
 
             if (_isTargeting)
             {
-                if (Vector3.Distance(_t.position, _target.position) <= 1)
+                if (Vector3.Distance(_t.position, _target.position) <= _sphereCollider.radius * 2)
                 {
                     _curPos = transform.position;
                     DoAttack();
@@ -206,7 +211,12 @@ namespace UnitControl.FriendlyControl
         {
             _curPos = pos;
             _moveInput = true;
-            _rigid.DOMove(pos, moveSpeed).SetSpeedBased().SetEase(Ease.Linear).OnComplete(() => _moveInput = false);
+            _sphereCollider.enabled = false;
+            _rigid.DOMove(pos, moveSpeed).SetSpeedBased().SetEase(Ease.Linear).OnComplete(() =>
+            {
+                _moveInput = false;
+                _sphereCollider.enabled = true;
+            });
             _rigid.MoveRotation(Quaternion.LookRotation(pos - _rigid.position));
         }
 

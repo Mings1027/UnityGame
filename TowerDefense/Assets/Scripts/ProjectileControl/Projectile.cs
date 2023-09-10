@@ -1,7 +1,3 @@
-using System;
-using DG.Tweening;
-using InterfaceControl;
-using ManagerControl;
 using UnityEngine;
 
 namespace ProjectileControl
@@ -12,7 +8,7 @@ namespace ProjectileControl
         private Vector3 _curPos;
         private Vector3 _startPos;
         private float _lerp;
-
+         
         protected int damage;
         protected string towerName;
 
@@ -48,7 +44,10 @@ namespace ProjectileControl
             _rigid.position = _curPos;
             _rigid.MoveRotation(Quaternion.LookRotation(dir));
 
-            if (_lerp >= 1) gameObject.SetActive(false);
+            if (_lerp >= 1)
+            {
+                gameObject.SetActive(false);
+            }
         }
 
         protected abstract void TryHit();

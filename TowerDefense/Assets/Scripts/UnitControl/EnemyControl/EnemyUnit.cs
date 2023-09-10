@@ -13,6 +13,7 @@ namespace UnitControl.EnemyControl
         private AudioSource _audioSource;
         private Animator _anim;
         private Rigidbody _rigid;
+        private SphereCollider _sphereCollider;
         private EnemyAI _enemyAI;
         private EnemyHealth _enemyHealth;
         private Collider[] _targetCollider;
@@ -41,6 +42,7 @@ namespace UnitControl.EnemyControl
             _audioSource = GetComponent<AudioSource>();
             _anim = GetComponentInChildren<Animator>();
             _rigid = GetComponent<Rigidbody>();
+            _sphereCollider = GetComponent<SphereCollider>();
             _enemyAI = GetComponent<EnemyAI>();
             _enemyHealth = GetComponent<EnemyHealth>();
             _targetCollider = new Collider[3];
@@ -64,7 +66,7 @@ namespace UnitControl.EnemyControl
             _rigid.angularVelocity = Vector3.zero;
             if (!_isTargeting) return;
 
-            if (Vector3.Distance(_t.position, _target.position) > 1)
+            if (Vector3.Distance(_t.position, _target.position) > _sphereCollider.radius * 2)
             {
                 ChaseTarget();
             }
@@ -145,13 +147,12 @@ namespace UnitControl.EnemyControl
             _target = SearchTarget.ClosestTarget(transform.position, _attackRange, _targetCollider, targetLayer);
             _isTargeting = _target != null;
             _enemyAI.CanMove = !_isTargeting;
-
-            if (_isTargeting)
+            _sphereCollider.isTrigger = !_isTargeting;
+            
+            if (!_isTargeting) return;
+            if (Vector3.Distance(_t.position, _target.position) <= _sphereCollider.radius * 2)
             {
-                if (Vector3.Distance(_t.position, _target.position) <= 1)
-                {
-                    DoAttack();
-                }
+                DoAttack();
             }
         }
 

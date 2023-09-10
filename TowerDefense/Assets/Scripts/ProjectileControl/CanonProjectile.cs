@@ -44,7 +44,7 @@ namespace ProjectileControl
 
             for (var i = 0; i < size; i++)
             {
-                // ObjectPoolManager.Get(StringManager.BloodVfx, _targetColliders[i].transform.position);
+                ObjectPoolManager.Get(StringManager.BloodVfx, _targetColliders[i].transform.position);
                 if (_targetColliders[i].TryGetComponent(out IDamageable damageable))
                 {
                     damageable.Damage(damage);

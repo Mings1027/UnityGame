@@ -25,6 +25,7 @@ namespace ProjectileControl
         protected override void TryHit()
         {
             if (_target == null) return;
+            ObjectPoolManager.Get(StringManager.BloodVfx, transform.position);
             if (_target.TryGetComponent(out IDamageable damageable))
             {
                 damageable.Damage(damage);

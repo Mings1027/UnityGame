@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using GameControl;
 using ProjectileControl;
 using UnityEngine;
@@ -10,30 +11,30 @@ namespace TowerControl
         private Collider[] _targetColliders;
         private int _effectIndex;
         private bool _isAttack;
-        private float _atkDelay;
-        private float _nextFireTime;
+        private Dictionary<string, string> _projectileHitDic;
 
         protected Transform target;
         protected int damage;
         protected bool isTargeting;
         protected string[] effectName;
 
-        public float TowerRange { get; private set; }
-
         [SerializeField] private LayerMask targetLayer;
-        [SerializeField] private float repeatTime;
 
         protected override void Awake()
         {
             base.Awake();
             _audioSource = GetComponent<AudioSource>();
+            _projectileHitDic = new Dictionary<string, string>();
+            for (int i = 0; i < effectName.Length; i++)
+            {
+                _projectileHitDic.Add(effectName[i], "Hit" + effectName[i]);
+            }
         }
 
         protected override void OnEnable()
         {
             base.OnEnable();
             _effectIndex = -1;
-            InvokeRepeating(nameof(Targeting), 1, repeatTime);
         }
 
         protected override void OnDisable()
@@ -45,15 +46,6 @@ namespace TowerControl
         private void OnDrawGizmos()
         {
             Gizmos.DrawWireSphere(transform.position, TowerRange);
-        }
-
-        private void FixedUpdate()
-        {
-            if (!isTargeting) return;
-            if (Time.time < _nextFireTime) return;
-            Attack();
-            StartCooldown();
-            _audioSource.PlayOneShot(_audioSource.clip);
         }
 
         protected override void Init()
@@ -85,15 +77,21 @@ namespace TowerControl
 
             target = nearestTarget;
             isTargeting = true;
-        }
 
-        private void StartCooldown() => _nextFireTime = Time.time + _atkDelay;
+            if (isTargeting)
+            {
+                Attack();
+                _audioSource.PlayOneShot(_audioSource.clip);
+            }
+        }
 
         protected abstract void Attack();
 
         protected void EffectAttack(Transform t)
         {
-            ObjectPoolManager.Get<FollowProjectile>(effectName[_effectIndex], t).target = t;
+            var followBullet = ObjectPoolManager.Get<FollowProjectile>(effectName[_effectIndex], t);
+            followBullet.target = t;
+            followBullet.SetHitVfx(_projectileHitDic[effectName[_effectIndex]]);
         }
 
         public override void TowerSetting(MeshFilter towerMesh, int damageData, int rangeData,
@@ -102,16 +100,14 @@ namespace TowerControl
             base.TowerSetting(towerMesh, damageData, rangeData, attackDelayData);
 
             damage = damageData;
-            TowerRange = rangeData;
-            _atkDelay = attackDelayData;
 
             if (TowerLevel % 2 == 0)
             {
                 _effectIndex++;
             }
 
-            // CancelInvoke();
-            // InvokeRepeating(nameof(Targeting), 1, attackDelayData);
+            CancelInvoke();
+            InvokeRepeating(nameof(Targeting), 1, attackDelayData);
         }
     }
 }

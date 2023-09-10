@@ -28,7 +28,7 @@ namespace UnitControl.EnemyControl
 
         private void OnDisable()
         {
-            if (transform.position == Vector3.zero)
+            if (CurrentProgress > 0)
             {
                 OnDecreaseLifeCountEvent?.Invoke();
             }
@@ -42,6 +42,7 @@ namespace UnitControl.EnemyControl
 
         public void Damage(float amount)
         {
+            if (IsDead) return;
             CurrentProgress -= amount;
 
             if (CurrentProgress > 0f) return;

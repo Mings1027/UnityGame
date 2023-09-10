@@ -10,7 +10,7 @@ namespace ManagerControl
         [Serializable]
         public class EffectSound
         {
-            // public string effectName;
+            public string effectName;
             public AudioClip effectSource;
         }
 
@@ -25,7 +25,7 @@ namespace ManagerControl
             _effectDictionary = new Dictionary<string, AudioClip>();
             foreach (var t in effectSounds)
             {
-                _effectDictionary.Add(t.effectSource.name, t.effectSource);
+                _effectDictionary.Add(t.effectName, t.effectSource);
             }
         }
 

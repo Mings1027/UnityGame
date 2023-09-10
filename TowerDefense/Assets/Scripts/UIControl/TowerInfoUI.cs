@@ -55,7 +55,7 @@ namespace UIControl
             damageText.text = _damageTxt + towerInfo.damage;
             attackRangeText.text = _rangeTxt + towerInfo.range;
             attackDelayText.text = _fireRateTxt + towerInfo.delay;
-            sellCoinText.text = _sellCoinTxt + "(" + towerInfo.sellCoin + "g)";
+            sellCoinText.text = _sellCoinTxt + "(" + towerInfo.sellGold + "g)";
         }
     }
 }

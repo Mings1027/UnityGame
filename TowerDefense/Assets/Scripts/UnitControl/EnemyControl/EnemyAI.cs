@@ -11,7 +11,6 @@ namespace UnitControl.EnemyControl
         private Rigidbody _rigid;
 
         private int _curWayPoint;
-        private bool _reachedEndOfPath;
 
         public bool CanMove { get; set; }
 
@@ -28,7 +27,6 @@ namespace UnitControl.EnemyControl
         private void OnEnable()
         {
             CanMove = true;
-            _reachedEndOfPath = false;
             InvokeRepeating(nameof(UpdatePath), 0f, updatePathRepeatTime);
         }
 
@@ -44,15 +42,10 @@ namespace UnitControl.EnemyControl
 
             if (_path == null) return;
 
-            if (_curWayPoint >= _path.vectorPath.Count)
-            {
-                _reachedEndOfPath = true;
-                return;
-            }
-
             Movement(out var direction);
             Rotation(direction);
             NextWayPoint();
+            CheckArrived();
         }
 
         private void OnDisable()
@@ -92,6 +85,14 @@ namespace UnitControl.EnemyControl
             {
                 _curWayPoint++;
             }
+        }
+
+        private void CheckArrived()
+        {
+            if (_curWayPoint < _path.vectorPath.Count - 1) return;
+            if (Vector3.Distance(_rigid.position, _path.vectorPath[_curWayPoint]) > 1) return;
+            
+            gameObject.SetActive(false);
         }
 
         private void UpdatePath()

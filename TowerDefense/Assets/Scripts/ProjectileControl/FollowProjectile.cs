@@ -1,12 +1,14 @@
+using GameControl;
 using UnityEngine;
-using Random = UnityEngine.Random;
+using UnityEngine.Rendering;
 
 namespace ProjectileControl
 {
     public class FollowProjectile : MonoBehaviour
     {
-        private bool _isTargeting;
         private ParticleSystem _particleSystem;
+        private bool _isTargeting;
+        private string _hitVfxName;
 
         public Transform target { get; set; }
 
@@ -27,6 +29,7 @@ namespace ProjectileControl
             if (!target.gameObject.activeSelf)
             {
                 _isTargeting = false;
+                ObjectPoolManager.Get(_hitVfxName, target.position);
                 return;
             }
 
@@ -38,6 +41,11 @@ namespace ProjectileControl
             target = null;
             _isTargeting = false;
             _particleSystem.Stop();
+        }
+
+        public void SetHitVfx(string vfxName)
+        {
+            _hitVfxName = vfxName;
         }
     }
 }

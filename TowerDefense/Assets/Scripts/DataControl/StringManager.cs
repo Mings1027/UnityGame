@@ -2,7 +2,7 @@ namespace DataControl
 {
     public static class StringManager
     {
-        public const string ExpandButton = "ExpandButton";
+        // public const string ExpandButton = "ExpandButton";
 
         /*==================================================================================================================
         *                                              Tower
@@ -18,7 +18,7 @@ namespace DataControl
         public const string MageBullet = "MageBullet";
         public const string CanonProjectile = "CanonProjectile";
 
-        public const string EnemyArrow = "EnemyArrow";
+        // public const string EnemyArrow = "EnemyArrow";
 
         /*==================================================================================================================
         *                                              Sound

@@ -11,8 +11,6 @@ namespace ManagerControl
         private CameraManager _cameraManager;
         private Vector3 _prevCursorPos;
         private Vector3 _gridPos;
-        private Vector3 _curPos;
-        private bool _isChecked;
         private bool _isPlacingTower;
         private bool _isUnitTower;
         private string _selectedTowerName;
@@ -107,23 +105,16 @@ namespace ManagerControl
             Physics.Raycast(_mouseRay, out _mouseRaycastHit, 100);
             var cellPos = grid.WorldToCell(_mouseRaycastHit.point);
             _gridPos = grid.CellToWorld(cellPos) + new Vector3(1.5f, 2f, 1.5f);
-
-            if (_curPos == _gridPos) return;
-            _isChecked = false;
-            _curPos = _gridPos;
-            cubeCursor.transform.position = _curPos;
+            cubeCursor.transform.position = _gridPos;
             placeTowerButton.transform.position = Input.mousePosition;
         }
 
         private void CheckCanPlace()
         {
-            if (_isChecked) return;
-            if (_curPos != _gridPos) return;
             _canPlace = !Physics.CheckSphere(_gridPos, 1, towerLayer) && CheckPlacementTile() &&
                         (!_isUnitTower || CheckPlaceUnitTower());
 
             _cursorMeshRenderer.enabled = _canPlace;
-            _isChecked = true;
         }
 
         private bool CheckPlacementTile()
