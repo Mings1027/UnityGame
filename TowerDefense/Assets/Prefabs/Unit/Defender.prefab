@@ -132,7 +132,7 @@ Transform:
   m_GameObject: {fileID: 3353180278063043928}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.2, z: 0.5}
+  m_LocalScale: {x: 0.5, y: 0.3, z: 0.5}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7284054994422192818}
@@ -200,8 +200,8 @@ GameObject:
   - component: {fileID: 6194603756500784249}
   - component: {fileID: 7493383727781550870}
   - component: {fileID: 1687002403127990294}
-  - component: {fileID: 7252971793340246696}
   - component: {fileID: -1916128282681564920}
+  - component: {fileID: 7252971793340246696}
   m_Layer: 9
   m_Name: Defender
   m_TagString: Unit
@@ -218,8 +218,8 @@ Transform:
   m_GameObject: {fileID: 7952787121515888648}
   m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 7883020489277107178}
   - {fileID: 1819911703901924376}
@@ -273,6 +273,19 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 84
   m_CollisionDetection: 0
+--- !u!135 &-1916128282681564920
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7952787121515888648}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0.6, z: 0}
 --- !u!82 &7252971793340246696
 AudioSource:
   m_ObjectHideFlags: 0
@@ -369,19 +382,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!135 &-1916128282681564920
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7952787121515888648}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0.6, z: 0}
 --- !u!1001 &4366693421177500355
 PrefabInstance:
   m_ObjectHideFlags: 0

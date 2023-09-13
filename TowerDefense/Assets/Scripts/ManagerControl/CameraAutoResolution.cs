@@ -6,7 +6,7 @@ namespace ManagerControl
     {
         private void Start()
         {
-            SetResolution();
+            // SetResolution();
         }
         
         private void SetResolution()
@@ -31,14 +31,14 @@ namespace ManagerControl
             cam.rect = rect;
         }
 
-        private void LetterBox()
-        {
-            var cam = GetComponent<Camera>();
-            var rect = cam.rect;
-            var newRect = new Rect(0, 0, 1, 1);
-            cam.rect = newRect;
-            GL.Clear(true, true, Color.black);
-            cam.rect = rect;
-        }
+        // private void LetterBox()
+        // {
+        //     var cam = GetComponent<Camera>();
+        //     var rect = cam.rect;
+        //     var newRect = new Rect(0, 0, 1, 1);
+        //     cam.rect = newRect;
+        //     GL.Clear(true, true, Color.black);
+        //     cam.rect = rect;
+        // }
     }
 }

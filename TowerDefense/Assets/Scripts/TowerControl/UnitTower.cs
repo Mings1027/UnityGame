@@ -4,8 +4,6 @@ using DataControl;
 using GameControl;
 using UnitControl.FriendlyControl;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using Random = UnityEngine.Random;
 
 namespace TowerControl
 {
@@ -80,18 +78,17 @@ namespace TowerControl
             }
         }
 
-        public override void OnPointerUp(PointerEventData eventData)
-        {
-            base.OnPointerUp(eventData);
-            for (int i = 0; i < _units.Length; i++)
-            {
-                _units[i].Indicator.enabled = true;
-            }
-        }
         /*=========================================================================================================================================
         *                                               Unity Event
         =========================================================================================================================================*/
 
+        private void ActiveUnitIndicator()
+        {
+            for (var i = 0; i < _units.Length; i++)
+            {
+                _units[i].Indicator.enabled = true;
+            }
+        }
 
         public override void TowerSetting(MeshFilter towerMesh, int damageData, int rangeData,
             float attackDelayData)
@@ -133,19 +130,34 @@ namespace TowerControl
             }
         }
 
-        public void UnitMove(Vector3 touchPos)
+        public async UniTask StartUnitMove(Vector3 touchPos)
         {
-            for (var i = 0; i < _units.Length; i++)
+            var tasks = new UniTask[_units.Length];
+            for (var i = 0; i < tasks.Length; i++)
             {
                 var angle = Mathf.PI * 0.5f - i * (Mathf.PI * 2f) / _units.Length;
                 var pos = touchPos + new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle));
 
-                _units[i].MoveToTouchPos(pos);
+                tasks[i] = _units[i].MoveToTouchPos(pos);
             }
+
+            await UniTask.WhenAll(tasks);
         }
+        //
+        // public void UnitMove(Vector3 touchPos)
+        // {
+        //     for (var i = 0; i < _units.Length; i++)
+        //     {
+        //         var angle = Mathf.PI * 0.5f - i * (Mathf.PI * 2f) / _units.Length;
+        //         var pos = touchPos + new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle));
+        //
+        //         _units[i].MoveToTouchPos(pos);
+        //     }
+        // }
 
         public void OffUnitIndicator()
         {
+            if (!_isUnitSpawn) return;
             for (int i = 0; i < _units.Length; i++)
             {
                 _units[i].Indicator.enabled = false;

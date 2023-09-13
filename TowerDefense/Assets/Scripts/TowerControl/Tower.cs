@@ -1,20 +1,21 @@
 using System;
+using InterfaceControl;
 using ManagerControl;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 namespace TowerControl
 {
-    public abstract class Tower : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+    public abstract class Tower : MonoBehaviour, IOpenUI
     {
         private BoxCollider _boxCollider;
         private MeshRenderer _meshRenderer;
-        
+
         protected MeshFilter meshFilter;
         protected bool isSold;
 
         public event Action<Tower> OnClickTower;
-        
+
+        public bool isSpawn { get; set; }
         public float TowerRange { get; private set; }
         public int TowerLevel { get; private set; }
         public TowerType towerTypeEnum => towerType;
@@ -37,14 +38,6 @@ namespace TowerControl
             // OnClickTower = null;
         }
 
-        public void OnPointerDown(PointerEventData eventData)
-        {
-        }
-
-        public virtual void OnPointerUp(PointerEventData eventData)
-        {
-            OnClickTower?.Invoke(this);
-        }
         //==================================Custom Method====================================================
         //======================================================================================================
 
@@ -76,6 +69,11 @@ namespace TowerControl
             var size = _boxCollider.size;
             size = new Vector3(size.x, rendererY, size.z);
             _boxCollider.size = size;
+        }
+
+        public void OpenUI()
+        {
+            OnClickTower?.Invoke(this);
         }
     }
 }

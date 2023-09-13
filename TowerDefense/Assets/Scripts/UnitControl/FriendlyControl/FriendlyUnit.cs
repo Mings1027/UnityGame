@@ -13,7 +13,7 @@ using UnityEngine.EventSystems;
 
 namespace UnitControl.FriendlyControl
 {
-    public sealed class FriendlyUnit : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+    public sealed class FriendlyUnit : MonoBehaviour, IOpenUI
     {
         private AudioSource _audioSource;
         private Animator _anim;
@@ -38,18 +38,18 @@ namespace UnitControl.FriendlyControl
 
         private static readonly int IsWalk = Animator.StringToHash("isWalk");
         private static readonly int IsAttack = Animator.StringToHash("isAttack");
+        private static readonly int IsDead = Animator.StringToHash("isDead");
+
+        [SerializeField] private MeshRenderer indicator;
+        [SerializeField] private LayerMask targetLayer;
+        [SerializeField] private int atkRange;
+        [SerializeField] private float moveSpeed;
 
         public event Action<FriendlyUnit> OnDeadEvent;
         public string towerType { get; set; }
         public MeshRenderer Indicator => indicator;
 
         public UnitTower parentTower { get; set; }
-
-        [SerializeField] private MeshRenderer indicator;
-        [SerializeField] private LayerMask targetLayer;
-        [SerializeField] private int atkRange;
-        [SerializeField] private float moveSpeed;
-        private static readonly int IsDead = Animator.StringToHash("isDead");
 
         /*==============================================================================================================================================
                                                     Unity Event
@@ -120,14 +120,6 @@ namespace UnitControl.FriendlyControl
             Gizmos.DrawWireSphere(_t.position, atkRange);
         }
 
-        public void OnPointerDown(PointerEventData eventData)
-        {
-        }
-
-        public void OnPointerUp(PointerEventData eventData)
-        {
-            parentTower.OnPointerUp(eventData);
-        }
         /*==============================================================================================================================================
                                                     Unity Event
 =====================================================================================================================================================*/
@@ -207,17 +199,17 @@ namespace UnitControl.FriendlyControl
             }
         }
 
-        public void MoveToTouchPos(Vector3 pos)
+        public async UniTask MoveToTouchPos(Vector3 pos)
         {
             _curPos = pos;
             _moveInput = true;
             _sphereCollider.enabled = false;
-            _rigid.DOMove(pos, moveSpeed).SetSpeedBased().SetEase(Ease.Linear).OnComplete(() =>
+            _rigid.MoveRotation(Quaternion.LookRotation(pos - _rigid.position));
+            await _rigid.DOMove(pos, moveSpeed).SetSpeedBased().SetEase(Ease.Linear).OnComplete(() =>
             {
                 _moveInput = false;
                 _sphereCollider.enabled = true;
-            });
-            _rigid.MoveRotation(Quaternion.LookRotation(pos - _rigid.position));
+            }).ToUniTask();
         }
 
         public void Init(int damage, float attackDelay, float healthAmount)
@@ -225,6 +217,11 @@ namespace UnitControl.FriendlyControl
             _damage = damage;
             _atkDelay = attackDelay;
             _health.Init(healthAmount);
+        }
+
+        public void OpenUI()
+        {
+            parentTower.OpenUI();
         }
     }
 }

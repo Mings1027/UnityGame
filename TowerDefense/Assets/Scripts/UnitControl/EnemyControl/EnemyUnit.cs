@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DataControl;
+using DG.Tweening;
 using GameControl;
 using InterfaceControl;
 using UnityEngine;
@@ -137,7 +138,16 @@ namespace UnitControl.EnemyControl
         private void DeadAnimation()
         {
             _enemyAI.CanMove = false;
-            _anim.SetTrigger(IsDead);
+            var pos = transform.position;
+
+            transform.DORotate(new Vector3(-90, pos.y, pos.z), 0.5f, RotateMode.LocalAxisAdd).OnComplete(() =>
+            {
+                transform.DOScale(0, 1).OnComplete(() =>
+                {
+                    gameObject.SetActive(false);
+                    transform.localScale = Vector3.one;
+                });
+            });
         }
 
         private void Targeting()
@@ -148,7 +158,7 @@ namespace UnitControl.EnemyControl
             _isTargeting = _target != null;
             _enemyAI.CanMove = !_isTargeting;
             _sphereCollider.isTrigger = !_isTargeting;
-            
+
             if (!_isTargeting) return;
             if (Vector3.Distance(_t.position, _target.position) <= _sphereCollider.radius * 2)
             {

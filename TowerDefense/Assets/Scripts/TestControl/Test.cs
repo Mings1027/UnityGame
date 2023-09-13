@@ -7,13 +7,38 @@ using UnityEngine.SceneManagement;
 
 public class Test : MonoBehaviour
 {
-    private void OnEnable()
+    private Camera cam;
+    private Vector3 lastPos;
+    
+    [SerializeField] private Grid grid;
+    [SerializeField] private LayerMask placementLayer;
+    [SerializeField] private Transform mouseCursor;
+    [SerializeField] private Transform cubeCursor;
+
+    private void Awake()
     {
-        InvokeRepeating(nameof(Attack), 0, 1);
+        cam = Camera.main;
     }
 
-    private void Attack()
+    private void Update()
     {
-        print("13123123");
+        var mousePos = GetSelectedMapPos();
+        var gridPos = grid.WorldToCell(mousePos);
+        gridPos.y = 1;
+        mouseCursor.position = mousePos;
+        cubeCursor.position = grid.CellToWorld(gridPos);
+    }
+
+    private Vector3 GetSelectedMapPos()
+    {
+        var mousePos = Input.mousePosition;
+        mousePos.z = cam.nearClipPlane;
+        var ray = cam.ScreenPointToRay(mousePos);
+        if (Physics.Raycast(ray, out var hit, 100, placementLayer))
+        {
+            lastPos = hit.point;
+        }
+
+        return lastPos;
     }
 }

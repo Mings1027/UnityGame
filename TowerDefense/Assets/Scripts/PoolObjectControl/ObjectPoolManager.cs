@@ -39,6 +39,12 @@ namespace GameControl
 #endif
         }
 
+        [ContextMenu("Pool Sort")]
+        private void PoolSort()
+        {
+            Array.Sort(pools);
+        }
+
         private void PoolInit()
         {
             //미리 생성
@@ -52,13 +58,16 @@ namespace GameControl
                 for (var j = 0; j < pool.size; j++)
                 {
                     var obj = CreateNewObject(pool.tag, pool.prefab);
+#if UNITY_EDITOR
                     SortObject(obj);
+#endif
                 }
-
+#if UNITY_EDITOR
                 if (_poolDictionary[pool.tag].Count <= 0)
                     print($"{pool.tag}{_info}");
                 else if (_poolDictionary[pool.tag].Count != pool.size)
                     print($"{pool.tag}에 ReturnToPool이 중복됩니다.");
+#endif
             }
         }
 

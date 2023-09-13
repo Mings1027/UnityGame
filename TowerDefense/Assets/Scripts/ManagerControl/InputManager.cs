@@ -1,16 +1,15 @@
+using GameControl;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
 namespace ManagerControl
 {
-    public class InputManager : MonoBehaviour
+    public class InputManager : Singleton<InputManager>
     {
         private TowerManager _towerManager;
         private Camera _cam;
         private CameraManager _cameraManager;
-        private Vector3 _prevCursorPos;
-        private Vector3 _gridPos;
+        private Transform _cursorChild;
+        private Vector3 _worldGridPos;
         private bool _isPlacingTower;
         private bool _isUnitTower;
         private string _selectedTowerName;
@@ -19,20 +18,20 @@ namespace ManagerControl
         private Vector3[] _checkDir;
 
         private MeshRenderer _cursorMeshRenderer;
-        private Ray _mouseRay;
-        private RaycastHit _mouseRaycastHit;
+
         private RaycastHit _canPlaceHit;
-        [SerializeField] private Image placeTowerButton;
         [SerializeField] private Transform cubeCursor;
         [SerializeField] private Grid grid;
+        [SerializeField] private LayerMask placementLayer;
         [SerializeField] private LayerMask towerLayer;
 
         private void Awake()
         {
             _towerManager = TowerManager.Instance;
             _cam = Camera.main;
-            _cursorMeshRenderer = cubeCursor.GetComponent<MeshRenderer>();
-            placeTowerButton.GetComponent<PlaceTowerController>().OnPlaceTower += PlaceTower;
+            _cursorMeshRenderer = cubeCursor.GetComponentInChildren<MeshRenderer>();
+            _cursorChild = cubeCursor.GetChild(0);
+            _towerManager.PlaceTowerController.OnPlaceTower += PlaceTower;
 
             _checkDir = new[]
             {
@@ -51,41 +50,50 @@ namespace ManagerControl
         private void Update()
         {
             if (!_isPlacingTower) return;
-
-            if (Input.GetMouseButton(0))
+            var touch = Input.GetTouch(0);
+            if (touch.phase is TouchPhase.Began or TouchPhase.Moved)
             {
-                MoveCursor();
+                UpdateCursorPosition();
 
                 CheckCanPlace();
             }
-            else if (Input.GetMouseButtonUp(0))
+            else if (touch.phase == TouchPhase.Ended)
             {
-                if (_isPlacingTower)
-                {
-                    StopPlacement();
-                }
+                StopPlacement();
             }
         }
 
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(_gridPos + Vector3.up * 5, 1);
+            Gizmos.DrawWireSphere(_cursorChild.position + Vector3.up * 5, 1);
+            Gizmos.DrawWireSphere(_cursorChild.position, 0.2f);
+            Gizmos.color = Color.green;
+            for (int i = 0; i < _checkDir.Length; i++)
+            {
+                Gizmos.DrawRay(_cursorChild.position + _checkDir[i] * 2 + Vector3.up, Vector3.down * 10);
+            }
         }
 
         private void StopPlacement()
         {
+            if (_canPlace)
+            {
+                _selectedTowerName = null;
+            }
+
             _isPlacingTower = false;
             _cameraManager.enabled = true;
             _cursorMeshRenderer.enabled = false;
-            placeTowerButton.enabled = false;
+            _towerManager.PlaceTowerController.enabled = false;
+            cubeCursor.position = Vector3.zero + Vector3.down * 2;
             enabled = false;
-            _gridPos = Vector3.zero + Vector3.down * 5;
+            _worldGridPos = Vector3.zero + Vector3.down * 5;
         }
 
         public void StartPlacement(string towerName, bool isUnitTower)
         {
-            _towerManager.ResetUI();
+            _towerManager.OffUI();
             if (!_towerManager.EnoughGold())
             {
                 StopPlacement();
@@ -93,25 +101,30 @@ namespace ManagerControl
             }
 
             _isPlacingTower = true;
+            _cameraManager.enabled = false;
+
+            if (_selectedTowerName == towerName) return;
             _isUnitTower = isUnitTower;
             _selectedTowerName = towerName;
-            _cameraManager.enabled = false;
-            placeTowerButton.enabled = true;
+            _cursorMeshRenderer.enabled = false;
+            _towerManager.PlaceTowerController.enabled = true;
         }
 
-        private void MoveCursor()
+        private void UpdateCursorPosition()
         {
-            _mouseRay = _cam.ScreenPointToRay(Input.mousePosition);
-            Physics.Raycast(_mouseRay, out _mouseRaycastHit, 100);
-            var cellPos = grid.WorldToCell(_mouseRaycastHit.point);
-            _gridPos = grid.CellToWorld(cellPos) + new Vector3(1.5f, 2f, 1.5f);
-            cubeCursor.transform.position = _gridPos;
-            placeTowerButton.transform.position = Input.mousePosition;
+            var mousePos = Input.mousePosition;
+            mousePos.z = _cam.nearClipPlane;
+            var ray = _cam.ScreenPointToRay(mousePos);
+            if (!Physics.Raycast(ray, out var hit, 100, placementLayer)) return;
+            var cellGridPos = grid.WorldToCell(hit.point);
+            _worldGridPos = grid.CellToWorld(cellGridPos);
+            cubeCursor.position = _worldGridPos;
+            _towerManager.PlaceTowerController.transform.position = mousePos;
         }
 
         private void CheckCanPlace()
         {
-            _canPlace = !Physics.CheckSphere(_gridPos, 1, towerLayer) && CheckPlacementTile() &&
+            _canPlace = !Physics.CheckSphere(_cursorChild.position, 0.2f, towerLayer) && CheckPlacementTile() &&
                         (!_isUnitTower || CheckPlaceUnitTower());
 
             _cursorMeshRenderer.enabled = _canPlace;
@@ -119,7 +132,7 @@ namespace ManagerControl
 
         private bool CheckPlacementTile()
         {
-            if (Physics.Raycast(_gridPos + Vector3.up * 5, Vector3.down, out _canPlaceHit, 10))
+            if (Physics.Raycast(_cursorChild.position + Vector3.up * 5, Vector3.down, out _canPlaceHit, 10))
             {
                 if (_canPlaceHit.collider.CompareTag("Placement"))
                 {
@@ -134,8 +147,8 @@ namespace ManagerControl
         {
             for (var i = 0; i < _checkDir.Length; i++)
             {
-                if (Physics.Raycast(_gridPos + _checkDir[i] * 3 + Vector3.up, Vector3.down,
-                        out _canPlaceHit))
+                if (Physics.Raycast(_cursorChild.position + _checkDir[i] * 2 + Vector3.up, Vector3.down,
+                        out _canPlaceHit, 10))
                 {
                     if (_canPlaceHit.collider.CompareTag("Ground"))
                     {
@@ -150,15 +163,15 @@ namespace ManagerControl
         private void PlaceTower()
         {
             if (!_canPlace) return;
-            _gridPos = cubeCursor.transform.position;
-            _gridPos.y = 0.5f;
+            _worldGridPos = _cursorChild.position;
+            _worldGridPos.y = 1f;
             if (_isUnitTower)
             {
-                _towerManager.PlaceUnitTower(_selectedTowerName, _gridPos, _canPlaceHit);
+                _towerManager.PlaceUnitTower(_selectedTowerName, _worldGridPos, _canPlaceHit);
             }
             else
             {
-                _towerManager.PlaceTower(_selectedTowerName, _gridPos);
+                _towerManager.PlaceTower(_selectedTowerName, _worldGridPos);
             }
         }
     }

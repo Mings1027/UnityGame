@@ -5,11 +5,8 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using DataControl;
 using GameControl;
-using StatusControl;
-using TMPro;
 using UnitControl.EnemyControl;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace ManagerControl
 {
@@ -19,18 +16,10 @@ namespace ManagerControl
         private int _curWave;
         private int _remainingEnemyCount;
         private CancellationTokenSource _cts;
-        private TMP_Text _waveText;
-        private GameObject _waveTextImage;
 
         public event Action OnPlaceExpandButton;
-        [SerializeField] private WaveData waveData;
 
-        private void Awake()
-        {
-            _waveTextImage = GetComponentInChildren<Image>().gameObject;
-            _waveTextImage.SetActive(false);
-            _waveText = _waveTextImage.GetComponentInChildren<TMP_Text>();
-        }
+        [SerializeField] private WaveData waveData;
 
         private void OnEnable()
         {
@@ -44,18 +33,13 @@ namespace ManagerControl
             _cts?.Cancel();
         }
 
-        public void ActiveWave()
-        {
-            _waveTextImage.SetActive(true);
-        }
-
         public void StartWave(Vector3[] wayPoints)
         {
             if (_startGame) return;
             _startGame = true;
             _curWave++;
 
-            _waveText.text = "Wave : " + _curWave;
+            TowerManager.Instance.WaveText.text = "Wave : " + _curWave;
             var wayPointsArray = wayPoints.ToArray();
 
             WaveInit(wayPointsArray);
@@ -104,11 +88,13 @@ namespace ManagerControl
             enemyUnit.Init(wave);
 
             var enemyHealth = enemyUnit.GetComponent<EnemyHealth>();
+            if (enemyHealth.isFirstSpawn) return;
+            enemyHealth.Init(wave.health);
             enemyHealth.OnDecreaseLifeCountEvent += TowerManager.Instance.DecreaseLifeCountEvent;
             enemyHealth.OnUpdateEnemyCountEvent += UpdateEnemyCountEvent;
             enemyHealth.OnDieEvent +=
                 () => TowerManager.Instance.IncreaseGold(waveData.enemyWaves[waveIndex].enemyCoin);
-            enemyHealth.Init(wave.health);
+            enemyHealth.isFirstSpawn = true;
         }
 
         private void UpdateEnemyCountEvent()

@@ -1,4 +1,5 @@
 using System;
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using GameControl;
 using InterfaceControl;
@@ -11,6 +12,7 @@ namespace UnitControl.EnemyControl
     {
         private Collider _collider;
 
+        public bool isFirstSpawn { get; set; }
         public event Action OnUpdateEnemyCountEvent;
         public event Action OnDecreaseLifeCountEvent;
         public event Action OnDieEvent;
@@ -34,9 +36,9 @@ namespace UnitControl.EnemyControl
             }
 
             OnUpdateEnemyCountEvent?.Invoke();
-            OnUpdateEnemyCountEvent = null;
-            OnDecreaseLifeCountEvent = null;
-            OnDieEvent = null;
+            // OnUpdateEnemyCountEvent = null;
+            // OnDecreaseLifeCountEvent = null;
+            // OnDieEvent = null;
             ObjectPoolManager.ReturnToPool(gameObject);
         }
 
@@ -48,7 +50,6 @@ namespace UnitControl.EnemyControl
             if (CurrentProgress > 0f) return;
             _collider.enabled = false;
             OnDieEvent?.Invoke();
-            DOVirtual.DelayedCall(1, () => gameObject.SetActive(false));
         }
 
         public void Heal(float amount)

@@ -1,3 +1,4 @@
+using GameControl;
 using UnityEngine;
 
 namespace ProjectileControl
@@ -31,6 +32,7 @@ namespace ProjectileControl
         {
             _lerp = 0;
             TryHit();
+            ObjectPoolManager.ReturnToPool(gameObject);
         }
 
         protected void ParabolaPath(Vector3 endPos)

@@ -11,6 +11,7 @@ namespace ManagerControl
         public void OnDrop(PointerEventData eventData)
         {
             OnPlaceTower?.Invoke();
+            transform.position = Vector3.zero;
         }
     }
 }

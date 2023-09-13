@@ -81,7 +81,7 @@ namespace TowerControl
             if (isTargeting)
             {
                 Attack();
-                _audioSource.PlayOneShot(_audioSource.clip);
+                _audioSource.Play();
             }
         }
 

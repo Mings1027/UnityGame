@@ -45,7 +45,7 @@ namespace UnitControl.EnemyControl
             Movement(out var direction);
             Rotation(direction);
             NextWayPoint();
-            CheckArrived();
+            // CheckArrived();
         }
 
         private void OnDisable()
@@ -84,16 +84,16 @@ namespace UnitControl.EnemyControl
             if (distance < nextWayPointDistance)
             {
                 _curWayPoint++;
+                if (Vector3.Distance(_rigid.position, Vector3.zero) > 2) return;
+
+                gameObject.SetActive(false);
             }
         }
-
-        private void CheckArrived()
-        {
-            if (_curWayPoint < _path.vectorPath.Count - 1) return;
-            if (Vector3.Distance(_rigid.position, _path.vectorPath[_curWayPoint]) > 1) return;
-            
-            gameObject.SetActive(false);
-        }
+        //
+        // private void CheckArrived()
+        // {
+        //     if (_curWayPoint < _path.vectorPath.Count - 1) return;
+        // }
 
         private void UpdatePath()
         {

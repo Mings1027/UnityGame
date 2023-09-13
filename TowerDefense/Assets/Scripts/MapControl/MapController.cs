@@ -126,9 +126,9 @@ namespace MapControl
 
             _directionMappingDic = new Dictionary<string, string>
             {
-                { "01", "F" }, { "02", "L" }, { "03", "R" }, { "12", "R" }, { "13", "L" }, { "23", "F" },
-                { "012", "FL" }, { "013", "FR" }, { "023", "LR" }, { "123", "LR" },
-                { "0123", "FLR" }
+                { "01", "S" }, { "02", "L" }, { "03", "R" }, { "12", "R" }, { "13", "L" }, { "23", "S" },
+                { "012", "SL" }, { "013", "SR" }, { "023", "LR" }, { "123", "LR" },
+                { "0123", "SLR" }
             };
 
             _wayPointsHashSet = new HashSet<Vector3>();
@@ -340,7 +340,7 @@ namespace MapControl
             //For Portal Map
             if (_newMapWayPoints.Count == 1)
             {
-                _wayPointsHashSet.Add(_newMapObject.transform.position);
+                _wayPointsHashSet.Add(_newMapObject.transform.position + _newMapObject.transform.forward * 4);
                 return;
             }
 

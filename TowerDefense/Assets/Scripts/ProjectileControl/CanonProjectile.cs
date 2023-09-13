@@ -34,13 +34,14 @@ namespace ProjectileControl
 
         protected override void TryHit()
         {
+            if (_targetEndPos == Vector3.zero) return;
             var pos = transform.position;
 
             var size = Physics.OverlapSphereNonAlloc(pos, atkRange, _targetColliders, enemyLayer);
 
-            if (size <= 0) return;
-            
             ObjectPoolManager.Get<SoundPlayer>(StringManager.CanonHitVfx, pos).Play();
+
+            if (size <= 0) return;
 
             for (var i = 0; i < size; i++)
             {
@@ -52,7 +53,6 @@ namespace ProjectileControl
                 }
             }
         }
-
 
         public void Init(Vector3 t, int dmg)
         {

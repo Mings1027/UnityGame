@@ -8,10 +8,7 @@ namespace ManagerControl
     {
         private string _towerName;
 
-        [SerializeField] private InputManager inputManager;
         [SerializeField] private bool isUnitTower;
-
-        // public event Action<bool> OnCheckTowerType;
 
         private void Awake()
         {
@@ -20,9 +17,8 @@ namespace ManagerControl
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            inputManager.enabled = true;
-            inputManager.StartPlacement(_towerName, isUnitTower);
-            // OnCheckTowerType?.Invoke(isUnitTower);
+            InputManager.Instance.enabled = true;
+            InputManager.Instance.StartPlacement(_towerName, isUnitTower);
         }
     }
 }

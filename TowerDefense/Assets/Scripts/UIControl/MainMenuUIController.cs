@@ -36,7 +36,6 @@ namespace UIControl
         private void StartGame()
         {
             SoundManager.Instance.PlayBGM();
-            WaveManager.Instance.ActiveWave();
             TowerManager.Instance.GameStart();
             
             OnGenerateInitMapEvent?.Invoke();

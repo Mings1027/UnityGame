@@ -9,7 +9,7 @@ namespace MapControl
         [Flags]
         private enum Direction
         {
-            Forward = 1 << 0,
+            Straight = 1 << 0,
             Left = 1 << 1,
             Right = 1 << 2
         }
@@ -27,7 +27,7 @@ namespace MapControl
         {
             wayPointList.Add(-transform.forward);
 
-            if ((wayDirection & Direction.Forward) != 0)
+            if ((wayDirection & Direction.Straight) != 0)
             {
                 wayPointList.Add(transform.forward);
             }

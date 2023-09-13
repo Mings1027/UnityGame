@@ -24,7 +24,7 @@ namespace TowerControl
                 .Append(crystal.DOLocalMoveY(crystal.position.y + 0.1f, 0.5f).SetEase(Ease.InOutSine))
                 .SetLoops(2, LoopType.Yoyo);
 
-            _crystalMeshFilter = crystal.GetComponent<MeshFilter>();
+            _crystalMeshFilter = crystal.GetComponentInChildren<MeshFilter>();
 
             effectName = new[] { "MageVfx1", "MageVfx2", "MageVfx3" };
         }

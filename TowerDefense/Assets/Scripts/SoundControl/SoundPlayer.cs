@@ -13,7 +13,7 @@ namespace SoundControl
 
         public void Play()
         {
-            _audioSource.PlayOneShot(_audioSource.clip);
+            _audioSource.Play();
         }
     }
 }

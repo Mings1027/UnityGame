@@ -42,6 +42,7 @@ namespace ProjectileControl
         private void OnDisable()
         {
             _lerp = 0;
+            ObjectPoolManager.ReturnToPool(gameObject);
             if (_target == null) return;
             TryHit();
         }

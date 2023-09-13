@@ -15,7 +15,7 @@ namespace GameControl
 
         private void LateUpdate()
         {
-            if (!GeometryUtility.TestPlanesAABB(GeometryUtility.CalculateFrustumPlanes(_cam), _renderer.bounds)) return;
+            // if (!GeometryUtility.TestPlanesAABB(GeometryUtility.CalculateFrustumPlanes(_cam), _renderer.bounds)) return;
             if (_cam.transform.rotation == transform.rotation) return;
 
             transform.rotation = _cam.transform.rotation;
