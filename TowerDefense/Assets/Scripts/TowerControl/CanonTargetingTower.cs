@@ -9,6 +9,7 @@ namespace TowerControl
     public class CanonTargetingTower : TargetingTower
     {
         private Sequence _atkSequence;
+        private Transform _childObj;
         [SerializeField] private ParticleSystem canonSmoke;
 
         private void OnDestroy()
@@ -19,10 +20,10 @@ namespace TowerControl
         protected override void Init()
         {
             base.Init();
-
+            _childObj = transform.GetChild(0);
             _atkSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(meshFilter.transform.DOScaleY(0.5f, 0.3f).SetEase(Ease.OutQuint))
-                .Append(meshFilter.transform.DOScaleY(1f, 0.3f).SetEase(Ease.OutQuint));
+                .Append(_childObj.DOScaleY(0.5f, 0.3f).SetEase(Ease.OutQuint))
+                .Append(_childObj.DOScaleY(1f, 0.3f).SetEase(Ease.OutQuint));
 
             effectName = new[] { "CanonVfx1", "CanonVfx2", "CanonVfx3" };
         }

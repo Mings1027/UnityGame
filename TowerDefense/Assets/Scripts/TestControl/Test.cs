@@ -7,38 +7,24 @@ using UnityEngine.SceneManagement;
 
 public class Test : MonoBehaviour
 {
-    private Camera cam;
-    private Vector3 lastPos;
-    
-    [SerializeField] private Grid grid;
-    [SerializeField] private LayerMask placementLayer;
-    [SerializeField] private Transform mouseCursor;
-    [SerializeField] private Transform cubeCursor;
-
-    private void Awake()
-    {
-        cam = Camera.main;
-    }
+    [SerializeField] private ParticleSystem a, b;
 
     private void Update()
     {
-        var mousePos = GetSelectedMapPos();
-        var gridPos = grid.WorldToCell(mousePos);
-        gridPos.y = 1;
-        mouseCursor.position = mousePos;
-        cubeCursor.position = grid.CellToWorld(gridPos);
-    }
-
-    private Vector3 GetSelectedMapPos()
-    {
-        var mousePos = Input.mousePosition;
-        mousePos.z = cam.nearClipPlane;
-        var ray = cam.ScreenPointToRay(mousePos);
-        if (Physics.Raycast(ray, out var hit, 100, placementLayer))
+        if (Input.GetMouseButtonDown(0))
         {
-            lastPos = hit.point;
-        }
+            if (a.isPlaying)
+            {
+                a.Clear();
+                a.Stop();
+            }
 
-        return lastPos;
+            else if (a.isStopped) a.Play();
+        }
+        else if (Input.GetMouseButtonDown(1))
+        {
+            if (b.isPlaying) b.Stop();
+            else if (b.isStopped) b.Play();
+        }
     }
 }

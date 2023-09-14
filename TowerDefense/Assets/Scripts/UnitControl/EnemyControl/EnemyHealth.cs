@@ -12,7 +12,6 @@ namespace UnitControl.EnemyControl
     {
         private Collider _collider;
 
-        public bool isFirstSpawn { get; set; }
         public event Action OnUpdateEnemyCountEvent;
         public event Action OnDecreaseLifeCountEvent;
         public event Action OnDieEvent;
@@ -36,9 +35,9 @@ namespace UnitControl.EnemyControl
             }
 
             OnUpdateEnemyCountEvent?.Invoke();
-            // OnUpdateEnemyCountEvent = null;
-            // OnDecreaseLifeCountEvent = null;
-            // OnDieEvent = null;
+            OnUpdateEnemyCountEvent = null;
+            OnDecreaseLifeCountEvent = null;
+            OnDieEvent = null;
             ObjectPoolManager.ReturnToPool(gameObject);
         }
 

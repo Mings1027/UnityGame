@@ -9,12 +9,6 @@ namespace TowerControl
 {
     public class UnitTower : Tower
     {
-        private enum UnitType
-        {
-            Assassin,
-            Defender
-        }
-
         private bool _isUnitSpawn;
         private int _deadUnitCount;
         private string _unitTypeName;
@@ -23,26 +17,6 @@ namespace TowerControl
 
         private FriendlyUnit[] _units;
 
-        public Vector3 unitCenterPos
-        {
-            get
-            {
-                var count = 0;
-                var center = Vector3.zero;
-                for (int i = 0; i < _units.Length; i++)
-                {
-                    if (_units[i].gameObject.activeSelf)
-                    {
-                        count++;
-                        center += _units[i].transform.position;
-                    }
-                }
-
-                return center / count;
-            }
-        }
-
-        [SerializeField] private UnitType unitType;
         [SerializeField] private float[] unitHealth;
 
         /*=========================================================================================================================================
@@ -52,7 +26,7 @@ namespace TowerControl
         {
             base.Awake();
             _units = new FriendlyUnit[3];
-            _unitTypeName = unitType.ToString();
+            _unitTypeName = towerTypeEnum.ToString();
         }
 
         protected override void OnEnable()
@@ -81,12 +55,17 @@ namespace TowerControl
         /*=========================================================================================================================================
         *                                               Unity Event
         =========================================================================================================================================*/
+        public override void FingerUp()
+        {
+            base.FingerUp();
+            ActiveUnitIndicator();
+        }
 
-        private void ActiveUnitIndicator()
+        public void ActiveUnitIndicator()
         {
             for (var i = 0; i < _units.Length; i++)
             {
-                _units[i].Indicator.enabled = true;
+                _units[i].Indicator.Play();
             }
         }
 
@@ -114,8 +93,8 @@ namespace TowerControl
                 var pos = unitSpawnPosition + new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle));
                 _units[i] = ObjectPoolManager.Get<FriendlyUnit>(_unitTypeName, pos);
                 ObjectPoolManager.Get(StringManager.UnitSpawnSmoke, pos);
-                _units[i].OnDeadEvent += UnitReSpawn;
-                _units[i].towerType = unitType.ToString();
+                _units[i].OnReSpawnEvent += UnitReSpawn;
+                _units[i].towerType = towerTypeEnum.ToString();
                 _units[i].parentTower = this;
             }
         }
@@ -132,7 +111,7 @@ namespace TowerControl
 
         public async UniTask StartUnitMove(Vector3 touchPos)
         {
-            var tasks = new UniTask[_units.Length];
+            var tasks = new UniTask[_units.Length - _deadUnitCount];
             for (var i = 0; i < tasks.Length; i++)
             {
                 var angle = Mathf.PI * 0.5f - i * (Mathf.PI * 2f) / _units.Length;
@@ -160,14 +139,12 @@ namespace TowerControl
             if (!_isUnitSpawn) return;
             for (int i = 0; i < _units.Length; i++)
             {
-                _units[i].Indicator.enabled = false;
+                _units[i].Indicator.Stop();
             }
         }
 
         private void UnitReSpawn(FriendlyUnit u)
         {
-            if (isSold) return;
-
             _deadUnitCount++;
 
             if (_deadUnitCount < 3) return;

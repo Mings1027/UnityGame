@@ -40,10 +40,9 @@ namespace ManagerControl
             _curWave++;
 
             TowerManager.Instance.WaveText.text = "Wave : " + _curWave;
-            var wayPointsArray = wayPoints.ToArray();
 
-            WaveInit(wayPointsArray);
-            SpawnEnemy(wayPointsArray).Forget();
+            WaveInit(wayPoints);
+            SpawnEnemy(wayPoints).Forget();
         }
 
         private void WaveInit(Vector3[] wayPointsArray)
@@ -88,13 +87,12 @@ namespace ManagerControl
             enemyUnit.Init(wave);
 
             var enemyHealth = enemyUnit.GetComponent<EnemyHealth>();
-            if (enemyHealth.isFirstSpawn) return;
+
             enemyHealth.Init(wave.health);
             enemyHealth.OnDecreaseLifeCountEvent += TowerManager.Instance.DecreaseLifeCountEvent;
             enemyHealth.OnUpdateEnemyCountEvent += UpdateEnemyCountEvent;
             enemyHealth.OnDieEvent +=
                 () => TowerManager.Instance.IncreaseGold(waveData.enemyWaves[waveIndex].enemyCoin);
-            enemyHealth.isFirstSpawn = true;
         }
 
         private void UpdateEnemyCountEvent()

@@ -5,13 +5,11 @@ using UnityEngine;
 
 namespace TowerControl
 {
-    public abstract class Tower : MonoBehaviour, IOpenUI
+    public abstract class Tower : MonoBehaviour, IFingerUp
     {
         private BoxCollider _boxCollider;
         private MeshRenderer _meshRenderer;
-
-        protected MeshFilter meshFilter;
-        protected bool isSold;
+        private MeshFilter _meshFilter;
 
         public event Action<Tower> OnClickTower;
 
@@ -29,7 +27,6 @@ namespace TowerControl
 
         protected virtual void OnEnable()
         {
-            isSold = false;
             TowerLevel = -1;
         }
 
@@ -44,7 +41,7 @@ namespace TowerControl
         protected virtual void Init()
         {
             _boxCollider = GetComponent<BoxCollider>();
-            meshFilter = transform.GetChild(0).GetComponent<MeshFilter>();
+            _meshFilter = transform.GetChild(0).GetComponent<MeshFilter>();
             _meshRenderer = transform.GetChild(0).GetComponent<MeshRenderer>();
         }
 
@@ -57,7 +54,7 @@ namespace TowerControl
             float attackDelayData)
         {
             TowerRange = rangeData;
-            meshFilter.sharedMesh = towerMesh.sharedMesh;
+            _meshFilter.sharedMesh = towerMesh.sharedMesh;
             _boxCollider.enabled = true;
 
             ColliderSize();
@@ -71,7 +68,7 @@ namespace TowerControl
             _boxCollider.size = size;
         }
 
-        public void OpenUI()
+        public virtual void FingerUp()
         {
             OnClickTower?.Invoke(this);
         }

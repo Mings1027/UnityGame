@@ -30,7 +30,7 @@ namespace UnitControl.EnemyControl
 
         private static readonly int IsWalk = Animator.StringToHash("isWalk");
         private static readonly int IsAttack = Animator.StringToHash("isAttack");
-        private static readonly int IsDead = Animator.StringToHash("isDead");
+        // private static readonly int IsDead = Animator.StringToHash("isDead");
 
         [SerializeField] private LayerMask targetLayer;
 
@@ -78,6 +78,12 @@ namespace UnitControl.EnemyControl
             _anim.SetBool(IsWalk, _enemyAI.CanMove);
         }
 
+        private void OnTriggerEnter(Collider other)
+        {
+            if (other.CompareTag("Destination"))
+                gameObject.SetActive(false);
+        }
+
         private void OnDisable()
         {
             _cts?.Cancel();
@@ -85,11 +91,13 @@ namespace UnitControl.EnemyControl
             _enemyHealth.OnDieEvent -= DeadAnimation;
         }
 
+#if UNITY_EDITOR
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(transform.position, _attackRange);
         }
+#endif
         /*==============================================================================================================================================
                                                     Unity Event
 =====================================================================================================================================================*/

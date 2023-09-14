@@ -1,4 +1,5 @@
 using System;
+using DataControl;
 using ManagerControl;
 using MapControl;
 using UnityEngine;
@@ -35,7 +36,7 @@ namespace UIControl
 
         private void StartGame()
         {
-            SoundManager.Instance.PlayBGM();
+            SoundManager.Instance.PlayBGM(StringManager.WaveBreak);
             TowerManager.Instance.GameStart();
             
             OnGenerateInitMapEvent?.Invoke();

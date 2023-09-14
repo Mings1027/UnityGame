@@ -11,11 +11,12 @@ namespace ManagerControl
         private CancellationTokenSource _cts;
 
         private float _lerp;
+        private float _modifiedMoveSpeed;
 
         private Touch _firstTouch, _secondTouch;
         private Vector3 _curPos, _newPos;
 
-        [SerializeField] private float moveSpeed;
+        // [SerializeField] private float moveSpeed;
         [SerializeField] private float rotationSpeed;
         [SerializeField] private float zoomSpeed;
 
@@ -84,8 +85,8 @@ namespace ManagerControl
         {
             var pos = (_firstTouch.deltaPosition + _secondTouch.deltaPosition) * 0.5f;
             var t = transform;
-            _curPos = t.right * (-moveSpeed * pos.x);
-            _curPos += t.forward * (pos.y * -moveSpeed);
+            _curPos = t.right * (-_modifiedMoveSpeed * pos.x);
+            _curPos += t.forward * (pos.y * -_modifiedMoveSpeed);
             _curPos.y = 0;
             _newPos = t.position + _curPos * Time.deltaTime;
 
@@ -100,7 +101,7 @@ namespace ManagerControl
             _lerp = 0;
             while (_lerp < 1)
             {
-                _lerp += Time.deltaTime * moveSpeed;
+                _lerp += Time.deltaTime * _modifiedMoveSpeed;
                 CamMove();
                 await UniTask.Yield(cancellationToken: _cts.Token);
             }
@@ -156,6 +157,8 @@ namespace ManagerControl
             var sizeChange = touchPrevPosDiff > touchCurPosDiff ? zoomModifier : -zoomModifier;
 
             _cam.orthographicSize = Mathf.Clamp(_cam.orthographicSize + sizeChange, camSizeMinMax.x, camSizeMinMax.y);
+
+            _modifiedMoveSpeed = _cam.orthographicSize / 20;
         }
     }
 }

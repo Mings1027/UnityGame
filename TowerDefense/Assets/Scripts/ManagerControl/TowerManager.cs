@@ -287,7 +287,9 @@ namespace ManagerControl
 
         private void IndicatorInit()
         {
+            towerRangeParticle.Clear();
             towerRangeParticle.Stop();
+            selectedTowerParticle.Clear();
             selectedTowerParticle.Stop();
         }
 
@@ -357,9 +359,9 @@ namespace ManagerControl
             var ray = _cam.ScreenPointToRay(Input.mousePosition);
             Physics.Raycast(ray, out var hit, Mathf.Infinity);
 
-            if (hit.collider != null && hit.collider.TryGetComponent(out IOpenUI iOpenUI))
+            if (hit.collider != null && hit.collider.TryGetComponent(out IFingerUp fingerUp))
             {
-                iOpenUI.OpenUI();
+                fingerUp.FingerUp();
             }
             else
             {
@@ -411,14 +413,16 @@ namespace ManagerControl
 
         private void SetIndicator()
         {
-            selectedTowerParticle.transform.position = _curSelectedTower.transform.position;
-            if (selectedTowerParticle.isStopped)
-                selectedTowerParticle.Play();
+            var curTowerPos = _curSelectedTower.transform.position;
+            selectedTowerParticle.transform.position = curTowerPos;
+            selectedTowerParticle.Clear();
+            selectedTowerParticle.Play();
 
-            towerRangeParticle.transform.position = _curSelectedTower.transform.position + new Vector3(0, 0.1f, 0);
+            towerRangeParticle.transform.position = curTowerPos + new Vector3(0, 0.1f, 0);
             var shapeModule = towerRangeParticle.shape;
             shapeModule.radius = _curSelectedTower.TowerRange;
-            if (towerRangeParticle.isStopped) towerRangeParticle.Play();
+            towerRangeParticle.Clear();
+            towerRangeParticle.Play();
         }
 
         private void IfUnitTower()
@@ -468,14 +472,14 @@ namespace ManagerControl
         {
             _prevSize = _cam.orthographicSize;
             _prevPos = _cameraManager.transform.position;
-            _cameraManager.transform.DOMove(_curSelectedTower.transform.position, 0.5f).SetEase(Ease.InSine);
-            _cam.DOOrthoSize(10, 0.5f).SetEase(Ease.InSine);
+            _cameraManager.transform.DOMove(_curSelectedTower.transform.position, 0.5f).SetEase(Ease.InQuart);
+            _cam.DOOrthoSize(10, 0.5f).SetEase(Ease.InQuart);
         }
 
         private void RewindCamState()
         {
-            _cameraManager.transform.DOMove(_prevPos, 0.5f).SetEase(Ease.InSine);
-            _cam.DOOrthoSize(_prevSize, 0.5f).SetEase(Ease.InSine);
+            _cameraManager.transform.DOMove(_prevPos, 0.5f).SetEase(Ease.InQuart);
+            _cam.DOOrthoSize(_prevSize, 0.5f).SetEase(Ease.InQuart);
         }
 
         private void MoveUnitButton()
@@ -509,8 +513,17 @@ namespace ManagerControl
             _curSelectedTower = null;
             towerInfoUI.enabled = false;
 
-            if (towerRangeParticle.isPlaying) towerRangeParticle.Stop();
-            if (selectedTowerParticle.isPlaying) selectedTowerParticle.Stop();
+            if (towerRangeParticle.isPlaying)
+            {
+                towerRangeParticle.Clear();
+                towerRangeParticle.Stop();
+            }
+
+            if (selectedTowerParticle.isPlaying)
+            {
+                selectedTowerParticle.Clear();
+                selectedTowerParticle.Stop();
+            }
 
             if (_curUnitTower == null) return;
             _curUnitTower.OffUnitIndicator();
@@ -543,7 +556,8 @@ namespace ManagerControl
             if (touch.deltaPosition != Vector2.zero) return;
             var ray = _cam.ScreenPointToRay(Input.mousePosition);
             Physics.Raycast(ray, out var hit);
-            if (hit.collider.CompareTag("Ground") && Vector3.Distance(_curUnitTower.transform.position, hit.point) <=
+            if (hit.collider != null && hit.collider.CompareTag("Ground") &&
+                Vector3.Distance(_curUnitTower.transform.position, hit.point) <=
                 _curUnitTower.TowerRange)
             {
                 StartMoveUnit(new Vector3(hit.point.x, 0, hit.point.z)).Forget();

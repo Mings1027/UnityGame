@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using GameControl;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace ManagerControl
 {
@@ -14,23 +15,39 @@ namespace ManagerControl
             public AudioClip effectSource;
         }
 
+        [Serializable]
+        public class MusicSound
+        {
+            public string musicName;
+            public AudioClip musicClip;
+        }
+
         private bool _musicOn;
+        private Dictionary<string, AudioClip> _musicDictionary;
         private Dictionary<string, AudioClip> _effectDictionary;
 
         [SerializeField] private AudioSource musicSource, effectsSource;
+        [SerializeField] private MusicSound[] musicSounds;
         [SerializeField] private EffectSound[] effectSounds;
 
         private void Awake()
         {
-            _effectDictionary = new Dictionary<string, AudioClip>();
-            foreach (var t in effectSounds)
+            _musicDictionary = new Dictionary<string, AudioClip>();
+            for (var i = 0; i < musicSounds.Length; i++)
             {
-                _effectDictionary.Add(t.effectName, t.effectSource);
+                _musicDictionary.Add(musicSounds[i].musicName, musicSounds[i].musicClip);
+            }
+
+            _effectDictionary = new Dictionary<string, AudioClip>();
+            for (var i = 0; i < effectSounds.Length; i++)
+            {
+                _effectDictionary.Add(effectSounds[i].effectName, effectSounds[i].effectSource);
             }
         }
 
-        public void PlayBGM()
+        public void PlayBGM(string clipName)
         {
+            musicSource.clip = _musicDictionary[clipName];
             musicSource.Play();
             _musicOn = true;
         }

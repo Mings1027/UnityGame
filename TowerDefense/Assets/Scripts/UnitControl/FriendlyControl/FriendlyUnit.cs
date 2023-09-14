@@ -13,7 +13,7 @@ using UnityEngine.EventSystems;
 
 namespace UnitControl.FriendlyControl
 {
-    public sealed class FriendlyUnit : MonoBehaviour, IOpenUI
+    public sealed class FriendlyUnit : MonoBehaviour, IFingerUp
     {
         private AudioSource _audioSource;
         private Animator _anim;
@@ -40,14 +40,14 @@ namespace UnitControl.FriendlyControl
         private static readonly int IsAttack = Animator.StringToHash("isAttack");
         private static readonly int IsDead = Animator.StringToHash("isDead");
 
-        [SerializeField] private MeshRenderer indicator;
+        [SerializeField] private ParticleSystem indicator;
         [SerializeField] private LayerMask targetLayer;
         [SerializeField] private int atkRange;
         [SerializeField] private float moveSpeed;
 
-        public event Action<FriendlyUnit> OnDeadEvent;
+        public event Action<FriendlyUnit> OnReSpawnEvent;
         public string towerType { get; set; }
-        public MeshRenderer Indicator => indicator;
+        public ParticleSystem Indicator => indicator;
 
         public UnitTower parentTower { get; set; }
 
@@ -78,7 +78,7 @@ namespace UnitControl.FriendlyControl
             _isAttack = false;
             _curPos = transform.position;
             _health.OnDeadEvent += DeadAnimation;
-            indicator.enabled = false;
+            indicator.Stop();
             InvokeRepeating(nameof(Targeting), 1f, 1f);
         }
 
@@ -107,8 +107,8 @@ namespace UnitControl.FriendlyControl
         {
             _cts?.Cancel();
             CancelInvoke();
-            OnDeadEvent?.Invoke(this);
-            OnDeadEvent = null;
+            OnReSpawnEvent?.Invoke(this);
+            OnReSpawnEvent = null;
             _health.OnDeadEvent -= DeadAnimation;
             ObjectPoolManager.ReturnToPool(gameObject);
         }
@@ -219,9 +219,9 @@ namespace UnitControl.FriendlyControl
             _health.Init(healthAmount);
         }
 
-        public void OpenUI()
+        public void FingerUp()
         {
-            parentTower.OpenUI();
+            parentTower.FingerUp();
         }
     }
 }
