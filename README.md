@@ -77,7 +77,7 @@ MeshCombine을 위한 MeshFilter, MeshRenderer 컴포넌트 변수 할당
 ## 1. PlaceStartMap();
 게임 시작 시 원점위치에 첫번째 맵 생성
 _directionMappingDic의 키들을 배열로 받아서 랜덤 인덱스를 하나 뽑아 _connectionString에 저장함
-_directionMappingDic[_connectionString]로 가져온 벨류를 키로 하는 _mapDictionary에서 벨류를 찾아 맵 하나를 생성함.
+_directionMappingDic[_connectionString]를 키로 하는 _mapDictionary에서 벨류를 찾아 맵 하나를 생성함.
 SetNewMapForward로 방금 생성시킨 맵의 forward를 정해줌.
 PlaceObstacle로 랜덤위치에 obstacle생성함.
 _map리스트에 생성된 맵 넣어줌.
@@ -86,15 +86,18 @@ _map리스트에 생성된 맵 넣어줌.
 WaveManager에서 Enemy를 스폰하는데 스폰된 마지막 Enemy가 사라질때 다음웨이브에 맵 확장을 위해
 PlaceExpandButtons 함수를 실행함.
 
-## 3. TowerManager.Instance.transform.GetComponentInChildren<MainMenuUIController>().OnGenerateInitMapEvent += GenerateInitMap;
+## 3. GenerateInitMap()
+TowerManager.Instance.transform.GetComponentInChildren<MainMenuUIController>().OnGenerateInitMapEvent += GenerateInitMap;
 MainMenuUIController는 게임 제일 처음 Start버튼과 카메라를 회전시키기 위해 존재하며 Start버튼을 누른뒤 필요없기 때문에 Destroy해준다.
 Start버튼을 누를 때 GenerateInitMap 호출을 위해 이벤트에 등록 시켜주었다.
-### 1. GenerateInitMap()
-#### 1. InitExpandButtonPosition()
+<details>
+<summary>GenerateInitMap함수 보기</summary>
+
+### 1. InitExpandButtonPosition()
 위에서 저장한 _connectionString을 foreach를 돌며 각 char를 string변환하고 다시 int로 변환해 index로 활용함.
 _expandButtonPosHashSet에 _checkDirection[index]를 저장함.
 
-#### 2. PlaceExpandButtons()
+### 2. PlaceExpandButtons()
 웨이브가 끝날 때마다 호출되며 위에서 저장한 _expandButtonPosHashSet를 foreach를 돌며 각 원소를 위치로 하는 expandButton을 배치함
 이 버튼은 UI가 아닌 3D오브젝트이며 눌렀을때 맵 확장을 해주기 때문에 ExpandMap함수를 버튼의 스크립트에 있는 이벤트에 등록해줌
 
@@ -132,6 +135,7 @@ _expandButtonPosHashSet에 _checkDirection[index]를 저장함.
             PlaceExpandButtons();
 	 }
 ```
+</details>
 </details>
 
 # 3. ExpandMap(Vector3 newMapPos) 핵심 로직
