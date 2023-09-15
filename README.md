@@ -428,24 +428,37 @@ namespace MapControl
 # 1. Awake
 ## 1. ComponentInit();
 MeshCombine을 위한 MeshFilter, MeshRenderer 컴포넌트 변수 할당
+
 ## 2. MapDataInit();
 맵 확장에 필요한 기본 데이터 초기화
 
-# 2. Start 함수
+# 2. Start
 ## 1. PlaceStartMap();
 게임 시작 시 원점위치에 첫번째 맵 생성
+_directionMappingDic의 키들을 배열로 받아서 랜덤 인덱스를 하나 뽑아 _connectionString에 저장함
+_directionMappingDic[_connectionString]로 가져온 벨류를 키로 하는 _mapDictionary에서 벨류를 찾아 맵 하나를 생성함.
+SetNewMapForward로 방금 생성시킨 맵의 forward를 정해줌.
+PlaceObstacle로 랜덤위치에 obstacle생성함.
+_map리스트에 생성된 맵 넣어줌.
+
 ## 2. WaveManager.Instance.OnPlaceExpandButton += PlaceExpandButtons;
 WaveManager에서 Enemy를 스폰하는데 스폰된 마지막 Enemy가 사라질때 다음웨이브에 맵 확장을 위해
 PlaceExpandButtons 함수를 실행함.
 
-# 3. 게임시작 버튼
-## 게임 시작 버튼을 누르면 GenerateInitMap() 호출됨.
-### 1. InitExpandButtonPosition()
-_connectionString은 _directionMappingDic에서 랜덤선택해서 키를 저장하고 그 벨류의 맵을 생성함
+## 3. TowerManager.Instance.transform.GetComponentInChildren<MainMenuUIController>().OnGenerateInitMapEvent += GenerateInitMap;
+MainMenuUIController는 게임 제일 처음 Start버튼과 카메라를 회전시키기 위해 존재하며 Start버튼을 누른뒤 필요없기 때문에 Destroy해준다.
+Start버튼을 누를 때 GenerateInitMap 호출을 위해 이벤트에 등록 시켜주었다.
+### 1. GenerateInitMap()
+#### 1. InitExpandButtonPosition()
+위에서 저장한 _connectionString을 foreach를 돌며 각 char를 string변환하고 다시 int로 변환해 index로 활용함.
+_expandButtonPosHashSet에 _checkDirection[index]를 저장함.
 
-# 4. ExpandMap(Vector3 newMapPos) 핵심 로직
-앞으로 나올 파라미터 newMapPos 플레이어가 누른 확장버튼의 월드 포지션이다.
-newMap이라 부르겠다
+#### 2. PlaceExpandButtons()
+웨이브가 끝날 때마다 호출되며 위에서 저장한 _expandButtonPosHashSet를 foreach를 돌며 각 원소를 위치로 하는 expandButton을 배치함
+이 버튼은 UI가 아닌 3D오브젝트이며 눌렀을때 맵 확장을 해주기 때문에 ExpandMap함수를 버튼의 스크립트에 있는 이벤트에 등록해줌
+
+# 3. ExpandMap(Vector3 newMapPos) 핵심 로직
+앞으로 나올 파라미터 newMapPos 플레이어가 누른 확장버튼의 월드 포지션이며 눌렀을 때 생성된 맵의 위치와 같기 때문에 newMap이라 부르겠다
 
 ## 1. InitAdjacentState
 newMap 중심으로 연결정보를 저장하는 변수 초기화
@@ -454,10 +467,10 @@ newMap 중심으로 연결정보를 저장하는 변수 초기화
 newMap 중심에서 네방향에 맵이 존재하는지 체크한다.
 앞으로 존재하는 맵을 neighborMap이라 부르겠다.
 
-존재하면 _isNullMapArray[i] = true 를 해주고 true인 인덱스 i를 _nullMapIndexString에 넣어준다.
+존재하지 않으면 _isNullMapArray[i] = true 해주고 true인 인덱스 i를 _nullMapIndexString에 넣어준다.
 
 ## 3. CheckConnectedDirection(Vector3 newMapPos)
-neighborMap에서 newMap으로의 방향과 neighborMap의 wayPoint에서 neighborMap으로의 방향이 같다면
+neighborMap에서 newMap으로의 방향과 neighborMap에서 neighborMap의 wayPoint로의 방향이 같다면
 이는 neighborMap과 newMap이 이어져있다는것을 의미한다.
 
 이어져있다면 _isConnectedArray[i] = true 해준다.
@@ -473,29 +486,87 @@ _connectionString을 키로 _mapDictionary 벨류를 가져와 Instantiate해준
 ### 1. IfSingleConnection()
 _connectionString.Length == 1 일 때
 아까 확인한 _isNullMapArray가 전부 false거나 CanSpawnPortal == true 이면 포탈이 생성하고 return한다.
-아니라면 _nullMapIndexString원소 중 하나를 _connectionString넣고 _connectionString를 정렬한 후 
-_connectionString를 키로 _directionMappingDic에서 가져오고 그것을 다시 키로 _mapDictionary에서 가져와 맵을 Instantiate한다.
+아니라면 _nullMapIndexString원소 중 하나를 _connectionString넣고 _connectionString을 OrderBy 정렬한 후 
+_directionMappingDic[_connectionString]를 키로 _mapDictionary에서 가져와 맵을 Instantiate한다.
 
 ### 2. IfMultipleConnection()
 _connectionString.Length != 1 일 때
-_connectionString를 키로 _directionMappingDic에서 가져오고 그것을 다시 키로 _mapDictionary에서 가져와 맵을 Instantiate한다.
+_directionMappingDic[_connectionString]를 키로 _mapDictionary에서 가져와 맵을 Instantiate한다.
 
 
 ## 6. SetNewMapForward()
 
 _connectionString 첫번째 인덱스로 newMap의 forward를 정한다.
 
-이 작업을 하는 이유는 4. CheckConnection()를 보면 _connectionString에 저장하는것이 0,1,2,3 중에 선택되는데 
+이 작업을 하는 이유는 4. CheckConnection()에서 _connectionString에 저장하는것이 0,1,2,3 중에 선택되는데 
 이는 순서대로 Vector3.back, Vector3.forward, Vector3.left, Vector3.right이다. 그리고 _connectionString의 첫번째 원소는 처음으로 연결된 방향을 나타낸다. 그 방향이 확장된 맵의 back 이므로 -1을 곱해주고 forward로 만든다.
 
-## 7. SetWayPoints()
+## 7. PlaceObstacle(MapData map)
 
-newMap의 wayPoints를 _newMapWayPoints에 넣고 _wayPointsHashSet에 _newMapWayPoints[i]가 있는지 확인 후 제거한다.
-_newMapWayPoints.Count == 1이면 포탈이기 때문에 포탈위치만 _wayPointsHashSet에 넣고 return;
-아니라면 _newMapWayPoints.Count만큼 CanAddToList(Vector3 point)가 true인 위치를 _wayPointsHashSet에 넣는다.
+생성한 맵에 placementTile중 랜덤 개수만큼 for를 돌며 다시 placementTile랜덤 인덱스를 뽑아 RandomPlaceObstacle 호출
+방금 뽑은 인덱스는 placementTile리스트에서 삭제함
 
-## 8. SetButtonsPosition(Vector3 newMapPos)
+### 1. RandomPlaceObstacle(MapData map, Vector3 center)
 
-확장버튼 위치시키기
-newMap이 만들어진곳에 버튼이 생기면 안되므로 _expandButtonPosHashSet에서 제거
-_newMapWayPoints.Count만큼
+위에서 뽑은 placementTile 위치에서 대각 사방면으로 obstacle을 설치할지 랜덤선택함
+
+## 8. RemovePoints(Vector3 newMapPos)
+
+_newMapWayPoints.Clear()하고 생성한 맵의 웨이포인트들을 _newMapWayPoints에 저장함
+_wayPointsHashSet에서 _newMapWayPoints각각이 존재하면 지우고
+_expandButtonPosHashSet에서 newMapPos이 존재하면 지움
+
+## 9. SetPoints()
+
+_newMapWayPoints.Count == 1 면 길이 없는 Portal Map 이므로 포탈위치를 _wayPointsHashSet.Add() 하고 return 함
+
+아니라면 CanAddWayPoints가 true면 _wayPointsHashSet에 저장하고 CheckLimitMap가 true면 _expandButtonPosHashSet까지 저장함
+
+### 1. CanAddWayPoints(Vector3 newWayPoint)
+
+newMap에서 newMapWayPoint 방향에 맵이 없을때 return true 
+
+### 2. CheckLimitMap(Vector3 newWayPoint)
+
+newMapWayPoint의 x or z 위치가 setMapSize보다 작을때 return true
+
+## 10. DisableExpandButtons()
+
+ExpandMap이 호출되었다는건 웨이브가 시작되었다는 것이기 때문에 ExpandButton들을 안보이게 해주어야함
+
+## 11. CombineMesh()
+
+최적화를 위해 맵들의 메시를 하나로 묶어줌
+
+## 12. CombineObstacleMesh()
+
+맵 위에 생성되었던 obstacle들의 메시도 하나로 묶어줌
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

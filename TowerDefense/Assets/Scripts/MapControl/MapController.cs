@@ -64,11 +64,11 @@ namespace MapControl
         private void Awake()
         {
             ComponentInit();
+            MapDataInit();
         }
 
         private void Start()
         {
-            MapDataInit();
             PlaceStartMap();
 
             WaveManager.Instance.OnPlaceExpandButton += PlaceExpandButtons;
@@ -201,13 +201,13 @@ namespace MapControl
             PlaceNewMap(newMapPos);
 
             ObjectPoolManager.Get(StringManager.ExpandMapSmoke, newMapPos);
-            _newMapObject.TryGetComponent(out MapData map);
+            _newMapObject.TryGetComponent(out MapData mapData);
 
-            SetNewMapForward(map);
+            SetNewMapForward(mapData);
 
-            PlaceObstacle(map);
+            PlaceObstacle(mapData);
 
-            RemovePoints(newMapPos);
+            RemovePoints(mapData, newMapPos);
 
             SetPoints();
 
@@ -352,9 +352,8 @@ namespace MapControl
             return ranProbability <= portalSpawnProbability;
         }
 
-        private void RemovePoints(Vector3 newMapPos)
+        private void RemovePoints(MapData mapData, Vector3 newMapPos)
         {
-            _newMapObject.TryGetComponent(out MapData mapData);
             _newMapWayPoints.Clear();
             for (var i = 0; i < mapData.wayPointList.Count; i++)
             {
@@ -465,6 +464,8 @@ namespace MapControl
                     _obstacleMeshFilters.Add(m);
                 }
             }
+
+            if (_obstacleMeshFilters.Count <= 0) return;
 
             var combineInstance = new CombineInstance[_obstacleMeshFilters.Count];
             for (var i = 0; i < _obstacleMeshFilters.Count; i++)
