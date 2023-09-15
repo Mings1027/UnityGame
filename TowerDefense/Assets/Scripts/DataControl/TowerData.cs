@@ -8,7 +8,8 @@ namespace DataControl
     {
         public TowerLevelData[] towerLevels;
         public string towerName;
-
+        public int towerBuildGold;
+        public int towerUpgradeGold;
         [Serializable]
         public class TowerLevelData
         {

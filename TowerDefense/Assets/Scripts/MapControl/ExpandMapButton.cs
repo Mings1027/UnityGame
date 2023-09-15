@@ -10,11 +10,11 @@ namespace MapControl
     public class ExpandMapButton : MonoBehaviour, IFingerUp
     {
         public event Action<Vector3> OnExpandMapEvent;
-        //
-        // public void Expand()
-        // {
-        //     OnExpandMapEvent?.Invoke(transform.position);
-        // }
+        
+        public void Expand()
+        {
+            OnExpandMapEvent?.Invoke(transform.position);
+        }
 
         private void OnDisable()
         {
@@ -24,6 +24,7 @@ namespace MapControl
 
         public void FingerUp()
         {
+            // MapController.Instance.ExpandMap(transform.position).Forget();
             OnExpandMapEvent?.Invoke(transform.position);
             SoundManager.Instance.PlayBGM(StringManager.WaveStart);
         }

@@ -10,7 +10,6 @@ namespace ManagerControl
         private CameraManager _cameraManager;
         private Transform _cursorChild;
         private Vector3 _worldGridPos;
-        private bool _isPlacingTower;
         private bool _isUnitTower;
         private string _selectedTowerName;
         private bool _canPlace;
@@ -49,7 +48,7 @@ namespace ManagerControl
 
         private void Update()
         {
-            if (!_isPlacingTower) return;
+            if (Input.touchCount <= 0) return;
             var touch = Input.GetTouch(0);
             if (touch.phase is TouchPhase.Began or TouchPhase.Moved)
             {
@@ -63,6 +62,7 @@ namespace ManagerControl
             }
         }
 
+#if UNITY_EDITOR
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.red;
@@ -74,7 +74,7 @@ namespace ManagerControl
                 Gizmos.DrawRay(_cursorChild.position + _checkDir[i] * 2 + Vector3.up, Vector3.down * 10);
             }
         }
-
+#endif
         private void StopPlacement()
         {
             if (_canPlace)
@@ -82,7 +82,6 @@ namespace ManagerControl
                 _selectedTowerName = null;
             }
 
-            _isPlacingTower = false;
             _cameraManager.enabled = true;
             _cursorMeshRenderer.enabled = false;
             _towerManager.PlaceTowerController.enabled = false;
@@ -94,14 +93,11 @@ namespace ManagerControl
         public void StartPlacement(string towerName, bool isUnitTower)
         {
             _towerManager.OffUI();
+            _cameraManager.enabled = false;
             if (!_towerManager.EnoughGold())
             {
-                StopPlacement();
                 return;
             }
-
-            _isPlacingTower = true;
-            _cameraManager.enabled = false;
 
             if (_selectedTowerName == towerName) return;
             _isUnitTower = isUnitTower;

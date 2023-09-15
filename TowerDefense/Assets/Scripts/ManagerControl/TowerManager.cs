@@ -161,7 +161,6 @@ namespace ManagerControl
         private void Start()
         {
             hudPanel.SetActive(false);
-            _notEnoughGoldTween.PlayBackwards();
             gameOverPanel.SetActive(false);
             checkTowerButton.gameObject.SetActive(true);
             IndicatorInit();
@@ -214,7 +213,7 @@ namespace ManagerControl
                 .PrependCallback(() => _cameraManager.enabled = !_cameraManager.enabled);
 
             _notEnoughGoldTween = notEnoughGoldPanel.transform.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBounce)
-                .SetAutoKill(false);
+                .SetAutoKill(false).Pause();
 
             _cantMoveImageSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(cantMoveImage.transform.DOScale(1, 0.5f).From(0).SetLoops(2, LoopType.Yoyo))
@@ -440,9 +439,9 @@ namespace ManagerControl
             tempTower.transform.SetParent(transform);
 #endif
             SoundManager.Instance.PlaySound(StringManager.ButtonSound);
+            
             if (!EnoughGold())
             {
-                _notEnoughGoldTween.Restart();
                 return;
             }
 

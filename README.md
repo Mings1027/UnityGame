@@ -1,7 +1,5 @@
 Random Map Tower Defense
 
-![스크린샷 2023-09-05 오후 4 11 17](https://github.com/Mings1027/UnityGame/assets/100500113/22cd8fc8-9953-4bd9-8be4-adb24eb22ed7)
-
 # 프로젝트 설명
 
 ## 적들이 중심에 있는 성으로 몰려오는것을 막는 랜덤맵 타워디펜스 입니다.
@@ -13,71 +11,12 @@ MeshCombine을 위한 MeshFilter, MeshRenderer 컴포넌트 변수 할당
 ## 2. MapDataInit();
 맵 확장에 필요한 기본 데이터 초기화
 
-<details>
-<summary>코드보기</summary>
-
-```c#
-        private void Awake()
-        {
-            ComponentInit();
-            MapDataInit();
-        }
-
-        private void ComponentInit()
-        {
-            _meshFilter = GetComponent<MeshFilter>();
-            _meshRenderer = GetComponent<MeshRenderer>();
-            _obstacleMeshFilter = obstacleMesh.GetComponent<MeshFilter>();
-            _obstacleMeshRenderer = obstacleMesh.GetComponent<MeshRenderer>();
-        }
-
-        private void MapDataInit()
-        {
-            _checkDirection = new[]
-            {
-                Vector3.back * mapSize, Vector3.forward * mapSize, Vector3.left * mapSize,
-                Vector3.right * mapSize
-            };
-            _map = new List<GameObject>();
-            _newMapWayPoints = new List<Vector3>(4);
-            _meshFilters = new List<MeshFilter>(150);
-            _obstacleMeshFilters = new List<MeshFilter>(150);
-
-            _expandButtonPosHashSet = new HashSet<Vector3>();
-            _expandButtonPosList = new List<Vector3>();
-            _expandButtons = new List<ExpandMapButton>(50);
-
-
-            _neighborMapArray = new MapData[4];
-            _isNullMapArray = new bool[4];
-            _isConnectedArray = new bool[4];
-
-            _mapDictionary = new Dictionary<string, GameObject>();
-            for (var i = 0; i < mapPrefabs.Length; i++)
-            {
-                var mapName = mapPrefabs[i].name.Split('_')[0];
-                _mapDictionary.Add(mapName, mapPrefabs[i]);
-            }
-
-            _directionMappingDic = new Dictionary<string, string>
-            {
-                { "01", "S" }, { "02", "L" }, { "03", "R" }, { "12", "R" }, { "13", "L" }, { "23", "S" },
-                { "012", "SL" }, { "013", "SR" }, { "023", "LR" }, { "123", "LR" },
-                { "0123", "SLR" }
-            };
-
-            _wayPointsHashSet = new HashSet<Vector3>();
-        }
-
-```
-</details>
-
 
 # 2. Start
 ## 1. PlaceStartMap();
 게임 시작 시 원점위치에 첫번째 맵 생성
 _directionMappingDic의 키들을 배열로 받아서 랜덤 인덱스를 하나 뽑아 _connectionString에 저장함
-_directionMappingDic[_connectionString]를 키로 하는 _mapDictionary에서 벨류를 찾아 맵 하나를 생성함.
+_directionMappingDic[_connectionString]로 가져온 벨류를 키로 하는 _mapDictionary에서 벨류를 찾아 맵 하나를 생성함.
 SetNewMapForward로 방금 생성시킨 맵의 forward를 정해줌.
 PlaceObstacle로 랜덤위치에 obstacle생성함.
 _map리스트에 생성된 맵 넣어줌.
@@ -86,57 +25,18 @@ _map리스트에 생성된 맵 넣어줌.
 WaveManager에서 Enemy를 스폰하는데 스폰된 마지막 Enemy가 사라질때 다음웨이브에 맵 확장을 위해
 PlaceExpandButtons 함수를 실행함.
 
-## 3. GenerateInitMap()
-TowerManager.Instance.transform.GetComponentInChildren<MainMenuUIController>().OnGenerateInitMapEvent += GenerateInitMap;
+## 3. TowerManager.Instance.transform.GetComponentInChildren<MainMenuUIController>().OnGenerateInitMapEvent += GenerateInitMap;
 MainMenuUIController는 게임 제일 처음 Start버튼과 카메라를 회전시키기 위해 존재하며 Start버튼을 누른뒤 필요없기 때문에 Destroy해준다.
 Start버튼을 누를 때 GenerateInitMap 호출을 위해 이벤트에 등록 시켜주었다.
-<details>
-<summary>GenerateInitMap함수 보기</summary>
-
-### 1. InitExpandButtonPosition()
+### 1. GenerateInitMap()
+#### 1. InitExpandButtonPosition()
 위에서 저장한 _connectionString을 foreach를 돌며 각 char를 string변환하고 다시 int로 변환해 index로 활용함.
 _expandButtonPosHashSet에 _checkDirection[index]를 저장함.
 
-### 2. PlaceExpandButtons()
+#### 2. PlaceExpandButtons()
 웨이브가 끝날 때마다 호출되며 위에서 저장한 _expandButtonPosHashSet를 foreach를 돌며 각 원소를 위치로 하는 expandButton을 배치함
 이 버튼은 UI가 아닌 3D오브젝트이며 눌렀을때 맵 확장을 해주기 때문에 ExpandMap함수를 버튼의 스크립트에 있는 이벤트에 등록해줌
 
-<details>
-<summary>코드보기</summary>
-
-```c#
-
-        private void Start()
-        {
-            PlaceStartMap();
-
-            WaveManager.Instance.OnPlaceExpandButton += PlaceExpandButtons;
-
-            TowerManager.Instance.transform.GetComponentInChildren<MainMenuUIController>().OnGenerateInitMapEvent +=
-                GenerateInitMap;
-        }
-
-        private void PlaceStartMap()
-        {
-            var ranIndex = Random.Range(0, _directionMappingDic.Count);
-            _connectionString = _directionMappingDic.Keys.ToArray()[ranIndex];
-
-            _newMapObject = Instantiate(_mapDictionary[_directionMappingDic[_connectionString]], transform);
-
-            _newMapObject.TryGetComponent(out MapData mapData);
-            SetNewMapForward(mapData);
-            PlaceObstacle(mapData);
-            _map.Add(_newMapObject);
-        }
-
-        private void GenerateInitMap()
-        {
-            InitExpandButtonPosition();
-            PlaceExpandButtons();
-	 }
-```
-</details>
-</details>
 
 # 3. ExpandMap(Vector3 newMapPos) 핵심 로직
 앞으로 나올 파라미터 newMapPos 플레이어가 누른 확장버튼의 월드 포지션이며 눌렀을 때 생성된 맵의 위치와 같기 때문에 newMap이라 부르겠다

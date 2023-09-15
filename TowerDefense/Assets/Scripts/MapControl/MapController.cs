@@ -42,8 +42,8 @@ namespace MapControl
         private bool[] _isNullMapArray;
         private bool[] _isConnectedArray;
 
-        private Dictionary<string, GameObject> _mapDictionary;
         private Dictionary<string, string> _directionMappingDic;
+        private Dictionary<string, GameObject> _mapDictionary;
 
         private HashSet<Vector3> _wayPointsHashSet;
 
@@ -74,11 +74,12 @@ namespace MapControl
             WaveManager.Instance.OnPlaceExpandButton += PlaceExpandButtons;
 
             TowerManager.Instance.transform.GetComponentInChildren<MainMenuUIController>().OnGenerateInitMapEvent +=
-                GenerateInitMap;
+()=>                GenerateInitMap();
         }
 #if UNITY_EDITOR
         private void OnDrawGizmos()
         {
+            if (_wayPointsHashSet == null) return;
             Gizmos.color = Color.red;
             foreach (var way in _wayPointsHashSet)
             {
@@ -120,12 +121,6 @@ namespace MapControl
             _isNullMapArray = new bool[4];
             _isConnectedArray = new bool[4];
 
-            _mapDictionary = new Dictionary<string, GameObject>();
-            for (var i = 0; i < mapPrefabs.Length; i++)
-            {
-                var mapName = mapPrefabs[i].name.Split('_')[0];
-                _mapDictionary.Add(mapName, mapPrefabs[i]);
-            }
 
             _directionMappingDic = new Dictionary<string, string>
             {
@@ -134,6 +129,12 @@ namespace MapControl
                 { "0123", "SLR" }
             };
 
+            _mapDictionary = new Dictionary<string, GameObject>();
+            for (var i = 0; i < mapPrefabs.Length; i++)
+            {
+                var mapName = mapPrefabs[i].name.Split('_')[0];
+                _mapDictionary.Add(mapName, mapPrefabs[i]);
+            }
             _wayPointsHashSet = new HashSet<Vector3>();
         }
 
@@ -150,31 +151,31 @@ namespace MapControl
             _map.Add(_newMapObject);
         }
 
-        private void GenerateInitMap()
+        private async UniTaskVoid GenerateInitMap()
         {
             InitExpandButtonPosition();
             PlaceExpandButtons();
 
-            // while (mapCount > _map.Count)
-            // {
-            //     var index = 0;
-            //     for (int i = 0; i < _expandButtons.Count; i++)
-            //     {
-            //         if (_expandButtons[i].gameObject.activeSelf)
-            //         {
-            //             var ran = Random.Range(0, 2);
-            //             if (ran == 1)
-            //             {
-            //                 index = i;
-            //                 break;
-            //             }
-            //         }
-            //     }
-            //
-            //     _expandButtons[index].Expand();
-            //     await UniTask.Yield();
-            //     PlaceExpandButtons();
-            // }
+            while (mapCount > _map.Count)
+            {
+                var index = 0;
+                for (int i = 0; i < _expandButtons.Count; i++)
+                {
+                    if (_expandButtons[i].gameObject.activeSelf)
+                    {
+                        var ran = Random.Range(0, 2);
+                        if (ran == 1)
+                        {
+                            index = i;
+                            break;
+                        }
+                    }
+                }
+            
+                _expandButtons[index].Expand();
+                await UniTask.Yield();
+                PlaceExpandButtons();
+            }
         }
 
         private void InitExpandButtonPosition()
@@ -216,7 +217,7 @@ namespace MapControl
             CombineMesh();
 
             CombineObstacleMesh();
-            WaveManager.Instance.StartWave(_wayPointsHashSet.ToArray());
+            // WaveManager.Instance.StartWave(_wayPointsHashSet.ToArray());
         }
 
         private void InitAdjacentState()
@@ -502,9 +503,8 @@ namespace MapControl
         // You can add newMap in maxSize
         private bool CheckLimitMap(Vector3 newWayPoint)
         {
-            var setMapSize = maxSize * mapSize;
-            return newWayPoint.x >= -setMapSize && newWayPoint.x <= setMapSize &&
-                   newWayPoint.z >= -setMapSize && newWayPoint.z <= setMapSize;
+            return newWayPoint.x >= -maxSize && newWayPoint.x <= maxSize &&
+                   newWayPoint.z >= -maxSize && newWayPoint.z <= maxSize;
         }
     }
 }

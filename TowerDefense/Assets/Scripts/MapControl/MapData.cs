@@ -35,14 +35,14 @@ namespace MapControl
             wayPointList = new List<Vector3>();
         }
 #if UNITY_EDITOR
-        private void OnDrawGizmos()
-        {
-            for (int i = 0; i < placementTile.Count; i++)
-            {
-                Gizmos.color = Color.red;
-                Gizmos.DrawSphere(placementTile[i], 0.5f);
-            }
-        }
+        // private void OnDrawGizmos()
+        // {
+        //     for (int i = 0; i < placementTile.Count; i++)
+        //     {
+        //         Gizmos.color = Color.red;
+        //         Gizmos.DrawSphere(placementTile[i], 0.5f);
+        //     }
+        // }
 #endif
         public void SetWayPoint(int halfMapSize)
         {
