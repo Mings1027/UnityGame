@@ -30,9 +30,9 @@ namespace Pathfinding {
 
 		public void Awake (Seeker seeker) {
 			this.seeker = seeker;
-			if (seeker != null) {
+			// if (seeker != null) {
 				seeker.RegisterModifier(this);
-			}
+			// }
 		}
 
 		public void OnDestroy (Seeker seeker) {

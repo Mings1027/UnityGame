@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eabf5536a9fb24293b1852b5e6582eef, type: 3}
+  m_Name: Canon
+  m_EditorClassIdentifier: 
+  tower: {fileID: 7895117123715481240, guid: 210d26a116210b7448e11f2f1b8c04fa, type: 3}
+  towerLevels:
+  - towerMesh: {fileID: -6400281290468069383, guid: dbae449fc0af71046ab271f5ea16e480,
+      type: 3}
+    damage: 50
+    attackRange: 20
+    attackDelay: 5
+  - towerMesh: {fileID: -6400281290468069383, guid: d1615be90829b7644af24575a46f0383,
+      type: 3}
+    damage: 100
+    attackRange: 21
+    attackDelay: 4
+  - towerMesh: {fileID: -6400281290468069383, guid: d84620df9b8d6de4487547636b44997b,
+      type: 3}
+    damage: 150
+    attackRange: 22
+    attackDelay: 4
+  - towerMesh: {fileID: -6400281290468069383, guid: 675cc5d5d903e104fb765ccdee470739,
+      type: 3}
+    damage: 250
+    attackRange: 23
+    attackDelay: 4
+  - towerMesh: {fileID: -6400281290468069383, guid: d1f550375828ef94b9159de4d13b1c6d,
+      type: 3}
+    damage: 400
+    attackRange: 25
+    attackDelay: 4
+  towerType: 2
+  towerBuildGold: 50
+  towerUpgradeGold: 50

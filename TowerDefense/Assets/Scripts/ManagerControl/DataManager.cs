@@ -11,45 +11,47 @@ namespace ManagerControl
     public class DataManager : MonoBehaviour
     {
         private static string _path;
-        private static Dictionary<string, int> _damageDic;
+        public static Dictionary<TowerType, int> damageDic { get; private set; }
 
         private void Awake()
         {
-            _path = Application.persistentDataPath + "/damage";
+            _path = Application.persistentDataPath + "/Damage";
 
-            if (File.Exists(_path))
+            if (Directory.Exists(_path))
             {
                 LoadDamageData();
             }
             else
             {
-                _damageDic = new Dictionary<string, int>
+                Directory.CreateDirectory(_path);
+                damageDic = new Dictionary<TowerType, int>
                 {
-                    { "Ballista", 0 },
-                    { "Assassin", 0 },
-                    { "Canon", 0 },
-                    { "Defender", 0 },
-                    { "Mage", 0 }
+                    { TowerType.Assassin, 0 },{ TowerType.Ballista, 0 },
+                    { TowerType.Canon, 0 },
+                    { TowerType.Defender, 0 },
+                    { TowerType.Mage, 0 },
+
                 };
+                var jsonData = DictionaryJsonUtility.ToJson(damageDic, true);
+                File.WriteAllText(_path + "/damage.txt", jsonData);
             }
         }
 
-        public static void SumDamage(string towerType, int damage)
+        public static void SumDamage(ref TowerType towerType, int damage)
         {
-            _damageDic[towerType] += damage;
+            damageDic[towerType] += damage;
         }
 
         public static void SaveDamageData()
         {
-            var data = DictionaryJsonUtility.ToJson(_damageDic);
-            File.WriteAllText(_path, data);
-            TowerManager.Instance.SetDamageText(_damageDic);
+            var data = DictionaryJsonUtility.ToJson(damageDic);
+            File.WriteAllText(_path + "/damage.txt", data);
         }
 
         public static void LoadDamageData()
         {
-            var data = File.ReadAllText(_path);
-            _damageDic = DictionaryJsonUtility.FromJson<string, int>(data);
+            var data = File.ReadAllText(_path + "/damage.txt");
+            damageDic = DictionaryJsonUtility.FromJson<TowerType, int>(data);
         }
     }
 }

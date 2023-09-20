@@ -1,6 +1,5 @@
 using DataControl;
-using GameControl;
-using ProjectileControl;
+using PoolObjectControl;
 using UnityEngine;
 
 namespace TowerControl
@@ -13,12 +12,6 @@ namespace TowerControl
         [SerializeField] private Transform ballista;
         [SerializeField] private Transform firePos;
         [SerializeField] private float smoothTurnSpeed;
-
-        protected override void Init()
-        {
-            base.Init();
-            effectName = new[] { "BallistaVfx1", "BallistaVfx2", "BallistaVfx3" };
-        }
 
         private void LateUpdate()
         {
@@ -33,10 +26,10 @@ namespace TowerControl
 
         protected override void Attack()
         {
-            var bullet = ObjectPoolManager.Get<BallistaProjectile>(StringManager.BallistaProjectile, firePos.position);
-            bullet.Init(target, damage);
-
-            EffectAttack(bullet.transform);
+            // ProjectileInit(StringManager.BallistaProjectile, firePos.position,
+            //     StringManager.BallistaVfx[effectIndex],
+            //     StringManager.BallistaHitVfx[effectIndex]);
+            ProjectileInit(PoolObjectKey.BallistaProjectile, firePos.position);
         }
     }
 }

@@ -1,7 +1,7 @@
 using DataControl;
 using GameControl;
-using InterfaceControl;
 using ManagerControl;
+using PoolObjectControl;
 using SoundControl;
 using UnityEngine;
 
@@ -19,12 +19,19 @@ namespace ProjectileControl
         {
             base.Awake();
             _targetColliders = new Collider[5];
-            towerName = TowerType.Canon.ToString();
         }
 
         protected override void FixedUpdate()
         {
-            ParabolaPath(_targetEndPos);
+            ProjectilePath(_targetEndPos);
+        }
+
+        protected override void OnTriggerEnter(Collider other)
+        {
+            base.OnTriggerEnter(other);
+
+            if (_targetEndPos == Vector3.zero) return;
+            PoolObjectManager.Get<SoundPlayer>(PoolObjectKey.CanonExplosion, transform.position).Play();
         }
 
         private void OnDrawGizmos()
@@ -39,27 +46,20 @@ namespace ProjectileControl
 
             var size = Physics.OverlapSphereNonAlloc(pos, atkRange, _targetColliders, enemyLayer);
 
-            ObjectPoolManager.Get<SoundPlayer>(StringManager.CanonHitVfx, pos).Play();
-
             if (size <= 0) return;
 
             for (var i = 0; i < size; i++)
             {
-                ObjectPoolManager.Get(StringManager.BloodVfx, _targetColliders[i].transform.position);
-                if (_targetColliders[i].TryGetComponent(out IDamageable damageable))
-                {
-                    damageable.Damage(damage);
-                    DataManager.SumDamage(towerName, damage);
-                }
+                TryDamage(_targetColliders[i].transform);
             }
         }
 
-        public void Init(Vector3 t, int dmg)
+        public override void Init(int dmg, Transform t, TowerType towerType)
         {
-            Physics.Raycast(t + Vector3.up * 2, Vector3.down, out var hit, 10);
+            base.Init(dmg, t, towerType);
+            Physics.Raycast(t.position + t.forward * 2 + Vector3.up * 2, Vector3.down, out var hit, 10);
             _targetEndPos = hit.point;
             _targetEndPos.y = 0;
-            damage = dmg;
         }
     }
 }

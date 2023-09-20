@@ -12,16 +12,25 @@ namespace ManagerControl
             {
                 Instantiate(sources[i]);
             }
-
         }
     }
 
     public enum TowerType
     {
-        Ballista,
         Assassin,
+        Ballista,
         Canon,
         Mage,
-        Defender
+        Defender,
+        None
+    }
+
+    public struct Cooldown
+    {
+        public float cooldownTime { get; set; }
+        private float _nextFireTime;
+
+        public bool IsCoolingDown => Time.time < _nextFireTime;
+        public void StartCooldown() => _nextFireTime = Time.time + cooldownTime;
     }
 }

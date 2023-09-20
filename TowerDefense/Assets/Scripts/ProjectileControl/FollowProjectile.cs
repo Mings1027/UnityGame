@@ -1,16 +1,15 @@
 using GameControl;
+using PoolObjectControl;
 using UnityEngine;
-using UnityEngine.Rendering;
 
 namespace ProjectileControl
 {
     public class FollowProjectile : MonoBehaviour
     {
         private ParticleSystem _particleSystem;
+        private Transform _followTarget;
         private bool _isTargeting;
         private string _hitVfxName;
-
-        public Transform target { get; set; }
 
         private void Awake()
         {
@@ -26,25 +25,26 @@ namespace ProjectileControl
         private void FixedUpdate()
         {
             if (!_isTargeting) return;
-            if (!target.gameObject.activeSelf)
+            if (!_followTarget.gameObject.activeSelf)
             {
                 _isTargeting = false;
-                ObjectPoolManager.Get(_hitVfxName, target.position);
+                ObjectPoolManager.Get(_hitVfxName, _followTarget.position);
                 return;
             }
 
-            transform.position = target.position;
+            transform.position = _followTarget.position;
         }
 
         private void OnDisable()
         {
-            target = null;
+            _followTarget = null;
             _isTargeting = false;
             _particleSystem.Stop();
         }
 
-        public void SetHitVfx(string vfxName)
+        public void Init(Transform t, string vfxName)
         {
+            _followTarget = t;
             _hitVfxName = vfxName;
         }
     }

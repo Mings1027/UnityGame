@@ -14,7 +14,6 @@ namespace StatusControl
 
             if (CurrentProgress > 0f) return;
             OnDeadEvent?.Invoke();
-            DOVirtual.DelayedCall(1, () => gameObject.SetActive(false));
         }
 
         public void Heal(float amount)

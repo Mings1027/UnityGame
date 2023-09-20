@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 namespace MapControl
@@ -8,7 +9,7 @@ namespace MapControl
     public class MapData : MonoBehaviour
     {
         [Flags]
-        private enum Direction
+        private enum DirectionFlag
         {
             Straight = 1 << 0,
             Left = 1 << 1,
@@ -19,7 +20,7 @@ namespace MapControl
         public List<Vector3> placementTile { get; private set; }
 
         [SerializeField] private bool isPortalMap;
-        [SerializeField] private Direction wayDirection;
+        [FormerlySerializedAs("wayDirection")] [SerializeField] private DirectionFlag wayDirectionFlag;
 
         public List<Vector3> wayPointList { get; private set; }
 
@@ -48,17 +49,17 @@ namespace MapControl
         {
             wayPointList.Add(-transform.forward);
 
-            if ((wayDirection & Direction.Straight) != 0)
+            if ((wayDirectionFlag & DirectionFlag.Straight) != 0)
             {
                 wayPointList.Add(transform.forward);
             }
 
-            if ((wayDirection & Direction.Left) != 0)
+            if ((wayDirectionFlag & DirectionFlag.Left) != 0)
             {
                 wayPointList.Add(-transform.right);
             }
 
-            if ((wayDirection & Direction.Right) != 0)
+            if ((wayDirectionFlag & DirectionFlag.Right) != 0)
             {
                 wayPointList.Add(transform.right);
             }
@@ -86,9 +87,9 @@ namespace MapControl
                 tRight - tForward
             };
 
-            var straight = (wayDirection & Direction.Straight) != 0;
-            var left = (wayDirection & Direction.Left) != 0;
-            var right = (wayDirection & Direction.Right) != 0;
+            var straight = (wayDirectionFlag & DirectionFlag.Straight) != 0;
+            var left = (wayDirectionFlag & DirectionFlag.Left) != 0;
+            var right = (wayDirectionFlag & DirectionFlag.Right) != 0;
 
             if (!straight)
             {

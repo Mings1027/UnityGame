@@ -1,19 +1,21 @@
 using System;
+using PoolObjectControl;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace DataControl
 {
     [CreateAssetMenu]
     public class WaveData : ScriptableObject
     {
-        public EnemyWave[] enemyWaves;
+        [FormerlySerializedAs("enemyWaves")] public EnemyInfo[] enemyInfos;
         [Serializable]
-        public struct EnemyWave
+        public struct EnemyInfo
         {
             public int startSpawnWave;
-            public string enemyName;
+            public PoolObjectKey enemyName;
+            // public string enemyName;
             public int enemyCoin;
-            public int atkRange;
             public float atkDelay;
             public int damage;
             public float health;

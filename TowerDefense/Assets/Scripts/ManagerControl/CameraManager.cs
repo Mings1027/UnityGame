@@ -1,11 +1,12 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using GameControl;
 using UnityEngine;
 
 namespace ManagerControl
 {
-    public class CameraManager : MonoBehaviour
+    public class CameraManager : Singleton<CameraManager>
     {
         private Camera _cam;
         private CancellationTokenSource _cts;
@@ -16,7 +17,6 @@ namespace ManagerControl
         private Touch _firstTouch, _secondTouch;
         private Vector3 _curPos, _newPos;
 
-        // [SerializeField] private float moveSpeed;
         [SerializeField] private float rotationSpeed;
         [SerializeField] private float zoomSpeed;
 

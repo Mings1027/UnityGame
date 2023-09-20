@@ -40,12 +40,17 @@ namespace UnitControl.EnemyControl
             _enemyAI.MoveSpeed = _defaultSpeed;
         }
 
-        public async UniTaskVoid SlowEffect(DeBuffData.SpeedDeBuffData speedDeBuffData)
+        public void SlowEffect(ref DeBuffData.SpeedDeBuffData speedDeBuffData)
         {
             if (_isSlowed) return;
             _isSlowed = true;
             _enemyAI.MoveSpeed -= speedDeBuffData.decreaseSpeed;
             if (_enemyAI.MoveSpeed < 0.5f) _enemyAI.MoveSpeed = 0.5f;
+            SlowEffectAsync(speedDeBuffData).Forget();
+        }
+
+        private async UniTaskVoid SlowEffectAsync(DeBuffData.SpeedDeBuffData speedDeBuffData)
+        {
             await UniTask.Delay(TimeSpan.FromSeconds(speedDeBuffData.deBuffTime), cancellationToken: _cts.Token);
             _enemyAI.MoveSpeed += speedDeBuffData.decreaseSpeed;
             await UniTask.Delay(TimeSpan.FromSeconds(slowImmunityTime), cancellationToken: _cts.Token);

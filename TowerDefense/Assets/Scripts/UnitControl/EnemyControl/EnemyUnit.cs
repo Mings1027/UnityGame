@@ -1,10 +1,9 @@
-using System;
-using System.Threading;
-using Cysharp.Threading.Tasks;
 using DataControl;
 using DG.Tweening;
 using GameControl;
-using InterfaceControl;
+using ManagerControl;
+using PoolObjectControl;
+using UnitControl.FriendlyControl;
 using UnityEngine;
 
 namespace UnitControl.EnemyControl
@@ -18,20 +17,24 @@ namespace UnitControl.EnemyControl
         private EnemyAI _enemyAI;
         private EnemyHealth _enemyHealth;
         private Collider[] _targetCollider;
-        private CancellationTokenSource _cts;
+        private AttackPoint _attackPoint;
+
         private Transform _target;
         private Transform _t;
 
         private bool _isAttack;
         private bool _isTargeting;
-        private int _damage;
-        private int _attackRange;
-        private float _atkDelay;
+        private bool _targetInAtkRange;
 
+        private int _damage;
+        
+        private Cooldown _atkCooldown;
+        private Cooldown _targetingTime;
+     
         private static readonly int IsWalk = Animator.StringToHash("isWalk");
         private static readonly int IsAttack = Animator.StringToHash("isAttack");
-        // private static readonly int IsDead = Animator.StringToHash("isDead");
-
+        
+        [SerializeField] private float sightRange;
         [SerializeField] private LayerMask targetLayer;
 
         /*==============================================================================================================================================
@@ -46,36 +49,45 @@ namespace UnitControl.EnemyControl
             _sphereCollider = GetComponent<SphereCollider>();
             _enemyAI = GetComponent<EnemyAI>();
             _enemyHealth = GetComponent<EnemyHealth>();
-            _targetCollider = new Collider[3];
+            _targetCollider = new Collider[1];
             _t = transform;
+            _attackPoint = GetComponentInChildren<AttackPoint>();
+            _targetingTime.cooldownTime = 2f;
         }
 
         private void OnEnable()
         {
-            _cts?.Dispose();
-            _cts = new CancellationTokenSource();
             _target = null;
             _isTargeting = false;
             _isAttack = false;
-            InvokeRepeating(nameof(Targeting), 0, 1);
             _enemyHealth.OnDieEvent += DeadAnimation;
         }
 
         private void FixedUpdate()
         {
+            if (_enemyHealth.IsDead) return;
+            _targetInAtkRange = Physics.CheckSphere(transform.position, _sphereCollider.radius, targetLayer);
+
             _rigid.velocity = Vector3.zero;
             _rigid.angularVelocity = Vector3.zero;
-            if (!_isTargeting) return;
-
-            if (Vector3.Distance(_t.position, _target.position) > _sphereCollider.radius * 2)
-            {
-                ChaseTarget();
-            }
         }
 
-        private void LateUpdate()
+        private void Update()
         {
-            _anim.SetBool(IsWalk, _enemyAI.CanMove);
+            if (_enemyHealth.IsDead) return;
+            Targeting();
+
+            if (_isTargeting)
+            {
+                if (_targetInAtkRange)
+                {
+                    Attack();
+                }
+                else
+                {
+                    Chase();
+                }
+            }
         }
 
         private void OnTriggerEnter(Collider other)
@@ -86,24 +98,49 @@ namespace UnitControl.EnemyControl
 
         private void OnDisable()
         {
-            _cts?.Cancel();
-            CancelInvoke();
             _enemyHealth.OnDieEvent -= DeadAnimation;
         }
 
 #if UNITY_EDITOR
         private void OnDrawGizmos()
         {
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(transform.position, sightRange);
+            if (_sphereCollider == null) return;
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(transform.position, _attackRange);
+            Gizmos.DrawWireSphere(transform.position, _sphereCollider.radius);
         }
 #endif
         /*==============================================================================================================================================
                                                     Unity Event
 =====================================================================================================================================================*/
 
-        private void ChaseTarget()
+        private void Targeting()
         {
+            if (_targetingTime.IsCoolingDown) return;
+            if (_enemyHealth.IsDead) return;
+            if (_isAttack) return;
+            var size = Physics.OverlapSphereNonAlloc(transform.position, sightRange, _targetCollider, targetLayer);
+            if (size <= 0)
+            {
+                _target = null;
+                _isTargeting = false;
+                _enemyAI.CanMove = true;
+                _sphereCollider.isTrigger = true;
+                _anim.SetBool(IsWalk, true);
+                return;
+            }
+
+            _target = _targetCollider[0].transform;
+            _isTargeting = true;
+            _enemyAI.CanMove = false;
+            _sphereCollider.isTrigger = false;
+            _targetingTime.StartCooldown();
+        }
+
+        private void Chase()
+        {
+            _anim.SetBool(IsWalk, true);
             var targetPos = _target.position;
             var position = _rigid.position;
             var dir = (targetPos - position).normalized;
@@ -112,42 +149,25 @@ namespace UnitControl.EnemyControl
             _t.forward = (targetPos - position).normalized;
         }
 
-        private void DoAttack()
+        private void Attack()
         {
-            if (_isAttack) return;
-            if (!_target.gameObject.activeSelf)
-            {
-                _target = null;
-                _isTargeting = false;
-                return;
-            }
-
-            _t.forward = (_target.position - _t.position).normalized;
-            Attack().Forget();
-            _audioSource.PlayOneShot(_audioSource.clip);
-        }
-
-        private async UniTaskVoid Attack()
-        {
-            _isTargeting = false;
-            _isAttack = true;
+            if (_atkCooldown.IsCoolingDown) return;
+            if (_attackPoint.enabled) return;
             _anim.SetTrigger(IsAttack);
-            if (_target.TryGetComponent(out IDamageable damageable))
-            {
-                ObjectPoolManager.Get(StringManager.BloodVfx, _target.position);
-                damageable.Damage(_damage);
-            }
-
-            await UniTask.Delay(TimeSpan.FromSeconds(_atkDelay), cancellationToken: _cts.Token);
-
-            _isAttack = false;
+            _audioSource.Play();
+            _attackPoint.Init(_target, _damage);
+            _attackPoint.enabled = true;
+            _atkCooldown.StartCooldown();
+            if (_target.gameObject.activeSelf) return;
+            _target = null;
+            _isTargeting = false;
         }
 
         private void DeadAnimation()
         {
+            _anim.SetBool(IsWalk, false);
             _enemyAI.CanMove = false;
             var pos = transform.position;
-
             transform.DORotate(new Vector3(-90, pos.y, pos.z), 0.5f, RotateMode.LocalAxisAdd).OnComplete(() =>
             {
                 transform.DOScale(0, 1).OnComplete(() =>
@@ -158,27 +178,10 @@ namespace UnitControl.EnemyControl
             });
         }
 
-        private void Targeting()
+        public void Init(WaveData.EnemyInfo info)
         {
-            if (_enemyHealth.IsDead) return;
-            if (_isAttack) return;
-            _target = SearchTarget.ClosestTarget(transform.position, _attackRange, _targetCollider, targetLayer);
-            _isTargeting = _target != null;
-            _enemyAI.CanMove = !_isTargeting;
-            _sphereCollider.isTrigger = !_isTargeting;
-
-            if (!_isTargeting) return;
-            if (Vector3.Distance(_t.position, _target.position) <= _sphereCollider.radius * 2)
-            {
-                DoAttack();
-            }
-        }
-
-        public void Init(WaveData.EnemyWave wave)
-        {
-            _attackRange = wave.atkRange;
-            _atkDelay = wave.atkDelay;
-            _damage = wave.damage;
+            _atkCooldown.cooldownTime = info.atkDelay;
+            _damage = info.damage;
         }
     }
 }

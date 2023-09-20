@@ -2,6 +2,7 @@ using System;
 using DataControl;
 using DG.Tweening;
 using GameControl;
+using PoolObjectControl;
 using ProjectileControl;
 using UnityEngine;
 
@@ -25,8 +26,6 @@ namespace TowerControl
                 .SetLoops(2, LoopType.Yoyo);
 
             _crystalMeshFilter = crystal.GetComponentInChildren<MeshFilter>();
-
-            effectName = new[] { "MageVfx1", "MageVfx2", "MageVfx3" };
         }
 
         public override void TowerSetting(MeshFilter towerMesh, int damageData, int rangeData,
@@ -46,11 +45,15 @@ namespace TowerControl
         protected override void Attack()
         {
             _atkSequence.Restart();
-            var p = ObjectPoolManager.Get<MageBullet>(StringManager.MageBullet, crystal.position);
+            ProjectileInit(PoolObjectKey.MageProjectile, crystal.position);
+        }
 
-            p.Init(target, damage, deBuffData.speedDeBuffData[TowerLevel]);
-
-            EffectAttack(p.transform);
+        protected override void ProjectileInit(PoolObjectKey poolObjKey, Vector3 firePos)
+        {
+            var bullet = PoolObjectManager.Get<MageProjectile>(poolObjKey, firePos);
+            bullet.Init(damage, target, TowerType);
+            
+            bullet.speedDeBuffData = deBuffData.speedDeBuffData[TowerLevel];
         }
     }
 }

@@ -18,17 +18,12 @@ namespace PoolObjectControl
             _particleSystem.Play();
         }
 
-        private void FixedUpdate()
+        private void Update()
         {
             if (!_particleSystem.isPlaying)
             {
                 gameObject.SetActive(false);
             }
-        }
-
-        private void OnDisable()
-        {
-            ObjectPoolManager.ReturnToPool(gameObject);
         }
     }
 }

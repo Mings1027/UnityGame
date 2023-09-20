@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
-using TowerControl;
+using GameControl;
 using UnityEngine;
 
-namespace GameControl
+namespace PoolObjectControl
 {
     public class ObjectPoolManager : MonoBehaviour
     {
@@ -39,10 +39,19 @@ namespace GameControl
 #endif
         }
 
-        [ContextMenu("Pool Sort")]
+        [ContextMenu("Sort Pool")]
         private void PoolSort()
         {
             Array.Sort(pools);
+        }
+
+        [ContextMenu("Prefab Name To Tag")]
+        private void MatchPoolTagToPrefabName()
+        {
+            for (int i = 0; i < pools.Length; i++)
+            {
+                pools[i].tag = pools[i].prefab.name;
+            }
         }
 
         private void PoolInit()
@@ -59,7 +68,7 @@ namespace GameControl
                 {
                     var obj = CreateNewObject(pool.tag, pool.prefab);
 #if UNITY_EDITOR
-                    SortObject(obj);
+                    // SortObject(obj);
 #endif
                 }
 #if UNITY_EDITOR
@@ -124,9 +133,9 @@ namespace GameControl
                 if (pool == null)
                     throw new Exception($"Pool with tag {objTag} doesn't exist.");
 
-                var obj = CreateNewObject(objTag, pool.prefab);
+                CreateNewObject(objTag, pool.prefab);
 #if UNITY_EDITOR
-                SortObject(obj);
+                // SortObject(obj);
 #endif
             }
 

@@ -1,9 +1,4 @@
-using System;
-using Cysharp.Threading.Tasks;
-using DG.Tweening;
 using UnityEngine;
-using UnityEngine.Serialization;
-using Random = UnityEngine.Random;
 
 namespace GameControl
 {
@@ -28,9 +23,7 @@ namespace GameControl
         [SerializeField] private float timeSpeed;
         [SerializeField, Range(0, 1)] private float lerp;
 
-        [FormerlySerializedAs("startParticle")] [SerializeField]
-        private ParticleSystem starParticle;
-
+        [SerializeField] private ParticleSystem starParticle;
         [SerializeField] private ParticleSystem cloudParticle;
 
         private void Awake()

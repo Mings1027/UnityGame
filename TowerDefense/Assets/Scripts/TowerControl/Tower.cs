@@ -16,8 +16,9 @@ namespace TowerControl
         public bool isSpawn { get; set; }
         public float TowerRange { get; private set; }
         public int TowerLevel { get; private set; }
-        public TowerType towerTypeEnum => towerType;
+        // public string TowerName { get; private set; }
 
+        public TowerType TowerType => towerType;
         [SerializeField] private TowerType towerType;
 
         protected virtual void Awake()
@@ -43,6 +44,7 @@ namespace TowerControl
             _boxCollider = GetComponent<BoxCollider>();
             _meshFilter = transform.GetChild(0).GetComponent<MeshFilter>();
             _meshRenderer = transform.GetChild(0).GetComponent<MeshRenderer>();
+            // TowerName = towerType.ToString();
         }
 
         public void TowerLevelUp()

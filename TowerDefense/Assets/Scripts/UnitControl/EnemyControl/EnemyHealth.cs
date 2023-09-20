@@ -1,7 +1,4 @@
 using System;
-using Cysharp.Threading.Tasks;
-using DG.Tweening;
-using GameControl;
 using InterfaceControl;
 using StatusControl;
 using UnityEngine;
@@ -16,8 +13,9 @@ namespace UnitControl.EnemyControl
         public event Action OnDecreaseLifeCountEvent;
         public event Action OnDieEvent;
 
-        private void Awake()
+        protected override void Awake()
         {
+            base.Awake();
             _collider = GetComponent<Collider>();
         }
 
@@ -38,7 +36,6 @@ namespace UnitControl.EnemyControl
             OnUpdateEnemyCountEvent = null;
             OnDecreaseLifeCountEvent = null;
             OnDieEvent = null;
-            ObjectPoolManager.ReturnToPool(gameObject);
         }
 
         public void Damage(float amount)

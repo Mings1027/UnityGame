@@ -4,6 +4,7 @@ using Cysharp.Threading.Tasks;
 using DataControl;
 using GameControl;
 using ManagerControl;
+using PoolObjectControl;
 using UIControl;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -12,6 +13,7 @@ namespace MapControl
 {
     public class MapController : MonoBehaviour
     {
+        private WaveManager _waveManager;
         private MeshFilter _meshFilter;
         private MeshRenderer _meshRenderer;
         private MeshFilter _obstacleMeshFilter;
@@ -63,6 +65,7 @@ namespace MapControl
 
         private void Awake()
         {
+            _waveManager = FindObjectOfType<WaveManager>();
             ComponentInit();
             MapDataInit();
         }
@@ -71,10 +74,10 @@ namespace MapControl
         {
             PlaceStartMap();
 
-            WaveManager.Instance.OnPlaceExpandButton += PlaceExpandButtons;
+            _waveManager.OnPlaceExpandButtonEvent += PlaceExpandButtons;
 
             TowerManager.Instance.transform.GetComponentInChildren<MainMenuUIController>().OnGenerateInitMapEvent +=
-()=>                GenerateInitMap();
+                () => GenerateInitMap();
         }
 #if UNITY_EDITOR
         private void OnDrawGizmos()
@@ -135,6 +138,7 @@ namespace MapControl
                 var mapName = mapPrefabs[i].name.Split('_')[0];
                 _mapDictionary.Add(mapName, mapPrefabs[i]);
             }
+
             _wayPointsHashSet = new HashSet<Vector3>();
         }
 
@@ -156,26 +160,26 @@ namespace MapControl
             InitExpandButtonPosition();
             PlaceExpandButtons();
 
-            while (mapCount > _map.Count)
-            {
-                var index = 0;
-                for (int i = 0; i < _expandButtons.Count; i++)
-                {
-                    if (_expandButtons[i].gameObject.activeSelf)
-                    {
-                        var ran = Random.Range(0, 2);
-                        if (ran == 1)
-                        {
-                            index = i;
-                            break;
-                        }
-                    }
-                }
-            
-                _expandButtons[index].Expand();
-                await UniTask.Yield();
-                PlaceExpandButtons();
-            }
+            // while (mapCount > _map.Count)
+            // {
+            //     var index = 0;
+            //     for (int i = 0; i < _expandButtons.Count; i++)
+            //     {
+            //         if (_expandButtons[i].gameObject.activeSelf)
+            //         {
+            //             var ran = Random.Range(0, 2);
+            //             if (ran == 1)
+            //             {
+            //                 index = i;
+            //                 break;
+            //             }
+            //         }
+            //     }
+            //
+            //     _expandButtons[index].Expand();
+            //     await UniTask.Yield();
+            //     PlaceExpandButtons();
+            // }
         }
 
         private void InitExpandButtonPosition()
@@ -201,7 +205,7 @@ namespace MapControl
 
             PlaceNewMap(newMapPos);
 
-            ObjectPoolManager.Get(StringManager.ExpandMapSmoke, newMapPos);
+            PoolObjectManager.Get(PoolObjectKey.ExpandMapSmoke, newMapPos);
             _newMapObject.TryGetComponent(out MapData mapData);
 
             SetNewMapForward(mapData);
@@ -217,7 +221,8 @@ namespace MapControl
             CombineMesh();
 
             CombineObstacleMesh();
-            // WaveManager.Instance.StartWave(_wayPointsHashSet.ToArray());
+            _waveManager.enabled = true;
+            _waveManager.StartWave(_wayPointsHashSet.ToList());
         }
 
         private void InitAdjacentState()
@@ -408,8 +413,8 @@ namespace MapControl
 
             for (var i = 0; i < _expandButtonPosList.Count; i++)
             {
-                _expandButtons.Add(ObjectPoolManager.Get<ExpandMapButton>(StringManager.ExpandButton,
-                    _expandButtonPosList[i], Quaternion.Euler(0, 45, 0)));
+                _expandButtons.Add(
+                    PoolObjectManager.Get<ExpandMapButton>(PoolObjectKey.ExpandButton, _expandButtonPosList[i]));
                 _expandButtons[i].OnExpandMapEvent += ExpandMap;
             }
         }

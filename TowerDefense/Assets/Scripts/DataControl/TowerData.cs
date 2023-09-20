@@ -1,4 +1,5 @@
 using System;
+using ManagerControl;
 using UnityEngine;
 
 namespace DataControl
@@ -6,12 +7,14 @@ namespace DataControl
     [CreateAssetMenu]
     public class TowerData : ScriptableObject
     {
-        public TowerLevelData[] towerLevels;
-        public string towerName;
+        public GameObject tower;
+        public TowerInfoData[] towerLevels;
+        public TowerType towerType;
         public int towerBuildGold;
         public int towerUpgradeGold;
+
         [Serializable]
-        public class TowerLevelData
+        public class TowerInfoData
         {
             public MeshFilter towerMesh;
             public int damage;

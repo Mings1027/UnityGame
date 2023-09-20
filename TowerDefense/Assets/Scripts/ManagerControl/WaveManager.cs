@@ -1,24 +1,29 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DataControl;
 using GameControl;
+using PoolObjectControl;
 using UnitControl.EnemyControl;
 using UnityEngine;
 
 namespace ManagerControl
 {
-    public class WaveManager : Singleton<WaveManager>
+    public class WaveManager : MonoBehaviour
     {
         private bool _startGame;
         private int _curWave;
+        private int _themeIndex;
         private int _remainingEnemyCount;
         private CancellationTokenSource _cts;
 
-        public event Action OnPlaceExpandButton;
+        public event Action OnPlaceExpandButtonEvent;
+        public event Action OnEndOfGameEvent;
 
+        [SerializeField] private WaveData[] waveTheme;
         [SerializeField] private WaveData waveData;
 
         private void OnEnable()
@@ -26,6 +31,7 @@ namespace ManagerControl
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
             _curWave = 0;
+            _themeIndex = 0;
         }
 
         private void OnDisable()
@@ -33,11 +39,18 @@ namespace ManagerControl
             _cts?.Cancel();
         }
 
-        public void StartWave(Vector3[] wayPoints)
+        public void StartWave(List<Vector3> wayPoints)
         {
             if (_startGame) return;
             _startGame = true;
             _curWave++;
+            if (_curWave == 200)
+            {
+                print("Dragon Is Coming");
+                return;
+            }
+
+            if (_curWave % 25 == 0) _themeIndex++;
 
             TowerManager.Instance.WaveText.text = "Wave : " + _curWave;
 
@@ -45,13 +58,13 @@ namespace ManagerControl
             SpawnEnemy(wayPoints).Forget();
         }
 
-        private void WaveInit(Vector3[] wayPointsArray)
+        private void WaveInit(ICollection wayPointsArray)
         {
-            for (var i = 0; i < wayPointsArray.Length; i++)
+            for (var i = 0; i < wayPointsArray.Count; i++)
             {
-                for (var j = 0; j < waveData.enemyWaves.Length; j++)
+                for (var j = 0; j < waveData.enemyInfos.Length; j++)
                 {
-                    if (waveData.enemyWaves[j].startSpawnWave <= _curWave)
+                    if (waveData.enemyInfos[j].startSpawnWave <= _curWave)
                     {
                         _remainingEnemyCount++;
                     }
@@ -59,31 +72,46 @@ namespace ManagerControl
             }
         }
 
-        private async UniTaskVoid SpawnEnemy(Vector3[] wayPointsArray)
+        private void WaveInitTest(ICollection wayPointsArray)
         {
-            for (var i = 0; i < wayPointsArray.Length; i++)
+            for (var i = 0; i < wayPointsArray.Count; i++)
             {
-                if (i >= wayPointsArray.Length)
+                for (var j = 0; j < waveTheme[_themeIndex].enemyInfos.Length; j++)
+                {
+                    if (waveTheme[_themeIndex].enemyInfos[j].startSpawnWave <= _curWave)
+                    {
+                        _remainingEnemyCount++;
+                    }
+                }
+            }
+        }
+
+        private async UniTaskVoid SpawnEnemy(IReadOnlyList<Vector3> wayPointsArray)
+        {
+            for (var i = 0; i < wayPointsArray.Count; i++)
+            {
+                if (i >= wayPointsArray.Count)
                 {
                     i = 0;
                 }
 
-                for (var j = 0; j < waveData.enemyWaves.Length; j++)
+                for (var j = 0; j < waveData.enemyInfos.Length; j++)
                 {
                     await UniTask.Delay(200, cancellationToken: _cts.Token);
                     EnemyInit(wayPointsArray, i, j);
                 }
             }
+
+            enabled = false;
         }
 
         private void EnemyInit(IReadOnlyList<Vector3> wayPointsArray, int i, int j)
         {
-            if (waveData.enemyWaves[j].startSpawnWave > _curWave) return;
+            if (waveData.enemyInfos[j].startSpawnWave > _curWave) return;
 
-            var waveIndex = j;
-            var wave = waveData.enemyWaves[j];
+            var wave = waveData.enemyInfos[j];
 
-            var enemyUnit = ObjectPoolManager.Get<EnemyUnit>(waveData.enemyWaves[j].enemyName, wayPointsArray[i]);
+            var enemyUnit = PoolObjectManager.Get<EnemyUnit>(waveData.enemyInfos[j].enemyName, wayPointsArray[i]);
             enemyUnit.Init(wave);
 
             var enemyHealth = enemyUnit.GetComponent<EnemyHealth>();
@@ -92,7 +120,7 @@ namespace ManagerControl
             enemyHealth.OnDecreaseLifeCountEvent += TowerManager.Instance.DecreaseLifeCountEvent;
             enemyHealth.OnUpdateEnemyCountEvent += UpdateEnemyCountEvent;
             enemyHealth.OnDieEvent +=
-                () => TowerManager.Instance.IncreaseGold(waveData.enemyWaves[waveIndex].enemyCoin);
+                () => TowerManager.Instance.GetGoldFromEnemy(waveData.enemyInfos[j].enemyCoin);
         }
 
         private void UpdateEnemyCountEvent()
@@ -101,19 +129,8 @@ namespace ManagerControl
             _remainingEnemyCount--;
             if (_remainingEnemyCount > 0) return;
             _startGame = false;
-            OnPlaceExpandButton?.Invoke();
+            OnPlaceExpandButtonEvent?.Invoke();
+            OnEndOfGameEvent?.Invoke();
         }
-
-        // [ContextMenu("To Json Data")]
-        // private void SaveWaveDateToJson()
-        // {
-        //     DataManager.SaveDataToJson<WaveData>("waveData.json");
-        // }
-        //
-        // [ContextMenu("From Json Data")]
-        // private void LoadWaveDataToJson()
-        // {
-        //     waveData = DataManager.LoadDataFromJson<WaveData>("waveData.json");
-        // }
     }
 }

@@ -2,6 +2,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using DataControl;
 using GameControl;
+using PoolObjectControl;
 using UnitControl.FriendlyControl;
 using UnityEngine;
 
@@ -9,14 +10,16 @@ namespace TowerControl
 {
     public class UnitTower : Tower
     {
+        private Collider[] _targetColliders;
         private bool _isUnitSpawn;
         private int _deadUnitCount;
-        private string _unitTypeName;
+        private int _damage;
+        private float _atkDelay;
         private CancellationTokenSource _cts;
         public Vector3 unitSpawnPosition { get; set; }
 
         private FriendlyUnit[] _units;
-
+        [SerializeField] private PoolObjectKey unitTypeName;
         [SerializeField] private float[] unitHealth;
 
         /*=========================================================================================================================================
@@ -26,7 +29,6 @@ namespace TowerControl
         {
             base.Awake();
             _units = new FriendlyUnit[3];
-            _unitTypeName = towerTypeEnum.ToString();
         }
 
         protected override void OnEnable()
@@ -61,11 +63,11 @@ namespace TowerControl
             ActiveUnitIndicator();
         }
 
-        public void ActiveUnitIndicator()
+        private void ActiveUnitIndicator()
         {
             for (var i = 0; i < _units.Length; i++)
             {
-                _units[i].Indicator.Play();
+                _units[i].Indicator.enabled = true;
             }
         }
 
@@ -74,6 +76,8 @@ namespace TowerControl
         {
             base.TowerSetting(towerMesh, damageData, rangeData, attackDelayData);
 
+            _damage = damageData;
+            _atkDelay = attackDelayData;
             if (!_isUnitSpawn)
             {
                 _isUnitSpawn = true;
@@ -83,7 +87,6 @@ namespace TowerControl
             UnitInit(damageData, attackDelayData);
         }
 
-
         private void UnitSpawn()
         {
             for (var i = 0; i < _units.Length; i++)
@@ -91,11 +94,9 @@ namespace TowerControl
                 _units[i] = null;
                 var angle = Mathf.PI * 0.5f - i * (Mathf.PI * 2f) / _units.Length;
                 var pos = unitSpawnPosition + new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle));
-                _units[i] = ObjectPoolManager.Get<FriendlyUnit>(_unitTypeName, pos);
-                ObjectPoolManager.Get(StringManager.UnitSpawnSmoke, pos);
+                _units[i] = PoolObjectManager.Get<FriendlyUnit>(unitTypeName, pos);
+                PoolObjectManager.Get(PoolObjectKey.UnitSpawnSmoke, pos);
                 _units[i].OnReSpawnEvent += UnitReSpawn;
-                _units[i].towerType = towerTypeEnum.ToString();
-                _units[i].parentTower = this;
             }
         }
 
@@ -105,7 +106,7 @@ namespace TowerControl
 
             for (var i = 0; i < _units.Length; i++)
             {
-                _units[i].Init(damage, delay, health);
+                _units[i].Init(this, TowerType, damage, delay, health);
             }
         }
 
@@ -122,24 +123,13 @@ namespace TowerControl
 
             await UniTask.WhenAll(tasks);
         }
-        //
-        // public void UnitMove(Vector3 touchPos)
-        // {
-        //     for (var i = 0; i < _units.Length; i++)
-        //     {
-        //         var angle = Mathf.PI * 0.5f - i * (Mathf.PI * 2f) / _units.Length;
-        //         var pos = touchPos + new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle));
-        //
-        //         _units[i].MoveToTouchPos(pos);
-        //     }
-        // }
 
         public void OffUnitIndicator()
         {
             if (!_isUnitSpawn) return;
             for (int i = 0; i < _units.Length; i++)
             {
-                _units[i].Indicator.Stop();
+                _units[i].Indicator.enabled = false;
             }
         }
 
@@ -157,6 +147,7 @@ namespace TowerControl
             await UniTask.Delay(5000, cancellationToken: _cts.Token);
 
             UnitSpawn();
+            UnitInit(_damage, _atkDelay);
         }
     }
 }

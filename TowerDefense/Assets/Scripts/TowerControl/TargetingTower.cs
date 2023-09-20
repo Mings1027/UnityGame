@@ -1,5 +1,5 @@
-using System.Collections.Generic;
-using GameControl;
+using ManagerControl;
+using PoolObjectControl;
 using ProjectileControl;
 using UnityEngine;
 
@@ -9,38 +9,42 @@ namespace TowerControl
     {
         private AudioSource _audioSource;
         private Collider[] _targetColliders;
-        private int _effectIndex;
         private bool _isAttack;
-        private Dictionary<string, string> _projectileHitDic;
+        private Cooldown _atkCooldown;
+        private Cooldown _targetingCooldown;
 
         protected Transform target;
         protected int damage;
         protected bool isTargeting;
-        protected string[] effectName;
+        protected int effectIndex;
 
+        [SerializeField] private ParticleSystem.MinMaxGradient[] minMaxGradient;
         [SerializeField] private LayerMask targetLayer;
 
         protected override void Awake()
         {
             base.Awake();
             _audioSource = GetComponent<AudioSource>();
-            _projectileHitDic = new Dictionary<string, string>();
-            for (int i = 0; i < effectName.Length; i++)
-            {
-                _projectileHitDic.Add(effectName[i], "Hit" + effectName[i]);
-            }
+            _targetingCooldown.cooldownTime = 2;
         }
 
         protected override void OnEnable()
         {
             base.OnEnable();
-            _effectIndex = -1;
+            effectIndex = -1;
         }
 
-        protected override void OnDisable()
+        private void Update()
         {
-            base.OnDisable();
-            CancelInvoke();
+            if (!_targetingCooldown.IsCoolingDown)
+            {
+                Targeting();
+            }
+
+            if (!isTargeting || _atkCooldown.IsCoolingDown) return;
+            Attack();
+            _audioSource.Play();
+            _atkCooldown.StartCooldown();
         }
 
         private void OnDrawGizmos()
@@ -48,6 +52,11 @@ namespace TowerControl
             Gizmos.DrawWireSphere(transform.position, TowerRange);
         }
 
+        /*=========================================================================================================================================
+        *                                               Unity Event
+        =========================================================================================================================================*/
+
+        
         protected override void Init()
         {
             base.Init();
@@ -77,21 +86,15 @@ namespace TowerControl
 
             target = nearestTarget;
             isTargeting = true;
-
-            if (isTargeting)
-            {
-                Attack();
-                _audioSource.Play();
-            }
         }
 
         protected abstract void Attack();
 
-        protected void EffectAttack(Transform t)
+        protected virtual void ProjectileInit(PoolObjectKey poolObjKey, Vector3 firePos)
         {
-            var followBullet = ObjectPoolManager.Get<FollowProjectile>(effectName[_effectIndex], t);
-            followBullet.target = t;
-            followBullet.SetHitVfx(_projectileHitDic[effectName[_effectIndex]]);
+            var bullet = PoolObjectManager.Get<Projectile>(poolObjKey, firePos);
+            bullet.Init(damage, target, TowerType);
+            bullet.ColorInit(ref minMaxGradient[effectIndex]);
         }
 
         public override void TowerSetting(MeshFilter towerMesh, int damageData, int rangeData,
@@ -103,11 +106,10 @@ namespace TowerControl
 
             if (TowerLevel % 2 == 0)
             {
-                _effectIndex++;
+                effectIndex++;
             }
 
-            CancelInvoke();
-            InvokeRepeating(nameof(Targeting), 1, attackDelayData);
+            _atkCooldown.cooldownTime = attackDelayData;
         }
     }
 }
