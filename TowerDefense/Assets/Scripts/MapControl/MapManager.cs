@@ -11,7 +11,7 @@ using Random = UnityEngine.Random;
 
 namespace MapControl
 {
-    public class MapController : MonoBehaviour
+    public class MapManager : MonoBehaviour
     {
         private WaveManager _waveManager;
         private MeshFilter _meshFilter;
@@ -60,6 +60,7 @@ namespace MapControl
 #if UNITY_EDITOR
         [SerializeField] private int mapCount;
 #endif
+        [SerializeField] private bool drawGizmos;
 
         #region Unity Event
 
@@ -82,6 +83,7 @@ namespace MapControl
 #if UNITY_EDITOR
         private void OnDrawGizmos()
         {
+            if (!drawGizmos) return;
             if (_wayPointsHashSet == null) return;
             Gizmos.color = Color.red;
             foreach (var way in _wayPointsHashSet)
@@ -223,6 +225,7 @@ namespace MapControl
             CombineObstacleMesh();
             _waveManager.enabled = true;
             _waveManager.StartWave(_wayPointsHashSet.ToList());
+            TowerManager.Instance.EnableTower();
         }
 
         private void InitAdjacentState()

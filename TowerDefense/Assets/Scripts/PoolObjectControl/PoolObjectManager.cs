@@ -13,8 +13,8 @@ namespace PoolObjectControl
         {
             public PoolObjectKey poolObjectKey;
             public GameObject prefab;
-            public int initSize;
-            public int maxSize;
+            public byte initSize;
+            public byte maxSize;
 
             public int CompareTo(Pool other)
             {

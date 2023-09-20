@@ -10,13 +10,13 @@ namespace TowerControl
         private AudioSource _audioSource;
         private Collider[] _targetColliders;
         private bool _isAttack;
+        private sbyte _effectIndex;
         private Cooldown _atkCooldown;
         private Cooldown _targetingCooldown;
 
         protected Transform target;
         protected int damage;
         protected bool isTargeting;
-        protected int effectIndex;
 
         [SerializeField] private ParticleSystem.MinMaxGradient[] minMaxGradient;
         [SerializeField] private LayerMask targetLayer;
@@ -26,12 +26,7 @@ namespace TowerControl
             base.Awake();
             _audioSource = GetComponent<AudioSource>();
             _targetingCooldown.cooldownTime = 2;
-        }
-
-        protected override void OnEnable()
-        {
-            base.OnEnable();
-            effectIndex = -1;
+            _effectIndex = -1;
         }
 
         private void Update()
@@ -94,7 +89,7 @@ namespace TowerControl
         {
             var bullet = PoolObjectManager.Get<Projectile>(poolObjKey, firePos);
             bullet.Init(damage, target, TowerType);
-            bullet.ColorInit(ref minMaxGradient[effectIndex]);
+            bullet.ColorInit(ref minMaxGradient[_effectIndex]);
         }
 
         public override void TowerSetting(MeshFilter towerMesh, int damageData, int rangeData,
@@ -106,7 +101,7 @@ namespace TowerControl
 
             if (TowerLevel % 2 == 0)
             {
-                effectIndex++;
+                _effectIndex++;
             }
 
             _atkCooldown.cooldownTime = attackDelayData;

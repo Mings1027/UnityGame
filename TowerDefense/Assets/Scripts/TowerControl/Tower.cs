@@ -24,11 +24,12 @@ namespace TowerControl
         protected virtual void Awake()
         {
             Init();
+            TowerLevel = -1;
         }
 
         protected virtual void OnEnable()
         {
-            TowerLevel = -1;
+            // TowerLevel = -1;
         }
 
         protected virtual void OnDisable()

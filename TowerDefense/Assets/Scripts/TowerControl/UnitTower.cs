@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DataControl;
@@ -29,6 +30,7 @@ namespace TowerControl
         {
             base.Awake();
             _units = new FriendlyUnit[3];
+            _deadUnitCount = 0;
         }
 
         protected override void OnEnable()
@@ -36,13 +38,16 @@ namespace TowerControl
             base.OnEnable();
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
-            _deadUnitCount = 0;
         }
 
         protected override void OnDisable()
         {
             base.OnDisable();
             _cts?.Cancel();
+        }
+
+        private void OnDestroy()
+        {
             if (!_isUnitSpawn) return;
 
             _isUnitSpawn = false;

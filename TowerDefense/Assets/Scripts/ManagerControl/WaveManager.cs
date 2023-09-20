@@ -15,9 +15,9 @@ namespace ManagerControl
     public class WaveManager : MonoBehaviour
     {
         private bool _startGame;
-        private int _curWave;
-        private int _themeIndex;
-        private int _remainingEnemyCount;
+        private byte _curWave;
+        private byte _themeIndex;
+        private byte _remainingEnemyCount;
         private CancellationTokenSource _cts;
 
         public event Action OnPlaceExpandButtonEvent;
@@ -26,12 +26,16 @@ namespace ManagerControl
         [SerializeField] private WaveData[] waveTheme;
         [SerializeField] private WaveData waveData;
 
+        private void Awake()
+        {
+            _curWave = 0;
+            _themeIndex = 0;
+        }
+
         private void OnEnable()
         {
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
-            _curWave = 0;
-            _themeIndex = 0;
         }
 
         private void OnDisable()
@@ -44,6 +48,7 @@ namespace ManagerControl
             if (_startGame) return;
             _startGame = true;
             _curWave++;
+
             if (_curWave == 200)
             {
                 print("Dragon Is Coming");
@@ -51,7 +56,6 @@ namespace ManagerControl
             }
 
             if (_curWave % 25 == 0) _themeIndex++;
-
             TowerManager.Instance.WaveText.text = "Wave : " + _curWave;
 
             WaveInit(wayPoints);
@@ -131,6 +135,7 @@ namespace ManagerControl
             _startGame = false;
             OnPlaceExpandButtonEvent?.Invoke();
             OnEndOfGameEvent?.Invoke();
+            TowerManager.Instance.DisableTower();
         }
     }
 }

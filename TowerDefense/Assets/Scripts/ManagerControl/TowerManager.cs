@@ -32,15 +32,13 @@ namespace ManagerControl
         private TowerInfo _towerInfo;
         private Camera _cam;
 
+        private List<Tower> _towers;
         private Dictionary<TowerType, TowerData> _towerDataDictionary;
 
-        // private Dictionary<string, TowerData> _towerDataDic;
         private Dictionary<TowerType, GameObject> _towerObjDictionary;
 
-        // private Dictionary<string, GameObject> _towerObjDic;
         private Dictionary<TowerType, int> _towerCountDictionary;
 
-        // private Dictionary<string, int> _towerCountDic;
         private float[] _towerRanRotList;
 
         private Sequence _onOffTowerBtnSequence;
@@ -201,6 +199,7 @@ namespace ManagerControl
 
         private void TowerInit()
         {
+            _towers = new List<Tower>();
             _towerDataDictionary = new Dictionary<TowerType, TowerData>();
             foreach (var t in towerDataList)
             {
@@ -483,6 +482,7 @@ namespace ManagerControl
 
             tempTower.isSpawn = true;
             _curSelectedTower.OnClickTower += ClickTower;
+            _towers.Add(_curSelectedTower);
             _curSelectedTower = null;
         }
 
@@ -679,5 +679,20 @@ namespace ManagerControl
         }
 
         #endregion
+
+        public void EnableTower()
+        {
+            for (int i = 0; i < _towers.Count; i++)
+            {
+                _towers[i].enabled = true;
+            }
+        }
+        public void DisableTower()
+        {
+            for (int i = 0; i < _towers.Count; i++)
+            {
+                _towers[i].enabled = false;
+            }
+        }
     }
 }
