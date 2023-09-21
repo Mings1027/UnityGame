@@ -2,7 +2,9 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DataControl;
+using DG.Tweening;
 using GameControl;
+using ManagerControl;
 using PoolObjectControl;
 using UnitControl.FriendlyControl;
 using UnityEngine;
@@ -16,7 +18,8 @@ namespace TowerControl
         private int _deadUnitCount;
         private int _damage;
         private float _atkDelay;
-        private CancellationTokenSource _cts;
+        private bool _isSell;
+
         public Vector3 unitSpawnPosition { get; set; }
 
         private FriendlyUnit[] _units;
@@ -26,34 +29,48 @@ namespace TowerControl
         /*=========================================================================================================================================
         *                                               Unity Event
         =========================================================================================================================================*/
-        protected override void Awake()
+        protected override void Init()
         {
-            base.Awake();
+            base.Init();
             _units = new FriendlyUnit[3];
             _deadUnitCount = 0;
+            _isSell = false;
         }
 
         protected override void OnEnable()
         {
             base.OnEnable();
-            _cts?.Dispose();
-            _cts = new CancellationTokenSource();
+            // if (_isUnitSpawn)
+            // {
+            //     for (int i = 0; i < _units.Length; i++)
+            //     {
+            //         _units[i].StartTargeting(true);
+            //     }
+            // }
         }
 
         protected override void OnDisable()
         {
             base.OnDisable();
-            _cts?.Cancel();
+            // if (_isUnitSpawn)
+            // {
+            //     for (int i = 0; i < _units.Length; i++)
+            //     {
+            //         _units[i].StartTargeting(false);
+            //     }
+            // }
         }
 
         private void OnDestroy()
         {
+            _isSell = true;
             if (!_isUnitSpawn) return;
 
             _isUnitSpawn = false;
 
             for (var i = 0; i < _units.Length; i++)
             {
+                if (_units[i] == null) continue;
                 _units[i].gameObject.SetActive(false);
                 _units[i] = null;
             }
@@ -90,6 +107,12 @@ namespace TowerControl
             }
 
             UnitInit(damageData, attackDelayData);
+
+            // if (TowerManager.Instance.StartWave) return;
+            // for (var i = 0; i < _units.Length; i++)
+            // {
+            //     _units[i].StartTargeting(false);
+            // }
         }
 
         private void UnitSpawn()
@@ -102,6 +125,7 @@ namespace TowerControl
                 _units[i] = PoolObjectManager.Get<FriendlyUnit>(unitTypeName, pos);
                 PoolObjectManager.Get(PoolObjectKey.UnitSpawnSmoke, pos);
                 _units[i].OnReSpawnEvent += UnitReSpawn;
+                // _units[i].StartTargeting(true);
             }
         }
 
@@ -140,19 +164,21 @@ namespace TowerControl
 
         private void UnitReSpawn(FriendlyUnit u)
         {
+            if (_isSell) return;
             _deadUnitCount++;
 
             if (_deadUnitCount < 3) return;
             _deadUnitCount = 0;
-            UnitReSpawnDelay().Forget();
+            UnitReSpawnDelay();
         }
 
-        private async UniTaskVoid UnitReSpawnDelay()
+        private void UnitReSpawnDelay()
         {
-            await UniTask.Delay(5000, cancellationToken: _cts.Token);
-
-            UnitSpawn();
-            UnitInit(_damage, _atkDelay);
+            DOVirtual.DelayedCall(5, () =>
+            {
+                UnitSpawn();
+                UnitInit(_damage, _atkDelay);
+            }, false);
         }
     }
 }

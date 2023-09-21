@@ -100,7 +100,7 @@ namespace UnitControl.EnemyControl
         {
             if (p.error) return;
             _path = p;
-            _curWayPoint = 1;   
+            _curWayPoint = 0;   
             //  _curWayPoint = 1로 한 이유는 처음 스폰될때 잠깐 회전이 뒤죽박죽 되길래
             // 캐논타워가 적forward를 타겟했을때 적 진행방향과 다른쪽을 타겟 하게 될 수도 있어서
             // 해결할 수 있는지 더 알아볼것

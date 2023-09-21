@@ -72,13 +72,13 @@ namespace PoolObjectControl
                     var obj = CreateNewObject(pool.poolObjectKey, pool.prefab);
 #if UNITY_EDITOR
                     SortObject(obj);
-#endif
                 }
 
                 if (_prefabDictionary[pool.poolObjectKey].Count <= 0)
                     print($"{Info} in {pool.poolObjectKey} Prefab");
                 else if (_prefabDictionary[pool.poolObjectKey].Count != pool.initSize)
                     print($"It's duplicated ReturnToPool in{pool.poolObjectKey} object");
+#endif
             }
         }
 

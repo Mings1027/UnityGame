@@ -1,3 +1,4 @@
+using System;
 using ManagerControl;
 using PoolObjectControl;
 using ProjectileControl;
@@ -21,14 +22,6 @@ namespace TowerControl
         [SerializeField] private ParticleSystem.MinMaxGradient[] minMaxGradient;
         [SerializeField] private LayerMask targetLayer;
 
-        protected override void Awake()
-        {
-            base.Awake();
-            _audioSource = GetComponent<AudioSource>();
-            _targetingCooldown.cooldownTime = 2;
-            _effectIndex = -1;
-        }
-
         private void Update()
         {
             if (!_targetingCooldown.IsCoolingDown)
@@ -51,10 +44,13 @@ namespace TowerControl
         *                                               Unity Event
         =========================================================================================================================================*/
 
-        
+
         protected override void Init()
         {
             base.Init();
+            _audioSource = GetComponent<AudioSource>();
+            _targetingCooldown.cooldownTime = 2;
+            _effectIndex = -1;
             _targetColliders = new Collider[3];
         }
 
@@ -105,6 +101,7 @@ namespace TowerControl
             }
 
             _atkCooldown.cooldownTime = attackDelayData;
+
         }
     }
 }

@@ -88,6 +88,7 @@ namespace ManagerControl
         public TextMeshProUGUI WaveText => waveText;
         public PlaceTowerController PlaceTowerController => placeTowerButtonController;
 
+        public bool StartWave { get; private set; }
         [Header("----------Tower Buttons----------")] [SerializeField]
         private Button toggleTowerButton;
 
@@ -211,7 +212,7 @@ namespace ManagerControl
             {
                 _towerObjDictionary.Add(t.towerType, t.tower);
             }
-            
+
             _towerCountDictionary = new Dictionary<TowerType, int>();
             foreach (var t in towerDataList)
             {
@@ -550,6 +551,7 @@ namespace ManagerControl
             PoolObjectManager.Get(PoolObjectKey.BuildSmoke, _curSelectedTower.transform.position);
 
             TowerGold += _sellTowerGold;
+            _towers.Remove(_curSelectedTower);
             Destroy(_curSelectedTower.gameObject);
             OffUI();
         }
@@ -682,13 +684,16 @@ namespace ManagerControl
 
         public void EnableTower()
         {
+            StartWave = true;
             for (int i = 0; i < _towers.Count; i++)
             {
                 _towers[i].enabled = true;
             }
         }
+
         public void DisableTower()
         {
+            StartWave = false;
             for (int i = 0; i < _towers.Count; i++)
             {
                 _towers[i].enabled = false;

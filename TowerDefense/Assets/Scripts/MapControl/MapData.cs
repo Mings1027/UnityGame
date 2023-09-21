@@ -20,7 +20,7 @@ namespace MapControl
         public List<Vector3> placementTile { get; private set; }
 
         [SerializeField] private bool isPortalMap;
-        [FormerlySerializedAs("wayDirection")] [SerializeField] private DirectionFlag wayDirectionFlag;
+        [SerializeField] private DirectionFlag wayDirectionFlag;
 
         public List<Vector3> wayPointList { get; private set; }
 

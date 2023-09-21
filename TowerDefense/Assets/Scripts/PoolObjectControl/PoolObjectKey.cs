@@ -31,8 +31,8 @@ namespace PoolObjectControl
         MageHitVfx,
         CanonExplosion,
         //==============Unit==============
-        Assassin,
-        Defender,
+        AssassinUnit,
+        DefenderUnit,
         //==============Enemy==============
         Goblin,
         Orc,

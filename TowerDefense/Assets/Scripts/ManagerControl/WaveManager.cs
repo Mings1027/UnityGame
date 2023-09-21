@@ -1,11 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DataControl;
-using GameControl;
 using PoolObjectControl;
 using UnitControl.EnemyControl;
 using UnityEngine;
@@ -14,7 +12,7 @@ namespace ManagerControl
 {
     public class WaveManager : MonoBehaviour
     {
-        private bool _startGame;
+        private bool _startWave;
         private byte _curWave;
         private byte _themeIndex;
         private byte _remainingEnemyCount;
@@ -45,8 +43,8 @@ namespace ManagerControl
 
         public void StartWave(List<Vector3> wayPoints)
         {
-            if (_startGame) return;
-            _startGame = true;
+            if (_startWave) return;
+            _startWave = true;
             _curWave++;
 
             if (_curWave == 200)
@@ -129,10 +127,10 @@ namespace ManagerControl
 
         private void UpdateEnemyCountEvent()
         {
-            if (!_startGame) return;
+            if (!_startWave) return;
             _remainingEnemyCount--;
             if (_remainingEnemyCount > 0) return;
-            _startGame = false;
+            _startWave = false;
             OnPlaceExpandButtonEvent?.Invoke();
             OnEndOfGameEvent?.Invoke();
             TowerManager.Instance.DisableTower();

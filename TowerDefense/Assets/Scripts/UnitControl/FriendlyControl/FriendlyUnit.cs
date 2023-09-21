@@ -21,6 +21,9 @@ namespace UnitControl.FriendlyControl
         private UnitTower _parentTower;
         private AttackPoint _attackPoint;
 
+        private Vector3 _moveDir;
+        private Vector3 _moveVec;
+
         private Vector3 _touchPos;
         private Vector3 _curPos;
 
@@ -33,16 +36,17 @@ namespace UnitControl.FriendlyControl
         private bool _isTargeting;
         private bool _moveInput;
         private bool _targetInAtkRange;
+        private bool _isOnDestination;
 
         private static readonly int IsWalk = Animator.StringToHash("isWalk");
         private static readonly int IsAttack = Animator.StringToHash("isAttack");
-     
+
         [SerializeField] private MeshRenderer indicator;
         [SerializeField] private LayerMask targetLayer;
         [SerializeField] private float atkRange;
         [SerializeField] private float sightRange;
         [SerializeField] private float moveSpeed;
-        
+
         public event Action<FriendlyUnit> OnReSpawnEvent;
 
         public MeshRenderer Indicator => indicator;
@@ -60,7 +64,7 @@ namespace UnitControl.FriendlyControl
             _health = GetComponent<Health>();
             _targetCollider = new Collider[2];
             _attackPoint = GetComponentInChildren<AttackPoint>();
-            _targetingTime.cooldownTime = 2f;
+            _targetingTime.cooldownTime = 1f;
         }
 
         private void OnEnable()
@@ -75,10 +79,19 @@ namespace UnitControl.FriendlyControl
         {
             if (_health.IsDead) return;
             if (_moveInput) return;
-            _targetInAtkRange = Physics.CheckSphere(transform.position, atkRange, targetLayer);
-
             _rigid.velocity = Vector3.zero;
             _rigid.angularVelocity = Vector3.zero;
+
+            if (_isTargeting)
+            {
+                if (!_targetInAtkRange)
+                    Move(_target.position);
+            }
+            else
+            {
+                if (!_isOnDestination)
+                    Move(_curPos);
+            }
         }
 
         private void Update()
@@ -86,22 +99,14 @@ namespace UnitControl.FriendlyControl
             if (_health.IsDead) return;
             if (_moveInput) return;
 
+            CheckRange();
             Targeting();
-            if (_isTargeting)
-            {
-                if (_targetInAtkRange)
-                {
-                    Attack();
-                }
-                else
-                {
-                    Chase();
-                }
-            }
-            else
-            {
-                ReturnToOriginalPos();
-            }
+            Attack();
+        }
+
+        private void LateUpdate()
+        {
+            _anim.SetBool(IsWalk, _moveInput || (_isTargeting ? !_targetInAtkRange : !_isOnDestination));
         }
 
         private void OnDisable()
@@ -123,6 +128,18 @@ namespace UnitControl.FriendlyControl
                                                     Unity Event
 =====================================================================================================================================================*/
 
+        private void CheckRange()
+        {
+            if (_isTargeting)
+            {
+                _targetInAtkRange = Vector3.SqrMagnitude(_rigid.position - _target.position) < atkRange;
+            }
+            else
+            {
+                _isOnDestination = Vector3.SqrMagnitude(_rigid.position - _curPos) < 0.5f;
+            }
+        }
+
         private void Targeting()
         {
             if (_targetingTime.IsCoolingDown) return;
@@ -131,7 +148,6 @@ namespace UnitControl.FriendlyControl
             {
                 _target = null;
                 _isTargeting = false;
-                _anim.SetBool(IsWalk, false);
                 return;
             }
 
@@ -140,19 +156,10 @@ namespace UnitControl.FriendlyControl
             _targetingTime.StartCooldown();
         }
 
-        private void Chase()
-        {
-            _anim.SetBool(IsWalk, true);
-            var targetPos = _target.position;
-            var position = _rigid.position;
-            var dir = (targetPos - position).normalized;
-            var moveVec = dir * (moveSpeed * Time.deltaTime);
-            _rigid.MovePosition(position + moveVec);
-            transform.forward = (targetPos - position).normalized;
-        }
-
         private void Attack()
         {
+            if (!_isTargeting) return;
+            if (!_targetInAtkRange) return;
             if (_atkCooldown.IsCoolingDown) return;
             if (_attackPoint.enabled) return;
             _anim.SetTrigger(IsAttack);
@@ -166,32 +173,31 @@ namespace UnitControl.FriendlyControl
             _isTargeting = false;
         }
 
-        private void ReturnToOriginalPos()
+        private void Move(Vector3 targetPos)
         {
-            if (Vector3.SqrMagnitude(transform.position - _curPos) < 0.5f) return;
-            _anim.SetBool(IsWalk, true);
-            var dir = (_curPos - transform.position).normalized;
-            var moveVec = dir * (moveSpeed * Time.deltaTime);
-            _rigid.MovePosition(_rigid.position + moveVec);
-            _rigid.MoveRotation(Quaternion.LookRotation(_curPos - _rigid.position));
+            var pos = _rigid.position;
+            _moveDir = (targetPos - pos).normalized;
+            _moveVec = _moveDir * (moveSpeed * Time.deltaTime);
+            _rigid.MovePosition(pos + _moveVec);
+            _rigid.MoveRotation(Quaternion.LookRotation(_moveDir));
         }
 
         private void DeadAnimation()
         {
             var pos = transform.position;
-            transform.DORotate(new Vector3(-90, pos.y, pos.z), 0.5f, RotateMode.LocalAxisAdd).OnComplete(() =>
+            _rigid.DORotate(new Vector3(-90, pos.y, pos.z), 0.5f, RotateMode.LocalAxisAdd).OnComplete(() =>
             {
-                transform.DOScale(0, 1).OnComplete(() =>
+                _rigid.transform.DOScale(0, 1).OnComplete(() =>
                 {
                     gameObject.SetActive(false);
-                    transform.localScale = Vector3.one;
+                    _rigid.transform.localScale = Vector3.one;
                 });
             });
         }
 
         public async UniTask MoveToTouchPos(Vector3 pos)
         {
-            _anim.SetBool(IsWalk, true);
+            // _anim.SetBool(IsWalk, true);
             _curPos = pos;
             _moveInput = true;
             _sphereCollider.enabled = false;
@@ -200,7 +206,7 @@ namespace UnitControl.FriendlyControl
             {
                 _moveInput = false;
                 _sphereCollider.enabled = true;
-                _anim.SetBool(IsWalk, false);
+                // _anim.SetBool(IsWalk, false);
             }).ToUniTask();
         }
 

@@ -21,7 +21,7 @@ namespace TowerControl
         public TowerType TowerType => towerType;
         [SerializeField] private TowerType towerType;
 
-        protected virtual void Awake()
+        private void Awake()
         {
             Init();
             TowerLevel = -1;
@@ -45,7 +45,6 @@ namespace TowerControl
             _boxCollider = GetComponent<BoxCollider>();
             _meshFilter = transform.GetChild(0).GetComponent<MeshFilter>();
             _meshRenderer = transform.GetChild(0).GetComponent<MeshRenderer>();
-            // TowerName = towerType.ToString();
         }
 
         public void TowerLevelUp()
@@ -61,6 +60,7 @@ namespace TowerControl
             _boxCollider.enabled = true;
 
             ColliderSize();
+            if (!TowerManager.Instance.StartWave) enabled = false;
         }
 
         private void ColliderSize()

@@ -25,6 +25,7 @@ namespace ManagerControl
         None
     }
 
+    [System.Serializable]
     public struct Cooldown
     {
         public float cooldownTime { get; set; }

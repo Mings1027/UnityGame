@@ -26,9 +26,6 @@ namespace TowerControl
 
         protected override void Attack()
         {
-            // ProjectileInit(StringManager.BallistaProjectile, firePos.position,
-            //     StringManager.BallistaVfx[effectIndex],
-            //     StringManager.BallistaHitVfx[effectIndex]);
             ProjectileInit(PoolObjectKey.BallistaProjectile, firePos.position);
         }
     }

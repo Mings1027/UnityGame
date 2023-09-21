@@ -1,3 +1,4 @@
+using System;
 using InterfaceControl;
 using ManagerControl;
 using UnityEngine;
@@ -9,14 +10,15 @@ namespace ProjectileControl
         private Collider _collider;
         private ParticleSystem _trailParticle;
         private ParticleSystem _hitParticle;
-        private Rigidbody _rigid;
+        private int _damage;
+        private TowerType _towerType;
+        private float _gravity;
         private Vector3 _curPos;
         private Vector3 _startPos;
-        private int _damage;
-        private float _lerp;
+        private Rigidbody _rigid;
         private bool _isArrived;
-        private TowerType _towerType;
 
+        protected float lerp;
         protected Transform target;
 
         [SerializeField] private AnimationCurve curve;
@@ -33,13 +35,17 @@ namespace ProjectileControl
         protected virtual void OnEnable()
         {
             _collider.enabled = true;
-            _trailParticle.Play();
             _startPos = transform.position;
+            _trailParticle.Play();
         }
 
         protected virtual void FixedUpdate()
         {
             ProjectilePath(target.position);
+        }
+
+        private void LateUpdate()
+        {
             if (_isArrived && _hitParticle.isStopped)
             {
                 gameObject.SetActive(false);
@@ -48,25 +54,25 @@ namespace ProjectileControl
 
         protected virtual void OnTriggerEnter(Collider other)
         {
-            _isArrived = true;
             _hitParticle.Play();
+            _isArrived = true;
             _collider.enabled = false;
             TryHit();
         }
 
         protected virtual void OnDisable()
         {
-            _lerp = 0;
+            lerp = 0;
             _isArrived = false;
         }
 
         protected void ProjectilePath(Vector3 endPos)
         {
             if (_isArrived) return;
-            var gravity = _lerp < 0.5f ? 1f : 1.5f;
-            _lerp += Time.deltaTime * gravity * speed;
-            _curPos = Vector3.Lerp(_startPos, endPos, _lerp);
-            _curPos.y += curve.Evaluate(_lerp);
+            _gravity = lerp < 0.5f ? 1 : 1.5f;
+            lerp += Time.deltaTime * _gravity * speed;
+            _curPos = Vector3.Lerp(_startPos, endPos, lerp);
+            _curPos.y += curve.Evaluate(lerp);
             var rigidPos = _rigid.position;
             var dir = (_curPos - rigidPos).normalized;
             _rigid.position = _curPos;

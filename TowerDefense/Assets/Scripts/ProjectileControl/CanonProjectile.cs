@@ -1,5 +1,3 @@
-using DataControl;
-using GameControl;
 using ManagerControl;
 using PoolObjectControl;
 using SoundControl;
@@ -9,6 +7,7 @@ namespace ProjectileControl
 {
     public class CanonProjectile : Projectile
     {
+        private bool isLockOnTarget;
         private Vector3 _targetEndPos;
         private Collider[] _targetColliders;
 
@@ -23,7 +22,13 @@ namespace ProjectileControl
 
         protected override void FixedUpdate()
         {
-            ProjectilePath(_targetEndPos);
+            if (!isLockOnTarget && lerp > 0.5f)
+            {
+                isLockOnTarget = true;
+                _targetEndPos = target.position;
+            }
+
+            ProjectilePath(lerp < 0.5f ? target.position : _targetEndPos);
         }
 
         protected override void OnTriggerEnter(Collider other)
@@ -32,6 +37,12 @@ namespace ProjectileControl
 
             if (_targetEndPos == Vector3.zero) return;
             PoolObjectManager.Get<SoundPlayer>(PoolObjectKey.CanonExplosion, transform.position).Play();
+        }
+
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+            isLockOnTarget = false;
         }
 
         private void OnDrawGizmos()
