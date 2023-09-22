@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Serialization;
-using Random = UnityEngine.Random;
 
 namespace MapControl
 {
@@ -16,13 +14,12 @@ namespace MapControl
             Right = 1 << 2
         }
 
-        public List<Vector3> diagonalDir { get; private set; }
-        public List<Vector3> placementTile { get; private set; }
-
         [SerializeField] private bool isPortalMap;
         [SerializeField] private DirectionFlag wayDirectionFlag;
 
         public List<Vector3> wayPointList { get; private set; }
+        public List<Vector3> diagonalDir { get; private set; }
+        public List<Vector3> placementTile { get; private set; }
 
         private void Awake()
         {

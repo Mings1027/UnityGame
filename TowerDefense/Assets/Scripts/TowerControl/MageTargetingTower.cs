@@ -15,7 +15,6 @@ namespace TowerControl
         [SerializeField] private Transform crystal;
         [SerializeField] private Mesh[] crystalMesh;
         [SerializeField] private LayerMask towerLayer;
-        [SerializeField] private DeBuffData deBuffData;
 
         protected override void Init()
         {
@@ -48,12 +47,12 @@ namespace TowerControl
             ProjectileInit(PoolObjectKey.MageProjectile, crystal.position);
         }
 
-        protected override void ProjectileInit(PoolObjectKey poolObjKey, Vector3 firePos)
+        protected override void ProjectileInit(PoolObjectKey poolKey, Vector3 firePos)
         {
-            var bullet = PoolObjectManager.Get<MageProjectile>(poolObjKey, firePos);
-            bullet.Init(damage, target, TowerType);
-            
-            bullet.speedDeBuffData = deBuffData.speedDeBuffData[TowerLevel];
+            var bullet = PoolObjectManager.Get<MageProjectile>(poolKey, firePos);
+            bullet.DeBuffInit(TowerLevel);
+            projectile = bullet;
+            base.ProjectileInit(poolKey, firePos);
         }
     }
 }

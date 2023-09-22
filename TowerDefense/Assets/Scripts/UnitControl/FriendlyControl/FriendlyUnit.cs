@@ -33,6 +33,7 @@ namespace UnitControl.FriendlyControl
         private Cooldown _atkCooldown;
         private Cooldown _targetingTime;
 
+        private bool _startTargeting;
         private bool _isTargeting;
         private bool _moveInput;
         private bool _targetInAtkRange;
@@ -70,6 +71,7 @@ namespace UnitControl.FriendlyControl
         private void OnEnable()
         {
             _target = null;
+            _isOnDestination = true;
             _curPos = transform.position;
             _health.OnDeadEvent += DeadAnimation;
             indicator.enabled = false;
@@ -81,6 +83,10 @@ namespace UnitControl.FriendlyControl
             if (_moveInput) return;
             _rigid.velocity = Vector3.zero;
             _rigid.angularVelocity = Vector3.zero;
+
+            if (!_startTargeting) return;
+            Targeting();
+            CheckRange();
 
             if (_isTargeting)
             {
@@ -96,11 +102,10 @@ namespace UnitControl.FriendlyControl
 
         private void Update()
         {
+            if (!_startTargeting) return;
             if (_health.IsDead) return;
             if (_moveInput) return;
 
-            CheckRange();
-            Targeting();
             Attack();
         }
 
@@ -127,6 +132,11 @@ namespace UnitControl.FriendlyControl
         /*==============================================================================================================================================
                                                     Unity Event
 =====================================================================================================================================================*/
+
+        public void StartTargeting(bool startTargeting)
+        {
+            _startTargeting = startTargeting;
+        }
 
         private void CheckRange()
         {
@@ -166,7 +176,7 @@ namespace UnitControl.FriendlyControl
             _audioSource.Play();
             _attackPoint.Init(_target, _damage);
             _attackPoint.enabled = true;
-            DataManager.SumDamage(ref _towerName, _damage);
+            DataManager.SumDamage(_towerName, _damage);
             _atkCooldown.StartCooldown();
             if (_target.gameObject.activeSelf) return;
             _target = null;
@@ -197,7 +207,6 @@ namespace UnitControl.FriendlyControl
 
         public async UniTask MoveToTouchPos(Vector3 pos)
         {
-            // _anim.SetBool(IsWalk, true);
             _curPos = pos;
             _moveInput = true;
             _sphereCollider.enabled = false;
@@ -206,7 +215,6 @@ namespace UnitControl.FriendlyControl
             {
                 _moveInput = false;
                 _sphereCollider.enabled = true;
-                // _anim.SetBool(IsWalk, false);
             }).ToUniTask();
         }
 

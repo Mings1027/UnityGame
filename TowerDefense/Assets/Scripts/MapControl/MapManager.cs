@@ -211,13 +211,13 @@ namespace MapControl
             _newMapObject.TryGetComponent(out MapData mapData);
 
             SetNewMapForward(mapData);
-
-            PlaceObstacle(mapData);
-
+            
             RemovePoints(mapData, newMapPos);
 
             SetPoints();
 
+            PlaceObstacle(mapData);
+            
             DisableExpandButtons();
 
             CombineMesh();
@@ -395,6 +395,9 @@ namespace MapControl
                         _expandButtonPosHashSet.Add(_newMapPosition + _dirToWayPoint * mapSize);
                 }
             }
+
+            if (_wayPointsHashSet.Count == 0)
+                print("00000000000000000");
         }
 
         private void DisableExpandButtons()

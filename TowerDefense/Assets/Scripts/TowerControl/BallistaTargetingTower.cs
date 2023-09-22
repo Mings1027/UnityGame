@@ -1,6 +1,8 @@
 using DataControl;
 using PoolObjectControl;
+using ProjectileControl;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace TowerControl
 {
@@ -10,7 +12,7 @@ namespace TowerControl
         private Vector3 _targetDirection;
 
         [SerializeField] private Transform ballista;
-        [SerializeField] private Transform firePos;
+        [FormerlySerializedAs("firePos")] [SerializeField] private Transform fireTransform;
         [SerializeField] private float smoothTurnSpeed;
 
         private void LateUpdate()
@@ -26,7 +28,13 @@ namespace TowerControl
 
         protected override void Attack()
         {
-            ProjectileInit(PoolObjectKey.BallistaProjectile, firePos.position);
+            ProjectileInit(PoolObjectKey.BallistaProjectile, fireTransform.position);
+        }
+
+        protected override void ProjectileInit(PoolObjectKey poolObjKey, Vector3 firePos)
+        {
+            projectile = PoolObjectManager.Get<BallistaProjectile>(poolObjKey, firePos);
+            base.ProjectileInit(poolObjKey, firePos);
         }
     }
 }

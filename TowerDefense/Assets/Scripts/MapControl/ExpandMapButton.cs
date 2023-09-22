@@ -11,8 +11,7 @@ namespace MapControl
     public class ExpandMapButton : MonoBehaviour, IFingerUp
     {
         public event Action<Vector3> OnExpandMapEvent;
-
-     
+        
         public void Expand()
         {
             OnExpandMapEvent?.Invoke(transform.position);

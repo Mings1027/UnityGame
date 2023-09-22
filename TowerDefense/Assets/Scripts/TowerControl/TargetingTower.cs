@@ -15,6 +15,7 @@ namespace TowerControl
         private Cooldown _atkCooldown;
         private Cooldown _targetingCooldown;
 
+        protected Projectile projectile;
         protected Transform target;
         protected int damage;
         protected bool isTargeting;
@@ -83,9 +84,9 @@ namespace TowerControl
 
         protected virtual void ProjectileInit(PoolObjectKey poolObjKey, Vector3 firePos)
         {
-            var bullet = PoolObjectManager.Get<Projectile>(poolObjKey, firePos);
-            bullet.Init(damage, target, TowerType);
-            bullet.ColorInit(ref minMaxGradient[_effectIndex]);
+            // projectile = PoolObjectManager.Get<Projectile>(poolObjKey, firePos);
+            projectile.ColorInit(ref minMaxGradient[_effectIndex]);
+            projectile.Init(damage, target);
         }
 
         public override void TowerSetting(MeshFilter towerMesh, int damageData, int rangeData,
@@ -101,7 +102,6 @@ namespace TowerControl
             }
 
             _atkCooldown.cooldownTime = attackDelayData;
-
         }
     }
 }

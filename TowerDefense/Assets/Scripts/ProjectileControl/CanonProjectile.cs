@@ -7,7 +7,7 @@ namespace ProjectileControl
 {
     public class CanonProjectile : Projectile
     {
-        private bool isLockOnTarget;
+        private bool _isLockOnTarget;
         private Vector3 _targetEndPos;
         private Collider[] _targetColliders;
 
@@ -18,13 +18,14 @@ namespace ProjectileControl
         {
             base.Awake();
             _targetColliders = new Collider[5];
+            towerType = TowerType.Canon;
         }
 
         protected override void FixedUpdate()
         {
-            if (!isLockOnTarget && lerp > 0.5f)
+            if (!_isLockOnTarget && lerp > 0.5f)
             {
-                isLockOnTarget = true;
+                _isLockOnTarget = true;
                 _targetEndPos = target.position;
             }
 
@@ -42,7 +43,7 @@ namespace ProjectileControl
         protected override void OnDisable()
         {
             base.OnDisable();
-            isLockOnTarget = false;
+            _isLockOnTarget = false;
         }
 
         private void OnDrawGizmos()
@@ -50,7 +51,7 @@ namespace ProjectileControl
             Gizmos.DrawWireSphere(transform.position, atkRange);
         }
 
-        protected override void TryHit()
+        public override void Hit()
         {
             if (_targetEndPos == Vector3.zero) return;
             var pos = transform.position;
@@ -65,9 +66,9 @@ namespace ProjectileControl
             }
         }
 
-        public override void Init(int dmg, Transform t, TowerType towerType)
+        public override void Init(int dmg, Transform t)
         {
-            base.Init(dmg, t, towerType);
+            base.Init(dmg, t);
             Physics.Raycast(t.position + t.forward * 2 + Vector3.up * 2, Vector3.down, out var hit, 10);
             _targetEndPos = hit.point;
             _targetEndPos.y = 0;

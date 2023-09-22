@@ -117,16 +117,33 @@ namespace PoolObjectControl
 
         public static void ReturnToPool(GameObject obj, PoolObjectKey poolObjKey)
         {
-            if (!_inst._prefabDictionary.TryGetValue(poolObjKey, out var pool))
-                throw new Exception($"Pool with tag {poolObjKey} doesn't exist.");
+            // if (!_inst._prefabDictionary.TryGetValue(poolObjKey, out var pool))
+            //     throw new Exception($"Pool with tag {poolObjKey} doesn't exist.");
 
             if (!_inst._poolDictionary.TryGetValue(poolObjKey, out _)) return;
 
             _inst._prefabDictionary[poolObjKey].Push(obj);
 
-            if (_inst._prefabDictionary[poolObjKey].Count > _inst._poolDictionary[poolObjKey].maxSize)
+            // if (_inst._prefabDictionary[poolObjKey].Count > _inst._poolDictionary[poolObjKey].maxSize)
+            // {
+            //     _inst.PoolCleanerTask(_inst._prefabDictionary[poolObjKey], poolObjKey).Forget();
+            // }
+        }
+
+        public async UniTaskVoid PoolCleaner()
+        {
+            foreach (var poolKey in _prefabDictionary.Keys)
             {
-                _inst.PoolCleanerTask(pool, poolObjKey).Forget();
+                print("pools check");
+                var outOfRange = _prefabDictionary[poolKey].Count > _poolDictionary[poolKey].maxSize;
+
+                while (outOfRange)
+                {
+                    Destroy(_prefabDictionary[poolKey].Pop());
+                    outOfRange = _prefabDictionary[poolKey].Count > _poolDictionary[poolKey].maxSize;
+                    print(_prefabDictionary[poolKey]);
+                    await UniTask.Delay(100);
+                }
             }
         }
 

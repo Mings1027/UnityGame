@@ -1,10 +1,5 @@
-using System;
-using System.Threading;
 using Cysharp.Threading.Tasks;
-using DataControl;
 using DG.Tweening;
-using GameControl;
-using ManagerControl;
 using PoolObjectControl;
 using UnitControl.FriendlyControl;
 using UnityEngine;
@@ -40,25 +35,25 @@ namespace TowerControl
         protected override void OnEnable()
         {
             base.OnEnable();
-            // if (_isUnitSpawn)
-            // {
-            //     for (int i = 0; i < _units.Length; i++)
-            //     {
-            //         _units[i].StartTargeting(true);
-            //     }
-            // }
+            if (_isUnitSpawn)
+            {
+                for (int i = 0; i < _units.Length; i++)
+                {
+                    _units[i].StartTargeting(true);
+                }
+            }
         }
 
         protected override void OnDisable()
         {
             base.OnDisable();
-            // if (_isUnitSpawn)
-            // {
-            //     for (int i = 0; i < _units.Length; i++)
-            //     {
-            //         _units[i].StartTargeting(false);
-            //     }
-            // }
+            if (_isUnitSpawn)
+            {
+                for (int i = 0; i < _units.Length; i++)
+                {
+                    _units[i].StartTargeting(false);
+                }
+            }
         }
 
         private void OnDestroy()

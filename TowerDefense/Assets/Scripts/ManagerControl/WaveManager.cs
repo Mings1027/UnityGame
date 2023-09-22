@@ -94,6 +94,7 @@ namespace ManagerControl
             {
                 if (i >= wayPointsArray.Count)
                 {
+                    print(i);
                     i = 0;
                 }
 

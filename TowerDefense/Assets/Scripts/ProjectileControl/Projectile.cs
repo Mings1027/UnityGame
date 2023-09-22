@@ -5,19 +5,20 @@ using UnityEngine;
 
 namespace ProjectileControl
 {
-    public abstract class Projectile : MonoBehaviour
+    public abstract class Projectile : MonoBehaviour, IHit
     {
         private Collider _collider;
         private ParticleSystem _trailParticle;
         private ParticleSystem _hitParticle;
+        private Rigidbody _rigid;
+
         private int _damage;
-        private TowerType _towerType;
         private float _gravity;
         private Vector3 _curPos;
         private Vector3 _startPos;
-        private Rigidbody _rigid;
         private bool _isArrived;
 
+        protected TowerType towerType;
         protected float lerp;
         protected Transform target;
 
@@ -57,7 +58,7 @@ namespace ProjectileControl
             _hitParticle.Play();
             _isArrived = true;
             _collider.enabled = false;
-            TryHit();
+            Hit();
         }
 
         protected virtual void OnDisable()
@@ -65,6 +66,10 @@ namespace ProjectileControl
             lerp = 0;
             _isArrived = false;
         }
+
+        /*============================================================================================================
+         *                                  Unity Event
+         ============================================================================================================*/
 
         protected void ProjectilePath(Vector3 endPos)
         {
@@ -79,16 +84,10 @@ namespace ProjectileControl
             _rigid.MoveRotation(Quaternion.LookRotation(dir));
         }
 
-        protected virtual void TryHit()
-        {
-            TryDamage(target);
-        }
-
-        public virtual void Init(int dmg, Transform t, TowerType towerType)
+        public virtual void Init(int dmg, Transform t)
         {
             _damage = dmg;
             target = t;
-            _towerType = towerType;
         }
 
         public void ColorInit(ref ParticleSystem.MinMaxGradient minMaxGradient)
@@ -101,7 +100,12 @@ namespace ProjectileControl
         {
             t.TryGetComponent(out IDamageable damageable);
             damageable.Damage(_damage);
-            DataManager.SumDamage(ref _towerType, _damage);
+            DataManager.SumDamage(towerType, _damage);
+        }
+
+        public virtual void Hit()
+        {
+            TryDamage(target);
         }
     }
 }

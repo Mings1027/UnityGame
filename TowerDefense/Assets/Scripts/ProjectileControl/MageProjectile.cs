@@ -1,17 +1,31 @@
 using DataControl;
+using ManagerControl;
 using UnitControl.EnemyControl;
+using UnityEngine;
 
 namespace ProjectileControl
 {
     public sealed class MageProjectile : Projectile
     {
-        public DeBuffData.SpeedDeBuffData speedDeBuffData;
+        private int _index;
+        [SerializeField] private DeBuffData deBuffData;
 
-        protected override void TryHit()
+        protected override void Awake()
         {
-            base.TryHit();
+            base.Awake();
+            towerType = TowerType.Mage;
+        }
+
+        public override void Hit()
+        {
+            base.Hit();
             target.TryGetComponent(out EnemyStatus enemyStatus);
-            enemyStatus.SlowEffect(ref speedDeBuffData);
+            enemyStatus.SlowEffect(ref deBuffData.speedDeBuffData[_index]);
+        }
+
+        public void DeBuffInit(int index)
+        {
+            _index = index;
         }
     }
 }

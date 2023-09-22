@@ -685,7 +685,7 @@ namespace ManagerControl
         public void EnableTower()
         {
             StartWave = true;
-            for (int i = 0; i < _towers.Count; i++)
+            for (var i = 0; i < _towers.Count; i++)
             {
                 _towers[i].enabled = true;
             }
@@ -694,10 +694,12 @@ namespace ManagerControl
         public void DisableTower()
         {
             StartWave = false;
-            for (int i = 0; i < _towers.Count; i++)
+            for (var i = 0; i < _towers.Count; i++)
             {
                 _towers[i].enabled = false;
             }
+
+            PoolObjectManager.Instance.PoolCleaner().Forget();
         }
     }
 }
