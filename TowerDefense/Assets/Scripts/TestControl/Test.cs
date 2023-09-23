@@ -6,10 +6,16 @@ public class Test : MonoBehaviour
 {
     [SerializeField] private string testString;
     [SerializeField] private string oldString;
+    private Camera cam;
 
-    private void Start()
+    private void Awake()
     {
-        var replace = testString.Replace(oldString, "-");
-        print(replace);
+        cam = Camera.main;
+    }
+
+    private void Update()
+    {
+        // print(cam.ScreenToViewportPoint(Input.mousePosition));
+        // print(cam.ViewportToScreenPoint(Input.mousePosition));
     }
 }

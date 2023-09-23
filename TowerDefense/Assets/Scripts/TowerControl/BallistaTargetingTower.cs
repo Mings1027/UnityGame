@@ -10,10 +10,17 @@ namespace TowerControl
     {
         private int _archerCount;
         private Vector3 _targetDirection;
-
-        [SerializeField] private Transform ballista;
-        [FormerlySerializedAs("firePos")] [SerializeField] private Transform fireTransform;
+        private Transform _ballista;
+        private Transform _fireTransform;
+        
         [SerializeField] private float smoothTurnSpeed;
+
+        protected override void Awake()
+        {
+            base.Awake();
+            _ballista = transform.Find("Ballista");
+            _fireTransform = _ballista.GetChild(0);
+        }
 
         private void LateUpdate()
         {
@@ -23,18 +30,12 @@ namespace TowerControl
             var targetPos = t.position + t.forward;
             var dir = targetPos - transform.position;
             var rotGoal = Quaternion.LookRotation(dir) * Quaternion.Euler(-30f, 0f, 0f);
-            ballista.rotation = Quaternion.Slerp(ballista.rotation, rotGoal, smoothTurnSpeed);
+            _ballista.rotation = Quaternion.Slerp(_ballista.rotation, rotGoal, smoothTurnSpeed);
         }
 
         protected override void Attack()
         {
-            ProjectileInit(PoolObjectKey.BallistaProjectile, fireTransform.position);
-        }
-
-        protected override void ProjectileInit(PoolObjectKey poolObjKey, Vector3 firePos)
-        {
-            projectile = PoolObjectManager.Get<BallistaProjectile>(poolObjKey, firePos);
-            base.ProjectileInit(poolObjKey, firePos);
+            ProjectileInit(PoolObjectKey.BallistaProjectile, _fireTransform.position);
         }
     }
 }

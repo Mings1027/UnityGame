@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using GameControl;
 using UnityEngine;
@@ -69,21 +70,21 @@ namespace PoolObjectControl
                 if (pool.maxSize == 0) pool.maxSize = 30;
                 for (var j = 0; j < pool.initSize; j++)
                 {
-                    var obj = CreateNewObject(pool.poolObjectKey, pool.prefab);
-#if UNITY_EDITOR
-                    SortObject(obj);
+                    CreateNewObject(pool.poolObjectKey, pool.prefab);
+// #if UNITY_EDITOR
+                    // SortObject(obj);
                 }
 
-                if (_prefabDictionary[pool.poolObjectKey].Count <= 0)
-                    print($"{Info} in {pool.poolObjectKey} Prefab");
-                else if (_prefabDictionary[pool.poolObjectKey].Count != pool.initSize)
-                    print($"It's duplicated ReturnToPool in{pool.poolObjectKey} object");
-#endif
+                // if (_prefabDictionary[pool.poolObjectKey].Count <= 0)
+                //     print($"{Info} in {pool.poolObjectKey} Prefab");
+                // else if (_prefabDictionary[pool.poolObjectKey].Count != pool.initSize)
+                //     print($"It's duplicated ReturnToPool in{pool.poolObjectKey} object");
+// #endif
             }
         }
 
-        public static void Get(PoolObjectKey poolObjectKey, Transform t) =>
-            _inst.Spawn(poolObjectKey, t.position, t.rotation);
+        // public static void Get(PoolObjectKey poolObjectKey, Transform t) =>
+        //     _inst.Spawn(poolObjectKey, t.position, t.rotation);
 
         public static void Get(PoolObjectKey poolObjectKey, Vector3 position) =>
             _inst.Spawn(poolObjectKey, position, Quaternion.identity);
@@ -117,20 +118,11 @@ namespace PoolObjectControl
 
         public static void ReturnToPool(GameObject obj, PoolObjectKey poolObjKey)
         {
-            // if (!_inst._prefabDictionary.TryGetValue(poolObjKey, out var pool))
-            //     throw new Exception($"Pool with tag {poolObjKey} doesn't exist.");
-
             if (!_inst._poolDictionary.TryGetValue(poolObjKey, out _)) return;
-
             _inst._prefabDictionary[poolObjKey].Push(obj);
-
-            // if (_inst._prefabDictionary[poolObjKey].Count > _inst._poolDictionary[poolObjKey].maxSize)
-            // {
-            //     _inst.PoolCleanerTask(_inst._prefabDictionary[poolObjKey], poolObjKey).Forget();
-            // }
         }
 
-        public async UniTaskVoid PoolCleaner()
+        public async void PoolCleaner()
         {
             foreach (var poolKey in _prefabDictionary.Keys)
             {
@@ -142,20 +134,8 @@ namespace PoolObjectControl
                     Destroy(_prefabDictionary[poolKey].Pop());
                     outOfRange = _prefabDictionary[poolKey].Count > _poolDictionary[poolKey].maxSize;
                     print(_prefabDictionary[poolKey]);
-                    await UniTask.Delay(100);
+                    await Task.Delay(100);
                 }
-            }
-        }
-
-        private async UniTaskVoid PoolCleanerTask(Stack<GameObject> pool, PoolObjectKey poolObjKey)
-        {
-            if (!_prefabDictionary.TryGetValue(poolObjKey, out _)) return;
-            if (!_poolDictionary.TryGetValue(poolObjKey, out _)) return;
-            print("Out of Range");
-            while (pool.Count > _poolDictionary[poolObjKey].maxSize)
-            {
-                Destroy(pool.Pop());
-                await UniTask.Delay(100);
             }
         }
 
@@ -182,7 +162,7 @@ namespace PoolObjectControl
             return _poolDictionary.TryGetValue(poolObjectKey, out var pool) ? pool : null;
         }
 
-        private GameObject CreateNewObject(PoolObjectKey poolObjectKey, GameObject prefab)
+        private void CreateNewObject(PoolObjectKey poolObjectKey, GameObject prefab)
         {
             var obj = Instantiate(prefab, transform);
             if (!obj.TryGetComponent(out PoolObject poolObject))
@@ -190,7 +170,7 @@ namespace PoolObjectControl
             poolObject.PoolObjKey = poolObjectKey;
             obj.name = poolObjectKey.ToString();
             obj.SetActive(false);
-            return obj;
+            // return obj;
         }
 
         private void SortObject(GameObject obj)

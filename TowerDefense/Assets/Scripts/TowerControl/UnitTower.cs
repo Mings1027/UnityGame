@@ -101,20 +101,13 @@ namespace TowerControl
                 UnitSpawn();
             }
 
-            UnitInit(damageData, attackDelayData);
-
-            // if (TowerManager.Instance.StartWave) return;
-            // for (var i = 0; i < _units.Length; i++)
-            // {
-            //     _units[i].StartTargeting(false);
-            // }
+            UnitInfoInit(damageData, attackDelayData);
         }
 
         private void UnitSpawn()
         {
             for (var i = 0; i < _units.Length; i++)
             {
-                _units[i] = null;
                 var angle = Mathf.PI * 0.5f - i * (Mathf.PI * 2f) / _units.Length;
                 var pos = unitSpawnPosition + new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle));
                 _units[i] = PoolObjectManager.Get<FriendlyUnit>(unitTypeName, pos);
@@ -124,13 +117,13 @@ namespace TowerControl
             }
         }
 
-        private void UnitInit(int damage, float delay)
+        private void UnitInfoInit(int damage, float delay)
         {
             var health = unitHealth[TowerLevel];
 
             for (var i = 0; i < _units.Length; i++)
             {
-                _units[i].Init(this, TowerType, damage, delay, health);
+                _units[i].InfoInit(this, TowerType, damage, delay, health);
             }
         }
 
@@ -172,7 +165,7 @@ namespace TowerControl
             DOVirtual.DelayedCall(5, () =>
             {
                 UnitSpawn();
-                UnitInit(_damage, _atkDelay);
+                UnitInfoInit(_damage, _atkDelay);
             }, false);
         }
     }

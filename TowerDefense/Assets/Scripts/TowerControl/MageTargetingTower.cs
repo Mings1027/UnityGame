@@ -49,10 +49,9 @@ namespace TowerControl
 
         protected override void ProjectileInit(PoolObjectKey poolKey, Vector3 firePos)
         {
-            var bullet = PoolObjectManager.Get<MageProjectile>(poolKey, firePos);
-            bullet.DeBuffInit(TowerLevel);
-            projectile = bullet;
             base.ProjectileInit(poolKey, firePos);
+            projectile.TryGetComponent(out MageProjectile mageProjectile);
+            mageProjectile.DeBuffInit(TowerLevel);
         }
     }
 }

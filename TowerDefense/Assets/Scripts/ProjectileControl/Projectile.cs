@@ -24,6 +24,7 @@ namespace ProjectileControl
 
         [SerializeField] private AnimationCurve curve;
         [SerializeField] private float speed;
+        [SerializeField] private ParticleSystem.MinMaxGradient[] minMaxGradients;
 
         protected virtual void Awake()
         {
@@ -90,10 +91,12 @@ namespace ProjectileControl
             target = t;
         }
 
-        public void ColorInit(ref ParticleSystem.MinMaxGradient minMaxGradient)
+        public void ColorInit(int effectIndex)
         {
-            var color = _trailParticle.colorOverLifetime;
-            color.color = new ParticleSystem.MinMaxGradient(minMaxGradient.colorMin, minMaxGradient.colorMax);
+            var trailColor = _trailParticle.main;
+            trailColor.startColor = minMaxGradients[effectIndex];
+            var hitColor = _hitParticle.main;
+            hitColor.startColor = minMaxGradients[effectIndex];
         }
 
         protected void TryDamage(Transform t)

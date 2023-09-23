@@ -23,9 +23,9 @@ namespace PoolObjectControl
         private static ObjectPoolManager _inst;
         private Dictionary<string, Stack<GameObject>> _poolDictionary;
 
-        private readonly string _info = " 오브젝트에 다음을 적으세요 \nvoid OnDisable()\n{\n" +
-                                        "    ObjectPooling.ReturnToPool(gameObject);    // 한 객체에 한번만 \n" +
-                                        "    CancelInvoke();    // Mono behaviour에 Invoke가 있다면 \n}";
+        // private readonly string _info = " 오브젝트에 다음을 적으세요 \nvoid OnDisable()\n{\n" +
+        // "    ObjectPooling.ReturnToPool(gameObject);    // 한 객체에 한번만 \n" +
+        // "    CancelInvoke();    // Mono behaviour에 Invoke가 있다면 \n}";
 
         [SerializeField] private Pool[] pools;
 
@@ -66,17 +66,14 @@ namespace PoolObjectControl
                 _poolDictionary.Add(pool.tag, new Stack<GameObject>());
                 for (var j = 0; j < pool.size; j++)
                 {
-                    var obj = CreateNewObject(pool.tag, pool.prefab);
-#if UNITY_EDITOR
-                    // SortObject(obj);
-#endif
+                    CreateNewObject(pool.tag, pool.prefab);
                 }
-#if UNITY_EDITOR
-                if (_poolDictionary[pool.tag].Count <= 0)
-                    print($"{pool.tag}{_info}");
-                else if (_poolDictionary[pool.tag].Count != pool.size)
-                    print($"{pool.tag}에 ReturnToPool이 중복됩니다.");
-#endif
+// #if UNITY_EDITOR
+//                 if (_poolDictionary[pool.tag].Count <= 0)
+//                     print($"{pool.tag}{_info}");
+//                 else if (_poolDictionary[pool.tag].Count != pool.size)
+//                     print($"{pool.tag}에 ReturnToPool이 중복됩니다.");
+// #endif
             }
         }
 
@@ -160,14 +157,14 @@ namespace PoolObjectControl
         }
 
 
-        private GameObject CreateNewObject(string objTag, GameObject prefab)
+        private void CreateNewObject(string objTag, GameObject prefab)
         {
             var obj = Instantiate(prefab, transform);
             obj.name = objTag;
             obj.SetActive(false);
-            return obj;
         }
 
+#if UNITY_EDITOR
         private void SortObject(GameObject obj)
         {
             var isFind = false;
@@ -188,5 +185,6 @@ namespace PoolObjectControl
                 }
             }
         }
+#endif
     }
 }

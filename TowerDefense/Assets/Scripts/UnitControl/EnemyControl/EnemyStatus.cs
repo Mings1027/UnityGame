@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DataControl;
+using DG.Tweening;
 using TowerControl;
 using UnityEngine;
 
@@ -9,8 +10,8 @@ namespace UnitControl.EnemyControl
 {
     public class EnemyStatus : MonoBehaviour
     {
-        private CancellationTokenSource _cts;
         private EnemyAI _enemyAI;
+        private EnemyHealth _enemyHealth;
         private bool _isSlowed;
         private float _defaultSpeed;
 
@@ -24,14 +25,7 @@ namespace UnitControl.EnemyControl
 
         private void OnEnable()
         {
-            _cts?.Dispose();
-            _cts = new CancellationTokenSource();
             StatusInit();
-        }
-
-        private void OnDisable()
-        {
-            _cts?.Cancel();
         }
 
         private void StatusInit()
@@ -46,15 +40,19 @@ namespace UnitControl.EnemyControl
             _isSlowed = true;
             _enemyAI.MoveSpeed -= speedDeBuffData.decreaseSpeed;
             if (_enemyAI.MoveSpeed < 0.5f) _enemyAI.MoveSpeed = 0.5f;
-            SlowEffectAsync(speedDeBuffData).Forget();
+            SlowEffectTween(speedDeBuffData);
         }
 
-        private async UniTaskVoid SlowEffectAsync(DeBuffData.SpeedDeBuffData speedDeBuffData)
+        private void SlowEffectTween(DeBuffData.SpeedDeBuffData speedDeBuff)
         {
-            await UniTask.Delay(TimeSpan.FromSeconds(speedDeBuffData.deBuffTime), cancellationToken: _cts.Token);
-            _enemyAI.MoveSpeed += speedDeBuffData.decreaseSpeed;
-            await UniTask.Delay(TimeSpan.FromSeconds(slowImmunityTime), cancellationToken: _cts.Token);
-            _isSlowed = false;
+            DOVirtual.DelayedCall(speedDeBuff.deBuffTime, () => _enemyAI.MoveSpeed += speedDeBuff.decreaseSpeed)
+                .OnComplete(
+                    () => { DOVirtual.DelayedCall(slowImmunityTime, () => _isSlowed = false); });
+        }
+
+        public void ContinuousDamage()
+        {
+            _enemyHealth.Damage(1);
         }
     }
 }

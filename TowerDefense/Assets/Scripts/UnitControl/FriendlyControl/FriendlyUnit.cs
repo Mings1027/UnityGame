@@ -27,7 +27,7 @@ namespace UnitControl.FriendlyControl
         private Vector3 _touchPos;
         private Vector3 _curPos;
 
-        private TowerType _towerName;
+        private TowerType _towerType;
         private int _damage;
 
         private Cooldown _atkCooldown;
@@ -71,6 +71,7 @@ namespace UnitControl.FriendlyControl
         private void OnEnable()
         {
             _target = null;
+            _targetInAtkRange = false;
             _isOnDestination = true;
             _curPos = transform.position;
             _health.OnDeadEvent += DeadAnimation;
@@ -111,11 +112,13 @@ namespace UnitControl.FriendlyControl
 
         private void LateUpdate()
         {
-            _anim.SetBool(IsWalk, _moveInput || (_isTargeting ? !_targetInAtkRange : !_isOnDestination));
+            _anim.SetBool(IsWalk,
+                _startTargeting ? _moveInput || (_isTargeting ? !_targetInAtkRange : !_isOnDestination) : _moveInput);
         }
 
         private void OnDisable()
         {
+            _parentTower = null;
             OnReSpawnEvent?.Invoke(this);
             OnReSpawnEvent = null;
             _health.OnDeadEvent -= DeadAnimation;
@@ -176,7 +179,7 @@ namespace UnitControl.FriendlyControl
             _audioSource.Play();
             _attackPoint.Init(_target, _damage);
             _attackPoint.enabled = true;
-            DataManager.SumDamage(_towerName, _damage);
+            DataManager.SumDamage(_towerType, _damage);
             _atkCooldown.StartCooldown();
             if (_target.gameObject.activeSelf) return;
             _target = null;
@@ -218,11 +221,12 @@ namespace UnitControl.FriendlyControl
             }).ToUniTask();
         }
 
-        public void Init(UnitTower unitTower, TowerType towerName, int damage, float attackDelay, float healthAmount)
+        public void InfoInit(UnitTower unitTower, TowerType towerType, int damage, float attackDelay,
+            float healthAmount)
         {
             _parentTower = unitTower;
+            _towerType = towerType;
             _atkCooldown.cooldownTime = attackDelay;
-            _towerName = towerName;
             _damage = damage;
             _health.Init(healthAmount);
         }

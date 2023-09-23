@@ -21,7 +21,7 @@ namespace TowerControl
         public TowerType TowerType => towerType;
         [SerializeField] private TowerType towerType;
 
-        private void Awake()
+        protected virtual void Awake()
         {
             Init();
             TowerLevel = -1;

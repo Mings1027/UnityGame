@@ -59,8 +59,8 @@ namespace MapControl
         [SerializeField] private Transform obstacleMesh;
 #if UNITY_EDITOR
         [SerializeField] private int mapCount;
-#endif
         [SerializeField] private bool drawGizmos;
+#endif
 
         #region Unity Event
 
@@ -78,7 +78,7 @@ namespace MapControl
             _waveManager.OnPlaceExpandButtonEvent += PlaceExpandButtons;
 
             TowerManager.Instance.transform.GetComponentInChildren<MainMenuUIController>().OnGenerateInitMapEvent +=
-                () => GenerateInitMap();
+                GenerateInitMap;
         }
 #if UNITY_EDITOR
         private void OnDrawGizmos()
@@ -91,6 +91,7 @@ namespace MapControl
                 Gizmos.DrawSphere(way, 1);
             }
         }
+
 #endif
 
         #endregion
@@ -157,31 +158,10 @@ namespace MapControl
             _map.Add(_newMapObject);
         }
 
-        private async UniTaskVoid GenerateInitMap()
+        private void GenerateInitMap()
         {
             InitExpandButtonPosition();
             PlaceExpandButtons();
-
-            // while (mapCount > _map.Count)
-            // {
-            //     var index = 0;
-            //     for (int i = 0; i < _expandButtons.Count; i++)
-            //     {
-            //         if (_expandButtons[i].gameObject.activeSelf)
-            //         {
-            //             var ran = Random.Range(0, 2);
-            //             if (ran == 1)
-            //             {
-            //                 index = i;
-            //                 break;
-            //             }
-            //         }
-            //     }
-            //
-            //     _expandButtons[index].Expand();
-            //     await UniTask.Yield();
-            //     PlaceExpandButtons();
-            // }
         }
 
         private void InitExpandButtonPosition()
@@ -203,7 +183,7 @@ namespace MapControl
 
             CheckConnectedDirection(newMapPos);
 
-            CheckConnection();
+            RandomConnection();
 
             PlaceNewMap(newMapPos);
 
@@ -211,14 +191,14 @@ namespace MapControl
             _newMapObject.TryGetComponent(out MapData mapData);
 
             SetNewMapForward(mapData);
-            
+
             RemovePoints(mapData, newMapPos);
 
             SetPoints();
 
-            PlaceObstacle(mapData);
-            
             DisableExpandButtons();
+
+            PlaceObstacle(mapData);
 
             CombineMesh();
 
@@ -226,6 +206,16 @@ namespace MapControl
             _waveManager.enabled = true;
             _waveManager.StartWave(_wayPointsHashSet.ToList());
             TowerManager.Instance.EnableTower();
+        }
+
+        private void DisableExpandButtons()
+        {
+            for (var i = 0; i < _expandButtonPosList.Count; i++)
+            {
+                if (_expandButtons[i].gameObject.activeSelf) _expandButtons[i].gameObject.SetActive(false);
+            }
+
+            _expandButtons.Clear();
         }
 
         private void InitAdjacentState()
@@ -276,17 +266,20 @@ namespace MapControl
             }
         }
 
-        private void CheckConnection()
+        private void RandomConnection()
         {
             _connectionString = null;
             _nullMapIndexString = null;
+
+            var count = 0;
             for (var i = 0; i < _isNullMapArray.Length; i++)
             {
                 if (_isNullMapArray[i])
                 {
+                    count++;
                     _nullMapIndexString += i;
-                    var ran = Random.Range(0, 2);
-                    if (ran == 1) _connectionString += i;
+                    var ran = Random.Range(0, 100);
+                    if (ran <= 90 - count * 20) _connectionString += i;
                 }
                 else
                 {
@@ -396,18 +389,10 @@ namespace MapControl
                 }
             }
 
+#if UNITY_EDITOR
             if (_wayPointsHashSet.Count == 0)
                 print("00000000000000000");
-        }
-
-        private void DisableExpandButtons()
-        {
-            for (var i = 0; i < _expandButtonPosList.Count; i++)
-            {
-                if (_expandButtons[i].gameObject.activeSelf) _expandButtons[i].gameObject.SetActive(false);
-            }
-
-            _expandButtons.Clear();
+#endif
         }
 
         //Call When Wave is over
@@ -517,5 +502,35 @@ namespace MapControl
             return newWayPoint.x >= -maxSize && newWayPoint.x <= maxSize &&
                    newWayPoint.z >= -maxSize && newWayPoint.z <= maxSize;
         }
+
+#if UNITY_EDITOR
+        //  When test random map
+        private async UniTaskVoid GenerateAutoMap()
+        {
+            InitExpandButtonPosition();
+            PlaceExpandButtons();
+
+            while (mapCount > _map.Count)
+            {
+                var index = 0;
+                for (int i = 0; i < _expandButtons.Count; i++)
+                {
+                    if (_expandButtons[i].gameObject.activeSelf)
+                    {
+                        var ran = Random.Range(0, 2);
+                        if (ran == 1)
+                        {
+                            index = i;
+                            break;
+                        }
+                    }
+                }
+
+                _expandButtons[index].Expand();
+                await UniTask.Yield();
+                PlaceExpandButtons();
+            }
+        }
+#endif
     }
 }

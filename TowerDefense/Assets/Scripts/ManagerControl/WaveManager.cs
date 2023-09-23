@@ -2,8 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using DataControl;
+using DG.Tweening;
 using PoolObjectControl;
 using UnitControl.EnemyControl;
 using UnityEngine;
@@ -56,13 +58,13 @@ namespace ManagerControl
             if (_curWave % 25 == 0) _themeIndex++;
             TowerManager.Instance.WaveText.text = "Wave : " + _curWave;
 
-            WaveInit(wayPoints);
-            SpawnEnemy(wayPoints).Forget();
+            WaveInit(wayPoints.Count);
+            DOVirtual.DelayedCall(0.5f, () => SpawnEnemy(wayPoints));
         }
 
-        private void WaveInit(ICollection wayPointsArray)
+        private void WaveInit(int wayPointsArrayLength)
         {
-            for (var i = 0; i < wayPointsArray.Count; i++)
+            for (var i = 0; i < wayPointsArrayLength; i++)
             {
                 for (var j = 0; j < waveData.enemyInfos.Length; j++)
                 {
@@ -74,56 +76,34 @@ namespace ManagerControl
             }
         }
 
-        private void WaveInitTest(ICollection wayPointsArray)
+        private async void SpawnEnemy(IReadOnlyList<Vector3> wayPointsArray)
         {
             for (var i = 0; i < wayPointsArray.Count; i++)
             {
-                for (var j = 0; j < waveTheme[_themeIndex].enemyInfos.Length; j++)
-                {
-                    if (waveTheme[_themeIndex].enemyInfos[j].startSpawnWave <= _curWave)
-                    {
-                        _remainingEnemyCount++;
-                    }
-                }
-            }
-        }
-
-        private async UniTaskVoid SpawnEnemy(IReadOnlyList<Vector3> wayPointsArray)
-        {
-            for (var i = 0; i < wayPointsArray.Count; i++)
-            {
-                if (i >= wayPointsArray.Count)
-                {
-                    print(i);
-                    i = 0;
-                }
-
                 for (var j = 0; j < waveData.enemyInfos.Length; j++)
                 {
-                    await UniTask.Delay(200, cancellationToken: _cts.Token);
-                    EnemyInit(wayPointsArray, i, j);
+                    await Task.Delay(10, _cts.Token);
+                    EnemyInit(wayPointsArray[i], waveData.enemyInfos[j]);
                 }
             }
 
             enabled = false;
         }
 
-        private void EnemyInit(IReadOnlyList<Vector3> wayPointsArray, int i, int j)
+        private void EnemyInit(Vector3 wayPoint, WaveData.EnemyInfo enemyInfo)
         {
-            if (waveData.enemyInfos[j].startSpawnWave > _curWave) return;
+            if (enemyInfo.startSpawnWave > _curWave) return;
 
-            var wave = waveData.enemyInfos[j];
-
-            var enemyUnit = PoolObjectManager.Get<EnemyUnit>(waveData.enemyInfos[j].enemyName, wayPointsArray[i]);
-            enemyUnit.Init(wave);
+            var enemyUnit = PoolObjectManager.Get<EnemyUnit>(enemyInfo.enemyName, wayPoint);
+            enemyUnit.Init(enemyInfo);
 
             var enemyHealth = enemyUnit.GetComponent<EnemyHealth>();
 
-            enemyHealth.Init(wave.health);
+            enemyHealth.Init(enemyInfo.health);
             enemyHealth.OnDecreaseLifeCountEvent += TowerManager.Instance.DecreaseLifeCountEvent;
             enemyHealth.OnUpdateEnemyCountEvent += UpdateEnemyCountEvent;
             enemyHealth.OnDieEvent +=
-                () => TowerManager.Instance.GetGoldFromEnemy(waveData.enemyInfos[j].enemyCoin);
+                () => TowerManager.Instance.GetGoldFromEnemy(enemyInfo.enemyCoin);
         }
 
         private void UpdateEnemyCountEvent()

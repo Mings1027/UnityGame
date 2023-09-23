@@ -33,11 +33,5 @@ namespace TowerControl
             canonSmoke.Play();
             ProjectileInit(PoolObjectKey.CanonProjectile, transform.position + new Vector3(0, 2, 0));
         }
-
-        protected override void ProjectileInit(PoolObjectKey poolObjKey, Vector3 firePos)
-        {
-            projectile = PoolObjectManager.Get<CanonProjectile>(poolObjKey, firePos);
-            base.ProjectileInit(poolObjKey, firePos);
-        }
     }
 }

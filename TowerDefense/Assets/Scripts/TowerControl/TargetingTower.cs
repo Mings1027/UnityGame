@@ -14,13 +14,12 @@ namespace TowerControl
         private sbyte _effectIndex;
         private Cooldown _atkCooldown;
         private Cooldown _targetingCooldown;
+        private int _damage;
 
         protected Projectile projectile;
         protected Transform target;
-        protected int damage;
         protected bool isTargeting;
 
-        [SerializeField] private ParticleSystem.MinMaxGradient[] minMaxGradient;
         [SerializeField] private LayerMask targetLayer;
 
         private void Update()
@@ -84,9 +83,9 @@ namespace TowerControl
 
         protected virtual void ProjectileInit(PoolObjectKey poolObjKey, Vector3 firePos)
         {
-            // projectile = PoolObjectManager.Get<Projectile>(poolObjKey, firePos);
-            projectile.ColorInit(ref minMaxGradient[_effectIndex]);
-            projectile.Init(damage, target);
+            projectile = PoolObjectManager.Get<Projectile>(poolObjKey, firePos);
+            projectile.ColorInit(_effectIndex);
+            projectile.Init(_damage, target);
         }
 
         public override void TowerSetting(MeshFilter towerMesh, int damageData, int rangeData,
@@ -94,7 +93,7 @@ namespace TowerControl
         {
             base.TowerSetting(towerMesh, damageData, rangeData, attackDelayData);
 
-            damage = damageData;
+            _damage = damageData;
 
             if (TowerLevel % 2 == 0)
             {

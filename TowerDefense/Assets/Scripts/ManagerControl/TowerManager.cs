@@ -57,7 +57,7 @@ namespace ManagerControl
         private UnitTower _curUnitTower;
 
         private bool _isPanelOpen;
-        private bool _isTowerSelected;
+        // private bool _isTowerSelected;
         private bool _isUnitTower;
 
         private int _sellTowerGold;
@@ -396,7 +396,7 @@ namespace ManagerControl
         {
             SoundManager.Instance.PlaySound(StringManager.ButtonSound);
             _towerInfoPanelTween.Restart();
-            _isTowerSelected = true;
+            // _isTowerSelected = true;
             _isPanelOpen = true;
 
             if (clickedTower == _curSelectedTower) return;
@@ -561,7 +561,7 @@ namespace ManagerControl
             if (!_isPanelOpen) return;
             _towerInfoPanelTween.PlayBackwards();
 
-            _isTowerSelected = false;
+            // _isTowerSelected = false;
             _isUnitTower = false;
             _isPanelOpen = false;
             _curSelectedTower = null;
@@ -699,7 +699,7 @@ namespace ManagerControl
                 _towers[i].enabled = false;
             }
 
-            PoolObjectManager.Instance.PoolCleaner().Forget();
+            PoolObjectManager.Instance.PoolCleaner();
         }
     }
 }
