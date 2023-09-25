@@ -12,14 +12,19 @@ namespace GameControl
             {
                 if (_instance != null) return _instance;
                 _instance = (T)FindObjectOfType(typeof(T));
-                if (_instance != null) return _instance;
-                var obj = new GameObject();
-                _instance = obj.AddComponent(typeof(T)) as T;
-                obj.name = typeof(T).ToString();
-
-                // DontDestroyOnLoad(obj);
+                // if (_instance == null)
+                // {
+                //     var obj = new GameObject();
+                //     _instance = obj.AddComponent(typeof(T)) as T;
+                //     obj.name = typeof(T).ToString();
+                //
+                //     // DontDestroyOnLoad(obj);
+                //
+                //     return _instance;
+                // }
 
                 return _instance;
+
             }
         }
     }

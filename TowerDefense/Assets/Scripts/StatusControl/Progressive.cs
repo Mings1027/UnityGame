@@ -6,7 +6,6 @@ namespace StatusControl
     [DisallowMultipleComponent]
     public abstract class Progressive : MonoBehaviour
     {
-        private ParticleSystem _bloodParticle;
         private float _currentProgress;
 
         protected float CurrentProgress
@@ -16,7 +15,6 @@ namespace StatusControl
             {
                 _currentProgress = value;
                 OnUpdateBarEvent?.Invoke();
-                _bloodParticle.Play();
             }
         }
 
@@ -27,11 +25,6 @@ namespace StatusControl
 
         public event Action OnUpdateBarEvent;
 
-        protected virtual void Awake()
-        {
-            _bloodParticle = GetComponentInChildren<ParticleSystem>();
-        }
-
         protected virtual void OnEnable()
         {
             _currentProgress = Initial;
@@ -40,7 +33,7 @@ namespace StatusControl
         public void Init(float amount)
         {
             Initial = amount;
-            _currentProgress = amount;
+            CurrentProgress = amount;
         }
     }
 }

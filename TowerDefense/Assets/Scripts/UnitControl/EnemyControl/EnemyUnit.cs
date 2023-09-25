@@ -1,3 +1,4 @@
+using System;
 using DataControl;
 using DG.Tweening;
 using GameControl;
@@ -13,7 +14,8 @@ namespace UnitControl.EnemyControl
         private AudioSource _audioSource;
         private Animator _anim;
         private Rigidbody _rigid;
-        private SphereCollider _sphereCollider;
+
+        private BoxCollider _boxCollider;
         private EnemyAI _enemyAI;
         private EnemyHealth _enemyHealth;
         private Collider[] _targetCollider;
@@ -27,13 +29,15 @@ namespace UnitControl.EnemyControl
         private bool _targetInAtkRange;
 
         private int _damage;
-        
+
         private Cooldown _atkCooldown;
         private Cooldown _targetingTime;
-     
+
         private static readonly int IsWalk = Animator.StringToHash("isWalk");
         private static readonly int IsAttack = Animator.StringToHash("isAttack");
-        
+        private static readonly int IsDead = Animator.StringToHash("isDead");
+
+        [SerializeField] private float atkRange;
         [SerializeField] private float sightRange;
         [SerializeField] private LayerMask targetLayer;
 
@@ -46,13 +50,14 @@ namespace UnitControl.EnemyControl
             _audioSource = GetComponent<AudioSource>();
             _anim = GetComponentInChildren<Animator>();
             _rigid = GetComponent<Rigidbody>();
-            _sphereCollider = GetComponent<SphereCollider>();
+            _boxCollider = GetComponent<BoxCollider>();
             _enemyAI = GetComponent<EnemyAI>();
             _enemyHealth = GetComponent<EnemyHealth>();
             _targetCollider = new Collider[1];
             _t = transform;
             _attackPoint = GetComponentInChildren<AttackPoint>();
             _targetingTime.cooldownTime = 2f;
+            atkRange = _boxCollider.size.z;
         }
 
         private void OnEnable()
@@ -60,13 +65,13 @@ namespace UnitControl.EnemyControl
             _target = null;
             _isTargeting = false;
             _isAttack = false;
-            _enemyHealth.OnDieEvent += DeadAnimation;
+            _enemyHealth.OnDeadEvent += DeadAnimation;
         }
 
         private void FixedUpdate()
         {
             if (_enemyHealth.IsDead) return;
-            _targetInAtkRange = Physics.CheckSphere(transform.position, _sphereCollider.radius, targetLayer);
+            _targetInAtkRange = Physics.CheckSphere(transform.position, atkRange, targetLayer);
 
             _rigid.velocity = Vector3.zero;
             _rigid.angularVelocity = Vector3.zero;
@@ -77,17 +82,22 @@ namespace UnitControl.EnemyControl
             if (_enemyHealth.IsDead) return;
             Targeting();
 
-            if (_isTargeting)
+            if (!_isTargeting) return;
+
+            if (_targetInAtkRange)
             {
-                if (_targetInAtkRange)
-                {
-                    Attack();
-                }
-                else
-                {
-                    Chase();
-                }
+                Attack();
             }
+            else
+            {
+                Chase();
+            }
+        }
+
+        private void LateUpdate()
+        {
+            _anim.SetBool(IsWalk, !_targetInAtkRange);
+            _anim.speed = _targetInAtkRange ? 1 : _enemyAI.MoveSpeed * 0.5f;
         }
 
         private void OnTriggerEnter(Collider other)
@@ -98,7 +108,7 @@ namespace UnitControl.EnemyControl
 
         private void OnDisable()
         {
-            _enemyHealth.OnDieEvent -= DeadAnimation;
+            _enemyHealth.OnDeadEvent -= DeadAnimation;
         }
 
 #if UNITY_EDITOR
@@ -106,9 +116,9 @@ namespace UnitControl.EnemyControl
         {
             Gizmos.color = Color.cyan;
             Gizmos.DrawWireSphere(transform.position, sightRange);
-            if (_sphereCollider == null) return;
+            if (_boxCollider == null) return;
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(transform.position, _sphereCollider.radius);
+            Gizmos.DrawWireSphere(transform.position, atkRange);
         }
 #endif
         /*==============================================================================================================================================
@@ -126,21 +136,19 @@ namespace UnitControl.EnemyControl
                 _target = null;
                 _isTargeting = false;
                 _enemyAI.CanMove = true;
-                _sphereCollider.isTrigger = true;
-                _anim.SetBool(IsWalk, true);
+                _boxCollider.isTrigger = true;
                 return;
             }
 
             _target = _targetCollider[0].transform;
             _isTargeting = true;
             _enemyAI.CanMove = false;
-            _sphereCollider.isTrigger = false;
+            _boxCollider.isTrigger = false;
             _targetingTime.StartCooldown();
         }
 
         private void Chase()
         {
-            _anim.SetBool(IsWalk, true);
             var targetPos = _target.position;
             var position = _rigid.position;
             var dir = (targetPos - position).normalized;
@@ -165,17 +173,9 @@ namespace UnitControl.EnemyControl
 
         private void DeadAnimation()
         {
-            _anim.SetBool(IsWalk, false);
             _enemyAI.CanMove = false;
-            var pos = transform.position;
-            transform.DORotate(new Vector3(-90, pos.y, pos.z), 0.5f, RotateMode.LocalAxisAdd).OnComplete(() =>
-            {
-                transform.DOScale(0, 1).OnComplete(() =>
-                {
-                    gameObject.SetActive(false);
-                    transform.localScale = Vector3.one;
-                });
-            });
+            _anim.SetTrigger(IsDead);
+            DOVirtual.DelayedCall(2, () => gameObject.SetActive(false));
         }
 
         public void Init(WaveData.EnemyInfo info)

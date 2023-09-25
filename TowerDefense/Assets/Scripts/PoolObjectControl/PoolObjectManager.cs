@@ -83,8 +83,8 @@ namespace PoolObjectControl
             }
         }
 
-        // public static void Get(PoolObjectKey poolObjectKey, Transform t) =>
-        //     _inst.Spawn(poolObjectKey, t.position, t.rotation);
+        public static void Get(PoolObjectKey poolObjectKey, Transform t) =>
+            _inst.Spawn(poolObjectKey, t.position, t.rotation);
 
         public static void Get(PoolObjectKey poolObjectKey, Vector3 position) =>
             _inst.Spawn(poolObjectKey, position, Quaternion.identity);
@@ -126,14 +126,12 @@ namespace PoolObjectControl
         {
             foreach (var poolKey in _prefabDictionary.Keys)
             {
-                print("pools check");
                 var outOfRange = _prefabDictionary[poolKey].Count > _poolDictionary[poolKey].maxSize;
 
                 while (outOfRange)
                 {
                     Destroy(_prefabDictionary[poolKey].Pop());
                     outOfRange = _prefabDictionary[poolKey].Count > _poolDictionary[poolKey].maxSize;
-                    print(_prefabDictionary[poolKey]);
                     await Task.Delay(100);
                 }
             }

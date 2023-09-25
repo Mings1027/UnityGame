@@ -53,12 +53,12 @@ namespace UnitControl.EnemyControl
             _curWayPoint = 0;
         }
 
-        private void OnDrawGizmos()
-        {
-            if (_path == null) return;
-            Gizmos.color = Color.cyan;
-            Gizmos.DrawSphere(_path.vectorPath[_curWayPoint],0.3f);
-        }
+        // private void OnDrawGizmos()
+        // {
+        //     if (_path == null) return;
+        //     Gizmos.color = Color.cyan;
+        //     Gizmos.DrawSphere(_path.vectorPath[_curWayPoint],0.3f);
+        // }
 
         private void Movement(out Vector3 direction)
         {

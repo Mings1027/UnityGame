@@ -1,14 +1,17 @@
 using System;
 using ManagerControl;
+using PoolObjectControl;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace DataControl
 {
     [CreateAssetMenu]
     public class TowerData : ScriptableObject
     {
-        public GameObject tower;
         public TowerInfoData[] towerLevels;
+        public GameObject tower;
+        public PoolObjectKey poolObjectKey;
         public TowerType towerType;
         public int towerBuildGold;
         public int towerUpgradeGold;

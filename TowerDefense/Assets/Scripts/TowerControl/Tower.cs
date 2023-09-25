@@ -1,7 +1,9 @@
 using System;
+using DataControl;
 using InterfaceControl;
 using ManagerControl;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace TowerControl
 {
@@ -13,13 +15,12 @@ namespace TowerControl
 
         public event Action<Tower> OnClickTower;
 
-        public bool isSpawn { get; set; }
         public float TowerRange { get; private set; }
         public int TowerLevel { get; private set; }
-        // public string TowerName { get; private set; }
+     
+        public TowerData TowerData => towerData;
 
-        public TowerType TowerType => towerType;
-        [SerializeField] private TowerType towerType;
+        [SerializeField] private TowerData towerData;
 
         protected virtual void Awake()
         {
@@ -60,7 +61,7 @@ namespace TowerControl
             _boxCollider.enabled = true;
 
             ColliderSize();
-            if (!TowerManager.Instance.StartWave) enabled = false;
+            enabled = TowerManager.Instance.StartWave;
         }
 
         private void ColliderSize()

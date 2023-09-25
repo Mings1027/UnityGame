@@ -32,7 +32,6 @@ namespace ManagerControl
             _cameraManager = CameraManager.Instance;
             _cursorMeshRenderer = cubeCursor.GetComponentInChildren<MeshRenderer>();
             _cursorChild = cubeCursor.GetChild(0);
-            _towerManager.PlaceTowerController.OnPlaceTower += PlaceTower;
 
             _checkDir = new[]
             {
@@ -41,12 +40,7 @@ namespace ManagerControl
                 new Vector3(-1, 0, 1), new Vector3(1, 0, -1)
             };
             _selectedTowerType = TowerType.None;
-        }
-
-        private void Start()
-        {
             _cursorMeshRenderer.enabled = false;
-            enabled = false;
         }
 
         private void Update()
@@ -60,8 +54,14 @@ namespace ManagerControl
             }
             else if (touch.phase == TouchPhase.Ended)
             {
-                StopPlacement();
+                enabled = false;
             }
+        }
+
+        private void OnDisable()
+        {
+            PlaceTower();
+            StopPlacement();
         }
 
 #if UNITY_EDITOR
@@ -86,22 +86,19 @@ namespace ManagerControl
 
             _cameraManager.enabled = true;
             _cursorMeshRenderer.enabled = false;
-            _towerManager.PlaceTowerController.enabled = false;
             cubeCursor.position = Vector3.zero + Vector3.down * 2;
-            enabled = false;
             _worldGridPos = Vector3.zero + Vector3.down * 5;
         }
 
-        public void StartPlacement(ref TowerType towerType, bool isUnitTower)
+        public void StartPlacement(in TowerType towerType, bool isUnitTower)
         {
             _towerManager.OffUI();
             _cameraManager.enabled = false;
-            if (!_towerManager.IsEnoughGold(ref towerType)) return;
+            if (!_towerManager.IsEnoughGold(in towerType)) return;
             if (_selectedTowerType == towerType) return;
             _isUnitTower = isUnitTower;
             _selectedTowerType = towerType;
             _cursorMeshRenderer.enabled = false;
-            _towerManager.PlaceTowerController.enabled = true;
         }
 
         private void UpdateCursorPosition()
@@ -113,12 +110,12 @@ namespace ManagerControl
             var cellGridPos = grid.WorldToCell(hit.point);
             _worldGridPos = grid.CellToWorld(cellGridPos);
             cubeCursor.position = _worldGridPos;
-            _towerManager.PlaceTowerController.transform.position = mousePos;
         }
 
         private void CheckCanPlace()
         {
-            _canPlace = EventSystem.current.IsPointerOverGameObject(0) &&
+            var ray = _cam.ScreenPointToRay(Input.mousePosition);
+            _canPlace = Physics.Raycast(ray, out _, 100, placementLayer) &&
                         !Physics.CheckSphere(_cursorChild.position, 0.2f, towerLayer) && CheckPlacementTile() &&
                         (!_isUnitTower || CheckPlaceUnitTower());
 
@@ -153,11 +150,11 @@ namespace ManagerControl
             _worldGridPos.y = 1f;
             if (_isUnitTower)
             {
-                _towerManager.PlaceUnitTower(ref _selectedTowerType, _worldGridPos, _canPlaceHit);
+                _towerManager.PlaceUnitTower(in _selectedTowerType, in _worldGridPos, _canPlaceHit.point);
             }
             else
             {
-                _towerManager.PlaceTower(ref _selectedTowerType, _worldGridPos);
+                _towerManager.PlaceTower(in _selectedTowerType, in _worldGridPos);
             }
         }
     }

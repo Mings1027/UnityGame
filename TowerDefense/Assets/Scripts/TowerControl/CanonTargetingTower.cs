@@ -1,8 +1,4 @@
-using DataControl;
 using DG.Tweening;
-using GameControl;
-using PoolObjectControl;
-using ProjectileControl;
 using UnityEngine;
 
 namespace TowerControl
@@ -21,6 +17,8 @@ namespace TowerControl
         protected override void Init()
         {
             base.Init();
+            firePos = canonSmoke.transform;
+            
             _childObj = transform.GetChild(0);
             _atkSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(_childObj.DOScaleY(0.5f, 0.3f).SetEase(Ease.OutQuint))
@@ -31,7 +29,7 @@ namespace TowerControl
         {
             _atkSequence.Restart();
             canonSmoke.Play();
-            ProjectileInit(PoolObjectKey.CanonProjectile, transform.position + new Vector3(0, 2, 0));
+            base.Attack();
         }
     }
 }

@@ -7,9 +7,10 @@ namespace StatusControl
     public class ProgressBar : MonoBehaviour
     {
         private Progressive _progressive;
+        private Transform border;
 
         [SerializeField] private Image fillImage;
-        
+
         [SerializeField] private float duration;
         [SerializeField] private float strength;
         [SerializeField] private int vibrato;
@@ -17,6 +18,7 @@ namespace StatusControl
         private void Awake()
         {
             _progressive = GetComponentInParent<Progressive>();
+            border = transform.GetChild(0);
         }
 
         private void OnEnable()
@@ -33,6 +35,8 @@ namespace StatusControl
         }
 
         private void UpdateBarEvent() => fillImage.fillAmount = _progressive.Ratio;
-        private void ShakeBarEvent() => transform.DOShakePosition(duration, strength, vibrato);
+
+        private void ShakeBarEvent() => border.DOShakeScale(duration, strength, vibrato)
+            .OnComplete(() => border.localScale = Vector3.one);
     }
 }

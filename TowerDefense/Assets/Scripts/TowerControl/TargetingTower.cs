@@ -1,4 +1,5 @@
 using System;
+using DataControl;
 using ManagerControl;
 using PoolObjectControl;
 using ProjectileControl;
@@ -16,9 +17,9 @@ namespace TowerControl
         private Cooldown _targetingCooldown;
         private int _damage;
 
-        protected Projectile projectile;
         protected Transform target;
         protected bool isTargeting;
+        protected Transform firePos;
 
         [SerializeField] private LayerMask targetLayer;
 
@@ -27,6 +28,7 @@ namespace TowerControl
             if (!_targetingCooldown.IsCoolingDown)
             {
                 Targeting();
+                _targetingCooldown.StartCooldown();
             }
 
             if (!isTargeting || _atkCooldown.IsCoolingDown) return;
@@ -43,13 +45,12 @@ namespace TowerControl
         /*=========================================================================================================================================
         *                                               Unity Event
         =========================================================================================================================================*/
-
-
+        
         protected override void Init()
         {
             base.Init();
             _audioSource = GetComponent<AudioSource>();
-            _targetingCooldown.cooldownTime = 2;
+            _targetingCooldown.cooldownTime = 1;
             _effectIndex = -1;
             _targetColliders = new Collider[3];
         }
@@ -79,11 +80,14 @@ namespace TowerControl
             isTargeting = true;
         }
 
-        protected abstract void Attack();
-
-        protected virtual void ProjectileInit(PoolObjectKey poolObjKey, Vector3 firePos)
+        protected virtual void Attack()
         {
-            projectile = PoolObjectManager.Get<Projectile>(poolObjKey, firePos);
+            ProjectileInit();
+        }
+
+        private void ProjectileInit()
+        {
+            var projectile = PoolObjectManager.Get<Projectile>(TowerData.poolObjectKey, firePos);
             projectile.ColorInit(_effectIndex);
             projectile.Init(_damage, target);
         }

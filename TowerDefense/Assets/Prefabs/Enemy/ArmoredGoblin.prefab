@@ -9,15 +9,15 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1563616604165682725}
-  - component: {fileID: -2006317295223442821}
-  - component: {fileID: 4135850383432681205}
   - component: {fileID: 2945461124820322718}
+  - component: {fileID: -2006317295223442821}
+  - component: {fileID: 8305421336401274583}
+  - component: {fileID: 4135850383432681205}
   - component: {fileID: -3667240617310687700}
   - component: {fileID: 211600090816117332}
   - component: {fileID: 4177434353673673707}
-  - component: {fileID: 6856466110585859679}
+  - component: {fileID: 4601433885033518445}
   - component: {fileID: -1432869540811044599}
-  - component: {fileID: 8305421336401274583}
   m_Layer: 8
   m_Name: ArmoredGoblin
   m_TagString: Enemy
@@ -44,6 +44,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2945461124820322718
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2231750944910142623}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a3854a93d2824ff68f4c3fc4dbe12af, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &-2006317295223442821
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -57,6 +69,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   slowImmunityTime: 2
+--- !u!114 &8305421336401274583
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2231750944910142623}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6719794b54cb7466489824b89cb28c32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &4135850383432681205
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -69,22 +93,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 69a8ba2ae84f541738fa26a09cd7606e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  atkRange: 0
   sightRange: 2.5
   targetLayer:
     serializedVersion: 2
     m_Bits: 512
---- !u!114 &2945461124820322718
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2231750944910142623}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6a3854a93d2824ff68f4c3fc4dbe12af, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &-3667240617310687700
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -144,8 +157,8 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 80
   m_CollisionDetection: 0
---- !u!135 &6856466110585859679
-SphereCollider:
+--- !u!65 &4601433885033518445
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -155,8 +168,8 @@ SphereCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 0.5, y: 1, z: 0.8}
+  m_Center: {x: 0, y: 0.5, z: 0}
 --- !u!82 &-1432869540811044599
 AudioSource:
   m_ObjectHideFlags: 0
@@ -253,18 +266,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &8305421336401274583
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2231750944910142623}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6719794b54cb7466489824b89cb28c32, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &7166650087439963206
 GameObject:
   m_ObjectHideFlags: 0

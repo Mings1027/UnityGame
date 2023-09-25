@@ -7,25 +7,20 @@ namespace ProjectileControl
 {
     public sealed class MageProjectile : Projectile
     {
-        private int _index;
+        private sbyte _slowDeBuffIndex;
         [SerializeField] private DeBuffData deBuffData;
 
-        protected override void Awake()
+        public override void ColorInit(sbyte effectIndex)
         {
-            base.Awake();
-            towerType = TowerType.Mage;
+            base.ColorInit(effectIndex);
+            _slowDeBuffIndex = effectIndex;
         }
 
         public override void Hit()
         {
             base.Hit();
             target.TryGetComponent(out EnemyStatus enemyStatus);
-            enemyStatus.SlowEffect(ref deBuffData.speedDeBuffData[_index]);
-        }
-
-        public void DeBuffInit(int index)
-        {
-            _index = index;
+            enemyStatus.SlowEffect(ref deBuffData.speedDeBuffData[_slowDeBuffIndex]);
         }
     }
 }

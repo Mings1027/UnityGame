@@ -57,8 +57,8 @@ namespace MapControl
         [SerializeField, Range(0, 100)] private int portalSpawnProbability;
         [SerializeField] private int maxSize;
         [SerializeField] private Transform obstacleMesh;
-#if UNITY_EDITOR
         [SerializeField] private int mapCount;
+#if UNITY_EDITOR
         [SerializeField] private bool drawGizmos;
 #endif
 
@@ -113,15 +113,14 @@ namespace MapControl
                 Vector3.back * mapSize, Vector3.forward * mapSize, Vector3.left * mapSize,
                 Vector3.right * mapSize
             };
-            _map = new List<GameObject>();
+            _map = new List<GameObject>(mapCount);
             _newMapWayPoints = new List<Vector3>(4);
             _meshFilters = new List<MeshFilter>(150);
             _obstacleMeshFilters = new List<MeshFilter>(150);
 
-            _expandButtonPosHashSet = new HashSet<Vector3>();
-            _expandButtonPosList = new List<Vector3>();
-            _expandButtons = new List<ExpandMapButton>(50);
-
+            _expandButtonPosHashSet = new HashSet<Vector3>(100);
+            _expandButtonPosList = new List<Vector3>(100);
+            _expandButtons = new List<ExpandMapButton>(100);
 
             _neighborMapArray = new MapData[4];
             _isNullMapArray = new bool[4];
@@ -203,19 +202,9 @@ namespace MapControl
             CombineMesh();
 
             CombineObstacleMesh();
-            _waveManager.enabled = true;
+            // _waveManager.enabled = true;
             _waveManager.StartWave(_wayPointsHashSet.ToList());
             TowerManager.Instance.EnableTower();
-        }
-
-        private void DisableExpandButtons()
-        {
-            for (var i = 0; i < _expandButtonPosList.Count; i++)
-            {
-                if (_expandButtons[i].gameObject.activeSelf) _expandButtons[i].gameObject.SetActive(false);
-            }
-
-            _expandButtons.Clear();
         }
 
         private void InitAdjacentState()
@@ -381,18 +370,30 @@ namespace MapControl
 
             for (var i = 0; i < _newMapWayPoints.Count; i++)
             {
-                if (CanAddWayPoints(_newMapWayPoints[i]))
+                if (!CanAddWayPoints(_newMapWayPoints[i])) continue;
+                _wayPointsHashSet.Add(_newMapPosition + _dirToWayPoint * mapSize * 0.5f);
+                if (CheckLimitMap(_newMapWayPoints[i]))
                 {
-                    _wayPointsHashSet.Add(_newMapPosition + _dirToWayPoint * mapSize * 0.5f);
-                    if (CheckLimitMap(_newMapWayPoints[i]))
-                        _expandButtonPosHashSet.Add(_newMapPosition + _dirToWayPoint * mapSize);
+                    _expandButtonPosHashSet.Add(_newMapPosition + _dirToWayPoint * mapSize);
                 }
             }
-
 #if UNITY_EDITOR
             if (_wayPointsHashSet.Count == 0)
                 print("00000000000000000");
 #endif
+        }
+
+        private void DisableExpandButtons()
+        {
+            for (var i = 0; i < _expandButtons.Count; i++)
+            {
+                if (_expandButtons[i].gameObject.activeSelf)
+                {
+                    _expandButtons[i].gameObject.SetActive(false);
+                }
+            }
+
+            _expandButtons.Clear();
         }
 
         //Call When Wave is over

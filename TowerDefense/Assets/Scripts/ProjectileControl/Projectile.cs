@@ -1,4 +1,5 @@
 using System;
+using DataControl;
 using InterfaceControl;
 using ManagerControl;
 using UnityEngine;
@@ -18,13 +19,12 @@ namespace ProjectileControl
         private Vector3 _startPos;
         private bool _isArrived;
 
-        protected TowerType towerType;
         protected float lerp;
         protected Transform target;
 
+        [SerializeField] private TargetingTowerData towerData;
         [SerializeField] private AnimationCurve curve;
         [SerializeField] private float speed;
-        [SerializeField] private ParticleSystem.MinMaxGradient[] minMaxGradients;
 
         protected virtual void Awake()
         {
@@ -39,6 +39,8 @@ namespace ProjectileControl
             _collider.enabled = true;
             _startPos = transform.position;
             _trailParticle.Play();
+            lerp = 0;
+            _isArrived = false;
         }
 
         protected virtual void FixedUpdate()
@@ -60,12 +62,6 @@ namespace ProjectileControl
             _isArrived = true;
             _collider.enabled = false;
             Hit();
-        }
-
-        protected virtual void OnDisable()
-        {
-            lerp = 0;
-            _isArrived = false;
         }
 
         /*============================================================================================================
@@ -91,19 +87,19 @@ namespace ProjectileControl
             target = t;
         }
 
-        public void ColorInit(int effectIndex)
+        public virtual void ColorInit(sbyte effectIndex)
         {
             var trailColor = _trailParticle.main;
-            trailColor.startColor = minMaxGradients[effectIndex];
+            trailColor.startColor = towerData.projectileColor[effectIndex];
             var hitColor = _hitParticle.main;
-            hitColor.startColor = minMaxGradients[effectIndex];
+            hitColor.startColor = towerData.projectileColor[effectIndex];
         }
 
         protected void TryDamage(Transform t)
         {
             t.TryGetComponent(out IDamageable damageable);
             damageable.Damage(_damage);
-            DataManager.SumDamage(towerType, _damage);
+            DataManager.SumDamage(towerData.towerType, _damage);
         }
 
         public virtual void Hit()

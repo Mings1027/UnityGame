@@ -35,7 +35,7 @@ namespace UIControl
             _fireRateTxt = "Fire Rate : ";
             _sellCoinTxt = "Sell";
 
-            gameObject.SetActive(false);
+            // gameObject.SetActive(false);
         }
 
         private void LateUpdate()
@@ -43,12 +43,9 @@ namespace UIControl
             followTowerUI.position = _cam.WorldToScreenPoint(_followTowerPos);
         }
 
-        public void SetFollowTarget(Vector3 towerPos)
-        {
-            _followTowerPos = towerPos;
-        }
+        public void SetFollowTarget(Vector3 towerPos) => _followTowerPos = towerPos;
 
-        public void SetTowerInfo(TowerInfo towerInfo)
+        public void SetTowerInfo(in TowerInfo towerInfo)
         {
             towerNameText.text = towerInfo.towerName;
             levelText.text = _levelTxt + towerInfo.level;

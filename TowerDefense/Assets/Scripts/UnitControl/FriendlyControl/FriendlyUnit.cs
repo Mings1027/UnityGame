@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using InterfaceControl;
@@ -41,6 +42,7 @@ namespace UnitControl.FriendlyControl
 
         private static readonly int IsWalk = Animator.StringToHash("isWalk");
         private static readonly int IsAttack = Animator.StringToHash("isAttack");
+        private static readonly int IsDead = Animator.StringToHash("isDead");
 
         [SerializeField] private MeshRenderer indicator;
         [SerializeField] private LayerMask targetLayer;
@@ -119,6 +121,7 @@ namespace UnitControl.FriendlyControl
         private void OnDisable()
         {
             _parentTower = null;
+            if (!_health.IsDead) return;
             OnReSpawnEvent?.Invoke(this);
             OnReSpawnEvent = null;
             _health.OnDeadEvent -= DeadAnimation;
@@ -197,15 +200,8 @@ namespace UnitControl.FriendlyControl
 
         private void DeadAnimation()
         {
-            var pos = transform.position;
-            _rigid.DORotate(new Vector3(-90, pos.y, pos.z), 0.5f, RotateMode.LocalAxisAdd).OnComplete(() =>
-            {
-                _rigid.transform.DOScale(0, 1).OnComplete(() =>
-                {
-                    gameObject.SetActive(false);
-                    _rigid.transform.localScale = Vector3.one;
-                });
-            });
+            _anim.SetTrigger(IsDead);
+            DOVirtual.DelayedCall(2, () => gameObject.SetActive(false));
         }
 
         public async UniTask MoveToTouchPos(Vector3 pos)
@@ -218,7 +214,7 @@ namespace UnitControl.FriendlyControl
             {
                 _moveInput = false;
                 _sphereCollider.enabled = true;
-            }).ToUniTask();
+            });
         }
 
         public void InfoInit(UnitTower unitTower, TowerType towerType, int damage, float attackDelay,

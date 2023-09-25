@@ -12,7 +12,7 @@ namespace ManagerControl
         public void OnPointerDown(PointerEventData eventData)
         {
             InputManager.Instance.enabled = true;
-            InputManager.Instance.StartPlacement(ref towerType, isUnitTower);
+            InputManager.Instance.StartPlacement(in towerType, isUnitTower);
         }
     }
 }

@@ -87,7 +87,7 @@ namespace ManagerControl
                 }
             }
 
-            enabled = false;
+            // enabled = false;
         }
 
         private void EnemyInit(Vector3 wayPoint, WaveData.EnemyInfo enemyInfo)
@@ -100,9 +100,8 @@ namespace ManagerControl
             var enemyHealth = enemyUnit.GetComponent<EnemyHealth>();
 
             enemyHealth.Init(enemyInfo.health);
-            enemyHealth.OnDecreaseLifeCountEvent += TowerManager.Instance.DecreaseLifeCountEvent;
             enemyHealth.OnUpdateEnemyCountEvent += UpdateEnemyCountEvent;
-            enemyHealth.OnDieEvent +=
+            enemyHealth.OnDeadEvent +=
                 () => TowerManager.Instance.GetGoldFromEnemy(enemyInfo.enemyCoin);
         }
 

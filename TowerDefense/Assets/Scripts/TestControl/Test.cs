@@ -1,21 +1,18 @@
 using System;
 using PoolObjectControl;
 using UnityEngine;
+using UnityEngine.Serialization;
 
-public class Test : MonoBehaviour
+namespace TestControl
 {
-    [SerializeField] private string testString;
-    [SerializeField] private string oldString;
-    private Camera cam;
-
-    private void Awake()
+    public class Test : MonoBehaviour
     {
-        cam = Camera.main;
-    }
-
-    private void Update()
-    {
-        // print(cam.ScreenToViewportPoint(Input.mousePosition));
-        // print(cam.ViewportToScreenPoint(Input.mousePosition));
+        private void Update()
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                PoolObjectManager.Get(PoolObjectKey.Goblin, new Vector3(10, 10, 10));
+            }
+        }
     }
 }

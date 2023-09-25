@@ -18,7 +18,12 @@ namespace ProjectileControl
         {
             base.Awake();
             _targetColliders = new Collider[5];
-            towerType = TowerType.Canon;
+        }
+
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            _isLockOnTarget = false;
         }
 
         protected override void FixedUpdate()
@@ -38,12 +43,6 @@ namespace ProjectileControl
 
             if (_targetEndPos == Vector3.zero) return;
             PoolObjectManager.Get<SoundPlayer>(PoolObjectKey.CanonExplosion, transform.position).Play();
-        }
-
-        protected override void OnDisable()
-        {
-            base.OnDisable();
-            _isLockOnTarget = false;
         }
 
         private void OnDrawGizmos()

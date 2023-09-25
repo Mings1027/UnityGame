@@ -94,7 +94,7 @@ Animator:
   m_GameObject: {fileID: 1928467041202368238}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 81ae2b78511d842309d3fe5697767e76, type: 2}
+  m_Controller: {fileID: 9100000, guid: 05626b06572cb493c814503057900872, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -158,15 +158,15 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7783717427408882829}
-  - component: {fileID: -8107412882764886018}
-  - component: {fileID: 5428799590767281175}
   - component: {fileID: 2686578484039789028}
+  - component: {fileID: -8107412882764886018}
+  - component: {fileID: 1161361268448332310}
+  - component: {fileID: 5428799590767281175}
   - component: {fileID: 513591126038657662}
   - component: {fileID: 7907278170578097262}
   - component: {fileID: 2708912814268590630}
-  - component: {fileID: 463409044466405159}
+  - component: {fileID: 6325262917488192016}
   - component: {fileID: 1599342467885443115}
-  - component: {fileID: 1161361268448332310}
   m_Layer: 8
   m_Name: Orc
   m_TagString: Enemy
@@ -193,6 +193,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2686578484039789028
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7444029544577177143}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a3854a93d2824ff68f4c3fc4dbe12af, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &-8107412882764886018
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -206,6 +218,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   slowImmunityTime: 3
+--- !u!114 &1161361268448332310
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7444029544577177143}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6719794b54cb7466489824b89cb28c32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &5428799590767281175
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -218,22 +242,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 69a8ba2ae84f541738fa26a09cd7606e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  atkRange: 0
   sightRange: 1.5
   targetLayer:
     serializedVersion: 2
     m_Bits: 512
---- !u!114 &2686578484039789028
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7444029544577177143}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6a3854a93d2824ff68f4c3fc4dbe12af, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &513591126038657662
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -293,8 +306,8 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 80
   m_CollisionDetection: 0
---- !u!135 &463409044466405159
-SphereCollider:
+--- !u!65 &6325262917488192016
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -304,8 +317,8 @@ SphereCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.7
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0.5, z: 0}
 --- !u!82 &1599342467885443115
 AudioSource:
   m_ObjectHideFlags: 0
@@ -402,18 +415,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &1161361268448332310
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7444029544577177143}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6719794b54cb7466489824b89cb28c32, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1001 &1448374598710833191
 PrefabInstance:
   m_ObjectHideFlags: 0

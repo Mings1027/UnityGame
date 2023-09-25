@@ -1,9 +1,4 @@
-using System;
-using DataControl;
 using DG.Tweening;
-using GameControl;
-using PoolObjectControl;
-using ProjectileControl;
 using UnityEngine;
 
 namespace TowerControl
@@ -16,15 +11,21 @@ namespace TowerControl
         [SerializeField] private Mesh[] crystalMesh;
         [SerializeField] private LayerMask towerLayer;
 
+        private void OnDestroy()
+        {
+            _atkSequence.Kill();
+        }
+
         protected override void Init()
         {
             base.Init();
+            firePos = crystal;
 
             _atkSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(crystal.DOLocalMoveY(crystal.position.y + 0.1f, 0.5f).SetEase(Ease.InOutSine))
                 .SetLoops(2, LoopType.Yoyo);
 
-            _crystalMeshFilter = crystal.GetComponentInChildren<MeshFilter>();
+            _crystalMeshFilter = crystal.GetComponent<MeshFilter>();
         }
 
         public override void TowerSetting(MeshFilter towerMesh, int damageData, int rangeData,
@@ -44,14 +45,7 @@ namespace TowerControl
         protected override void Attack()
         {
             _atkSequence.Restart();
-            ProjectileInit(PoolObjectKey.MageProjectile, crystal.position);
-        }
-
-        protected override void ProjectileInit(PoolObjectKey poolKey, Vector3 firePos)
-        {
-            base.ProjectileInit(poolKey, firePos);
-            projectile.TryGetComponent(out MageProjectile mageProjectile);
-            mageProjectile.DeBuffInit(TowerLevel);
+            base.Attack();
         }
     }
 }

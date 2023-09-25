@@ -14,6 +14,7 @@ namespace ManagerControl
         private float _lerp;
         private float _modifiedMoveSpeed;
 
+        private bool isRotating;
         private Touch _firstTouch, _secondTouch;
         private Vector3 _curPos, _newPos;
 
@@ -43,6 +44,7 @@ namespace ManagerControl
 
             if (Input.touchCount == 1)
             {
+                if (isRotating) return;
                 CameraRotate();
             }
 
@@ -118,8 +120,9 @@ namespace ManagerControl
             }
             else if (_firstTouch.phase == TouchPhase.Ended)
             {
+                isRotating = true;
                 transform.DORotate(SnappedVector(), 0.5f)
-                    .SetEase(Ease.OutBounce).SetLink(gameObject);
+                    .SetEase(Ease.OutBounce).SetLink(gameObject).OnComplete(() => isRotating = false);
             }
         }
 
