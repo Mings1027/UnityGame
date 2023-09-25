@@ -87,7 +87,6 @@ namespace ManagerControl
         }
 
         public TextMeshProUGUI WaveText => waveText;
-        // public PlaceTowerController PlaceTowerController => placeTowerButtonController;
 
         public bool StartWave { get; private set; }
 
@@ -95,7 +94,6 @@ namespace ManagerControl
         private Button toggleTowerButton;
 
         [SerializeField] private Transform towerButtons;
-        // [SerializeField] private PlaceTowerController placeTowerButtonController;
 
         [FormerlySerializedAs("towerData")] [Header("----------Tower Panel----------"), SerializeField]
         private TowerData[] towerDataList;
@@ -303,7 +301,7 @@ namespace ManagerControl
 
         private void IndicatorInit()
         {
-            rangeIndicator.enabled = false;
+            rangeIndicator.transform.localScale = Vector3.zero;
             selectedTowerIndicator.enabled = false;
             unitDestinationParticle.Stop();
         }
@@ -384,7 +382,7 @@ namespace ManagerControl
             var ray = _cam.ScreenPointToRay(Input.mousePosition);
             Physics.Raycast(ray, out var hit, Mathf.Infinity);
 
-            if (hit.collider != null && hit.collider.TryGetComponent(out IFingerUp fingerUp))
+            if (hit.collider && hit.collider.TryGetComponent(out IFingerUp fingerUp))
             {
                 fingerUp.FingerUp();
             }
@@ -400,7 +398,7 @@ namespace ManagerControl
             _towerInfoPanelTween.Restart();
             _isPanelOpen = true;
 
-            if (clickedTower == _curSelectedTower) return;
+            if (clickedTower.Equals(_curSelectedTower)) return;
             if (_isUnitTower)
             {
                 _curUnitTower.OffUnitIndicator();
@@ -408,7 +406,7 @@ namespace ManagerControl
 
             _curSelectedTower = clickedTower;
 
-            upgradeButton.SetActive(_curSelectedTower.TowerLevel != 4);
+            upgradeButton.SetActive(!_curSelectedTower.TowerLevel.Equals(4));
 
             OpenEditButtonPanel();
             UpdateTowerInfo();
@@ -450,7 +448,6 @@ namespace ManagerControl
             r.DOScale(new Vector3(_curSelectedTower.TowerRange, 0.5f, _curSelectedTower.TowerRange), 0.15f)
                 .SetEase(Ease.OutBack);
             r.position = curTowerPos;
-            rangeIndicator.enabled = true;
         }
 
         private void IfUnitTower()
@@ -479,7 +476,7 @@ namespace ManagerControl
             PoolObjectManager.Get(PoolObjectKey.BuildSmoke, tempTower.transform.position);
 
             tempTower.TowerSetting(tt.towerMesh, tt.damage, tt.attackRange, tt.attackDelay);
-            upgradeButton.SetActive(towerLevel != 4);
+            upgradeButton.SetActive(!towerLevel.Equals(4));
 
             _curSelectedTower.OnClickTower += ClickTower;
             _towers.Add(_curSelectedTower);
@@ -511,7 +508,7 @@ namespace ManagerControl
             PoolObjectManager.Get(PoolObjectKey.BuildSmoke, tempTower.transform.position);
 
             tempTower.TowerSetting(tt.towerMesh, tt.damage, tt.attackRange, tt.attackDelay);
-            upgradeButton.SetActive(towerLevel != 4);
+            upgradeButton.SetActive(!towerLevel.Equals(4));
 
             SetIndicator();
         }
@@ -559,23 +556,18 @@ namespace ManagerControl
             if (!_isPanelOpen) return;
             _towerInfoPanelTween.PlayBackwards();
 
-            // _isTowerSelected = false;
             _isUnitTower = false;
             _isPanelOpen = false;
             _curSelectedTower = null;
             towerInfoUI.enabled = false;
-
-            if (rangeIndicator.enabled)
-            {
-                rangeIndicator.enabled = false;
-            }
+            rangeIndicator.transform.DOScale(0, 0.2f).SetEase(Ease.InBack);
 
             if (selectedTowerIndicator.enabled)
             {
                 selectedTowerIndicator.enabled = false;
             }
 
-            if (_curUnitTower == null) return;
+            if (!_curUnitTower) return;
             _curUnitTower.OffUnitIndicator();
             _curUnitTower = null;
         }
@@ -596,10 +588,10 @@ namespace ManagerControl
         private void CheckCanMoveUnit()
         {
             var touch = Input.GetTouch(0);
-            if (touch.deltaPosition != Vector2.zero) return;
+            if (!touch.deltaPosition.Equals(Vector2.zero)) return;
             var ray = _cam.ScreenPointToRay(Input.mousePosition);
             Physics.Raycast(ray, out var hit);
-            if (hit.collider != null && hit.collider.CompareTag("Ground") &&
+            if (hit.collider && hit.collider.CompareTag("Ground") &&
                 Vector3.Distance(_curUnitTower.transform.position, hit.point) <=
                 _curUnitTower.TowerRange)
             {
@@ -669,7 +661,7 @@ namespace ManagerControl
 
         public void DecreaseLifeCountEvent()
         {
-            if (_curTowerLife == 0) return;
+            if (_curTowerLife.Equals(0)) return;
             _curTowerLife -= 1;
             playerHealthBar.DOShakeScale(0.2f, 0.5f, 3).OnComplete(() => playerHealthBar.localScale = Vector3.one);
             lifeFillImage.fillAmount = _curTowerLife / lifeCount;

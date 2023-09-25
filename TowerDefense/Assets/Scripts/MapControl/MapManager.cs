@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Cysharp.Threading.Tasks;
 using DataControl;
-using GameControl;
 using ManagerControl;
 using PoolObjectControl;
 using UIControl;
@@ -21,8 +21,11 @@ namespace MapControl
 
         private GameObject _newMapObject;
 
-        private string _connectionString;
-        private string _nullMapIndexString;
+        // private string _connectionString;
+        // private string _nullMapIndexString;
+
+        private StringBuilder _connectionSb;
+        private StringBuilder _nullMapIndexSb;
 
         private Vector3 _newMapPosition;
         private Vector3 _newMapForward;
@@ -78,7 +81,7 @@ namespace MapControl
             _waveManager.OnPlaceExpandButtonEvent += PlaceExpandButtons;
 
             TowerManager.Instance.transform.GetComponentInChildren<MainMenuUIController>().OnGenerateInitMapEvent +=
-                GenerateInitMap;
+                () => GenerateAutoMap();
         }
 #if UNITY_EDITOR
         private void OnDrawGizmos()
@@ -108,6 +111,9 @@ namespace MapControl
 
         private void MapDataInit()
         {
+            _connectionSb = new StringBuilder();
+            _nullMapIndexSb = new StringBuilder();
+
             _checkDirection = new[]
             {
                 Vector3.back * mapSize, Vector3.forward * mapSize, Vector3.left * mapSize,
@@ -130,6 +136,7 @@ namespace MapControl
             _directionMappingDic = new Dictionary<string, string>
             {
                 { "01", "S" }, { "02", "L" }, { "03", "R" }, { "12", "R" }, { "13", "L" }, { "23", "S" },
+                { "10", "S" }, { "20", "L" }, { "30", "R" }, { "21", "R" }, { "31", "L" }, { "32", "S" },
                 { "012", "SL" }, { "013", "SR" }, { "023", "LR" }, { "123", "LR" },
                 { "0123", "SLR" }
             };
@@ -147,9 +154,10 @@ namespace MapControl
         private void PlaceStartMap()
         {
             var ranIndex = Random.Range(0, _directionMappingDic.Count);
-            _connectionString = _directionMappingDic.Keys.ToArray()[ranIndex];
+            _connectionSb.Append(_directionMappingDic.Keys.ToArray()[ranIndex]);
+            // _connectionString = _directionMappingDic.Keys.ToArray()[ranIndex];
 
-            _newMapObject = Instantiate(_mapDictionary[_directionMappingDic[_connectionString]], transform);
+            _newMapObject = Instantiate(_mapDictionary[_directionMappingDic[_connectionSb.ToString()]], transform);
 
             _newMapObject.TryGetComponent(out MapData mapData);
             SetNewMapForward(mapData);
@@ -165,11 +173,16 @@ namespace MapControl
 
         private void InitExpandButtonPosition()
         {
-            foreach (var indexChar in _connectionString)
+            for (int i = 0; i < _connectionSb.Length; i++)
             {
-                var index = int.Parse(indexChar.ToString());
+                var index = int.Parse(_connectionSb[i].ToString());
                 _expandButtonPosHashSet.Add(_checkDirection[index]);
             }
+            // foreach (var indexChar in _connectionString)
+            // {
+            //     var index = int.Parse(indexChar.ToString());
+            //     _expandButtonPosHashSet.Add(_checkDirection[index]);
+            // }
         }
 
         #endregion
@@ -203,8 +216,8 @@ namespace MapControl
 
             CombineObstacleMesh();
             // _waveManager.enabled = true;
-            _waveManager.StartWave(_wayPointsHashSet.ToList());
-            TowerManager.Instance.EnableTower();
+            // _waveManager.StartWave(_wayPointsHashSet.ToList());
+            // TowerManager.Instance.EnableTower();
         }
 
         private void InitAdjacentState()
@@ -257,8 +270,10 @@ namespace MapControl
 
         private void RandomConnection()
         {
-            _connectionString = null;
-            _nullMapIndexString = null;
+            _connectionSb.Clear();
+            _nullMapIndexSb.Clear();
+            // _connectionString = null;
+            // _nullMapIndexString = null;
 
             var count = 0;
             for (var i = 0; i < _isNullMapArray.Length; i++)
@@ -266,29 +281,42 @@ namespace MapControl
                 if (_isNullMapArray[i])
                 {
                     count++;
-                    _nullMapIndexString += i;
+                    _nullMapIndexSb.Append(i);
+                    // _nullMapIndexString += i;
                     var ran = Random.Range(0, 100);
-                    if (ran <= 90 - count * 20) _connectionString += i;
+                    if (ran <= 90 - count * 20)
+                    {
+                        _connectionSb.Append(i);
+                        // _connectionString += i;
+                    }
                 }
                 else
                 {
-                    if (_isConnectedArray[i]) _connectionString += i;
+                    if (_isConnectedArray[i])
+                    {
+                        _connectionSb.Append(i);
+                        // _connectionString += i;
+                    }
                 }
             }
         }
 
         private void PlaceNewMap(Vector3 newMapPos)
         {
-            if (_connectionString == null) return;
-            var prefabInstantiate = _connectionString.Length == 1 ? IfSingleConnection() : IfMultipleConnection();
+            // if (_connectionString == null) return;
+            // var prefabInstantiate = _connectionString.Length == 1 ? IfSingleConnection() : IfMultipleConnection();
 
+            if (_connectionSb.Length.Equals(0)) return;
+            var prefabInstantiate = _connectionSb.Length.Equals(1) ? IfSingleConnection() : IfMultipleConnection();
             _newMapObject = Instantiate(prefabInstantiate, newMapPos, Quaternion.identity, transform);
             _map.Add(_newMapObject);
         }
 
         private void SetNewMapForward(MapData map)
         {
-            var firstIndex = int.Parse(_connectionString[0].ToString());
+            // var firstIndex = int.Parse(_connectionString[0].ToString());
+            var firstIndex = int.Parse(_connectionSb[0].ToString());
+            var a = _connectionSb[0];
             _newMapForward = -_checkDirection[firstIndex];
             _newMapObject.transform.forward = _newMapForward;
             map.SetWayPoint(mapSize / 2);
@@ -322,19 +350,28 @@ namespace MapControl
 
         private GameObject IfSingleConnection()
         {
-            if (_nullMapIndexString == null || CanSpawnPortal())
+            // if (_nullMapIndexString == null || CanSpawnPortal())
+            // {
+            //     return uniqueMap[0];
+            // }
+            //
+            // _connectionString += _nullMapIndexString[Random.Range(0, _nullMapIndexString.Length)];
+            // // _connectionString = string.Concat(_connectionString.OrderBy(c => c));
+            //
+            // return _mapDictionary[_directionMappingDic[_connectionString]];
+            if (_nullMapIndexSb.Length.Equals(0) || CanSpawnPortal())
             {
                 return uniqueMap[0];
             }
 
-            _connectionString += _nullMapIndexString[Random.Range(0, _nullMapIndexString.Length)];
-            _connectionString = string.Concat(_connectionString.OrderBy(c => c));
-            return _mapDictionary[_directionMappingDic[_connectionString]];
+            _connectionSb.Append(_nullMapIndexSb[Random.Range(0, _nullMapIndexSb.Length)]);
+            return _mapDictionary[_directionMappingDic[_connectionSb.ToString()]];
         }
 
         private GameObject IfMultipleConnection()
         {
-            return _mapDictionary[_directionMappingDic[_connectionString]];
+            return _mapDictionary[_directionMappingDic[_connectionSb.ToString()]];
+            // return _mapDictionary[_directionMappingDic[_connectionString]];
         }
 
         private bool CanSpawnPortal()
