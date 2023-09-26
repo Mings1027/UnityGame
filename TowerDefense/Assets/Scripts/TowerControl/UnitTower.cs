@@ -109,7 +109,7 @@ namespace TowerControl
             {
                 var angle = (float)Math.PI * 0.5f - i * ((float)Math.PI * 2f) / _units.Length;
                 var pos = unitSpawnPosition + new Vector3((float)Math.Cos(angle), 0, (float)Math.Sin(angle));
-                _units[i] = PoolObjectManager.Get<FriendlyUnit>(TowerData.poolObjectKey, pos);
+                _units[i] = PoolObjectManager.Get<FriendlyUnit>(TowerData.PoolObjectKey, pos);
                 PoolObjectManager.Get(PoolObjectKey.UnitSpawnSmoke, pos);
                 _units[i].OnReSpawnEvent += UnitReSpawn;
             }
@@ -119,7 +119,7 @@ namespace TowerControl
         {
             for (var i = 0; i < _units.Length; i++)
             {
-                _units[i].InfoInit(this, TowerData.towerType, damage, delay, initHealth + initHealth * TowerLevel);
+                _units[i].InfoInit(this, TowerData.TowerType, damage, delay, initHealth + initHealth * TowerLevel);
             }
         }
 

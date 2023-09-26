@@ -34,8 +34,6 @@ namespace UIControl
             _rangeTxt = "Range : ";
             _fireRateTxt = "Fire Rate : ";
             _sellCoinTxt = "Sell";
-
-            // gameObject.SetActive(false);
         }
 
         private void LateUpdate()

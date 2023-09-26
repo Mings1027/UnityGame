@@ -9,12 +9,19 @@ namespace DataControl
     [CreateAssetMenu]
     public class TowerData : ScriptableObject
     {
-        public TowerInfoData[] towerLevels;
-        public GameObject tower;
-        public PoolObjectKey poolObjectKey;
-        public TowerType towerType;
-        public int towerBuildGold;
-        public int towerUpgradeGold;
+        public TowerInfoData[] TowerLevels => towerLevels;
+        public GameObject Tower => tower;
+        public PoolObjectKey PoolObjectKey => poolObjectKey;
+        public TowerType TowerType => towerType;
+        public int TowerBuildGold => towerBuildGold;
+        public int TowerUpgradeGold => towerUpgradeGold;
+
+        [SerializeField] private TowerInfoData[] towerLevels;
+        [SerializeField] private GameObject tower;
+        [SerializeField] private PoolObjectKey poolObjectKey;
+        [SerializeField] private TowerType towerType;
+        [SerializeField] private int towerBuildGold;
+        [SerializeField] private int towerUpgradeGold;
 
         [Serializable]
         public class TowerInfoData

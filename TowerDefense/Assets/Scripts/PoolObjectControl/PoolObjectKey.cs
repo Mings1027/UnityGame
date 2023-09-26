@@ -22,17 +22,12 @@ namespace PoolObjectControl
         ButtonSound,
         
         //==============Vfx==============
-        
-        BallistaVfx,
-        CanonVfx,
-        MageVfx,
-        BallistaHitVfx,
-        CanonHitVfx,
-        MageHitVfx,
         CanonExplosion,
+        
         //==============Unit==============
         AssassinUnit,
         DefenderUnit,
+        
         //==============Enemy==============
         Goblin,
         Orc,

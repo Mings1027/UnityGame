@@ -1,9 +1,6 @@
-using System;
 using DataControl;
 using DG.Tweening;
-using GameControl;
 using ManagerControl;
-using PoolObjectControl;
 using UnitControl.FriendlyControl;
 using UnityEngine;
 
@@ -66,6 +63,7 @@ namespace UnitControl.EnemyControl
             _isTargeting = false;
             _isAttack = false;
             _enemyHealth.OnDeadEvent += DeadAnimation;
+            SetAnimationSpeed(_enemyAI.MoveSpeed);
         }
 
         private void FixedUpdate()
@@ -96,19 +94,15 @@ namespace UnitControl.EnemyControl
 
         private void LateUpdate()
         {
+            if (_enemyHealth.IsDead) return;
             _anim.SetBool(IsWalk, !_targetInAtkRange);
-            _anim.speed = _targetInAtkRange ? 1 : _enemyAI.MoveSpeed * 0.5f;
+            // _anim.speed = _targetInAtkRange ? 1 : _enemyAI.MoveSpeed * 0.5f;
         }
 
         private void OnTriggerEnter(Collider other)
         {
             if (other.CompareTag("Destination"))
                 gameObject.SetActive(false);
-        }
-
-        private void OnDisable()
-        {
-            _enemyHealth.OnDeadEvent -= DeadAnimation;
         }
 
 #if UNITY_EDITOR
@@ -169,6 +163,11 @@ namespace UnitControl.EnemyControl
             if (_target.gameObject.activeSelf) return;
             _target = null;
             _isTargeting = false;
+        }
+
+        public void SetAnimationSpeed(float animSpeed)
+        {
+            _anim.speed = animSpeed * 0.5f;
         }
 
         private void DeadAnimation()

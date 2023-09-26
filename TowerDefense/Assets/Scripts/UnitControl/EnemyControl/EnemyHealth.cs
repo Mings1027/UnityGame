@@ -1,8 +1,6 @@
 using System;
-using InterfaceControl;
 using ManagerControl;
 using StatusControl;
-using UnityEngine;
 
 namespace UnitControl.EnemyControl
 {
@@ -10,8 +8,9 @@ namespace UnitControl.EnemyControl
     {
         public event Action OnUpdateEnemyCountEvent;
 
-        private void OnDisable()
+        protected override void OnDisable()
         {
+            base.OnDisable();
             if (CurrentProgress > 0)
             {
                 TowerManager.Instance.DecreaseLifeCountEvent();
@@ -21,4 +20,4 @@ namespace UnitControl.EnemyControl
             OnUpdateEnemyCountEvent = null;
         }
     }
-}
+}   

@@ -87,7 +87,7 @@ namespace TowerControl
 
         private void ProjectileInit()
         {
-            var projectile = PoolObjectManager.Get<Projectile>(TowerData.poolObjectKey, firePos);
+            var projectile = PoolObjectManager.Get<Projectile>(TowerData.PoolObjectKey, firePos);
             projectile.ColorInit(_effectIndex);
             projectile.Init(_damage, target);
         }

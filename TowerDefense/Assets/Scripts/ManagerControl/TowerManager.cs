@@ -34,9 +34,7 @@ namespace ManagerControl
 
         private List<Tower> _towers;
         private Dictionary<TowerType, TowerData> _towerDataDictionary;
-
         private Dictionary<TowerType, GameObject> _towerObjDictionary;
-
         private Dictionary<TowerType, int> _towerCountDictionary;
 
         private float[] _towerRanRotList;
@@ -57,8 +55,6 @@ namespace ManagerControl
         private UnitTower _curUnitTower;
 
         private bool _isPanelOpen;
-
-        // private bool _isTowerSelected;
         private bool _isUnitTower;
 
         private int _sellTowerGold;
@@ -76,7 +72,7 @@ namespace ManagerControl
 
         private CameraManager _cameraManager;
 
-        private int TowerGold
+        public int TowerGold
         {
             get => _towerGold;
             set
@@ -202,21 +198,14 @@ namespace ManagerControl
         {
             _towers = new List<Tower>();
             _towerDataDictionary = new Dictionary<TowerType, TowerData>();
-            foreach (var t in towerDataList)
-            {
-                _towerDataDictionary.Add(t.towerType, t);
-            }
-
             _towerObjDictionary = new Dictionary<TowerType, GameObject>();
-            foreach (var t in towerDataList)
-            {
-                _towerObjDictionary.Add(t.towerType, t.tower);
-            }
-
             _towerCountDictionary = new Dictionary<TowerType, int>();
+
             foreach (var t in towerDataList)
             {
-                _towerCountDictionary.Add(t.towerType, 0);
+                _towerDataDictionary.Add(t.TowerType, t);
+                _towerObjDictionary.Add(t.TowerType, t.Tower);
+                _towerCountDictionary.Add(t.TowerType, 0);
             }
 
             _towerRanRotList = new float[] { 0, 90, 180, 270 };
@@ -317,24 +306,19 @@ namespace ManagerControl
             }
         }
 
-        public void PlaceUnitTower(in TowerType towerType, in Vector3 snappedPos, Vector3 unitSpawnPosition)
+        public void InstantiateTower(in TowerType towerType, in Vector3 placePos)
         {
-            Instantiate(_towerObjDictionary[towerType], snappedPos,
-                    Quaternion.Euler(0, _towerRanRotList[Random.Range(0, _towerRanRotList.Length)], 0))
-                .TryGetComponent(out UnitTower u);
-            u.unitSpawnPosition = unitSpawnPosition;
-            _curSelectedTower = u;
-
-            BuildTower();
-        }
-
-        public void PlaceTower(in TowerType towerType, in Vector3 snappedPos)
-        {
-            Instantiate(_towerObjDictionary[towerType], snappedPos,
+            PoolObjectManager.Get(PoolObjectKey.BuildSmoke, placePos);
+            Instantiate(_towerObjDictionary[towerType], placePos,
                     Quaternion.Euler(0, _towerRanRotList[Random.Range(0, _towerRanRotList.Length)], 0))
                 .TryGetComponent(out Tower t);
             _curSelectedTower = t;
-            BuildTower();
+        }
+
+        public void SetUnitPosition(Vector3 unitSpawnPoint)
+        {
+            _curSelectedTower.TryGetComponent(out UnitTower u);
+            u.unitSpawnPosition = unitSpawnPoint;
         }
 
         public void GameStart()
@@ -344,11 +328,20 @@ namespace ManagerControl
             _cam.DOOrthoSize(17, 1).From(100).SetEase(Ease.OutQuad);
         }
 
-        private void GameOver()
+        private async UniTaskVoid GameOver()
         {
             gameOverPanel.SetActive(true);
             _cameraManager.enabled = false;
-            Time.timeScale = 0;
+            var lerp = 1f;
+            while (lerp > 0)
+            {
+                lerp -= Time.deltaTime;
+                await UniTask.Yield();
+                Time.timeScale = lerp;
+            }
+
+            if (Time.timeScale < 0) Time.timeScale = 0;
+
             DataManager.SaveDamageData();
         }
 
@@ -408,10 +401,18 @@ namespace ManagerControl
 
             upgradeButton.SetActive(!_curSelectedTower.TowerLevel.Equals(4));
 
+            IfUnitTower();
             OpenEditButtonPanel();
             UpdateTowerInfo();
             SetIndicator();
-            IfUnitTower();
+        }
+
+        private void IfUnitTower()
+        {
+            _isUnitTower = _curSelectedTower.TryGetComponent(out UnitTower unitTower);
+            moveUnitButton.SetActive(_isUnitTower);
+            if (!_isUnitTower) return;
+            _curUnitTower = unitTower;
         }
 
         private void OpenEditButtonPanel()
@@ -422,14 +423,14 @@ namespace ManagerControl
 
         private void UpdateTowerInfo()
         {
-            var towerType = _curSelectedTower.TowerData.towerType;
+            var towerType = _curSelectedTower.TowerData.TowerType;
             var towerLevel = _curSelectedTower.TowerLevel;
             var towerData = _towerDataDictionary[towerType];
-            var towerLevelData = towerData.towerLevels[towerLevel];
+            var towerLevelData = towerData.TowerLevels[towerLevel];
 
             _towerInfo.towerName = towerTierName[towerLevel] + towerType;
             _towerInfo.level = towerLevel + 1;
-            _towerInfo.upgradeGold = towerData.towerUpgradeGold * (towerLevel + 1);
+            _towerInfo.upgradeGold = towerData.TowerUpgradeGold * (towerLevel + 1);
             _towerInfo.damage = towerLevelData.damage;
             _towerInfo.range = towerLevelData.attackRange;
             _towerInfo.delay = towerLevelData.attackDelay;
@@ -450,32 +451,23 @@ namespace ManagerControl
             r.position = curTowerPos;
         }
 
-        private void IfUnitTower()
-        {
-            _isUnitTower = _curSelectedTower.TryGetComponent(out UnitTower unitTower);
-            moveUnitButton.SetActive(_isUnitTower);
-            if (!_isUnitTower) return;
-            _curUnitTower = unitTower;
-        }
-
-        private void BuildTower()
+        public void BuildTower()
         {
             var tempTower = _curSelectedTower;
-            var towerType = tempTower.TowerData.towerType;
+            var towerType = tempTower.TowerData.TowerType;
             var towerLevel = tempTower.TowerLevel;
 #if UNITY_EDITOR
             tempTower.transform.SetParent(transform);
 #endif
             _towerCountDictionary[towerType]++;
-            var t = _towerDataDictionary[towerType];
+            var towerData = _towerDataDictionary[towerType];
 
             tempTower.TowerLevelUp();
-            var tt = t.towerLevels[tempTower.TowerLevel];
-            TowerGold -= _towerDataDictionary[towerType].towerBuildGold * _towerCountDictionary[towerType];
+            var towerInfoData = towerData.TowerLevels[tempTower.TowerLevel];
+            TowerGold -= towerData.TowerBuildGold * _towerCountDictionary[towerType];
 
-            PoolObjectManager.Get(PoolObjectKey.BuildSmoke, tempTower.transform.position);
-
-            tempTower.TowerSetting(tt.towerMesh, tt.damage, tt.attackRange, tt.attackDelay);
+            tempTower.TowerSetting(towerInfoData.towerMesh, towerInfoData.damage, towerInfoData.attackRange,
+                towerInfoData.attackDelay);
             upgradeButton.SetActive(!towerLevel.Equals(4));
 
             _curSelectedTower.OnClickTower += ClickTower;
@@ -486,7 +478,7 @@ namespace ManagerControl
         private void TowerUpgrade()
         {
             var tempTower = _curSelectedTower;
-            var towerType = tempTower.TowerData.towerType;
+            var towerType = tempTower.TowerData.TowerType;
 #if UNITY_EDITOR
             tempTower.transform.SetParent(transform);
 #endif
@@ -494,7 +486,7 @@ namespace ManagerControl
 
             var towerData = _towerDataDictionary[towerType];
 
-            if (_towerGold < towerData.towerUpgradeGold * (_curSelectedTower.TowerLevel + 1))
+            if (_towerGold < towerData.TowerUpgradeGold * (_curSelectedTower.TowerLevel + 1))
             {
                 _notEnoughGoldSequence.Restart();
                 return;
@@ -502,8 +494,8 @@ namespace ManagerControl
 
             tempTower.TowerLevelUp();
             var towerLevel = tempTower.TowerLevel;
-            var tt = towerData.towerLevels[towerLevel];
-            TowerGold -= _towerDataDictionary[towerType].towerUpgradeGold * towerLevel;
+            var tt = towerData.TowerLevels[towerLevel];
+            TowerGold -= _towerDataDictionary[towerType].TowerUpgradeGold * towerLevel;
 
             PoolObjectManager.Get(PoolObjectKey.BuildSmoke, tempTower.transform.position);
 
@@ -542,7 +534,7 @@ namespace ManagerControl
         {
             SoundManager.Instance.PlaySound(_curSelectedTower.TowerLevel < 2 ? "SellTower1" :
                 _curSelectedTower.TowerLevel < 4 ? "SellTower2" : "SellTower3");
-            _towerCountDictionary[_curSelectedTower.TowerData.towerType]--;
+            _towerCountDictionary[_curSelectedTower.TowerData.TowerType]--;
             PoolObjectManager.Get(PoolObjectKey.BuildSmoke, _curSelectedTower.transform.position);
 
             TowerGold += _sellTowerGold;
@@ -574,7 +566,7 @@ namespace ManagerControl
 
         public bool IsEnoughGold(in TowerType towerType)
         {
-            if (_towerGold >= _towerDataDictionary[towerType].towerBuildGold * (_towerCountDictionary[towerType] + 1))
+            if (_towerGold >= _towerDataDictionary[towerType].TowerBuildGold * (_towerCountDictionary[towerType] + 1))
             {
                 return true;
             }
@@ -592,9 +584,9 @@ namespace ManagerControl
             var ray = _cam.ScreenPointToRay(Input.mousePosition);
             Physics.Raycast(ray, out var hit);
             if (hit.collider && hit.collider.CompareTag("Ground") &&
-                Vector3.Distance(_curUnitTower.transform.position, hit.point) <=
-                _curUnitTower.TowerRange)
+                Vector3.Distance(_curUnitTower.transform.position, hit.point) <= _curUnitTower.TowerRange)
             {
+                _isUnitTower = false;
                 checkUnitMoveButton.SetActive(false);
                 StartMoveUnit(new Vector3(hit.point.x, 0, hit.point.z)).Forget();
             }
@@ -612,7 +604,10 @@ namespace ManagerControl
             RewindCamState();
 
             await _curUnitTower.StartUnitMove(pos);
-            OffUI();
+            if (!_isUnitTower)
+            {
+                OffUI();
+            }
 
             unitDestinationParticle.Stop();
         }
@@ -650,13 +645,8 @@ namespace ManagerControl
 
         private int GetSellTowerGold(TowerType towerType)
         {
-            return _towerDataDictionary[towerType].towerBuildGold +
-                   _towerDataDictionary[towerType].towerUpgradeGold * _curSelectedTower.TowerLevel;
-        }
-
-        public void GetGoldFromEnemy(int amount)
-        {
-            TowerGold += amount;
+            return _towerDataDictionary[towerType].TowerBuildGold +
+                   _towerDataDictionary[towerType].TowerUpgradeGold * _curSelectedTower.TowerLevel;
         }
 
         public void DecreaseLifeCountEvent()
@@ -667,7 +657,7 @@ namespace ManagerControl
             lifeFillImage.fillAmount = _curTowerLife / lifeCount;
             lifeCountText.text = _curTowerLife + " / " + lifeCount;
             if (_curTowerLife > 0) return;
-            GameOver();
+            GameOver().Forget();
         }
 
         #endregion

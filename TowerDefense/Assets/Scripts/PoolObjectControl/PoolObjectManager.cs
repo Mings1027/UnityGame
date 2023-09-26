@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using GameControl;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace PoolObjectControl
 {
@@ -15,7 +16,6 @@ namespace PoolObjectControl
             public PoolObjectKey poolObjectKey;
             public GameObject prefab;
             public byte initSize;
-            public byte maxSize;
 
             public int CompareTo(Pool other)
             {
@@ -28,7 +28,7 @@ namespace PoolObjectControl
         private Dictionary<PoolObjectKey, Pool> _poolDictionary;
 
         private const string Info = "You have to attach PoolObject";
-
+        [SerializeField] private byte poolMaxSize;
         [SerializeField] private Pool[] pools;
 
         private void Awake()
@@ -67,7 +67,6 @@ namespace PoolObjectControl
                 var pool = pools[i];
                 if (pool.prefab == null) throw new Exception($"{pool.poolObjectKey} doesn't exist");
                 _prefabDictionary.Add(pool.poolObjectKey, new Stack<GameObject>());
-                if (pool.maxSize == 0) pool.maxSize = 30;
                 for (var j = 0; j < pool.initSize; j++)
                 {
                     CreateNewObject(pool.poolObjectKey, pool.prefab);
@@ -126,12 +125,12 @@ namespace PoolObjectControl
         {
             foreach (var poolKey in _prefabDictionary.Keys)
             {
-                var outOfRange = _prefabDictionary[poolKey].Count > _poolDictionary[poolKey].maxSize;
+                var outOfRange = _prefabDictionary[poolKey].Count > poolMaxSize;
 
                 while (outOfRange)
                 {
                     Destroy(_prefabDictionary[poolKey].Pop());
-                    outOfRange = _prefabDictionary[poolKey].Count > _poolDictionary[poolKey].maxSize;
+                    outOfRange = _prefabDictionary[poolKey].Count > poolMaxSize;
                     await Task.Delay(100);
                 }
             }
@@ -170,7 +169,7 @@ namespace PoolObjectControl
             obj.SetActive(false);
             // return obj;
         }
-
+#if UNITY_EDITOR
         private void SortObject(GameObject obj)
         {
             var isFind = false;
@@ -190,5 +189,6 @@ namespace PoolObjectControl
                 }
             }
         }
+#endif
     }
 }

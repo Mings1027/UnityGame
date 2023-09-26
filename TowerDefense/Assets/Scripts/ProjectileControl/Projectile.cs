@@ -99,7 +99,7 @@ namespace ProjectileControl
         {
             t.TryGetComponent(out IDamageable damageable);
             damageable.Damage(_damage);
-            DataManager.SumDamage(towerData.towerType, _damage);
+            DataManager.SumDamage(towerData.TowerType, _damage);
         }
 
         public virtual void Hit()

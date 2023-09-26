@@ -24,6 +24,11 @@ namespace StatusControl
             _collider.enabled = true;
         }
 
+        protected virtual void OnDisable()
+        {
+            OnDeadEvent = null;
+        }
+
         public void Damage(in float amount)
         {
             if (IsDead) return;

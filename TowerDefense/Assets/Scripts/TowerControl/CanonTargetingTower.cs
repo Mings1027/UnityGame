@@ -11,7 +11,7 @@ namespace TowerControl
 
         private void OnDestroy()
         {
-            _atkSequence.Kill();
+            _atkSequence?.Kill();
         }
 
         protected override void Init()

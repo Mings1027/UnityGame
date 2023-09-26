@@ -24,8 +24,6 @@ namespace UnitControl.FriendlyControl
 
         private Vector3 _moveDir;
         private Vector3 _moveVec;
-
-        private Vector3 _touchPos;
         private Vector3 _curPos;
 
         private TowerType _towerType;
@@ -124,7 +122,6 @@ namespace UnitControl.FriendlyControl
             if (!_health.IsDead) return;
             OnReSpawnEvent?.Invoke(this);
             OnReSpawnEvent = null;
-            _health.OnDeadEvent -= DeadAnimation;
         }
 
         private void OnDrawGizmos()
@@ -214,6 +211,7 @@ namespace UnitControl.FriendlyControl
             {
                 _moveInput = false;
                 _sphereCollider.enabled = true;
+                indicator.enabled = false;
             });
         }
 

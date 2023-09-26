@@ -28,7 +28,7 @@ namespace ProjectileControl
 
         protected override void FixedUpdate()
         {
-            if (!_isLockOnTarget && lerp > 0.5f)
+            if (!_isLockOnTarget && lerp >= 0.5f)
             {
                 _isLockOnTarget = true;
                 _targetEndPos = target.position;

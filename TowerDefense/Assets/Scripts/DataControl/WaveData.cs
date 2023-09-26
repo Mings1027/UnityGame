@@ -8,6 +8,7 @@ namespace DataControl
     public class WaveData : ScriptableObject
     {
         public EnemyInfo[] enemyInfos;
+
         [Serializable]
         public struct EnemyInfo
         {
@@ -19,5 +20,4 @@ namespace DataControl
             public float health;
         }
     }
-    
 }
