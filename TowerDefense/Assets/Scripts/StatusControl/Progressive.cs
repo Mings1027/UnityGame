@@ -7,7 +7,7 @@ namespace StatusControl
     public abstract class Progressive : MonoBehaviour
     {
         private float _currentProgress;
-
+        private bool deadState;
         protected float CurrentProgress
         {
             get => _currentProgress;
@@ -15,6 +15,7 @@ namespace StatusControl
             {
                 _currentProgress = value;
                 OnUpdateBarEvent?.Invoke();
+                deadState = _currentProgress <= 0;
             }
         }
 

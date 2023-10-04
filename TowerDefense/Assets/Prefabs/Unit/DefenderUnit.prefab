@@ -247,7 +247,6 @@ GameObject:
   - component: {fileID: -1916128282681564920}
   - component: {fileID: 7252971793340246696}
   - component: {fileID: -209796604355700094}
-  - component: {fileID: 5612843265536117359}
   m_Layer: 9
   m_Name: DefenderUnit
   m_TagString: Unit
@@ -294,6 +293,7 @@ MonoBehaviour:
   atkRange: 1
   sightRange: 2.5
   moveSpeed: 1.5
+  nextWayPointDistance: 0.1
 --- !u!114 &7493383727781550870
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -333,7 +333,7 @@ SphereCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.5
+  m_Radius: 0.3
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!82 &7252971793340246696
 AudioSource:
@@ -344,7 +344,8 @@ AudioSource:
   m_GameObject: {fileID: 7952787121515888648}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 1156792606349440736, guid: 12c02601c80f546bea113c6157c70322,
+    type: 2}
   m_audioClip: {fileID: 8300000, guid: a7736c1763bd76c4eb0d52aaad581deb, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
@@ -441,18 +442,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6719794b54cb7466489824b89cb28c32, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &5612843265536117359
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7952787121515888648}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ef5d92727e7b14aefb03a0b432ed22ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1001 &4366693421177500355

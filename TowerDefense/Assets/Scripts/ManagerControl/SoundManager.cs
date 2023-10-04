@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using CustomEnumControl;
 using GameControl;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.Serialization;
 
 namespace ManagerControl
@@ -11,67 +13,85 @@ namespace ManagerControl
         [Serializable]
         public class EffectSound
         {
-            public string effectName;
+            public SoundEnum effectName;
             public AudioClip effectSource;
         }
 
         [Serializable]
         public class MusicSound
         {
-            public string musicName;
+            public SoundEnum musicName;
             public AudioClip musicClip;
         }
 
-        private bool _musicOn;
-        private Dictionary<string, AudioClip> _musicDictionary;
-        private Dictionary<string, AudioClip> _effectDictionary;
+        private bool _bgmOn, _sfxOn;
+        private Dictionary<SoundEnum, AudioClip> _musicDictionary;
+        private Dictionary<SoundEnum, AudioClip> _effectDictionary;
 
         [SerializeField] private AudioSource musicSource, effectsSource;
         [SerializeField] private MusicSound[] musicSounds;
         [SerializeField] private EffectSound[] effectSounds;
 
+        [SerializeField] private AudioMixer audioMixer;
+
         private void Awake()
         {
-            _musicDictionary = new Dictionary<string, AudioClip>();
+            _musicDictionary = new Dictionary<SoundEnum, AudioClip>();
             for (var i = 0; i < musicSounds.Length; i++)
             {
                 _musicDictionary.Add(musicSounds[i].musicName, musicSounds[i].musicClip);
             }
 
-            _effectDictionary = new Dictionary<string, AudioClip>();
+            _effectDictionary = new Dictionary<SoundEnum, AudioClip>();
             for (var i = 0; i < effectSounds.Length; i++)
             {
                 _effectDictionary.Add(effectSounds[i].effectName, effectSounds[i].effectSource);
             }
         }
 
-        public void PlayBGM(string clipName)
+        private void Start()
+        {
+            _bgmOn = _sfxOn = true;
+        }
+
+        public void PlayBGM(SoundEnum clipName)
         {
             musicSource.clip = _musicDictionary[clipName];
             musicSource.Play();
-            _musicOn = true;
         }
 
-        public void PlaySound(string clipName)
+        public void PlaySound(SoundEnum clipName)
         {
-            var clip = _effectDictionary[clipName];
-            effectsSource.PlayOneShot(clip);
+            effectsSource.clip = _effectDictionary[clipName];
+            effectsSource.Play();
+        }
+
+        public void ToggleBGM()
+        {
+            _bgmOn = !_bgmOn;
+            audioMixer.SetFloat("BGM", _bgmOn ? 0 : -80);
+        }
+
+        public void ToggleSfx()
+        {
+            _sfxOn = !_sfxOn;
+            audioMixer.SetFloat("SFX", _sfxOn ? 0 : -80);
         }
 
         public bool BGMToggle()
         {
-            if (_musicOn)
+            if (_bgmOn)
             {
-                _musicOn = false;
+                _bgmOn = false;
                 musicSource.mute = true;
             }
             else
             {
-                _musicOn = true;
+                _bgmOn = true;
                 musicSource.mute = false;
             }
 
-            return _musicOn;
+            return _bgmOn;
         }
     }
 }

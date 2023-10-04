@@ -23,29 +23,37 @@ namespace TowerControl
 
         [SerializeField] private LayerMask targetLayer;
 
-        private void Update()
+#if UNITY_EDITOR
+        private void OnDrawGizmos()
         {
-            if (!_targetingCooldown.IsCoolingDown)
-            {
-                Targeting();
-                _targetingCooldown.StartCooldown();
-            }
+            Gizmos.DrawWireSphere(transform.position, TowerRange);
+        }
+#endif
+        /*=========================================================================================================================================
+        *                                               Unity Event
+        =========================================================================================================================================*/
 
+        public override void TowerFixedUpdate()
+        {
+            if (_targetingCooldown.IsCoolingDown) return;
+            Targeting();
+            _targetingCooldown.StartCooldown();
+        }
+
+        public override void TowerUpdate()
+        {
             if (!isTargeting || _atkCooldown.IsCoolingDown) return;
             Attack();
             _audioSource.Play();
             _atkCooldown.StartCooldown();
         }
 
-        private void OnDrawGizmos()
+        public override void TargetInit()
         {
-            Gizmos.DrawWireSphere(transform.position, TowerRange);
+            target = null;
+            isTargeting = false;
         }
 
-        /*=========================================================================================================================================
-        *                                               Unity Event
-        =========================================================================================================================================*/
-        
         protected override void Init()
         {
             base.Init();

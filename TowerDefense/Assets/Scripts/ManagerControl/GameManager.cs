@@ -15,15 +15,6 @@ namespace ManagerControl
         }
     }
 
-    public enum TowerType
-    {
-        Assassin,
-        Ballista,
-        Canon,
-        Mage,
-        Defender,
-        None
-    }
 
     [System.Serializable]
     public struct Cooldown

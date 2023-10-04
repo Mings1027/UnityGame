@@ -12,13 +12,13 @@ namespace UnitControl.EnemyControl
         private Animator _anim;
         private Rigidbody _rigid;
 
-        private BoxCollider _boxCollider;
+        private SphereCollider _sphereCollider;
         private EnemyAI _enemyAI;
         private EnemyHealth _enemyHealth;
         private Collider[] _targetCollider;
         private AttackPoint _attackPoint;
 
-        private Transform _target;
+        private Collider _target;
         private Transform _t;
 
         private bool _isAttack;
@@ -47,14 +47,14 @@ namespace UnitControl.EnemyControl
             _audioSource = GetComponent<AudioSource>();
             _anim = GetComponentInChildren<Animator>();
             _rigid = GetComponent<Rigidbody>();
-            _boxCollider = GetComponent<BoxCollider>();
+            _sphereCollider = GetComponent<SphereCollider>();
             _enemyAI = GetComponent<EnemyAI>();
             _enemyHealth = GetComponent<EnemyHealth>();
             _targetCollider = new Collider[1];
             _t = transform;
             _attackPoint = GetComponentInChildren<AttackPoint>();
             _targetingTime.cooldownTime = 2f;
-            atkRange = _boxCollider.size.z;
+            atkRange = _sphereCollider.radius;
         }
 
         private void OnEnable()
@@ -96,7 +96,6 @@ namespace UnitControl.EnemyControl
         {
             if (_enemyHealth.IsDead) return;
             _anim.SetBool(IsWalk, !_targetInAtkRange);
-            // _anim.speed = _targetInAtkRange ? 1 : _enemyAI.MoveSpeed * 0.5f;
         }
 
         private void OnTriggerEnter(Collider other)
@@ -110,7 +109,7 @@ namespace UnitControl.EnemyControl
         {
             Gizmos.color = Color.cyan;
             Gizmos.DrawWireSphere(transform.position, sightRange);
-            if (_boxCollider == null) return;
+            if (_sphereCollider == null) return;
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(transform.position, atkRange);
         }
@@ -130,20 +129,20 @@ namespace UnitControl.EnemyControl
                 _target = null;
                 _isTargeting = false;
                 _enemyAI.CanMove = true;
-                _boxCollider.isTrigger = true;
+                _sphereCollider.isTrigger = true;
                 return;
             }
 
-            _target = _targetCollider[0].transform;
+            _target = _targetCollider[0];
             _isTargeting = true;
             _enemyAI.CanMove = false;
-            _boxCollider.isTrigger = false;
+            _sphereCollider.isTrigger = false;
             _targetingTime.StartCooldown();
         }
 
         private void Chase()
         {
-            var targetPos = _target.position;
+            var targetPos = _target.transform.position;
             var position = _rigid.position;
             var dir = (targetPos - position).normalized;
             var moveVec = dir * (_enemyAI.MoveSpeed * Time.deltaTime);
@@ -157,18 +156,15 @@ namespace UnitControl.EnemyControl
             if (_attackPoint.enabled) return;
             _anim.SetTrigger(IsAttack);
             _audioSource.Play();
-            _attackPoint.Init(_target, _damage);
+            _attackPoint.Init(_target.transform, _damage);
             _attackPoint.enabled = true;
             _atkCooldown.StartCooldown();
-            if (_target.gameObject.activeSelf) return;
+            if (_target.enabled) return;
             _target = null;
             _isTargeting = false;
         }
 
-        public void SetAnimationSpeed(float animSpeed)
-        {
-            _anim.speed = animSpeed * 0.5f;
-        }
+        public void SetAnimationSpeed(float animSpeed) => _anim.speed = animSpeed * 0.5f;
 
         private void DeadAnimation()
         {

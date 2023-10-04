@@ -1,9 +1,10 @@
 using System;
-using System.Threading.Tasks;
+using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using InterfaceControl;
 using ManagerControl;
+using Pathfinding;
 using StatusControl;
 using TowerControl;
 using UnityEngine;
@@ -17,7 +18,7 @@ namespace UnitControl.FriendlyControl
         private Rigidbody _rigid;
         private SphereCollider _sphereCollider;
         private Health _health;
-        private Transform _target;
+        private Collider _target;
         private Collider[] _targetCollider;
         private UnitTower _parentTower;
         private AttackPoint _attackPoint;
@@ -28,11 +29,11 @@ namespace UnitControl.FriendlyControl
 
         private TowerType _towerType;
         private int _damage;
+        private byte curWayPoint;
 
         private Cooldown _atkCooldown;
         private Cooldown _targetingTime;
 
-        private bool _startTargeting;
         private bool _isTargeting;
         private bool _moveInput;
         private bool _targetInAtkRange;
@@ -78,21 +79,48 @@ namespace UnitControl.FriendlyControl
             indicator.enabled = false;
         }
 
-        private void FixedUpdate()
+        private void OnDisable()
+        {
+            if (_health.IsDead)
+            {
+                OnReSpawnEvent?.Invoke(this);
+                OnReSpawnEvent = null;
+            }
+
+            _isTargeting = false;
+            _moveInput = false;
+            _targetInAtkRange = false;
+            _isOnDestination = false;
+            _parentTower = null;
+            _towerType = TowerType.None;
+        }
+#if UNITY_EDITOR
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(transform.position, sightRange);
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(transform.position, atkRange);
+        }
+#endif
+        /*==============================================================================================================================================
+                                                    Unity Event
+=====================================================================================================================================================*/
+
+        public void UnitFixedUpdate()
         {
             if (_health.IsDead) return;
             if (_moveInput) return;
             _rigid.velocity = Vector3.zero;
             _rigid.angularVelocity = Vector3.zero;
 
-            if (!_startTargeting) return;
             Targeting();
             CheckRange();
 
             if (_isTargeting)
             {
                 if (!_targetInAtkRange)
-                    Move(_target.position);
+                    Move(_target.transform.position);
             }
             else
             {
@@ -101,51 +129,24 @@ namespace UnitControl.FriendlyControl
             }
         }
 
-        private void Update()
+        public void UnitUpdate()
         {
-            if (!_startTargeting) return;
             if (_health.IsDead) return;
             if (_moveInput) return;
 
             Attack();
         }
 
-        private void LateUpdate()
-        {
-            _anim.SetBool(IsWalk,
-                _startTargeting ? _moveInput || (_isTargeting ? !_targetInAtkRange : !_isOnDestination) : _moveInput);
-        }
+        public void UnitLateUpdate() =>
+            _anim.SetBool(IsWalk, _moveInput || (_isTargeting ? !_targetInAtkRange : !_isOnDestination));
 
-        private void OnDisable()
-        {
-            _parentTower = null;
-            if (!_health.IsDead) return;
-            OnReSpawnEvent?.Invoke(this);
-            OnReSpawnEvent = null;
-        }
-
-        private void OnDrawGizmos()
-        {
-            Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(transform.position, sightRange);
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(transform.position, atkRange);
-        }
-
-        /*==============================================================================================================================================
-                                                    Unity Event
-=====================================================================================================================================================*/
-
-        public void StartTargeting(bool startTargeting)
-        {
-            _startTargeting = startTargeting;
-        }
+        public void TargetInit() => _target = null;
 
         private void CheckRange()
         {
             if (_isTargeting)
             {
-                _targetInAtkRange = Vector3.SqrMagnitude(_rigid.position - _target.position) < atkRange;
+                _targetInAtkRange = Vector3.SqrMagnitude(_rigid.position - _target.transform.position) < atkRange;
             }
             else
             {
@@ -164,8 +165,12 @@ namespace UnitControl.FriendlyControl
                 return;
             }
 
-            _target = _targetCollider[0].transform;
-            _isTargeting = true;
+            if (!_isTargeting)
+            {
+                _target = _targetCollider[0];
+                _isTargeting = true;
+            }
+
             _targetingTime.StartCooldown();
         }
 
@@ -177,11 +182,11 @@ namespace UnitControl.FriendlyControl
             if (_attackPoint.enabled) return;
             _anim.SetTrigger(IsAttack);
             _audioSource.Play();
-            _attackPoint.Init(_target, _damage);
+            _attackPoint.Init(_target.transform, _damage);
             _attackPoint.enabled = true;
             DataManager.SumDamage(_towerType, _damage);
             _atkCooldown.StartCooldown();
-            if (_target.gameObject.activeSelf) return;
+            if (_target.enabled) return;
             _target = null;
             _isTargeting = false;
         }
@@ -206,12 +211,14 @@ namespace UnitControl.FriendlyControl
             _curPos = pos;
             _moveInput = true;
             _sphereCollider.enabled = false;
+            _anim.SetBool(IsWalk, true);
             _rigid.MoveRotation(Quaternion.LookRotation(pos - _rigid.position));
             await _rigid.DOMove(pos, moveSpeed).SetSpeedBased().SetEase(Ease.Linear).OnComplete(() =>
             {
                 _moveInput = false;
                 _sphereCollider.enabled = true;
                 indicator.enabled = false;
+                _anim.SetBool(IsWalk, false);
             });
         }
 

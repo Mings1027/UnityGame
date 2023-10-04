@@ -1,6 +1,3 @@
-using ManagerControl;
-using PoolObjectControl;
-using SoundControl;
 using UnityEngine;
 
 namespace ProjectileControl
@@ -10,6 +7,7 @@ namespace ProjectileControl
         private bool _isLockOnTarget;
         private Vector3 _targetEndPos;
         private Collider[] _targetColliders;
+        private AudioSource explosionAudio;
 
         [SerializeField] private LayerMask enemyLayer;
         [SerializeField] private float atkRange;
@@ -18,6 +16,7 @@ namespace ProjectileControl
         {
             base.Awake();
             _targetColliders = new Collider[5];
+            explosionAudio = GetComponentInChildren<AudioSource>();
         }
 
         protected override void OnEnable()
@@ -40,9 +39,7 @@ namespace ProjectileControl
         protected override void OnTriggerEnter(Collider other)
         {
             base.OnTriggerEnter(other);
-
-            if (_targetEndPos == Vector3.zero) return;
-            PoolObjectManager.Get<SoundPlayer>(PoolObjectKey.CanonExplosion, transform.position).Play();
+            explosionAudio.Play();
         }
 
         private void OnDrawGizmos()

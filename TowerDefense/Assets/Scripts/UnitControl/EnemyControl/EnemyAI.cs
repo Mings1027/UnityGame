@@ -41,7 +41,7 @@ namespace UnitControl.EnemyControl
         {
             if (!CanMove) return;
 
-            if (_path.Equals(null)) return;
+            if (_path == null) return;
 
             Movement(out var direction);
             Rotation(direction);

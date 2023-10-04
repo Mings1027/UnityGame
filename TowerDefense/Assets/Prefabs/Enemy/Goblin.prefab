@@ -165,8 +165,8 @@ GameObject:
   - component: {fileID: 270471490450318254}
   - component: {fileID: 1275403297}
   - component: {fileID: 877372810}
-  - component: {fileID: 6057016240270919925}
   - component: {fileID: 6277546931791199786}
+  - component: {fileID: 3402691439075662051}
   m_Layer: 8
   m_Name: Goblin
   m_TagString: Enemy
@@ -264,8 +264,8 @@ MonoBehaviour:
   detailedGizmos: 0
   startEndModifier:
     addPoints: 0
-    exactStartPoint: 3
-    exactEndPoint: 3
+    exactStartPoint: 2
+    exactEndPoint: 2
     useRaycasting: 0
     mask:
       serializedVersion: 2
@@ -306,19 +306,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 80
   m_CollisionDetection: 0
---- !u!65 &6057016240270919925
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5137451470882268708}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 0.5, y: 1, z: 0.8}
-  m_Center: {x: 0, y: 0.5, z: 0}
 --- !u!82 &6277546931791199786
 AudioSource:
   m_ObjectHideFlags: 0
@@ -328,7 +315,8 @@ AudioSource:
   m_GameObject: {fileID: 5137451470882268708}
   m_Enabled: 1
   serializedVersion: 4
-  OutputAudioMixerGroup: {fileID: 0}
+  OutputAudioMixerGroup: {fileID: 1156792606349440736, guid: 12c02601c80f546bea113c6157c70322,
+    type: 2}
   m_audioClip: {fileID: 8300000, guid: c5955b1ca51d47245ae5e5e10395d910, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
@@ -415,6 +403,19 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!135 &3402691439075662051
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5137451470882268708}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.3
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &4571954116100530277
 PrefabInstance:
   m_ObjectHideFlags: 0

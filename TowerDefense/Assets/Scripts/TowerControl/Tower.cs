@@ -1,9 +1,7 @@
 using System;
 using DataControl;
 using InterfaceControl;
-using ManagerControl;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace TowerControl
 {
@@ -25,24 +23,18 @@ namespace TowerControl
         protected virtual void Awake()
         {
             Init();
-            TowerLevel = -1;
-        }
-
-        protected virtual void OnEnable()
-        {
-            // TowerLevel = -1;
-        }
-
-        protected virtual void OnDisable()
-        {
-            // OnClickTower = null;
         }
 
         //==================================Custom Method====================================================
         //======================================================================================================
 
+        public abstract void TowerFixedUpdate();
+        public abstract void TowerUpdate();
+        public abstract void TargetInit();
+        
         protected virtual void Init()
         {
+            TowerLevel = -1;
             _boxCollider = GetComponent<BoxCollider>();
             _meshFilter = transform.GetChild(0).GetComponent<MeshFilter>();
             _meshRenderer = transform.GetChild(0).GetComponent<MeshRenderer>();
@@ -61,7 +53,6 @@ namespace TowerControl
             _boxCollider.enabled = true;
 
             ColliderSize();
-            enabled = TowerManager.Instance.StartWave;
         }
 
         private void ColliderSize()

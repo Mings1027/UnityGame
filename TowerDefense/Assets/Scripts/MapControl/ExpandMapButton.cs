@@ -1,4 +1,5 @@
 using System;
+using CustomEnumControl;
 using DataControl;
 using GameControl;
 using InterfaceControl;
@@ -25,7 +26,7 @@ namespace MapControl
         public void FingerUp()
         {
             OnExpandMapEvent?.Invoke(transform.position);
-            SoundManager.Instance.PlayBGM(StringManager.WaveStart);
+            SoundManager.Instance.PlayBGM(SoundEnum.WaveStart);
         }
     }
 }

@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Cysharp.Threading.Tasks;
 using GameControl;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace PoolObjectControl
 {
@@ -121,16 +119,16 @@ namespace PoolObjectControl
             _inst._prefabDictionary[poolObjKey].Push(obj);
         }
 
-        public async void PoolCleaner()
+        public static async void PoolCleaner()
         {
-            foreach (var poolKey in _prefabDictionary.Keys)
+            foreach (var poolKey in _inst._prefabDictionary.Keys)
             {
-                var outOfRange = _prefabDictionary[poolKey].Count > poolMaxSize;
+                var outOfRange = _inst._prefabDictionary[poolKey].Count > _inst.poolMaxSize;
 
                 while (outOfRange)
                 {
-                    Destroy(_prefabDictionary[poolKey].Pop());
-                    outOfRange = _prefabDictionary[poolKey].Count > poolMaxSize;
+                    Destroy(_inst._prefabDictionary[poolKey].Pop());
+                    outOfRange = _inst._prefabDictionary[poolKey].Count > _inst.poolMaxSize;
                     await Task.Delay(100);
                 }
             }
@@ -163,7 +161,7 @@ namespace PoolObjectControl
         {
             var obj = Instantiate(prefab, transform);
             if (!obj.TryGetComponent(out PoolObject poolObject))
-                throw new Exception($"You have to attach PoolObject.cs in {prefab.name} prefab");
+                throw new Exception($"You have to attach PoolObject.cs in {prefab} prefab");
             poolObject.PoolObjKey = poolObjectKey;
             obj.name = poolObjectKey.ToString();
             obj.SetActive(false);

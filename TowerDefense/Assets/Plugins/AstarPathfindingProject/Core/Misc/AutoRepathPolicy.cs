@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace Pathfinding {
@@ -57,43 +56,44 @@ namespace Pathfinding {
 		public float maximumInterval = 2.0f;
 
 		/// <summary>If true the sensitivity will be visualized as a circle in the scene view when the game is playing</summary>
-		public bool visualizeSensitivity;
+		public bool visualizeSensitivity = false;
 
-		private Vector3 _lastDestination = new(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
-		private float _lastRepathTime = float.NegativeInfinity;
+		Vector3 lastDestination = new Vector3(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
+		float lastRepathTime = float.NegativeInfinity;
 
 		/// <summary>True if the path should be recalculated according to the policy</summary>
 		public virtual bool ShouldRecalculatePath (IAstarAI ai) {
 			if (mode == Mode.Never || float.IsPositiveInfinity(ai.destination.x)) return false;
 
-			var timeSinceLast = Time.time - _lastRepathTime;
+			float timeSinceLast = Time.time - lastRepathTime;
 			if (mode == Mode.EveryNSeconds) {
 				return timeSinceLast >= interval;
+			} else {
+				// cost = change in destination / max(distance to destination, radius)
+				float squaredCost = (ai.destination - lastDestination).sqrMagnitude / Mathf.Max((ai.position - lastDestination).sqrMagnitude, ai.radius*ai.radius);
+				float fraction = squaredCost * (sensitivity*sensitivity);
+				if (fraction > 1.0f || float.IsNaN(fraction)) return true;
+
+				if (timeSinceLast >= maximumInterval*(1 - Mathf.Sqrt(fraction))) return true;
+				return false;
 			}
-
-			// cost = change in destination / max(distance to destination, radius)
-			var squaredCost = (ai.destination - _lastDestination).sqrMagnitude / Mathf.Max((ai.position - _lastDestination).sqrMagnitude, ai.radius*ai.radius);
-			var fraction = squaredCost * (sensitivity*sensitivity);
-			if (fraction is > 1.0f or float.NaN) return true;
-
-			return timeSinceLast >= maximumInterval*(1 - Mathf.Sqrt(fraction));
 		}
 
 		/// <summary>Reset the runtime variables so that the policy behaves as if the game just started</summary>
 		public virtual void Reset () {
-			_lastRepathTime = float.NegativeInfinity;
+			lastRepathTime = float.NegativeInfinity;
 		}
 
 		/// <summary>Must be called when a path request has been scheduled</summary>
 		public virtual void DidRecalculatePath (Vector3 destination) {
-			_lastRepathTime = Time.time;
-			_lastDestination = destination;
+			lastRepathTime = Time.time;
+			lastDestination = destination;
 		}
 
 		public void DrawGizmos (IAstarAI ai) {
-			if (visualizeSensitivity && !float.IsPositiveInfinity(_lastDestination.x)) {
-				var r = Mathf.Sqrt(Mathf.Max((ai.position - _lastDestination).sqrMagnitude, ai.radius*ai.radius)/(sensitivity*sensitivity));
-				Draw.Gizmos.CircleXZ(_lastDestination, r, Color.magenta);
+			if (visualizeSensitivity && !float.IsPositiveInfinity(lastDestination.x)) {
+				float r = Mathf.Sqrt(Mathf.Max((ai.position - lastDestination).sqrMagnitude, ai.radius*ai.radius)/(sensitivity*sensitivity));
+				Draw.Gizmos.CircleXZ(lastDestination, r, Color.magenta);
 			}
 		}
 	}

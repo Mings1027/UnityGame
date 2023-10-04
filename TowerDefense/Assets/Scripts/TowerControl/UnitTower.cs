@@ -25,6 +25,56 @@ namespace TowerControl
         /*=========================================================================================================================================
         *                                               Unity Event
         =========================================================================================================================================*/
+
+        private void OnDestroy()
+        {
+            for (var i = 0; i < _units.Length; i++)
+            {
+                // if (_units[i] == null) continue;
+                _units[i].gameObject.SetActive(false);
+                // _units[i] = null;
+            }
+        }
+
+        /*=========================================================================================================================================
+        *                                               Unity Event
+        =========================================================================================================================================*/
+
+        public override void TowerFixedUpdate()
+        {
+            for (var i = 0; i < _units.Length; i++)
+            {
+                if (!_units[i].gameObject.activeSelf) continue;
+                _units[i].UnitFixedUpdate();
+            }
+        }
+
+        public override void TowerUpdate()
+        {
+            for (var i = 0; i < _units.Length; i++)
+            {
+                if (!_units[i].gameObject.activeSelf) continue;
+                _units[i].UnitUpdate();
+            }
+        }
+
+        public void TowerLateUpdate()
+        {
+            for (var i = 0; i < _units.Length; i++)
+            {
+                if (!_units[i].gameObject.activeSelf) continue;
+                _units[i].UnitLateUpdate();
+            }
+        }
+
+        public override void TargetInit()
+        {
+            for (var i = 0; i < _units.Length; i++)
+            {
+                _units[i].TargetInit();
+            }
+        }
+
         protected override void Init()
         {
             base.Init();
@@ -32,43 +82,6 @@ namespace TowerControl
             _deadUnitCount = 0;
         }
 
-        protected override void OnEnable()
-        {
-            base.OnEnable();
-            if (!_isUnitSpawn) return;
-            for (int i = 0; i < _units.Length; i++)
-            {
-                _units[i].StartTargeting(true);
-            }
-        }
-
-        protected override void OnDisable()
-        {
-            base.OnDisable();
-            if (!_isUnitSpawn) return;
-            for (int i = 0; i < _units.Length; i++)
-            {
-                _units[i].StartTargeting(false);
-            }
-        }
-
-        private void OnDestroy()
-        {
-            if (!_isUnitSpawn) return;
-
-            _isUnitSpawn = false;
-
-            for (var i = 0; i < _units.Length; i++)
-            {
-                if (_units[i] == null) continue;
-                _units[i].gameObject.SetActive(false);
-                _units[i] = null;
-            }
-        }
-
-        /*=========================================================================================================================================
-        *                                               Unity Event
-        =========================================================================================================================================*/
         public override void FingerUp()
         {
             base.FingerUp();
@@ -92,46 +105,41 @@ namespace TowerControl
             _atkDelay = attackDelayData;
             if (!_isUnitSpawn)
             {
-                _isUnitSpawn = true;
                 UnitSpawn();
             }
 
             UnitInfoInit(damageData, attackDelayData);
-            for (int i = 0; i < _units.Length; i++)
-            {
-                _units[i].StartTargeting(TowerManager.Instance.StartWave);
-            }
         }
 
         private void UnitSpawn()
         {
             for (var i = 0; i < _units.Length; i++)
             {
-                var angle = (float)Math.PI * 0.5f - i * ((float)Math.PI * 2f) / _units.Length;
+                var angle = i * ((float)Math.PI * 2f) / _units.Length;
                 var pos = unitSpawnPosition + new Vector3((float)Math.Cos(angle), 0, (float)Math.Sin(angle));
                 _units[i] = PoolObjectManager.Get<FriendlyUnit>(TowerData.PoolObjectKey, pos);
-                PoolObjectManager.Get(PoolObjectKey.UnitSpawnSmoke, pos);
                 _units[i].OnReSpawnEvent += UnitReSpawn;
+                PoolObjectManager.Get(PoolObjectKey.UnitSpawnSmoke, pos);
             }
+
+            _isUnitSpawn = true;
         }
 
         private void UnitInfoInit(int damage, float delay)
         {
             for (var i = 0; i < _units.Length; i++)
             {
-                _units[i].InfoInit(this, TowerData.TowerType, damage, delay, initHealth + initHealth * TowerLevel);
+                _units[i].InfoInit(this, TowerData.TowerType, damage, delay, initHealth * (1 + TowerLevel));
             }
         }
 
         public async UniTask StartUnitMove(Vector3 touchPos)
         {
-            var tasks = new UniTask[_units.Length - _deadUnitCount];
+            var tasks = new UniTask[_units.Length];
             for (var i = 0; i < tasks.Length; i++)
             {
-                if (!_units[i].gameObject.activeSelf) continue;
-                var angle = (float)Math.PI * 0.5f - i * ((float)Math.PI * 2f) / _units.Length;
+                var angle = i * ((float)Math.PI * 2f) / _units.Length;
                 var pos = touchPos + new Vector3((float)Math.Cos(angle), 0, (float)Math.Sin(angle));
-
                 tasks[i] = _units[i].MoveToTouchPos(pos);
             }
 
@@ -152,6 +160,8 @@ namespace TowerControl
             _deadUnitCount++;
             if (_deadUnitCount < 3) return;
             _deadUnitCount = 0;
+            _isUnitSpawn = false;
+
             UnitReSpawnDelay();
         }
 

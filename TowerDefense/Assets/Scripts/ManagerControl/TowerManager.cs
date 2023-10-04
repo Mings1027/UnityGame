@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DataControl;
 using DG.Tweening;
@@ -11,7 +12,6 @@ using TowerControl;
 using UIControl;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace ManagerControl
@@ -32,7 +32,6 @@ namespace ManagerControl
         private TowerInfo _towerInfo;
         private Camera _cam;
 
-        private List<Tower> _towers;
         private Dictionary<TowerType, TowerData> _towerDataDictionary;
         private Dictionary<TowerType, GameObject> _towerObjDictionary;
         private Dictionary<TowerType, int> _towerCountDictionary;
@@ -86,12 +85,14 @@ namespace ManagerControl
 
         public bool StartWave { get; private set; }
 
+        [SerializeField] private TowerController towerController;
+
         [Header("----------Tower Buttons----------")] [SerializeField]
         private Button toggleTowerButton;
 
         [SerializeField] private Transform towerButtons;
 
-        [FormerlySerializedAs("towerData")] [Header("----------Tower Panel----------"), SerializeField]
+        [Header("----------Tower Panel----------"), SerializeField]
         private TowerData[] towerDataList;
 
         [SerializeField] private string[] towerTierName;
@@ -116,6 +117,7 @@ namespace ManagerControl
         [SerializeField] private Button pauseButton;
         [SerializeField] private Button resumeButton;
         [SerializeField] private Button bgmButton;
+        [SerializeField] private Button sfxButton;
 
         [SerializeField] private Button gameEndButton;
         [SerializeField] private Button mainMenuButton;
@@ -178,7 +180,7 @@ namespace ManagerControl
             IndicatorInit();
         }
 
-        private void OnDestroy()
+        public override void OnDestroy()
         {
             _towerInfoPanelTween.Kill();
             _notEnoughGoldSequence.Kill();
@@ -196,7 +198,6 @@ namespace ManagerControl
 
         private void TowerInit()
         {
-            _towers = new List<Tower>();
             _towerDataDictionary = new Dictionary<TowerType, TowerData>();
             _towerObjDictionary = new Dictionary<TowerType, GameObject>();
             _towerCountDictionary = new Dictionary<TowerType, int>();
@@ -238,21 +239,33 @@ namespace ManagerControl
 
         private void TowerButtonInit()
         {
-            toggleTowerButton.onClick.AddListener(ToggleTowerButtons);
+            toggleTowerButton.onClick.AddListener(() =>
+            {
+                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
+                ToggleTowerButtons();
+            });
 
             upgradeButton.GetComponent<Button>().onClick.AddListener(() =>
             {
+                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
                 TowerUpgrade();
                 UpdateTowerInfo();
             });
             moveUnitButton.GetComponent<Button>().onClick.AddListener(() =>
             {
+                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
                 FocusUnitTower();
                 MoveUnitButton();
             });
             checkUnitMoveButton.GetComponent<Button>().onClick.AddListener(CheckCanMoveUnit);
             checkUnitMoveButton.SetActive(false);
-            sellTowerButton.GetComponent<Button>().onClick.AddListener(SellTower);
+            sellTowerButton.GetComponent<Button>().onClick.AddListener(() =>
+            {
+                SoundManager.Instance.PlaySound(_curSelectedTower.TowerLevel < 2 ? SoundEnum.SellTower1 :
+                    _curSelectedTower.TowerLevel < 4 ? SoundEnum.SellTower2 : SoundEnum.SellTower3);
+
+                SellTower();
+            });
             checkTowerButton.onClick.AddListener(CheckTowerButton);
         }
 
@@ -264,12 +277,35 @@ namespace ManagerControl
 
             speedUpText.text = "x1";
 
-            pauseButton.onClick.AddListener(Pause);
-            resumeButton.onClick.AddListener(Resume);
-            bgmButton.onClick.AddListener(BGMButton);
+            pauseButton.onClick.AddListener(() =>
+            {
+                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
+                Time.timeScale = 0;
+                _pauseSequence.Restart();
+            });
+            resumeButton.onClick.AddListener(() =>
+            {
+                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
+                Time.timeScale = _curSpeed;
+                _pauseSequence.PlayBackwards();
+            });
+            bgmButton.onClick.AddListener(() =>
+            {
+                SoundManager.Instance.ToggleBGM();
+                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
+            });
+            sfxButton.onClick.AddListener(() =>
+            {
+                SoundManager.Instance.ToggleSfx();
+                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
+            });
             gameEndButton.onClick.AddListener(GameEnd);
             mainMenuButton.onClick.AddListener(() => SceneManager.LoadScene(0));
-            speedUpButton.onClick.AddListener(SpeedUp);
+            speedUpButton.onClick.AddListener(() =>
+            {
+                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
+                SpeedUp();
+            });
         }
 
         private void DamageTextInit()
@@ -328,20 +364,11 @@ namespace ManagerControl
             _cam.DOOrthoSize(17, 1).From(100).SetEase(Ease.OutQuad);
         }
 
-        private async UniTaskVoid GameOver()
+        private void GameOver()
         {
             gameOverPanel.SetActive(true);
             _cameraManager.enabled = false;
-            var lerp = 1f;
-            while (lerp > 0)
-            {
-                lerp -= Time.deltaTime;
-                await UniTask.Yield();
-                Time.timeScale = lerp;
-            }
-
-            if (Time.timeScale < 0) Time.timeScale = 0;
-
+            Time.timeScale = 0;
             DataManager.SaveDamageData();
         }
 
@@ -355,7 +382,6 @@ namespace ManagerControl
 
         private void ToggleTowerButtons()
         {
-            SoundManager.Instance.PlaySound(StringManager.ButtonSound);
             if (!_isShowTowerBtn)
             {
                 _isShowTowerBtn = true;
@@ -387,7 +413,7 @@ namespace ManagerControl
 
         private void ClickTower(Tower clickedTower)
         {
-            SoundManager.Instance.PlaySound(StringManager.ButtonSound);
+            SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
             _towerInfoPanelTween.Restart();
             _isPanelOpen = true;
 
@@ -471,7 +497,8 @@ namespace ManagerControl
             upgradeButton.SetActive(!towerLevel.Equals(4));
 
             _curSelectedTower.OnClickTower += ClickTower;
-            _towers.Add(_curSelectedTower);
+
+            towerController.AddTower(_curSelectedTower);
             _curSelectedTower = null;
         }
 
@@ -482,8 +509,6 @@ namespace ManagerControl
 #if UNITY_EDITOR
             tempTower.transform.SetParent(transform);
 #endif
-            SoundManager.Instance.PlaySound(StringManager.ButtonSound);
-
             var towerData = _towerDataDictionary[towerType];
 
             if (_towerGold < towerData.TowerUpgradeGold * (_curSelectedTower.TowerLevel + 1))
@@ -524,7 +549,6 @@ namespace ManagerControl
 
         private void MoveUnitButton()
         {
-            SoundManager.Instance.PlaySound(StringManager.ButtonSound);
             moveUnitButton.SetActive(false);
             checkUnitMoveButton.SetActive(true);
             _towerInfoPanelTween.PlayBackwards();
@@ -532,13 +556,11 @@ namespace ManagerControl
 
         private void SellTower()
         {
-            SoundManager.Instance.PlaySound(_curSelectedTower.TowerLevel < 2 ? "SellTower1" :
-                _curSelectedTower.TowerLevel < 4 ? "SellTower2" : "SellTower3");
             _towerCountDictionary[_curSelectedTower.TowerData.TowerType]--;
             PoolObjectManager.Get(PoolObjectKey.BuildSmoke, _curSelectedTower.transform.position);
 
             TowerGold += _sellTowerGold;
-            _towers.Remove(_curSelectedTower);
+            towerController.RemoveTower(_curSelectedTower);
             Destroy(_curSelectedTower.gameObject);
             OffUI();
         }
@@ -616,28 +638,8 @@ namespace ManagerControl
 
         #region UI
 
-        private void Pause()
-        {
-            SoundManager.Instance.PlaySound(StringManager.ButtonSound);
-            Time.timeScale = 0;
-            _pauseSequence.Restart();
-        }
-
-        private void Resume()
-        {
-            SoundManager.Instance.PlaySound(StringManager.ButtonSound);
-            Time.timeScale = _curSpeed;
-            _pauseSequence.PlayBackwards();
-        }
-
-        private void BGMButton()
-        {
-            bgmButton.image.sprite = SoundManager.Instance.BGMToggle() ? musicOnImage : musicOffImage;
-        }
-
         private void SpeedUp()
         {
-            SoundManager.Instance.PlaySound(StringManager.ButtonSound);
             _curSpeed = _curSpeed % 3 + 1;
             Time.timeScale = _curSpeed;
             speedUpText.text = $"x{_curSpeed}";
@@ -657,29 +659,26 @@ namespace ManagerControl
             lifeFillImage.fillAmount = _curTowerLife / lifeCount;
             lifeCountText.text = _curTowerLife + " / " + lifeCount;
             if (_curTowerLife > 0) return;
-            GameOver().Forget();
+            GameOver();
         }
 
         #endregion
 
         public void EnableTower()
         {
+            towerController.enabled = true;
             StartWave = true;
-            for (var i = 0; i < _towers.Count; i++)
-            {
-                _towers[i].enabled = true;
-            }
+
+            Application.targetFrameRate = 60;
         }
 
         public void DisableTower()
         {
+            towerController.enabled = false;
             StartWave = false;
-            for (var i = 0; i < _towers.Count; i++)
-            {
-                _towers[i].enabled = false;
-            }
 
-            PoolObjectManager.Instance.PoolCleaner();
+            Application.targetFrameRate = 30;
+            PoolObjectManager.PoolCleaner();
         }
     }
 }

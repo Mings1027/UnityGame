@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DataControl;
-using DG.Tweening;
 using PoolObjectControl;
 using UnitControl.EnemyControl;
 using UnityEngine;
@@ -58,7 +57,7 @@ namespace ManagerControl
             TowerManager.Instance.WaveText.text = "Wave : " + _curWave;
 
             WaveInit(wayPoints.Count);
-            DOVirtual.DelayedCall(0.5f, () => SpawnEnemy(wayPoints).Forget());
+            SpawnEnemy(wayPoints).Forget();
         }
 
         private void WaveInit(int wayPointsArrayLength)
@@ -91,6 +90,7 @@ namespace ManagerControl
 
         private async UniTaskVoid SpawnEnemy(IReadOnlyList<Vector3> wayPointsArray)
         {
+            await UniTask.Delay(500);
             for (var i = 0; i < wayPointsArray.Count; i++)
             {
                 for (var j = 0; j < waveData.enemyInfos.Length; j++)

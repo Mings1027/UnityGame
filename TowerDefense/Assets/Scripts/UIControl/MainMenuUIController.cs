@@ -1,4 +1,5 @@
 using System;
+using CustomEnumControl;
 using DataControl;
 using ManagerControl;
 using MapControl;
@@ -9,7 +10,7 @@ namespace UIControl
 {
     public class MainMenuUIController : MonoBehaviour
     {
-        private Transform _camArm;
+        private CameraManager _camArm;
         public event Action OnGenerateInitMapEvent;
 
         [SerializeField] private Button startButton;
@@ -17,11 +18,11 @@ namespace UIControl
 
         private void Awake()
         {
-            _camArm = CameraManager.Instance.transform;
+            _camArm = FindObjectOfType<CameraManager>();
             startButton.onClick.AddListener(StartGame);
         }
 
-        private void OnEnable()
+        private void Start()
         {
             Time.timeScale = 1;
         }
@@ -29,17 +30,16 @@ namespace UIControl
         private void Update()
         {
             var rotAmount = Time.deltaTime * rotateSpeed;
-            _camArm.Rotate(Vector3.up, rotAmount);
+            _camArm.transform.Rotate(Vector3.up, rotAmount);
         }
 
         private void StartGame()
         {
-            // SoundManager.Instance.PlayBGM(StringManager.WaveBreak);
             TowerManager.Instance.GameStart();
-
+            SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
             OnGenerateInitMapEvent?.Invoke();
 
-            CameraManager.Instance.enabled = true;
+            _camArm.enabled = true;
             Destroy(gameObject);
         }
     }

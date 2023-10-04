@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DataControl;
 using ManagerControl;
@@ -400,7 +401,7 @@ namespace MapControl
         //Call When Wave is over
         private void PlaceExpandButtons()
         {
-            SoundManager.Instance.PlayBGM(StringManager.WaveBreak);
+            SoundManager.Instance.PlayBGM(SoundEnum.WaveBreak);
 
             foreach (var pos in _expandBtnPosHashSet)
                 _expandButtons.Add(PoolObjectManager.Get<ExpandMapButton>(PoolObjectKey.ExpandButton, pos));

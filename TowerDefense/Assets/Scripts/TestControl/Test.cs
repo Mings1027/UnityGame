@@ -1,12 +1,27 @@
-using System;
-using Cysharp.Threading.Tasks;
-using PoolObjectControl;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace TestControl
 {
     public class Test : MonoBehaviour
     {
+        private void Start()
+        {
+            Time.timeScale = 0.2f;
+        }
+
+        private void FixedUpdate()
+        {
+            print("fix");
+        }
+
+        private void Update()
+        {
+            print("up");
+        }
+
+        private void LateUpdate()
+        {
+            print("late");
+        }
     }
 }

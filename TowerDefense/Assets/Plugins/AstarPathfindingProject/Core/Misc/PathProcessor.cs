@@ -377,9 +377,11 @@ namespace Pathfinding {
 
 				AstarProfiler.StartFastProfile(9);
 
-				path.immediateCallback?.Invoke(path);
+				if (path.immediateCallback != null) path.immediateCallback(path);
 
-				// OnPathPostSearch?.Invoke(path);
+				if (OnPathPostSearch != null) {
+					OnPathPostSearch(path);
+				}
 
 				// Push the path onto the return stack
 				// It will be detected by the main Unity thread and returned as fast as possible (the next late update hopefully)
