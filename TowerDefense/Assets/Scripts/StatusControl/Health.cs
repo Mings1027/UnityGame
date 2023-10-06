@@ -1,20 +1,19 @@
 using System;
 using DG.Tweening;
 using InterfaceControl;
+using PoolObjectControl;
 using UnityEngine;
 
 namespace StatusControl
 {
     public class Health : Progressive, IDamageable, IHealable
     {
-        private ParticleSystem _bloodParticle;
         private Collider _collider;
 
         public event Action OnDeadEvent;
 
         private void Awake()
         {
-            _bloodParticle = GetComponentInChildren<ParticleSystem>();
             _collider = GetComponent<Collider>();
         }
 
@@ -34,9 +33,10 @@ namespace StatusControl
             if (IsDead) return;
             CurrentProgress -= amount;
 
-            _bloodParticle.Play();
+            PoolObjectManager.Get(PoolObjectKey.BloodVfx, transform.position);
             if (CurrentProgress > 0f) return;
             _collider.enabled = false;
+            print("deadddddddddddd");
             OnDeadEvent?.Invoke();
         }
 

@@ -1,9 +1,9 @@
 using System;
-using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
-using ManagerControl;
 using PoolObjectControl;
+using StatusControl;
+using UnitControl;
 using UnitControl.FriendlyControl;
 using UnityEngine;
 
@@ -13,10 +13,8 @@ namespace TowerControl
     {
         private Collider[] _targetColliders;
         private bool _isUnitSpawn;
-        private int _deadUnitCount;
         private int _damage;
         private float _atkDelay;
-
         public Vector3 unitSpawnPosition { get; set; }
 
         private FriendlyUnit[] _units;
@@ -40,7 +38,41 @@ namespace TowerControl
         *                                               Unity Event
         =========================================================================================================================================*/
 
-        public override void TowerFixedUpdate()
+        protected override void Init()
+        {
+            base.Init();
+            _units = new FriendlyUnit[3];
+        }
+
+        public void StartTargeting()
+        {
+            for (var i = 0; i < _units.Length; i++)
+            {
+                _units[i].TryGetComponent(out UnitAI unitAI);
+                unitAI.enabled = true;
+            }
+        }
+
+        public override void TowerTargetInit()
+        {
+            for (var i = 0; i < _units.Length; i++)
+            {
+                _units[i].TargetInit();
+                _units[i].TryGetComponent(out UnitAI unitAI);
+                if (!unitAI.reachedEndOfPath.Invoke()) continue;
+                unitAI.enabled = false;
+            }
+        }
+
+        public override void TowerTargeting()
+        {
+            for (var i = 0; i < _units.Length; i++)
+            {
+                _units[i].UnitTargeting();
+            }
+        }
+
+        public void TowerFixedUpdate()
         {
             for (var i = 0; i < _units.Length; i++)
             {
@@ -58,30 +90,6 @@ namespace TowerControl
             }
         }
 
-        public void TowerLateUpdate()
-        {
-            for (var i = 0; i < _units.Length; i++)
-            {
-                if (!_units[i].gameObject.activeSelf) continue;
-                _units[i].UnitLateUpdate();
-            }
-        }
-
-        public override void TargetInit()
-        {
-            for (var i = 0; i < _units.Length; i++)
-            {
-                _units[i].TargetInit();
-            }
-        }
-
-        protected override void Init()
-        {
-            base.Init();
-            _units = new FriendlyUnit[3];
-            _deadUnitCount = 0;
-        }
-
         public override void FingerUp()
         {
             base.FingerUp();
@@ -96,8 +104,7 @@ namespace TowerControl
             }
         }
 
-        public override void TowerSetting(MeshFilter towerMesh, int damageData, int rangeData,
-            float attackDelayData)
+        public override void TowerSetting(MeshFilter towerMesh, int damageData, int rangeData, float attackDelayData)
         {
             base.TowerSetting(towerMesh, damageData, rangeData, attackDelayData);
 
@@ -108,7 +115,7 @@ namespace TowerControl
                 UnitSpawn();
             }
 
-            UnitInfoInit(damageData, attackDelayData);
+            UnitUpgrade(damageData, attackDelayData);
         }
 
         private void UnitSpawn()
@@ -117,30 +124,41 @@ namespace TowerControl
             {
                 var angle = i * ((float)Math.PI * 2f) / _units.Length;
                 var pos = unitSpawnPosition + new Vector3((float)Math.Cos(angle), 0, (float)Math.Sin(angle));
-                _units[i] = PoolObjectManager.Get<FriendlyUnit>(TowerData.PoolObjectKey, pos);
-                _units[i].OnReSpawnEvent += UnitReSpawn;
                 PoolObjectManager.Get(PoolObjectKey.UnitSpawnSmoke, pos);
+                _units[i] = PoolObjectManager.Get<FriendlyUnit>(TowerData.PoolObjectKey, pos);
+                _units[i].Init(this, TowerData.TowerType);
+                _units[i].OnReSpawnEvent += UnitReSpawn;
             }
 
             _isUnitSpawn = true;
         }
 
-        private void UnitInfoInit(int damage, float delay)
+        private void UnitUpgrade(int damage, float delay)
         {
             for (var i = 0; i < _units.Length; i++)
             {
-                _units[i].InfoInit(this, TowerData.TowerType, damage, delay, initHealth * (1 + TowerLevel));
+                _units[i].UnitUpgrade(damage, initHealth * (1 + TowerLevel), delay);
             }
         }
 
         public async UniTask StartUnitMove(Vector3 touchPos)
         {
-            var tasks = new UniTask[_units.Length];
+            byte count = 0;
+            for (var i = 0; i < _units.Length; i++)
+            {
+                _units[i].TryGetComponent(out Health health);
+                if (health.IsDead) continue;
+                count++;
+            }
+
+            var tasks = new UniTask[count];
             for (var i = 0; i < tasks.Length; i++)
             {
+                _units[i].TryGetComponent(out Health health);
+                if (health.IsDead) continue;
                 var angle = i * ((float)Math.PI * 2f) / _units.Length;
                 var pos = touchPos + new Vector3((float)Math.Cos(angle), 0, (float)Math.Sin(angle));
-                tasks[i] = _units[i].MoveToTouchPos(pos);
+                tasks[i] = _units[i].MoveToTouchPosTest(pos);
             }
 
             await UniTask.WhenAll(tasks);
@@ -155,23 +173,25 @@ namespace TowerControl
             }
         }
 
-        private void UnitReSpawn(FriendlyUnit u)
+        private void UnitReSpawn()
         {
-            _deadUnitCount++;
-            if (_deadUnitCount < 3) return;
-            _deadUnitCount = 0;
+            for (var i = 0; i < _units.Length; i++)
+            {
+                _units[i].TryGetComponent(out Health health);
+                if (!health.IsDead) return;
+            }
+
             _isUnitSpawn = false;
 
-            UnitReSpawnDelay();
+            UnitReSpawnAsync().Forget();
         }
 
-        private void UnitReSpawnDelay()
+        private async UniTaskVoid UnitReSpawnAsync()
         {
-            DOVirtual.DelayedCall(5, () =>
-            {
-                UnitSpawn();
-                UnitInfoInit(_damage, _atkDelay);
-            }, false);
+            await UniTask.Delay(5000);
+            if (_isUnitSpawn) return;
+            UnitSpawn();
+            UnitUpgrade(_damage, _atkDelay);
         }
     }
 }

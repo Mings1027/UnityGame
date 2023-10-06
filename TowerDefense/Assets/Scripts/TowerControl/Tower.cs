@@ -15,7 +15,7 @@ namespace TowerControl
 
         public float TowerRange { get; private set; }
         public int TowerLevel { get; private set; }
-     
+
         public TowerData TowerData => towerData;
 
         [SerializeField] private TowerData towerData;
@@ -27,11 +27,10 @@ namespace TowerControl
 
         //==================================Custom Method====================================================
         //======================================================================================================
-
-        public abstract void TowerFixedUpdate();
+        public abstract void TowerTargetInit();
+        public abstract void TowerTargeting();
         public abstract void TowerUpdate();
-        public abstract void TargetInit();
-        
+
         protected virtual void Init()
         {
             TowerLevel = -1;

@@ -7,7 +7,7 @@ namespace TowerControl
         private int _archerCount;
         private Vector3 _targetDirection;
         private Transform _ballista;
-        
+
         [SerializeField] private float smoothTurnSpeed;
 
         protected override void Init()
@@ -17,8 +17,10 @@ namespace TowerControl
             firePos = _ballista.GetChild(0);
         }
 
-        private void LateUpdate()
+        public override void TowerUpdate()
         {
+            base.TowerUpdate();
+
             if (!isTargeting) return;
 
             var t = target.transform;

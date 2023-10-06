@@ -71,19 +71,19 @@ namespace ManagerControl
             _canPlace = false;
         }
 
-#if UNITY_EDITOR
-        private void OnDrawGizmos()
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(_cursorChild.position + Vector3.up * 3, 1);
-            Gizmos.DrawWireSphere(_cursorChild.position, 0.2f);
-            Gizmos.color = Color.green;
-            for (int i = 0; i < _checkDir.Length; i++)
-            {
-                Gizmos.DrawRay(_cursorChild.position + _checkDir[i] * 2 + Vector3.up, Vector3.down * 10);
-            }
-        }
-#endif
+// #if UNITY_EDITOR
+//         private void OnDrawGizmos()
+//         {
+//             Gizmos.color = Color.red;
+//             Gizmos.DrawWireSphere(_cursorChild.position + Vector3.up * 3, 1);
+//             Gizmos.DrawWireSphere(_cursorChild.position, 0.2f);
+//             Gizmos.color = Color.green;
+//             for (int i = 0; i < _checkDir.Length; i++)
+//             {
+//                 Gizmos.DrawRay(_cursorChild.position + _checkDir[i] * 2 + Vector3.up, Vector3.down * 10);
+//             }
+//         }
+// #endif
         private void StopPlacement()
         {
             _selectedTowerType = TowerType.None;

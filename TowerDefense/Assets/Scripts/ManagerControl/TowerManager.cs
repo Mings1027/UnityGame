@@ -349,12 +349,36 @@ namespace ManagerControl
                     Quaternion.Euler(0, _towerRanRotList[Random.Range(0, _towerRanRotList.Length)], 0))
                 .TryGetComponent(out Tower t);
             _curSelectedTower = t;
+            towerController.AddTower(_curSelectedTower);
         }
 
         public void SetUnitPosition(Vector3 unitSpawnPoint)
         {
             _curSelectedTower.TryGetComponent(out UnitTower u);
             u.unitSpawnPosition = unitSpawnPoint;
+        }
+
+        public void BuildTower()
+        {
+            var tempTower = _curSelectedTower;
+            var towerType = tempTower.TowerData.TowerType;
+            var towerLevel = tempTower.TowerLevel;
+#if UNITY_EDITOR
+            tempTower.transform.SetParent(transform);
+#endif
+            _towerCountDictionary[towerType]++;
+            var towerData = _towerDataDictionary[towerType];
+
+            tempTower.TowerLevelUp();
+            var towerInfoData = towerData.TowerLevels[tempTower.TowerLevel];
+            TowerGold -= towerData.TowerBuildGold * _towerCountDictionary[towerType];
+
+            tempTower.TowerSetting(towerInfoData.towerMesh, towerInfoData.damage, towerInfoData.attackRange,
+                towerInfoData.attackDelay);
+            upgradeButton.SetActive(!towerLevel.Equals(4));
+
+            _curSelectedTower.OnClickTower += ClickTower;
+            _curSelectedTower = null;
         }
 
         public void GameStart()
@@ -475,31 +499,6 @@ namespace ManagerControl
             r.DOScale(new Vector3(_curSelectedTower.TowerRange, 0.5f, _curSelectedTower.TowerRange), 0.15f)
                 .SetEase(Ease.OutBack);
             r.position = curTowerPos;
-        }
-
-        public void BuildTower()
-        {
-            var tempTower = _curSelectedTower;
-            var towerType = tempTower.TowerData.TowerType;
-            var towerLevel = tempTower.TowerLevel;
-#if UNITY_EDITOR
-            tempTower.transform.SetParent(transform);
-#endif
-            _towerCountDictionary[towerType]++;
-            var towerData = _towerDataDictionary[towerType];
-
-            tempTower.TowerLevelUp();
-            var towerInfoData = towerData.TowerLevels[tempTower.TowerLevel];
-            TowerGold -= towerData.TowerBuildGold * _towerCountDictionary[towerType];
-
-            tempTower.TowerSetting(towerInfoData.towerMesh, towerInfoData.damage, towerInfoData.attackRange,
-                towerInfoData.attackDelay);
-            upgradeButton.SetActive(!towerLevel.Equals(4));
-
-            _curSelectedTower.OnClickTower += ClickTower;
-
-            towerController.AddTower(_curSelectedTower);
-            _curSelectedTower = null;
         }
 
         private void TowerUpgrade()

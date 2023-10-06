@@ -1,5 +1,3 @@
-using System;
-using DataControl;
 using ManagerControl;
 using PoolObjectControl;
 using ProjectileControl;
@@ -9,12 +7,11 @@ namespace TowerControl
 {
     public abstract class TargetingTower : Tower
     {
-        private AudioSource _audioSource;
+        private AudioSource _attackSound;
         private Collider[] _targetColliders;
         private bool _isAttack;
         private sbyte _effectIndex;
         private Cooldown _atkCooldown;
-        private Cooldown _targetingCooldown;
         private int _damage;
 
         protected Transform target;
@@ -33,37 +30,21 @@ namespace TowerControl
         *                                               Unity Event
         =========================================================================================================================================*/
 
-        public override void TowerFixedUpdate()
+        protected override void Init()
         {
-            if (_targetingCooldown.IsCoolingDown) return;
-            Targeting();
-            _targetingCooldown.StartCooldown();
+            base.Init();
+            _attackSound = GetComponent<AudioSource>();
+            _effectIndex = -1;
+            _targetColliders = new Collider[3];
         }
 
-        public override void TowerUpdate()
-        {
-            if (!isTargeting || _atkCooldown.IsCoolingDown) return;
-            Attack();
-            _audioSource.Play();
-            _atkCooldown.StartCooldown();
-        }
-
-        public override void TargetInit()
+        public override void TowerTargetInit()
         {
             target = null;
             isTargeting = false;
         }
 
-        protected override void Init()
-        {
-            base.Init();
-            _audioSource = GetComponent<AudioSource>();
-            _targetingCooldown.cooldownTime = 1;
-            _effectIndex = -1;
-            _targetColliders = new Collider[3];
-        }
-
-        private void Targeting()
+        public override void TowerTargeting()
         {
             var size = Physics.OverlapSphereNonAlloc(transform.position, TowerRange, _targetColliders, targetLayer);
             if (size <= 0)
@@ -86,6 +67,14 @@ namespace TowerControl
 
             target = nearestTarget;
             isTargeting = true;
+        }
+
+        public override void TowerUpdate()
+        {
+            if (!isTargeting || _atkCooldown.IsCoolingDown) return;
+            Attack();
+            _attackSound.Play();
+            _atkCooldown.StartCooldown();
         }
 
         protected virtual void Attack()

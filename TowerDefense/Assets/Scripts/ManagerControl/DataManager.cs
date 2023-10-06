@@ -1,10 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using CustomEnumControl;
 using GameControl;
-using TMPro;
 using UnityEngine;
 
 namespace ManagerControl
@@ -27,11 +24,9 @@ namespace ManagerControl
                 Directory.CreateDirectory(_path);
                 damageDic = new Dictionary<TowerType, int>
                 {
-                    { TowerType.Assassin, 0 },{ TowerType.Ballista, 0 },
-                    { TowerType.Canon, 0 },
-                    { TowerType.Defender, 0 },
+                    { TowerType.Assassin, 0 }, { TowerType.Ballista, 0 },
+                    { TowerType.Canon, 0 }, { TowerType.Defender, 0 },
                     { TowerType.Mage, 0 },
-
                 };
                 var jsonData = DictionaryJsonUtility.ToJson(damageDic, true);
                 File.WriteAllText(_path + "/damage.txt", jsonData);

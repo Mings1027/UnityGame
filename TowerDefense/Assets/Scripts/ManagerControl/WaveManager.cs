@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DataControl;
+using Pathfinding;
 using PoolObjectControl;
 using UnitControl.EnemyControl;
 using UnityEngine;
@@ -90,7 +91,7 @@ namespace ManagerControl
 
         private async UniTaskVoid SpawnEnemy(IReadOnlyList<Vector3> wayPointsArray)
         {
-            await UniTask.Delay(500);
+            await UniTask.Delay(500, cancellationToken: _cts.Token);
             for (var i = 0; i < wayPointsArray.Count; i++)
             {
                 for (var j = 0; j < waveData.enemyInfos.Length; j++)

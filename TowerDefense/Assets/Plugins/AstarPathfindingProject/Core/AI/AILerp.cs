@@ -482,7 +482,7 @@ namespace Pathfinding {
 		/// Finally it is returned to the seeker which forwards it to this function.
 		/// </summary>
 		protected virtual void OnPathComplete (Path _p) {
-			ABPath p = _p as ABPath;
+			var p = _p as ABPath;
 
 			if (p == null) throw new System.Exception("This function only handles ABPaths, do not use special path types");
 
@@ -576,7 +576,7 @@ namespace Pathfinding {
 		}
 
 		protected virtual void ConfigurePathSwitchInterpolation () {
-			bool reachedEndOfPreviousPath = interpolator.valid && interpolator.remainingDistance < 0.0001f;
+			var reachedEndOfPreviousPath = interpolator.valid && interpolator.remainingDistance < 0.0001f;
 
 			if (interpolator.valid && !reachedEndOfPreviousPath) {
 				previousMovementOrigin = interpolator.position;
@@ -642,7 +642,7 @@ namespace Pathfinding {
 		Quaternion SimulateRotationTowards (Vector3 direction, float deltaTime) {
 			// Rotate unless we are really close to the target
 			if (direction != Vector3.zero) {
-				Quaternion targetRotation = Quaternion.LookRotation(direction, orientation == OrientationMode.YAxisForward ? Vector3.back : Vector3.up);
+				var targetRotation = Quaternion.LookRotation(direction, orientation == OrientationMode.YAxisForward ? Vector3.back : Vector3.up);
 				// This causes the character to only rotate around the Z axis
 				if (orientation == OrientationMode.YAxisForward) targetRotation *= Quaternion.Euler(90, 0, 0);
 				return Quaternion.Slerp(simulatedRotation, targetRotation, deltaTime * rotationSpeed);
@@ -671,14 +671,14 @@ namespace Pathfinding {
 			if (interpolatePathSwitches && alpha < 1f) {
 				// Find the approximate position we would be at if we
 				// would have continued to follow the previous path
-				Vector3 positionAlongPreviousPath = previousMovementOrigin + Vector3.ClampMagnitude(previousMovementDirection, speed * pathSwitchInterpolationTime);
+				var positionAlongPreviousPath = previousMovementOrigin + Vector3.ClampMagnitude(previousMovementDirection, speed * pathSwitchInterpolationTime);
 
 				// Interpolate between the position on the current path and the position
 				// we would have had if we would have continued along the previous path.
 				return Vector3.Lerp(positionAlongPreviousPath, interpolator.position, alpha);
-			} else {
-				return interpolator.position;
 			}
+
+			return interpolator.position;
 		}
 
 		protected override int OnUpgradeSerializedData (int version, bool unityThread) {

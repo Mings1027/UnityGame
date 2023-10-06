@@ -102,7 +102,7 @@ namespace PoolObjectControl
             var obj = _inst.Spawn(poolObjectKey, position, Quaternion.identity);
             if (obj.TryGetComponent(out T component)) return component;
             obj.SetActive(false);
-            throw new Exception("Component not found");
+            throw new Exception($"{poolObjectKey} Component not found");
         }
 
         public static T Get<T>(PoolObjectKey poolObjectKey, Vector3 position, Quaternion rotation) where T : Component

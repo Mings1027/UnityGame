@@ -23,7 +23,7 @@ namespace PoolObjectControl
         
         //==============Vfx==============
         CanonExplosion,
-        
+        BloodVfx,
         //==============Unit==============
         AssassinUnit,
         DefenderUnit,

@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
@@ -17,27 +18,24 @@ namespace UnitControl.FriendlyControl
         private Animator _anim;
         private Rigidbody _rigid;
         private SphereCollider _sphereCollider;
+        private UnitAI _unitAI;
         private Health _health;
-        private Collider _target;
         private Collider[] _targetCollider;
         private UnitTower _parentTower;
         private AttackPoint _attackPoint;
+        private Cooldown atkCooldown;
+        private Collider _target;
 
         private Vector3 _moveDir;
         private Vector3 _moveVec;
-        private Vector3 _curPos;
 
         private TowerType _towerType;
         private int _damage;
         private byte curWayPoint;
 
-        private Cooldown _atkCooldown;
-        private Cooldown _targetingTime;
-
         private bool _isTargeting;
         private bool _moveInput;
         private bool _targetInAtkRange;
-        private bool _isOnDestination;
 
         private static readonly int IsWalk = Animator.StringToHash("isWalk");
         private static readonly int IsAttack = Animator.StringToHash("isAttack");
@@ -49,7 +47,7 @@ namespace UnitControl.FriendlyControl
         [SerializeField] private float sightRange;
         [SerializeField] private float moveSpeed;
 
-        public event Action<FriendlyUnit> OnReSpawnEvent;
+        public event Action OnReSpawnEvent;
 
         public MeshRenderer Indicator => indicator;
 
@@ -63,18 +61,16 @@ namespace UnitControl.FriendlyControl
             _anim = GetComponentInChildren<Animator>();
             _rigid = GetComponent<Rigidbody>();
             _sphereCollider = GetComponent<SphereCollider>();
+            _unitAI = GetComponent<UnitAI>();
             _health = GetComponent<Health>();
             _targetCollider = new Collider[2];
             _attackPoint = GetComponentInChildren<AttackPoint>();
-            _targetingTime.cooldownTime = 1f;
         }
 
         private void OnEnable()
         {
             _target = null;
             _targetInAtkRange = false;
-            _isOnDestination = true;
-            _curPos = transform.position;
             _health.OnDeadEvent += DeadAnimation;
             indicator.enabled = false;
         }
@@ -83,16 +79,16 @@ namespace UnitControl.FriendlyControl
         {
             if (_health.IsDead)
             {
-                OnReSpawnEvent?.Invoke(this);
+                OnReSpawnEvent?.Invoke();
                 OnReSpawnEvent = null;
             }
 
             _isTargeting = false;
             _moveInput = false;
             _targetInAtkRange = false;
-            _isOnDestination = false;
-            _parentTower = null;
-            _towerType = TowerType.None;
+            // _parentTower = null;
+            // _towerType = TowerType.None;
+            CancelInvoke();
         }
 #if UNITY_EDITOR
         private void OnDrawGizmos()
@@ -101,6 +97,8 @@ namespace UnitControl.FriendlyControl
             Gizmos.DrawWireSphere(transform.position, sightRange);
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(transform.position, atkRange);
+            if (_target == null) return;
+            Gizmos.DrawSphere(_target.transform.position, 0.5f);
         }
 #endif
         /*==============================================================================================================================================
@@ -113,91 +111,72 @@ namespace UnitControl.FriendlyControl
             if (_moveInput) return;
             _rigid.velocity = Vector3.zero;
             _rigid.angularVelocity = Vector3.zero;
-
-            Targeting();
-            CheckRange();
-
-            if (_isTargeting)
-            {
-                if (!_targetInAtkRange)
-                    Move(_target.transform.position);
-            }
-            else
-            {
-                if (!_isOnDestination)
-                    Move(_curPos);
-            }
         }
 
         public void UnitUpdate()
         {
             if (_health.IsDead) return;
+            _anim.SetBool(IsWalk, _moveInput || _unitAI.CanMove);
+
+            if (_targetInAtkRange && _isTargeting)
+            {
+                _unitAI.CanMove = false;
+                if (atkCooldown.IsCoolingDown) return;
+                Attack();
+                atkCooldown.StartCooldown();
+            }
+        }
+
+        public void TargetInit()
+        {
+            _anim.SetBool(IsWalk, false);
+            _isTargeting = false;
+            _target = null;
+        }
+
+        public void UnitTargeting()
+        {
             if (_moveInput) return;
-
-            Attack();
-        }
-
-        public void UnitLateUpdate() =>
-            _anim.SetBool(IsWalk, _moveInput || (_isTargeting ? !_targetInAtkRange : !_isOnDestination));
-
-        public void TargetInit() => _target = null;
-
-        private void CheckRange()
-        {
-            if (_isTargeting)
-            {
-                _targetInAtkRange = Vector3.SqrMagnitude(_rigid.position - _target.transform.position) < atkRange;
-            }
-            else
-            {
-                _isOnDestination = Vector3.SqrMagnitude(_rigid.position - _curPos) < 0.5f;
-            }
-        }
-
-        private void Targeting()
-        {
-            if (_targetingTime.IsCoolingDown) return;
             var size = Physics.OverlapSphereNonAlloc(transform.position, sightRange, _targetCollider, targetLayer);
             if (size <= 0)
             {
                 _target = null;
                 _isTargeting = false;
+                _unitAI.CanMove = false;
                 return;
+            }
+
+            if (_target)
+            {
+                if (!_target.enabled)
+                {
+                    _target = null;
+                    _isTargeting = false;
+                }
             }
 
             if (!_isTargeting)
             {
-                _target = _targetCollider[0];
                 _isTargeting = true;
+                _target = _targetCollider[0];
+                _unitAI.CanMove = true;
             }
 
-            _targetingTime.StartCooldown();
+            if (!_target) return;
+            var targetPos = _target.transform.position;
+            _targetInAtkRange = Vector3.Distance(targetPos, transform.position) <= atkRange;
+            _unitAI.targetPos = targetPos;
         }
 
         private void Attack()
         {
-            if (!_isTargeting) return;
-            if (!_targetInAtkRange) return;
-            if (_atkCooldown.IsCoolingDown) return;
+            if (_moveInput) return;
             if (_attackPoint.enabled) return;
             _anim.SetTrigger(IsAttack);
             _audioSource.Play();
-            _attackPoint.Init(_target.transform, _damage);
+            _attackPoint.Init(_target, _damage);
             _attackPoint.enabled = true;
             DataManager.SumDamage(_towerType, _damage);
-            _atkCooldown.StartCooldown();
-            if (_target.enabled) return;
-            _target = null;
-            _isTargeting = false;
-        }
-
-        private void Move(Vector3 targetPos)
-        {
-            var pos = _rigid.position;
-            _moveDir = (targetPos - pos).normalized;
-            _moveVec = _moveDir * (moveSpeed * Time.deltaTime);
-            _rigid.MovePosition(pos + _moveVec);
-            _rigid.MoveRotation(Quaternion.LookRotation(_moveDir));
         }
 
         private void DeadAnimation()
@@ -206,30 +185,38 @@ namespace UnitControl.FriendlyControl
             DOVirtual.DelayedCall(2, () => gameObject.SetActive(false));
         }
 
-        public async UniTask MoveToTouchPos(Vector3 pos)
+        public async UniTask MoveToTouchPosTest(Vector3 pos)
         {
-            _curPos = pos;
             _moveInput = true;
             _sphereCollider.enabled = false;
             _anim.SetBool(IsWalk, true);
-            _rigid.MoveRotation(Quaternion.LookRotation(pos - _rigid.position));
-            await _rigid.DOMove(pos, moveSpeed).SetSpeedBased().SetEase(Ease.Linear).OnComplete(() =>
-            {
-                _moveInput = false;
-                _sphereCollider.enabled = true;
-                indicator.enabled = false;
-                _anim.SetBool(IsWalk, false);
-            });
+            _unitAI.CanMove = true;
+            _unitAI.targetPos = pos;
+            _unitAI.enabled = false;
+            _unitAI.enabled = true;
+
+            await UniTask.WaitUntil(_unitAI.reachedEndOfPath);
+
+            _moveInput = false;
+            _sphereCollider.enabled = true;
+            _anim.SetBool(IsWalk, false);
+            _unitAI.CanMove = false;
+            if (TowerManager.Instance.StartWave) return;
+            _unitAI.enabled = false;
         }
 
-        public void InfoInit(UnitTower unitTower, TowerType towerType, int damage, float attackDelay,
-            float healthAmount)
+        public void Init(UnitTower unitTower, TowerType towerType)
         {
             _parentTower = unitTower;
             _towerType = towerType;
-            _atkCooldown.cooldownTime = attackDelay;
+        }
+
+        public void UnitUpgrade(int damage, float healthAmount, float delay)
+        {
             _damage = damage;
             _health.Init(healthAmount);
+            _unitAI.targetPos = transform.position;
+            atkCooldown.cooldownTime = delay;
         }
 
         public void FingerUp()

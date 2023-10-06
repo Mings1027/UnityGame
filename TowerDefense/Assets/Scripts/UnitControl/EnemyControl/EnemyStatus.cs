@@ -11,7 +11,7 @@ namespace UnitControl.EnemyControl
     public class EnemyStatus : MonoBehaviour
     {
         private EnemyUnit _enemyUnit;
-        private EnemyAI _enemyAI;
+        private UnitAI _unitAI;
         private EnemyHealth _enemyHealth;
         private bool _isSlowed;
         private float _defaultSpeed;
@@ -21,8 +21,8 @@ namespace UnitControl.EnemyControl
         private void Awake()
         {
             _enemyUnit = GetComponent<EnemyUnit>();
-            _enemyAI = GetComponent<EnemyAI>();
-            _defaultSpeed = _enemyAI.MoveSpeed;
+            _unitAI = GetComponent<UnitAI>();
+            _defaultSpeed = _unitAI.MoveSpeed;
         }
 
         private void OnEnable()
@@ -33,22 +33,22 @@ namespace UnitControl.EnemyControl
         private void StatusInit()
         {
             _isSlowed = false;
-            _enemyAI.MoveSpeed = _defaultSpeed;
+            _unitAI.MoveSpeed = _defaultSpeed;
         }
 
         public void SlowEffect(ref DeBuffData.SpeedDeBuffData speedDeBuffData)
         {
             if (_isSlowed) return;
             _isSlowed = true;
-            _enemyAI.MoveSpeed -= speedDeBuffData.decreaseSpeed;
-            _enemyUnit.SetAnimationSpeed(_enemyAI.MoveSpeed);
-            if (_enemyAI.MoveSpeed < 0.5f) _enemyAI.MoveSpeed = 0.5f;
+            _unitAI.MoveSpeed -= speedDeBuffData.decreaseSpeed;
+            _enemyUnit.SetAnimationSpeed(_unitAI.MoveSpeed);
+            if (_unitAI.MoveSpeed < 0.5f) _unitAI.MoveSpeed = 0.5f;
             SlowEffectTween(speedDeBuffData);
         }
 
         private void SlowEffectTween(DeBuffData.SpeedDeBuffData speedDeBuff)
         {
-            DOVirtual.DelayedCall(speedDeBuff.deBuffTime, () => _enemyAI.MoveSpeed = _defaultSpeed)
+            DOVirtual.DelayedCall(speedDeBuff.deBuffTime, () => _unitAI.MoveSpeed = _defaultSpeed)
                 .OnComplete(() =>
                 {
                     DOVirtual.DelayedCall(slowImmunityTime, () =>
