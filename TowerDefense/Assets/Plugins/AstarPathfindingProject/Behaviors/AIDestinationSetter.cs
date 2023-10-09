@@ -16,9 +16,10 @@ namespace Pathfinding {
 	public class AIDestinationSetter : VersionedMonoBehaviour {
 		/// <summary>The object that the AI should move to</summary>
 		public Transform target;
-		IAstarAI ai;
 
-		void OnEnable () {
+		private IAstarAI ai;
+
+		private void OnEnable () {
 			ai = GetComponent<IAstarAI>();
 			// Update the destination right before searching for a path as well.
 			// This is enough in theory, but this script will also update the destination every
@@ -27,13 +28,13 @@ namespace Pathfinding {
 			if (ai != null) ai.onSearchPath += Update;
 		}
 
-		void OnDisable () {
+		private void OnDisable () {
 			if (ai != null) ai.onSearchPath -= Update;
 		}
 
 		/// <summary>Updates the AI's destination every frame</summary>
-		void Update () {
-			if (target != null && ai != null) ai.destination = target.position;
+		private void Update () {
+			if (ai != null) ai.destination = target.position;
 		}
 	}
 }

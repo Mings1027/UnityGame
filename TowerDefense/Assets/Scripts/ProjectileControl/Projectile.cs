@@ -1,4 +1,3 @@
-using System;
 using DataControl;
 using InterfaceControl;
 using ManagerControl;
@@ -90,14 +89,14 @@ namespace ProjectileControl
         public virtual void ColorInit(sbyte effectIndex)
         {
             var trailColor = _trailParticle.main;
-            trailColor.startColor = towerData.projectileColor[effectIndex];
+            trailColor.startColor = towerData.ProjectileColor[effectIndex];
             var hitColor = _hitParticle.main;
-            hitColor.startColor = towerData.projectileColor[effectIndex];
+            hitColor.startColor = towerData.ProjectileColor[effectIndex];
         }
 
         protected void TryDamage(Transform t)
         {
-            t.TryGetComponent(out IDamageable damageable);
+            if (!t.TryGetComponent(out IDamageable damageable) || !t.gameObject.activeSelf) return;
             damageable.Damage(_damage);
             DataManager.SumDamage(towerData.TowerType, _damage);
         }

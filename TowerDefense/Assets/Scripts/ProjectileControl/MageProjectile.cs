@@ -1,26 +1,24 @@
-using DataControl;
-using ManagerControl;
 using UnitControl.EnemyControl;
-using UnityEngine;
 
 namespace ProjectileControl
 {
     public sealed class MageProjectile : Projectile
     {
-        private sbyte _slowDeBuffIndex;
-        [SerializeField] private DeBuffData deBuffData;
+        private byte decreaseSpeed;
+        private byte slowCoolTime;
 
         public override void ColorInit(sbyte effectIndex)
         {
             base.ColorInit(effectIndex);
-            _slowDeBuffIndex = effectIndex;
+            decreaseSpeed = (byte)(effectIndex + 1);
+            slowCoolTime = decreaseSpeed;
         }
 
         public override void Hit()
         {
             base.Hit();
             target.TryGetComponent(out EnemyStatus enemyStatus);
-            enemyStatus.SlowEffect(ref deBuffData.speedDeBuffData[_slowDeBuffIndex]);
+            enemyStatus.SlowEffect(decreaseSpeed, slowCoolTime);
         }
     }
 }

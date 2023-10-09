@@ -1,62 +1,46 @@
 using System;
-using System.Threading;
 using Cysharp.Threading.Tasks;
-using DataControl;
-using DG.Tweening;
-using TowerControl;
 using UnityEngine;
+using UnityEngine.AI;
 
 namespace UnitControl.EnemyControl
 {
     public class EnemyStatus : MonoBehaviour
     {
         private EnemyUnit _enemyUnit;
-        private UnitAI _unitAI;
+        private NavMeshAgent _navMeshAgent;
         private EnemyHealth _enemyHealth;
         private bool _isSlowed;
-        private float _defaultSpeed;
-
-        [SerializeField] private float slowImmunityTime;
+        public float defaultSpeed { get; set; }
 
         private void Awake()
         {
             _enemyUnit = GetComponent<EnemyUnit>();
-            _unitAI = GetComponent<UnitAI>();
-            _defaultSpeed = _unitAI.MoveSpeed;
+            _navMeshAgent = GetComponent<NavMeshAgent>();
         }
 
         private void OnEnable()
         {
-            StatusInit();
-        }
-
-        private void StatusInit()
-        {
             _isSlowed = false;
-            _unitAI.MoveSpeed = _defaultSpeed;
         }
 
-        public void SlowEffect(ref DeBuffData.SpeedDeBuffData speedDeBuffData)
+        public void SlowEffect(byte decreaseSpeed, byte slowCoolTime)
         {
             if (_isSlowed) return;
             _isSlowed = true;
-            _unitAI.MoveSpeed -= speedDeBuffData.decreaseSpeed;
-            _enemyUnit.SetAnimationSpeed(_unitAI.MoveSpeed);
-            if (_unitAI.MoveSpeed < 0.5f) _unitAI.MoveSpeed = 0.5f;
-            SlowEffectTween(speedDeBuffData);
+            if (_navMeshAgent.speed - decreaseSpeed < 0.5f) _navMeshAgent.speed = 0.5f;
+            else _navMeshAgent.speed -= decreaseSpeed;
+            _enemyUnit.SetAnimationSpeed(_navMeshAgent.speed);
+            SlowEffectTween(slowCoolTime).Forget();
         }
 
-        private void SlowEffectTween(DeBuffData.SpeedDeBuffData speedDeBuff)
+        private async UniTaskVoid SlowEffectTween(byte slowCoolTime)
         {
-            DOVirtual.DelayedCall(speedDeBuff.deBuffTime, () => _unitAI.MoveSpeed = _defaultSpeed)
-                .OnComplete(() =>
-                {
-                    DOVirtual.DelayedCall(slowImmunityTime, () =>
-                    {
-                        _isSlowed = false;
-                        _enemyUnit.SetAnimationSpeed(_defaultSpeed);
-                    });
-                });
+            await UniTask.Delay(TimeSpan.FromSeconds(slowCoolTime));
+            _navMeshAgent.speed = defaultSpeed;
+            _enemyUnit.SetAnimationSpeed(defaultSpeed);
+            await UniTask.Delay(TimeSpan.FromSeconds(slowCoolTime));
+            _isSlowed = false;
         }
 
         public void ContinuousDamage()

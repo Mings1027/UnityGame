@@ -8,6 +8,7 @@ using ManagerControl;
 using PoolObjectControl;
 using UIControl;
 using UnityEngine;
+using UnityEngine.AI;
 using Random = UnityEngine.Random;
 
 namespace MapControl
@@ -19,6 +20,7 @@ namespace MapControl
         private MeshRenderer _meshRenderer;
         private MeshFilter _obstacleMeshFilter;
         private MeshRenderer _obstacleMeshRenderer;
+        private NavMeshSurface _navMeshSurface;
 
         private GameObject _newMapObject;
 
@@ -103,6 +105,7 @@ namespace MapControl
             _meshRenderer = GetComponent<MeshRenderer>();
             _obstacleMeshFilter = obstacleMesh.GetComponent<MeshFilter>();
             _obstacleMeshRenderer = obstacleMesh.GetComponent<MeshRenderer>();
+            _navMeshSurface = GetComponent<NavMeshSurface>();
         }
 
         private void MapDataInit()
@@ -151,6 +154,8 @@ namespace MapControl
             SetNewMapForward(mapData);
             PlaceObstacle(mapData);
             _map.Add(_newMapObject);
+            
+            _navMeshSurface.BuildNavMesh();
         }
 
         private void GenerateInitMap()
@@ -199,6 +204,8 @@ namespace MapControl
 
             CombineObstacleMesh();
 
+            _navMeshSurface.BuildNavMesh();
+            
             _waveManager.StartWave(_wayPointsHashSet.ToList());
             TowerManager.Instance.EnableTower();
         }

@@ -1,11 +1,9 @@
-using System;
-using Cysharp.Threading.Tasks;
 using DataControl;
 using DG.Tweening;
 using ManagerControl;
-using Pathfinding;
 using UnitControl.FriendlyControl;
 using UnityEngine;
+using UnityEngine.AI;
 
 namespace UnitControl.EnemyControl
 {
@@ -13,9 +11,10 @@ namespace UnitControl.EnemyControl
     {
         private AudioSource _audioSource;
         private Animator _anim;
-        private Rigidbody _rigid;
+
         private SphereCollider _sphereCollider;
-        private UnitAI _unitAI;
+
+        private NavMeshAgent _navMeshAgent;
         private EnemyHealth _enemyHealth;
         private Collider[] _targetCollider;
         private AttackPoint _attackPoint;
@@ -31,7 +30,7 @@ namespace UnitControl.EnemyControl
         private static readonly int IsAttack = Animator.StringToHash("isAttack");
         private static readonly int IsDead = Animator.StringToHash("isDead");
 
-        [SerializeField] private float atkRange;
+        private float atkRange;
         [SerializeField] private float sightRange;
         [SerializeField] private LayerMask targetLayer;
 
@@ -43,12 +42,13 @@ namespace UnitControl.EnemyControl
         {
             _audioSource = GetComponent<AudioSource>();
             _anim = GetComponentInChildren<Animator>();
-            _rigid = GetComponent<Rigidbody>();
             _sphereCollider = GetComponent<SphereCollider>();
-            _unitAI = GetComponent<UnitAI>();
+            _navMeshAgent = GetComponent<NavMeshAgent>();
             _enemyHealth = GetComponent<EnemyHealth>();
             _targetCollider = new Collider[1];
             _attackPoint = GetComponentInChildren<AttackPoint>();
+            atkRange = _sphereCollider.radius * 2f;
+            _navMeshAgent.stoppingDistance = atkRange;
         }
 
         private void OnEnable()
@@ -56,18 +56,8 @@ namespace UnitControl.EnemyControl
             _target = null;
             _isTargeting = false;
             _enemyHealth.OnDeadEvent += DeadAnimation;
-            SetAnimationSpeed(_unitAI.MoveSpeed);
-
+            SetAnimationSpeed(_navMeshAgent.speed);
             InvokeRepeating(nameof(Targeting), 0f, 1f);
-        }
-
-        private void FixedUpdate()
-        {
-            if (_enemyHealth.IsDead) return;
-            _targetInAtkRange = Physics.CheckSphere(transform.position, atkRange, targetLayer);
-
-            _rigid.velocity = Vector3.zero;
-            _rigid.angularVelocity = Vector3.zero;
         }
 
         private void Update()
@@ -75,7 +65,7 @@ namespace UnitControl.EnemyControl
             if (_enemyHealth.IsDead) return;
             if (_targetInAtkRange && _isTargeting)
             {
-                _unitAI.CanMove = false;
+                _navMeshAgent.isStopped = true;
                 if (atkCooldown.IsCoolingDown) return;
                 Attack();
                 atkCooldown.StartCooldown();
@@ -85,18 +75,12 @@ namespace UnitControl.EnemyControl
         private void LateUpdate()
         {
             if (_enemyHealth.IsDead) return;
-            _anim.SetBool(IsWalk, _unitAI.CanMove);
+            _anim.SetBool(IsWalk, !_navMeshAgent.isStopped);
         }
 
         private void OnDisable()
         {
             CancelInvoke();
-        }
-
-        private void OnTriggerEnter(Collider other)
-        {
-            if (other.CompareTag("Destination"))
-                gameObject.SetActive(false);
         }
 
 #if UNITY_EDITOR
@@ -120,10 +104,10 @@ namespace UnitControl.EnemyControl
             {
                 _target = null;
                 _isTargeting = false;
-                _unitAI.CanMove = true;
-                _unitAI.targetPos = Vector3.zero;
-
-                _sphereCollider.isTrigger = true;
+                _navMeshAgent.isStopped = false;
+                _navMeshAgent.SetDestination(Vector3.zero);
+                if (Vector3.Distance(_navMeshAgent.destination, transform.position) > 2) return;
+                gameObject.SetActive(false);
                 return;
             }
 
@@ -131,10 +115,12 @@ namespace UnitControl.EnemyControl
             {
                 _isTargeting = true;
                 _target = _targetCollider[0];
-                _sphereCollider.isTrigger = false;
             }
 
-            if (_target) _unitAI.targetPos = _target.transform.position;
+            if (!_target) return;
+            var targetPos = _target.transform.position;
+            _targetInAtkRange = Vector3.Distance(targetPos, transform.position) <= atkRange;
+            _navMeshAgent.SetDestination(targetPos);
         }
 
         private void Attack()
@@ -149,19 +135,28 @@ namespace UnitControl.EnemyControl
             _isTargeting = false;
         }
 
-        public void SetAnimationSpeed(float animSpeed) => _anim.speed = animSpeed * 0.5f;
+        public void SetAnimationSpeed(float animSpeed)
+        {
+            if (animSpeed * 0.5f < 0.5f) animSpeed = 0.5f;
+            _anim.speed = animSpeed * 0.5f;
+        }
 
         private void DeadAnimation()
         {
-            _unitAI.CanMove = false;
+            _navMeshAgent.isStopped = true;
+            _navMeshAgent.enabled = false;
             _anim.SetTrigger(IsDead);
-            DOVirtual.DelayedCall(2, () => gameObject.SetActive(false));
+            DOVirtual.DelayedCall(2, () => gameObject.SetActive(false), false);
         }
 
-        public void Init(WaveData.EnemyInfo info)
+        public void Init(EnemyData enemyData)
         {
-            atkCooldown.cooldownTime = info.atkDelay;
-            _damage = info.damage;
+            _navMeshAgent.enabled = true;
+            _navMeshAgent.speed = enemyData.enemyInfo.speed;
+            TryGetComponent(out EnemyStatus enemyStatus);
+            enemyStatus.defaultSpeed = enemyData.enemyInfo.speed;
+            atkCooldown.cooldownTime = enemyData.enemyInfo.atkDelay;
+            _damage = enemyData.enemyInfo.damage;
         }
     }
 }

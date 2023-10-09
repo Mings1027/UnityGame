@@ -141,7 +141,8 @@ namespace PoolObjectControl
             var poolStack = _prefabDictionary[poolObjKey];
             if (poolStack.Count <= 0)
             {
-                var pool = GetPool_OrNull(poolObjKey);
+                _poolDictionary.TryGetValue(poolObjKey, out var pool);
+                // var pool = GetPool_OrNull(poolObjKey);
                 if (pool == null) throw new Exception($"Pool with tag {poolObjKey} doesn't exist.");
                 CreateNewObject(poolObjKey, pool.prefab);
             }
@@ -165,7 +166,6 @@ namespace PoolObjectControl
             poolObject.PoolObjKey = poolObjectKey;
             obj.name = poolObjectKey.ToString();
             obj.SetActive(false);
-            // return obj;
         }
 #if UNITY_EDITOR
         private void SortObject(GameObject obj)

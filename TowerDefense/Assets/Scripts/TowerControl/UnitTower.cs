@@ -1,9 +1,8 @@
 using System;
 using Cysharp.Threading.Tasks;
-using DG.Tweening;
+using DataControl;
 using PoolObjectControl;
 using StatusControl;
-using UnitControl;
 using UnitControl.FriendlyControl;
 using UnityEngine;
 
@@ -15,10 +14,10 @@ namespace TowerControl
         private bool _isUnitSpawn;
         private int _damage;
         private float _atkDelay;
+        private byte deadUnitCount;
         public Vector3 unitSpawnPosition { get; set; }
 
         private FriendlyUnit[] _units;
-        [SerializeField] private int initHealth;
 
         /*=========================================================================================================================================
         *                                               Unity Event
@@ -42,15 +41,7 @@ namespace TowerControl
         {
             base.Init();
             _units = new FriendlyUnit[3];
-        }
-
-        public void StartTargeting()
-        {
-            for (var i = 0; i < _units.Length; i++)
-            {
-                _units[i].TryGetComponent(out UnitAI unitAI);
-                unitAI.enabled = true;
-            }
+            deadUnitCount = 0;
         }
 
         public override void TowerTargetInit()
@@ -58,9 +49,6 @@ namespace TowerControl
             for (var i = 0; i < _units.Length; i++)
             {
                 _units[i].TargetInit();
-                _units[i].TryGetComponent(out UnitAI unitAI);
-                if (!unitAI.reachedEndOfPath.Invoke()) continue;
-                unitAI.enabled = false;
             }
         }
 
@@ -69,15 +57,6 @@ namespace TowerControl
             for (var i = 0; i < _units.Length; i++)
             {
                 _units[i].UnitTargeting();
-            }
-        }
-
-        public void TowerFixedUpdate()
-        {
-            for (var i = 0; i < _units.Length; i++)
-            {
-                if (!_units[i].gameObject.activeSelf) continue;
-                _units[i].UnitFixedUpdate();
             }
         }
 
@@ -127,7 +106,8 @@ namespace TowerControl
                 PoolObjectManager.Get(PoolObjectKey.UnitSpawnSmoke, pos);
                 _units[i] = PoolObjectManager.Get<FriendlyUnit>(TowerData.PoolObjectKey, pos);
                 _units[i].Init(this, TowerData.TowerType);
-                _units[i].OnReSpawnEvent += UnitReSpawn;
+                _units[i].TryGetComponent(out Health health);
+                health.OnDeadEvent += UnitReSpawn;
             }
 
             _isUnitSpawn = true;
@@ -137,21 +117,14 @@ namespace TowerControl
         {
             for (var i = 0; i < _units.Length; i++)
             {
-                _units[i].UnitUpgrade(damage, initHealth * (1 + TowerLevel), delay);
+                var unitData = (UnitTowerData)TowerData;
+                _units[i].UnitUpgrade(damage, unitData.UnitHealth * (1 + TowerLevel), delay);
             }
         }
 
         public async UniTask StartUnitMove(Vector3 touchPos)
         {
-            byte count = 0;
-            for (var i = 0; i < _units.Length; i++)
-            {
-                _units[i].TryGetComponent(out Health health);
-                if (health.IsDead) continue;
-                count++;
-            }
-
-            var tasks = new UniTask[count];
+            var tasks = new UniTask[_units.Length - deadUnitCount];
             for (var i = 0; i < tasks.Length; i++)
             {
                 _units[i].TryGetComponent(out Health health);
@@ -175,20 +148,19 @@ namespace TowerControl
 
         private void UnitReSpawn()
         {
-            for (var i = 0; i < _units.Length; i++)
-            {
-                _units[i].TryGetComponent(out Health health);
-                if (!health.IsDead) return;
-            }
+            print("dead");
+            deadUnitCount++;
+            if (deadUnitCount != _units.Length) return;
 
+            deadUnitCount = 0;
+            print("all unit dead");
             _isUnitSpawn = false;
-
             UnitReSpawnAsync().Forget();
         }
 
         private async UniTaskVoid UnitReSpawnAsync()
         {
-            await UniTask.Delay(5000);
+            await UniTask.Delay(5000, delayType: DelayType.DeltaTime);
             if (_isUnitSpawn) return;
             UnitSpawn();
             UnitUpgrade(_damage, _atkDelay);

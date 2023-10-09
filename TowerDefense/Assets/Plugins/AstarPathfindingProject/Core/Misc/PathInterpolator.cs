@@ -34,14 +34,14 @@ namespace Pathfinding.Util
         /// <summary>Remaining distance until the end of the path</summary>
         public float remainingDistance
         {
-            get { return totalDistance - distance; }
-            set { distance = totalDistance - value; }
+            get => totalDistance - distance;
+            set => distance = totalDistance - value;
         }
 
         /// <summary>Traversed distance from the start of the path</summary>
         public float distance
         {
-            get { return currentDistance; }
+            get => currentDistance;
             set
             {
                 currentDistance = value;
@@ -62,10 +62,7 @@ namespace Pathfinding.Util
         /// True if this instance has a path set.
         /// See: SetPath
         /// </summary>
-        public bool valid
-        {
-            get { return path != null; }
-        }
+        public bool valid => path != null;
 
         /// <summary>Appends the remaining path between <see cref="position"/> and <see cref="endPoint"/> to buffer</summary>
         public void GetRemainingPath(List<Vector3> buffer)

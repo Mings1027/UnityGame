@@ -253,13 +253,13 @@ namespace Pathfinding {
 		/// <summary>Runs modifiers on a path</summary>
 		public void RunModifiers (ModifierPass pass, Path path) {
 			if (pass == ModifierPass.PreProcess) {
-				if (preProcessPath != null) preProcessPath(path);
+				preProcessPath?.Invoke(path);
 
 				for (int i = 0; i < modifiers.Count; i++) modifiers[i].PreProcess(path);
 			} else if (pass == ModifierPass.PostProcess) {
 				Profiler.BeginSample("Running Path Modifiers");
 				// Call delegates if they exist
-				if (postProcessPath != null) postProcessPath(path);
+				postProcessPath?.Invoke(path);
 
 				// Loop through all modifiers and apply post processing
 				for (int i = 0; i < modifiers.Count; i++) modifiers[i].Apply(path);
