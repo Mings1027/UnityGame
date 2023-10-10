@@ -1,9 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
-using DataControl;
 using ManagerControl;
 using PoolObjectControl;
 using UIControl;
@@ -15,6 +13,7 @@ namespace MapControl
 {
     public class MapManager : MonoBehaviour
     {
+        private TowerManager _towerManager;
         private WaveManager _waveManager;
         private MeshFilter _meshFilter;
         private MeshRenderer _meshRenderer;
@@ -70,15 +69,16 @@ namespace MapControl
         {
             ComponentInit();
             MapDataInit();
+            _towerManager = FindObjectOfType<TowerManager>();
             _waveManager = FindObjectOfType<WaveManager>();
-            _waveManager.OnPlaceExpandButtonEvent += PlaceExpandButtons;
-
-            TowerManager.Instance.transform.GetComponentInChildren<MainMenuUIController>().OnGenerateInitMapEvent +=
-                GenerateInitMap;
         }
 
         private void Start()
         {
+            _waveManager.OnPlaceExpandButtonEvent += PlaceExpandButtons;
+
+            _towerManager.transform.GetComponentInChildren<MainMenuUIController>()
+                .OnGenerateInitMapEvent += GenerateInitMap;
             PlaceStartMap();
         }
 #if UNITY_EDITOR
@@ -154,7 +154,7 @@ namespace MapControl
             SetNewMapForward(mapData);
             PlaceObstacle(mapData);
             _map.Add(_newMapObject);
-            
+
             _navMeshSurface.BuildNavMesh();
         }
 
@@ -205,9 +205,9 @@ namespace MapControl
             CombineObstacleMesh();
 
             _navMeshSurface.BuildNavMesh();
-            
+
             _waveManager.StartWave(_wayPointsHashSet.ToList());
-            TowerManager.Instance.EnableTower();
+            _towerManager.EnableTower();
         }
 
         private void InitAdjacentState()
@@ -306,7 +306,7 @@ namespace MapControl
         private void PlaceObstacle(MapData map)
         {
             var count = Random.Range(0, map.placementTile.Count);
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 var ranIndex = Random.Range(0, map.placementTile.Count);
                 RandomPlaceObstacle(map, map.placementTile[ranIndex]);
@@ -317,7 +317,7 @@ namespace MapControl
         private void RandomPlaceObstacle(MapData map, Vector3 center)
         {
             var diagonalCount = Random.Range(0, map.diagonalDir.Count);
-            for (int i = 0; i < diagonalCount; i++)
+            for (var i = 0; i < diagonalCount; i++)
             {
                 var ranIndex = Random.Range(0, map.diagonalDir.Count);
                 var pos = center + map.diagonalDir[ranIndex];
@@ -408,7 +408,7 @@ namespace MapControl
         //Call When Wave is over
         private void PlaceExpandButtons()
         {
-            SoundManager.Instance.PlayBGM(SoundEnum.WaveBreak);
+            SoundManager.PlayBGM(SoundEnum.WaveBreak);
 
             foreach (var pos in _expandBtnPosHashSet)
                 _expandButtons.Add(PoolObjectManager.Get<ExpandMapButton>(PoolObjectKey.ExpandButton, pos));
@@ -519,17 +519,13 @@ namespace MapControl
             while (mapCount > _map.Count)
             {
                 var index = 0;
-                for (int i = 0; i < _expandButtons.Count; i++)
+                for (var i = 0; i < _expandButtons.Count; i++)
                 {
-                    if (_expandButtons[i].gameObject.activeSelf)
-                    {
-                        var ran = Random.Range(0, 2);
-                        if (ran == 1)
-                        {
-                            index = i;
-                            break;
-                        }
-                    }
+                    if (!_expandButtons[i].gameObject.activeSelf) continue;
+                    var ran = Random.Range(0, 2);
+                    if (ran != 1) continue;
+                    index = i;
+                    break;
                 }
 
                 _expandButtons[index].Expand();

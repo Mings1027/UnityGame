@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 namespace MapControl
 {
     public class MapData : MonoBehaviour
     {
+        private NavMeshModifierVolume _navMeshModifierVolume;
         [Flags]
         private enum DirectionFlag
         {
@@ -31,6 +33,11 @@ namespace MapControl
                 new(1, 0, -1)
             };
             wayPointList = new List<Vector3>();
+        }
+
+        private void OnEnable()
+        {
+            
         }
 #if UNITY_EDITOR
         // private void OnDrawGizmos()

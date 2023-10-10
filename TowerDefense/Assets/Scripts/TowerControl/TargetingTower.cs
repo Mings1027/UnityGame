@@ -11,8 +11,8 @@ namespace TowerControl
         private Collider[] _targetColliders;
         private bool _isAttack;
         private sbyte _effectIndex;
+        private ushort _damage;
         private Cooldown _atkCooldown;
-        private int _damage;
 
         protected Transform target;
         protected bool isTargeting;
@@ -89,7 +89,7 @@ namespace TowerControl
             projectile.Init(_damage, target);
         }
 
-        public override void TowerSetting(MeshFilter towerMesh, int damageData, int rangeData,
+        public override void TowerSetting(MeshFilter towerMesh, ushort damageData, byte rangeData,
             float attackDelayData)
         {
             base.TowerSetting(towerMesh, damageData, rangeData, attackDelayData);

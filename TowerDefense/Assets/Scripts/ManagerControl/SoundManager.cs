@@ -4,12 +4,13 @@ using CustomEnumControl;
 using GameControl;
 using UnityEngine;
 using UnityEngine.Audio;
-using UnityEngine.Serialization;
 
 namespace ManagerControl
 {
-    public class SoundManager : Singleton<SoundManager>
+    public class SoundManager : MonoBehaviour
     {
+        private static SoundManager _inst;
+
         [Serializable]
         public class EffectSound
         {
@@ -28,7 +29,8 @@ namespace ManagerControl
         private Dictionary<SoundEnum, AudioClip> _musicDictionary;
         private Dictionary<SoundEnum, AudioClip> _effectDictionary;
 
-        [SerializeField] private AudioSource musicSource, effectsSource;
+        private AudioSource musicSource, effectSource;
+        
         [SerializeField] private MusicSound[] musicSounds;
         [SerializeField] private EffectSound[] effectSounds;
 
@@ -36,6 +38,10 @@ namespace ManagerControl
 
         private void Awake()
         {
+            _inst = this;
+            musicSource = transform.Find("Music Source").GetComponent<AudioSource>();
+            effectSource = transform.Find("Effect Source").GetComponent<AudioSource>();
+            
             _musicDictionary = new Dictionary<SoundEnum, AudioClip>();
             for (var i = 0; i < musicSounds.Length; i++)
             {
@@ -54,25 +60,33 @@ namespace ManagerControl
             _bgmOn = _sfxOn = true;
         }
 
-        public void PlayBGM(SoundEnum clipName)
+        public static void PlayBGM(SoundEnum clipName) => _inst.InstPlayBGM(clipName);
+
+        private void InstPlayBGM(SoundEnum clipName)
         {
             musicSource.clip = _musicDictionary[clipName];
             musicSource.Play();
         }
 
-        public void PlaySound(SoundEnum clipName)
+        public static void PlaySound(SoundEnum clipName) => _inst.InstPlaySound(clipName);
+
+        private void InstPlaySound(SoundEnum clipName)
         {
-            effectsSource.clip = _effectDictionary[clipName];
-            effectsSource.Play();
+            effectSource.clip = _effectDictionary[clipName];
+            effectSource.Play();
         }
 
-        public void ToggleBGM()
+        public static void ToggleBGM() => _inst.InstToggleBGM();
+
+        private void InstToggleBGM()
         {
             _bgmOn = !_bgmOn;
             audioMixer.SetFloat("BGM", _bgmOn ? 0 : -80);
         }
 
-        public void ToggleSfx()
+        public static void ToggleSfx() => _inst.InstToggleSfx();
+
+        private void InstToggleSfx()
         {
             _sfxOn = !_sfxOn;
             audioMixer.SetFloat("SFX", _sfxOn ? 0 : -80);

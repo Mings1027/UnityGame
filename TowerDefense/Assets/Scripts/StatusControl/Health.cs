@@ -1,5 +1,5 @@
 using System;
-using DG.Tweening;
+using CustomEnumControl;
 using InterfaceControl;
 using PoolObjectControl;
 using UnityEngine;
@@ -10,6 +10,7 @@ namespace StatusControl
     {
         private Collider _collider;
 
+        public bool IsDead => current <= 0;
         public event Action OnDeadEvent;
 
         private void Awake()
@@ -31,21 +32,21 @@ namespace StatusControl
         public void Damage(in float amount)
         {
             if (IsDead) return;
-            CurrentProgress -= amount;
+            Current -= amount;
 
             PoolObjectManager.Get(PoolObjectKey.BloodVfx, transform.position);
-            if (CurrentProgress > 0f) return;
+            if (Current > 0f) return;
             _collider.enabled = false;
             OnDeadEvent?.Invoke();
         }
 
         public void Heal(in float amount)
         {
-            CurrentProgress += amount;
+            Current += amount;
 
-            if (CurrentProgress > Initial)
+            if (Current > Initial)
             {
-                CurrentProgress = Initial;
+                Current = Initial;
             }
         }
     }

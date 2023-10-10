@@ -1,6 +1,4 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
+#if UNITY_EDITOR
 using UnityEngine;
 
 public class FpsStatus : MonoBehaviour
@@ -16,7 +14,7 @@ public class FpsStatus : MonoBehaviour
         var fps = 1.0f / Time.deltaTime;
         var ms = Time.deltaTime * 1000f;
         var text = $"{fps:N1} FPS ({ms:N1}ms)";
- 
+
         var style = new GUIStyle
         {
             fontSize = fontSize,
@@ -29,3 +27,4 @@ public class FpsStatus : MonoBehaviour
         GUI.Label(pos, text, style);
     }
 }
+#endif

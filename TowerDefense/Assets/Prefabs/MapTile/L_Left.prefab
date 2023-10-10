@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3990836605709790546}
   - component: {fileID: 5430169429450432285}
+  - component: {fileID: 7751916268480579547}
   m_Layer: 12
   m_Name: Placement_1
   m_TagString: Placement
@@ -45,6 +46,22 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 4, y: 1, z: 8}
   m_Center: {x: 0, y: -0.5, z: 0}
+--- !u!114 &7751916268480579547
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4552429960438510745}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e3fdca004f2d45fe8abbed571a8abd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_OverrideArea: 1
+  m_Area: 1
+  m_IgnoreFromBuild: 0
+  m_AffectedAgents: ffffffff
 --- !u!1 &5079670449797174574
 GameObject:
   m_ObjectHideFlags: 0
@@ -138,6 +155,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7990267700394308629}
   - component: {fileID: 6773870518501882791}
+  - component: {fileID: 8796337456873698557}
   m_Layer: 12
   m_Name: Placement_2
   m_TagString: Placement
@@ -173,6 +191,22 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 12, y: 1, z: 4}
   m_Center: {x: 0, y: -0.5, z: 0}
+--- !u!114 &8796337456873698557
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5599840227299396189}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e3fdca004f2d45fe8abbed571a8abd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_OverrideArea: 1
+  m_Area: 1
+  m_IgnoreFromBuild: 0
+  m_AffectedAgents: ffffffff
 --- !u!1 &5908216746923996555
 GameObject:
   m_ObjectHideFlags: 0
@@ -184,7 +218,6 @@ GameObject:
   - component: {fileID: 8642149494461886532}
   - component: {fileID: 8752754827193134573}
   - component: {fileID: 2821386007931514320}
-  - component: {fileID: 37150285413461956}
   m_Layer: 7
   m_Name: L_Left
   m_TagString: Ground
@@ -238,22 +271,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isPortalMap: 0
   wayDirectionFlag: 2
---- !u!114 &37150285413461956
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5908216746923996555}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 183748dd497aa473a98ff0cd8cb67fc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  version: 1
-  uniqueID: 8547599078003519439
-  updateError: 1
-  checkTime: 10000
 --- !u!1 &7925752352888088295
 GameObject:
   m_ObjectHideFlags: 0
@@ -264,6 +281,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7575715563975418786}
   - component: {fileID: 7221074940496023641}
+  - component: {fileID: 5502333355529334567}
   m_Layer: 12
   m_Name: Placement
   m_TagString: Placement
@@ -299,3 +317,19 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 4, y: 1, z: 4}
   m_Center: {x: 0, y: -0.5, z: 0}
+--- !u!114 &5502333355529334567
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7925752352888088295}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e3fdca004f2d45fe8abbed571a8abd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_OverrideArea: 1
+  m_Area: 1
+  m_IgnoreFromBuild: 0
+  m_AffectedAgents: ffffffff

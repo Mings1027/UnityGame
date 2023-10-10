@@ -1,11 +1,8 @@
-using System;
-using System.Threading;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using InterfaceControl;
 using ManagerControl;
-using Pathfinding;
 using StatusControl;
 using TowerControl;
 using UnityEngine;
@@ -31,10 +28,11 @@ namespace UnitControl.FriendlyControl
         private Vector3 _moveDir;
         private Vector3 _moveVec;
 
-        private TowerType _towerType;
-        private int _damage;
+        private TowerType _towerTypeEnum;
+        private ushort _damage;
         private byte curWayPoint;
 
+        private bool _startTargeting;
         private bool _isTargeting;
         private bool _moveInput;
         private bool _targetInAtkRange;
@@ -66,7 +64,7 @@ namespace UnitControl.FriendlyControl
             _targetCollider = new Collider[2];
             _attackPoint = GetComponentInChildren<AttackPoint>();
             atkRange = _sphereCollider.radius * 2f;
-            _navMeshAgent.stoppingDistance = atkRange;
+            _navMeshAgent.stoppingDistance = atkRange - 0.1f;
         }
 
         private void OnEnable()
@@ -111,6 +109,7 @@ namespace UnitControl.FriendlyControl
         public void TargetInit()
         {
             _anim.SetBool(IsWalk, false);
+            _startTargeting = false;
             _isTargeting = false;
             _target = null;
         }
@@ -119,6 +118,7 @@ namespace UnitControl.FriendlyControl
         {
             if (_moveInput) return;
             if (!_navMeshAgent.isActiveAndEnabled) return;
+            _startTargeting = true;
             var size = Physics.OverlapSphereNonAlloc(transform.position, sightRange, _targetCollider, targetLayer);
             if (size <= 0)
             {
@@ -158,7 +158,7 @@ namespace UnitControl.FriendlyControl
             _audioSource.Play();
             _attackPoint.Init(_target, _damage);
             _attackPoint.enabled = true;
-            DataManager.SumDamage(_towerType, _damage);
+            DataManager.SumDamage(_towerTypeEnum, _damage);
         }
 
         private void DeadAnimation()
@@ -178,17 +178,17 @@ namespace UnitControl.FriendlyControl
 
             _moveInput = false;
             _anim.SetBool(IsWalk, false);
-            if (TowerManager.Instance.StartWave) return;
+            if (_startTargeting) return;
             _unitNavAI.enabled = false;
         }
 
-        public void Init(UnitTower unitTower, TowerType towerType)
+        public void Init(UnitTower unitTower, TowerType towerTypeEnum)
         {
             _parentTower = unitTower;
-            _towerType = towerType;
+            _towerTypeEnum = towerTypeEnum;
         }
 
-        public void UnitUpgrade(int damage, int healthAmount, float delay)
+        public void UnitUpgrade(ushort damage, int healthAmount, float delay)
         {
             _damage = damage;
             _health.Init(healthAmount);

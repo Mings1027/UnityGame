@@ -7,14 +7,14 @@ namespace TowerControl
 {
     public abstract class Tower : MonoBehaviour, IFingerUp
     {
-        private BoxCollider _boxCollider;
+        protected BoxCollider boxCollider;
         private MeshRenderer _meshRenderer;
         private MeshFilter _meshFilter;
 
         public event Action<Tower> OnClickTower;
 
         public float TowerRange { get; private set; }
-        public int TowerLevel { get; private set; }
+        public sbyte TowerLevel { get; private set; }
 
         public TowerData TowerData => towerData;
 
@@ -34,7 +34,7 @@ namespace TowerControl
         protected virtual void Init()
         {
             TowerLevel = -1;
-            _boxCollider = GetComponent<BoxCollider>();
+            boxCollider = GetComponent<BoxCollider>();
             _meshFilter = transform.GetChild(0).GetComponent<MeshFilter>();
             _meshRenderer = transform.GetChild(0).GetComponent<MeshRenderer>();
         }
@@ -44,12 +44,12 @@ namespace TowerControl
             TowerLevel++;
         }
 
-        public virtual void TowerSetting(MeshFilter towerMesh, int damageData, int rangeData,
+        public virtual void TowerSetting(MeshFilter towerMesh, ushort damageData, byte rangeData,
             float attackDelayData)
         {
             TowerRange = rangeData;
             _meshFilter.sharedMesh = towerMesh.sharedMesh;
-            _boxCollider.enabled = true;
+            boxCollider.enabled = true;
 
             ColliderSize();
         }
@@ -57,9 +57,9 @@ namespace TowerControl
         private void ColliderSize()
         {
             var rendererY = _meshRenderer.bounds.size.y;
-            var size = _boxCollider.size;
+            var size = boxCollider.size;
             size = new Vector3(size.x, rendererY, size.z);
-            _boxCollider.size = size;
+            boxCollider.size = size;
         }
 
         public virtual void FingerUp()

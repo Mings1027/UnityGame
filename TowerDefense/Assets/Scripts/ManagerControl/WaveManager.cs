@@ -4,17 +4,16 @@ using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DataControl;
-using Pathfinding;
 using PoolObjectControl;
 using UnitControl.EnemyControl;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace ManagerControl
 {
     public class WaveManager : MonoBehaviour
     {
+        private TowerManager _towerManager;
         private bool _startWave;
         private byte _curWave;
         private byte _themeIndex;
@@ -28,14 +27,16 @@ namespace ManagerControl
 
         private void Awake()
         {
+            _towerManager = FindObjectOfType<TowerManager>();
             _curWave = 0;
             _themeIndex = 0;
-            var guids = AssetDatabase.FindAssets("t: EnemyData", new[] { "Assets/EnemyData" });
-            enemiesData = new EnemyData[guids.Length];
-            for (var i = 0; i < guids.ToArray().Length; i++)
+            var enemyDataGuids = AssetDatabase.FindAssets("t: EnemyData", new[] { "Assets/EnemyData" });
+            enemiesData = new EnemyData[enemyDataGuids.Length];
+            for (var i = 0; i < enemyDataGuids.ToArray().Length; i++)
             {
                 enemiesData[i] =
-                    AssetDatabase.LoadAssetAtPath<EnemyData>(AssetDatabase.GUIDToAssetPath(guids.ToArray()[i]));
+                    AssetDatabase.LoadAssetAtPath<EnemyData>(
+                        AssetDatabase.GUIDToAssetPath(enemyDataGuids.ToArray()[i]));
             }
         }
 
@@ -64,7 +65,7 @@ namespace ManagerControl
             }
 
             if (_curWave % 25 == 0) _themeIndex++;
-            TowerManager.Instance.WaveText.text = "Wave : " + _curWave;
+            _towerManager.WaveText.text = "Wave : " + _curWave;
 
             WaveInit(wayPoints.Count);
             SpawnEnemy(wayPoints).Forget();
@@ -76,7 +77,7 @@ namespace ManagerControl
             {
                 for (var j = 0; j < enemiesData.Length; j++)
                 {
-                    if (enemiesData[j].enemyInfo.startSpawnWave <= _curWave)
+                    if (enemiesData[j].StartSpawnWave <= _curWave)
                     {
                         _remainingEnemyCount++;
                     }
@@ -99,17 +100,18 @@ namespace ManagerControl
 
         private void EnemyInit(Vector3 wayPoint, in EnemyData enemyData)
         {
-            if (enemyData.enemyInfo.startSpawnWave > _curWave) return;
+            if (enemyData.StartSpawnWave > _curWave) return;
 
-            var enemyUnit = PoolObjectManager.Get<EnemyUnit>(enemyData.enemyInfo.enemyName, wayPoint);
+            var enemyUnit = PoolObjectManager.Get<EnemyUnit>(enemyData.EnemyKey, wayPoint);
             enemyUnit.Init(enemyData);
 
             enemyUnit.TryGetComponent(out EnemyHealth enemyHealth);
 
-            enemyHealth.Init(enemyData.enemyInfo.health);
+            enemyHealth.Init(enemyData.Health);
             enemyHealth.OnUpdateEnemyCountEvent += UpdateEnemyCountEvent;
-            var gold = enemyData.enemyInfo.enemyCoin;
-            enemyHealth.OnDeadEvent += () => TowerManager.Instance.TowerGold += gold;
+            enemyHealth.OnDecreaseLifeCountEvent += _towerManager.DecreaseLifeCountEvent;
+            var gold = enemyData.EnemyCoin;
+            enemyHealth.OnDeadEvent += () => _towerManager.TowerGold += gold;
         }
 
         private void UpdateEnemyCountEvent()
@@ -120,7 +122,7 @@ namespace ManagerControl
             _startWave = false;
             OnPlaceExpandButtonEvent?.Invoke();
             OnEndOfGameEvent?.Invoke();
-            TowerManager.Instance.DisableTower();
+            _towerManager.DisableTower();
         }
 
         private void FinalBossWave()

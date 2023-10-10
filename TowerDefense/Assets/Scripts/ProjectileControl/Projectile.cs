@@ -12,7 +12,7 @@ namespace ProjectileControl
         private ParticleSystem _hitParticle;
         private Rigidbody _rigid;
 
-        private int _damage;
+        private ushort _damage;
         private float _gravity;
         private Vector3 _curPos;
         private Vector3 _startPos;
@@ -70,7 +70,7 @@ namespace ProjectileControl
         protected void ProjectilePath(Vector3 endPos)
         {
             if (_isArrived) return;
-            _gravity = lerp < 0.5f ? 1 : 1.5f;
+            _gravity = Mathf.Lerp(0.8f, 1.5f, lerp);
             lerp += Time.deltaTime * _gravity * speed;
             _curPos = Vector3.Lerp(_startPos, endPos, lerp);
             _curPos.y += curve.Evaluate(lerp);
@@ -80,7 +80,7 @@ namespace ProjectileControl
             _rigid.MoveRotation(Quaternion.LookRotation(dir));
         }
 
-        public virtual void Init(int dmg, Transform t)
+        public virtual void Init(ushort dmg, Transform t)
         {
             _damage = dmg;
             target = t;

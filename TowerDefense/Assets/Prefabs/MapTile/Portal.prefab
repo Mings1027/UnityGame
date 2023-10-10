@@ -94,7 +94,6 @@ GameObject:
   - component: {fileID: 6435032455870408662}
   - component: {fileID: 6964422680461762578}
   - component: {fileID: 7601384160849931568}
-  - component: {fileID: 37010115869705459}
   m_Layer: 7
   m_Name: Portal
   m_TagString: Ground
@@ -148,22 +147,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isPortalMap: 1
   wayDirectionFlag: 0
---- !u!114 &37010115869705459
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3264526251031778804}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 183748dd497aa473a98ff0cd8cb67fc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  version: 1
-  uniqueID: 8453450363408234822
-  updateError: 1
-  checkTime: 10000
 --- !u!1 &7189618713863306325
 GameObject:
   m_ObjectHideFlags: 0
@@ -174,6 +157,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2171809876737138005}
   - component: {fileID: 2903481517183900742}
+  - component: {fileID: 8628172702318817802}
   m_Layer: 12
   m_Name: Placement
   m_TagString: Placement
@@ -209,6 +193,22 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 4, y: 1, z: 12}
   m_Center: {x: 0, y: -0.5, z: 0}
+--- !u!114 &8628172702318817802
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7189618713863306325}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e3fdca004f2d45fe8abbed571a8abd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_OverrideArea: 1
+  m_Area: 1
+  m_IgnoreFromBuild: 0
+  m_AffectedAgents: ffffffff
 --- !u!1 &7768212104215127256
 GameObject:
   m_ObjectHideFlags: 0
@@ -5032,6 +5032,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2597252698860337658}
   - component: {fileID: 6599531855646355885}
+  - component: {fileID: 3773219347360819381}
   m_Layer: 12
   m_Name: Placement_1
   m_TagString: Placement
@@ -5067,3 +5068,19 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 4, y: 1, z: 12}
   m_Center: {x: 0, y: -0.5, z: 0}
+--- !u!114 &3773219347360819381
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8865184038677757801}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e3fdca004f2d45fe8abbed571a8abd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_OverrideArea: 1
+  m_Area: 1
+  m_IgnoreFromBuild: 0
+  m_AffectedAgents: ffffffff

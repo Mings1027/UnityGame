@@ -9,7 +9,6 @@ namespace TowerControl
         private MeshFilter _crystalMeshFilter;
         [SerializeField] private Transform crystal;
         [SerializeField] private Mesh[] crystalMesh;
-        [SerializeField] private LayerMask towerLayer;
 
         private void OnDestroy()
         {
@@ -20,15 +19,16 @@ namespace TowerControl
         {
             base.Init();
             firePos = crystal;
+            crystal.localScale = Vector3.zero;
 
             _atkSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(crystal.DOLocalMoveY(crystal.position.y + 0.1f, 0.5f).SetEase(Ease.InOutSine))
+                .Append(crystal.DOScale(1.2f, 0.5f).SetEase(Ease.InOutSine))
                 .SetLoops(2, LoopType.Yoyo);
 
             _crystalMeshFilter = crystal.GetComponent<MeshFilter>();
         }
 
-        public override void TowerSetting(MeshFilter towerMesh, int damageData, int rangeData,
+        public override void TowerSetting(MeshFilter towerMesh, ushort damageData, byte rangeData,
             float attackDelayData)
         {
             base.TowerSetting(towerMesh, damageData, rangeData, attackDelayData);
@@ -38,8 +38,9 @@ namespace TowerControl
         private void CrystalInit()
         {
             _crystalMeshFilter.sharedMesh = crystalMesh[TowerLevel];
-            Physics.Raycast(transform.position + Vector3.up * 2, Vector3.down, out var hit, 2, towerLayer);
-            crystal.position = hit.point + new Vector3(0, 0.5f, 0);
+            var newY = boxCollider.size.y + 0.3f;
+            crystal.position = transform.position + new Vector3(0, newY, 0);
+            crystal.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBack);
         }
 
         protected override void Attack()

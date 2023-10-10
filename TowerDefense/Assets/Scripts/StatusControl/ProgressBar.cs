@@ -1,42 +1,31 @@
-using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace StatusControl
 {
-    public class ProgressBar : MonoBehaviour
+    public abstract class ProgressBar : MonoBehaviour
     {
-        private Progressive _progressive;
-        private Transform border;
+        protected Progressive progressive;
+        protected Image FillImage => fillImage;
 
         [SerializeField] private Image fillImage;
 
-        [SerializeField] private float duration;
-        [SerializeField] private float strength;
-        [SerializeField] private int vibrato;
-
-        private void Awake()
+        protected virtual void Awake()
         {
-            _progressive = GetComponentInParent<Progressive>();
-            border = transform.GetChild(0);
+            progressive = GetComponentInParent<Progressive>();
         }
 
-        private void OnEnable()
+        protected virtual void OnEnable()
         {
             fillImage.fillAmount = 1;
-            _progressive.OnUpdateBarEvent += UpdateBarEvent;
-            _progressive.OnUpdateBarEvent += ShakeBarEvent;
+            progressive.OnUpdateBarEvent += UpdateBarEvent;
         }
 
-        private void OnDisable()
+        protected virtual void OnDisable()
         {
-            _progressive.OnUpdateBarEvent -= UpdateBarEvent;
-            _progressive.OnUpdateBarEvent -= ShakeBarEvent;
+            progressive.OnUpdateBarEvent -= UpdateBarEvent;
         }
 
-        private void UpdateBarEvent() => fillImage.fillAmount = _progressive.Ratio;
-
-        private void ShakeBarEvent() => border.DOShakeScale(duration, strength, vibrato)
-            .OnComplete(() => border.localScale = Vector3.one);
+        private void UpdateBarEvent() => fillImage.fillAmount = progressive.Ratio;
     }
 }

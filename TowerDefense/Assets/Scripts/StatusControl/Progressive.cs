@@ -6,34 +6,33 @@ namespace StatusControl
     [DisallowMultipleComponent]
     public abstract class Progressive : MonoBehaviour
     {
-        private float _currentProgress;
+        protected float current;
 
-        protected float CurrentProgress
+        protected float Current
         {
-            get => _currentProgress;
+            get => current;
             set
             {
-                _currentProgress = value;
+                current = value;
                 OnUpdateBarEvent?.Invoke();
             }
         }
 
-        protected int Initial { get; private set; }
+        protected float Initial { get; private set; }
 
-        public float Ratio => _currentProgress / Initial;
-        public bool IsDead => _currentProgress <= 0;
+        public float Ratio => current / Initial;
 
         public event Action OnUpdateBarEvent;
 
         protected virtual void OnEnable()
         {
-            _currentProgress = Initial;
+            current = Initial;
         }
 
-        public void Init(int amount)
+        public void Init(float amount)
         {
             Initial = amount;
-            CurrentProgress = amount;
+            Current = amount;
         }
     }
 }

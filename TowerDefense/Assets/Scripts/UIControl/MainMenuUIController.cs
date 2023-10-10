@@ -1,8 +1,6 @@
 using System;
 using CustomEnumControl;
-using DataControl;
 using ManagerControl;
-using MapControl;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,6 +8,7 @@ namespace UIControl
 {
     public class MainMenuUIController : MonoBehaviour
     {
+        private TowerManager _towerManager;
         private CameraManager _camArm;
         public event Action OnGenerateInitMapEvent;
 
@@ -18,6 +17,7 @@ namespace UIControl
 
         private void Awake()
         {
+            _towerManager = FindObjectOfType<TowerManager>();
             _camArm = FindObjectOfType<CameraManager>();
             startButton.onClick.AddListener(StartGame);
         }
@@ -35,8 +35,8 @@ namespace UIControl
 
         private void StartGame()
         {
-            TowerManager.Instance.GameStart();
-            SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
+            _towerManager.GameStart();
+            SoundManager.PlaySound(SoundEnum.ButtonSound);
             OnGenerateInitMapEvent?.Invoke();
 
             _camArm.enabled = true;

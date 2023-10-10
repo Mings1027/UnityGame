@@ -33,9 +33,9 @@ namespace ManagerControl
             }
         }
 
-        public static void SumDamage(TowerType towerType, int damage)
+        public static void SumDamage(TowerType towerTypeEnum, int damage)
         {
-            damageDic[towerType] += damage;
+            damageDic[towerTypeEnum] += damage;
         }
 
         public static void SaveDamageData()

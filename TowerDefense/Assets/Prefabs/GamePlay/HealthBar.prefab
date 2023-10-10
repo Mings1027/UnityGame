@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 8351501096730792203}
   - component: {fileID: 1267233533039389192}
   m_Layer: 5
-  m_Name: Foreground
+  m_Name: FillImage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -240,8 +240,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2726996140157804251}
   - component: {fileID: 6573207434548031192}
-  - component: {fileID: 3575053074534529847}
   - component: {fileID: 1204087998730239111}
+  - component: {fileID: 3376061252697309043}
   m_Layer: 5
   m_Name: HealthBar
   m_TagString: Untagged
@@ -291,22 +291,6 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 0
   m_TargetDisplay: 0
---- !u!114 &3575053074534529847
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8945652575653526895}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8e6641a0e7c5e4cf78304421048fbbab, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  fillImage: {fileID: 1267233533039389192}
-  duration: 0.15
-  strength: 1
-  vibrato: 2
 --- !u!114 &1204087998730239111
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -319,3 +303,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e405d58ba0fbc43b19249161fff86bcf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &3376061252697309043
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8945652575653526895}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ff58835b2e94f4238b35c96f82c1d64c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fillImage: {fileID: 1267233533039389192}
+  duration: 0.15
+  strength: 1
+  vibrato: 2

@@ -3,42 +3,17 @@ using UnityEngine;
 
 namespace GameControl
 {
-    public abstract class Singleton<T> : MonoBehaviour where T : MonoBehaviour
+    public abstract class Singleton<T> : MonoBehaviour where T : class
     {
-        private static T _instance;
-        private static readonly object Lock = new();
-        private static bool _applicationQuit;
-
-        public static T Instance
+        private static readonly Lazy<T> _instance = new(() =>
         {
-            get
-            {
-                if (_applicationQuit) return null;
-                lock (Lock)
-                {
-                    if (_instance != null) return _instance;
-                    _instance = FindObjectOfType<T>();
-                    if (_instance != null) return _instance;
-                    var componentName = typeof(T).ToString();
-                    var findObject = GameObject.Find(componentName);
-                    if (findObject == null) findObject = new GameObject(componentName);
+            if (FindObjectOfType(typeof(T)) is T instance) return instance;
+            var obj = new GameObject(typeof(T).ToString());
+            instance = obj.AddComponent(typeof(T)) as T;
 
-                    _instance = findObject.AddComponent<T>();
-                    DontDestroyOnLoad(_instance);
+            return instance;
+        });
 
-                    return _instance;
-                }
-            }
-        }
-
-        protected virtual void OnApplicationQuit()
-        {
-            _applicationQuit = true;
-        }
-
-        public virtual void OnDestroy()
-        {
-            _applicationQuit = true;
-        }
+        public static T Instance => _instance.Value;
     }
 }

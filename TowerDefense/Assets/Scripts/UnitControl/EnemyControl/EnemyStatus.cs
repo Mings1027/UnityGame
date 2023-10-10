@@ -31,15 +31,17 @@ namespace UnitControl.EnemyControl
             if (_navMeshAgent.speed - decreaseSpeed < 0.5f) _navMeshAgent.speed = 0.5f;
             else _navMeshAgent.speed -= decreaseSpeed;
             _enemyUnit.SetAnimationSpeed(_navMeshAgent.speed);
-            SlowEffectTween(slowCoolTime).Forget();
+            SlowAsync(slowCoolTime).Forget();
         }
 
-        private async UniTaskVoid SlowEffectTween(byte slowCoolTime)
+        private async UniTaskVoid SlowAsync(byte slowCoolTime)
         {
-            await UniTask.Delay(TimeSpan.FromSeconds(slowCoolTime));
+            await UniTask.Delay(TimeSpan.FromSeconds(slowCoolTime),
+                cancellationToken: this.GetCancellationTokenOnDestroy());
             _navMeshAgent.speed = defaultSpeed;
             _enemyUnit.SetAnimationSpeed(defaultSpeed);
-            await UniTask.Delay(TimeSpan.FromSeconds(slowCoolTime));
+            await UniTask.Delay(TimeSpan.FromSeconds(slowCoolTime),
+                cancellationToken: this.GetCancellationTokenOnDestroy());
             _isSlowed = false;
         }
 

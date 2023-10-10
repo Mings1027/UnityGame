@@ -1,7 +1,6 @@
 using DataControl;
 using DG.Tweening;
 using ManagerControl;
-using UnitControl.FriendlyControl;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -24,7 +23,7 @@ namespace UnitControl.EnemyControl
         private bool _isTargeting;
         private bool _targetInAtkRange;
 
-        private int _damage;
+        private ushort _damage;
 
         private static readonly int IsWalk = Animator.StringToHash("isWalk");
         private static readonly int IsAttack = Animator.StringToHash("isAttack");
@@ -48,7 +47,7 @@ namespace UnitControl.EnemyControl
             _targetCollider = new Collider[1];
             _attackPoint = GetComponentInChildren<AttackPoint>();
             atkRange = _sphereCollider.radius * 2f;
-            _navMeshAgent.stoppingDistance = atkRange;
+            _navMeshAgent.stoppingDistance = atkRange - 0.1f;
         }
 
         private void OnEnable()
@@ -57,19 +56,17 @@ namespace UnitControl.EnemyControl
             _isTargeting = false;
             _enemyHealth.OnDeadEvent += DeadAnimation;
             SetAnimationSpeed(_navMeshAgent.speed);
-            InvokeRepeating(nameof(Targeting), 0f, 1f);
+            InvokeRepeating(nameof(Targeting), 0f, 0.5f);
         }
 
         private void Update()
         {
             if (_enemyHealth.IsDead) return;
-            if (_targetInAtkRange && _isTargeting)
-            {
-                _navMeshAgent.isStopped = true;
-                if (atkCooldown.IsCoolingDown) return;
-                Attack();
-                atkCooldown.StartCooldown();
-            }
+            if (!_targetInAtkRange || !_isTargeting) return;
+            _navMeshAgent.isStopped = true;
+            if (atkCooldown.IsCoolingDown) return;
+            Attack();
+            atkCooldown.StartCooldown();
         }
 
         private void LateUpdate()
@@ -99,6 +96,7 @@ namespace UnitControl.EnemyControl
         public void Targeting()
         {
             if (_enemyHealth.IsDead) return;
+            if (!_navMeshAgent.isActiveAndEnabled) return;
             var size = Physics.OverlapSphereNonAlloc(transform.position, sightRange, _targetCollider, targetLayer);
             if (size <= 0)
             {
@@ -152,11 +150,11 @@ namespace UnitControl.EnemyControl
         public void Init(EnemyData enemyData)
         {
             _navMeshAgent.enabled = true;
-            _navMeshAgent.speed = enemyData.enemyInfo.speed;
+            _navMeshAgent.speed = enemyData.Speed;
             TryGetComponent(out EnemyStatus enemyStatus);
-            enemyStatus.defaultSpeed = enemyData.enemyInfo.speed;
-            atkCooldown.cooldownTime = enemyData.enemyInfo.atkDelay;
-            _damage = enemyData.enemyInfo.damage;
+            enemyStatus.defaultSpeed = enemyData.Speed;
+            atkCooldown.cooldownTime = enemyData.AttackDelay;
+            _damage = enemyData.Damage;
         }
     }
 }

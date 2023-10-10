@@ -1,12 +1,11 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
-using GameControl;
 using UnityEngine;
 
 namespace ManagerControl
 {
-    public class CameraManager : Singleton<CameraManager>
+    public class CameraManager : MonoBehaviour
     {
         private Camera _cam;
         private CancellationTokenSource _cts;

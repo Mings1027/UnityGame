@@ -93,6 +93,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1435385923137692669}
   - component: {fileID: 4415989446535143115}
+  - component: {fileID: 7512882685183336594}
   m_Layer: 12
   m_Name: Placement
   m_TagString: Placement
@@ -128,6 +129,22 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 4, y: 1, z: 4}
   m_Center: {x: 0, y: -0.5, z: 0}
+--- !u!114 &7512882685183336594
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5202416270677001805}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e3fdca004f2d45fe8abbed571a8abd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_OverrideArea: 1
+  m_Area: 1
+  m_IgnoreFromBuild: 0
+  m_AffectedAgents: ffffffff
 --- !u!1 &7261031901496208316
 GameObject:
   m_ObjectHideFlags: 0
@@ -138,6 +155,7 @@ GameObject:
   m_Component:
   - component: {fileID: 140865002272846965}
   - component: {fileID: 7184299964686920961}
+  - component: {fileID: 5610844085944828435}
   m_Layer: 12
   m_Name: Placement_3
   m_TagString: Placement
@@ -173,6 +191,22 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 4, y: 1, z: 4}
   m_Center: {x: 0, y: -0.5, z: 0}
+--- !u!114 &5610844085944828435
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7261031901496208316}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e3fdca004f2d45fe8abbed571a8abd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_OverrideArea: 1
+  m_Area: 1
+  m_IgnoreFromBuild: 0
+  m_AffectedAgents: ffffffff
 --- !u!1 &8166372689367005006
 GameObject:
   m_ObjectHideFlags: 0
@@ -183,6 +217,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3993107264662272884}
   - component: {fileID: 5476299092321937076}
+  - component: {fileID: 2296566881107195312}
   m_Layer: 12
   m_Name: Placement_2
   m_TagString: Placement
@@ -218,6 +253,22 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 4, y: 1, z: 4}
   m_Center: {x: 0, y: -0.5, z: 0}
+--- !u!114 &2296566881107195312
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8166372689367005006}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e3fdca004f2d45fe8abbed571a8abd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_OverrideArea: 1
+  m_Area: 1
+  m_IgnoreFromBuild: 0
+  m_AffectedAgents: ffffffff
 --- !u!1 &8795614410042925676
 GameObject:
   m_ObjectHideFlags: 0
@@ -229,7 +280,6 @@ GameObject:
   - component: {fileID: 7318069386897030852}
   - component: {fileID: 6892182440939623411}
   - component: {fileID: 8825968830267665462}
-  - component: {fileID: 7928791913685370757}
   m_Layer: 7
   m_Name: SLR_StraightLeftRight
   m_TagString: Ground
@@ -284,22 +334,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isPortalMap: 0
   wayDirectionFlag: -1
---- !u!114 &7928791913685370757
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8795614410042925676}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 183748dd497aa473a98ff0cd8cb67fc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  version: 1
-  uniqueID: 714552120205057507
-  updateError: 1
-  checkTime: 10000
 --- !u!1 &8872811581945521037
 GameObject:
   m_ObjectHideFlags: 0
@@ -310,6 +344,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6673684431154729599}
   - component: {fileID: 5277492908453097655}
+  - component: {fileID: 5170875635355833491}
   m_Layer: 12
   m_Name: Placement_1
   m_TagString: Placement
@@ -345,3 +380,19 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 4, y: 1, z: 4}
   m_Center: {x: 0, y: -0.5, z: 0}
+--- !u!114 &5170875635355833491
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8872811581945521037}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e3fdca004f2d45fe8abbed571a8abd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_OverrideArea: 1
+  m_Area: 1
+  m_IgnoreFromBuild: 0
+  m_AffectedAgents: ffffffff

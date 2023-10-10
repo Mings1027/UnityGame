@@ -1,6 +1,8 @@
 using System;
+using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DataControl;
+using DG.Tweening;
 using PoolObjectControl;
 using StatusControl;
 using UnitControl.FriendlyControl;
@@ -10,15 +12,18 @@ namespace TowerControl
 {
     public class UnitTower : Tower
     {
+        private Sequence reSpawnBarSequence;
         private Collider[] _targetColliders;
         private bool _isUnitSpawn;
-        private int _damage;
+        private bool _isReSpawning;
+        private ushort _damage;
         private float _atkDelay;
         private byte deadUnitCount;
         public Vector3 unitSpawnPosition { get; set; }
 
         private FriendlyUnit[] _units;
 
+        private ReSpawnBar unitReSpawnBar;
         /*=========================================================================================================================================
         *                                               Unity Event
         =========================================================================================================================================*/
@@ -27,8 +32,9 @@ namespace TowerControl
         {
             for (var i = 0; i < _units.Length; i++)
             {
-                // if (_units[i] == null) continue;
+                if (_units[i] == null) continue;
                 _units[i].gameObject.SetActive(false);
+                _units[i].Init(null, TowerType.None);
                 // _units[i] = null;
             }
         }
@@ -42,6 +48,10 @@ namespace TowerControl
             base.Init();
             _units = new FriendlyUnit[3];
             deadUnitCount = 0;
+            unitReSpawnBar = GetComponentInChildren<ReSpawnBar>();
+            reSpawnBarSequence = DOTween.Sequence().SetAutoKill(false).Pause()
+                .Append(unitReSpawnBar.transform.DOScale(0.02f, 0.5f).From(0).SetEase(Ease.OutBack))
+                .Join(unitReSpawnBar.transform.DOLocalMoveY(3, 0.5f).SetEase(Ease.OutBack));
         }
 
         public override void TowerTargetInit()
@@ -83,7 +93,8 @@ namespace TowerControl
             }
         }
 
-        public override void TowerSetting(MeshFilter towerMesh, int damageData, int rangeData, float attackDelayData)
+        public override void TowerSetting(MeshFilter towerMesh, ushort damageData, byte rangeData,
+            float attackDelayData)
         {
             base.TowerSetting(towerMesh, damageData, rangeData, attackDelayData);
 
@@ -104,16 +115,23 @@ namespace TowerControl
                 var angle = i * ((float)Math.PI * 2f) / _units.Length;
                 var pos = unitSpawnPosition + new Vector3((float)Math.Cos(angle), 0, (float)Math.Sin(angle));
                 PoolObjectManager.Get(PoolObjectKey.UnitSpawnSmoke, pos);
-                _units[i] = PoolObjectManager.Get<FriendlyUnit>(TowerData.PoolObjectKey, pos);
+                _units[i] = PoolObjectManager.Get<FriendlyUnit>(TowerData.PoolObjectKey, transform.position);
+                _units[i].transform.DOJump(pos, 2, 1, 0.5f).SetEase(Ease.OutSine);
                 _units[i].Init(this, TowerData.TowerType);
                 _units[i].TryGetComponent(out Health health);
                 health.OnDeadEvent += UnitReSpawn;
             }
 
             _isUnitSpawn = true;
+
+            if (_isReSpawning)
+            {
+                unitReSpawnBar.StopReSpawning();
+                reSpawnBarSequence.PlayBackwards();
+            }
         }
 
-        private void UnitUpgrade(int damage, float delay)
+        private void UnitUpgrade(ushort damage, float delay)
         {
             for (var i = 0; i < _units.Length; i++)
             {
@@ -160,7 +178,19 @@ namespace TowerControl
 
         private async UniTaskVoid UnitReSpawnAsync()
         {
-            await UniTask.Delay(5000, delayType: DelayType.DeltaTime);
+            _isReSpawning = true;
+
+            unitReSpawnBar.enabled = false;
+            unitReSpawnBar.enabled = true;
+
+            reSpawnBarSequence.Restart();
+
+            await unitReSpawnBar.UpdateBarEvent();
+
+            reSpawnBarSequence.PlayBackwards();
+
+            _isReSpawning = false;
+
             if (_isUnitSpawn) return;
             UnitSpawn();
             UnitUpgrade(_damage, _atkDelay);

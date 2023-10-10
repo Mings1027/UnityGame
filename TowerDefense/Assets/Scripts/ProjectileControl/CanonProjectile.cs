@@ -62,7 +62,7 @@ namespace ProjectileControl
             }
         }
 
-        public override void Init(int dmg, Transform t)
+        public override void Init(ushort dmg, Transform t)
         {
             base.Init(dmg, t);
             Physics.Raycast(t.position + t.forward * 2 + Vector3.up * 2, Vector3.down, out var hit, 10);

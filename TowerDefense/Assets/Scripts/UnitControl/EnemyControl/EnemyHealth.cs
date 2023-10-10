@@ -1,23 +1,24 @@
 using System;
-using ManagerControl;
 using StatusControl;
 
 namespace UnitControl.EnemyControl
 {
     public class EnemyHealth : Health
     {
+        public event Action OnDecreaseLifeCountEvent;
         public event Action OnUpdateEnemyCountEvent;
 
         protected override void OnDisable()
         {
             base.OnDisable();
-            if (CurrentProgress > 0)
+            if (Current > 0)
             {
-                TowerManager.Instance.DecreaseLifeCountEvent();
+                OnDecreaseLifeCountEvent?.Invoke();
             }
 
             OnUpdateEnemyCountEvent?.Invoke();
             OnUpdateEnemyCountEvent = null;
+            OnDecreaseLifeCountEvent = null;
         }
     }
-}   
+}
