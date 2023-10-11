@@ -23,7 +23,7 @@ namespace ManagerControl
 
         [SerializeField] private Transform cubeCursor;
         [SerializeField] private Grid grid;
-        [SerializeField] private LayerMask placementLayer;
+        [SerializeField] private LayerMask groundLayer;
         [SerializeField] private LayerMask towerLayer;
         [SerializeField] private Color[] cubeColor;
 
@@ -74,19 +74,19 @@ namespace ManagerControl
             StopPlacement();
         }
 
-// #if UNITY_EDITOR
-//         private void OnDrawGizmos()
-//         {
-//             Gizmos.color = Color.red;
-//             Gizmos.DrawWireSphere(_cursorChild.position + Vector3.up * 3, 1);
-//             Gizmos.DrawWireSphere(_cursorChild.position, 0.2f);
-//             Gizmos.color = Color.green;
-//             for (int i = 0; i < _checkDir.Length; i++)
-//             {
-//                 Gizmos.DrawRay(_cursorChild.position + _checkDir[i] * 2 + Vector3.up, Vector3.down * 10);
-//             }
-//         }
-// #endif
+#if UNITY_EDITOR
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(_cursorChild.position + Vector3.up * 3, 1);
+            Gizmos.DrawWireSphere(_cursorChild.position, 0.2f);
+            Gizmos.color = Color.green;
+            for (int i = 0; i < _checkDir.Length; i++)
+            {
+                Gizmos.DrawRay(_cursorChild.position + _checkDir[i] * 2 + Vector3.up, Vector3.down * 10);
+            }
+        }
+#endif
         private void StopPlacement()
         {
             _startPlacement = false;
@@ -114,29 +114,31 @@ namespace ManagerControl
             var mousePos = Input.mousePosition;
             mousePos.z = _cam.nearClipPlane;
             var ray = _cam.ScreenPointToRay(mousePos);
-            if (Physics.Raycast(ray, out var hit, 100))
+            var isGround = Physics.Raycast(ray, out var hit, 100, groundLayer);
+            if (isGround)
             {
                 var cellGridPos = grid.WorldToCell(hit.point);
                 _worldGridPos = grid.CellToWorld(cellGridPos);
                 cubeCursor.position = _worldGridPos;
             }
+
+            _cursorMeshRenderer.enabled = isGround;
         }
 
         private void CheckCanPlace()
         {
-            var ray = _cam.ScreenPointToRay(Input.mousePosition);
-            _canPlace = _startPlacement && Physics.Raycast(ray, out _, 100, placementLayer) &&
-                        !Physics.CheckSphere(_cursorChild.position, 0.2f, towerLayer) && CheckPlacementTile() &&
-                        (!_isUnitTower || CheckPlaceUnitTower());
+            _canPlace = _startPlacement && _cursorMeshRenderer.enabled
+                                        && CheckPlacementTile()
+                                        && (!_isUnitTower || CheckPlaceUnitTower());
 
-            // _cursorMeshRenderer.enabled = _canPlace;
             _cursorMeshRenderer.sharedMaterial.color = _canPlace ? cubeColor[0] : cubeColor[1];
         }
 
         private bool CheckPlacementTile()
         {
             return Physics.Raycast(_cursorChild.position + Vector3.up * 5, Vector3.down, out _unitSpawnRay, 10) &&
-                   _unitSpawnRay.collider.CompareTag("Placement");
+                   _unitSpawnRay.collider.CompareTag("Placement") &&
+                   !Physics.CheckSphere(_cursorChild.position, 0.2f, towerLayer);
         }
 
         private bool CheckPlaceUnitTower()

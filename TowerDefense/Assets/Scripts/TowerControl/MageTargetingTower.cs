@@ -23,7 +23,8 @@ namespace TowerControl
 
             _atkSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(crystal.DOScale(1.2f, 0.5f).SetEase(Ease.InOutSine))
-                .SetLoops(2, LoopType.Yoyo);
+                .Join(crystal.DORotate(new Vector3(0, 360, 0), 0.5f, RotateMode.FastBeyond360))
+                .Append(crystal.DOScale(1,0.5f).SetEase(Ease.InOutSine));
 
             _crystalMeshFilter = crystal.GetComponent<MeshFilter>();
         }

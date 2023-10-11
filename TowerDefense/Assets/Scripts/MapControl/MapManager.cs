@@ -50,15 +50,15 @@ namespace MapControl
 
         private HashSet<Vector3> _wayPointsHashSet;
 
-        [SerializeField] private int mapSize;
+        [SerializeField] private byte mapSize;
         [SerializeField] private GameObject[] mapPrefabs;
         [SerializeField] private GameObject[] obstaclePrefabs;
         [SerializeField] private GameObject[] uniqueMap;
         [SerializeField] private LayerMask groundLayer;
         [SerializeField, Range(0, 100)] private int portalSpawnProbability;
-        [SerializeField] private int maxSize;
+        [SerializeField] private byte maxSize;
         [SerializeField] private Transform obstacleMesh;
-        [SerializeField] private int mapCount;
+        [SerializeField] private byte mapCount;
 #if UNITY_EDITOR
         [SerializeField] private bool drawGizmos;
 #endif

@@ -10,7 +10,7 @@ namespace StatusControl
     {
         private Collider _collider;
 
-        public bool IsDead => current <= 0;
+        public bool IsDead => Current <= 0;
         public event Action OnDeadEvent;
 
         private void Awake()

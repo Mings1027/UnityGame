@@ -114,7 +114,7 @@ namespace TowerControl
             {
                 var angle = i * ((float)Math.PI * 2f) / _units.Length;
                 var pos = unitSpawnPosition + new Vector3((float)Math.Cos(angle), 0, (float)Math.Sin(angle));
-                PoolObjectManager.Get(PoolObjectKey.UnitSpawnSmoke, pos);
+                
                 _units[i] = PoolObjectManager.Get<FriendlyUnit>(TowerData.PoolObjectKey, transform.position);
                 _units[i].transform.DOJump(pos, 2, 1, 0.5f).SetEase(Ease.OutSine);
                 _units[i].Init(this, TowerData.TowerType);

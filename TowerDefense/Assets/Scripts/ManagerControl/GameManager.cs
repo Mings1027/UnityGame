@@ -14,14 +14,15 @@ namespace ManagerControl
 
         private async UniTaskVoid GameInit()
         {
+            Instantiate(Resources.Load<GameObject>("PoolObjManager/7.PoolObjectManager"));
+
+            await UniTask.Yield();
+            
             var sources = Resources.LoadAll<GameObject>("Prefabs");
             for (var i = 0; i < sources.Length; i++)
             {
                 Instantiate(sources[i]);
             }
-
-            await UniTask.Yield();
-            Instantiate(Resources.Load<GameObject>("PoolObjManager/7.PoolObjectManager"));
         }
     }
 
