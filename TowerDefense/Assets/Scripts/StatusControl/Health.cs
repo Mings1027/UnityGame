@@ -29,7 +29,7 @@ namespace StatusControl
             OnDeadEvent = null;
         }
 
-        public void Damage(in float amount)
+        public virtual void Damage(in float amount)
         {
             if (IsDead) return;
             Current -= amount;

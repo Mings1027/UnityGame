@@ -7,10 +7,8 @@ using UnityEngine.Audio;
 
 namespace ManagerControl
 {
-    public class SoundManager : MonoBehaviour
+    public class SoundManager : Singleton<SoundManager>
     {
-        private static SoundManager _inst;
-
         [Serializable]
         public class EffectSound
         {
@@ -30,18 +28,18 @@ namespace ManagerControl
         private Dictionary<SoundEnum, AudioClip> _effectDictionary;
 
         private AudioSource musicSource, effectSource;
-        
+
         [SerializeField] private MusicSound[] musicSounds;
         [SerializeField] private EffectSound[] effectSounds;
 
         [SerializeField] private AudioMixer audioMixer;
 
-        private void Awake()
+        protected override void Awake()
         {
-            _inst = this;
+            base.Awake();
             musicSource = transform.Find("Music Source").GetComponent<AudioSource>();
             effectSource = transform.Find("Effect Source").GetComponent<AudioSource>();
-            
+
             _musicDictionary = new Dictionary<SoundEnum, AudioClip>();
             for (var i = 0; i < musicSounds.Length; i++)
             {
@@ -60,33 +58,25 @@ namespace ManagerControl
             _bgmOn = _sfxOn = true;
         }
 
-        public static void PlayBGM(SoundEnum clipName) => _inst.InstPlayBGM(clipName);
-
-        private void InstPlayBGM(SoundEnum clipName)
+        public void PlayBGM(SoundEnum clipName)
         {
             musicSource.clip = _musicDictionary[clipName];
             musicSource.Play();
         }
 
-        public static void PlaySound(SoundEnum clipName) => _inst.InstPlaySound(clipName);
-
-        private void InstPlaySound(SoundEnum clipName)
+        public void PlaySound(SoundEnum clipName)
         {
             effectSource.clip = _effectDictionary[clipName];
             effectSource.Play();
         }
 
-        public static void ToggleBGM() => _inst.InstToggleBGM();
-
-        private void InstToggleBGM()
+        public void ToggleBGM()
         {
             _bgmOn = !_bgmOn;
             audioMixer.SetFloat("BGM", _bgmOn ? 0 : -80);
         }
 
-        public static void ToggleSfx() => _inst.InstToggleSfx();
-
-        private void InstToggleSfx()
+        public void ToggleSfx()
         {
             _sfxOn = !_sfxOn;
             audioMixer.SetFloat("SFX", _sfxOn ? 0 : -80);

@@ -34,7 +34,7 @@ namespace ManagerControl
             _cts = new CancellationTokenSource();
             transform.rotation = Quaternion.Euler(0, 45, 0);
             _cam.orthographic = true;
-            _cam.transform.localPosition = new Vector3(0, 40, -40);
+            _cam.transform.localPosition = new Vector3(0, 60, -60);
         }
 
         private void LateUpdate()

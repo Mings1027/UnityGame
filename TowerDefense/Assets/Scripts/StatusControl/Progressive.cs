@@ -6,7 +6,7 @@ namespace StatusControl
     [DisallowMultipleComponent]
     public abstract class Progressive : MonoBehaviour
     {
-        protected float current;
+        private float current;
 
         protected float Current
         {

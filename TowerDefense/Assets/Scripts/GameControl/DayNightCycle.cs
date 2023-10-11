@@ -1,3 +1,6 @@
+using System;
+using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using UnityEngine;
 
 namespace GameControl
@@ -25,16 +28,30 @@ namespace GameControl
 
         [SerializeField] private ParticleSystem starParticle;
         [SerializeField] private ParticleSystem cloudParticle;
+        [SerializeField] private GameObject fogPlane;
+        [SerializeField] private Material fogMat;
+        [SerializeField] private Color fogColor;
+        private static readonly int BaseColor = Shader.PropertyToID("_BaseColor");
 
         private void Awake()
         {
             _cam = Camera.main;
+            fogMat = fogPlane.GetComponent<Renderer>().sharedMaterial;
+            fogColor = fogMat.color;
+        }
+
+        private void Start()
+        {
+            LerpFogAsync();
         }
 
         private void Update()
         {
-            RotateCycle();
-            LerpAmbientLight();
+            // RotateCycle();
+            // LerpAmbientLight();
+            // ChangeFogAlpha();
+            // LerpFog();
+            // print(fogMat.color);
         }
 
         private void OnDisable()
@@ -71,6 +88,44 @@ namespace GameControl
                 starParticle.Play();
                 cloudParticle.Stop();
             }
+        }
+
+        private void ChangeFogAlpha()
+        {
+            if (_dotProduct > 0)
+            {
+                var alpha = Mathf.Lerp(0.1f, 1, sunCurve.Evaluate(_dotProduct));
+                fogColor.a = alpha;
+                fogMat.SetColor(BaseColor, fogColor);
+            }
+            else
+            {
+                var absDotProduct = _dotProduct * -1;
+                var alpha = Mathf.Lerp(0.1f, 1, sunCurve.Evaluate(absDotProduct));
+                fogColor.a = alpha;
+                fogMat.SetColor(BaseColor, fogColor);
+            }
+        }
+
+        private void LerpFogAsync()
+        {
+            fogMat.DOColor(morningColor, BaseColor, 2).From(afternoonColor).SetEase(Ease.Linear)
+                .SetLoops(-1, LoopType.Yoyo);
+        }
+
+        private void LerpFog()
+        {
+            if (lerp <= 1)
+            {
+                lerp += Time.deltaTime * timeSpeed;
+            }
+            else
+            {
+                lerp -= Time.deltaTime * timeSpeed;
+            }
+
+            fogColor = Color.Lerp(afternoonColor, morningColor, lerp);
+            fogMat.SetColor(BaseColor, fogColor);
         }
     }
 }

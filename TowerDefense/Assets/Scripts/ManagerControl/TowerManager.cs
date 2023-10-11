@@ -4,12 +4,14 @@ using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DataControl;
 using DG.Tweening;
+using GameControl;
 using InterfaceControl;
 using PoolObjectControl;
 using TMPro;
 using TowerControl;
 using UIControl;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -26,11 +28,10 @@ namespace ManagerControl
         public ushort sellGold;
     }
 
-    public class TowerManager : MonoBehaviour
+    public class TowerManager : Singleton<TowerManager>
     {
         private TowerInfo _towerInfo;
         private Camera _cam;
-        public InputManager inputManager { get; private set; }
 
         private Dictionary<TowerType, TowerData> _towerDataDictionary;
         private Dictionary<TowerType, GameObject> _towerObjDictionary;
@@ -155,12 +156,12 @@ namespace ManagerControl
         /*=================================================================================================================
     *                                                  Unity Event                                                             *
     //================================================================================================================*/
-        private void Awake()
+        protected override void Awake()
         {
+            base.Awake();
             _cam = Camera.main;
             _cameraManager = FindObjectOfType<CameraManager>();
-            inputManager = FindObjectOfType<InputManager>();
-            inputManager.towerManager = this;
+
             lifeFillImage.fillAmount = 1;
             _curTowerLife = lifeCount;
             lifeCountText.text = _curTowerLife + " / " + lifeCount;
@@ -241,19 +242,19 @@ namespace ManagerControl
         {
             toggleTowerButton.onClick.AddListener(() =>
             {
-                SoundManager.PlaySound(SoundEnum.ButtonSound);
+                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
                 ToggleTowerButtons();
             });
 
             upgradeButton.GetComponent<Button>().onClick.AddListener(() =>
             {
-                SoundManager.PlaySound(SoundEnum.ButtonSound);
+                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
                 TowerUpgrade();
                 UpdateTowerInfo();
             });
             moveUnitButton.GetComponent<Button>().onClick.AddListener(() =>
             {
-                SoundManager.PlaySound(SoundEnum.ButtonSound);
+                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
                 FocusUnitTower();
                 MoveUnitButton();
             });
@@ -261,7 +262,7 @@ namespace ManagerControl
             checkUnitMoveButton.SetActive(false);
             sellTowerButton.GetComponent<Button>().onClick.AddListener(() =>
             {
-                SoundManager.PlaySound(_curSelectedTower.TowerLevel < 2 ? SoundEnum.SellTower1 :
+                SoundManager.Instance.PlaySound(_curSelectedTower.TowerLevel < 2 ? SoundEnum.SellTower1 :
                     _curSelectedTower.TowerLevel < 4 ? SoundEnum.SellTower2 : SoundEnum.SellTower3);
 
                 SellTower();
@@ -279,31 +280,31 @@ namespace ManagerControl
 
             pauseButton.onClick.AddListener(() =>
             {
-                SoundManager.PlaySound(SoundEnum.ButtonSound);
+                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
                 Time.timeScale = 0;
                 _pauseSequence.Restart();
             });
             resumeButton.onClick.AddListener(() =>
             {
-                SoundManager.PlaySound(SoundEnum.ButtonSound);
+                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
                 Time.timeScale = _curSpeed;
                 _pauseSequence.PlayBackwards();
             });
             bgmButton.onClick.AddListener(() =>
             {
-                SoundManager.ToggleBGM();
-                SoundManager.PlaySound(SoundEnum.ButtonSound);
+                SoundManager.Instance.ToggleBGM();
+                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
             });
             sfxButton.onClick.AddListener(() =>
             {
-                SoundManager.ToggleSfx();
-                SoundManager.PlaySound(SoundEnum.ButtonSound);
+                SoundManager.Instance.ToggleSfx();
+                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
             });
             gameEndButton.onClick.AddListener(GameEnd);
             mainMenuButton.onClick.AddListener(() => SceneManager.LoadScene(0));
             speedUpButton.onClick.AddListener(() =>
             {
-                SoundManager.PlaySound(SoundEnum.ButtonSound);
+                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
                 SpeedUp();
             });
         }
@@ -343,7 +344,7 @@ namespace ManagerControl
             }
         }
 
-        public async UniTask InstantiateTower(TowerType towerType, Vector3 placePos)
+        public async UniTaskVoid InstantiateTower(TowerType towerType, Vector3 placePos, bool isUnitTower)
         {
             Instantiate(_towerObjDictionary[towerType], placePos + Vector3.up * 2,
                     Quaternion.Euler(0, _towerRanRotList[Random.Range(0, _towerRanRotList.Length)], 0))
@@ -356,15 +357,23 @@ namespace ManagerControl
                 .WithCancellation(this.GetCancellationTokenOnDestroy());
 
             towerController.AddTower(_curSelectedTower);
+
+            if (isUnitTower)
+            {
+                SetUnitPosition();
+            }
+
+            BuildTower();
         }
 
-        public void SetUnitPosition(Vector3 unitSpawnPoint)
+        private void SetUnitPosition()
         {
+            NavMesh.SamplePosition(_curSelectedTower.transform.position, out var hit, 5, NavMesh.AllAreas);
             _curSelectedTower.TryGetComponent(out UnitTower u);
-            u.unitSpawnPosition = unitSpawnPoint;
+            u.unitSpawnPosition = hit.position;
         }
 
-        public void BuildTower()
+        private void BuildTower()
         {
             var tempTower = _curSelectedTower;
             var towerType = tempTower.TowerData.TowerType;
@@ -415,13 +424,13 @@ namespace ManagerControl
             if (!_isShowTowerBtn)
             {
                 _isShowTowerBtn = true;
-                inputManager.enabled = true;
+                InputManager.Instance.enabled = true;
                 _onOffTowerBtnSequence.Restart();
             }
             else
             {
                 _isShowTowerBtn = false;
-                inputManager.enabled = false;
+                InputManager.Instance.enabled = false;
                 _onOffTowerBtnSequence.PlayBackwards();
             }
         }
@@ -443,7 +452,7 @@ namespace ManagerControl
 
         private void ClickTower(Tower clickedTower)
         {
-            SoundManager.PlaySound(SoundEnum.ButtonSound);
+            SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
             _towerInfoPanelTween.Restart();
             _isPanelOpen = true;
 

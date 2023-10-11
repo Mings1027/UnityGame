@@ -13,7 +13,6 @@ namespace MapControl
 {
     public class MapManager : MonoBehaviour
     {
-        private TowerManager _towerManager;
         private WaveManager _waveManager;
         private MeshFilter _meshFilter;
         private MeshRenderer _meshRenderer;
@@ -69,7 +68,6 @@ namespace MapControl
         {
             ComponentInit();
             MapDataInit();
-            _towerManager = FindObjectOfType<TowerManager>();
             _waveManager = FindObjectOfType<WaveManager>();
         }
 
@@ -77,7 +75,7 @@ namespace MapControl
         {
             _waveManager.OnPlaceExpandButtonEvent += PlaceExpandButtons;
 
-            _towerManager.transform.GetComponentInChildren<MainMenuUIController>()
+            TowerManager.Instance.transform.GetComponentInChildren<MainMenuUIController>()
                 .OnGenerateInitMapEvent += GenerateInitMap;
             PlaceStartMap();
         }
@@ -207,7 +205,7 @@ namespace MapControl
             _navMeshSurface.BuildNavMesh();
 
             _waveManager.StartWave(_wayPointsHashSet.ToList());
-            _towerManager.EnableTower();
+            TowerManager.Instance.EnableTower();
         }
 
         private void InitAdjacentState()
@@ -408,7 +406,7 @@ namespace MapControl
         //Call When Wave is over
         private void PlaceExpandButtons()
         {
-            SoundManager.PlayBGM(SoundEnum.WaveBreak);
+            SoundManager.Instance.PlayBGM(SoundEnum.WaveEnd);
 
             foreach (var pos in _expandBtnPosHashSet)
                 _expandButtons.Add(PoolObjectManager.Get<ExpandMapButton>(PoolObjectKey.ExpandButton, pos));

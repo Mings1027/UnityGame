@@ -1,3 +1,4 @@
+using System;
 using DataControl;
 using DG.Tweening;
 using ManagerControl;
@@ -24,12 +25,15 @@ namespace UnitControl.EnemyControl
         private bool _targetInAtkRange;
 
         private ushort _damage;
+        private float atkRange;
 
         private static readonly int IsWalk = Animator.StringToHash("isWalk");
         private static readonly int IsAttack = Animator.StringToHash("isAttack");
         private static readonly int IsDead = Animator.StringToHash("isDead");
 
-        private float atkRange;
+        public bool IsArrived { get; private set; }
+        public event Action OnDecreaseLifeCountEvent;
+
         [SerializeField] private float sightRange;
         [SerializeField] private LayerMask targetLayer;
 
@@ -52,10 +56,10 @@ namespace UnitControl.EnemyControl
 
         private void OnEnable()
         {
+            IsArrived = false;
             _target = null;
             _isTargeting = false;
             _enemyHealth.OnDeadEvent += DeadAnimation;
-            SetAnimationSpeed(_navMeshAgent.speed);
             InvokeRepeating(nameof(Targeting), 0f, 0.5f);
         }
 
@@ -77,6 +81,7 @@ namespace UnitControl.EnemyControl
 
         private void OnDisable()
         {
+            OnDecreaseLifeCountEvent = null;
             CancelInvoke();
         }
 
@@ -98,15 +103,35 @@ namespace UnitControl.EnemyControl
             if (_enemyHealth.IsDead) return;
             if (!_navMeshAgent.isActiveAndEnabled) return;
             var size = Physics.OverlapSphereNonAlloc(transform.position, sightRange, _targetCollider, targetLayer);
+            if (Vector3.Distance(Vector3.zero, transform.position) < 2)
+            {
+                IsArrived = true;
+                _enemyHealth.Damage(0);
+                if (!_enemyHealth.IsDead)
+                {
+                    OnDecreaseLifeCountEvent?.Invoke();
+                }
+
+                gameObject.SetActive(false);
+                return;
+            }
+
             if (size <= 0)
             {
                 _target = null;
                 _isTargeting = false;
                 _navMeshAgent.isStopped = false;
                 _navMeshAgent.SetDestination(Vector3.zero);
-                if (Vector3.Distance(_navMeshAgent.destination, transform.position) > 2) return;
-                gameObject.SetActive(false);
                 return;
+            }
+
+            if (_target)
+            {
+                if (!_target.enabled)
+                {
+                    _target = null;
+                    _isTargeting = false;
+                }
             }
 
             if (!_isTargeting)
@@ -135,8 +160,7 @@ namespace UnitControl.EnemyControl
 
         public void SetAnimationSpeed(float animSpeed)
         {
-            if (animSpeed * 0.5f < 0.5f) animSpeed = 0.5f;
-            _anim.speed = animSpeed * 0.5f;
+            _anim.speed = animSpeed;
         }
 
         private void DeadAnimation()
@@ -151,6 +175,7 @@ namespace UnitControl.EnemyControl
         {
             _navMeshAgent.enabled = true;
             _navMeshAgent.speed = enemyData.Speed;
+            SetAnimationSpeed(_navMeshAgent.speed);
             TryGetComponent(out EnemyStatus enemyStatus);
             enemyStatus.defaultSpeed = enemyData.Speed;
             atkCooldown.cooldownTime = enemyData.AttackDelay;
