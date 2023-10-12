@@ -13,6 +13,7 @@ namespace ManagerControl
 {
     public class WaveManager : MonoBehaviour
     {
+        private GameManager _gameManager;
         private bool _startWave;
         private byte _curWave;
         private byte _themeIndex;
@@ -28,6 +29,7 @@ namespace ManagerControl
         {
             _curWave = 0;
             _themeIndex = 0;
+            _gameManager = GameManager.Instance;
             // var enemyDataGuids = AssetDatabase.FindAssets("t: EnemyData", new[] { "Assets/EnemyData" });
             // enemiesData = new EnemyData[enemyDataGuids.Length];
             // for (var i = 0; i < enemyDataGuids.ToArray().Length; i++)
@@ -63,7 +65,7 @@ namespace ManagerControl
             }
 
             if (_curWave % 25 == 0) _themeIndex++;
-            TowerManager.Instance.WaveText.text = "Wave : " + _curWave;
+            _gameManager.towerManager.WaveText.text = "Wave : " + _curWave;
 
             WaveInit(wayPoints.Count);
             SpawnEnemy(wayPoints).Forget();
@@ -102,13 +104,13 @@ namespace ManagerControl
 
             var enemyUnit = PoolObjectManager.Get<EnemyUnit>(enemyData.EnemyKey, wayPoint);
             enemyUnit.Init(enemyData);
-            enemyUnit.OnDecreaseLifeCountEvent += TowerManager.Instance.DecreaseLifeCountEvent;
+            enemyUnit.OnDecreaseLifeCountEvent += _gameManager.towerManager.DecreaseLifeCountEvent;
             enemyUnit.TryGetComponent(out EnemyHealth enemyHealth);
 
             enemyHealth.Init(enemyData.Health);
             enemyHealth.OnUpdateEnemyCountEvent += UpdateEnemyCountEvent;
             var gold = enemyData.EnemyCoin;
-            enemyHealth.OnDeadEvent += () => TowerManager.Instance.TowerGold += gold;
+            enemyHealth.OnDeadEvent += () => _gameManager.towerManager.TowerGold += gold;
         }
 
         private void UpdateEnemyCountEvent()
@@ -119,7 +121,7 @@ namespace ManagerControl
             _startWave = false;
             OnPlaceExpandButtonEvent?.Invoke();
             OnEndOfGameEvent?.Invoke();
-            TowerManager.Instance.DisableTower();
+            _gameManager.towerManager.DisableTower();
         }
 
         private void FinalBossWave()

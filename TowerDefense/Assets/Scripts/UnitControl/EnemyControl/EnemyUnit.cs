@@ -1,4 +1,6 @@
 using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using DataControl;
 using DG.Tweening;
 using ManagerControl;
@@ -9,6 +11,7 @@ namespace UnitControl.EnemyControl
 {
     public class EnemyUnit : MonoBehaviour
     {
+        private CancellationTokenSource cts;
         private AudioSource _audioSource;
         private Animator _anim;
 
@@ -31,7 +34,6 @@ namespace UnitControl.EnemyControl
         private static readonly int IsAttack = Animator.StringToHash("isAttack");
         private static readonly int IsDead = Animator.StringToHash("isDead");
 
-        public bool IsArrived { get; private set; }
         public event Action OnDecreaseLifeCountEvent;
 
         [SerializeField] private float sightRange;
@@ -56,10 +58,11 @@ namespace UnitControl.EnemyControl
 
         private void OnEnable()
         {
-            IsArrived = false;
+            cts?.Dispose();
+            cts = new CancellationTokenSource();
             _target = null;
             _isTargeting = false;
-            _enemyHealth.OnDeadEvent += DeadAnimation;
+            _enemyHealth.OnDeadEvent += () => DeadAnimation().Forget();
             InvokeRepeating(nameof(Targeting), 0f, 0.5f);
         }
 
@@ -79,8 +82,23 @@ namespace UnitControl.EnemyControl
             _anim.SetBool(IsWalk, !_navMeshAgent.isStopped);
         }
 
+        private void OnTriggerEnter(Collider other)
+        {
+            if (!other.CompareTag("BaseTower")) return;
+
+            _enemyHealth.DecreaseEnemyCount();
+            if (!_enemyHealth.IsDead)
+            {
+                OnDecreaseLifeCountEvent?.Invoke();
+            }
+
+            gameObject.SetActive(false);
+        }
+
         private void OnDisable()
         {
+            cts?.Cancel();
+            cts?.Dispose();
             OnDecreaseLifeCountEvent = null;
             CancelInvoke();
         }
@@ -103,18 +121,6 @@ namespace UnitControl.EnemyControl
             if (_enemyHealth.IsDead) return;
             if (!_navMeshAgent.isActiveAndEnabled) return;
             var size = Physics.OverlapSphereNonAlloc(transform.position, sightRange, _targetCollider, targetLayer);
-            if (Vector3.Distance(Vector3.zero, transform.position) < 2)
-            {
-                IsArrived = true;
-                _enemyHealth.Damage(0);
-                if (!_enemyHealth.IsDead)
-                {
-                    OnDecreaseLifeCountEvent?.Invoke();
-                }
-
-                gameObject.SetActive(false);
-                return;
-            }
 
             if (size <= 0)
             {
@@ -163,12 +169,13 @@ namespace UnitControl.EnemyControl
             _anim.speed = animSpeed;
         }
 
-        private void DeadAnimation()
+        private async UniTaskVoid DeadAnimation()
         {
             _navMeshAgent.isStopped = true;
             _navMeshAgent.enabled = false;
             _anim.SetTrigger(IsDead);
-            DOVirtual.DelayedCall(2, () => gameObject.SetActive(false), false);
+            await UniTask.Delay(2000, cancellationToken: cts.Token);
+            gameObject.SetActive(false);
         }
 
         public void Init(EnemyData enemyData)

@@ -1,3 +1,5 @@
+using System;
+using System.Threading;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
@@ -12,6 +14,7 @@ namespace UnitControl.FriendlyControl
 {
     public sealed class FriendlyUnit : MonoBehaviour, IFingerUp
     {
+        private CancellationTokenSource cts;
         private AudioSource _audioSource;
         private Animator _anim;
         private SphereCollider _sphereCollider;
@@ -69,17 +72,18 @@ namespace UnitControl.FriendlyControl
 
         private void OnEnable()
         {
+            cts?.Dispose();
+            cts = new CancellationTokenSource();
             _target = null;
             _targetInAtkRange = false;
-            _health.OnDeadEvent += DeadAnimation;
+            _health.OnDeadEvent += () => DeadAnimation().Forget();
             indicator.enabled = false;
         }
 
         private void OnDisable()
         {
-            _isTargeting = false;
-            _moveInput = false;
-            _targetInAtkRange = false;
+            cts?.Cancel();
+            cts?.Dispose();
         }
 #if UNITY_EDITOR
         private void OnDrawGizmos()
@@ -110,8 +114,10 @@ namespace UnitControl.FriendlyControl
         {
             _anim.SetBool(IsWalk, false);
             _startTargeting = false;
-            _isTargeting = false;
             _target = null;
+            _isTargeting = false;
+            _moveInput = false;
+            _targetInAtkRange = false;
         }
 
         public void UnitTargeting()
@@ -161,10 +167,11 @@ namespace UnitControl.FriendlyControl
             DataManager.SumDamage(_towerTypeEnum, _damage);
         }
 
-        private void DeadAnimation()
+        private async UniTaskVoid DeadAnimation()
         {
             _anim.SetTrigger(IsDead);
-            DOVirtual.DelayedCall(2, () => gameObject.SetActive(false), false);
+            await UniTask.Delay(2000, cancellationToken: cts.Token);
+            gameObject.SetActive(false);
         }
 
         public async UniTask MoveToTouchPosTest(Vector3 pos)

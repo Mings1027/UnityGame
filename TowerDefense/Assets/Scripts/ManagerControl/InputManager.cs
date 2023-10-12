@@ -6,9 +6,9 @@ using UnityEngine;
 
 namespace ManagerControl
 {
-    public class InputManager : Singleton<InputManager>
+    public class InputManager : MonoBehaviour
     {
-        private CameraManager _cameraManager;
+        private GameManager _gameManager;
         private Camera _cam;
         private Transform _cursorChild;
         private Vector3 _worldGridPos;
@@ -26,10 +26,9 @@ namespace ManagerControl
         [SerializeField] private LayerMask groundLayer;
         [SerializeField] private Color[] cubeColor;
 
-        protected override void Awake()
+        private void Awake()
         {
-            base.Awake();
-            _cameraManager = FindObjectOfType<CameraManager>();
+            _gameManager = GameManager.Instance;
             _cam = Camera.main;
             _cursorMeshRenderer = cubeCursor.GetComponentInChildren<MeshRenderer>();
             _cursorChild = cubeCursor.GetChild(0);
@@ -96,7 +95,7 @@ namespace ManagerControl
         {
             _startPlacement = false;
             _canPlace = false;
-            _cameraManager.enabled = true;
+            _gameManager.towerManager.enabled = true;
             _worldGridPos = Vector3.zero + Vector3.down * 5;
 
             _cursorMeshRenderer.transform.DOScale(0, 0.25f).SetEase(Ease.InBack).OnComplete(() =>
@@ -108,10 +107,10 @@ namespace ManagerControl
         public void StartPlacement(in TowerType towerType, bool isUnitTower)
         {
             _startPlacement = true;
-            TowerManager.Instance.OffUI();
-            _cameraManager.enabled = false;
+            _gameManager.towerManager.OffUI();
+            _gameManager.cameraManager.enabled = false;
             _cursorMeshRenderer.transform.DOScale(2, 0.5f).SetEase(Ease.OutBack);
-            if (!TowerManager.Instance.IsEnoughGold(in towerType)) return;
+            if (!_gameManager.towerManager.IsEnoughGold(in towerType)) return;
             if (_selectedTowerType == towerType) return;
             _isUnitTower = isUnitTower;
             _selectedTowerType = towerType;
@@ -159,7 +158,7 @@ namespace ManagerControl
         {
             _worldGridPos = _cursorChild.position;
             _worldGridPos.y = 1f;
-            TowerManager.Instance.InstantiateTower(_selectedTowerType, _worldGridPos, _isUnitTower).Forget();
+            _gameManager.towerManager.InstantiateTower(_selectedTowerType, _worldGridPos, _isUnitTower).Forget();
         }
     }
 }

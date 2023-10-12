@@ -28,8 +28,9 @@ namespace ManagerControl
         public ushort sellGold;
     }
 
-    public class TowerManager : Singleton<TowerManager>
+    public class TowerManager : MonoBehaviour
     {
+        private GameManager _gameManager;
         private TowerInfo _towerInfo;
         private Camera _cam;
 
@@ -69,8 +70,6 @@ namespace ManagerControl
         private byte _curSpeed;
         private bool _isSpeedUp;
         private bool _callNotEnoughTween;
-
-        private CameraManager _cameraManager;
 
         public int TowerGold
         {
@@ -156,11 +155,10 @@ namespace ManagerControl
         /*=================================================================================================================
     *                                                  Unity Event                                                             *
     //================================================================================================================*/
-        protected override void Awake()
+        private void Awake()
         {
-            base.Awake();
+            _gameManager = GameManager.Instance;
             _cam = Camera.main;
-            _cameraManager = FindObjectOfType<CameraManager>();
 
             lifeFillImage.fillAmount = 1;
             _curTowerLife = lifeCount;
@@ -227,7 +225,7 @@ namespace ManagerControl
             _pauseSequence = DOTween.Sequence().SetAutoKill(false).SetUpdate(true).Pause()
                 .Append(pausePanel.DOLocalMoveY(0, 0.5f).From(Screen.height).SetEase(Ease.OutBack))
                 .Join(pauseButton.transform.DOLocalMoveY(200, 0.5f).SetRelative().SetEase(Ease.InOutBack))
-                .PrependCallback(() => _cameraManager.enabled = !_cameraManager.enabled);
+                .PrependCallback(() => _gameManager.cameraManager.enabled = !_gameManager.cameraManager.enabled);
 
             _notEnoughGoldSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(notEnoughGoldPanel.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBounce))
@@ -242,19 +240,19 @@ namespace ManagerControl
         {
             toggleTowerButton.onClick.AddListener(() =>
             {
-                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
+                _gameManager.soundManager.PlaySound(SoundEnum.ButtonSound);
                 ToggleTowerButtons();
             });
 
             upgradeButton.GetComponent<Button>().onClick.AddListener(() =>
             {
-                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
+                _gameManager.soundManager.PlaySound(SoundEnum.ButtonSound);
                 TowerUpgrade();
                 UpdateTowerInfo();
             });
             moveUnitButton.GetComponent<Button>().onClick.AddListener(() =>
             {
-                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
+                _gameManager.soundManager.PlaySound(SoundEnum.ButtonSound);
                 FocusUnitTower();
                 MoveUnitButton();
             });
@@ -262,7 +260,7 @@ namespace ManagerControl
             checkUnitMoveButton.SetActive(false);
             sellTowerButton.GetComponent<Button>().onClick.AddListener(() =>
             {
-                SoundManager.Instance.PlaySound(_curSelectedTower.TowerLevel < 2 ? SoundEnum.SellTower1 :
+                _gameManager.soundManager.PlaySound(_curSelectedTower.TowerLevel < 2 ? SoundEnum.SellTower1 :
                     _curSelectedTower.TowerLevel < 4 ? SoundEnum.SellTower2 : SoundEnum.SellTower3);
 
                 SellTower();
@@ -280,31 +278,31 @@ namespace ManagerControl
 
             pauseButton.onClick.AddListener(() =>
             {
-                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
+                _gameManager.soundManager.PlaySound(SoundEnum.ButtonSound);
                 Time.timeScale = 0;
                 _pauseSequence.Restart();
             });
             resumeButton.onClick.AddListener(() =>
             {
-                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
+                _gameManager.soundManager.PlaySound(SoundEnum.ButtonSound);
                 Time.timeScale = _curSpeed;
                 _pauseSequence.PlayBackwards();
             });
             bgmButton.onClick.AddListener(() =>
             {
-                SoundManager.Instance.ToggleBGM();
-                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
+                _gameManager.soundManager.ToggleBGM();
+                _gameManager.soundManager.PlaySound(SoundEnum.ButtonSound);
             });
             sfxButton.onClick.AddListener(() =>
             {
-                SoundManager.Instance.ToggleSfx();
-                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
+                _gameManager.soundManager.ToggleSfx();
+                _gameManager.soundManager.PlaySound(SoundEnum.ButtonSound);
             });
             gameEndButton.onClick.AddListener(GameEnd);
             mainMenuButton.onClick.AddListener(() => SceneManager.LoadScene(0));
             speedUpButton.onClick.AddListener(() =>
             {
-                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
+                _gameManager.soundManager.PlaySound(SoundEnum.ButtonSound);
                 SpeedUp();
             });
         }
@@ -406,7 +404,7 @@ namespace ManagerControl
         private void GameOver()
         {
             gameOverPanel.SetActive(true);
-            _cameraManager.enabled = false;
+            _gameManager.cameraManager.enabled = false;
             Time.timeScale = 0;
             DataManager.SaveDamageData();
         }
@@ -424,13 +422,13 @@ namespace ManagerControl
             if (!_isShowTowerBtn)
             {
                 _isShowTowerBtn = true;
-                InputManager.Instance.enabled = true;
+                _gameManager.inputManager.enabled = true;
                 _onOffTowerBtnSequence.Restart();
             }
             else
             {
                 _isShowTowerBtn = false;
-                InputManager.Instance.enabled = false;
+                _gameManager.inputManager.enabled = false;
                 _onOffTowerBtnSequence.PlayBackwards();
             }
         }
@@ -452,7 +450,7 @@ namespace ManagerControl
 
         private void ClickTower(Tower clickedTower)
         {
-            SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
+            _gameManager.soundManager.PlaySound(SoundEnum.ButtonSound);
             _towerInfoPanelTween.Restart();
             _isPanelOpen = true;
 
@@ -547,9 +545,9 @@ namespace ManagerControl
         private void FocusUnitTower()
         {
             _prevSize = (byte)_cam.orthographicSize;
-            _prevPos = _cameraManager.transform.position;
+            _prevPos = _gameManager.cameraManager.transform.position;
             DOTween.Sequence()
-                .Append(_cameraManager.transform.DOMove(_curSelectedTower.transform.position, camZoomTime)
+                .Append(_gameManager.cameraManager.transform.DOMove(_curSelectedTower.transform.position, camZoomTime)
                     .SetEase(camZoomEase))
                 .Join(_cam.DOOrthoSize(10, camZoomTime).SetEase(camZoomEase));
         }
@@ -557,7 +555,7 @@ namespace ManagerControl
         private void RewindCamState()
         {
             DOTween.Sequence()
-                .Append(_cameraManager.transform.DOMove(_prevPos, camZoomTime).SetEase(camZoomEase))
+                .Append(_gameManager.cameraManager.transform.DOMove(_prevPos, camZoomTime).SetEase(camZoomEase))
                 .Join(_cam.DOOrthoSize(_prevSize, camZoomTime).SetEase(camZoomEase));
         }
 
@@ -687,6 +685,7 @@ namespace ManagerControl
 
         public void DisableTower()
         {
+            towerController.TargetInit();
             towerController.enabled = false;
 
             Application.targetFrameRate = 30;

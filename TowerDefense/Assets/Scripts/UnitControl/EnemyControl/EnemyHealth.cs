@@ -11,8 +11,20 @@ namespace UnitControl.EnemyControl
         {
             base.OnDisable();
 
+            OnUpdateEnemyCountEvent = null;
+        }
+
+        public void DecreaseEnemyCount()
+        {
             OnUpdateEnemyCountEvent?.Invoke();
             OnUpdateEnemyCountEvent = null;
+        }
+
+        public override void Damage(in float amount)
+        {
+            base.Damage(in amount);
+            if (Current > 0) return;
+            DecreaseEnemyCount();
         }
     }
 }

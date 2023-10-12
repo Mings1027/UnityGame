@@ -23,7 +23,7 @@ namespace MapControl
         public void FingerUp()
         {
             OnExpandMapEvent?.Invoke(transform.position);
-            SoundManager.Instance.PlayBGM(SoundEnum.WaveStart);
+            GameManager.Instance.soundManager.PlayBGM(SoundEnum.WaveStart);
         }
     }
 }

@@ -1,13 +1,21 @@
 using System;
 using Cysharp.Threading.Tasks;
+using GameControl;
 using UnityEngine;
 
 namespace ManagerControl
 {
-    public class GameManager : MonoBehaviour
+    public class GameManager : Singleton<GameManager>
     {
-        private void Awake()
+        public TowerManager towerManager { get; private set; }
+        public InputManager inputManager { get; private set; }
+        public CameraManager cameraManager { get; private set; }
+        public WaveManager waveManager { get; private set; }
+        public SoundManager soundManager { get; private set; }
+
+        protected override void Awake()
         {
+            base.Awake();
             Application.targetFrameRate = 60;
             GameInit().Forget();
         }
@@ -21,6 +29,11 @@ namespace ManagerControl
             }
 
             await UniTask.Yield();
+            towerManager = FindObjectOfType<TowerManager>();
+            inputManager = FindObjectOfType<InputManager>();
+            cameraManager = FindObjectOfType<CameraManager>();
+            waveManager = FindObjectOfType<WaveManager>();
+            soundManager = FindObjectOfType<SoundManager>();
             Instantiate(Resources.Load<GameObject>("PoolObjManager/7.PoolObjectManager"));
         }
     }

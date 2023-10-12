@@ -7,7 +7,7 @@ using UnityEngine.Audio;
 
 namespace ManagerControl
 {
-    public class SoundManager : Singleton<SoundManager>
+    public class SoundManager : MonoBehaviour
     {
         [Serializable]
         public class EffectSound
@@ -34,9 +34,8 @@ namespace ManagerControl
 
         [SerializeField] private AudioMixer audioMixer;
 
-        protected override void Awake()
+        private void Awake()
         {
-            base.Awake();
             musicSource = transform.Find("Music Source").GetComponent<AudioSource>();
             effectSource = transform.Find("Effect Source").GetComponent<AudioSource>();
 
