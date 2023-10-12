@@ -32,10 +32,9 @@ namespace TowerControl
         {
             for (var i = 0; i < _units.Length; i++)
             {
-                if (_units[i] == null) continue;
+                if (!_units[i]) continue;
                 _units[i].gameObject.SetActive(false);
                 _units[i].Init(null, TowerType.None);
-                // _units[i] = null;
             }
         }
 
@@ -112,9 +111,16 @@ namespace TowerControl
         {
             for (var i = 0; i < _units.Length; i++)
             {
+                if (!_units[i]) continue;
+                _units[i].Init(null, TowerType.None);
+                _units[i] = null;
+            }
+
+            for (var i = 0; i < _units.Length; i++)
+            {
                 var angle = i * ((float)Math.PI * 2f) / _units.Length;
                 var pos = unitSpawnPosition + new Vector3((float)Math.Cos(angle), 0, (float)Math.Sin(angle));
-                
+
                 _units[i] = PoolObjectManager.Get<FriendlyUnit>(TowerData.PoolObjectKey, transform.position);
                 _units[i].transform.DOJump(pos, 2, 1, 0.5f).SetEase(Ease.OutSine);
                 _units[i].Init(this, TowerData.TowerType);
@@ -124,11 +130,9 @@ namespace TowerControl
 
             _isUnitSpawn = true;
 
-            if (_isReSpawning)
-            {
-                unitReSpawnBar.StopReSpawning();
-                reSpawnBarSequence.PlayBackwards();
-            }
+            if (!_isReSpawning) return;
+            unitReSpawnBar.StopReSpawning();
+            reSpawnBarSequence.PlayBackwards();
         }
 
         private void UnitUpgrade(ushort damage, float delay)
@@ -145,11 +149,10 @@ namespace TowerControl
             var tasks = new UniTask[_units.Length - deadUnitCount];
             for (var i = 0; i < tasks.Length; i++)
             {
-                _units[i].TryGetComponent(out Health health);
-                if (health.IsDead) continue;
+                if (!_units[i].gameObject.activeSelf) continue;
                 var angle = i * ((float)Math.PI * 2f) / _units.Length;
                 var pos = touchPos + new Vector3((float)Math.Cos(angle), 0, (float)Math.Sin(angle));
-                tasks[i] = _units[i].MoveToTouchPosTest(pos);
+                tasks[i] = _units[i].MoveToTouchPos(pos);
             }
 
             await UniTask.WhenAll(tasks);
@@ -166,12 +169,10 @@ namespace TowerControl
 
         private void UnitReSpawn()
         {
-            print("dead");
             deadUnitCount++;
             if (deadUnitCount != _units.Length) return;
 
             deadUnitCount = 0;
-            print("all unit dead");
             _isUnitSpawn = false;
             UnitReSpawnAsync().Forget();
         }

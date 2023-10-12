@@ -40,6 +40,8 @@ namespace StatusControl
             OnDeadEvent?.Invoke();
         }
 
+        protected void DeadEvent() => OnDeadEvent?.Invoke();
+
         public void Heal(in float amount)
         {
             Current += amount;

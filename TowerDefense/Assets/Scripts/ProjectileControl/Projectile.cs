@@ -8,6 +8,7 @@ namespace ProjectileControl
     public abstract class Projectile : MonoBehaviour, IHit
     {
         private Collider _collider;
+        private MeshRenderer projectileMesh;
         private ParticleSystem _trailParticle;
         private ParticleSystem _hitParticle;
         private Rigidbody _rigid;
@@ -16,25 +17,31 @@ namespace ProjectileControl
         private float _gravity;
         private Vector3 _curPos;
         private Vector3 _startPos;
+        private Vector3 _centerPos;
         private bool _isArrived;
 
         protected float lerp;
         protected Transform target;
 
         [SerializeField] private TargetingTowerData towerData;
-        [SerializeField] private AnimationCurve curve;
+
+        [SerializeField, Range(0, 50)] private float height;
+
+        // [SerializeField] private AnimationCurve curve;
         [SerializeField] private float speed;
 
         protected virtual void Awake()
         {
             _collider = GetComponent<Collider>();
-            _trailParticle = transform.GetChild(0).GetComponent<ParticleSystem>();
-            _hitParticle = transform.GetChild(1).GetComponent<ParticleSystem>();
+            projectileMesh = GetComponentInChildren<MeshRenderer>();
+            _trailParticle = transform.GetChild(1).GetComponent<ParticleSystem>();
+            _hitParticle = transform.GetChild(2).GetComponent<ParticleSystem>();
             _rigid = GetComponent<Rigidbody>();
         }
 
         protected virtual void OnEnable()
         {
+            projectileMesh.enabled = true;
             _collider.enabled = true;
             _startPos = transform.position;
             _trailParticle.Play();
@@ -59,6 +66,7 @@ namespace ProjectileControl
         {
             _hitParticle.Play();
             _isArrived = true;
+            projectileMesh.enabled = false;
             _collider.enabled = false;
             Hit();
         }
@@ -72,8 +80,11 @@ namespace ProjectileControl
             if (_isArrived) return;
             _gravity = Mathf.Lerp(0.8f, 1.5f, lerp);
             lerp += Time.deltaTime * _gravity * speed;
-            _curPos = Vector3.Lerp(_startPos, endPos, lerp);
-            _curPos.y += curve.Evaluate(lerp);
+            _centerPos = (_startPos + endPos) * 0.5f + Vector3.up * height;
+            _curPos = Vector3.Lerp(
+                Vector3.Lerp(_startPos, _centerPos, lerp),
+                Vector3.Lerp(_centerPos, endPos, lerp),
+                lerp);
             var rigidPos = _rigid.position;
             var dir = (_curPos - rigidPos).normalized;
             _rigid.position = _curPos;

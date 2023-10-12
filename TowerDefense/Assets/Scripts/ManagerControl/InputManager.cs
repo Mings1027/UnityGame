@@ -17,6 +17,7 @@ namespace ManagerControl
         private bool isGround;
         private bool _canPlace;
         private bool _startPlacement;
+        private bool _isAppeared;
         private Vector3[] _checkDir;
         private MeshRenderer _cursorMeshRenderer;
         private RaycastHit _hit;
@@ -59,6 +60,7 @@ namespace ManagerControl
             {
                 UpdateCursorPosition();
                 CheckCanPlace();
+                CursorAppear();
             }
             else if (touch.phase.Equals(TouchPhase.Ended))
             {
@@ -95,10 +97,10 @@ namespace ManagerControl
         {
             _startPlacement = false;
             _canPlace = false;
-            _gameManager.towerManager.enabled = true;
+            _gameManager.cameraManager.enabled = true;
             _worldGridPos = Vector3.zero + Vector3.down * 5;
 
-            _cursorMeshRenderer.transform.DOScale(0, 0.25f).SetEase(Ease.InBack).OnComplete(() =>
+            _cursorMeshRenderer.transform.DOScale(0, 0.25f).SetEase(Ease.OutBack).OnComplete(() =>
             {
                 cubeCursor.position = _worldGridPos;
             });
@@ -109,7 +111,7 @@ namespace ManagerControl
             _startPlacement = true;
             _gameManager.towerManager.OffUI();
             _gameManager.cameraManager.enabled = false;
-            _cursorMeshRenderer.transform.DOScale(2, 0.5f).SetEase(Ease.OutBack);
+            _cursorMeshRenderer.transform.DOScale(2, 0.25f).SetEase(Ease.OutBack);
             if (!_gameManager.towerManager.IsEnoughGold(in towerType)) return;
             if (_selectedTowerType == towerType) return;
             _isUnitTower = isUnitTower;
@@ -126,20 +128,43 @@ namespace ManagerControl
 
             var cellGridPos = grid.WorldToCell(hit.point);
             _worldGridPos = grid.CellToWorld(cellGridPos);
-            cubeCursor.DOMove(_worldGridPos, 0.2f).SetEase(Ease.OutBack);
+            cubeCursor.DOMove(_worldGridPos, 0.15f).SetEase(Ease.OutBack);
         }
 
         private void CheckCanPlace()
         {
-            _canPlace = _startPlacement && CheckPlacementTile();
-
+            _canPlace = isGround && CheckPlacementTile();
             _cursorMeshRenderer.sharedMaterial.color = _canPlace ? cubeColor[0] : cubeColor[1];
+        }
+
+        private void CursorAppear()
+        {
+            if (isGround)
+            {
+                if (!_isAppeared)
+                {
+                    _cursorMeshRenderer.transform.DOScale(2, 0.25f).SetEase(Ease.OutBack).OnComplete(() =>
+                    {
+                        _isAppeared = true;
+                    });
+                }
+            }
+            else
+            {
+                if (_isAppeared)
+                {
+                    _cursorMeshRenderer.transform.DOScale(0, 0.25f).SetEase(Ease.OutBack).OnComplete(() =>
+                    {
+                        _isAppeared = false;
+                    });
+                }
+            }
         }
 
         private bool CheckPlacementTile()
         {
             Physics.Raycast(_cursorChild.position + Vector3.up * 5, Vector3.down, out _hit, 10);
-            if (!_hit.collider.CompareTag("Placement")) return false;
+            if (_hit.collider == null || !_hit.collider.CompareTag("Placement")) return false;
             if (!_isUnitTower) return true;
             for (var i = 0; i < _checkDir.Length; i++)
             {

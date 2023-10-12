@@ -35,6 +35,7 @@ namespace TowerControl
         {
             TowerLevel = -1;
             boxCollider = GetComponent<BoxCollider>();
+            boxCollider.enabled = false;
             _meshFilter = transform.GetChild(0).GetComponent<MeshFilter>();
             _meshRenderer = transform.GetChild(0).GetComponent<MeshRenderer>();
         }

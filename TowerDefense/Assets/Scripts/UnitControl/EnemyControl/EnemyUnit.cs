@@ -3,6 +3,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using DataControl;
 using DG.Tweening;
+using InterfaceControl;
 using ManagerControl;
 using UnityEngine;
 using UnityEngine.AI;
@@ -11,11 +12,10 @@ namespace UnitControl.EnemyControl
 {
     public class EnemyUnit : MonoBehaviour
     {
+        private Transform childMeshTransform;
         private CancellationTokenSource cts;
         private AudioSource _audioSource;
         private Animator _anim;
-
-        private SphereCollider _sphereCollider;
 
         private NavMeshAgent _navMeshAgent;
         private EnemyHealth _enemyHealth;
@@ -32,10 +32,7 @@ namespace UnitControl.EnemyControl
 
         private static readonly int IsWalk = Animator.StringToHash("isWalk");
         private static readonly int IsAttack = Animator.StringToHash("isAttack");
-        private static readonly int IsDead = Animator.StringToHash("isDead");
-
-        public event Action OnDecreaseLifeCountEvent;
-
+      
         [SerializeField] private float sightRange;
         [SerializeField] private LayerMask targetLayer;
 
@@ -45,15 +42,15 @@ namespace UnitControl.EnemyControl
 
         private void Awake()
         {
+            childMeshTransform = transform.GetChild(0);
             _audioSource = GetComponent<AudioSource>();
             _anim = GetComponentInChildren<Animator>();
-            _sphereCollider = GetComponent<SphereCollider>();
             _navMeshAgent = GetComponent<NavMeshAgent>();
             _enemyHealth = GetComponent<EnemyHealth>();
             _targetCollider = new Collider[1];
             _attackPoint = GetComponentInChildren<AttackPoint>();
-            atkRange = _sphereCollider.radius * 2f;
-            _navMeshAgent.stoppingDistance = atkRange - 0.1f;
+
+            atkRange = _navMeshAgent.stoppingDistance;
         }
 
         private void OnEnable()
@@ -70,7 +67,7 @@ namespace UnitControl.EnemyControl
         {
             if (_enemyHealth.IsDead) return;
             if (!_targetInAtkRange || !_isTargeting) return;
-            _navMeshAgent.isStopped = true;
+
             if (atkCooldown.IsCoolingDown) return;
             Attack();
             atkCooldown.StartCooldown();
@@ -79,19 +76,14 @@ namespace UnitControl.EnemyControl
         private void LateUpdate()
         {
             if (_enemyHealth.IsDead) return;
-            _anim.SetBool(IsWalk, !_navMeshAgent.isStopped);
+            _anim.SetBool(IsWalk, !_targetInAtkRange);
         }
 
         private void OnTriggerEnter(Collider other)
         {
-            if (!other.CompareTag("BaseTower")) return;
-
+            if (!other.TryGetComponent(out IDamageable damageable)) return;
             _enemyHealth.DecreaseEnemyCount();
-            if (!_enemyHealth.IsDead)
-            {
-                OnDecreaseLifeCountEvent?.Invoke();
-            }
-
+            damageable.Damage(1);
             gameObject.SetActive(false);
         }
 
@@ -99,7 +91,6 @@ namespace UnitControl.EnemyControl
         {
             cts?.Cancel();
             cts?.Dispose();
-            OnDecreaseLifeCountEvent = null;
             CancelInvoke();
         }
 
@@ -124,9 +115,9 @@ namespace UnitControl.EnemyControl
 
             if (size <= 0)
             {
+                _targetInAtkRange = false;
                 _target = null;
                 _isTargeting = false;
-                _navMeshAgent.isStopped = false;
                 _navMeshAgent.SetDestination(Vector3.zero);
                 return;
             }
@@ -171,15 +162,20 @@ namespace UnitControl.EnemyControl
 
         private async UniTaskVoid DeadAnimation()
         {
-            _navMeshAgent.isStopped = true;
             _navMeshAgent.enabled = false;
-            _anim.SetTrigger(IsDead);
-            await UniTask.Delay(2000, cancellationToken: cts.Token);
+            _anim.enabled = false;
+            await childMeshTransform.DOLocalRotate(new Vector3(-90, 0, 0), 0.5f).SetEase(Ease.Linear);
+            await UniTask.Delay(500, cancellationToken: cts.Token);
+            await childMeshTransform.DOScale(0, 0.5f).SetEase(Ease.Linear);
             gameObject.SetActive(false);
+            _anim.enabled = true;
+            childMeshTransform.rotation = Quaternion.identity;
+            childMeshTransform.localScale = Vector3.one;
         }
 
         public void Init(EnemyData enemyData)
         {
+            _targetInAtkRange = false;
             _navMeshAgent.enabled = true;
             _navMeshAgent.speed = enemyData.Speed;
             SetAnimationSpeed(_navMeshAgent.speed);

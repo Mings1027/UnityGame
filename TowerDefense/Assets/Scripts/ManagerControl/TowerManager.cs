@@ -4,9 +4,9 @@ using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DataControl;
 using DG.Tweening;
-using GameControl;
 using InterfaceControl;
 using PoolObjectControl;
+using StatusControl;
 using TMPro;
 using TowerControl;
 using UIControl;
@@ -65,7 +65,7 @@ namespace ManagerControl
         // Damage Data
         private TMP_Text[] _damageTextList;
 
-        private byte _curTowerLife;
+        // private byte _curTowerLife;
         private int _towerGold;
         private byte _curSpeed;
         private bool _isSpeedUp;
@@ -126,8 +126,6 @@ namespace ManagerControl
         [SerializeField] private Transform notEnoughGoldPanel;
         [SerializeField, Range(0, 30)] private byte lifeCount;
         [SerializeField] private RectTransform playerHealthBar;
-        [SerializeField] private Image lifeFillImage;
-        [SerializeField] private TextMeshProUGUI lifeCountText;
         [SerializeField] private TextMeshProUGUI goldText;
         [SerializeField] private TextMeshProUGUI waveText;
         [SerializeField] private TextMeshProUGUI speedUpText;
@@ -160,9 +158,10 @@ namespace ManagerControl
             _gameManager = GameManager.Instance;
             _cam = Camera.main;
 
-            lifeFillImage.fillAmount = 1;
-            _curTowerLife = lifeCount;
-            lifeCountText.text = _curTowerLife + " / " + lifeCount;
+            var baseTowerHealth = GetComponentInChildren<BaseTowerHealth>();
+            baseTowerHealth.Init(lifeCount);
+            baseTowerHealth.OnDeadEvent += GameOver;
+
             TowerInit();
             TweenInit();
             TowerButtonInit();
@@ -181,12 +180,12 @@ namespace ManagerControl
 
         private void OnDestroy()
         {
-            _towerInfoPanelTween.Kill();
-            _notEnoughGoldSequence.Kill();
-            _pauseSequence.Kill();
-            _onOffTowerBtnSequence.Kill();
-            _cantMoveImageSequence.Kill();
-            _camZoomSequence.Kill();
+            _towerInfoPanelTween?.Kill();
+            _notEnoughGoldSequence?.Kill();
+            _pauseSequence?.Kill();
+            _onOffTowerBtnSequence?.Kill();
+            _cantMoveImageSequence?.Kill();
+            _camZoomSequence?.Kill();
         }
 
         /*=================================================================================================================
@@ -348,58 +347,60 @@ namespace ManagerControl
                     Quaternion.Euler(0, _towerRanRotList[Random.Range(0, _towerRanRotList.Length)], 0))
                 .TryGetComponent(out Tower t);
 
-            _curSelectedTower = t;
-            await DOTween.Sequence().Append(_curSelectedTower.transform.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack))
-                .Append(_curSelectedTower.transform.DOMoveY(placePos.y, 0.5f).SetEase(Ease.InExpo).OnComplete(() =>
+            await DOTween.Sequence().Append(t.transform.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack))
+                .Append(t.transform.DOMoveY(placePos.y, 0.5f).SetEase(Ease.InExpo).OnComplete(() =>
                     PoolObjectManager.Get(PoolObjectKey.BuildSmoke, placePos)))
                 .WithCancellation(this.GetCancellationTokenOnDestroy());
 
-            towerController.AddTower(_curSelectedTower);
+            towerController.AddTower(t);
 
             if (isUnitTower)
             {
-                SetUnitPosition();
+                SetUnitPosition(t);
             }
 
-            BuildTower();
+            BuildTower(t);
         }
 
-        private void SetUnitPosition()
+        private void SetUnitPosition(Tower t)
         {
-            NavMesh.SamplePosition(_curSelectedTower.transform.position, out var hit, 5, NavMesh.AllAreas);
-            _curSelectedTower.TryGetComponent(out UnitTower u);
+            NavMesh.SamplePosition(t.transform.position, out var hit, 5, NavMesh.AllAreas);
+            t.TryGetComponent(out UnitTower u);
             u.unitSpawnPosition = hit.position;
         }
 
-        private void BuildTower()
+        private void BuildTower(Tower t)
         {
-            var tempTower = _curSelectedTower;
-            var towerType = tempTower.TowerData.TowerType;
-            var towerLevel = tempTower.TowerLevel;
+            var towerType = t.TowerData.TowerType;
+            var towerLevel = t.TowerLevel;
 #if UNITY_EDITOR
-            tempTower.transform.SetParent(transform);
+            t.transform.SetParent(transform);
 #endif
             _towerCountDictionary[towerType]++;
             var towerData = _towerDataDictionary[towerType];
 
-            tempTower.TowerLevelUp();
-            var towerInfoData = towerData.TowerLevels[tempTower.TowerLevel];
+            t.TowerLevelUp();
+            var towerInfoData = towerData.TowerLevels[t.TowerLevel];
             TowerGold -= towerData.TowerBuildGold * _towerCountDictionary[towerType];
 
-            tempTower.TowerSetting(towerInfoData.towerMesh, towerInfoData.damage, towerInfoData.attackRange,
+            t.TowerSetting(towerInfoData.towerMesh, towerInfoData.damage, towerInfoData.attackRange,
                 towerInfoData.attackDelay);
             upgradeButton.SetActive(!towerLevel.Equals(4));
 
-            _curSelectedTower.OnClickTower += ClickTower;
-            _curSelectedTower = null;
+            t.OnClickTower += ClickTower;
         }
 
         public void GameStart()
         {
             uiPanel.SetActive(true);
             Time.timeScale = 1;
-            _cam.DOOrthoSize(17, 1).From(100).SetEase(Ease.OutQuad);
+            DOTween.Sequence()
+                .Append(_cam.transform.DOLocalMove(new Vector3(0, 50, -50), 1.5f).SetEase(Ease.OutQuad)
+                    .From(new Vector3(0, 300, -300)))
+                .Join(_cam.DOOrthoSize(17, 1).From(100).SetEase(Ease.OutQuad));
         }
+
+        public void DamageInit() => DataManager.InitDamage();
 
         private void GameOver()
         {
@@ -437,7 +438,7 @@ namespace ManagerControl
         {
             var ray = _cam.ScreenPointToRay(Input.mousePosition);
             Physics.Raycast(ray, out var hit, Mathf.Infinity);
-
+            if (Input.GetTouch(0).deltaPosition != Vector2.zero) return;
             if (hit.collider && hit.collider.TryGetComponent(out IFingerUp fingerUp))
             {
                 fingerUp.FingerUp();
@@ -462,7 +463,7 @@ namespace ManagerControl
 
             _curSelectedTower = clickedTower;
 
-            upgradeButton.SetActive(!_curSelectedTower.TowerLevel.Equals(4));
+            upgradeButton.SetActive(!clickedTower.TowerLevel.Equals(4));
 
             IfUnitTower();
             OpenEditButtonPanel();
@@ -661,17 +662,6 @@ namespace ManagerControl
         {
             return (ushort)(_towerDataDictionary[towerType].TowerBuildGold +
                             _towerDataDictionary[towerType].TowerUpgradeGold * _curSelectedTower.TowerLevel);
-        }
-
-        public void DecreaseLifeCountEvent()
-        {
-            if (_curTowerLife.Equals(0)) return;
-            _curTowerLife -= 1;
-            playerHealthBar.DOShakeScale(0.2f, 0.5f, 3).OnComplete(() => playerHealthBar.localScale = Vector3.one);
-            lifeFillImage.fillAmount = (float)_curTowerLife / lifeCount;
-            lifeCountText.text = _curTowerLife + " / " + lifeCount;
-            if (_curTowerLife > 0) return;
-            GameOver();
         }
 
         #endregion

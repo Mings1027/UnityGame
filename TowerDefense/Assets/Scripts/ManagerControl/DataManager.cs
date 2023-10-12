@@ -38,6 +38,14 @@ namespace ManagerControl
             damageDic[towerTypeEnum] += damage;
         }
 
+        public static void InitDamage()
+        {
+            foreach (var damage in damageDic.Keys)
+            {
+                damageDic[damage] = 0;
+            }
+        }
+
         public static void SaveDamageData()
         {
             var data = DictionaryJsonUtility.ToJson(damageDic);

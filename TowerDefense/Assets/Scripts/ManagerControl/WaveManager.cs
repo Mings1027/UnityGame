@@ -8,6 +8,8 @@ using PoolObjectControl;
 using UnitControl.EnemyControl;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.AI;
+using Random = UnityEngine.Random;
 
 namespace ManagerControl
 {
@@ -15,21 +17,26 @@ namespace ManagerControl
     {
         private GameManager _gameManager;
         private bool _startWave;
-        private byte _curWave;
-        private byte _themeIndex;
+        private bool _isBossWave;
+        private sbyte _bossIndex;
         private byte _remainingEnemyCount;
         private CancellationTokenSource _cts;
+        private List<EnemyUnit> _enemyUnits;
+        private NavMeshSurface _bossNavmesh;
 
         public event Action OnPlaceExpandButtonEvent;
         public event Action OnEndOfGameEvent;
 
+        [SerializeField, Range(0, 255)] private byte _curWave;
         [SerializeField] private EnemyData[] enemiesData;
+        [SerializeField] private EnemyData[] bossData;
 
         private void Awake()
         {
-            _curWave = 0;
-            _themeIndex = 0;
+            _bossIndex = -1;
             _gameManager = GameManager.Instance;
+            _enemyUnits = new List<EnemyUnit>();
+            _bossNavmesh = GetComponent<NavMeshSurface>();
             // var enemyDataGuids = AssetDatabase.FindAssets("t: EnemyData", new[] { "Assets/EnemyData" });
             // enemiesData = new EnemyData[enemyDataGuids.Length];
             // for (var i = 0; i < enemyDataGuids.ToArray().Length; i++)
@@ -64,7 +71,14 @@ namespace ManagerControl
                 return;
             }
 
-            if (_curWave % 25 == 0) _themeIndex++;
+            if (_curWave % 15 == 0)
+            {
+                _isBossWave = true;
+                _bossIndex++;
+                BossWave(wayPoints[Random.Range(0, wayPoints.Count)]).Forget();
+                _bossNavmesh.BuildNavMesh();
+            }
+
             _gameManager.towerManager.WaveText.text = "Wave : " + _curWave;
 
             WaveInit(wayPoints.Count);
@@ -83,6 +97,10 @@ namespace ManagerControl
                     }
                 }
             }
+
+            if (!_isBossWave) return;
+            _remainingEnemyCount++;
+            _isBossWave = false;
         }
 
         private async UniTaskVoid SpawnEnemy(IReadOnlyList<Vector3> wayPointsArray)
@@ -93,27 +111,24 @@ namespace ManagerControl
                 for (var j = 0; j < enemiesData.Length; j++)
                 {
                     await UniTask.Delay(100, cancellationToken: _cts.Token);
-                    EnemyInit(wayPointsArray[i], in enemiesData[j]);
+                    EnemyWave(wayPointsArray[i], enemiesData[j]);
                 }
             }
         }
 
-        private void EnemyInit(Vector3 wayPoint, in EnemyData enemyData)
+        private void EnemyWave(Vector3 wayPoint, EnemyData enemyData)
         {
             if (enemyData.StartSpawnWave > _curWave) return;
-
-            var enemyUnit = PoolObjectManager.Get<EnemyUnit>(enemyData.EnemyKey, wayPoint);
-            enemyUnit.Init(enemyData);
-            enemyUnit.OnDecreaseLifeCountEvent += _gameManager.towerManager.DecreaseLifeCountEvent;
-            enemyUnit.TryGetComponent(out EnemyHealth enemyHealth);
-
-            enemyHealth.Init(enemyData.Health);
-            enemyHealth.OnUpdateEnemyCountEvent += UpdateEnemyCountEvent;
-            var gold = enemyData.EnemyCoin;
-            enemyHealth.OnDeadEvent += () => _gameManager.towerManager.TowerGold += gold;
+            EnemyInit(wayPoint, enemyData);
         }
 
-        private void UpdateEnemyCountEvent()
+        private async UniTaskVoid BossWave(Vector3 randomWayPoint)
+        {
+            await UniTask.Delay(5000, cancellationToken: _cts.Token);
+            EnemyInit(randomWayPoint, bossData[_bossIndex]);
+        }
+
+        private void DecreaseEnemyCountEvent()
         {
             if (!_startWave) return;
             _remainingEnemyCount--;
@@ -122,6 +137,17 @@ namespace ManagerControl
             OnPlaceExpandButtonEvent?.Invoke();
             OnEndOfGameEvent?.Invoke();
             _gameManager.towerManager.DisableTower();
+        }
+
+        private void EnemyInit(Vector3 wayPoint, EnemyData enemyData)
+        {
+            var enemyUnit = PoolObjectManager.Get<EnemyUnit>(enemyData.EnemyKey, wayPoint);
+            enemyUnit.Init(enemyData);
+            enemyUnit.TryGetComponent(out EnemyHealth enemyHealth);
+
+            enemyHealth.Init(enemyData.Health);
+            enemyHealth.OnDecreaseEnemyCountEvent += DecreaseEnemyCountEvent;
+            enemyHealth.OnDeadEvent += () => _gameManager.towerManager.TowerGold += enemyData.EnemyCoin;
         }
 
         private void FinalBossWave()

@@ -33,8 +33,8 @@ namespace UIControl
 
         private void StartGame()
         {
-            FindObjectOfType<TowerManager>().GameStart();
-            FindObjectOfType<SoundManager>().PlaySound(SoundEnum.ButtonSound);
+            GameManager.Instance.towerManager.GameStart();
+            GameManager.Instance.soundManager.PlaySound(SoundEnum.ButtonSound);
             OnGenerateInitMapEvent?.Invoke();
 
             _camArm.enabled = true;
