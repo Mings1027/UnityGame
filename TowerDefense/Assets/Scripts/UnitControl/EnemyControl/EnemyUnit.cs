@@ -32,7 +32,7 @@ namespace UnitControl.EnemyControl
 
         private static readonly int IsWalk = Animator.StringToHash("isWalk");
         private static readonly int IsAttack = Animator.StringToHash("isAttack");
-      
+
         [SerializeField] private float sightRange;
         [SerializeField] private LayerMask targetLayer;
 
@@ -60,7 +60,7 @@ namespace UnitControl.EnemyControl
             _target = null;
             _isTargeting = false;
             _enemyHealth.OnDeadEvent += () => DeadAnimation().Forget();
-            InvokeRepeating(nameof(Targeting), 0f, 0.5f);
+            InvokeRepeating(nameof(TargetingTest), 0f, 0.5f);
         }
 
         private void Update()
@@ -143,6 +143,30 @@ namespace UnitControl.EnemyControl
             _navMeshAgent.SetDestination(targetPos);
         }
 
+        private void TargetingTest()
+        {
+            if (_enemyHealth.IsDead) return;
+            if (!_navMeshAgent.isActiveAndEnabled) return;
+            var size = Physics.OverlapSphereNonAlloc(transform.position, sightRange, _targetCollider, targetLayer);
+
+            if (size <= 0)
+            {
+                _targetInAtkRange = false;
+                _target = null;
+                _isTargeting = false;
+                _navMeshAgent.SetDestination(Vector3.zero);
+                return;
+            }
+
+            _isTargeting = _targetCollider[0].enabled;
+            _target = _isTargeting ? _targetCollider[0] : null;
+
+            if (!_target) return;
+            var targetPos = _target.transform.position;
+            _targetInAtkRange = Vector3.Distance(targetPos, transform.position) <= atkRange;
+            _navMeshAgent.SetDestination(targetPos);
+        }
+
         private void Attack()
         {
             if (_attackPoint.enabled) return;
@@ -168,6 +192,7 @@ namespace UnitControl.EnemyControl
             await UniTask.Delay(500, cancellationToken: cts.Token);
             await childMeshTransform.DOScale(0, 0.5f).SetEase(Ease.Linear);
             gameObject.SetActive(false);
+            _navMeshAgent.enabled = true;
             _anim.enabled = true;
             childMeshTransform.rotation = Quaternion.identity;
             childMeshTransform.localScale = Vector3.one;
@@ -176,7 +201,6 @@ namespace UnitControl.EnemyControl
         public void Init(EnemyData enemyData)
         {
             _targetInAtkRange = false;
-            _navMeshAgent.enabled = true;
             _navMeshAgent.speed = enemyData.Speed;
             SetAnimationSpeed(_navMeshAgent.speed);
             TryGetComponent(out EnemyStatus enemyStatus);

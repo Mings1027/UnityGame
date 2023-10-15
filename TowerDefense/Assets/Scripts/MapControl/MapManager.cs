@@ -30,6 +30,7 @@ namespace MapControl
         private Vector3 _dirToWayPoint;
 
         private Vector3[] _checkDirection;
+        private Vector3[] diagonalDir;
         private List<GameObject> _map;
         private List<Vector3> _newMapWayPoints;
         private List<MeshFilter> _meshFilters;
@@ -113,6 +114,10 @@ namespace MapControl
                 Vector3.back * mapSize, Vector3.forward * mapSize, Vector3.left * mapSize,
                 Vector3.right * mapSize
             };
+            diagonalDir = new[]
+            {
+                new Vector3(1, 0, 1), new Vector3(-1, 0, 1), new Vector3(-1, 0, -1), new Vector3(1, 0, -1)
+            };
             _map = new List<GameObject>(mapCount);
             _newMapWayPoints = new List<Vector3>(4);
             _meshFilters = new List<MeshFilter>(mapCount);
@@ -175,13 +180,13 @@ namespace MapControl
 
         private void ExpandMap(Vector3 newMapPos)
         {
-            InitAdjacentState();
+            InitConnectionState();
 
             CheckNeighborMap(newMapPos);
 
             CheckConnectedDirection(newMapPos);
 
-            RandomConnection();
+            AddRandomConnection();
 
             PlaceNewMap(newMapPos);
 
@@ -208,7 +213,7 @@ namespace MapControl
             _gameManager.towerManager.EnableTower();
         }
 
-        private void InitAdjacentState()
+        private void InitConnectionState()
         {
             for (var i = 0; i < _neighborMapArray.Length; i++)
             {
@@ -256,7 +261,7 @@ namespace MapControl
             }
         }
 
-        private void RandomConnection()
+        private void AddRandomConnection()
         {
             _connectionString = null;
             _nullMapIndexString = null;
@@ -287,9 +292,10 @@ namespace MapControl
         private void PlaceNewMap(Vector3 newMapPos)
         {
             if (_connectionString == null) return;
-            var prefabInstantiate = _connectionString.Length == 1 ? IfSingleConnection() : IfMultipleConnection();
 
-            _newMapObject = Instantiate(prefabInstantiate, newMapPos, Quaternion.identity, transform);
+            _newMapObject
+                = Instantiate(_connectionString.Length == 1 ? IfSingleConnection() : IfMultipleConnection(),
+                    newMapPos, Quaternion.identity, transform);
             _map.Add(_newMapObject);
         }
 
@@ -307,7 +313,8 @@ namespace MapControl
             for (var i = 0; i < count; i++)
             {
                 var ranIndex = Random.Range(0, map.placementTile.Count);
-                RandomPlaceObstacle(map, map.placementTile[ranIndex]);
+                // RandomPlaceObstacle(map, map.placementTile[ranIndex]);
+                RandomObstacleTest(map.placementTile[ranIndex]);
                 map.placementTile.RemoveAt(ranIndex);
             }
         }
@@ -325,6 +332,14 @@ namespace MapControl
                 Instantiate(obstaclePrefabs[ranObstacle], pos, Quaternion.Euler(0, Random.Range(0, 360), 0),
                     obstacleMesh);
             }
+        }
+
+        private void RandomObstacleTest(Vector3 center)
+        {
+            var pos = center + diagonalDir[Random.Range(0, diagonalDir.Length)];
+            var ranObstacle = Random.Range(0, obstaclePrefabs.Length);
+            Instantiate(obstaclePrefabs[ranObstacle], pos, Quaternion.Euler(0, Random.Range(0, 360), 0),
+                obstacleMesh);
         }
 
         private GameObject IfSingleConnection()

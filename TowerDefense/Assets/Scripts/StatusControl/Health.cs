@@ -36,8 +36,8 @@ namespace StatusControl
 
             PoolObjectManager.Get(PoolObjectKey.BloodVfx, transform.position);
             if (Current > 0f) return;
-            _collider.enabled = false;
             OnDeadEvent?.Invoke();
+            _collider.enabled = false;
         }
 
         protected void DeadEvent() => OnDeadEvent?.Invoke();

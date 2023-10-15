@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DataControl;
@@ -20,21 +21,20 @@ namespace TowerControl
         private float _atkDelay;
         private byte deadUnitCount;
         public Vector3 unitSpawnPosition { get; set; }
-
-        private FriendlyUnit[] _units;
-
+        private List<FriendlyUnit> _units;
         private ReSpawnBar unitReSpawnBar;
+
+        [SerializeField, Range(0, 5)] private byte unitCount;
         /*=========================================================================================================================================
         *                                               Unity Event
         =========================================================================================================================================*/
 
         private void OnDestroy()
         {
-            for (var i = 0; i < _units.Length; i++)
+            for (var i = 0; i < _units.Count; i++)
             {
                 if (!_units[i]) continue;
                 _units[i].gameObject.SetActive(false);
-                _units[i].Init(null, TowerType.None);
             }
         }
 
@@ -45,7 +45,7 @@ namespace TowerControl
         protected override void Init()
         {
             base.Init();
-            _units = new FriendlyUnit[3];
+            _units = new List<FriendlyUnit>(unitCount);
             deadUnitCount = 0;
             unitReSpawnBar = GetComponentInChildren<ReSpawnBar>();
             reSpawnBarSequence = DOTween.Sequence().SetAutoKill(false).Pause()
@@ -55,15 +55,15 @@ namespace TowerControl
 
         public override void TowerTargetInit()
         {
-            for (var i = 0; i < _units.Length; i++)
+            for (var i = 0; i < _units.Count; i++)
             {
-                _units[i].TargetInit();
+                _units[i].UnitTargetInit();
             }
         }
 
         public override void TowerTargeting()
         {
-            for (var i = 0; i < _units.Length; i++)
+            for (var i = 0; i < _units.Count; i++)
             {
                 _units[i].UnitTargeting();
             }
@@ -71,7 +71,7 @@ namespace TowerControl
 
         public override void TowerUpdate()
         {
-            for (var i = 0; i < _units.Length; i++)
+            for (var i = 0; i < _units.Count; i++)
             {
                 if (!_units[i].gameObject.activeSelf) continue;
                 _units[i].UnitUpdate();
@@ -86,7 +86,7 @@ namespace TowerControl
 
         private void ActiveUnitIndicator()
         {
-            for (var i = 0; i < _units.Length; i++)
+            for (var i = 0; i < _units.Count; i++)
             {
                 _units[i].Indicator.enabled = true;
             }
@@ -109,23 +109,18 @@ namespace TowerControl
 
         private void UnitSpawn()
         {
-            for (var i = 0; i < _units.Length; i++)
-            {
-                if (!_units[i]) continue;
-                _units[i].Init(null, TowerType.None);
-                _units[i] = null;
-            }
+            _units.Clear();
 
-            for (var i = 0; i < _units.Length; i++)
+            for (var i = 0; i < unitCount; i++)
             {
-                var angle = i * ((float)Math.PI * 2f) / _units.Length;
+                var angle = i * ((float)Math.PI * 2f) / unitCount;
                 var pos = unitSpawnPosition + new Vector3((float)Math.Cos(angle), 0, (float)Math.Sin(angle));
-
-                _units[i] = PoolObjectManager.Get<FriendlyUnit>(TowerData.PoolObjectKey, transform.position);
+                var unit = PoolObjectManager.Get<FriendlyUnit>(TowerData.PoolObjectKey, transform.position);
+                _units.Add(unit);
                 _units[i].transform.DOJump(pos, 2, 1, 0.5f).SetEase(Ease.OutSine);
-                _units[i].Init(this, TowerData.TowerType);
+                _units[i].SpawnInit(this, TowerData.TowerType);
                 _units[i].TryGetComponent(out Health health);
-                health.OnDeadEvent += UnitReSpawn;
+                health.OnDeadEvent += () => DeadEvent(unit);
             }
 
             _isUnitSpawn = true;
@@ -137,7 +132,7 @@ namespace TowerControl
 
         private void UnitUpgrade(ushort damage, float delay)
         {
-            for (var i = 0; i < _units.Length; i++)
+            for (var i = 0; i < _units.Count; i++)
             {
                 var unitData = (UnitTowerData)TowerData;
                 _units[i].UnitUpgrade(damage, unitData.UnitHealth * (1 + TowerLevel), delay);
@@ -146,11 +141,10 @@ namespace TowerControl
 
         public async UniTask StartUnitMove(Vector3 touchPos)
         {
-            var tasks = new UniTask[_units.Length - deadUnitCount];
+            var tasks = new UniTask[_units.Count];
             for (var i = 0; i < tasks.Length; i++)
             {
-                if (!_units[i].gameObject.activeSelf) continue;
-                var angle = i * ((float)Math.PI * 2f) / _units.Length;
+                var angle = i * ((float)Math.PI * 2f) / _units.Count;
                 var pos = touchPos + new Vector3((float)Math.Cos(angle), 0, (float)Math.Sin(angle));
                 tasks[i] = _units[i].MoveToTouchPos(pos);
             }
@@ -161,16 +155,17 @@ namespace TowerControl
         public void OffUnitIndicator()
         {
             if (!_isUnitSpawn) return;
-            for (var i = 0; i < _units.Length; i++)
+            for (var i = 0; i < _units.Count; i++)
             {
                 _units[i].Indicator.enabled = false;
             }
         }
 
-        private void UnitReSpawn()
+        private void DeadEvent(FriendlyUnit unit)
         {
             deadUnitCount++;
-            if (deadUnitCount != _units.Length) return;
+            _units.Remove(unit);
+            if (deadUnitCount != unitCount) return;
 
             deadUnitCount = 0;
             _isUnitSpawn = false;

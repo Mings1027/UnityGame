@@ -35,10 +35,6 @@ namespace MapControl
             wayPointList = new List<Vector3>();
         }
 
-        private void OnEnable()
-        {
-            
-        }
 #if UNITY_EDITOR
         // private void OnDrawGizmos()
         // {

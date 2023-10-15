@@ -68,9 +68,14 @@ namespace UnitControl.FriendlyControl
         {
             cts?.Dispose();
             cts = new CancellationTokenSource();
-            TargetInit();
+            UnitTargetInit();
             _health.OnDeadEvent += () => DeadAnimation().Forget();
             indicator.enabled = false;
+        }
+
+        private void OnDisable()
+        {
+            _parentTower = null;
         }
 
         private void OnDestroy()
@@ -91,6 +96,16 @@ namespace UnitControl.FriendlyControl
                                                     Unity Event
 =====================================================================================================================================================*/
 
+        public void UnitTargetInit()
+        {
+            _startTargeting = false;
+            _target = null;
+            _isTargeting = false;
+            _targetInAtkRange = false;
+            if (_moveInput) return;
+            _anim.SetBool(IsWalk, false);
+        }
+
         public void UnitUpdate()
         {
             if (_health.IsDead) return;
@@ -100,17 +115,6 @@ namespace UnitControl.FriendlyControl
             if (atkCooldown.IsCoolingDown) return;
             Attack();
             atkCooldown.StartCooldown();
-        }
-
-        public void TargetInit()
-        {
-            _navMeshAgent.enabled = true;
-            _anim.SetBool(IsWalk, false);
-            _startTargeting = false;
-            _target = null;
-            _isTargeting = false;
-            _moveInput = false;
-            _targetInAtkRange = false;
         }
 
         public void UnitTargeting()
@@ -167,6 +171,7 @@ namespace UnitControl.FriendlyControl
             await UniTask.Delay(500, cancellationToken: cts.Token);
             await childMeshTransform.DOScale(0, 0.5f).SetEase(Ease.Linear);
             gameObject.SetActive(false);
+            _navMeshAgent.enabled = true;
             _anim.enabled = true;
             childMeshTransform.rotation = Quaternion.identity;
             childMeshTransform.localScale = Vector3.one;
@@ -188,9 +193,8 @@ namespace UnitControl.FriendlyControl
             _unitNavAI.enabled = false;
         }
 
-        public void Init(UnitTower unitTower, TowerType towerTypeEnum)
+        public void SpawnInit(UnitTower unitTower, TowerType towerTypeEnum)
         {
-            _navMeshAgent.enabled = true;
             _parentTower = unitTower;
             _towerTypeEnum = towerTypeEnum;
         }

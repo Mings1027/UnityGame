@@ -27,7 +27,6 @@ namespace ProjectileControl
 
         [SerializeField, Range(0, 50)] private float height;
 
-        // [SerializeField] private AnimationCurve curve;
         [SerializeField] private float speed;
 
         protected virtual void Awake()
