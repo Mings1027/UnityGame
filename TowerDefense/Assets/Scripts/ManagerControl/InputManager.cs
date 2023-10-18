@@ -3,6 +3,7 @@ using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using GameControl;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace ManagerControl
 {
@@ -19,6 +20,7 @@ namespace ManagerControl
         private bool _startPlacement;
         private bool _isAppeared;
         private Vector3[] _checkDir;
+        private Vector3[] fourDir;
         private MeshRenderer _cursorMeshRenderer;
         private RaycastHit _hit;
 
@@ -45,36 +47,39 @@ namespace ManagerControl
                 _checkDir[i] = _checkDir[i] * 2 + Vector3.up;
             }
 
+            fourDir = new[] { Vector3.back, Vector3.forward, Vector3.left, Vector3.right };
+            for (var i = 0; i < fourDir.Length; i++)
+            {
+                fourDir[i] *= 2;
+            }
+
             _selectedTowerType = TowerType.None;
             cubeCursor.position = Vector3.zero + Vector3.down * 5;
         }
 
         private void Update()
         {
-            if (!_startPlacement) return;
-
             if (Input.touchCount <= 0) return;
             var touch = Input.GetTouch(0);
-            if (touch.phase.Equals(TouchPhase.Began) || touch.phase.Equals(TouchPhase.Moved) ||
-                touch.phase.Equals(TouchPhase.Stationary))
+
+            if (_startPlacement)
             {
                 UpdateCursorPosition();
                 CheckCanPlace();
                 CursorAppear();
             }
-            else if (touch.phase.Equals(TouchPhase.Ended))
-            {
-                _startPlacement = false;
-                enabled = false;
-            }
+
+            if (!touch.phase.Equals(TouchPhase.Ended)) return;
+
+            _startPlacement = false;
+            enabled = false;
         }
 
         private void OnDisable()
         {
-            if (_canPlace)
+            if (_canPlace && !_gameManager.uiManager.IsOnUI)
             {
                 PlaceTower();
-                _selectedTowerType = TowerType.None;
             }
 
             StopPlacement();
@@ -106,13 +111,18 @@ namespace ManagerControl
             });
         }
 
-        public void StartPlacement(in TowerType towerType, bool isUnitTower)
+        public void StartPlacement(TowerType towerType, bool isUnitTower)
         {
             _startPlacement = true;
             _gameManager.towerManager.OffUI();
             _gameManager.cameraManager.enabled = false;
             _cursorMeshRenderer.transform.DOScale(2, 0.25f).SetEase(Ease.OutBack);
-            if (!_gameManager.towerManager.IsEnoughGold(in towerType)) return;
+            if (!_gameManager.towerManager.IsEnoughCost(towerType))
+            {
+                _startPlacement = false;
+                return;
+            }
+
             if (_selectedTowerType == towerType) return;
             _isUnitTower = isUnitTower;
             _selectedTowerType = towerType;
@@ -128,7 +138,8 @@ namespace ManagerControl
 
             var cellGridPos = grid.WorldToCell(hit.point);
             _worldGridPos = grid.CellToWorld(cellGridPos);
-            cubeCursor.DOMove(_worldGridPos, 0.15f).SetEase(Ease.OutBack);
+            _worldGridPos.y = 0;
+            cubeCursor.position = _worldGridPos;
         }
 
         private void CheckCanPlace()
@@ -164,7 +175,7 @@ namespace ManagerControl
         private bool CheckPlacementTile()
         {
             Physics.Raycast(_cursorChild.position + Vector3.up * 5, Vector3.down, out _hit, 10);
-            if (_hit.collider == null || !_hit.collider.CompareTag("Placement")) return false;
+            if (!_hit.collider || !_hit.collider.CompareTag("Placement")) return false;
             if (!_isUnitTower) return true;
             for (var i = 0; i < _checkDir.Length; i++)
             {
@@ -183,7 +194,22 @@ namespace ManagerControl
         {
             _worldGridPos = _cursorChild.position;
             _worldGridPos.y = 1f;
-            _gameManager.towerManager.InstantiateTower(_selectedTowerType, _worldGridPos, _isUnitTower).Forget();
+            Vector3 towerForward = default;
+            var foundGround = false;
+            for (var i = 0; i < 4; i++)
+            {
+                var ray = new Ray(_worldGridPos + fourDir[i] + Vector3.up, Vector3.down);
+                Physics.Raycast(ray, out var hit, 2);
+                if (!hit.collider || !hit.collider.CompareTag("Ground")) continue;
+                foundGround = true;
+                towerForward = -fourDir[i];
+                break;
+            }
+
+            if (!foundGround) towerForward = fourDir[Random.Range(0, fourDir.Length)];
+
+            _gameManager.towerManager.InstantiateTower(_selectedTowerType, _worldGridPos, towerForward, _isUnitTower)
+                .Forget();
         }
     }
 }

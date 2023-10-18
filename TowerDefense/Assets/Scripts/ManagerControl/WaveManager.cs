@@ -31,6 +31,8 @@ namespace ManagerControl
         [SerializeField] private EnemyData[] enemiesData;
         [SerializeField] private EnemyData[] bossData;
 
+        #region Unity Event
+
         private void Awake()
         {
             _bossIndex = -1;
@@ -58,31 +60,36 @@ namespace ManagerControl
             _cts?.Cancel();
         }
 
+        #endregion
+
         public void StartWave(List<Vector3> wayPoints)
         {
             if (_startWave) return;
             _startWave = true;
             _curWave++;
 
-            if (_curWave == 200)
+            if (_curWave == 100)
             {
                 print("Dragon Is Coming");
                 FinalBossWave();
                 return;
             }
 
-            if (_curWave % 15 == 0)
-            {
-                _isBossWave = true;
-                _bossIndex++;
-                BossWave(wayPoints[Random.Range(0, wayPoints.Count)]).Forget();
-                _bossNavmesh.BuildNavMesh();
-            }
+            // if (_curWave % 15 == 0)
+            // {
+            //     _isBossWave = true;
+            //     _bossIndex++;
+            //     BossWave(wayPoints[Random.Range(0, wayPoints.Count)]).Forget();
+            //     _bossNavmesh.BuildNavMesh();
+            // }
 
-            _gameManager.towerManager.WaveText.text = "Wave : " + _curWave;
+            _gameManager.towerManager.WaveText.text = _curWave.ToString();
 
             WaveInit(wayPoints.Count);
             SpawnEnemy(wayPoints).Forget();
+
+            EnemyTargeting().Forget();
+            EnemyAttack().Forget();
         }
 
         private void WaveInit(int wayPointsArrayLength)
@@ -111,15 +118,47 @@ namespace ManagerControl
                 for (var j = 0; j < enemiesData.Length; j++)
                 {
                     await UniTask.Delay(100, cancellationToken: _cts.Token);
-                    EnemyWave(wayPointsArray[i], enemiesData[j]);
+                    EnemyInit(wayPointsArray[i], enemiesData[j]);
                 }
             }
         }
 
-        private void EnemyWave(Vector3 wayPoint, EnemyData enemyData)
+        private void EnemyInit(Vector3 wayPoint, EnemyData enemyData)
         {
             if (enemyData.StartSpawnWave > _curWave) return;
-            EnemyInit(wayPoint, enemyData);
+            var enemyUnit = PoolObjectManager.Get<EnemyUnit>(enemyData.EnemyKey, wayPoint);
+            _enemyUnits.Add(enemyUnit);
+            enemyUnit.Init(enemyData);
+            enemyUnit.TryGetComponent(out EnemyHealth enemyHealth);
+            enemyHealth.Init(enemyData.Health);
+            enemyHealth.OnDecreaseEnemyCountEvent += DecreaseEnemyCountEvent;
+            enemyHealth.OnDeadEvent += () => _gameManager.towerManager.TowerCost += enemyData.EnemyCoin;
+            enemyUnit.TryGetComponent(out EnemyStatus enemyStatus);
+            enemyStatus.defaultSpeed = enemyData.Speed;
+        }
+
+        private async UniTaskVoid EnemyTargeting()
+        {
+            while (!_cts.IsCancellationRequested)
+            {
+                await UniTask.Delay(500, cancellationToken: _cts.Token);
+                for (var i = 0; i < _enemyUnits.Count; i++)
+                {
+                    _enemyUnits[i].Targeting();
+                }
+            }
+        }
+
+        private async UniTaskVoid EnemyAttack()
+        {
+            while (!_cts.IsCancellationRequested)
+            {
+                await UniTask.Delay(100, cancellationToken: _cts.Token);
+                for (var i = 0; i < _enemyUnits.Count; i++)
+                {
+                    _enemyUnits[i].AttackAsync(_cts).Forget();
+                }
+            }
         }
 
         private async UniTaskVoid BossWave(Vector3 randomWayPoint)
@@ -135,23 +174,15 @@ namespace ManagerControl
             if (_remainingEnemyCount > 0) return;
             _startWave = false;
             OnPlaceExpandButtonEvent?.Invoke();
-            OnEndOfGameEvent?.Invoke();
             _gameManager.towerManager.DisableTower();
-        }
-
-        private void EnemyInit(Vector3 wayPoint, EnemyData enemyData)
-        {
-            var enemyUnit = PoolObjectManager.Get<EnemyUnit>(enemyData.EnemyKey, wayPoint);
-            enemyUnit.Init(enemyData);
-            enemyUnit.TryGetComponent(out EnemyHealth enemyHealth);
-
-            enemyHealth.Init(enemyData.Health);
-            enemyHealth.OnDecreaseEnemyCountEvent += DecreaseEnemyCountEvent;
-            enemyHealth.OnDeadEvent += () => _gameManager.towerManager.TowerGold += enemyData.EnemyCoin;
+            enabled = false;
         }
 
         private void FinalBossWave()
         {
+            //
         }
+
+        public void RemoveEnemyFromList(EnemyUnit enemyUnit) => _enemyUnits.Remove(enemyUnit);
     }
 }

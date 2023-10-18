@@ -1,4 +1,6 @@
-using ManagerControl;
+using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using PoolObjectControl;
 using ProjectileControl;
 using UnityEngine;
@@ -11,11 +13,12 @@ namespace TowerControl
         private Collider[] _targetColliders;
         private bool _isAttack;
         private sbyte _effectIndex;
-        private ushort _damage;
-        private Cooldown _atkCooldown;
+        private int _damage;
+        private float attackDelay;
+        private bool isAttacking;
 
-        protected Transform target;
         protected bool isTargeting;
+        protected Transform target;
         protected Transform firePos;
 
         [SerializeField] private LayerMask targetLayer;
@@ -42,6 +45,7 @@ namespace TowerControl
         {
             target = null;
             isTargeting = false;
+            isAttacking = false;
         }
 
         public override void TowerTargeting()
@@ -69,12 +73,14 @@ namespace TowerControl
             isTargeting = true;
         }
 
-        public override void TowerUpdate()
+        public override async UniTaskVoid TowerAttackAsync(CancellationTokenSource cts)
         {
-            if (!isTargeting || _atkCooldown.IsCoolingDown) return;
-            Attack();
+            if (!isTargeting || isAttacking) return;
+            isAttacking = true;
             _attackSound.Play();
-            _atkCooldown.StartCooldown();
+            Attack();
+            await UniTask.Delay(TimeSpan.FromSeconds(attackDelay), cancellationToken: cts.Token);
+            isAttacking = false;
         }
 
         protected virtual void Attack()
@@ -89,7 +95,7 @@ namespace TowerControl
             projectile.Init(_damage, target);
         }
 
-        public override void TowerSetting(MeshFilter towerMesh, ushort damageData, byte rangeData,
+        public override void TowerSetting(MeshFilter towerMesh, int damageData, byte rangeData,
             float attackDelayData)
         {
             base.TowerSetting(towerMesh, damageData, rangeData, attackDelayData);
@@ -101,7 +107,7 @@ namespace TowerControl
                 _effectIndex++;
             }
 
-            _atkCooldown.cooldownTime = attackDelayData;
+            attackDelay = attackDelayData;
         }
     }
 }

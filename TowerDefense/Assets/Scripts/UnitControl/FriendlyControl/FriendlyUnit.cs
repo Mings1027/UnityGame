@@ -9,12 +9,12 @@ using StatusControl;
 using TowerControl;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.EventSystems;
 
 namespace UnitControl.FriendlyControl
 {
-    public sealed class FriendlyUnit : MonoBehaviour, IFingerUp
+    public sealed class FriendlyUnit : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
-        private CancellationTokenSource cts;
         private Transform childMeshTransform;
         private AudioSource _audioSource;
         private Animator _anim;
@@ -24,17 +24,18 @@ namespace UnitControl.FriendlyControl
         private Health _health;
         private Collider[] _targetCollider;
         private UnitTower _parentTower;
-        private AttackPoint _attackPoint;
-        private Cooldown atkCooldown;
+
+        private float attackDelay;
         private Collider _target;
 
         private TowerType _towerTypeEnum;
-        private ushort _damage;
+        private int _damage;
 
         private bool _startTargeting;
         private bool _isTargeting;
         private bool _moveInput;
         private bool _targetInAtkRange;
+        private bool isAttacking;
 
         private static readonly int IsWalk = Animator.StringToHash("isWalk");
         private static readonly int IsAttack = Animator.StringToHash("isAttack");
@@ -46,9 +47,7 @@ namespace UnitControl.FriendlyControl
 
         public MeshRenderer Indicator => indicator;
 
-        /*==============================================================================================================================================
-                                                    Unity Event
-==============================================================================================================================================*/
+        #region Unity Event
 
         private void Awake()
         {
@@ -60,16 +59,13 @@ namespace UnitControl.FriendlyControl
             _navMeshAgent = GetComponent<NavMeshAgent>();
             _health = GetComponent<Health>();
             _targetCollider = new Collider[2];
-            _attackPoint = GetComponentInChildren<AttackPoint>();
             atkRange = _navMeshAgent.stoppingDistance;
         }
 
         private void OnEnable()
         {
-            cts?.Dispose();
-            cts = new CancellationTokenSource();
             UnitTargetInit();
-            _health.OnDeadEvent += () => DeadAnimation().Forget();
+            _health.OnDeadEvent += DeadAnimation;
             indicator.enabled = false;
         }
 
@@ -78,11 +74,6 @@ namespace UnitControl.FriendlyControl
             _parentTower = null;
         }
 
-        private void OnDestroy()
-        {
-            cts?.Cancel();
-            cts?.Dispose();
-        }
 #if UNITY_EDITOR
         private void OnDrawGizmos()
         {
@@ -92,29 +83,18 @@ namespace UnitControl.FriendlyControl
             Gizmos.DrawWireSphere(transform.position, atkRange);
         }
 #endif
-        /*==============================================================================================================================================
-                                                    Unity Event
-=====================================================================================================================================================*/
+
+        #endregion
 
         public void UnitTargetInit()
         {
             _startTargeting = false;
             _target = null;
             _isTargeting = false;
+            isAttacking = false;
             _targetInAtkRange = false;
             if (_moveInput) return;
             _anim.SetBool(IsWalk, false);
-        }
-
-        public void UnitUpdate()
-        {
-            if (_health.IsDead) return;
-            _anim.SetBool(IsWalk, _moveInput || !_navMeshAgent.velocity.Equals(Vector3.zero));
-
-            if (!_targetInAtkRange || !_isTargeting) return;
-            if (atkCooldown.IsCoolingDown) return;
-            Attack();
-            atkCooldown.StartCooldown();
         }
 
         public void UnitTargeting()
@@ -131,20 +111,8 @@ namespace UnitControl.FriendlyControl
                 return;
             }
 
-            if (_target)
-            {
-                if (!_target.enabled)
-                {
-                    _target = null;
-                    _isTargeting = false;
-                }
-            }
-
-            if (!_isTargeting)
-            {
-                _isTargeting = true;
-                _target = _targetCollider[0];
-            }
+            _isTargeting = _targetCollider[0];
+            _target = _isTargeting ? _targetCollider[0] : null;
 
             if (!_target) return;
             var targetPos = _target.transform.position;
@@ -152,29 +120,49 @@ namespace UnitControl.FriendlyControl
             _navMeshAgent.SetDestination(targetPos);
         }
 
+        public async UniTaskVoid UnitAttackAsync(CancellationTokenSource cts)
+        {
+            if (_health.IsDead) return;
+            _anim.SetBool(IsWalk, _moveInput || !_navMeshAgent.velocity.Equals(Vector3.zero));
+
+            if (_moveInput || !_targetInAtkRange || !_isTargeting || isAttacking) return;
+            isAttacking = true;
+            Attack();
+            await UniTask.Delay(TimeSpan.FromSeconds(attackDelay), cancellationToken: cts.Token);
+            isAttacking = false;
+        }
+
         private void Attack()
         {
-            if (_moveInput) return;
-            if (_attackPoint.enabled) return;
             _anim.SetTrigger(IsAttack);
             _audioSource.Play();
-            _attackPoint.Init(_target, _damage);
-            _attackPoint.enabled = true;
+            TryHit();
             DataManager.SumDamage(_towerTypeEnum, _damage);
         }
 
-        private async UniTaskVoid DeadAnimation()
+        private void TryHit()
+        {
+            if (!_target) return;
+            if (_target.TryGetComponent(out IDamageable damageable))
+            {
+                damageable.Damage(_damage);
+            }
+        }
+
+        private void DeadAnimation()
         {
             _navMeshAgent.enabled = false;
             _anim.enabled = false;
-            await childMeshTransform.DOLocalRotate(new Vector3(-90, 0, 0), 0.5f).SetEase(Ease.Linear);
-            await UniTask.Delay(500, cancellationToken: cts.Token);
-            await childMeshTransform.DOScale(0, 0.5f).SetEase(Ease.Linear);
-            gameObject.SetActive(false);
-            _navMeshAgent.enabled = true;
-            _anim.enabled = true;
-            childMeshTransform.rotation = Quaternion.identity;
-            childMeshTransform.localScale = Vector3.one;
+            DOTween.Sequence().Append(childMeshTransform.DOLocalRotate(new Vector3(-90, 0, 0), 0.5f))
+                .Append(childMeshTransform.DOScale(0, 0.5f))
+                .OnComplete(() =>
+                {
+                    gameObject.SetActive(false);
+                    _navMeshAgent.enabled = true;
+                    _anim.enabled = true;
+                    childMeshTransform.rotation = Quaternion.identity;
+                    childMeshTransform.localScale = Vector3.one;
+                });
         }
 
         public async UniTask MoveToTouchPos(Vector3 pos)
@@ -199,16 +187,20 @@ namespace UnitControl.FriendlyControl
             _towerTypeEnum = towerTypeEnum;
         }
 
-        public void UnitUpgrade(ushort damage, int healthAmount, float delay)
+        public void UnitUpgrade(int damage, int healthAmount, float attackDelayData)
         {
             _damage = damage;
             _health.Init(healthAmount);
-            atkCooldown.cooldownTime = delay;
+            attackDelay = attackDelayData;
         }
 
-        public void FingerUp()
+        public void OnPointerDown(PointerEventData eventData)
         {
-            _parentTower.FingerUp();
+        }
+
+        public void OnPointerUp(PointerEventData eventData)
+        {
+            _parentTower.OnPointerUp(null);
         }
     }
 }

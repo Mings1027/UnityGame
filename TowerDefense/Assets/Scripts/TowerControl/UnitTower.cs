@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DataControl;
@@ -8,6 +9,7 @@ using PoolObjectControl;
 using StatusControl;
 using UnitControl.FriendlyControl;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace TowerControl
 {
@@ -17,7 +19,7 @@ namespace TowerControl
         private Collider[] _targetColliders;
         private bool _isUnitSpawn;
         private bool _isReSpawning;
-        private ushort _damage;
+        private int _damage;
         private float _atkDelay;
         private byte deadUnitCount;
         public Vector3 unitSpawnPosition { get; set; }
@@ -69,19 +71,13 @@ namespace TowerControl
             }
         }
 
-        public override void TowerUpdate()
+        public override async UniTaskVoid TowerAttackAsync(CancellationTokenSource cts)
         {
+            await UniTask.Delay(100, cancellationToken: cts.Token);
             for (var i = 0; i < _units.Count; i++)
             {
-                if (!_units[i].gameObject.activeSelf) continue;
-                _units[i].UnitUpdate();
+                _units[i].UnitAttackAsync(cts).Forget();
             }
-        }
-
-        public override void FingerUp()
-        {
-            base.FingerUp();
-            ActiveUnitIndicator();
         }
 
         private void ActiveUnitIndicator()
@@ -92,7 +88,15 @@ namespace TowerControl
             }
         }
 
-        public override void TowerSetting(MeshFilter towerMesh, ushort damageData, byte rangeData,
+        public void OffUnitIndicator()
+        {
+            for (var i = 0; i < _units.Count; i++)
+            {
+                _units[i].Indicator.enabled = false;
+            }
+        }
+
+        public override void TowerSetting(MeshFilter towerMesh, int damageData, byte rangeData,
             float attackDelayData)
         {
             base.TowerSetting(towerMesh, damageData, rangeData, attackDelayData);
@@ -130,7 +134,7 @@ namespace TowerControl
             reSpawnBarSequence.PlayBackwards();
         }
 
-        private void UnitUpgrade(ushort damage, float delay)
+        private void UnitUpgrade(int damage, float delay)
         {
             for (var i = 0; i < _units.Count; i++)
             {
@@ -142,23 +146,16 @@ namespace TowerControl
         public async UniTask StartUnitMove(Vector3 touchPos)
         {
             var tasks = new UniTask[_units.Count];
-            for (var i = 0; i < tasks.Length; i++)
+            for (var i = 0; i < _units.Count; i++)
             {
                 var angle = i * ((float)Math.PI * 2f) / _units.Count;
                 var pos = touchPos + new Vector3((float)Math.Cos(angle), 0, (float)Math.Sin(angle));
+
                 tasks[i] = _units[i].MoveToTouchPos(pos);
             }
 
+            OffUnitIndicator();
             await UniTask.WhenAll(tasks);
-        }
-
-        public void OffUnitIndicator()
-        {
-            if (!_isUnitSpawn) return;
-            for (var i = 0; i < _units.Count; i++)
-            {
-                _units[i].Indicator.enabled = false;
-            }
         }
 
         private void DeadEvent(FriendlyUnit unit)
@@ -175,8 +172,6 @@ namespace TowerControl
         private async UniTaskVoid UnitReSpawnAsync()
         {
             _isReSpawning = true;
-
-            unitReSpawnBar.enabled = false;
             unitReSpawnBar.enabled = true;
 
             reSpawnBarSequence.Restart();
@@ -190,6 +185,12 @@ namespace TowerControl
             if (_isUnitSpawn) return;
             UnitSpawn();
             UnitUpgrade(_damage, _atkDelay);
+        }
+
+        public override void OnPointerUp(PointerEventData eventData)
+        {
+            base.OnPointerUp(eventData);
+            ActiveUnitIndicator();
         }
     }
 }

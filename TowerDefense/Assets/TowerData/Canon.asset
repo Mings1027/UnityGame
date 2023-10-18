@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 460b90e61958b426781315c336aeabed, type: 3}
   m_Name: Canon
   m_EditorClassIdentifier: 
+  isMagicTower: 0
   towerLevels:
   - towerMesh: {fileID: -6400281290468069383, guid: dbae449fc0af71046ab271f5ea16e480,
       type: 3}
@@ -37,12 +38,12 @@ MonoBehaviour:
       type: 3}
     damage: 400
     attackRange: 25
-    attackDelay: 4
+    attackDelay: 3.5
   tower: {fileID: 7895117123715481240, guid: 210d26a116210b7448e11f2f1b8c04fa, type: 3}
   poolObjectKey: 6
   towerType: 2
   towerBuildGold: 50
-  towerUpgradeGold: 50
+  towerUpgradeGold: 60
   projectileColor:
   - m_Mode: 2
     m_GradientMin:

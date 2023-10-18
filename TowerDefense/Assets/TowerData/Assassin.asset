@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e388e507557b4aa8af3b50ee66db5d8, type: 3}
   m_Name: Assassin
   m_EditorClassIdentifier: 
+  isMagicTower: 0
   towerLevels:
   - towerMesh: {fileID: -6400281290468069383, guid: 57e9ca1972df7944e8027988c19964e0,
       type: 3}
@@ -37,10 +38,10 @@ MonoBehaviour:
       type: 3}
     damage: 130
     attackRange: 7
-    attackDelay: 1
+    attackDelay: 0.8
   tower: {fileID: 3847918098510183265, guid: 8d942512867e1284e9d6225db845f190, type: 3}
   poolObjectKey: 8
   towerType: 0
-  towerBuildGold: 20
-  towerUpgradeGold: 50
+  towerBuildGold: 30
+  towerUpgradeGold: 40
   unitHealth: 200

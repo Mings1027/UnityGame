@@ -1,4 +1,5 @@
 using System;
+using ManagerControl;
 using StatusControl;
 
 namespace UnitControl.EnemyControl
@@ -18,6 +19,9 @@ namespace UnitControl.EnemyControl
         {
             OnDecreaseEnemyCountEvent?.Invoke();
             OnDecreaseEnemyCountEvent = null;
+
+            TryGetComponent(out EnemyUnit enemyUnit);
+            GameManager.Instance.waveManager.RemoveEnemyFromList(enemyUnit);
         }
     }
 }

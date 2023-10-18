@@ -1,6 +1,3 @@
-using System;
-using Cysharp.Threading.Tasks;
-using DG.Tweening;
 using UnityEngine;
 
 namespace GameControl
@@ -17,20 +14,17 @@ namespace GameControl
         [SerializeField] private Color sunsetColor;
         [SerializeField] private Color nightTimeColor;
 
-        [Header("Background Color")] [SerializeField]
+        [Header("==========Background Color==========")] [SerializeField]
         private Color morningColor;
 
         [SerializeField] private Color afternoonColor;
         [SerializeField] private Color nightColor;
 
-        [SerializeField] private float timeSpeed;
+        [SerializeField, Range(0, 100)] private int timeSpeed;
         [SerializeField, Range(0, 1)] private float lerp;
 
         [SerializeField] private ParticleSystem starParticle;
         [SerializeField] private ParticleSystem cloudParticle;
-        [SerializeField] private GameObject fogPlane;
-        [SerializeField] private Color fogColor;
-        private static readonly int BaseColor = Shader.PropertyToID("_BaseColor");
 
         private void Awake()
         {
@@ -41,9 +35,6 @@ namespace GameControl
         {
             RotateCycle();
             // LerpAmbientLight();
-            // ChangeFogAlpha();
-            // LerpFog();
-            // print(fogMat.color);
         }
 
         private void OnDisable()
@@ -53,8 +44,8 @@ namespace GameControl
 
         private void RotateCycle()
         {
-            directionalLight.RotateAround(Vector3.zero, directionalLight.right, Time.deltaTime * timeSpeed);
-            _dotProduct = Vector3.Dot(directionalLight.forward, Vector3.down);
+            directionalLight.Rotate(Vector3.up * (timeSpeed * Time.deltaTime));
+            _dotProduct = Vector3.Dot(directionalLight.forward, Vector3.forward);
         }
 
         private void LerpAmbientLight()
@@ -72,8 +63,8 @@ namespace GameControl
             else
             {
                 var absDotProduct = _dotProduct * -1;
-                RenderSettings.ambientLight = Color.Lerp(sunsetColor, nightTimeColor, sunCurve.Evaluate(absDotProduct));
-                _cam.backgroundColor = Color.Lerp(morningColor, nightColor, sunCurve.Evaluate(absDotProduct));
+                RenderSettings.ambientLight = Color.Lerp(dayTimeColor, sunsetColor, sunCurve.Evaluate(absDotProduct));
+                _cam.backgroundColor = Color.Lerp(afternoonColor, morningColor, sunCurve.Evaluate(absDotProduct));
                 lerp = absDotProduct;
                 if (_isNightStarted) return;
                 _isNightStarted = true;

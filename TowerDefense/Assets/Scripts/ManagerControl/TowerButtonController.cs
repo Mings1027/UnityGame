@@ -20,7 +20,7 @@ namespace ManagerControl
         public void OnPointerDown(PointerEventData eventData)
         {
             _gameManager.inputManager.enabled = true;
-            _gameManager.inputManager.StartPlacement(in towerType, isUnitTower);
+            _gameManager.inputManager.StartPlacement(towerType, isUnitTower);
         }
     }
 }

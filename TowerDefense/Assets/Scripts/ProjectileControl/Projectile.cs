@@ -13,7 +13,7 @@ namespace ProjectileControl
         private ParticleSystem _hitParticle;
         private Rigidbody _rigid;
 
-        private ushort _damage;
+        private int _damage;
         private float _gravity;
         private Vector3 _curPos;
         private Vector3 _startPos;
@@ -90,7 +90,7 @@ namespace ProjectileControl
             _rigid.MoveRotation(Quaternion.LookRotation(dir));
         }
 
-        public virtual void Init(ushort dmg, Transform t)
+        public virtual void Init(int dmg, Transform t)
         {
             _damage = dmg;
             target = t;

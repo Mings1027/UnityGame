@@ -6,18 +6,17 @@ namespace StatusControl
     public abstract class ProgressBar : MonoBehaviour
     {
         protected Progressive progressive;
-        protected Image FillImage => fillImage;
-
-        [SerializeField] private Image fillImage;
-
+        protected Slider slider;
+        
         protected virtual void Awake()
         {
             progressive = GetComponentInParent<Progressive>();
+            slider = GetComponent<Slider>();
         }
 
         protected virtual void OnEnable()
         {
-            fillImage.fillAmount = 1;
+            slider.value = 1;
             progressive.OnUpdateBarEvent += UpdateBarEvent;
         }
 
@@ -26,6 +25,6 @@ namespace StatusControl
             progressive.OnUpdateBarEvent -= UpdateBarEvent;
         }
 
-        private void UpdateBarEvent() => fillImage.fillAmount = progressive.Ratio;
+        private void UpdateBarEvent() => slider.value = progressive.Ratio;
     }
 }

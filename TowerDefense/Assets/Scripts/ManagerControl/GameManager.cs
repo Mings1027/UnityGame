@@ -12,11 +12,12 @@ namespace ManagerControl
         public CameraManager cameraManager { get; private set; }
         public WaveManager waveManager { get; private set; }
         public SoundManager soundManager { get; private set; }
+        public UIManager uiManager { get; private set; }
 
         protected override void Awake()
         {
             base.Awake();
-            Application.targetFrameRate = 60;
+            // Application.targetFrameRate = 60;
             GameInit().Forget();
         }
 
@@ -34,6 +35,7 @@ namespace ManagerControl
             cameraManager = FindObjectOfType<CameraManager>();
             waveManager = FindObjectOfType<WaveManager>();
             soundManager = FindObjectOfType<SoundManager>();
+            uiManager = FindObjectOfType<UIManager>();
             Instantiate(Resources.Load<GameObject>("PoolObjManager/7.PoolObjectManager"));
         }
     }

@@ -209,6 +209,7 @@ namespace MapControl
 
             _navMeshSurface.BuildNavMesh();
 
+            _gameManager.waveManager.enabled = true;
             _gameManager.waveManager.StartWave(_wayPointsHashSet.ToList());
             _gameManager.towerManager.EnableTower();
         }

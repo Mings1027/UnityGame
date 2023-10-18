@@ -29,7 +29,7 @@ namespace TowerControl
             crystal.localScale = Vector3.zero;
         }
 
-        public override void TowerSetting(MeshFilter towerMesh, ushort damageData, byte rangeData,
+        public override void TowerSetting(MeshFilter towerMesh, int damageData, byte rangeData,
             float attackDelayData)
         {
             base.TowerSetting(towerMesh, damageData, rangeData, attackDelayData);

@@ -17,15 +17,20 @@ namespace ManagerControl
         private Touch _firstTouch, _secondTouch;
         private Vector3 _curPos, _newPos;
 
+        private ParticleSystemRenderer _particleSystemRenderer;
+
         [SerializeField] private float rotationSpeed;
         [SerializeField] private float zoomSpeed;
 
         [SerializeField] private Vector2Int camSizeMinMax;
         [SerializeField] private Vector2Int camPosLimit;
 
+        [SerializeField] private ParticleSystem cloudParticle;
+
         private void Awake()
         {
             _cam = Camera.main;
+            _particleSystemRenderer = cloudParticle.GetComponent<ParticleSystemRenderer>();
         }
 
         private void Start()
@@ -160,6 +165,8 @@ namespace ManagerControl
             _cam.orthographicSize = Mathf.Clamp(_cam.orthographicSize + sizeChange, camSizeMinMax.x, camSizeMinMax.y);
 
             _modifiedMoveSpeed = _cam.orthographicSize / 20;
+
+            _particleSystemRenderer.enabled = _cam.orthographicSize > 12;
         }
     }
 }

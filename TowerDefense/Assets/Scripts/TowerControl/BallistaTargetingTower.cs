@@ -7,21 +7,19 @@ namespace TowerControl
     {
         private Vector3 _targetDirection;
         private Transform _ballista;
-        private bool isAttacking;
+
         [SerializeField] private float smoothTurnSpeed;
 
         protected override void Init()
         {
             base.Init();
-            _ballista = transform.Find("Ballista");
+            _ballista = transform.GetChild(0).Find("Ballista");
             firePos = _ballista.GetChild(0);
         }
 
-        public override void TowerUpdate()
+        private void LateUpdate()
         {
-            base.TowerUpdate();
-
-            if (!isTargeting || isAttacking) return;
+            if (!isTargeting) return;
 
             var t = target.transform;
             var targetPos = t.position + t.forward;
@@ -32,9 +30,8 @@ namespace TowerControl
 
         protected override void Attack()
         {
-            isAttacking = true;
             _ballista.DOMove(_ballista.position - _ballista.forward * 0.2f, 0.2f).SetEase(Ease.OutExpo)
-                .SetLoops(2, LoopType.Yoyo).OnComplete(() => isAttacking = false);
+                .SetLoops(2, LoopType.Yoyo);
             base.Attack();
         }
     }

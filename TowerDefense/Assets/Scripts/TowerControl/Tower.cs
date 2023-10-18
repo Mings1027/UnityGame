@@ -1,11 +1,14 @@
 using System;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using DataControl;
 using InterfaceControl;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace TowerControl
 {
-    public abstract class Tower : MonoBehaviour, IFingerUp
+    public abstract class Tower : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         protected BoxCollider boxCollider;
         private MeshRenderer _meshRenderer;
@@ -15,6 +18,7 @@ namespace TowerControl
 
         public float TowerRange { get; private set; }
         public sbyte TowerLevel { get; private set; }
+        public int TowerInvestment { get; set; }
 
         public TowerData TowerData => towerData;
 
@@ -29,13 +33,12 @@ namespace TowerControl
         //======================================================================================================
         public abstract void TowerTargetInit();
         public abstract void TowerTargeting();
-        public abstract void TowerUpdate();
+        public abstract UniTaskVoid TowerAttackAsync(CancellationTokenSource cts);
 
         protected virtual void Init()
         {
             TowerLevel = -1;
             boxCollider = GetComponent<BoxCollider>();
-            boxCollider.enabled = false;
             _meshFilter = transform.GetChild(0).GetComponent<MeshFilter>();
             _meshRenderer = transform.GetChild(0).GetComponent<MeshRenderer>();
         }
@@ -45,12 +48,11 @@ namespace TowerControl
             TowerLevel++;
         }
 
-        public virtual void TowerSetting(MeshFilter towerMesh, ushort damageData, byte rangeData,
+        public virtual void TowerSetting(MeshFilter towerMesh, int damageData, byte rangeData,
             float attackDelayData)
         {
             TowerRange = rangeData;
             _meshFilter.sharedMesh = towerMesh.sharedMesh;
-            boxCollider.enabled = true;
 
             ColliderSize();
         }
@@ -63,7 +65,11 @@ namespace TowerControl
             boxCollider.size = size;
         }
 
-        public virtual void FingerUp()
+        public void OnPointerDown(PointerEventData eventData)
+        {
+        }
+
+        public virtual void OnPointerUp(PointerEventData eventData)
         {
             OnClickTower?.Invoke(this);
         }

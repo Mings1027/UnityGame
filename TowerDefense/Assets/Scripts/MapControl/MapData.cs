@@ -1,13 +1,16 @@
 using System;
 using System.Collections.Generic;
+using ManagerControl;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.EventSystems;
 
 namespace MapControl
 {
-    public class MapData : MonoBehaviour
+    public class MapData : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         private NavMeshModifierVolume _navMeshModifierVolume;
+
         [Flags]
         private enum DirectionFlag
         {
@@ -91,27 +94,25 @@ namespace MapControl
             var left = (wayDirectionFlag & DirectionFlag.Left) != 0;
             var right = (wayDirectionFlag & DirectionFlag.Right) != 0;
 
-            if (!straight)
-            {
-                if (!isPortalMap)
-                    placementTile.Add(tForward);
-            }
-
-            if (!left)
-            {
-                placementTile.Add(-tRight);
-            }
-
-            if (!right)
-            {
-                placementTile.Add(tRight);
-            }
+            if (!straight && !isPortalMap) placementTile.Add(tForward);
+            if (!left) placementTile.Add(-tRight);
+            if (!right) placementTile.Add(tRight);
 
             for (var i = 0; i < placementTile.Count; i++)
             {
                 placementTile[i] *= 4;
                 placementTile[i] += t.position + new Vector3(0, 1, 0);
             }
+        }
+
+        public void OnPointerDown(PointerEventData eventData)
+        {
+        }
+
+        public void OnPointerUp(PointerEventData eventData)
+        {
+            if (Input.GetTouch(0).deltaPosition != Vector2.zero) return;
+            GameManager.Instance.towerManager.UIOff();
         }
     }
 }
