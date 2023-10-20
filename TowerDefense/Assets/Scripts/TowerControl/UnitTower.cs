@@ -21,7 +21,6 @@ namespace TowerControl
         private bool _isReSpawning;
         private int _damage;
         private float _atkDelay;
-        private byte deadUnitCount;
         public Vector3 unitSpawnPosition { get; set; }
         private List<FriendlyUnit> _units;
         private ReSpawnBar unitReSpawnBar;
@@ -48,7 +47,6 @@ namespace TowerControl
         {
             base.Init();
             _units = new List<FriendlyUnit>(unitCount);
-            deadUnitCount = 0;
             unitReSpawnBar = GetComponentInChildren<ReSpawnBar>();
             reSpawnBarSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(unitReSpawnBar.transform.DOScale(0.02f, 0.5f).From(0).SetEase(Ease.OutBack))
@@ -160,11 +158,9 @@ namespace TowerControl
 
         private void DeadEvent(FriendlyUnit unit)
         {
-            deadUnitCount++;
             _units.Remove(unit);
-            if (deadUnitCount != unitCount) return;
+            if (_units.Count > 0) return;
 
-            deadUnitCount = 0;
             _isUnitSpawn = false;
             UnitReSpawnAsync().Forget();
         }
@@ -173,11 +169,8 @@ namespace TowerControl
         {
             _isReSpawning = true;
             unitReSpawnBar.enabled = true;
-
             reSpawnBarSequence.Restart();
-
             await unitReSpawnBar.UpdateBarEvent();
-
             reSpawnBarSequence.PlayBackwards();
 
             _isReSpawning = false;

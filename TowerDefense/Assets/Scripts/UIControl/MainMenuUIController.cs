@@ -33,7 +33,7 @@ namespace UIControl
 
         private void StartGame()
         {
-            GameManager.Instance.towerManager.GameStart();
+            GameManager.Instance.uiManager.GameStart();
             GameManager.Instance.soundManager.PlaySound(SoundEnum.ButtonSound);
             OnGenerateInitMapEvent?.Invoke();
 

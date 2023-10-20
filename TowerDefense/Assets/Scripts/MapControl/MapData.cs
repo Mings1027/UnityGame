@@ -112,7 +112,7 @@ namespace MapControl
         public void OnPointerUp(PointerEventData eventData)
         {
             if (Input.GetTouch(0).deltaPosition != Vector2.zero) return;
-            GameManager.Instance.towerManager.UIOff();
+            GameManager.Instance.uiManager.UIOff();
         }
     }
 }

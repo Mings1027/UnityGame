@@ -8,6 +8,12 @@ namespace TestControl
 {
     public class Test : MonoBehaviour
     {
-        
+        private void Start()
+        {
+            DOTween.Sequence(transform.DOScale(100, 2)).OnComplete(() =>
+            {
+                print("its complete");
+            });
+        }
     }
 }

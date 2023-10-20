@@ -8,11 +8,11 @@ namespace ManagerControl
     public class GameManager : Singleton<GameManager>
     {
         public TowerManager towerManager { get; private set; }
+        public UIManager uiManager { get; private set; }
         public InputManager inputManager { get; private set; }
         public CameraManager cameraManager { get; private set; }
         public WaveManager waveManager { get; private set; }
         public SoundManager soundManager { get; private set; }
-        public UIManager uiManager { get; private set; }
 
         protected override void Awake()
         {
@@ -29,24 +29,16 @@ namespace ManagerControl
                 Instantiate(sources[i]);
             }
 
-            await UniTask.Yield();
             towerManager = FindObjectOfType<TowerManager>();
+            uiManager = FindObjectOfType<UIManager>();
             inputManager = FindObjectOfType<InputManager>();
             cameraManager = FindObjectOfType<CameraManager>();
             waveManager = FindObjectOfType<WaveManager>();
             soundManager = FindObjectOfType<SoundManager>();
-            uiManager = FindObjectOfType<UIManager>();
-            Instantiate(Resources.Load<GameObject>("PoolObjManager/7.PoolObjectManager"));
+
+            await UniTask.Yield();
+
+            Instantiate(Resources.Load<GameObject>("PoolObjectManager"));
         }
-    }
-
-    [Serializable]
-    public struct Cooldown
-    {
-        public float cooldownTime { get; set; }
-        private float _nextFireTime;
-
-        public bool IsCoolingDown => Time.time < _nextFireTime;
-        public void StartCooldown() => _nextFireTime = Time.time + cooldownTime;
     }
 }

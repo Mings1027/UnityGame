@@ -1,5 +1,6 @@
 using System;
 using Cysharp.Threading.Tasks;
+using StatusControl;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -9,7 +10,6 @@ namespace UnitControl.EnemyControl
     {
         private EnemyUnit _enemyUnit;
         private NavMeshAgent _navMeshAgent;
-        private EnemyHealth _enemyHealth;
         private bool _isSlowed;
         public float defaultSpeed { get; set; }
 
@@ -43,11 +43,6 @@ namespace UnitControl.EnemyControl
             await UniTask.Delay(TimeSpan.FromSeconds(slowCoolTime),
                 cancellationToken: this.GetCancellationTokenOnDestroy());
             _isSlowed = false;
-        }
-
-        public void ContinuousDamage()
-        {
-            _enemyHealth.Damage(1);
         }
     }
 }

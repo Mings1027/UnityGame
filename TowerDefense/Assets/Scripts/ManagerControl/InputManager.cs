@@ -28,6 +28,7 @@ namespace ManagerControl
         [SerializeField] private Grid grid;
         [SerializeField] private LayerMask groundLayer;
         [SerializeField] private Color[] cubeColor;
+        [SerializeField] private ParticleSystem touchParticle;
 
         private void Awake()
         {
@@ -69,10 +70,16 @@ namespace ManagerControl
                 CursorAppear();
             }
 
-            if (!touch.phase.Equals(TouchPhase.Ended)) return;
+            if (touch.phase == TouchPhase.Began)
+            {
+                touchParticle.Play();
+            }
 
-            _startPlacement = false;
-            enabled = false;
+            else if (touch.phase.Equals(TouchPhase.Ended))
+            {
+                _startPlacement = false;
+                enabled = false;
+            }
         }
 
         private void OnDisable()
@@ -114,10 +121,10 @@ namespace ManagerControl
         public void StartPlacement(TowerType towerType, bool isUnitTower)
         {
             _startPlacement = true;
-            _gameManager.towerManager.OffUI();
+            _gameManager.uiManager.OffUI();
             _gameManager.cameraManager.enabled = false;
             _cursorMeshRenderer.transform.DOScale(2, 0.25f).SetEase(Ease.OutBack);
-            if (!_gameManager.towerManager.IsEnoughCost(towerType))
+            if (!_gameManager.uiManager.IsEnoughCost(towerType))
             {
                 _startPlacement = false;
                 return;
@@ -208,7 +215,7 @@ namespace ManagerControl
 
             if (!foundGround) towerForward = fourDir[Random.Range(0, fourDir.Length)];
 
-            _gameManager.towerManager.InstantiateTower(_selectedTowerType, _worldGridPos, towerForward, _isUnitTower)
+            _gameManager.uiManager.InstantiateTower(_selectedTowerType, _worldGridPos, towerForward, _isUnitTower)
                 .Forget();
         }
     }

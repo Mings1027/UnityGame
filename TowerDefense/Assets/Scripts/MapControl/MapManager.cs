@@ -59,6 +59,7 @@ namespace MapControl
         [SerializeField] private byte maxSize;
         [SerializeField] private Transform obstacleMesh;
         [SerializeField] private byte mapCount;
+        [SerializeField] private NavMeshSurface bossNavMesh;
 #if UNITY_EDITOR
         [SerializeField] private bool drawGizmos;
 #endif
@@ -76,7 +77,7 @@ namespace MapControl
         {
             FindObjectOfType<WaveManager>().OnPlaceExpandButtonEvent += PlaceExpandButtons;
 
-            FindObjectOfType<TowerManager>().GetComponentInChildren<MainMenuUIController>()
+            FindObjectOfType<UIManager>().GetComponentInChildren<MainMenuUIController>()
                 .OnGenerateInitMapEvent += GenerateInitMap;
             PlaceStartMap();
         }
@@ -157,7 +158,6 @@ namespace MapControl
             SetNewMapForward(mapData);
             PlaceObstacle(mapData);
             _map.Add(_newMapObject);
-
             _navMeshSurface.BuildNavMesh();
         }
 
@@ -169,8 +169,9 @@ namespace MapControl
 
         private void InitExpandButtonPosition()
         {
-            foreach (var indexChar in _connectionString)
+            for (var i = 0; i < _connectionString.Length; i++)
             {
+                var indexChar = _connectionString[i];
                 var index = int.Parse(indexChar.ToString());
                 _expandBtnPosHashSet.Add(_checkDirection[index]);
             }
@@ -208,10 +209,10 @@ namespace MapControl
             CombineObstacleMesh();
 
             _navMeshSurface.BuildNavMesh();
-
-            _gameManager.waveManager.enabled = true;
-            _gameManager.waveManager.StartWave(_wayPointsHashSet.ToList());
-            _gameManager.towerManager.EnableTower();
+            _gameManager.waveManager.WaveInit();
+            if (_gameManager.waveManager.isBossWave) bossNavMesh.BuildNavMesh();
+            _gameManager.waveManager.StartWave(_wayPointsHashSet.ToArray());
+            _gameManager.towerManager.enabled = true;
         }
 
         private void InitConnectionState()

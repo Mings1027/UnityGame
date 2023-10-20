@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,17 +7,16 @@ namespace StatusControl
     public abstract class ProgressBar : MonoBehaviour
     {
         protected Progressive progressive;
-        protected Slider slider;
-        
+        protected Image FillImage => fillImage;
+        [SerializeField] private Image fillImage;
+
         protected virtual void Awake()
         {
             progressive = GetComponentInParent<Progressive>();
-            slider = GetComponent<Slider>();
         }
 
         protected virtual void OnEnable()
         {
-            slider.value = 1;
             progressive.OnUpdateBarEvent += UpdateBarEvent;
         }
 
@@ -25,6 +25,6 @@ namespace StatusControl
             progressive.OnUpdateBarEvent -= UpdateBarEvent;
         }
 
-        private void UpdateBarEvent() => slider.value = progressive.Ratio;
+        private void UpdateBarEvent() => fillImage.fillAmount = progressive.Ratio;
     }
 }

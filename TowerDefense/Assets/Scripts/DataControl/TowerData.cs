@@ -5,7 +5,6 @@ using UnityEngine.Serialization;
 
 namespace DataControl
 {
-    [CreateAssetMenu]
     public abstract class TowerData : ScriptableObject
     {
         public bool IsMagicTower => isMagicTower;
@@ -21,8 +20,8 @@ namespace DataControl
         [SerializeField] private GameObject tower;
         [SerializeField] private PoolObjectKey poolObjectKey;
         [SerializeField] private TowerType towerType;
-        [FormerlySerializedAs("towerBuildGold")] [SerializeField, Range(0, 200)] private int towerBuildCost;
-        [FormerlySerializedAs("towerUpgradeGold")] [SerializeField, Range(0, 200)] private int towerUpgradeCost;
+        [SerializeField, Range(0, 200)] private int towerBuildCost;
+        [SerializeField, Range(0, 200)] private int towerUpgradeCost;
 
         [Serializable]
         public class TowerInfoData

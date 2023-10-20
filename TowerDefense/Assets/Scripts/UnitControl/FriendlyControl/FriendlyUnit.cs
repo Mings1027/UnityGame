@@ -183,6 +183,8 @@ namespace UnitControl.FriendlyControl
 
         public void SpawnInit(UnitTower unitTower, TowerType towerTypeEnum)
         {
+            _navMeshAgent.enabled = true;
+            _navMeshAgent.isStopped = false;
             _parentTower = unitTower;
             _towerTypeEnum = towerTypeEnum;
         }
