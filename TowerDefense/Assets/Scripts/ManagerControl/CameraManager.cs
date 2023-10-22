@@ -166,7 +166,8 @@ namespace ManagerControl
 
             _modifiedMoveSpeed = _cam.orthographicSize / 20;
 
-            _particleSystemRenderer.enabled = _cam.orthographicSize > 12;
+            _particleSystemRenderer.enabled = _cam.orthographicSize > 15;
+            print(_particleSystemRenderer.enabled);
         }
     }
 }

@@ -21,12 +21,6 @@ namespace MapControl
             OnExpandMapEvent = null;
         }
 
-        // public void FingerUp()
-        // {
-        //     OnExpandMapEvent?.Invoke(transform.position);
-        //     GameManager.Instance.soundManager.PlayBGM(SoundEnum.WaveStart);
-        // }
-
         public void OnPointerDown(PointerEventData eventData)
         {
         }
@@ -34,7 +28,7 @@ namespace MapControl
         public void OnPointerUp(PointerEventData eventData)
         {
             OnExpandMapEvent?.Invoke(transform.position);
-            GameManager.Instance.soundManager.PlayBGM(SoundEnum.WaveStart);
+            SoundManager.Instance.PlayBGM(SoundEnum.WaveStart);
         }
     }
 }

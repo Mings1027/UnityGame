@@ -1,15 +1,12 @@
 using CustomEnumControl;
-using Cysharp.Threading.Tasks;
 using DG.Tweening;
-using GameControl;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 namespace ManagerControl
 {
     public class InputManager : MonoBehaviour
     {
-        private GameManager _gameManager;
+        private CameraManager _cameraManager;
         private Camera _cam;
         private Transform _cursorChild;
         private Vector3 _worldGridPos;
@@ -28,11 +25,10 @@ namespace ManagerControl
         [SerializeField] private Grid grid;
         [SerializeField] private LayerMask groundLayer;
         [SerializeField] private Color[] cubeColor;
-        [SerializeField] private ParticleSystem touchParticle;
 
         private void Awake()
         {
-            _gameManager = GameManager.Instance;
+            _cameraManager = FindObjectOfType<CameraManager>();
             _cam = Camera.main;
             _cursorMeshRenderer = cubeCursor.GetComponentInChildren<MeshRenderer>();
             _cursorChild = cubeCursor.GetChild(0);
@@ -70,12 +66,7 @@ namespace ManagerControl
                 CursorAppear();
             }
 
-            if (touch.phase == TouchPhase.Began)
-            {
-                touchParticle.Play();
-            }
-
-            else if (touch.phase.Equals(TouchPhase.Ended))
+            if (touch.phase.Equals(TouchPhase.Ended))
             {
                 _startPlacement = false;
                 enabled = false;
@@ -84,7 +75,7 @@ namespace ManagerControl
 
         private void OnDisable()
         {
-            if (_canPlace && !_gameManager.uiManager.IsOnUI)
+            if (_canPlace && !UIManager.Instance.IsOnUI)
             {
                 PlaceTower();
             }
@@ -109,7 +100,7 @@ namespace ManagerControl
         {
             _startPlacement = false;
             _canPlace = false;
-            _gameManager.cameraManager.enabled = true;
+            _cameraManager.enabled = true;
             _worldGridPos = Vector3.zero + Vector3.down * 5;
 
             _cursorMeshRenderer.transform.DOScale(0, 0.25f).SetEase(Ease.OutBack).OnComplete(() =>
@@ -121,10 +112,10 @@ namespace ManagerControl
         public void StartPlacement(TowerType towerType, bool isUnitTower)
         {
             _startPlacement = true;
-            _gameManager.uiManager.OffUI();
-            _gameManager.cameraManager.enabled = false;
+            UIManager.Instance.OffUI();
+            _cameraManager.enabled = false;
             _cursorMeshRenderer.transform.DOScale(2, 0.25f).SetEase(Ease.OutBack);
-            if (!_gameManager.uiManager.IsEnoughCost(towerType))
+            if (!UIManager.Instance.IsEnoughCost(towerType))
             {
                 _startPlacement = false;
                 return;
@@ -215,7 +206,7 @@ namespace ManagerControl
 
             if (!foundGround) towerForward = fourDir[Random.Range(0, fourDir.Length)];
 
-            _gameManager.uiManager.InstantiateTower(_selectedTowerType, _worldGridPos, towerForward, _isUnitTower)
+            UIManager.Instance.InstantiateTower(_selectedTowerType, _worldGridPos, towerForward, _isUnitTower)
                 .Forget();
         }
     }

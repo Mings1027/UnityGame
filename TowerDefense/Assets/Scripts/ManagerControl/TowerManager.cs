@@ -1,10 +1,8 @@
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using PoolObjectControl;
-using StatusControl;
 using TowerControl;
 using UnityEngine;
 
@@ -88,7 +86,7 @@ namespace ManagerControl
             _towers.Remove(tower);
         }
 
-        public void TargetInit()
+        private void TargetInit()
         {
             for (var i = 0; i < _towers.Count; i++)
             {

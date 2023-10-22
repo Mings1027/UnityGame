@@ -33,8 +33,8 @@ namespace UIControl
 
         private void StartGame()
         {
-            GameManager.Instance.uiManager.GameStart();
-            GameManager.Instance.soundManager.PlaySound(SoundEnum.ButtonSound);
+            UIManager.Instance.GameStart();
+            SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
             OnGenerateInitMapEvent?.Invoke();
 
             _camArm.enabled = true;

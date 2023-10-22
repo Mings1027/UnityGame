@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using ManagerControl;
 using PoolObjectControl;
 using UIControl;
@@ -13,7 +14,8 @@ namespace MapControl
 {
     public class MapManager : MonoBehaviour
     {
-        private GameManager _gameManager;
+        private TowerManager _towerManager;
+        private WaveManager _waveManager;
         private MeshFilter _meshFilter;
         private MeshRenderer _meshRenderer;
         private MeshFilter _obstacleMeshFilter;
@@ -68,7 +70,8 @@ namespace MapControl
 
         private void Awake()
         {
-            _gameManager = FindObjectOfType<GameManager>();
+            _towerManager = FindObjectOfType<TowerManager>();
+            _waveManager = FindObjectOfType<WaveManager>();
             ComponentInit();
             MapDataInit();
         }
@@ -77,7 +80,7 @@ namespace MapControl
         {
             FindObjectOfType<WaveManager>().OnPlaceExpandButtonEvent += PlaceExpandButtons;
 
-            FindObjectOfType<UIManager>().GetComponentInChildren<MainMenuUIController>()
+            UIManager.Instance.GetComponentInChildren<MainMenuUIController>()
                 .OnGenerateInitMapEvent += GenerateInitMap;
             PlaceStartMap();
         }
@@ -181,26 +184,31 @@ namespace MapControl
 
         private void ExpandMap(Vector3 newMapPos)
         {
+            _newMapPosition = newMapPos;
+            PoolObjectManager.Get(PoolObjectKey.ExpandMapSmoke, newMapPos);
+            DisableExpandButtons();
             InitConnectionState();
 
-            CheckNeighborMap(newMapPos);
+            CheckNeighborMap();
 
-            CheckConnectedDirection(newMapPos);
+            CheckConnectedDirection();
 
             AddRandomConnection();
 
-            PlaceNewMap(newMapPos);
+            PlaceNewMap();
 
-            PoolObjectManager.Get(PoolObjectKey.ExpandMapSmoke, newMapPos);
+            SetMap().Forget();
+        }
+
+        private async UniTaskVoid SetMap()
+        {
             _newMapObject.TryGetComponent(out MapData mapData);
-
+            await _newMapObject.transform.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack);
             SetNewMapForward(mapData);
 
-            RemovePoints(mapData, newMapPos);
+            RemovePoints(mapData);
 
-            SetPoints();
-
-            DisableExpandButtons();
+            SetWayPoints();
 
             PlaceObstacle(mapData);
 
@@ -209,10 +217,10 @@ namespace MapControl
             CombineObstacleMesh();
 
             _navMeshSurface.BuildNavMesh();
-            _gameManager.waveManager.WaveInit();
-            if (_gameManager.waveManager.isBossWave) bossNavMesh.BuildNavMesh();
-            _gameManager.waveManager.StartWave(_wayPointsHashSet.ToArray());
-            _gameManager.towerManager.enabled = true;
+            _waveManager.WaveInit();
+            if (_waveManager.isBossWave) bossNavMesh.BuildNavMesh();
+            _waveManager.StartWave(_wayPointsHashSet.ToArray());
+            _towerManager.enabled = true;
         }
 
         private void InitConnectionState()
@@ -225,11 +233,11 @@ namespace MapControl
             }
         }
 
-        private void CheckNeighborMap(Vector3 newMapPos)
+        private void CheckNeighborMap()
         {
             for (var i = 0; i < _checkDirection.Length; i++)
             {
-                var ray = new Ray(newMapPos, _checkDirection[i]);
+                var ray = new Ray(_newMapPosition, _checkDirection[i]);
                 if (Physics.SphereCast(ray, 2, out var hit, mapSize, groundLayer))
                 {
                     if (hit.collider.TryGetComponent(out MapData mapData))
@@ -244,14 +252,14 @@ namespace MapControl
             }
         }
 
-        private void CheckConnectedDirection(Vector3 newMapPos)
+        private void CheckConnectedDirection()
         {
             for (var i = 0; i < _neighborMapArray.Length; i++)
             {
                 if (_isNullMapArray[i]) continue;
 
                 var neighborPos = _neighborMapArray[i].transform.position;
-                var neighborToNewMapDir = (newMapPos - neighborPos).normalized;
+                var neighborToNewMapDir = (_newMapPosition - neighborPos).normalized;
                 var neighborWayPoints = _neighborMapArray[i].wayPointList;
                 for (var j = 0; j < neighborWayPoints.Count; j++)
                 {
@@ -291,13 +299,13 @@ namespace MapControl
             }
         }
 
-        private void PlaceNewMap(Vector3 newMapPos)
+        private void PlaceNewMap()
         {
             if (_connectionString == null) return;
 
             _newMapObject
                 = Instantiate(_connectionString.Length == 1 ? IfSingleConnection() : IfMultipleConnection(),
-                    newMapPos, Quaternion.identity, transform);
+                    _newMapPosition, Quaternion.identity, transform);
             _map.Add(_newMapObject);
         }
 
@@ -315,28 +323,12 @@ namespace MapControl
             for (var i = 0; i < count; i++)
             {
                 var ranIndex = Random.Range(0, map.placementTile.Count);
-                // RandomPlaceObstacle(map, map.placementTile[ranIndex]);
-                RandomObstacleTest(map.placementTile[ranIndex]);
+                RandomObstacle(map.placementTile[ranIndex]);
                 map.placementTile.RemoveAt(ranIndex);
             }
         }
 
-        private void RandomPlaceObstacle(MapData map, Vector3 center)
-        {
-            var diagonalCount = Random.Range(0, map.diagonalDir.Count);
-            for (var i = 0; i < diagonalCount; i++)
-            {
-                var ranIndex = Random.Range(0, map.diagonalDir.Count);
-                var pos = center + map.diagonalDir[ranIndex];
-                map.diagonalDir.RemoveAt(ranIndex);
-
-                var ranObstacle = Random.Range(0, obstaclePrefabs.Length);
-                Instantiate(obstaclePrefabs[ranObstacle], pos, Quaternion.Euler(0, Random.Range(0, 360), 0),
-                    obstacleMesh);
-            }
-        }
-
-        private void RandomObstacleTest(Vector3 center)
+        private void RandomObstacle(Vector3 center)
         {
             var pos = center + diagonalDir[Random.Range(0, diagonalDir.Length)];
             var ranObstacle = Random.Range(0, obstaclePrefabs.Length);
@@ -367,7 +359,7 @@ namespace MapControl
             return ranProbability <= portalSpawnProbability;
         }
 
-        private void RemovePoints(MapData mapData, Vector3 newMapPos)
+        private void RemovePoints(MapData mapData)
         {
             _newMapWayPoints.Clear();
             for (var i = 0; i < mapData.wayPointList.Count; i++)
@@ -380,10 +372,10 @@ namespace MapControl
                 _wayPointsHashSet.RemoveWhere(p => p == _newMapWayPoints[i]);
             }
 
-            _expandBtnPosHashSet.RemoveWhere(p => p == newMapPos);
+            _expandBtnPosHashSet.RemoveWhere(p => p == _newMapPosition);
         }
 
-        private void SetPoints()
+        private void SetWayPoints()
         {
             //For Portal Map
             if (_newMapWayPoints.Count == 1)
@@ -423,7 +415,7 @@ namespace MapControl
         //Call When Wave is over
         private void PlaceExpandButtons()
         {
-            _gameManager.soundManager.PlayBGM(SoundEnum.WaveEnd);
+            SoundManager.Instance.PlayBGM(SoundEnum.WaveEnd);
 
             foreach (var pos in _expandBtnPosHashSet)
                 _expandButtons.Add(PoolObjectManager.Get<ExpandMapButton>(PoolObjectKey.ExpandButton, pos));

@@ -8,6 +8,7 @@ namespace StatusControl
     {
         protected Progressive progressive;
         protected Image FillImage => fillImage;
+        
         [SerializeField] private Image fillImage;
 
         protected virtual void Awake()

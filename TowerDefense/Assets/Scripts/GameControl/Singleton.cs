@@ -5,7 +5,7 @@ namespace GameControl
 {
     public abstract class Singleton<T> : MonoBehaviour where T : Component
     {
-        private static bool _applicationQuit = false;
+        private static bool _applicationQuit;
         private static T _instance;
 
         public static T Instance
@@ -29,6 +29,12 @@ namespace GameControl
         {
             _applicationQuit = false;
         }
+
+        protected virtual void Start()
+        {
+            _applicationQuit = false;
+        }
+
 
         private void OnApplicationQuit()
         {

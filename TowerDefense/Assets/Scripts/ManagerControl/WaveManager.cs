@@ -13,7 +13,7 @@ namespace ManagerControl
 {
     public class WaveManager : MonoBehaviour
     {
-        private GameManager _gameManager;
+        private TowerManager _towerManager;
         private bool _startWave;
         private bool _isLastWave;
         private sbyte _enemyLevel;
@@ -34,9 +34,9 @@ namespace ManagerControl
 
         private void Awake()
         {
+            _towerManager = FindObjectOfType<TowerManager>();
             _enemyLevel = 1;
             enemyDataIndex = 1;
-            _gameManager = GameManager.Instance;
             _enemyUnits = new List<EnemyUnit>();
             // var enemyDataGuids = AssetDatabase.FindAssets("t: EnemyData", new[] { "Assets/EnemyData" });
             // enemiesData = new EnemyData[enemyDataGuids.Length];
@@ -75,7 +75,7 @@ namespace ManagerControl
 
         public void StartWave(Vector3[] wayPoints)
         {
-            _gameManager.uiManager.WaveText.text = _curWave.ToString();
+            UIManager.Instance.WaveText.text = _curWave.ToString();
             SpawnEnemy(wayPoints).Forget();
 
             if (isBossWave)
@@ -118,7 +118,7 @@ namespace ManagerControl
             enemyUnit.Init(enemyData);
             enemyUnit.TryGetComponent(out Health enemyHealth);
             enemyHealth.Init(enemyData.Health * _enemyLevel);
-            enemyHealth.OnDeadEvent += () => _gameManager.uiManager.TowerCost += enemyData.EnemyCoin * _enemyLevel;
+            enemyHealth.OnDeadEvent += () => UIManager.Instance.TowerCost += enemyData.EnemyCoin * _enemyLevel;
             enemyUnit.TryGetComponent(out EnemyStatus enemyStatus);
             enemyStatus.defaultSpeed = enemyData.Speed;
         }
@@ -162,7 +162,7 @@ namespace ManagerControl
                     {
                         _enemyUnits[i].gameObject.SetActive(false);
                         _enemyUnits[i].StatusInit();
-                        _gameManager.uiManager.BaseTowerHealth.Damage(1);
+                        UIManager.Instance.BaseTowerHealth.Damage(1);
                         DecreaseEnemyCount(_enemyUnits[i]);
                     }
                     else
@@ -227,7 +227,7 @@ namespace ManagerControl
             if (_enemyUnits.Count > 0) return;
             _startWave = false;
             OnPlaceExpandButtonEvent?.Invoke();
-            _gameManager.towerManager.enabled = false;
+            _towerManager.enabled = false;
             enabled = false;
         }
     }
