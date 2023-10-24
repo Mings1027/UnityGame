@@ -26,7 +26,7 @@ namespace ManagerControl
                 {
                     { TowerType.Assassin, 0 }, { TowerType.Ballista, 0 },
                     { TowerType.Canon, 0 }, { TowerType.Defender, 0 },
-                    { TowerType.Mage, 0 },
+                    { TowerType.Wizard, 0 },
                 };
                 var jsonData = DictionaryJsonUtility.ToJson(damageDic, true);
                 File.WriteAllText(_path + "/damage.txt", jsonData);

@@ -14,7 +14,6 @@ namespace MapControl
 {
     public class MapManager : MonoBehaviour
     {
-        private TowerManager _towerManager;
         private WaveManager _waveManager;
         private MeshFilter _meshFilter;
         private MeshRenderer _meshRenderer;
@@ -70,7 +69,6 @@ namespace MapControl
 
         private void Awake()
         {
-            _towerManager = FindObjectOfType<TowerManager>();
             _waveManager = FindObjectOfType<WaveManager>();
             ComponentInit();
             MapDataInit();
@@ -187,6 +185,7 @@ namespace MapControl
             _newMapPosition = newMapPos;
             PoolObjectManager.Get(PoolObjectKey.ExpandMapSmoke, newMapPos);
             DisableExpandButtons();
+            
             InitConnectionState();
 
             CheckNeighborMap();
@@ -217,10 +216,7 @@ namespace MapControl
             CombineObstacleMesh();
 
             _navMeshSurface.BuildNavMesh();
-            _waveManager.WaveInit();
-            if (_waveManager.isBossWave) bossNavMesh.BuildNavMesh();
-            _waveManager.StartWave(_wayPointsHashSet.ToArray());
-            _towerManager.enabled = true;
+            _waveManager.WaveInit(_wayPointsHashSet.ToArray());
         }
 
         private void InitConnectionState()

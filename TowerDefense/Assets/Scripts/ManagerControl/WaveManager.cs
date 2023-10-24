@@ -7,6 +7,7 @@ using PoolObjectControl;
 using StatusControl;
 using UnitControl.EnemyControl;
 using UnityEngine;
+using UnityEngine.AI;
 using Random = UnityEngine.Random;
 
 namespace ManagerControl
@@ -16,10 +17,11 @@ namespace ManagerControl
         private TowerManager _towerManager;
         private bool _startWave;
         private bool _isLastWave;
-        private sbyte _enemyLevel;
-        private byte enemyDataIndex;
+        private sbyte _enemyLevel;  // Increase After Boss Wave
+        private byte enemyDataIndex;    // 
         private CancellationTokenSource _cts;
         private List<EnemyUnit> _enemyUnits;
+        private NavMeshSurface bossNavmesh;
 
         public bool isBossWave { get; private set; }
         public event Action OnPlaceExpandButtonEvent;
@@ -27,6 +29,7 @@ namespace ManagerControl
 
         [SerializeField, Range(0, 255)] private byte _curWave;
         [SerializeField] private byte lastWave;
+        [SerializeField] private byte bossWaveTerm;
         [SerializeField] private EnemyData[] enemiesData;
         [SerializeField] private EnemyData[] bossData;
 
@@ -38,6 +41,7 @@ namespace ManagerControl
             _enemyLevel = 1;
             enemyDataIndex = 1;
             _enemyUnits = new List<EnemyUnit>();
+            bossNavmesh = GetComponent<NavMeshSurface>();
             // var enemyDataGuids = AssetDatabase.FindAssets("t: EnemyData", new[] { "Assets/EnemyData" });
             // enemiesData = new EnemyData[enemyDataGuids.Length];
             // for (var i = 0; i < enemyDataGuids.ToArray().Length; i++)
@@ -61,20 +65,26 @@ namespace ManagerControl
 
         #endregion
 
-        public void WaveInit()
+        public void WaveInit(Vector3[] wayPoints)
         {
             if (_startWave) return;
             enabled = true;
             _startWave = true;
             _curWave++;
             if (_curWave % 5 == 0 && enemyDataIndex < enemiesData.Length) enemyDataIndex++;
-            if (_curWave % 10 == 0) isBossWave = true;
+            if (_curWave % bossWaveTerm == 0)
+            {
+                isBossWave = true;
+                bossNavmesh.BuildNavMesh();
+            }
 
             _isLastWave = _curWave == lastWave;
+            StartWave(ref wayPoints);
         }
 
-        public void StartWave(Vector3[] wayPoints)
+        private void StartWave(ref Vector3[] wayPoints)
         {
+            _towerManager.enabled = true;
             UIManager.Instance.WaveText.text = _curWave.ToString();
             SpawnEnemy(wayPoints).Forget();
 

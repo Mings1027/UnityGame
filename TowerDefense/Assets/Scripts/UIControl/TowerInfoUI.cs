@@ -1,8 +1,15 @@
+using System;
+using System.Collections.Generic;
 using System.Globalization;
+using CustomEnumControl;
+using Cysharp.Threading.Tasks;
 using DataControl;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.UI;
 
 namespace UIControl
@@ -11,14 +18,29 @@ namespace UIControl
     {
         private Camera _cam;
 
+        private string towerTypeTable;
+        private string panelKey;
+        private bool isTargeting;
         private Vector3 _followTowerPos;
+        private TowerType _towerType;
 
-        [SerializeField] private Transform followTowerUI;
+        [Header("-------------Panel-------------")] [SerializeField]
+        private GameObject towerInfoPanel;
+
+        [SerializeField] private TextMeshProUGUI panelTowerName;
+
+        [SerializeField] private TextMeshProUGUI panelTowerInfo;
+        [SerializeField] private GameObject panelHealthObj;
+        [SerializeField] private Image panelDamageImage;
+        [SerializeField] private TextMeshProUGUI panelHealthText;
+        [SerializeField] private TextMeshProUGUI panelDamageText;
+        [SerializeField] private TextMeshProUGUI panelAtkDelayText;
+
+        [Header("-------------Tower Status--------------")] [SerializeField]
+        private Transform followTowerUI;
 
         [SerializeField] private GameObject healthObj;
-
         [SerializeField] private Transform stars;
-
         [SerializeField] private Sprite physicalSprite;
         [SerializeField] private Sprite magicSprite;
         [SerializeField] private Image damageImage;
@@ -33,24 +55,54 @@ namespace UIControl
         private void Awake()
         {
             _cam = Camera.main;
+            towerTypeTable = "TowerType Table";
+        }
+
+        private void Start()
+        {
+            LocalizationSettings.SelectedLocaleChanged += OnChangeLocale;
+            towerInfoPanel.SetActive(false);
+        }
+
+        private void OnDisable()
+        {
+            isTargeting = false;
         }
 
         private void LateUpdate()
         {
+            if (!isTargeting) return;
             followTowerUI.position = _cam.WorldToScreenPoint(_followTowerPos);
         }
 
-        public void SetFollowTarget(Vector3 towerPos) => _followTowerPos = towerPos;
+        public void SetFollowTarget(Vector3 towerPos)
+        {
+            isTargeting = true;
+            _followTowerPos = towerPos;
+        }
 
         public void SetTowerInfo(TowerData towerData, bool isUnitTower, sbyte level, int sellGold)
         {
-            healthObj.SetActive(isUnitTower);
+            _towerType = towerData.TowerType;
+            if (isUnitTower)
+            {
+                healthObj.SetActive(true);
+                var unitTowerData = (UnitTowerData)towerData;
+                healthText.text = (unitTowerData.UnitHealth * (level + 1)).ToString();
+            }
+            else
+            {
+                healthObj.SetActive(false);
+            }
 
             damageImage.sprite = towerData.IsMagicTower ? magicSprite : physicalSprite;
 
             var towerLevelData = towerData.TowerLevels[level];
 
-            towerNameText.text = towerData.TowerType.ToString();
+            var text = LocalizationSettings.StringDatabase.GetLocalizedString(towerTypeTable,
+                towerData.TowerType.ToString(),
+                LocalizationSettings.SelectedLocale);
+            towerNameText.text = text;
 
             DisplayStarsForTowerLevel(level);
             costText.text = towerData.TowerUpgradeCost * (level + 1) + "g";
@@ -73,6 +125,50 @@ namespace UIControl
             }
         }
 
-        public void OnUnitTowerHealth(int health) => healthText.text = health.ToString();
+        public void SetPanelInfo(TowerData towerData, bool isUnitTower)
+        {
+            towerInfoPanel.SetActive(true);
+            panelKey = "Panel-" + towerData.TowerType;
+            panelTowerName.text = LocalizationSettings.StringDatabase.GetLocalizedString(towerTypeTable,
+                towerData.TowerType.ToString(), LocalizationSettings.SelectedLocale);
+            panelTowerInfo.text = LocalizationSettings.StringDatabase.GetLocalizedString(towerTypeTable, panelKey,
+                LocalizationSettings.SelectedLocale);
+            if (isUnitTower)
+            {
+                panelHealthObj.SetActive(true);
+                var unitTowerData = (UnitTowerData)towerData;
+                panelHealthText.text = unitTowerData.UnitHealth.ToString();
+            }
+            else
+            {
+                panelHealthObj.SetActive(false);
+            }
+
+            panelDamageImage.sprite = towerData.IsMagicTower ? magicSprite : physicalSprite;
+
+            var towerLevelData = towerData.TowerLevels[0];
+            panelDamageText.text = towerLevelData.damage.ToString();
+            panelAtkDelayText.text = towerLevelData.attackDelay.ToString(CultureInfo.InvariantCulture);
+        }
+
+        public void DisablePanel() => towerInfoPanel.SetActive(false);
+
+        private void OnChangeLocale(Locale locale)
+        {
+            ChangeLocaleAsync().Forget();
+        }
+
+        private async UniTaskVoid ChangeLocaleAsync()
+        {
+            var loadingOperation = LocalizationSettings.StringDatabase.GetTableAsync(towerTypeTable);
+            await loadingOperation;
+            if (loadingOperation.Status == AsyncOperationStatus.Succeeded)
+            {
+                var table = loadingOperation.Result;
+                var towerName = table.GetEntry(_towerType.ToString())?.GetLocalizedString();
+
+                towerNameText.text = towerName;
+            }
+        }
     }
 }

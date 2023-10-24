@@ -71,18 +71,16 @@ namespace ManagerControl
             effectSource.Play();
         }
 
-        public bool ToggleBGM()
+        public void ToggleBGM(bool active)
         {
-            _bgmOn = !_bgmOn;
+            _bgmOn = active;
             audioMixer.SetFloat("BGM", _bgmOn ? 0 : -80);
-            return _bgmOn;
         }
 
-        public bool ToggleSfx()
+        public void ToggleSfx(bool active)
         {
-            _sfxOn = !_sfxOn;
+            _sfxOn = active;
             audioMixer.SetFloat("SFX", _sfxOn ? 0 : -80);
-            return _sfxOn;
         }
     }
 }

@@ -104,16 +104,16 @@ namespace ProjectileControl
             hitColor.startColor = towerData.ProjectileColor[effectIndex];
         }
 
+        public virtual void Hit()
+        {
+            TryDamage(target);
+        }
+
         protected void TryDamage(Transform t)
         {
             if (!t.TryGetComponent(out IDamageable damageable) || !t.gameObject.activeSelf) return;
             damageable.Damage(_damage);
             DataManager.SumDamage(towerData.TowerType, _damage);
-        }
-
-        public virtual void Hit()
-        {
-            TryDamage(target);
         }
     }
 }

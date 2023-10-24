@@ -86,6 +86,7 @@ namespace ManagerControl
 #if UNITY_EDITOR
         private void OnDrawGizmos()
         {
+            if (!_cursorChild) return;
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(_cursorChild.position + Vector3.up * 3, 1);
             Gizmos.DrawWireSphere(_cursorChild.position, 0.2f);
