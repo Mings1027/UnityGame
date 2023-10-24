@@ -22,6 +22,8 @@ namespace ManagerControl
             await UniTask.Yield();
 
             Instantiate(Resources.Load<GameObject>("PoolObjectManager"));
+            
+            LocaleManager.ChangeLocale(0);
         }
     }
 }

@@ -60,7 +60,6 @@ namespace MapControl
         [SerializeField] private byte maxSize;
         [SerializeField] private Transform obstacleMesh;
         [SerializeField] private byte mapCount;
-        [SerializeField] private NavMeshSurface bossNavMesh;
 #if UNITY_EDITOR
         [SerializeField] private bool drawGizmos;
 #endif
@@ -185,7 +184,7 @@ namespace MapControl
             _newMapPosition = newMapPos;
             PoolObjectManager.Get(PoolObjectKey.ExpandMapSmoke, newMapPos);
             DisableExpandButtons();
-            
+
             InitConnectionState();
 
             CheckNeighborMap();

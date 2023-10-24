@@ -6,9 +6,7 @@ using UnityEngine.EventSystems;
 
 namespace ManagerControl
 {
-    public class
-        TowerButtonController : MonoBehaviour, IPointerDownHandler, IPointerUpHandler,
-            IBeginDragHandler, IDragHandler
+    public class TowerButtonController : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
     {
         private InputManager _inputManager;
 
@@ -28,18 +26,14 @@ namespace ManagerControl
             towerInfoUI.SetPanelInfo(towerData, isUnitTower);
         }
 
-        public void OnBeginDrag(PointerEventData eventData)
-        {
-            towerInfoUI.DisablePanel();
-        }
-
         public void OnPointerUp(PointerEventData eventData)
         {
             towerInfoUI.DisablePanel();
         }
 
-        public void OnDrag(PointerEventData eventData)
+        public void OnPointerExit(PointerEventData eventData)
         {
+            towerInfoUI.DisablePanel();
         }
     }
 }

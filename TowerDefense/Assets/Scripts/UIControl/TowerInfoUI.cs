@@ -18,11 +18,15 @@ namespace UIControl
     {
         private Camera _cam;
 
-        private string towerTypeTable;
-        private string panelKey;
-        private bool isTargeting;
+        private TowerData _towerData;
+        private Locale prevLanguage;
+
         private Vector3 _followTowerPos;
         private TowerType _towerType;
+
+        private const string TowerTypeTable = "TowerType Table";
+        private string panelKey;
+        private bool isTargeting;
 
         [Header("-------------Panel-------------")] [SerializeField]
         private GameObject towerInfoPanel;
@@ -55,7 +59,6 @@ namespace UIControl
         private void Awake()
         {
             _cam = Camera.main;
-            towerTypeTable = "TowerType Table";
         }
 
         private void Start()
@@ -99,7 +102,7 @@ namespace UIControl
 
             var towerLevelData = towerData.TowerLevels[level];
 
-            var text = LocalizationSettings.StringDatabase.GetLocalizedString(towerTypeTable,
+            var text = LocalizationSettings.StringDatabase.GetLocalizedString(TowerTypeTable,
                 towerData.TowerType.ToString(),
                 LocalizationSettings.SelectedLocale);
             towerNameText.text = text;
@@ -128,10 +131,13 @@ namespace UIControl
         public void SetPanelInfo(TowerData towerData, bool isUnitTower)
         {
             towerInfoPanel.SetActive(true);
+            if (towerData.Equals(_towerData) && prevLanguage.Equals(LocalizationSettings.SelectedLocale)) return;
+            _towerData = towerData;
+            prevLanguage = LocalizationSettings.SelectedLocale;
             panelKey = "Panel-" + towerData.TowerType;
-            panelTowerName.text = LocalizationSettings.StringDatabase.GetLocalizedString(towerTypeTable,
+            panelTowerName.text = LocalizationSettings.StringDatabase.GetLocalizedString(TowerTypeTable,
                 towerData.TowerType.ToString(), LocalizationSettings.SelectedLocale);
-            panelTowerInfo.text = LocalizationSettings.StringDatabase.GetLocalizedString(towerTypeTable, panelKey,
+            panelTowerInfo.text = LocalizationSettings.StringDatabase.GetLocalizedString(TowerTypeTable, panelKey,
                 LocalizationSettings.SelectedLocale);
             if (isUnitTower)
             {
@@ -160,7 +166,7 @@ namespace UIControl
 
         private async UniTaskVoid ChangeLocaleAsync()
         {
-            var loadingOperation = LocalizationSettings.StringDatabase.GetTableAsync(towerTypeTable);
+            var loadingOperation = LocalizationSettings.StringDatabase.GetTableAsync(TowerTypeTable);
             await loadingOperation;
             if (loadingOperation.Status == AsyncOperationStatus.Succeeded)
             {
