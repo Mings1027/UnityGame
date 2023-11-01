@@ -135,11 +135,15 @@ namespace UnitControl.EnemyControl
                 });
         }
 
-        public void ResetNavmesh()
+        public async UniTaskVoid ResetNavmesh()
         {
+            if (!gameObject.activeSelf) return;
             prevPos = transform.position;
             _navMeshAgent.enabled = false;
+            await UniTask.Yield();
+            if (!gameObject.activeSelf) return;
             _navMeshAgent.enabled = true;
+            _navMeshAgent.SetDestination(Vector3.zero);
         }
 
         public void StatusInit()

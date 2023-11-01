@@ -137,8 +137,8 @@ namespace DG.Tweening
                     if (rBody != null) {
                         rBodyFoundAndTweened = true;
                         t = isLocal
-                            ? rBody.DoLocalPath(path, duration, pathMode)
-                            : rBody.DoPath(path, duration, pathMode);
+                            ? rBody.DOLocalPath(path, duration, pathMode)
+                            : rBody.DOPath(path, duration, pathMode);
                     }
                 }
 #endif

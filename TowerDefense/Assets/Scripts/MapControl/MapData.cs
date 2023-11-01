@@ -1,16 +1,11 @@
 using System;
 using System.Collections.Generic;
-using ManagerControl;
 using UnityEngine;
-using UnityEngine.AI;
-using UnityEngine.EventSystems;
 
 namespace MapControl
 {
-    public class MapData : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+    public class MapData : MonoBehaviour
     {
-        private NavMeshModifierVolume _navMeshModifierVolume;
-
         [Flags]
         private enum DirectionFlag
         {
@@ -38,16 +33,6 @@ namespace MapControl
             wayPointList = new List<Vector3>();
         }
 
-#if UNITY_EDITOR
-        // private void OnDrawGizmos()
-        // {
-        //     for (int i = 0; i < placementTile.Count; i++)
-        //     {
-        //         Gizmos.color = Color.red;
-        //         Gizmos.DrawSphere(placementTile[i], 0.5f);
-        //     }
-        // }
-#endif
         public void SetWayPoint(int halfMapSize)
         {
             wayPointList.Add(-transform.forward);
@@ -103,16 +88,6 @@ namespace MapControl
                 placementTile[i] *= 4;
                 placementTile[i] += t.position + new Vector3(0, 1, 0);
             }
-        }
-
-        public void OnPointerDown(PointerEventData eventData)
-        {
-        }
-
-        public void OnPointerUp(PointerEventData eventData)
-        {
-            if (Input.GetTouch(0).deltaPosition != Vector2.zero) return;
-            UIManager.Instance.UIOff();
         }
     }
 }

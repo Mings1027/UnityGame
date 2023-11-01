@@ -18,7 +18,7 @@ namespace TowerControl
         private bool isAttacking;
 
         protected bool isTargeting;
-        protected Transform target;
+        protected Collider target;
         protected Transform firePos;
 
         [SerializeField] private LayerMask targetLayer;
@@ -59,14 +59,14 @@ namespace TowerControl
             }
 
             var shortestDistance = Mathf.Infinity;
-            Transform nearestTarget = null;
+            Collider nearestTarget = null;
             for (var i = 0; i < size; i++)
             {
                 var distanceToResult =
                     Vector3.SqrMagnitude(transform.position - _targetColliders[i].transform.position);
                 if (distanceToResult >= shortestDistance) continue;
                 shortestDistance = distanceToResult;
-                nearestTarget = _targetColliders[i].transform;
+                nearestTarget = _targetColliders[i];
             }
 
             target = nearestTarget;
@@ -90,7 +90,8 @@ namespace TowerControl
 
         private void ProjectileInit()
         {
-            var projectile = PoolObjectManager.Get<Projectile>(TowerData.PoolObjectKey, firePos);
+            var projectile =
+                PoolObjectManager.Get<Projectile>(TowerData.PoolObjectKey, firePos.position, Quaternion.identity);
             projectile.ColorInit(_effectIndex);
             projectile.Init(_damage, target);
         }

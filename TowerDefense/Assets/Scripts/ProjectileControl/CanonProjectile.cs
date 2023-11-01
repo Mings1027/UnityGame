@@ -30,16 +30,10 @@ namespace ProjectileControl
             if (!_isLockOnTarget && lerp >= 0.5f)
             {
                 _isLockOnTarget = true;
-                _targetEndPos = target.position;
+                _targetEndPos = target.transform.position;
             }
 
-            ProjectilePath(lerp < 0.5f ? target.position : _targetEndPos);
-        }
-
-        protected override void OnTriggerEnter(Collider other)
-        {
-            base.OnTriggerEnter(other);
-            explosionAudio.Play();
+            ProjectilePath(lerp < 0.5f ? target.transform.position : _targetEndPos);
         }
 
         private void OnDrawGizmos()
@@ -49,6 +43,8 @@ namespace ProjectileControl
 
         public override void Hit()
         {
+            base.Hit();
+            explosionAudio.Play();
             if (_targetEndPos == Vector3.zero) return;
             var pos = transform.position;
 
@@ -58,14 +54,14 @@ namespace ProjectileControl
 
             for (var i = 0; i < size; i++)
             {
-                TryDamage(_targetColliders[i].transform);
+                TryDamage(_targetColliders[i]);
             }
         }
 
-        public override void Init(int dmg, Transform t)
+        public override void Init(int dmg, Collider t)
         {
             base.Init(dmg, t);
-            Physics.Raycast(t.position + t.forward * 2 + Vector3.up * 2, Vector3.down, out var hit, 10);
+            Physics.Raycast(t.bounds.center + t.transform.forward * 2 + Vector3.up * 2, Vector3.down, out var hit, 10);
             _targetEndPos = hit.point;
             _targetEndPos.y = 0;
         }

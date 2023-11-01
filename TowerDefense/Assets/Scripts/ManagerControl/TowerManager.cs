@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
@@ -10,7 +11,7 @@ namespace ManagerControl
 {
     public class TowerManager : MonoBehaviour
     {
-        private CancellationTokenSource cts;
+        private CancellationTokenSource _cts;
         private List<Tower> _towers;
 
         [Header("----------Indicator----------"), SerializeField]
@@ -31,59 +32,51 @@ namespace ManagerControl
             IndicatorInit();
         }
 
-        private void OnEnable()
+        #endregion
+
+        #region TowerControl
+
+        public void StartTargeting()
         {
-            cts?.Dispose();
-            cts = new CancellationTokenSource();
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
 
             TargetingAsync().Forget();
             AttackAsync().Forget();
         }
 
-        private void OnDisable()
+        public void StopTargeting()
         {
-            cts?.Cancel();
+            _cts?.Cancel();
 
             TargetInit();
             PoolObjectManager.PoolCleaner().Forget();
         }
 
-        #endregion
-
-        #region TowerControl
-
         private async UniTaskVoid TargetingAsync()
         {
-            while (!cts.IsCancellationRequested)
+            while (!_cts.IsCancellationRequested)
             {
-                await UniTask.Delay(500, cancellationToken: cts.Token);
+                await UniTask.Delay(500, cancellationToken: _cts.Token);
                 for (var i = 0; i < _towers.Count; i++)
                 {
                     _towers[i].TowerTargeting();
+                    await UniTask.Delay(100, cancellationToken: _cts.Token);
                 }
             }
         }
 
         private async UniTaskVoid AttackAsync()
         {
-            while (!cts.IsCancellationRequested)
+            while (!_cts.IsCancellationRequested)
             {
-                await UniTask.Delay(100, cancellationToken: cts.Token);
+                await UniTask.Delay(100, cancellationToken: _cts.Token);
                 for (var i = 0; i < _towers.Count; i++)
                 {
-                    _towers[i].TowerAttackAsync(cts);
+                    _towers[i].TowerAttackAsync(_cts);
+                    await UniTask.Delay(10, cancellationToken: _cts.Token);
                 }
             }
-        }
-
-        public void AddTower(Tower tower)
-        {
-            _towers.Add(tower);
-        }
-
-        public void RemoveTower(Tower tower)
-        {
-            _towers.Remove(tower);
         }
 
         private void TargetInit()
@@ -101,6 +94,18 @@ namespace ManagerControl
             rangeIndicator.transform.localScale = Vector3.zero;
             selectedTowerIndicator.enabled = false;
             unitDestinationIndicator.enabled = false;
+        }
+
+        #region Public Method
+
+        public void AddTower(Tower tower)
+        {
+            _towers.Add(tower);
+        }
+
+        public void RemoveTower(Tower tower)
+        {
+            _towers.Remove(tower);
         }
 
         public void SetIndicator(Tower curSelectedTower)
@@ -133,5 +138,7 @@ namespace ManagerControl
             await unitTower.StartUnitMove(pos);
             unitDestinationIndicator.enabled = false;
         }
+
+        #endregion
     }
 }

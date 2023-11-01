@@ -57,7 +57,7 @@ namespace MapControl
         [SerializeField] private GameObject[] uniqueMap;
         [SerializeField] private LayerMask groundLayer;
         [SerializeField, Range(0, 100)] private int portalSpawnProbability;
-        [SerializeField] private byte maxSize;
+        [SerializeField, Range(0, 200)] private byte maxSize;
         [SerializeField] private Transform obstacleMesh;
         [SerializeField] private byte mapCount;
 #if UNITY_EDITOR
@@ -194,14 +194,9 @@ namespace MapControl
             AddRandomConnection();
 
             PlaceNewMap();
-
-            SetMap().Forget();
-        }
-
-        private async UniTaskVoid SetMap()
-        {
+            
             _newMapObject.TryGetComponent(out MapData mapData);
-            await _newMapObject.transform.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack);
+            
             SetNewMapForward(mapData);
 
             RemovePoints(mapData);
@@ -209,7 +204,14 @@ namespace MapControl
             SetWayPoints();
 
             PlaceObstacle(mapData);
+            
+            SetMap().Forget();
+        }
 
+        private async UniTaskVoid SetMap()
+        {
+            await _newMapObject.transform.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack);
+            
             CombineMesh();
 
             CombineObstacleMesh();
@@ -390,7 +392,10 @@ namespace MapControl
             }
 #if UNITY_EDITOR
             if (_wayPointsHashSet.Count == 0)
+            {
+                ExpandMap(_newMapPosition);
                 print("00000000000000000");
+            }
 #endif
         }
 

@@ -17,6 +17,7 @@ namespace ProjectileControl
         public override void Hit()
         {
             base.Hit();
+            TryDamage(target);
             target.TryGetComponent(out EnemyStatus enemyStatus);
             enemyStatus.SlowEffect(decreaseSpeed, slowCoolTime);
         }

@@ -1,10 +1,12 @@
 using CustomEnumControl;
 using DG.Tweening;
+using GameControl;
+using UIControl;
 using UnityEngine;
 
 namespace ManagerControl
 {
-    public class InputManager : MonoBehaviour
+    public class InputManager : Singleton<InputManager>
     {
         private CameraManager _cameraManager;
         private Camera _cam;
@@ -26,8 +28,9 @@ namespace ManagerControl
         [SerializeField] private LayerMask groundLayer;
         [SerializeField] private Color[] cubeColor;
 
-        private void Awake()
+        protected override void Awake()
         {
+            base.Awake();
             _cameraManager = FindObjectOfType<CameraManager>();
             _cam = Camera.main;
             _cursorMeshRenderer = cubeCursor.GetComponentInChildren<MeshRenderer>();
@@ -207,8 +210,7 @@ namespace ManagerControl
 
             if (!foundGround) towerForward = fourDir[Random.Range(0, fourDir.Length)];
 
-            UIManager.Instance.InstantiateTower(_selectedTowerType, _worldGridPos, towerForward, _isUnitTower)
-                .Forget();
+            UIManager.Instance.InstantiateTower(_selectedTowerType, _worldGridPos, towerForward, _isUnitTower);
         }
     }
 }

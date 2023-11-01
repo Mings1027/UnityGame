@@ -7,6 +7,7 @@ namespace DataControl
 {
     public abstract class TowerData : ScriptableObject
     {
+        public bool IsUnitTower => isUnitTower;
         public bool IsMagicTower => isMagicTower;
         public TowerInfoData[] TowerLevels => towerLevels;
         public GameObject Tower => tower;
@@ -15,6 +16,7 @@ namespace DataControl
         public int TowerBuildCost => towerBuildCost;
         public int TowerUpgradeCost => towerUpgradeCost;
 
+        [SerializeField] private bool isUnitTower;
         [SerializeField] private bool isMagicTower;
         [SerializeField] private TowerInfoData[] towerLevels;
         [SerializeField] private GameObject tower;

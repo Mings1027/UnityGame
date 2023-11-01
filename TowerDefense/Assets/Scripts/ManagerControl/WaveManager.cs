@@ -5,6 +5,7 @@ using Cysharp.Threading.Tasks;
 using DataControl;
 using PoolObjectControl;
 using StatusControl;
+using UIControl;
 using UnitControl.EnemyControl;
 using UnityEngine;
 using UnityEngine.AI;
@@ -17,13 +18,14 @@ namespace ManagerControl
         private TowerManager _towerManager;
         private bool _startWave;
         private bool _isLastWave;
-        private sbyte _enemyLevel;  // Increase After Boss Wave
-        private byte enemyDataIndex;    // 
+        private bool isBossWave;
+        private sbyte _enemyLevel; // Increase After Boss Wave
+        private byte enemyDataIndex; // 
+        
         private CancellationTokenSource _cts;
         private List<EnemyUnit> _enemyUnits;
         private NavMeshSurface bossNavmesh;
 
-        public bool isBossWave { get; private set; }
         public event Action OnPlaceExpandButtonEvent;
         public event Action OnEndOfGameEvent;
 
@@ -84,7 +86,7 @@ namespace ManagerControl
 
         private void StartWave(ref Vector3[] wayPoints)
         {
-            _towerManager.enabled = true;
+            _towerManager.StartTargeting();
             UIManager.Instance.WaveText.text = _curWave.ToString();
             SpawnEnemy(wayPoints).Forget();
 
@@ -145,6 +147,7 @@ namespace ManagerControl
                 for (var i = 0; i < _enemyUnits.Count; i++)
                 {
                     _enemyUnits[i].Targeting();
+                    await UniTask.Delay(100, cancellationToken: _cts.Token);
                 }
             }
         }
@@ -157,6 +160,7 @@ namespace ManagerControl
                 for (var i = 0; i < _enemyUnits.Count; i++)
                 {
                     _enemyUnits[i].AttackAsync(_cts).Forget();
+                    await UniTask.Delay(100, cancellationToken: _cts.Token);
                 }
             }
         }
@@ -182,6 +186,7 @@ namespace ManagerControl
                             DecreaseEnemyCount(_enemyUnits[i]);
                         }
                     }
+                    await UniTask.Delay(100, cancellationToken: _cts.Token);
                 }
             }
         }
@@ -193,24 +198,27 @@ namespace ManagerControl
                 await UniTask.Delay(5000, cancellationToken: _cts.Token);
                 for (var i = 0; i < _enemyUnits.Count; i++)
                 {
-                    await UniTask.Delay(5000, cancellationToken: _cts.Token);
                     if (Vector3.Distance(_enemyUnits[i].prevPos, _enemyUnits[i].transform.position) <= 5)
                     {
-                        _enemyUnits[i].ResetNavmesh();
+                        print(_enemyUnits[i].name);
+                        print(_enemyUnits[i].transform.position);
+                        _enemyUnits[i].ResetNavmesh().Forget();
                     }
+
+                    await UniTask.Delay(3000, cancellationToken: _cts.Token);
                 }
             }
         }
 
         #endregion
 
-        private async UniTaskVoid SpawnBoss(Vector3[] wayPoints)
+        private async UniTaskVoid SpawnBoss(IReadOnlyList<Vector3> wayPoints)
         {
             await UniTask.Delay(5000, cancellationToken: _cts.Token);
             for (var i = 0; i < _enemyLevel; i++)
             {
                 await UniTask.Delay(100, cancellationToken: _cts.Token);
-                var ranPoint = wayPoints[Random.Range(0, wayPoints.Length)];
+                var ranPoint = wayPoints[Random.Range(0, wayPoints.Count)];
                 EnemyInit(ranPoint, bossData[0]);
             }
 
@@ -218,14 +226,14 @@ namespace ManagerControl
             _enemyLevel++;
         }
 
-        private async UniTaskVoid LastWave(Vector3[] wayPoints)
+        private async UniTaskVoid LastWave(IReadOnlyList<Vector3> wayPoints)
         {
             // 마지막 웨이브라고 알려주기
             await UniTask.Delay(5000, cancellationToken: _cts.Token);
-            for (var i = 0; i < wayPoints.Length; i++)
+            for (var i = 0; i < wayPoints.Count; i++)
             {
                 await UniTask.Delay(100, cancellationToken: _cts.Token);
-                var ranPoint = wayPoints[Random.Range(0, wayPoints.Length)];
+                var ranPoint = wayPoints[Random.Range(0, wayPoints.Count)];
                 EnemyInit(ranPoint, bossData[0]);
             }
         }
@@ -237,7 +245,7 @@ namespace ManagerControl
             if (_enemyUnits.Count > 0) return;
             _startWave = false;
             OnPlaceExpandButtonEvent?.Invoke();
-            _towerManager.enabled = false;
+            _towerManager.StopTargeting();
             enabled = false;
         }
     }

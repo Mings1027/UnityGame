@@ -18,6 +18,7 @@ namespace UIControl
         {
             _camArm = FindObjectOfType<CameraManager>();
             startButton.onClick.AddListener(StartGame);
+            _camArm.enabled = false;
         }
 
         private void Start()
