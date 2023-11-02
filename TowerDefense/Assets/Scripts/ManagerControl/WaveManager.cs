@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DataControl;
+using GameControl;
 using PoolObjectControl;
 using StatusControl;
 using UIControl;
@@ -13,9 +14,8 @@ using Random = UnityEngine.Random;
 
 namespace ManagerControl
 {
-    public class WaveManager : MonoBehaviour
+    public class WaveManager : Singleton<WaveManager>
     {
-        private TowerManager _towerManager;
         private bool _startWave;
         private bool _isLastWave;
         private bool isBossWave;
@@ -39,7 +39,6 @@ namespace ManagerControl
 
         private void Awake()
         {
-            _towerManager = FindObjectOfType<TowerManager>();
             _enemyLevel = 1;
             enemyDataIndex = 1;
             _enemyUnits = new List<EnemyUnit>();
@@ -86,7 +85,7 @@ namespace ManagerControl
 
         private void StartWave(ref Vector3[] wayPoints)
         {
-            _towerManager.StartTargeting();
+            TowerManager.Instance.StartTargeting();
             UIManager.Instance.WaveText.text = _curWave.ToString();
             SpawnEnemy(wayPoints).Forget();
 
@@ -245,7 +244,7 @@ namespace ManagerControl
             if (_enemyUnits.Count > 0) return;
             _startWave = false;
             OnPlaceExpandButtonEvent?.Invoke();
-            _towerManager.StopTargeting();
+            TowerManager.Instance.StopTargeting();
             enabled = false;
         }
     }

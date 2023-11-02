@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using GameControl;
 using PoolObjectControl;
 using TowerControl;
 using UnityEngine;
 
 namespace ManagerControl
 {
-    public class TowerManager : MonoBehaviour
+    public class TowerManager : Singleton<TowerManager>
     {
         private CancellationTokenSource _cts;
         private List<Tower> _towers;
@@ -22,13 +23,15 @@ namespace ManagerControl
 
         #region Unity Event
 
-        private void Awake()
+        protected override void Awake()
         {
+            base.Awake();
             _towers = new List<Tower>(50);
         }
 
-        private void Start()
+        protected override void Start()
         {
+            base.Start();
             IndicatorInit();
         }
 

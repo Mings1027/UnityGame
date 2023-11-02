@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace GameControl
@@ -21,17 +22,8 @@ namespace GameControl
     {
         public static string ToJson<TKey, TValue>(Dictionary<TKey, TValue> jsonDicData, bool pretty = false)
         {
-            var dataList = new List<DataDictionary<TKey, TValue>>();
-            DataDictionary<TKey, TValue> dictionaryData;
-            foreach (var key in jsonDicData.Keys)
-            {
-                dictionaryData = new DataDictionary<TKey, TValue>
-                {
-                    key = key,
-                    value = jsonDicData[key]
-                };
-                dataList.Add(dictionaryData);
-            }
+            var dataList = jsonDicData.Keys.Select(key => new DataDictionary<TKey, TValue>
+                { key = key, value = jsonDicData[key] }).ToList();
 
             var arrayJson = new JsonDataArray<TKey, TValue>
             {

@@ -57,6 +57,7 @@ namespace UnitControl.FriendlyControl
             _unitNavAI = GetComponent<UnitNavAI>();
             _unitNavAI.enabled = false;
             _navMeshAgent = GetComponent<NavMeshAgent>();
+            _navMeshAgent.enabled = false;
             _health = GetComponent<Health>();
             _targetCollider = new Collider[2];
             atkRange = _navMeshAgent.stoppingDistance;

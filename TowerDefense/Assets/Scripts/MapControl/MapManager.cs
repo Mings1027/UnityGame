@@ -14,7 +14,6 @@ namespace MapControl
 {
     public class MapManager : MonoBehaviour
     {
-        private WaveManager _waveManager;
         private MeshFilter _meshFilter;
         private MeshRenderer _meshRenderer;
         private MeshFilter _obstacleMeshFilter;
@@ -68,7 +67,6 @@ namespace MapControl
 
         private void Awake()
         {
-            _waveManager = FindObjectOfType<WaveManager>();
             ComponentInit();
             MapDataInit();
         }
@@ -194,9 +192,9 @@ namespace MapControl
             AddRandomConnection();
 
             PlaceNewMap();
-            
+
             _newMapObject.TryGetComponent(out MapData mapData);
-            
+
             SetNewMapForward(mapData);
 
             RemovePoints(mapData);
@@ -204,20 +202,20 @@ namespace MapControl
             SetWayPoints();
 
             PlaceObstacle(mapData);
-            
+
             SetMap().Forget();
         }
 
         private async UniTaskVoid SetMap()
         {
             await _newMapObject.transform.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack);
-            
+
             CombineMesh();
 
             CombineObstacleMesh();
 
             _navMeshSurface.BuildNavMesh();
-            _waveManager.WaveInit(_wayPointsHashSet.ToArray());
+            WaveManager.Instance.WaveInit(_wayPointsHashSet.ToArray());
         }
 
         private void InitConnectionState()
@@ -394,7 +392,7 @@ namespace MapControl
             if (_wayPointsHashSet.Count == 0)
             {
                 ExpandMap(_newMapPosition);
-                print("00000000000000000");
+                // print("00000000000000000");
             }
 #endif
         }
@@ -457,11 +455,6 @@ namespace MapControl
                     Destroy(meshRenderer);
                 }
             }
-// #if UNITY_EDITOR
-//             const string path = "Assets/Meshes/Map.asset";
-//             AssetDatabase.CreateAsset(_meshFilter.mesh, AssetDatabase.GenerateUniqueAssetPath(path));
-//             AssetDatabase.SaveAssets();
-// #endif
         }
 
         private void CombineObstacleMesh()
