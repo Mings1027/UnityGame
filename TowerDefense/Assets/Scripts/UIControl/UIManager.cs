@@ -14,6 +14,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace UIControl
@@ -39,6 +40,7 @@ namespace UIControl
         private UnitTower _curUnitTower;
 
         private Image _toggleTowerBtnImage;
+        private Image[] _speedButtons;
 
         private TMP_Text[] _damageTextList;
         private TMP_Text[] _towerCostTexts;
@@ -116,7 +118,6 @@ namespace UIControl
 
         [SerializeField] private TextMeshProUGUI costText;
         [SerializeField] private TextMeshProUGUI waveText;
-        [SerializeField] private TextMeshProUGUI speedUpText;
 
         [SerializeField, Range(0, 1)] private float camZoomTime;
 
@@ -279,8 +280,6 @@ namespace UIControl
             _curTimeScale = 1;
             TowerCost = _towerCost;
 
-            speedUpText.text = "x1";
-
             pauseButton.onClick.AddListener(() =>
             {
                 SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
@@ -313,6 +312,13 @@ namespace UIControl
                 SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
                 _changeLanguageSequence.Restart();
             });
+
+            _speedButtons = new Image[speedUpButton.transform.childCount];
+            for (int i = 0; i < _speedButtons.Length; i++)
+            {
+                _speedButtons[i] = speedUpButton.transform.GetChild(i).GetComponent<Image>();
+            }
+
             for (var i = 0; i < languageButtons.childCount; i++)
             {
                 var index = i;
@@ -643,7 +649,14 @@ namespace UIControl
         {
             _curTimeScale = (byte)(_curTimeScale % 3 + 1);
             Time.timeScale = _curTimeScale;
-            speedUpText.text = $"x{_curTimeScale}";
+            for (int i = 0; i < 3; i++)
+            {
+                _speedButtons[i].enabled = false;
+                if (i < _curTimeScale)
+                {
+                    _speedButtons[i].enabled = true;
+                }
+            }
         }
     }
 }
