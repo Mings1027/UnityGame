@@ -33,7 +33,6 @@ RectTransform:
   - {fileID: 1762952753243521493}
   - {fileID: 1762952753819011470}
   m_Father: {fileID: 0}
-  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -90,6 +89,7 @@ MonoBehaviour:
   _emitOnSurface: 1
   _emitterThickness: 0
   _loop: 0
+  _prewarm: 0
   _duration: 1
   _playMode: 1
   _startSize:
@@ -1198,8 +1198,8 @@ MonoBehaviour:
   _bursts:
   - time: 0
     count: 5
-    used: 0
-  _trailRenderer: {fileID: 0}
+    used: 1
+  _particleTrailRenderer: {fileID: 0}
   _trailModule:
     enabled: 0
   _trailWidth:
@@ -1367,12 +1367,16 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     m_ColorMin: {r: 0, g: 0, b: 0, a: 1}
     m_ColorMax: {r: 1, g: 1, b: 1, a: 1}
+  _trailMaterial: {fileID: 0}
   _inheritParticleColor: 0
   _dieWithParticle: 0
   _trailRatio: 1
-  _noiseOctaves: 1
+  _noiseOffset: {x: 0, y: 0}
   _noiseFrequency: 1
   _noiseStrength: 1
+  _multithreadModule:
+    enabled: 0
+  _multithreadEnabled: 0
   _onStart:
     m_PersistentCalls:
       m_Calls: []
@@ -1392,6 +1396,7 @@ MonoBehaviour:
   moduleParticleFoldout: 1
   moduleMovementFoldout: 1
   moduleEventsFoldout: 0
+  moduleAdvancedFoldout: 0
   m_Texture: {fileID: 2800000, guid: f19f9cbd444e942b296767ac39539f8f, type: 3}
 --- !u!1 &1762952753243521488
 GameObject:
@@ -1424,7 +1429,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1762952752276261650}
-  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -1479,6 +1483,7 @@ MonoBehaviour:
   _emitOnSurface: 1
   _emitterThickness: 0
   _loop: 0
+  _prewarm: 0
   _duration: 1
   _playMode: 1
   _startSize:
@@ -2587,8 +2592,8 @@ MonoBehaviour:
   _bursts:
   - time: 0
     count: 5
-    used: 0
-  _trailRenderer: {fileID: 0}
+    used: 1
+  _particleTrailRenderer: {fileID: 0}
   _trailModule:
     enabled: 0
   _trailWidth:
@@ -2756,12 +2761,16 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     m_ColorMin: {r: 0, g: 0, b: 0, a: 1}
     m_ColorMax: {r: 1, g: 1, b: 1, a: 1}
+  _trailMaterial: {fileID: 0}
   _inheritParticleColor: 0
   _dieWithParticle: 0
   _trailRatio: 1
-  _noiseOctaves: 1
+  _noiseOffset: {x: 0, y: 0}
   _noiseFrequency: 1
   _noiseStrength: 1
+  _multithreadModule:
+    enabled: 0
+  _multithreadEnabled: 0
   _onStart:
     m_PersistentCalls:
       m_Calls: []
@@ -2781,6 +2790,7 @@ MonoBehaviour:
   moduleParticleFoldout: 1
   moduleMovementFoldout: 1
   moduleEventsFoldout: 0
+  moduleAdvancedFoldout: 0
   m_Texture: {fileID: 2800000, guid: 13621c03ddb854c829964bd9d2e1def5, type: 3}
 --- !u!1 &1762952753819011471
 GameObject:
@@ -2813,7 +2823,6 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1762952752276261650}
-  m_RootOrder: -1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -2869,6 +2878,7 @@ MonoBehaviour:
   _emitOnSurface: 1
   _emitterThickness: 0
   _loop: 0
+  _prewarm: 0
   _duration: 1
   _playMode: 1
   _startSize:
@@ -4004,8 +4014,8 @@ MonoBehaviour:
   _bursts:
   - time: 0
     count: 1
-    used: 0
-  _trailRenderer: {fileID: 0}
+    used: 1
+  _particleTrailRenderer: {fileID: 0}
   _trailModule:
     enabled: 0
   _trailWidth:
@@ -4173,12 +4183,16 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     m_ColorMin: {r: 0, g: 0, b: 0, a: 1}
     m_ColorMax: {r: 1, g: 1, b: 1, a: 1}
+  _trailMaterial: {fileID: 0}
   _inheritParticleColor: 0
   _dieWithParticle: 0
   _trailRatio: 1
-  _noiseOctaves: 1
+  _noiseOffset: {x: 0, y: 0}
   _noiseFrequency: 20
   _noiseStrength: 3
+  _multithreadModule:
+    enabled: 0
+  _multithreadEnabled: 0
   _onStart:
     m_PersistentCalls:
       m_Calls: []
@@ -4198,4 +4212,5 @@ MonoBehaviour:
   moduleParticleFoldout: 1
   moduleMovementFoldout: 1
   moduleEventsFoldout: 0
+  moduleAdvancedFoldout: 0
   m_Texture: {fileID: 2800000, guid: 2eda31c38b4c64cd6a4076f1f4c50dee, type: 3}

@@ -25,7 +25,7 @@ Welcome to Particle Image, and thank you for your purchase! Particle Image is a 
 
 If you upgraded Particle Image from version 1.0.0 to 1.1.0, you might have encountered an issue with script references for your particles because of source code inclusion. However, don't worry, the tool located in Tools > AssetKits > Particle Resolver can easily resolve this problem for you.
 
-### Support:
+c
 If you need assistance, have questions, or encounter any issues with Particle Image, we recommend checking out our comprehensive documentation at https://doc.assetkits.io for detailed information and helpful guidance. If you still require support, feel free to reach out to us through these channels:
 
 - Discord: https://discord.gg/9teQzpCkJa
@@ -33,3 +33,8 @@ If you need assistance, have questions, or encounter any issues with Particle Im
 - Email: support@assetkits.io
 
 We will be happy to provide any help!
+
+### Special Thanks:
+
+- Thize: https://github.com/thize
+- salty3: https://github.com/salty3
