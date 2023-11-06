@@ -28,6 +28,7 @@ namespace UnitControl.EnemyControl
         private float atkRange;
 
         public Vector3 prevPos { get; private set; }
+        public event Action OnArrivedBaseTower;
 
         private static readonly int IsWalk = Animator.StringToHash("isWalk");
         private static readonly int IsAttack = Animator.StringToHash("isAttack");
@@ -56,6 +57,20 @@ namespace UnitControl.EnemyControl
             enemyHealth.OnDeadEvent += DeadAnimation;
         }
 
+        private void OnTriggerEnter(Collider other)
+        {
+            if (other.CompareTag("BaseTower"))
+            {
+                StatusInit();
+                OnArrivedBaseTower?.Invoke();
+                gameObject.SetActive(false);
+            }
+        }
+
+        private void OnDisable()
+        {
+            OnArrivedBaseTower = null;
+        }
 #if UNITY_EDITOR
         private void OnDrawGizmos()
         {
@@ -114,8 +129,6 @@ namespace UnitControl.EnemyControl
                 damageable.Damage(_damage);
             }
         }
-
-        public bool IsArrived() => Vector3.Distance(transform.position, Vector3.zero) <= atkRange;
 
         public void SetAnimationSpeed(float animSpeed)
         {

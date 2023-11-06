@@ -1,6 +1,8 @@
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using UIControl;
 using UnityEngine;
 
 namespace ManagerControl
@@ -13,24 +15,24 @@ namespace ManagerControl
         private float _lerp;
         private float _modifiedMoveSpeed;
 
+        private bool isMoving;
         private bool isRotating;
         private Touch _firstTouch, _secondTouch;
         private Vector3 _curPos, _newPos;
 
-        // private ParticleSystemRenderer _particleSystemRenderer;
-
         [SerializeField] private float rotationSpeed;
         [SerializeField] private float zoomSpeed;
+        [SerializeField] private float decreaseMoveSpeed;
 
         [SerializeField] private Vector2Int camSizeMinMax;
         [SerializeField] private Vector2Int camPosLimit;
+        [SerializeField] private Vector3 minCamPos;
+        [SerializeField] private Vector3 maxCamPos;
 
-        // [SerializeField] private ParticleSystem cloudParticle;
 
         private void Awake()
         {
             _cam = Camera.main;
-            // _particleSystemRenderer = cloudParticle.GetComponent<ParticleSystemRenderer>();
         }
 
         private void Start()
@@ -41,23 +43,23 @@ namespace ManagerControl
             _cam.orthographic = true;
         }
 
+        private void OnEnable()
+        {
+            _modifiedMoveSpeed = _cam.orthographicSize / 20;
+        }
+
         private void LateUpdate()
         {
             if (Input.touchCount <= 0) return;
-
-            if (Input.touchCount == 1)
-            {
-                if (isRotating) return;
-                CameraRotate();
-            }
+            CameraMovement();
 
             if (Input.touchCount == 2)
             {
                 _firstTouch = Input.GetTouch(0);
                 _secondTouch = Input.GetTouch(1);
-
-                CameraMovement();
                 CameraZoom();
+                if (isRotating) return;
+                CameraRotate();
             }
         }
 
@@ -76,22 +78,29 @@ namespace ManagerControl
 
         private void CameraMovement()
         {
-            if (_firstTouch.phase == TouchPhase.Moved || _secondTouch.phase == TouchPhase.Moved)
+            if (Input.touchCount == 1)
             {
-                CamMove();
-            }
-            else if (_firstTouch.phase == TouchPhase.Ended || _secondTouch.phase == TouchPhase.Ended)
-            {
-                MovingAsync().Forget();
+                _firstTouch = Input.GetTouch(0);
+
+                if (_firstTouch.phase == TouchPhase.Moved)
+                {
+                    isMoving = true;
+                    CamMove(_modifiedMoveSpeed);
+                }
+
+                else if (isMoving && _firstTouch.phase == TouchPhase.Ended)
+                {
+                    MovingAsync().Forget();
+                }
             }
         }
 
-        private void CamMove()
+        private void CamMove(float speed)
         {
-            var pos = (_firstTouch.deltaPosition + _secondTouch.deltaPosition) * 0.5f;
+            var pos = _firstTouch.deltaPosition * 0.5f;
             var t = transform;
-            _curPos = t.right * (-_modifiedMoveSpeed * pos.x);
-            _curPos += t.forward * (pos.y * -_modifiedMoveSpeed);
+            _curPos = t.right * (-speed * pos.x);
+            _curPos += t.forward * (pos.y * -speed);
             _curPos.y = 0;
             _newPos = t.position + _curPos * Time.deltaTime;
 
@@ -103,25 +112,28 @@ namespace ManagerControl
 
         private async UniTaskVoid MovingAsync()
         {
-            _lerp = 0;
-            while (_lerp < 1)
+            if (_firstTouch.deltaPosition.Equals(Vector2.zero)) return;
+            var decreaseSpeed = _modifiedMoveSpeed;
+            while (decreaseSpeed > 0)
             {
-                _lerp += Time.deltaTime * _modifiedMoveSpeed;
-                CamMove();
-                await UniTask.Yield(cancellationToken: _cts.Token);
+                decreaseSpeed -= Time.deltaTime * decreaseMoveSpeed;
+                CamMove(decreaseSpeed);
+                await UniTask.Yield();
             }
+
+            isMoving = false;
         }
 
         private void CameraRotate()
         {
-            _firstTouch = Input.GetTouch(0);
-            if (_firstTouch.phase == TouchPhase.Moved)
+            if (_firstTouch.phase == TouchPhase.Moved && _secondTouch.phase == TouchPhase.Moved)
             {
                 var t = transform;
-                t.Rotate(new Vector3(0.0f, _firstTouch.deltaPosition.x * rotationSpeed, 0.0f));
+                var rotSpeed = _firstTouch.position.y > Screen.height * 0.5f ? -rotationSpeed : rotationSpeed;
+                t.Rotate(new Vector3(0.0f, _firstTouch.deltaPosition.x * rotSpeed, 0.0f));
                 transform.rotation = Quaternion.Euler(0.0f, t.rotation.eulerAngles.y, 0.0f);
             }
-            else if (_firstTouch.phase == TouchPhase.Ended)
+            else if (_firstTouch.phase == TouchPhase.Ended || _secondTouch.phase == TouchPhase.Ended)
             {
                 isRotating = true;
                 transform.DORotate(SnappedVector(), 0.5f)
@@ -149,9 +161,6 @@ namespace ManagerControl
 
         private void CameraZoom()
         {
-            _firstTouch = Input.GetTouch(0);
-            _secondTouch = Input.GetTouch(1);
-
             var firstTouchPrevPos = _firstTouch.position - _firstTouch.deltaPosition;
             var secondTouchPrevPos = _secondTouch.position - _secondTouch.deltaPosition;
 
@@ -162,11 +171,22 @@ namespace ManagerControl
 
             var sizeChange = touchPrevPosDiff > touchCurPosDiff ? zoomModifier : -zoomModifier;
 
-            _cam.orthographicSize = Mathf.Clamp(_cam.orthographicSize + sizeChange, camSizeMinMax.x, camSizeMinMax.y);
+            var orthographicSize = Mathf.Clamp(_cam.orthographicSize + sizeChange, camSizeMinMax.x, camSizeMinMax.y);
+            _cam.orthographicSize = orthographicSize;
 
-            _modifiedMoveSpeed = _cam.orthographicSize / 20;
+            _modifiedMoveSpeed = orthographicSize / 20;
 
-            // _particleSystemRenderer.enabled = _cam.orthographicSize > 15;
+            var t = Mathf.InverseLerp(25, camSizeMinMax.y, orthographicSize);
+            var newCamPos = Vector3.Lerp(minCamPos, maxCamPos, t);
+            _cam.transform.localPosition = newCamPos;
         }
+
+#if UNITY_EDITOR
+
+        private void SetZoomAndOffset()
+        {
+            
+        }
+#endif
     }
 }

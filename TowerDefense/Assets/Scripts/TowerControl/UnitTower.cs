@@ -82,7 +82,7 @@ namespace TowerControl
         {
             for (var i = 0; i < _units.Count; i++)
             {
-                _units[i].Indicator.enabled = true;
+                _units[i].outline.enabled = true;
             }
         }
 
@@ -90,7 +90,7 @@ namespace TowerControl
         {
             for (var i = 0; i < _units.Count; i++)
             {
-                _units[i].Indicator.enabled = false;
+                _units[i].outline.enabled = false;
             }
         }
 
@@ -162,6 +162,7 @@ namespace TowerControl
             if (_units.Count > 0) return;
 
             _isUnitSpawn = false;
+            if (_isReSpawning) return;
             UnitReSpawnAsync().Forget();
         }
 

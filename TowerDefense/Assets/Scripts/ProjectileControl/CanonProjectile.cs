@@ -25,7 +25,7 @@ namespace ProjectileControl
             _isLockOnTarget = false;
         }
 
-        protected override void FixedUpdate()
+        protected override void Update()
         {
             if (!_isLockOnTarget && lerp >= 0.5f)
             {

@@ -18,7 +18,7 @@ namespace ManagerControl
         [Header("----------Indicator----------"), SerializeField]
         private MeshRenderer rangeIndicator;
 
-        [SerializeField] private MeshRenderer selectedTowerIndicator;
+        // [SerializeField] private MeshRenderer selectedTowerIndicator;
         [SerializeField] private MeshRenderer unitDestinationIndicator;
 
         #region Unity Event
@@ -43,7 +43,7 @@ namespace ManagerControl
         {
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
-
+            Application.targetFrameRate = 60;
             TargetingAsync().Forget();
             AttackAsync().Forget();
         }
@@ -53,6 +53,7 @@ namespace ManagerControl
             _cts?.Cancel();
 
             TargetInit();
+            SlowDownFrameRate().Forget();
             PoolObjectManager.PoolCleaner().Forget();
         }
 
@@ -64,7 +65,7 @@ namespace ManagerControl
                 for (var i = 0; i < _towers.Count; i++)
                 {
                     _towers[i].TowerTargeting();
-                    await UniTask.Delay(100, cancellationToken: _cts.Token);
+                    // await UniTask.Delay(10, cancellationToken: _cts.Token);
                 }
             }
         }
@@ -77,7 +78,7 @@ namespace ManagerControl
                 for (var i = 0; i < _towers.Count; i++)
                 {
                     _towers[i].TowerAttackAsync(_cts);
-                    await UniTask.Delay(10, cancellationToken: _cts.Token);
+                    // await UniTask.Delay(10, cancellationToken: _cts.Token);
                 }
             }
         }
@@ -90,12 +91,22 @@ namespace ManagerControl
             }
         }
 
+        private async UniTaskVoid SlowDownFrameRate()
+        {
+            var frameRate = 60;
+            while (frameRate > 30)
+            {
+                frameRate -= 1;
+                Application.targetFrameRate = frameRate;
+                await UniTask.Yield();
+            }
+        }
+
         #endregion
 
         private void IndicatorInit()
         {
             rangeIndicator.transform.localScale = Vector3.zero;
-            selectedTowerIndicator.enabled = false;
             unitDestinationIndicator.enabled = false;
         }
 
@@ -114,8 +125,6 @@ namespace ManagerControl
         public void SetIndicator(Tower curSelectedTower)
         {
             var curTowerPos = curSelectedTower.transform.position;
-            selectedTowerIndicator.transform.position = curTowerPos;
-            selectedTowerIndicator.enabled = true;
 
             var r = rangeIndicator.transform;
             r.DOScale(new Vector3(curSelectedTower.TowerRange, 0.5f, curSelectedTower.TowerRange), 0.15f)
@@ -126,11 +135,6 @@ namespace ManagerControl
         public void OffIndicator()
         {
             rangeIndicator.transform.DOScale(0, 0.2f).SetEase(Ease.InBack);
-
-            if (selectedTowerIndicator.enabled)
-            {
-                selectedTowerIndicator.enabled = false;
-            }
         }
 
         public async UniTaskVoid StartMoveUnit(UnitTower unitTower, Vector3 pos)

@@ -27,6 +27,7 @@ namespace MapControl
 
         public void OnPointerUp(PointerEventData eventData)
         {
+            if (!Input.GetTouch(0).deltaPosition.Equals(Vector2.zero)) return;
             OnExpandMapEvent?.Invoke(transform.position);
             SoundManager.Instance.PlayBGM(SoundEnum.WaveStart);
         }

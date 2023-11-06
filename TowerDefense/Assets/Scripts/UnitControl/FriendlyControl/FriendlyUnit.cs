@@ -3,6 +3,7 @@ using System.Threading;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using EPOOutline;
 using InterfaceControl;
 using ManagerControl;
 using StatusControl;
@@ -40,17 +41,18 @@ namespace UnitControl.FriendlyControl
         private static readonly int IsWalk = Animator.StringToHash("isWalk");
         private static readonly int IsAttack = Animator.StringToHash("isAttack");
 
-        [SerializeField] private MeshRenderer indicator;
+        public Outlinable outline { get; private set; }
+
         [SerializeField] private LayerMask targetLayer;
         private float atkRange;
         [SerializeField] private float sightRange;
-
-        public MeshRenderer Indicator => indicator;
 
         #region Unity Event
 
         private void Awake()
         {
+            outline = GetComponent<Outlinable>();
+            outline.enabled = false;
             childMeshTransform = transform.GetChild(0);
             _audioSource = GetComponent<AudioSource>();
             _anim = GetComponentInChildren<Animator>();
@@ -67,7 +69,6 @@ namespace UnitControl.FriendlyControl
         {
             UnitTargetInit();
             _health.OnDeadEvent += DeadAnimation;
-            indicator.enabled = false;
         }
 
         private void OnDisable()
@@ -203,6 +204,8 @@ namespace UnitControl.FriendlyControl
 
         public void OnPointerUp(PointerEventData eventData)
         {
+            if (!Input.GetTouch(0).deltaPosition.Equals(Vector2.zero)) return;
+            if (Input.touchCount > 1) return;
             _parentTower.OnPointerUp(null);
         }
     }

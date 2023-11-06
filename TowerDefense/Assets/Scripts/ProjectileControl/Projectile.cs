@@ -24,9 +24,7 @@ namespace ProjectileControl
         public Collider target { get; private set; }
 
         [SerializeField] private TargetingTowerData towerData;
-
         [SerializeField, Range(0, 50)] private float height;
-
         [SerializeField] private float speed;
 
         protected virtual void Awake()
@@ -47,14 +45,14 @@ namespace ProjectileControl
             _isArrived = false;
         }
 
-        protected virtual void FixedUpdate()
+        protected virtual void Update()
         {
             ProjectilePath(target.bounds.center);
         }
 
         private void LateUpdate()
         {
-            if (_isArrived && _hitParticle.isStopped)
+            if (_isArrived && _trailParticle.isStopped)
             {
                 gameObject.SetActive(false);
             }

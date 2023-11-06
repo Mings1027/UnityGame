@@ -1,32 +1,31 @@
-using System;
-using DataControl;
-using TestControl;
 using TMPro;
-using TowerControl;
 using UnityEngine;
 
-public enum Path
+namespace TestControl
 {
-    TowerName,
-    TowerInfo,
-    NumberText
-}
-
-public class TestController : MonoBehaviour
-{
-    private TMP_Text _tmpText;
-    [SerializeField] private Path path;
-
-    private void Awake()
+    public enum Path
     {
-        _tmpText = GetComponent<TMP_Text>();
+        TowerName,
+        TowerInfo,
+        NumberText
     }
 
-    private void UpdateText()
+    public class TestController : MonoBehaviour
     {
-        if (path == Path.TowerName)
+        private TMP_Text _tmpText;
+        [SerializeField] private Path path;
+
+        private void Awake()
         {
+            _tmpText = GetComponent<TMP_Text>();
+        }
+
+        private void UpdateText()
+        {
+            if (path == Path.TowerName)
+            {
             
+            }
         }
     }
 }

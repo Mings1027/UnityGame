@@ -216,7 +216,9 @@ namespace PoolObjectControl
             if (poolStack.Count <= 0)
             {
                 _poolDictionary.TryGetValue(poolObjKey, out var pool);
+#if UNITY_EDITOR
                 if (pool == null) throw new Exception($"Pool with tag {poolObjKey} doesn't exist.");
+#endif
                 CreateNewObject(poolObjKey, pool.prefab);
             }
 
@@ -228,13 +230,17 @@ namespace PoolObjectControl
 
         private GameObject Spawn(EnemyPoolObjectKey enemyPoolObjectKey, Vector3 position, Quaternion rotation)
         {
+#if UNITY_EDITOR
             if (!_enemyPrefabDictionary.ContainsKey(enemyPoolObjectKey))
                 throw new Exception($"Pool with tag {enemyPoolObjectKey} doesn't exist.");
+#endif
             var enemyPoolStack = _enemyPrefabDictionary[enemyPoolObjectKey];
             if (enemyPoolStack.Count <= 0)
             {
                 _enemyPoolDictionary.TryGetValue(enemyPoolObjectKey, out var enemyPool);
+#if UNITY_EDITOR
                 if (enemyPool == null) throw new Exception($"Pool with tag {enemyPoolObjectKey} doesn't exist.");
+#endif
                 CreateNewObject(enemyPoolObjectKey, enemyPool.enemyPrefab);
             }
 

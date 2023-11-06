@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DataControl;
 using GameControl;
@@ -21,13 +22,14 @@ namespace ManagerControl
         private bool isBossWave;
         private sbyte _enemyLevel; // Increase After Boss Wave
         private byte enemyDataIndex; // 
-        
+
         private CancellationTokenSource _cts;
         private List<EnemyUnit> _enemyUnits;
+        private Dictionary<EnemyUnit, HealthBar> enemyHealthBarDic;
         private NavMeshSurface bossNavmesh;
 
         public event Action OnPlaceExpandButtonEvent;
-        public event Action OnEndOfGameEvent;
+        // public event Action OnEndOfGameEvent;
 
         [SerializeField, Range(0, 255)] private byte _curWave;
         [SerializeField] private byte lastWave;
@@ -37,11 +39,12 @@ namespace ManagerControl
 
         #region Unity Event
 
-        private void Awake()
+        protected override void Awake()
         {
             _enemyLevel = 1;
             enemyDataIndex = 1;
             _enemyUnits = new List<EnemyUnit>();
+            enemyHealthBarDic = new Dictionary<EnemyUnit, HealthBar>();
             bossNavmesh = GetComponent<NavMeshSurface>();
             // var enemyDataGuids = AssetDatabase.FindAssets("t: EnemyData", new[] { "Assets/EnemyData" });
             // enemiesData = new EnemyData[enemyDataGuids.Length];
@@ -57,6 +60,10 @@ namespace ManagerControl
         {
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
+        }
+
+        private void Update()
+        {
         }
 
         private void OnDisable()
@@ -127,6 +134,7 @@ namespace ManagerControl
             var enemyUnit = PoolObjectManager.Get<EnemyUnit>(enemyData.EnemyKey, wayPoint);
             _enemyUnits.Add(enemyUnit);
             enemyUnit.Init(enemyData);
+            enemyUnit.OnArrivedBaseTower += () => UIManager.Instance.BaseTowerHealth.Damage(1);
             enemyUnit.TryGetComponent(out Health enemyHealth);
             enemyHealth.Init(enemyData.Health * _enemyLevel);
             enemyHealth.OnDeadEvent += () => UIManager.Instance.TowerCost += enemyData.EnemyCoin * _enemyLevel;
@@ -171,20 +179,11 @@ namespace ManagerControl
                 await UniTask.Delay(100, cancellationToken: _cts.Token);
                 for (var i = 0; i < _enemyUnits.Count; i++)
                 {
-                    if (_enemyUnits[i].IsArrived())
+                    if (!_enemyUnits[i].gameObject.activeSelf)
                     {
-                        _enemyUnits[i].gameObject.SetActive(false);
-                        _enemyUnits[i].StatusInit();
-                        UIManager.Instance.BaseTowerHealth.Damage(1);
                         DecreaseEnemyCount(_enemyUnits[i]);
                     }
-                    else
-                    {
-                        if (!_enemyUnits[i].gameObject.activeSelf)
-                        {
-                            DecreaseEnemyCount(_enemyUnits[i]);
-                        }
-                    }
+
                     await UniTask.Delay(100, cancellationToken: _cts.Token);
                 }
             }
@@ -199,8 +198,6 @@ namespace ManagerControl
                 {
                     if (Vector3.Distance(_enemyUnits[i].prevPos, _enemyUnits[i].transform.position) <= 5)
                     {
-                        print(_enemyUnits[i].name);
-                        print(_enemyUnits[i].transform.position);
                         _enemyUnits[i].ResetNavmesh().Forget();
                     }
 
@@ -245,6 +242,7 @@ namespace ManagerControl
             _startWave = false;
             OnPlaceExpandButtonEvent?.Invoke();
             TowerManager.Instance.StopTargeting();
+            SoundManager.Instance.PlayBGM(SoundEnum.WaveEnd);
             enabled = false;
         }
     }

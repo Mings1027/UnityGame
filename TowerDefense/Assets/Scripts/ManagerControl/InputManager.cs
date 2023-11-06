@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace ManagerControl
 {
-    public class InputManager : Singleton<InputManager>
+    public class InputManager : MonoBehaviour
     {
         private CameraManager _cameraManager;
         private Camera _cam;
@@ -28,9 +28,8 @@ namespace ManagerControl
         [SerializeField] private LayerMask groundLayer;
         [SerializeField] private Color[] cubeColor;
 
-        protected override void Awake()
+        protected void Awake()
         {
-            base.Awake();
             _cameraManager = FindObjectOfType<CameraManager>();
             _cam = Camera.main;
             _cursorMeshRenderer = cubeCursor.GetComponentInChildren<MeshRenderer>();
@@ -44,10 +43,10 @@ namespace ManagerControl
             };
             for (var i = 0; i < _checkDir.Length; i++)
             {
-                _checkDir[i] = _checkDir[i] * 2 + Vector3.up;
+                _checkDir[i] *= 2;
             }
 
-            fourDir = new[] { Vector3.back, Vector3.forward, Vector3.left, Vector3.right };
+            fourDir = new[] { Vector3.forward, Vector3.back, Vector3.left, Vector3.right };
             for (var i = 0; i < fourDir.Length; i++)
             {
                 fourDir[i] *= 2;
@@ -181,7 +180,7 @@ namespace ManagerControl
             if (!_isUnitTower) return true;
             for (var i = 0; i < _checkDir.Length; i++)
             {
-                if (!Physics.Raycast(_cursorChild.position + _checkDir[i], Vector3.down,
+                if (!Physics.Raycast(_cursorChild.position + _checkDir[i] + Vector3.up, Vector3.down,
                         out _hit, 10)) continue;
                 if (_hit.collider.CompareTag("Ground"))
                 {
@@ -200,15 +199,15 @@ namespace ManagerControl
             var foundGround = false;
             for (var i = 0; i < 4; i++)
             {
-                var ray = new Ray(_worldGridPos + fourDir[i] + Vector3.up, Vector3.down);
+                var ray = new Ray(_worldGridPos + _checkDir[i] + Vector3.up, Vector3.down);
                 Physics.Raycast(ray, out var hit, 2);
                 if (!hit.collider || !hit.collider.CompareTag("Ground")) continue;
                 foundGround = true;
-                towerForward = -fourDir[i];
+                towerForward = -_checkDir[i];
                 break;
             }
 
-            if (!foundGround) towerForward = fourDir[Random.Range(0, fourDir.Length)];
+            if (!foundGround) towerForward = _checkDir[Random.Range(0, 4)];
 
             UIManager.Instance.InstantiateTower(_selectedTowerType, _worldGridPos, towerForward, _isUnitTower);
         }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using CustomEnumControl;
@@ -73,11 +74,12 @@ namespace MapControl
 
         private void Start()
         {
-            FindObjectOfType<WaveManager>().OnPlaceExpandButtonEvent += PlaceExpandButtons;
-
-            UIManager.Instance.GetComponentInChildren<MainMenuUIController>()
-                .OnGenerateInitMapEvent += GenerateInitMap;
+            WaveManager.Instance.OnPlaceExpandButtonEvent += PlaceExpandButtons;
             PlaceStartMap();
+            
+            InitExpandButtonPosition();
+            PlaceExpandButtons();
+            // GenerateAutoMap().Forget();
         }
 #if UNITY_EDITOR
         private void OnDrawGizmos()
@@ -157,12 +159,6 @@ namespace MapControl
             PlaceObstacle(mapData);
             _map.Add(_newMapObject);
             _navMeshSurface.BuildNavMesh();
-        }
-
-        private void GenerateInitMap()
-        {
-            InitExpandButtonPosition();
-            PlaceExpandButtons();
         }
 
         private void InitExpandButtonPosition()
@@ -413,8 +409,6 @@ namespace MapControl
         //Call When Wave is over
         private void PlaceExpandButtons()
         {
-            SoundManager.Instance.PlayBGM(SoundEnum.WaveEnd);
-
             foreach (var pos in _expandBtnPosHashSet)
                 _expandButtons.Add(PoolObjectManager.Get<ExpandMapButton>(PoolObjectKey.ExpandButton, pos));
 
@@ -513,9 +507,6 @@ namespace MapControl
         //  When test random map
         private async UniTaskVoid GenerateAutoMap()
         {
-            InitExpandButtonPosition();
-            PlaceExpandButtons();
-
             while (mapCount > _map.Count)
             {
                 var index = 0;

@@ -43,6 +43,7 @@ GameObject:
   - component: {fileID: 8072945695537326374}
   - component: {fileID: 5717694360263837742}
   - component: {fileID: 496075680959278565}
+  - component: {fileID: 823056136998815193}
   m_Layer: 3
   m_Name: BallistaTower
   m_TagString: Tower
@@ -64,7 +65,6 @@ Transform:
   m_Children:
   - {fileID: 699823970565392209}
   - {fileID: 2622994195207723193}
-  - {fileID: 6187485061199330306}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -196,6 +196,79 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &823056136998815193
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6197179999279106558}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fe91dc294731a9428c0941ea7579110, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  complexMaskingMode: 0
+  drawingMode: 1
+  outlineLayer: 0
+  outlineTargets:
+  - IsVisible: 1
+    CutoutMask: 8
+    edgeDilateAmount: 5
+    frontEdgeDilateAmount: 5
+    backEdgeDilateAmount: 5
+    renderer: {fileID: 1172294129873033871}
+    SubmeshIndex: 0
+    BoundsMode: 0
+    Bounds:
+      m_Center: {x: 0, y: 0, z: 0}
+      m_Extent: {x: 0.5, y: 0.5, z: 0.5}
+    CutoutThreshold: 0.5
+    CullMode: 2
+    cutoutTextureName: 
+    DilateRenderingMode: 0
+    cutoutTextureIndex: 0
+  - IsVisible: 1
+    CutoutMask: 8
+    edgeDilateAmount: 5
+    frontEdgeDilateAmount: 5
+    backEdgeDilateAmount: 5
+    renderer: {fileID: 4437217916513256807}
+    SubmeshIndex: 0
+    BoundsMode: 0
+    Bounds:
+      m_Center: {x: 0, y: 0, z: 0}
+      m_Extent: {x: 0.5, y: 0.5, z: 0.5}
+    CutoutThreshold: 0.5
+    CullMode: 2
+    cutoutTextureName: 
+    DilateRenderingMode: 0
+    cutoutTextureIndex: 0
+  renderStyle: 1
+  outlineParameters:
+    enabled: 1
+    color: {r: 1, g: 1, b: 1, a: 1}
+    dilateShift: 1
+    blurShift: 1
+    fillPass:
+      shader: {fileID: 0}
+      serializedProperties: []
+  backParameters:
+    enabled: 1
+    color: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+    dilateShift: 1
+    blurShift: 1
+    fillPass:
+      shader: {fileID: 0}
+      serializedProperties: []
+  frontParameters:
+    enabled: 1
+    color: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+    dilateShift: 1
+    blurShift: 1
+    fillPass:
+      shader: {fileID: 0}
+      serializedProperties: []
 --- !u!1 &6543888779916774274
 GameObject:
   m_ObjectHideFlags: 0
@@ -207,6 +280,7 @@ GameObject:
   - component: {fileID: 2622994195207723193}
   - component: {fileID: 914670591794389491}
   - component: {fileID: 4437217916513256807}
+  - component: {fileID: 366741221426422950}
   m_Layer: 0
   m_Name: Ballista
   m_TagString: Untagged
@@ -280,6 +354,18 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &366741221426422950
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6543888779916774274}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 034bc47afcbf5e141a58d5c20b7808e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8574969482412594282
 GameObject:
   m_ObjectHideFlags: 0
@@ -291,6 +377,7 @@ GameObject:
   - component: {fileID: 699823970565392209}
   - component: {fileID: 2405319596521864731}
   - component: {fileID: 1172294129873033871}
+  - component: {fileID: 150414559267194054}
   m_Layer: 0
   m_Name: towerMesh
   m_TagString: Untagged
@@ -363,78 +450,15 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!1001 &9210418715951597471
-PrefabInstance:
+--- !u!114 &150414559267194054
+MonoBehaviour:
   m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    m_TransformParent: {fileID: 6722500732594918212}
-    m_Modifications:
-    - target: {fileID: 3030825674374249314, guid: 4e9a8f3c062274b2a9d93f6c63e35ff7,
-        type: 3}
-      propertyPath: m_Name
-      value: ShadowDecal
-      objectReference: {fileID: 0}
-    - target: {fileID: 3030825674374249373, guid: 4e9a8f3c062274b2a9d93f6c63e35ff7,
-        type: 3}
-      propertyPath: m_RootOrder
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 3030825674374249373, guid: 4e9a8f3c062274b2a9d93f6c63e35ff7,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0.6
-      objectReference: {fileID: 0}
-    - target: {fileID: 3030825674374249373, guid: 4e9a8f3c062274b2a9d93f6c63e35ff7,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 1.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 3030825674374249373, guid: 4e9a8f3c062274b2a9d93f6c63e35ff7,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -0.6
-      objectReference: {fileID: 0}
-    - target: {fileID: 3030825674374249373, guid: 4e9a8f3c062274b2a9d93f6c63e35ff7,
-        type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: 3030825674374249373, guid: 4e9a8f3c062274b2a9d93f6c63e35ff7,
-        type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0.7071068
-      objectReference: {fileID: 0}
-    - target: {fileID: 3030825674374249373, guid: 4e9a8f3c062274b2a9d93f6c63e35ff7,
-        type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3030825674374249373, guid: 4e9a8f3c062274b2a9d93f6c63e35ff7,
-        type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3030825674374249373, guid: 4e9a8f3c062274b2a9d93f6c63e35ff7,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 90
-      objectReference: {fileID: 0}
-    - target: {fileID: 3030825674374249373, guid: 4e9a8f3c062274b2a9d93f6c63e35ff7,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3030825674374249373, guid: 4e9a8f3c062274b2a9d93f6c63e35ff7,
-        type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: 4e9a8f3c062274b2a9d93f6c63e35ff7, type: 3}
---- !u!4 &6187485061199330306 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 3030825674374249373, guid: 4e9a8f3c062274b2a9d93f6c63e35ff7,
-    type: 3}
-  m_PrefabInstance: {fileID: 9210418715951597471}
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8574969482412594282}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 034bc47afcbf5e141a58d5c20b7808e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

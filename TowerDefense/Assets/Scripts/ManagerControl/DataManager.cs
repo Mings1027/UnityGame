@@ -9,7 +9,7 @@ namespace ManagerControl
     public class DataManager : MonoBehaviour
     {
         private static string _path;
-        public static Dictionary<TowerType, int> damageDic { get; private set; }
+        private static Dictionary<TowerType, int> damageDic { get; set; }
 
         private void Awake()
         {

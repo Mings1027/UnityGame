@@ -81,9 +81,7 @@ namespace UIControl
                 healthObj.SetActive(false);
             }
 
-            towerNameText.text = LocalizationSettings.StringDatabase.GetLocalizedString(UIManager.TowerCardTable,
-                towerData.TowerType.ToString(), LocalizationSettings.SelectedLocale);
-
+            towerNameText.text = LocaleManager.GetLocalizedString(towerData.TowerType.ToString());
             damageImage.sprite = UIManager.Instance.WhatTypeOfThisTower(towerData);
 
             var towerLevelData = towerData.TowerLevels[level];
@@ -111,7 +109,8 @@ namespace UIControl
 
         private void OnChangeLocale(Locale locale)
         {
-            LocaleManager.ChangeLocaleAsync(UIManager.TowerCardTable, _towerType.ToString(), towerNameText).Forget();
+            LocaleManager.ChangeLocaleAsync(LocaleManager.TowerCardTable, _towerType.ToString(), towerNameText)
+                .Forget();
         }
     }
 }
