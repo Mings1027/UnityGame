@@ -14,12 +14,12 @@ namespace ManagerControl
         private Vector3 _worldGridPos;
         private TowerType _selectedTowerType;
         private bool _isUnitTower;
-        private bool isGround;
+        private bool _isGround;
         private bool _canPlace;
         private bool _startPlacement;
         private bool _isAppeared;
         private Vector3[] _checkDir;
-        private Vector3[] fourDir;
+        private Vector3[] _fourDir;
         private MeshRenderer _cursorMeshRenderer;
         private RaycastHit _hit;
 
@@ -46,10 +46,10 @@ namespace ManagerControl
                 _checkDir[i] *= 2;
             }
 
-            fourDir = new[] { Vector3.forward, Vector3.back, Vector3.left, Vector3.right };
-            for (var i = 0; i < fourDir.Length; i++)
+            _fourDir = new[] { Vector3.forward, Vector3.back, Vector3.left, Vector3.right };
+            for (var i = 0; i < _fourDir.Length; i++)
             {
-                fourDir[i] *= 2;
+                _fourDir[i] *= 2;
             }
 
             _selectedTowerType = TowerType.None;
@@ -134,8 +134,8 @@ namespace ManagerControl
             var mousePos = Input.mousePosition;
             mousePos.z = _cam.nearClipPlane;
             var ray = _cam.ScreenPointToRay(mousePos);
-            isGround = Physics.Raycast(ray, out var hit, 100, groundLayer);
-            if (!isGround) return;
+            _isGround = Physics.Raycast(ray, out var hit, 100, groundLayer);
+            if (!_isGround) return;
 
             var cellGridPos = grid.WorldToCell(hit.point);
             _worldGridPos = grid.CellToWorld(cellGridPos);
@@ -145,13 +145,13 @@ namespace ManagerControl
 
         private void CheckCanPlace()
         {
-            _canPlace = isGround && CheckPlacementTile();
+            _canPlace = _isGround && CheckPlacementTile();
             _cursorMeshRenderer.sharedMaterial.color = _canPlace ? cubeColor[0] : cubeColor[1];
         }
 
         private void CursorAppear()
         {
-            if (isGround)
+            if (_isGround)
             {
                 if (!_isAppeared)
                 {

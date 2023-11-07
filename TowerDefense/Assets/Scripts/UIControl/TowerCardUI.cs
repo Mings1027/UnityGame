@@ -15,11 +15,12 @@ namespace UIControl
     public class TowerCardUI : MonoBehaviour
     {
         private Canvas _canvas;
-        private Vector3 buttonPos;
-        private Vector3 initPos;
-        private const string CardKey = "Card-";
-        private Locale prevLanguage;
+        private Vector3 _buttonPos;
+        private Vector3 _initPos;
+        private Locale _prevLanguage;
         private TowerData _towerData;
+        private Sequence _cardFloatingSequence;
+        private const string CardKey = "Card-";
 
         [SerializeField] private TMP_Text towerNameText;
         [SerializeField] private TMP_Text towerDescriptionText;
@@ -33,7 +34,10 @@ namespace UIControl
         private void Awake()
         {
             _canvas = GetComponent<Canvas>();
-            initPos = transform.position;
+            _initPos = transform.position;
+            var rectTransform = GetComponent<RectTransform>();
+            _cardFloatingSequence = DOTween.Sequence().SetAutoKill(false).Pause()
+                .Append(rectTransform.DOAnchorPosY(10, 1).From(new Vector2(-10, 0)).SetEase(Ease.InOutSine));
         }
 
         private void Start()
@@ -41,44 +45,48 @@ namespace UIControl
             _canvas.enabled = false;
         }
 
-        public void SetTowerCardInfo(Vector3 from, TowerData towerData)
+        public async UniTaskVoid OpenTowerCard(Vector3 from, TowerData towerData)
         {
             _canvas.enabled = true;
-            buttonPos = from;
+            _buttonPos = from;
 
-            DOTween.Sequence().Append(transform.DOScale(1, 0.25f).From(0))
-                .Join(transform.DOMove(initPos, 0.25f).From(buttonPos))
-                .Join(transform.GetChild(0).DORotate(new Vector3(0, 360, 0), 0.25f, RotateMode.FastBeyond360));
-
-            if (towerData.Equals(_towerData) && LocalizationSettings.SelectedLocale.Equals(prevLanguage)) return;
-
-            _towerData = towerData;
-            prevLanguage = LocalizationSettings.SelectedLocale;
-
-            towerNameText.text = LocaleManager.GetLocalizedString(towerData.TowerType.ToString());
-
-            towerDescriptionText.text = LocaleManager.GetLocalizedString(CardKey + towerData.TowerType);
-
-            healthImage.SetActive(towerData.IsUnitTower);
-            if (towerData.IsUnitTower)
+            if (!towerData.Equals(_towerData) || !LocalizationSettings.SelectedLocale.Equals(_prevLanguage))
             {
-                var unitTowerData = (UnitTowerData)towerData;
-                healthText.text = unitTowerData.UnitHealth.ToString();
+                _towerData = towerData;
+                _prevLanguage = LocalizationSettings.SelectedLocale;
+
+                towerNameText.text = LocaleManager.GetLocalizedString(towerData.TowerType.ToString());
+
+                towerDescriptionText.text = LocaleManager.GetLocalizedString(CardKey + towerData.TowerType);
+
+                healthImage.SetActive(towerData.IsUnitTower);
+                if (towerData.IsUnitTower)
+                {
+                    var unitTowerData = (UnitTowerData)towerData;
+                    healthText.text = unitTowerData.UnitHealth.ToString();
+                }
+
+                damageImage.sprite = UIManager.Instance.WhatTypeOfThisTower(_towerData);
+
+                var towerLevelData = towerData.TowerLevels[0];
+                damageText.text = towerLevelData.damage.ToString();
+                attackDelayText.text = towerLevelData.attackDelay.ToString(CultureInfo.InvariantCulture);
             }
 
-            damageImage.sprite = UIManager.Instance.WhatTypeOfThisTower(_towerData);
+            await DOTween.Sequence().Append(transform.DOScale(1, 0.25f).From(0))
+                .Join(transform.DOMove(_initPos, 0.25f).From(_buttonPos))
+                .Join(transform.GetChild(0).DORotate(new Vector3(0, 360, 0), 0.25f, RotateMode.FastBeyond360));
 
-            var towerLevelData = towerData.TowerLevels[0];
-            damageText.text = towerLevelData.damage.ToString();
-            attackDelayText.text = towerLevelData.attackDelay.ToString(CultureInfo.InvariantCulture);
+            _cardFloatingSequence.SetLoops(-1, LoopType.Yoyo).Restart();
         }
 
         public async UniTaskVoid DisableCard()
         {
+            _cardFloatingSequence.Pause();
             await DOTween.Sequence()
-                .Append(transform.GetChild(0).DORotate(new Vector3(0, -360, 0), 0.25f, RotateMode.FastBeyond360))
-                .Join(transform.DOMove(buttonPos, 0.25f))
-                .Join(transform.DOScale(0, 0.25f));
+                .Append(transform.DOScale(0, 0.25f))
+                .Join(transform.DOMove(_buttonPos, 0.25f))
+                .Join(transform.GetChild(0).DORotate(new Vector3(0, 180, 0), 0.25f));
 
             _canvas.enabled = false;
         }

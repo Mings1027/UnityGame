@@ -16,7 +16,7 @@ namespace UnitControl.FriendlyControl
 {
     public sealed class FriendlyUnit : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
-        private Transform childMeshTransform;
+        private Transform _childMeshTransform;
         private AudioSource _audioSource;
         private Animator _anim;
         private UnitNavAI _unitNavAI;
@@ -26,7 +26,7 @@ namespace UnitControl.FriendlyControl
         private Collider[] _targetCollider;
         private UnitTower _parentTower;
 
-        private float attackDelay;
+        private float _attackDelay;
         private Collider _target;
 
         private TowerType _towerTypeEnum;
@@ -36,7 +36,7 @@ namespace UnitControl.FriendlyControl
         private bool _isTargeting;
         private bool _moveInput;
         private bool _targetInAtkRange;
-        private bool isAttacking;
+        private bool _isAttacking;
 
         private static readonly int IsWalk = Animator.StringToHash("isWalk");
         private static readonly int IsAttack = Animator.StringToHash("isAttack");
@@ -44,7 +44,7 @@ namespace UnitControl.FriendlyControl
         public Outlinable outline { get; private set; }
 
         [SerializeField] private LayerMask targetLayer;
-        private float atkRange;
+        private float _atkRange;
         [SerializeField] private float sightRange;
 
         #region Unity Event
@@ -53,7 +53,7 @@ namespace UnitControl.FriendlyControl
         {
             outline = GetComponent<Outlinable>();
             outline.enabled = false;
-            childMeshTransform = transform.GetChild(0);
+            _childMeshTransform = transform.GetChild(0);
             _audioSource = GetComponent<AudioSource>();
             _anim = GetComponentInChildren<Animator>();
             _unitNavAI = GetComponent<UnitNavAI>();
@@ -62,7 +62,7 @@ namespace UnitControl.FriendlyControl
             _navMeshAgent.enabled = false;
             _health = GetComponent<Health>();
             _targetCollider = new Collider[2];
-            atkRange = _navMeshAgent.stoppingDistance;
+            _atkRange = _navMeshAgent.stoppingDistance;
         }
 
         private void OnEnable()
@@ -82,9 +82,20 @@ namespace UnitControl.FriendlyControl
             Gizmos.color = Color.green;
             Gizmos.DrawWireSphere(transform.position, sightRange);
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(transform.position, atkRange);
+            Gizmos.DrawWireSphere(transform.position, _atkRange);
         }
 #endif
+
+        public void OnPointerDown(PointerEventData eventData)
+        {
+        }
+
+        public void OnPointerUp(PointerEventData eventData)
+        {
+            if (!Input.GetTouch(0).deltaPosition.Equals(Vector2.zero)) return;
+            if (Input.touchCount > 1) return;
+            _parentTower.OnPointerUp(null);
+        }
 
         #endregion
 
@@ -93,7 +104,7 @@ namespace UnitControl.FriendlyControl
             _startTargeting = false;
             _target = null;
             _isTargeting = false;
-            isAttacking = false;
+            _isAttacking = false;
             _targetInAtkRange = false;
             if (_moveInput) return;
             _anim.SetBool(IsWalk, false);
@@ -118,20 +129,20 @@ namespace UnitControl.FriendlyControl
 
             if (!_target) return;
             var targetPos = _target.transform.position;
-            _targetInAtkRange = Vector3.Distance(targetPos, transform.position) <= atkRange;
+            _targetInAtkRange = Vector3.Distance(targetPos, transform.position) <= _atkRange;
             _navMeshAgent.SetDestination(targetPos);
         }
 
         public async UniTaskVoid UnitAttackAsync(CancellationTokenSource cts)
         {
             if (_health.IsDead) return;
-            _anim.SetBool(IsWalk, _moveInput || !_navMeshAgent.velocity.Equals(Vector3.zero));
+            _anim.SetBool(IsWalk, !_navMeshAgent.velocity.Equals(Vector3.zero));
 
-            if (_moveInput || !_targetInAtkRange || !_isTargeting || isAttacking) return;
-            isAttacking = true;
+            if (_moveInput || !_targetInAtkRange || !_isTargeting || _isAttacking) return;
+            _isAttacking = true;
             Attack();
-            await UniTask.Delay(TimeSpan.FromSeconds(attackDelay), cancellationToken: cts.Token);
-            isAttacking = false;
+            await UniTask.Delay(TimeSpan.FromSeconds(_attackDelay), cancellationToken: cts.Token);
+            _isAttacking = false;
         }
 
         private void Attack()
@@ -155,15 +166,15 @@ namespace UnitControl.FriendlyControl
         {
             _navMeshAgent.enabled = false;
             _anim.enabled = false;
-            DOTween.Sequence().Append(childMeshTransform.DOLocalRotate(new Vector3(-90, 0, 0), 0.5f))
-                .Append(childMeshTransform.DOScale(0, 0.5f))
+            DOTween.Sequence().Append(_childMeshTransform.DOLocalRotate(new Vector3(-90, 0, 0), 0.5f))
+                .Append(_childMeshTransform.DOScale(0, 0.5f))
                 .OnComplete(() =>
                 {
                     gameObject.SetActive(false);
                     _navMeshAgent.enabled = true;
                     _anim.enabled = true;
-                    childMeshTransform.rotation = Quaternion.identity;
-                    childMeshTransform.localScale = Vector3.one;
+                    _childMeshTransform.rotation = Quaternion.identity;
+                    _childMeshTransform.localScale = Vector3.one;
                 });
         }
 
@@ -176,7 +187,7 @@ namespace UnitControl.FriendlyControl
             _navMeshAgent.SetDestination(pos);
             _unitNavAI.enabled = true;
             await UniTask.WaitUntil(_unitNavAI.isStopped);
-            _navMeshAgent.stoppingDistance = atkRange;
+            _navMeshAgent.stoppingDistance = _atkRange;
             _moveInput = false;
             _anim.SetBool(IsWalk, false);
             if (_startTargeting) return;
@@ -195,18 +206,7 @@ namespace UnitControl.FriendlyControl
         {
             _damage = damage;
             _health.Init(healthAmount);
-            attackDelay = attackDelayData;
-        }
-
-        public void OnPointerDown(PointerEventData eventData)
-        {
-        }
-
-        public void OnPointerUp(PointerEventData eventData)
-        {
-            if (!Input.GetTouch(0).deltaPosition.Equals(Vector2.zero)) return;
-            if (Input.touchCount > 1) return;
-            _parentTower.OnPointerUp(null);
+            _attackDelay = attackDelayData;
         }
     }
 }

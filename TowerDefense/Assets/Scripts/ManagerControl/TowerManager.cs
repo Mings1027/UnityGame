@@ -18,7 +18,6 @@ namespace ManagerControl
         [Header("----------Indicator----------"), SerializeField]
         private MeshRenderer rangeIndicator;
 
-        // [SerializeField] private MeshRenderer selectedTowerIndicator;
         [SerializeField] private MeshRenderer unitDestinationIndicator;
 
         #region Unity Event
@@ -33,6 +32,18 @@ namespace ManagerControl
         {
             base.Start();
             IndicatorInit();
+        }
+
+        private void OnEnable()
+        {
+            _cts?.Cancel();
+            _cts = new CancellationTokenSource();
+        }
+
+        private void OnDisable()
+        {
+            _cts?.Cancel();
+            _cts?.Dispose();
         }
 
         #endregion

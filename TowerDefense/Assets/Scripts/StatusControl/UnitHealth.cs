@@ -6,17 +6,17 @@ namespace StatusControl
 {
     public class UnitHealth : Health
     {
-        private Collider col;
+        private Collider _col;
 
         private void Awake()
         {
-            col = GetComponent<Collider>();
+            _col = GetComponent<Collider>();
         }
 
         protected override void OnEnable()
         {
             base.OnEnable();
-            col.enabled = true;
+            _col.enabled = true;
         }
 
         public override void Damage(in float amount)
@@ -25,7 +25,7 @@ namespace StatusControl
 
             PoolObjectManager.Get(PoolObjectKey.BloodVfx, transform.position);
             if (!IsDead) return;
-            col.enabled = false;
+            _col.enabled = false;
         }
     }
 }

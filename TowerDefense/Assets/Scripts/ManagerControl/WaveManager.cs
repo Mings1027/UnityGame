@@ -11,6 +11,7 @@ using UIControl;
 using UnitControl.EnemyControl;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 namespace ManagerControl
@@ -19,19 +20,19 @@ namespace ManagerControl
     {
         private bool _startWave;
         private bool _isLastWave;
-        private bool isBossWave;
+        private bool _isBossWave;
         private sbyte _enemyLevel; // Increase After Boss Wave
-        private byte enemyDataIndex; // 
+        private byte _enemyDataIndex; // 
 
         private CancellationTokenSource _cts;
         private List<EnemyUnit> _enemyUnits;
-        private Dictionary<EnemyUnit, HealthBar> enemyHealthBarDic;
-        private NavMeshSurface bossNavmesh;
+        private Dictionary<EnemyUnit, HealthBar> _enemyHealthBarDic;
+        private NavMeshSurface _bossNavmesh;
 
         public event Action OnPlaceExpandButtonEvent;
         // public event Action OnEndOfGameEvent;
 
-        [SerializeField, Range(0, 255)] private byte _curWave;
+        [SerializeField, Range(0, 255)] private byte curWave;
         [SerializeField] private byte lastWave;
         [SerializeField] private byte bossWaveTerm;
         [SerializeField] private EnemyData[] enemiesData;
@@ -42,10 +43,10 @@ namespace ManagerControl
         protected override void Awake()
         {
             _enemyLevel = 1;
-            enemyDataIndex = 1;
+            _enemyDataIndex = 1;
             _enemyUnits = new List<EnemyUnit>();
-            enemyHealthBarDic = new Dictionary<EnemyUnit, HealthBar>();
-            bossNavmesh = GetComponent<NavMeshSurface>();
+            _enemyHealthBarDic = new Dictionary<EnemyUnit, HealthBar>();
+            _bossNavmesh = GetComponent<NavMeshSurface>();
             // var enemyDataGuids = AssetDatabase.FindAssets("t: EnemyData", new[] { "Assets/EnemyData" });
             // enemiesData = new EnemyData[enemyDataGuids.Length];
             // for (var i = 0; i < enemyDataGuids.ToArray().Length; i++)
@@ -62,10 +63,6 @@ namespace ManagerControl
             _cts = new CancellationTokenSource();
         }
 
-        private void Update()
-        {
-        }
-
         private void OnDisable()
         {
             _cts?.Cancel();
@@ -78,25 +75,25 @@ namespace ManagerControl
             if (_startWave) return;
             enabled = true;
             _startWave = true;
-            _curWave++;
-            if (_curWave % 5 == 0 && enemyDataIndex < enemiesData.Length) enemyDataIndex++;
-            if (_curWave % bossWaveTerm == 0)
+            curWave++;
+            if (curWave % 5 == 0 && _enemyDataIndex < enemiesData.Length) _enemyDataIndex++;
+            if (curWave % bossWaveTerm == 0)
             {
-                isBossWave = true;
-                bossNavmesh.BuildNavMesh();
+                _isBossWave = true;
+                _bossNavmesh.BuildNavMesh();
             }
 
-            _isLastWave = _curWave == lastWave;
+            _isLastWave = curWave == lastWave;
             StartWave(ref wayPoints);
         }
 
         private void StartWave(ref Vector3[] wayPoints)
         {
             TowerManager.Instance.StartTargeting();
-            UIManager.Instance.WaveText.text = _curWave.ToString();
+            UIManager.Instance.WaveText.text = curWave.ToString();
             SpawnEnemy(wayPoints).Forget();
 
-            if (isBossWave)
+            if (_isBossWave)
             {
                 if (_isLastWave)
                 {
@@ -121,7 +118,7 @@ namespace ManagerControl
             await UniTask.Delay(500, cancellationToken: _cts.Token);
             for (var i = 0; i < wayPoints.Count; i++)
             {
-                for (var j = 0; j < enemyDataIndex; j++)
+                for (var j = 0; j < _enemyDataIndex; j++)
                 {
                     await UniTask.Delay(100, cancellationToken: _cts.Token);
                     EnemyInit(wayPoints[i], enemiesData[j]);
@@ -218,7 +215,7 @@ namespace ManagerControl
                 EnemyInit(ranPoint, bossData[0]);
             }
 
-            isBossWave = false;
+            _isBossWave = false;
             _enemyLevel++;
         }
 

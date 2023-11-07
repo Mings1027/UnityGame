@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
@@ -14,7 +13,6 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace UIControl
@@ -77,16 +75,16 @@ namespace UIControl
         [SerializeField, Range(0, 30)] private byte lifeCount;
         [SerializeField] private int startCost;
 
-        [Header("----------Tween------------"), SerializeField]
-        private Transform notEnoughCostPanel;
-
-        [SerializeField] private Transform towerPanel;
+        [SerializeField] private Transform notEnoughCostPanel;
+        [SerializeField] private RectTransform towerPanel;
         [SerializeField] private Image cantMoveImage;
         [SerializeField] private Sprite physicalSprite;
         [SerializeField] private Sprite magicSprite;
 
         [Header("----------Tower Panel----------"), SerializeField]
-        private TowerData[] towerDataList;
+        private RectTransform infoWindow;
+
+        [SerializeField] private TowerData[] towerDataList;
 
         [SerializeField] private TowerInfoUI towerInfoUI;
         [SerializeField] private GameObject upgradeButton;
@@ -123,21 +121,6 @@ namespace UIControl
 
         #region Unity Event
 
-        public void OnPointerEnter(PointerEventData eventData)
-        {
-            IsOnUI = true;
-        }
-
-        public void OnPointerUp(PointerEventData eventData)
-        {
-            IsOnUI = false;
-        }
-
-        public void OnPointerExit(PointerEventData eventData)
-        {
-            IsOnUI = false;
-        }
-
         protected override void Awake()
         {
             base.Awake();
@@ -150,6 +133,8 @@ namespace UIControl
             TowerInit();
             TweenInit();
             MenuButtonInit();
+            infoWindow.anchoredPosition = new Vector2(0, 300);
+            towerPanel.anchoredPosition = new Vector2(-200, 0);
         }
 
         protected override void Start()
@@ -172,7 +157,24 @@ namespace UIControl
             _camZoomSequence?.Kill();
         }
 
+        public void OnPointerEnter(PointerEventData eventData)
+        {
+            IsOnUI = true;
+        }
+
+        public void OnPointerUp(PointerEventData eventData)
+        {
+            IsOnUI = false;
+        }
+
+        public void OnPointerExit(PointerEventData eventData)
+        {
+            IsOnUI = false;
+        }
+
         #endregion
+
+        #region Init
 
         private void TowerInit()
         {
@@ -200,7 +202,7 @@ namespace UIControl
         {
             _toggleTowerBtnImage = toggleTowerButton.transform.GetChild(0).GetComponent<Image>();
             _onOffTowerBtnSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(towerPanel.DOLocalMoveX(250, 0.5f).SetRelative().SetEase(Ease.InOutBack))
+                .Append(towerPanel.DOAnchorPosX(250, 0.5f).SetRelative().SetEase(Ease.InOutBack))
                 .Join(_toggleTowerBtnImage.transform.DORotate(new Vector3(0, 180, 0), 0.5f, RotateMode.LocalAxisAdd));
 
             _towerInfoPanelTween =
@@ -296,13 +298,15 @@ namespace UIControl
             bgmToggle.isOn = false;
             bgmToggle.onValueChanged.AddListener(delegate
             {
-                BGMToggleImage();
+                SoundManager.Instance.ToggleBGM(!bgmToggle.isOn);
+                // BGMToggleImage();
                 SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
             });
             sfxToggle.isOn = false;
             sfxToggle.onValueChanged.AddListener(delegate
             {
-                SfxToggleImage();
+                SoundManager.Instance.ToggleSfx(!sfxToggle.isOn);
+                // SfxToggleImage();
                 SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
             });
 
@@ -362,6 +366,8 @@ namespace UIControl
                 }
             }
         }
+
+        #endregion
 
         public Sprite WhatTypeOfThisTower(TowerData t) => t.IsMagicTower ? magicSprite : physicalSprite;
 
@@ -432,7 +438,8 @@ namespace UIControl
             var towerType = tempTower.TowerData.TowerType;
             var towerData = _towerDataDictionary[towerType];
 
-            if (_towerCost < towerData.TowerUpgradeCost * (_curSelectedTower.TowerLevel + 1))
+            var upgradeCost = GetTowerUpgradeCost(in towerType);
+            if (_towerCost < upgradeCost)
             {
                 _notEnoughCostSequence.Restart();
                 return;
@@ -441,7 +448,7 @@ namespace UIControl
             tempTower.TowerLevelUp();
             var towerLevel = tempTower.TowerLevel;
             var tt = towerData.TowerLevels[towerLevel];
-            TowerCost -= _towerDataDictionary[towerType].TowerUpgradeCost * towerLevel;
+            TowerCost -= upgradeCost;
 
             PoolObjectManager.Get(PoolObjectKey.BuildSmoke, tempTower.transform.position);
 
@@ -457,7 +464,7 @@ namespace UIControl
             SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
             _towerInfoPanelTween.Restart();
             _isPanelOpen = true;
-            if (_curSelectedTower) _curSelectedTower.DisableOutline();
+            if (_curSelectedTower) _curSelectedTower.Outline.enabled = false;
             if (clickedTower.Equals(_curSelectedTower)) return;
 
             if (_curSelectedTower && _curSelectedTower.TowerData.IsUnitTower)
@@ -494,12 +501,15 @@ namespace UIControl
 
         private void UpdateTowerInfo()
         {
-            var towerType = _curSelectedTower.TowerData.TowerType;
+            var towerData = _curSelectedTower.TowerData;
+            var towerType = towerData.TowerType;
             var towerLevel = _curSelectedTower.TowerLevel;
             var curTowerData = _towerDataDictionary[towerType];
 
-            _sellTowerCost = GetSellTowerCost(towerType);
-            towerInfoUI.SetTowerInfo(curTowerData, curTowerData.IsUnitTower, towerLevel, _sellTowerCost);
+            _sellTowerCost = 0;
+            _sellTowerCost += _curSelectedTower.TowerInvestment / 2 + _curSelectedTower.TowerInvestment * towerLevel;
+            towerInfoUI.SetTowerInfo(curTowerData, curTowerData.IsUnitTower,
+                towerLevel, GetTowerUpgradeCost(in towerType), _sellTowerCost);
         }
 
         private void OnToggleButton()
@@ -518,10 +528,10 @@ namespace UIControl
             OffUI();
         }
 
-        private int GetSellTowerCost(TowerType towerType)
+        private int GetTowerUpgradeCost(in TowerType towerType)
         {
-            return _curSelectedTower.TowerInvestment +
-                   _towerDataDictionary[towerType].TowerUpgradeCost * _curSelectedTower.TowerLevel;
+            return _towerCountDictionary[towerType] * _towerDataDictionary[towerType].TowerUpgradeCost +
+                   _curSelectedTower.TowerInvestment * (_curSelectedTower.TowerLevel + 1);
         }
 
         private void FocusUnitTower()
@@ -578,6 +588,7 @@ namespace UIControl
             PoolObjectManager.Get(PoolObjectKey.BuildSmoke, _curSelectedTower.transform.position);
 
             TowerCost += _sellTowerCost;
+            _sellTowerCost = 0;
             TowerManager.Instance.RemoveTower(_curSelectedTower);
             Destroy(_curSelectedTower.gameObject);
             OffUI();
@@ -589,7 +600,7 @@ namespace UIControl
             _towerInfoPanelTween.PlayBackwards();
 
             _isPanelOpen = false;
-            if (_curSelectedTower) _curSelectedTower.DisableOutline();
+            if (_curSelectedTower) _curSelectedTower.Outline.enabled = false;
             _curSelectedTower = null;
             towerInfoUI.enabled = false;
             TowerManager.Instance.OffIndicator();
@@ -610,16 +621,6 @@ namespace UIControl
             return false;
         }
 
-        private void BGMToggleImage()
-        {
-            SoundManager.Instance.ToggleBGM(!bgmToggle.isOn);
-        }
-
-        private void SfxToggleImage()
-        {
-            SoundManager.Instance.ToggleSfx(!sfxToggle.isOn);
-        }
-
         private async UniTaskVoid GameStart()
         {
             _cam.cullingMask = int.MaxValue;
@@ -633,6 +634,8 @@ namespace UIControl
             SoundManager.Instance.PlayBGM(SoundEnum.WaveEnd);
             eventSystem.enabled = true;
             _cameraManager.enabled = true;
+            await infoWindow.DOAnchorPosY(0, 0.5f).From(new Vector2(0, 300)).SetEase(Ease.OutBack);
+            towerPanel.DOAnchorPosX(0, 0.5f).SetEase(Ease.OutBack);
         }
 
         private void GameOver()

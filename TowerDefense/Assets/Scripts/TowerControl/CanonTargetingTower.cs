@@ -17,7 +17,7 @@ namespace TowerControl
         protected override void Init()
         {
             base.Init();
-            firePos = canonSmoke.transform;
+            FirePos = canonSmoke.transform;
             
             _childObj = transform.GetChild(0);
             _atkSequence = DOTween.Sequence().SetAutoKill(false).Pause()

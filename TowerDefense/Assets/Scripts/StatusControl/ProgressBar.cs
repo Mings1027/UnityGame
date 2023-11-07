@@ -5,28 +5,28 @@ namespace StatusControl
 {
     public abstract class ProgressBar : MonoBehaviour
     {
-        protected Progressive progressive;
+        protected Progressive Progressive;
         protected Slider slider { get; private set; }
 
         protected virtual void Awake()
         {
-            progressive = GetComponentInParent<Progressive>();
+            Progressive = GetComponentInParent<Progressive>();
             slider = GetComponent<Slider>();
         }
 
         protected virtual void OnEnable()
         {
-            progressive.OnUpdateBarEvent += UpdateBarEvent;
+            Progressive.OnUpdateBarEvent += UpdateBarEvent;
         }
 
         protected virtual void OnDisable()
         {
-            progressive.OnUpdateBarEvent -= UpdateBarEvent;
+            Progressive.OnUpdateBarEvent -= UpdateBarEvent;
         }
 
         private void UpdateBarEvent()
         {
-            slider.value = progressive.Ratio;
+            slider.value = Progressive.Ratio;
         }
     }
 }

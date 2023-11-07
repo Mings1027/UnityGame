@@ -36,7 +36,7 @@ namespace UIControl
             await UniTask.Delay(300);
             if (UIManager.Instance.IsOnUI)
             {
-                UIManager.Instance.towerCardUI.SetTowerCardInfo(pos, towerData);
+                UIManager.Instance.towerCardUI.OpenTowerCard(pos, towerData);
             }
         }
 

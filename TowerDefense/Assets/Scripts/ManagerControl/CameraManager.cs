@@ -15,8 +15,8 @@ namespace ManagerControl
         private float _lerp;
         private float _modifiedMoveSpeed;
 
-        private bool isMoving;
-        private bool isRotating;
+        private bool _isMoving;
+        private bool _isRotating;
         private Touch _firstTouch, _secondTouch;
         private Vector3 _curPos, _newPos;
 
@@ -58,7 +58,7 @@ namespace ManagerControl
                 _firstTouch = Input.GetTouch(0);
                 _secondTouch = Input.GetTouch(1);
                 CameraZoom();
-                if (isRotating) return;
+                if (_isRotating) return;
                 CameraRotate();
             }
         }
@@ -84,11 +84,11 @@ namespace ManagerControl
 
                 if (_firstTouch.phase == TouchPhase.Moved)
                 {
-                    isMoving = true;
+                    _isMoving = true;
                     CamMove(_modifiedMoveSpeed);
                 }
 
-                else if (isMoving && _firstTouch.phase == TouchPhase.Ended)
+                else if (_isMoving && _firstTouch.phase == TouchPhase.Ended)
                 {
                     MovingAsync().Forget();
                 }
@@ -121,7 +121,7 @@ namespace ManagerControl
                 await UniTask.Yield();
             }
 
-            isMoving = false;
+            _isMoving = false;
         }
 
         private void CameraRotate()
@@ -135,9 +135,9 @@ namespace ManagerControl
             }
             else if (_firstTouch.phase == TouchPhase.Ended || _secondTouch.phase == TouchPhase.Ended)
             {
-                isRotating = true;
+                _isRotating = true;
                 transform.DORotate(SnappedVector(), 0.5f)
-                    .SetEase(Ease.OutBounce).SetLink(gameObject).OnComplete(() => isRotating = false);
+                    .SetEase(Ease.OutBounce).SetLink(gameObject).OnComplete(() => _isRotating = false);
             }
         }
 

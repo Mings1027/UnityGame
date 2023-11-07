@@ -18,7 +18,7 @@ namespace TowerControl
         protected override void Init()
         {
             base.Init();
-            firePos = crystal;
+            FirePos = crystal;
 
             _atkSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(crystal.DOScale(1.2f, 0.5f).From(1).SetEase(Ease.InOutSine))
@@ -39,7 +39,7 @@ namespace TowerControl
         private void CrystalInit()
         {
             _crystalMeshFilter.sharedMesh = crystalMesh[TowerLevel];
-            crystal.position = transform.position + new Vector3(0, boxCollider.size.y + 0.5f, 0);
+            crystal.position = transform.position + new Vector3(0, BoxCollider.size.y + 0.5f, 0);
             crystal.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBack);
         }
 

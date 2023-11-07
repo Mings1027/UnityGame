@@ -12,21 +12,21 @@ namespace ManagerControl
 {
     public class DownloadManager : MonoBehaviour
     {
-        private long patchSize;
-        private Dictionary<string, long> patchMap;
+        private long _patchSize;
+        private Dictionary<string, long> _patchMap;
 
         [Header("UI")] [SerializeField] private Button startGameButton;
         [SerializeField] private Button downLoadButton;
         [SerializeField] private GameObject downLoadPanel;
         [SerializeField] private Slider downSlider;
+        [SerializeField] private TMP_Text downLoadText;
         [SerializeField] private TMP_Text sizeInfoText;
 
-        [Header("Label")] [SerializeField] private AssetLabelReference managerPrefabLabel;
-        [SerializeField] private AssetLabelReference materialLabel;
+        [Header("Label")] [SerializeField] private AssetLabelReference[] assetLabels;
 
         private void Awake()
         {
-            patchMap = new Dictionary<string, long>();
+            _patchMap = new Dictionary<string, long>();
             startGameButton.onClick.AddListener(StartGameButton);
             downLoadButton.onClick.AddListener(DownLoadButton);
         }
@@ -54,29 +54,35 @@ namespace ManagerControl
 
         private async UniTaskVoid CheckUpdateFiles()
         {
-            var labels = new List<string> { managerPrefabLabel.labelString, materialLabel.labelString };
-            patchSize = default;
+            var labels = new List<string>();
+            for (int i = 0; i < assetLabels.Length; i++)
+            {
+                labels.Add(assetLabels[i].labelString);
+            }
+
+            _patchSize = default;
 
             foreach (var handle in labels.Select(Addressables.GetDownloadSizeAsync))
             {
                 await handle;
 
-                patchSize += handle.Result;
+                _patchSize += handle.Result;
             }
 
             downLoadPanel.SetActive(true);
             startGameButton.gameObject.SetActive(false);
 
-            if (patchSize > decimal.Zero) // 다운로드 할 것이 있음
+            if (_patchSize > decimal.Zero) // 다운로드 할 것이 있음
             {
-                sizeInfoText.text = GetFilSize(patchSize);
+                sizeInfoText.text = GetFilSize(_patchSize);
             }
             else // 다운로드 할 것이 없음
             {
                 downLoadButton.gameObject.SetActive(false);
 
-                sizeInfoText.text = "Building Tower...";
-                await downSlider.DOValue(1, 2).From(0);
+                sizeInfoText.enabled = false;
+                downLoadText.DOCounter(0, 100, 0.5f);
+                await downSlider.DOValue(1, 0.5f).From(0);
                 StartGame();
                 // 게임 시작되는 부분
             }
@@ -119,7 +125,11 @@ namespace ManagerControl
 
         private async UniTask PatchFiles()
         {
-            var labels = new List<string> { managerPrefabLabel.labelString, materialLabel.labelString };
+            var labels = new List<string>();
+            for (int i = 0; i < assetLabels.Length; i++)
+            {
+                labels.Add(assetLabels[i].labelString);
+            }
 
             foreach (var label in labels)
             {
@@ -138,29 +148,31 @@ namespace ManagerControl
 
         private async UniTaskVoid DownLoadLabel(string label)
         {
-            patchMap.Add(label, 0);
+            _patchMap.Add(label, 0);
             var handle = Addressables.DownloadDependenciesAsync(label);
 
             while (!handle.IsDone)
             {
-                patchMap[label] = handle.GetDownloadStatus().DownloadedBytes;
+                _patchMap[label] = handle.GetDownloadStatus().DownloadedBytes;
                 await UniTask.Yield();
             }
 
-            patchMap[label] = handle.GetDownloadStatus().TotalBytes;
+            _patchMap[label] = handle.GetDownloadStatus().TotalBytes;
             Addressables.Release(handle);
         }
 
         private async UniTask CheckDownLoad()
         {
             var total = 0f;
+            downLoadText.text = "0 %";
 
             while (true)
             {
-                total += patchMap.Sum(tmp => tmp.Value);
-                downSlider.value = total / patchSize;
+                total += _patchMap.Sum(tmp => tmp.Value);
+                downSlider.value = total / _patchSize;
+                downLoadText.text = (int)(downSlider.value * 100) + " %";
 
-                if (total == patchSize)
+                if (total == _patchSize)
                 {
                     StartGame();
                     break;

@@ -14,12 +14,12 @@ namespace TowerControl
         private bool _isAttack;
         private sbyte _effectIndex;
         private int _damage;
-        private float attackDelay;
-        private bool isAttacking;
+        private float _attackDelay;
+        private bool _isAttacking;
 
-        protected bool isTargeting;
-        protected Collider target;
-        protected Transform firePos;
+        protected bool IsTargeting;
+        protected Collider Target;
+        protected Transform FirePos;
 
         [SerializeField] private LayerMask targetLayer;
 
@@ -33,6 +33,21 @@ namespace TowerControl
         *                                               Unity Event
         =========================================================================================================================================*/
 
+        private void ProjectileInit()
+        {
+            var projectile =
+                PoolObjectManager.Get<Projectile>(TowerData.PoolObjectKey, FirePos.position, Quaternion.identity);
+            projectile.ColorInit(_effectIndex);
+            projectile.Init(_damage, Target);
+        }
+        
+        protected virtual void Attack()
+        {
+            ProjectileInit();
+        }
+
+        #region Override Function
+
         protected override void Init()
         {
             base.Init();
@@ -43,9 +58,9 @@ namespace TowerControl
 
         public override void TowerTargetInit()
         {
-            target = null;
-            isTargeting = false;
-            isAttacking = false;
+            Target = null;
+            IsTargeting = false;
+            _isAttacking = false;
         }
 
         public override void TowerTargeting()
@@ -53,8 +68,8 @@ namespace TowerControl
             var size = Physics.OverlapSphereNonAlloc(transform.position, TowerRange, _targetColliders, targetLayer);
             if (size <= 0)
             {
-                target = null;
-                isTargeting = false;
+                Target = null;
+                IsTargeting = false;
                 return;
             }
 
@@ -69,31 +84,18 @@ namespace TowerControl
                 nearestTarget = _targetColliders[i];
             }
 
-            target = nearestTarget;
-            isTargeting = true;
+            Target = nearestTarget;
+            IsTargeting = true;
         }
 
         public override async UniTaskVoid TowerAttackAsync(CancellationTokenSource cts)
         {
-            if (!isTargeting || isAttacking) return;
-            isAttacking = true;
+            if (!IsTargeting || _isAttacking) return;
+            _isAttacking = true;
             _attackSound.Play();
             Attack();
-            await UniTask.Delay(TimeSpan.FromSeconds(attackDelay), cancellationToken: cts.Token);
-            isAttacking = false;
-        }
-
-        protected virtual void Attack()
-        {
-            ProjectileInit();
-        }
-
-        private void ProjectileInit()
-        {
-            var projectile =
-                PoolObjectManager.Get<Projectile>(TowerData.PoolObjectKey, firePos.position, Quaternion.identity);
-            projectile.ColorInit(_effectIndex);
-            projectile.Init(_damage, target);
+            await UniTask.Delay(TimeSpan.FromSeconds(_attackDelay), cancellationToken: cts.Token);
+            _isAttacking = false;
         }
 
         public override void TowerSetting(MeshFilter towerMesh, int damageData, byte rangeData,
@@ -108,7 +110,9 @@ namespace TowerControl
                 _effectIndex++;
             }
 
-            attackDelay = attackDelayData;
+            _attackDelay = attackDelayData;
         }
+
+        #endregion
     }
 }

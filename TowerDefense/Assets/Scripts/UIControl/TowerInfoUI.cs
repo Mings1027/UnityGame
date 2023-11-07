@@ -14,12 +14,12 @@ namespace UIControl
     public class TowerInfoUI : MonoBehaviour
     {
         private Camera _cam;
-        private Locale prevLanguage;
+        private Locale _prevLanguage;
 
         private Vector3 _followTowerPos;
         private TowerType _towerType;
 
-        private bool isTargeting;
+        private bool _isTargeting;
 
         [Header("-------------Tower Status--------------")] [SerializeField]
         private Transform followTowerUI;
@@ -49,12 +49,12 @@ namespace UIControl
 
         private void OnDisable()
         {
-            isTargeting = false;
+            _isTargeting = false;
         }
 
         private void LateUpdate()
         {
-            if (!isTargeting) return;
+            if (!_isTargeting) return;
             followTowerUI.position = _cam.WorldToScreenPoint(_followTowerPos);
         }
 
@@ -62,11 +62,11 @@ namespace UIControl
 
         public void SetFollowTarget(Vector3 towerPos)
         {
-            isTargeting = true;
+            _isTargeting = true;
             _followTowerPos = towerPos;
         }
 
-        public void SetTowerInfo(TowerData towerData, bool isUnitTower, sbyte level, int sellGold)
+        public void SetTowerInfo(TowerData towerData, bool isUnitTower, sbyte level,int upgradeCost, int sellGold)
         {
             _towerType = towerData.TowerType;
 
@@ -87,7 +87,7 @@ namespace UIControl
             var towerLevelData = towerData.TowerLevels[level];
 
             DisplayStarsForTowerLevel(level);
-            costText.text = towerData.TowerUpgradeCost * (level + 1) + "g";
+            costText.text = upgradeCost + "g";
             damageText.text = towerLevelData.damage.ToString();
             attackRangeText.text = towerLevelData.attackRange.ToString();
             attackDelayText.text = towerLevelData.attackDelay.ToString(CultureInfo.InvariantCulture);

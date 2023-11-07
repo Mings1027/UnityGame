@@ -7,7 +7,7 @@ namespace UnitControl.FriendlyControl
     public class UnitNavAI : MonoBehaviour
     {
         private NavMeshAgent _navMeshAgent;
-        private bool stopMove;
+        private bool _stopMove;
         public Func<bool> isStopped { get; private set; }
 
         private void Awake()

@@ -31,7 +31,7 @@ namespace MapControl
         private Vector3 _dirToWayPoint;
 
         private Vector3[] _checkDirection;
-        private Vector3[] diagonalDir;
+        private Vector3[] _diagonalDir;
         private List<GameObject> _map;
         private List<Vector3> _newMapWayPoints;
         private List<MeshFilter> _meshFilters;
@@ -76,7 +76,9 @@ namespace MapControl
         {
             WaveManager.Instance.OnPlaceExpandButtonEvent += PlaceExpandButtons;
             PlaceStartMap();
-            
+            CombineMesh();
+            CombineObstacleMesh();
+
             InitExpandButtonPosition();
             PlaceExpandButtons();
             // GenerateAutoMap().Forget();
@@ -115,7 +117,7 @@ namespace MapControl
                 Vector3.back * mapSize, Vector3.forward * mapSize, Vector3.left * mapSize,
                 Vector3.right * mapSize
             };
-            diagonalDir = new[]
+            _diagonalDir = new[]
             {
                 new Vector3(1, 0, 1), new Vector3(-1, 0, 1), new Vector3(-1, 0, -1), new Vector3(1, 0, -1)
             };
@@ -201,6 +203,8 @@ namespace MapControl
 
             SetMap().Forget();
         }
+
+        #region ExpandMap Function
 
         private async UniTaskVoid SetMap()
         {
@@ -321,7 +325,7 @@ namespace MapControl
 
         private void RandomObstacle(Vector3 center)
         {
-            var pos = center + diagonalDir[Random.Range(0, diagonalDir.Length)];
+            var pos = center + _diagonalDir[Random.Range(0, _diagonalDir.Length)];
             var ranObstacle = Random.Range(0, obstaclePrefabs.Length);
             Instantiate(obstaclePrefabs[ranObstacle], pos, Quaternion.Euler(0, Random.Range(0, 360), 0),
                 obstacleMesh);
@@ -502,6 +506,8 @@ namespace MapControl
             return newWayPoint.x >= -maxSize && newWayPoint.x <= maxSize &&
                    newWayPoint.z >= -maxSize && newWayPoint.z <= maxSize;
         }
+
+        #endregion
 
 #if UNITY_EDITOR
         //  When test random map

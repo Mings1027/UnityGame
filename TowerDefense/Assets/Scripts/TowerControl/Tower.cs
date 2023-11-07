@@ -3,7 +3,6 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using DataControl;
 using EPOOutline;
-using InterfaceControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -11,40 +10,70 @@ namespace TowerControl
 {
     public abstract class Tower : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
-        private Outlinable outline;
         private MeshRenderer _meshRenderer;
         private MeshFilter _meshFilter;
+        private bool _isBuilt;
 
-        protected BoxCollider boxCollider;
+        protected BoxCollider BoxCollider;
 
         public event Action<Tower> OnClickTower;
         public float TowerRange { get; private set; }
         public sbyte TowerLevel { get; private set; }
         public int TowerInvestment { get; set; }
+        public Outlinable Outline { get; private set; }
         public TowerData TowerData => towerData;
 
         [SerializeField] private TowerData towerData;
+
+        #region Unity Event
 
         protected virtual void Awake()
         {
             Init();
         }
 
-        //==================================Custom Method====================================================
-        //======================================================================================================
+        public void OnPointerDown(PointerEventData eventData)
+        {
+        }
+
+        public virtual void OnPointerUp(PointerEventData eventData)
+        {
+            if (!_isBuilt) return;
+            if (!Input.GetTouch(0).deltaPosition.Equals(Vector2.zero)) return;
+            OnClickTower?.Invoke(this);
+            if (Input.touchCount > 1) return;
+            Outline.enabled = true;
+        }
+
+        #endregion
+
+        #region Abstract Function
+
         public abstract void TowerTargetInit();
         public abstract void TowerTargeting();
         public abstract UniTaskVoid TowerAttackAsync(CancellationTokenSource cts);
 
+        #endregion
+
+        private void ColliderSize()
+        {
+            var rendererY = _meshRenderer.bounds.size.y;
+            var size = BoxCollider.size;
+            size = new Vector3(size.x, rendererY, size.z);
+            BoxCollider.size = size;
+        }
+
         protected virtual void Init()
         {
             TowerLevel = -1;
-            outline = GetComponent<Outlinable>();
-            outline.enabled = false;
-            boxCollider = GetComponent<BoxCollider>();
+            Outline = GetComponent<Outlinable>();
+            Outline.enabled = false;
+            BoxCollider = GetComponent<BoxCollider>();
             _meshFilter = transform.GetChild(0).GetComponent<MeshFilter>();
             _meshRenderer = transform.GetChild(0).GetComponent<MeshRenderer>();
         }
+
+        #region Public Function
 
         public void TowerLevelUp()
         {
@@ -54,32 +83,13 @@ namespace TowerControl
         public virtual void TowerSetting(MeshFilter towerMesh, int damageData, byte rangeData,
             float attackDelayData)
         {
+            _isBuilt = true;
             TowerRange = rangeData;
             _meshFilter.sharedMesh = towerMesh.sharedMesh;
 
             ColliderSize();
         }
 
-        private void ColliderSize()
-        {
-            var rendererY = _meshRenderer.bounds.size.y;
-            var size = boxCollider.size;
-            size = new Vector3(size.x, rendererY, size.z);
-            boxCollider.size = size;
-        }
-
-        public void DisableOutline() => outline.enabled = false;
-
-        public void OnPointerDown(PointerEventData eventData)
-        {
-        }
-
-        public virtual void OnPointerUp(PointerEventData eventData)
-        {
-            if (!Input.GetTouch(0).deltaPosition.Equals(Vector2.zero)) return;
-            OnClickTower?.Invoke(this);
-            if (Input.touchCount > 1) return;
-            outline.enabled = true;
-        }
+        #endregion
     }
 }

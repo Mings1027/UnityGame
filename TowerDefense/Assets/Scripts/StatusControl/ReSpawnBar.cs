@@ -6,28 +6,28 @@ namespace StatusControl
 {
     public class ReSpawnBar : ProgressBar
     {
-        private CancellationTokenSource cts;
+        private CancellationTokenSource _cts;
 
         protected override void OnEnable()
         {
             base.OnEnable();
-            cts?.Dispose();
-            cts = new CancellationTokenSource();
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
         }
 
         protected override void OnDisable()
         {
             base.OnDisable();
-            cts?.Cancel();
-            cts?.Dispose();
+            _cts?.Cancel();
+            _cts?.Dispose();
         }
 
         public async UniTask UpdateBarEvent()
         {
-            await slider.DOValue(1, 5f).From(0).WithCancellation(cts.Token);
+            await slider.DOValue(1, 5f).From(0).WithCancellation(_cts.Token);
             enabled = false;
         }
 
-        public void StopReSpawning() => cts?.Cancel();
+        public void StopReSpawning() => _cts?.Cancel();
     }
 }

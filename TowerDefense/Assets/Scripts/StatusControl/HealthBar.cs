@@ -1,35 +1,39 @@
 using DG.Tweening;
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace StatusControl
 {
     public class HealthBar : ProgressBar
     {
-        private Transform border;
+        private Transform _border;
 
         [SerializeField] private float duration;
         [SerializeField] private float strength;
         [SerializeField] private int vibrato;
+        [SerializeField] private float randomness;
 
         protected override void Awake()
         {
             base.Awake();
-            border = transform.GetChild(0);
+            _border = transform.GetChild(0);
         }
 
         protected override void OnEnable()
         {
             base.OnEnable();
-            progressive.OnUpdateBarEvent += ShakeBarEvent;
+            Progressive.OnUpdateBarEvent += ShakeBarEvent;
         }
 
         protected override void OnDisable()
         {
             base.OnDisable();
-            progressive.OnUpdateBarEvent -= ShakeBarEvent;
+            Progressive.OnUpdateBarEvent -= ShakeBarEvent;
         }
 
-        private void ShakeBarEvent() => border.DOShakePosition(duration, strength, vibrato)
-            .OnComplete(() => border.localPosition = Vector3.one);
+        private void ShakeBarEvent() => _border
+            .DOShakeRotation(duration, new Vector3(0, 0, strength), vibrato, randomness, true,
+                ShakeRandomnessMode.Harmonic)
+            .OnComplete(() => _border.localRotation = quaternion.identity);
     }
 }

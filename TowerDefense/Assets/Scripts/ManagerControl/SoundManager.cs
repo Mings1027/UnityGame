@@ -27,7 +27,7 @@ namespace ManagerControl
         private Dictionary<SoundEnum, AudioClip> _musicDictionary;
         private Dictionary<SoundEnum, AudioClip> _effectDictionary;
 
-        private AudioSource musicSource, effectSource;
+        private AudioSource _musicSource, _effectSource;
 
         [SerializeField] private MusicSound[] musicSounds;
         [SerializeField] private EffectSound[] effectSounds;
@@ -37,8 +37,8 @@ namespace ManagerControl
         protected override void Awake()
         {
             base.Awake();
-            musicSource = transform.Find("Music Source").GetComponent<AudioSource>();
-            effectSource = transform.Find("Effect Source").GetComponent<AudioSource>();
+            _musicSource = transform.Find("Music Source").GetComponent<AudioSource>();
+            _effectSource = transform.Find("Effect Source").GetComponent<AudioSource>();
 
             _musicDictionary = new Dictionary<SoundEnum, AudioClip>();
             for (var i = 0; i < musicSounds.Length; i++)
@@ -61,14 +61,14 @@ namespace ManagerControl
 
         public void PlayBGM(SoundEnum clipName)
         {
-            musicSource.clip = _musicDictionary[clipName];
-            musicSource.Play();
+            _musicSource.clip = _musicDictionary[clipName];
+            _musicSource.Play();
         }
 
         public void PlaySound(SoundEnum clipName)
         {
-            effectSource.clip = _effectDictionary[clipName];
-            effectSource.Play();
+            _effectSource.clip = _effectDictionary[clipName];
+            _effectSource.Play();
         }
 
         public void ToggleBGM(bool active)
