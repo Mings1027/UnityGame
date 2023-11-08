@@ -622,6 +622,7 @@ GameObject:
   - component: {fileID: 238135668513969085}
   - component: {fileID: 238135668513969084}
   - component: {fileID: 238135668513969087}
+  - component: {fileID: 5668451711344564453}
   - component: {fileID: 7714028815823464042}
   - component: {fileID: 8019981517054441820}
   m_Layer: 5
@@ -715,6 +716,20 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!114 &5668451711344564453
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 238135668513969086}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf26f00783c5d47be81f098feb920b17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  toggleTowerButton: {fileID: 238135667569637537}
+  ease: 27
 --- !u!114 &7714028815823464042
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -727,6 +742,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1329739f15aba4d0fa180e76816b80f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  healthBar: {fileID: 6455942628897570604}
   eventSystem: {fileID: 661142627509882377}
   lifeCount: 30
   startCost: 5000
@@ -3946,7 +3962,7 @@ GameObject:
   - component: {fileID: 326247766528906364}
   - component: {fileID: 6907040011444657433}
   - component: {fileID: 2859351516904410675}
-  - component: {fileID: 500980084415489110}
+  - component: {fileID: 1439805485576934498}
   m_Layer: 5
   m_Name: Panel Tower Status
   m_TagString: Untagged
@@ -3975,7 +3991,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: -115}
-  m_SizeDelta: {x: -39.999977, y: -270}
+  m_SizeDelta: {x: -39.999992, y: -270}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6907040011444657433
 CanvasRenderer:
@@ -4015,7 +4031,7 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &500980084415489110
+--- !u!114 &1439805485576934498
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -4028,16 +4044,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Padding:
-    m_Left: 0
+    m_Left: 50
     m_Right: 0
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 3
-  m_Spacing: 5
+  m_Spacing: -50
   m_ChildForceExpandWidth: 1
-  m_ChildForceExpandHeight: 0
+  m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
-  m_ChildControlHeight: 1
+  m_ChildControlHeight: 0
   m_ChildScaleWidth: 1
   m_ChildScaleHeight: 1
   m_ReverseArrangement: 0
@@ -6068,7 +6084,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 64, y: 0}
+  m_SizeDelta: {x: 64, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1386914658395856618
 CanvasRenderer:
@@ -6926,7 +6942,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 64, y: 0}
+  m_SizeDelta: {x: 64, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2729303282430915684
 CanvasRenderer:
@@ -7606,57 +7622,6 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!1 &4814665028425326110
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 190806858565326938}
-  - component: {fileID: 1520256776452223889}
-  m_Layer: 5
-  m_Name: TutorialController
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &190806858565326938
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4814665028425326110}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1423191059768222628}
-  m_RootOrder: 5
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &1520256776452223889
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4814665028425326110}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cf26f00783c5d47be81f098feb920b17, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  toggleTowerButton: {fileID: 238135667569637537}
-  ease: 27
 --- !u!1 &4914482907857309024
 GameObject:
   m_ObjectHideFlags: 0
@@ -8331,7 +8296,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   duration: 0.15
-  strength: 30
+  strength: 20
   vibrato: 3
   randomness: 10
 --- !u!114 &8126182855512782458
@@ -8457,7 +8422,7 @@ RectTransform:
   m_Children:
   - {fileID: 5770973841719442601}
   m_Father: {fileID: 1423191059768222628}
-  m_RootOrder: 4
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -8898,9 +8863,8 @@ RectTransform:
   - {fileID: 71715233947505873}
   - {fileID: 238135666778688184}
   - {fileID: 6291042617386473483}
-  - {fileID: 6601451980291710149}
   - {fileID: 5770973841870053455}
-  - {fileID: 190806858565326938}
+  - {fileID: 6601451980291710149}
   m_Father: {fileID: 8310981534581720784}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -11295,7 +11259,7 @@ RectTransform:
   - {fileID: 1310126529603909877}
   - {fileID: 7262908962892999624}
   m_Father: {fileID: 1423191059768222628}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -12720,7 +12684,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 64, y: 0}
+  m_SizeDelta: {x: 64, y: 64}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2767784094588160447
 CanvasRenderer:

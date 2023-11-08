@@ -12,23 +12,25 @@ namespace UnitControl.EnemyControl
 {
     public class EnemyUnit : MonoBehaviour
     {
-        private Transform childMeshTransform;
+        private Transform _childMeshTransform;
         private AudioSource _audioSource;
         private Animator _anim;
         private NavMeshAgent _navMeshAgent;
         private Collider[] _targetCollider;
         private Collider _target;
-        private Health enemyHealth;
+        private Health _enemyHealth;
         private bool _isTargeting;
         private bool _targetInAtkRange;
-        private bool isAttacking;
+        private bool _isAttacking;
 
         private ushort _damage;
-        private float atkDelay;
-        private float atkRange;
+        private float _atkDelay;
+        private float _atkRange;
 
         public Vector3 prevPos { get; private set; }
         public event Action OnArrivedBaseTower;
+        public event Action OnDisableEvent;
+        public Transform HealthBarTransform { get; private set; }
 
         private static readonly int IsWalk = Animator.StringToHash("isWalk");
         private static readonly int IsAttack = Animator.StringToHash("isAttack");
@@ -40,21 +42,22 @@ namespace UnitControl.EnemyControl
 
         private void Awake()
         {
-            childMeshTransform = transform.GetChild(0);
+            _childMeshTransform = transform.GetChild(0);
+            HealthBarTransform = transform.GetChild(1);
             _audioSource = GetComponent<AudioSource>();
             _anim = GetComponentInChildren<Animator>();
             _navMeshAgent = GetComponent<NavMeshAgent>();
-            enemyHealth = GetComponent<Health>();
+            _enemyHealth = GetComponent<Health>();
             _targetCollider = new Collider[1];
-            atkRange = _navMeshAgent.stoppingDistance;
+            _atkRange = _navMeshAgent.stoppingDistance;
         }
 
         private void OnEnable()
         {
             _target = null;
             _isTargeting = false;
-            isAttacking = false;
-            enemyHealth.OnDeadEvent += DeadAnimation;
+            _isAttacking = false;
+            _enemyHealth.OnDeadEvent += DeadAnimation;
         }
 
         private void OnTriggerEnter(Collider other)
@@ -70,6 +73,8 @@ namespace UnitControl.EnemyControl
         private void OnDisable()
         {
             OnArrivedBaseTower = null;
+            OnDisableEvent?.Invoke();
+            OnDisableEvent = null;
         }
 #if UNITY_EDITOR
         private void OnDrawGizmos()
@@ -77,7 +82,7 @@ namespace UnitControl.EnemyControl
             Gizmos.color = Color.cyan;
             Gizmos.DrawWireSphere(transform.position, sightRange);
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(transform.position, atkRange);
+            Gizmos.DrawWireSphere(transform.position, _atkRange);
         }
 #endif
 
@@ -85,7 +90,7 @@ namespace UnitControl.EnemyControl
 
         public void Targeting()
         {
-            if (enemyHealth.IsDead) return;
+            if (_enemyHealth.IsDead) return;
             if (!_navMeshAgent.isActiveAndEnabled) return;
 
             var size = Physics.OverlapSphereNonAlloc(transform.position, sightRange, _targetCollider, targetLayer);
@@ -104,21 +109,21 @@ namespace UnitControl.EnemyControl
 
             if (!_target) return;
             var targetPos = _target.transform.position;
-            _targetInAtkRange = Vector3.Distance(targetPos, transform.position) <= atkRange;
+            _targetInAtkRange = Vector3.Distance(targetPos, transform.position) <= _atkRange;
             _navMeshAgent.SetDestination(targetPos);
         }
 
         public async UniTaskVoid AttackAsync(CancellationTokenSource cts)
         {
-            if (enemyHealth.IsDead) return;
+            if (_enemyHealth.IsDead) return;
             _anim.SetBool(IsWalk, !_targetInAtkRange);
-            if (!_targetInAtkRange || !_isTargeting || isAttacking) return;
-            isAttacking = true;
+            if (!_targetInAtkRange || !_isTargeting || _isAttacking) return;
+            _isAttacking = true;
             _anim.SetTrigger(IsAttack);
             _audioSource.Play();
             TryHit();
-            await UniTask.Delay(TimeSpan.FromSeconds(atkDelay), cancellationToken: cts.Token);
-            isAttacking = false;
+            await UniTask.Delay(TimeSpan.FromSeconds(_atkDelay), cancellationToken: cts.Token);
+            _isAttacking = false;
         }
 
         private void TryHit()
@@ -139,8 +144,8 @@ namespace UnitControl.EnemyControl
         {
             _navMeshAgent.enabled = false;
             _anim.enabled = false;
-            DOTween.Sequence().Append(childMeshTransform.DOLocalRotate(new Vector3(-90, 0, 0), 0.5f))
-                .Append(childMeshTransform.DOScale(0, 0.5f))
+            DOTween.Sequence().Append(_childMeshTransform.DOLocalRotate(new Vector3(-90, 0, 0), 0.5f))
+                .Append(_childMeshTransform.DOScale(0, 0.5f))
                 .OnComplete(() =>
                 {
                     gameObject.SetActive(false);
@@ -163,8 +168,8 @@ namespace UnitControl.EnemyControl
         {
             _navMeshAgent.enabled = true;
             _anim.enabled = true;
-            childMeshTransform.rotation = Quaternion.identity;
-            childMeshTransform.localScale = Vector3.one;
+            _childMeshTransform.rotation = Quaternion.identity;
+            _childMeshTransform.localScale = Vector3.one;
         }
 
         public void Init(EnemyData enemyData)
@@ -174,7 +179,7 @@ namespace UnitControl.EnemyControl
             _targetInAtkRange = false;
             _navMeshAgent.speed = enemyData.Speed;
             SetAnimationSpeed(_navMeshAgent.speed);
-            atkDelay = enemyData.AttackDelay;
+            _atkDelay = enemyData.AttackDelay;
             _damage = enemyData.Damage;
             _navMeshAgent.SetDestination(Vector3.zero);
         }

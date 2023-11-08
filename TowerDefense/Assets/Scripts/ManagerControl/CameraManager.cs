@@ -20,11 +20,14 @@ namespace ManagerControl
         private Touch _firstTouch, _secondTouch;
         private Vector3 _curPos, _newPos;
 
+        public event Action OnHealthBarZoomEvent;
+
         [SerializeField] private float rotationSpeed;
         [SerializeField] private float zoomSpeed;
         [SerializeField] private float decreaseMoveSpeed;
 
         [SerializeField] private Vector2Int camSizeMinMax;
+        [SerializeField] private Vector2 uiSizeMinMax;
         [SerializeField] private Vector2Int camPosLimit;
         [SerializeField] private Vector3 minCamPos;
         [SerializeField] private Vector3 maxCamPos;
@@ -179,14 +182,16 @@ namespace ManagerControl
             var t = Mathf.InverseLerp(25, camSizeMinMax.y, orthographicSize);
             var newCamPos = Vector3.Lerp(minCamPos, maxCamPos, t);
             _cam.transform.localPosition = newCamPos;
+
+            OnHealthBarZoomEvent?.Invoke();
         }
-
-#if UNITY_EDITOR
-
-        private void SetZoomAndOffset()
+        
+        public void ResizeUIElement(Transform healthBarTransform)
         {
-            
+            var t = Mathf.InverseLerp(camSizeMinMax.y, camSizeMinMax.x, _cam.orthographicSize);
+            var newScale = Vector3.Lerp(Vector3.one * uiSizeMinMax.x, Vector3.one * uiSizeMinMax.y, t);
+
+            healthBarTransform.localScale = newScale;
         }
-#endif
     }
 }

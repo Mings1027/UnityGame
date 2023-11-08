@@ -42,6 +42,8 @@ namespace UnitControl.FriendlyControl
         private static readonly int IsAttack = Animator.StringToHash("isAttack");
 
         public Outlinable outline { get; private set; }
+        public Transform healthBarTransform { get; private set; }
+        public event Action OnDisableEvent;
 
         [SerializeField] private LayerMask targetLayer;
         private float _atkRange;
@@ -54,6 +56,7 @@ namespace UnitControl.FriendlyControl
             outline = GetComponent<Outlinable>();
             outline.enabled = false;
             _childMeshTransform = transform.GetChild(0);
+            healthBarTransform = transform.GetChild(1);
             _audioSource = GetComponent<AudioSource>();
             _anim = GetComponentInChildren<Animator>();
             _unitNavAI = GetComponent<UnitNavAI>();
@@ -74,6 +77,8 @@ namespace UnitControl.FriendlyControl
         private void OnDisable()
         {
             _parentTower = null;
+            OnDisableEvent?.Invoke();
+            OnDisableEvent = null;
         }
 
 #if UNITY_EDITOR

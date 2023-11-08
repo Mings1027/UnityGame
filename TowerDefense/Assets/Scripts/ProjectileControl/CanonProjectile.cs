@@ -27,13 +27,13 @@ namespace ProjectileControl
 
         protected override void Update()
         {
-            if (!_isLockOnTarget && lerp >= 0.5f)
+            if (!_isLockOnTarget && Lerp >= 0.5f)
             {
                 _isLockOnTarget = true;
                 _targetEndPos = target.transform.position;
             }
 
-            ProjectilePath(lerp < 0.5f ? target.transform.position : _targetEndPos);
+            ProjectilePath(Lerp < 0.5f ? target.transform.position : _targetEndPos);
         }
 
         private void OnDrawGizmos()

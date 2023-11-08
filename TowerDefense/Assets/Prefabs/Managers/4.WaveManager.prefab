@@ -45,7 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1c72e29ee56744efa7b755f41c9978d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _curWave: 0
+  curWave: 0
   lastWave: 100
   bossWaveTerm: 10
   enemiesData:
@@ -55,6 +55,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3fb6a74e51eaa4d0aa73244bc70728e4, type: 2}
   bossData:
   - {fileID: 11400000, guid: 2b46d037f747145e6b699c4e07f56690, type: 2}
+  healthBarMinSize: 0.2
+  healthBarMaxSize: 0.6
 --- !u!114 &8486042556112977196
 MonoBehaviour:
   m_ObjectHideFlags: 0

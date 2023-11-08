@@ -71,6 +71,7 @@ namespace UIControl
         public TextMeshProUGUI WaveText => waveText;
         public Health BaseTowerHealth { get; private set; }
 
+        [SerializeField] private HealthBar healthBar;
         [SerializeField] private EventSystem eventSystem;
         [SerializeField, Range(0, 30)] private byte lifeCount;
         [SerializeField] private int startCost;
@@ -141,6 +142,7 @@ namespace UIControl
         {
             base.Start();
             gameOverPanel.SetActive(false);
+            healthBar.Init(BaseTowerHealth);
             BaseTowerHealth.Init(lifeCount);
             BaseTowerHealth.OnDeadEvent += GameOver;
             GameStart().Forget();
@@ -212,8 +214,8 @@ namespace UIControl
                 .Append(pausePanel.DOScale(1, 0.1f).From(0))
                 .Append(pausePanel.DOLocalMoveY(0, 0.5f).From(Screen.height).SetEase(Ease.OutBack))
                 .Join(pauseButton.transform.DOLocalMoveY(200, 0.25f).SetRelative().SetEase(Ease.InOutBack))
-                .Join(mainMenuButton.transform.DOScale(1, 0.1f).From(0)
-                    .OnComplete(() => Application.targetFrameRate = 30))
+                .Join(mainMenuButton.transform.DOScale(1, 0.1f).From(0))
+                // .OnComplete(() => Application.targetFrameRate = 30))
                 .PrependCallback(() => _cameraManager.enabled = !_cameraManager.enabled);
 
             _changeLanguageSequence = DOTween.Sequence().SetAutoKill(false).SetUpdate(true).Pause()
@@ -257,6 +259,7 @@ namespace UIControl
                 SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
                 TowerUpgrade();
                 UpdateTowerInfo();
+                upgradeButton.transform.DOScale(1.1f, 0.1f).From(1).SetLoops(2, LoopType.Yoyo);
             });
             moveUnitButton.GetComponent<Button>().onClick.AddListener(() =>
             {
@@ -292,7 +295,7 @@ namespace UIControl
             {
                 SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
                 Time.timeScale = _curTimeScale;
-                Application.targetFrameRate = 60;
+                // Application.targetFrameRate = 60;
                 _pauseSequence.PlayBackwards();
             });
             bgmToggle.isOn = false;
@@ -396,8 +399,7 @@ namespace UIControl
             _towerCountDictionary[towerType]++;
 
             t.TowerLevelUp();
-            t.TowerInvestment = towerData.TowerBuildCost * _towerCountDictionary[towerType];
-            TowerCost -= t.TowerInvestment;
+            TowerCost -= towerData.TowerBuildCost * _towerCountDictionary[towerType];
             _towerCostTextDictionary[towerType].text =
                 towerData.TowerBuildCost * (_towerCountDictionary[towerType] + 1) + "g";
             await DOTween.Sequence().Append(costText.transform.DOShakeScale(0.2f, 0.5f))
@@ -427,7 +429,6 @@ namespace UIControl
             var towerInfoData = towerData.TowerLevels[t.TowerLevel];
             t.TowerSetting(towerInfoData.towerMesh, towerInfoData.damage, towerInfoData.attackRange,
                 towerInfoData.attackDelay);
-            upgradeButton.SetActive(!t.TowerLevel.Equals(4));
 
             t.OnClickTower += ClickTower;
         }
@@ -505,9 +506,8 @@ namespace UIControl
             var towerType = towerData.TowerType;
             var towerLevel = _curSelectedTower.TowerLevel;
             var curTowerData = _towerDataDictionary[towerType];
-
-            _sellTowerCost = 0;
-            _sellTowerCost += _curSelectedTower.TowerInvestment / 2 + _curSelectedTower.TowerInvestment * towerLevel;
+            _sellTowerCost = curTowerData.TowerUpgradeCost / 2 +
+                             _towerCountDictionary[towerType] * curTowerData.TowerBuildCost * towerLevel;
             towerInfoUI.SetTowerInfo(curTowerData, curTowerData.IsUnitTower,
                 towerLevel, GetTowerUpgradeCost(in towerType), _sellTowerCost);
         }
@@ -531,7 +531,7 @@ namespace UIControl
         private int GetTowerUpgradeCost(in TowerType towerType)
         {
             return _towerCountDictionary[towerType] * _towerDataDictionary[towerType].TowerUpgradeCost +
-                   _curSelectedTower.TowerInvestment * (_curSelectedTower.TowerLevel + 1);
+                   _towerDataDictionary[towerType].TowerBuildCost * (_curSelectedTower.TowerLevel + 1);
         }
 
         private void FocusUnitTower()
@@ -627,6 +627,7 @@ namespace UIControl
             waveText.text = "0";
             Time.timeScale = 1;
             _cameraManager.enabled = false;
+            toggleTowerButton.raycastTarget = false;
             await DOTween.Sequence()
                 .Append(_cam.transform.DOLocalMove(new Vector3(0, 40, -40), 1.5f).SetEase(Ease.OutQuad))
                 .Join(_cam.DOOrthoSize(17, 1.5f).From(100).SetEase(Ease.OutQuad))
@@ -635,7 +636,9 @@ namespace UIControl
             eventSystem.enabled = true;
             _cameraManager.enabled = true;
             await infoWindow.DOAnchorPosY(0, 0.5f).From(new Vector2(0, 300)).SetEase(Ease.OutBack);
-            towerPanel.DOAnchorPosX(0, 0.5f).SetEase(Ease.OutBack);
+            await towerPanel.DOAnchorPosX(0, 0.5f).SetEase(Ease.OutBack);
+            toggleTowerButton.raycastTarget = true;
+            GetComponent<TutorialController>().TutorialButton();
         }
 
         private void GameOver()

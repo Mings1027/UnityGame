@@ -19,7 +19,6 @@ namespace TowerControl
         public event Action<Tower> OnClickTower;
         public float TowerRange { get; private set; }
         public sbyte TowerLevel { get; private set; }
-        public int TowerInvestment { get; set; }
         public Outlinable Outline { get; private set; }
         public TowerData TowerData => towerData;
 

@@ -24,9 +24,10 @@ namespace ManagerControl
         private sbyte _enemyLevel; // Increase After Boss Wave
         private byte _enemyDataIndex; // 
 
+        private Camera _cam;
+        private CameraManager _cameraManager;
         private CancellationTokenSource _cts;
-        private List<EnemyUnit> _enemyUnits;
-        private Dictionary<EnemyUnit, HealthBar> _enemyHealthBarDic;
+        private List<EnemyUnit> _enemyList;
         private NavMeshSurface _bossNavmesh;
 
         public event Action OnPlaceExpandButtonEvent;
@@ -37,6 +38,10 @@ namespace ManagerControl
         [SerializeField] private byte bossWaveTerm;
         [SerializeField] private EnemyData[] enemiesData;
         [SerializeField] private EnemyData[] bossData;
+        [SerializeField] private float healthBarMinSize;
+
+        [FormerlySerializedAs("healthBarMxaSize")] [SerializeField]
+        private float healthBarMaxSize;
 
         #region Unity Event
 
@@ -44,8 +49,8 @@ namespace ManagerControl
         {
             _enemyLevel = 1;
             _enemyDataIndex = 1;
-            _enemyUnits = new List<EnemyUnit>();
-            _enemyHealthBarDic = new Dictionary<EnemyUnit, HealthBar>();
+            _cam = Camera.main;
+            _enemyList = new List<EnemyUnit>();
             _bossNavmesh = GetComponent<NavMeshSurface>();
             // var enemyDataGuids = AssetDatabase.FindAssets("t: EnemyData", new[] { "Assets/EnemyData" });
             // enemiesData = new EnemyData[enemyDataGuids.Length];
@@ -57,6 +62,12 @@ namespace ManagerControl
             // }
         }
 
+        protected override void Start()
+        {
+            base.Start();
+            _cameraManager = _cam.GetComponentInParent<CameraManager>();
+        }
+
         private void OnEnable()
         {
             _cts?.Dispose();
@@ -66,6 +77,7 @@ namespace ManagerControl
         private void OnDisable()
         {
             _cts?.Cancel();
+            _enemyList.Clear();
         }
 
         #endregion
@@ -107,7 +119,7 @@ namespace ManagerControl
 
             EnemyTargeting().Forget();
             EnemyAttack().Forget();
-            IsArrived().Forget();
+            // IsArrived().Forget();
             IfStuck().Forget();
         }
 
@@ -121,22 +133,54 @@ namespace ManagerControl
                 for (var j = 0; j < _enemyDataIndex; j++)
                 {
                     await UniTask.Delay(100, cancellationToken: _cts.Token);
-                    EnemyInit(wayPoints[i], enemiesData[j]);
+                    EnemyInitTest(wayPoints[i], enemiesData[j]);
                 }
             }
         }
 
-        private void EnemyInit(Vector3 wayPoint, EnemyData enemyData)
+        // private void EnemyInit(Vector3 wayPoint, EnemyData enemyData)
+        // {
+        //     var enemyUnit = PoolObjectManager.Get<EnemyUnit>(enemyData.EnemyKey, wayPoint + Random.insideUnitSphere);
+        //     _enemyList.Add(enemyUnit);
+        //     enemyUnit.Init(enemyData);
+        //     enemyUnit.OnArrivedBaseTower += () => UIManager.Instance.BaseTowerHealth.Damage(1);
+        //     enemyUnit.TryGetComponent(out Health enemyHealth);
+        //     enemyHealth.Init(enemyData.Health * _enemyLevel);
+        //     enemyHealth.OnDeadEvent += () => UIManager.Instance.TowerCost += enemyData.EnemyCoin * _enemyLevel;
+        //     enemyUnit.TryGetComponent(out EnemyStatus enemyStatus);
+        //     enemyStatus.defaultSpeed = enemyData.Speed;
+        // }
+
+        private void EnemyInitTest(Vector3 wayPoint, EnemyData enemyData)
         {
-            var enemyUnit = PoolObjectManager.Get<EnemyUnit>(enemyData.EnemyKey, wayPoint);
-            _enemyUnits.Add(enemyUnit);
+            var enemyUnit = PoolObjectManager.Get<EnemyUnit>(enemyData.EnemyKey, wayPoint + Random.insideUnitSphere);
+            _enemyList.Add(enemyUnit);
             enemyUnit.Init(enemyData);
-            enemyUnit.OnArrivedBaseTower += () => UIManager.Instance.BaseTowerHealth.Damage(1);
-            enemyUnit.TryGetComponent(out Health enemyHealth);
+            enemyUnit.GetComponent<EnemyStatus>().defaultSpeed = enemyData.Speed;
+            enemyUnit.OnArrivedBaseTower += () =>
+            {
+                UIManager.Instance.BaseTowerHealth.Damage(1);
+                DecreaseEnemyCount(enemyUnit);
+            };
+
+            var healthBar = PoolObjectManager.Get<HealthBar>(UIPoolObjectKey.EnemyHealthBar);
+            healthBar.Init(enemyUnit.GetComponent<Progressive>());
+
+            var enemyHealth = enemyUnit.GetComponent<UnitHealth>();
             enemyHealth.Init(enemyData.Health * _enemyLevel);
-            enemyHealth.OnDeadEvent += () => UIManager.Instance.TowerCost += enemyData.EnemyCoin * _enemyLevel;
-            enemyUnit.TryGetComponent(out EnemyStatus enemyStatus);
-            enemyStatus.defaultSpeed = enemyData.Speed;
+
+            enemyHealth.OnDeadEvent += () =>
+            {
+                UIManager.Instance.TowerCost += enemyData.EnemyCoin * _enemyLevel;
+                DecreaseEnemyCount(enemyUnit);
+            };
+            enemyUnit.OnDisableEvent += () =>
+            {
+                ProgressBarCanvasController.RemoveProgressBar(enemyUnit.HealthBarTransform);
+                healthBar.RemoveEvent();
+            };
+
+            ProgressBarCanvasController.AddProgressBar(healthBar, enemyUnit.HealthBarTransform);
         }
 
         #endregion
@@ -148,9 +192,9 @@ namespace ManagerControl
             while (!_cts.IsCancellationRequested)
             {
                 await UniTask.Delay(500, cancellationToken: _cts.Token);
-                for (var i = 0; i < _enemyUnits.Count; i++)
+                for (var i = 0; i < _enemyList.Count; i++)
                 {
-                    _enemyUnits[i].Targeting();
+                    _enemyList[i].Targeting();
                     await UniTask.Delay(100, cancellationToken: _cts.Token);
                 }
             }
@@ -161,9 +205,9 @@ namespace ManagerControl
             while (!_cts.IsCancellationRequested)
             {
                 await UniTask.Delay(100, cancellationToken: _cts.Token);
-                for (var i = 0; i < _enemyUnits.Count; i++)
+                for (var i = 0; i < _enemyList.Count; i++)
                 {
-                    _enemyUnits[i].AttackAsync(_cts).Forget();
+                    _enemyList[i].AttackAsync(_cts).Forget();
                     await UniTask.Delay(100, cancellationToken: _cts.Token);
                 }
             }
@@ -174,11 +218,11 @@ namespace ManagerControl
             while (!_cts.IsCancellationRequested)
             {
                 await UniTask.Delay(100, cancellationToken: _cts.Token);
-                for (var i = 0; i < _enemyUnits.Count; i++)
+                for (var i = 0; i < _enemyList.Count; i++)
                 {
-                    if (!_enemyUnits[i].gameObject.activeSelf)
+                    if (!_enemyList[i].gameObject.activeSelf)
                     {
-                        DecreaseEnemyCount(_enemyUnits[i]);
+                        DecreaseEnemyCount(_enemyList[i]);
                     }
 
                     await UniTask.Delay(100, cancellationToken: _cts.Token);
@@ -191,11 +235,11 @@ namespace ManagerControl
             while (!_cts.IsCancellationRequested)
             {
                 await UniTask.Delay(5000, cancellationToken: _cts.Token);
-                for (var i = 0; i < _enemyUnits.Count; i++)
+                for (var i = 0; i < _enemyList.Count; i++)
                 {
-                    if (Vector3.Distance(_enemyUnits[i].prevPos, _enemyUnits[i].transform.position) <= 5)
+                    if (Vector3.Distance(_enemyList[i].prevPos, _enemyList[i].transform.position) <= 5)
                     {
-                        _enemyUnits[i].ResetNavmesh().Forget();
+                        _enemyList[i].ResetNavmesh().Forget();
                     }
 
                     await UniTask.Delay(3000, cancellationToken: _cts.Token);
@@ -212,7 +256,7 @@ namespace ManagerControl
             {
                 await UniTask.Delay(100, cancellationToken: _cts.Token);
                 var ranPoint = wayPoints[Random.Range(0, wayPoints.Count)];
-                EnemyInit(ranPoint, bossData[0]);
+                EnemyInitTest(ranPoint, bossData[0]);
             }
 
             _isBossWave = false;
@@ -227,15 +271,15 @@ namespace ManagerControl
             {
                 await UniTask.Delay(100, cancellationToken: _cts.Token);
                 var ranPoint = wayPoints[Random.Range(0, wayPoints.Count)];
-                EnemyInit(ranPoint, bossData[0]);
+                EnemyInitTest(ranPoint, bossData[0]);
             }
         }
 
         private void DecreaseEnemyCount(EnemyUnit enemyUnit)
         {
             if (!_startWave) return;
-            _enemyUnits.Remove(enemyUnit);
-            if (_enemyUnits.Count > 0) return;
+            _enemyList.Remove(enemyUnit);
+            if (_enemyList.Count > 0) return;
             _startWave = false;
             OnPlaceExpandButtonEvent?.Invoke();
             TowerManager.Instance.StopTargeting();

@@ -62,6 +62,7 @@ namespace MapControl
         [SerializeField] private byte mapCount;
 #if UNITY_EDITOR
         [SerializeField] private bool drawGizmos;
+        [SerializeField] private float drawSphereRadius;
 #endif
 
         #region Unity Event
@@ -91,7 +92,7 @@ namespace MapControl
             Gizmos.color = Color.red;
             foreach (var way in _wayPointsHashSet)
             {
-                Gizmos.DrawSphere(way, 1);
+                Gizmos.DrawSphere(way, drawSphereRadius);
             }
         }
 

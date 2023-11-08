@@ -19,7 +19,7 @@ namespace ProjectileControl
         private Vector3 _centerPos;
         private bool _isArrived;
 
-        protected float lerp;
+        protected float Lerp;
 
         public Collider target { get; private set; }
 
@@ -41,7 +41,7 @@ namespace ProjectileControl
             _projectileDamageSource.enabled = true;
             _startPos = transform.position;
             _trailParticle.Play();
-            lerp = 0;
+            Lerp = 0;
             _isArrived = false;
         }
 
@@ -64,13 +64,13 @@ namespace ProjectileControl
 
         protected void ProjectilePath(Vector3 endPos)
         {
-            if (lerp < 1)
+            if (Lerp < 1)
             {
-                _gravity = Mathf.Lerp(0.8f, 1.5f, lerp);
-                lerp += Time.deltaTime * _gravity * speed;
+                _gravity = Mathf.Lerp(0.8f, 1.5f, Lerp);
+                Lerp += Time.deltaTime * _gravity * speed;
                 _centerPos = (_startPos + endPos) * 0.5f + Vector3.up * height;
-                _curPos = Vector3.Lerp(Vector3.Lerp(_startPos, _centerPos, lerp),
-                    Vector3.Lerp(_centerPos, endPos, lerp), lerp);
+                _curPos = Vector3.Lerp(Vector3.Lerp(_startPos, _centerPos, Lerp),
+                    Vector3.Lerp(_centerPos, endPos, Lerp), Lerp);
                 var t = transform;
                 var dir = (_curPos - t.position).normalized;
                 t.position = _curPos;

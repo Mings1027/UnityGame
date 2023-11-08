@@ -15,7 +15,7 @@ namespace ManagerControl
         protected void Awake()
         {
             _gameObjects = new List<GameObject>();
-            Application.targetFrameRate = 60;
+            // Application.targetFrameRate = 60;
         }
 
         protected void Start()

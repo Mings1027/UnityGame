@@ -1,4 +1,3 @@
-using System;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
@@ -15,11 +14,11 @@ namespace UIControl
         private void Awake()
         {
             _bounceSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(toggleTowerButton.DOAnchorPosX(70, 1f).SetEase(ease));
+                .Append(toggleTowerButton.DOAnchorPosX(50, 1).SetEase(ease));
             toggleTowerButton.GetComponent<Button>().onClick.AddListener(BounceButton);
         }
 
-        private void Start()
+        public void TutorialButton()
         {
             _bounceSequence.SetLoops(-1, LoopType.Yoyo).Restart();
         }
@@ -29,7 +28,7 @@ namespace UIControl
             toggleTowerButton.anchoredPosition = Vector2.zero;
             _bounceSequence.Kill();
             toggleTowerButton.GetComponent<Button>().onClick.RemoveListener(BounceButton);
-            Destroy(gameObject);
+            Destroy(GetComponent<TutorialController>());
         }
     }
 }

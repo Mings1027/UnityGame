@@ -5,8 +5,10 @@ using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DataControl;
 using DG.Tweening;
+using ManagerControl;
 using PoolObjectControl;
 using StatusControl;
+using UIControl;
 using UnitControl.FriendlyControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -15,7 +17,6 @@ namespace TowerControl
 {
     public class UnitTower : Tower
     {
-        private Sequence _reSpawnBarSequence;
         private Collider[] _targetColliders;
         private bool _isUnitSpawn;
         private bool _isReSpawning;
@@ -24,6 +25,7 @@ namespace TowerControl
         public Vector3 unitSpawnPosition { get; set; }
         private List<FriendlyUnit> _units;
         private ReSpawnBar _unitReSpawnBar;
+        private Transform _reSpawnBarTransform;
 
         [SerializeField, Range(0, 5)] private byte unitCount;
 
@@ -58,19 +60,31 @@ namespace TowerControl
             {
                 var angle = i * ((float)Math.PI * 2f) / unitCount;
                 var pos = unitSpawnPosition + new Vector3((float)Math.Cos(angle), 0, (float)Math.Sin(angle));
-                var unit = PoolObjectManager.Get<FriendlyUnit>(TowerData.PoolObjectKey, transform.position);
+                var position = transform.position;
+                var unit = PoolObjectManager.Get<FriendlyUnit>(TowerData.PoolObjectKey, position);
                 _units.Add(unit);
                 _units[i].transform.DOJump(pos, 2, 1, 0.5f).SetEase(Ease.OutSine);
                 _units[i].SpawnInit(this, TowerData.TowerType);
-                _units[i].TryGetComponent(out Health health);
-                health.OnDeadEvent += () => DeadEvent(unit);
+                var healthBar = PoolObjectManager.Get<HealthBar>(UIPoolObjectKey.UnitHealthBar);
+                healthBar.Init(_units[i].GetComponent<Progressive>());
+
+                var unitHealth = _units[i].GetComponent<UnitHealth>();
+                var unitTowerData = (UnitTowerData)TowerData;
+                unitHealth.Init(unitTowerData.UnitHealth);
+
+                _units[i].OnDisableEvent += () =>
+                {
+                    healthBar.RemoveEvent();
+                    DeadEvent(unit);
+                };
+                ProgressBarCanvasController.AddProgressBar(healthBar, _units[i].healthBarTransform);
             }
 
             _isUnitSpawn = true;
 
             if (!_isReSpawning) return;
-            _unitReSpawnBar.StopReSpawning();
-            _reSpawnBarSequence.PlayBackwards();
+            _unitReSpawnBar.StopLoading();
+            ProgressBarCanvasController.RemoveProgressBar(_reSpawnBarTransform);
         }
 
         private void UnitUpgrade(int damage, float delay)
@@ -84,6 +98,8 @@ namespace TowerControl
 
         private void DeadEvent(FriendlyUnit unit)
         {
+            ProgressBarCanvasController.RemoveProgressBar(unit.healthBarTransform);
+
             _units.Remove(unit);
             if (_units.Count > 0) return;
 
@@ -95,10 +111,11 @@ namespace TowerControl
         private async UniTaskVoid UnitReSpawnAsync()
         {
             _isReSpawning = true;
-            _unitReSpawnBar.enabled = true;
-            _reSpawnBarSequence.Restart();
-            await _unitReSpawnBar.UpdateBarEvent();
-            _reSpawnBarSequence.PlayBackwards();
+            _unitReSpawnBar = PoolObjectManager.Get<ReSpawnBar>(UIPoolObjectKey.ReSpawnBar);
+            _unitReSpawnBar.Init();
+            ProgressBarCanvasController.AddProgressBar(_unitReSpawnBar, _reSpawnBarTransform);
+            await _unitReSpawnBar.StartLoading(5);
+            ProgressBarCanvasController.RemoveProgressBar(_reSpawnBarTransform);
 
             _isReSpawning = false;
 
@@ -122,11 +139,8 @@ namespace TowerControl
         protected override void Init()
         {
             base.Init();
+            _reSpawnBarTransform = transform.GetChild(1);
             _units = new List<FriendlyUnit>(unitCount);
-            _unitReSpawnBar = GetComponentInChildren<ReSpawnBar>();
-            _reSpawnBarSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(_unitReSpawnBar.transform.DOScale(0.02f, 0.5f).From(0).SetEase(Ease.OutBack))
-                .Join(_unitReSpawnBar.transform.DOLocalMoveY(3, 0.5f).SetEase(Ease.OutBack));
         }
 
         public override void TowerTargetInit()

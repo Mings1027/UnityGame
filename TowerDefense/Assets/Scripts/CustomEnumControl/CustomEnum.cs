@@ -35,7 +35,7 @@ namespace CustomEnumControl
         BallistaProjectile,
         WizardProjectile,
         CanonProjectile,
-        
+
         //==============Vfx==============
 
         BloodVfx,
@@ -43,6 +43,13 @@ namespace CustomEnumControl
         //==============Unit==============
         AssassinUnit,
         DefenderUnit,
+    }
+
+    public enum UIPoolObjectKey
+    {
+        UnitHealthBar,
+        EnemyHealthBar,
+        ReSpawnBar
     }
 
     public enum EnemyPoolObjectKey

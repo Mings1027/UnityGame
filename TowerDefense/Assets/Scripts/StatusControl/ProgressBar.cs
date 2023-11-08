@@ -10,18 +10,13 @@ namespace StatusControl
 
         protected virtual void Awake()
         {
-            Progressive = GetComponentInParent<Progressive>();
             slider = GetComponent<Slider>();
         }
 
-        protected virtual void OnEnable()
+        public virtual void Init(Progressive progressive)
         {
+            Progressive = progressive;
             Progressive.OnUpdateBarEvent += UpdateBarEvent;
-        }
-
-        protected virtual void OnDisable()
-        {
-            Progressive.OnUpdateBarEvent -= UpdateBarEvent;
         }
 
         private void UpdateBarEvent()

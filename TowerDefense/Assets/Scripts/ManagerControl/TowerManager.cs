@@ -33,18 +33,7 @@ namespace ManagerControl
             base.Start();
             IndicatorInit();
         }
-
-        private void OnEnable()
-        {
-            _cts?.Cancel();
-            _cts = new CancellationTokenSource();
-        }
-
-        private void OnDisable()
-        {
-            _cts?.Cancel();
-            _cts?.Dispose();
-        }
+        
 
         #endregion
 
@@ -54,7 +43,7 @@ namespace ManagerControl
         {
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
-            Application.targetFrameRate = 60;
+            // Application.targetFrameRate = 60;
             TargetingAsync().Forget();
             AttackAsync().Forget();
         }
@@ -64,7 +53,7 @@ namespace ManagerControl
             _cts?.Cancel();
 
             TargetInit();
-            SlowDownFrameRate().Forget();
+            // SlowDownFrameRate().Forget();
             PoolObjectManager.PoolCleaner().Forget();
         }
 
