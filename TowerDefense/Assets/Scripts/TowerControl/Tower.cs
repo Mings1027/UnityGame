@@ -11,6 +11,7 @@ namespace TowerControl
     public abstract class Tower : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         private MeshRenderer _meshRenderer;
+        private MeshFilter _defaultMesh;
         private MeshFilter _meshFilter;
         private bool _isBuilt;
 
@@ -31,6 +32,13 @@ namespace TowerControl
             Init();
         }
 
+        private void OnEnable()
+        {
+            TowerLevel = -1;
+            Outline.enabled = false;
+            _meshFilter = _defaultMesh;
+        }
+
         public void OnPointerDown(PointerEventData eventData)
         {
         }
@@ -38,9 +46,9 @@ namespace TowerControl
         public virtual void OnPointerUp(PointerEventData eventData)
         {
             if (!_isBuilt) return;
+            if (Input.touchCount > 1) return;
             if (!Input.GetTouch(0).deltaPosition.Equals(Vector2.zero)) return;
             OnClickTower?.Invoke(this);
-            if (Input.touchCount > 1) return;
             Outline.enabled = true;
         }
 
@@ -64,12 +72,11 @@ namespace TowerControl
 
         protected virtual void Init()
         {
-            TowerLevel = -1;
             Outline = GetComponent<Outlinable>();
-            Outline.enabled = false;
             BoxCollider = GetComponent<BoxCollider>();
             _meshFilter = transform.GetChild(0).GetComponent<MeshFilter>();
             _meshRenderer = transform.GetChild(0).GetComponent<MeshRenderer>();
+            _defaultMesh = _meshFilter;
         }
 
         #region Public Function

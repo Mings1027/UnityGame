@@ -19,9 +19,9 @@ namespace StatusControl
             _cam = Camera.main;
         }
 
-        private void OnDestroy()
+        private void OnDisable()
         {
-            _loadingSequence.Kill();
+            _loadingSequence?.Kill();
         }
 
         public void Init()
@@ -30,7 +30,7 @@ namespace StatusControl
             _cts = new CancellationTokenSource();
             transform.position = _cam.WorldToScreenPoint(_position);
             _loadingSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(transform.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBack))
+                .Append(transform.DOScale(transform.localScale.x, 0.5f).From(0).SetEase(Ease.OutBack))
                 .Join(transform.DOLocalMoveY(3, 0.5f).SetEase(Ease.OutBack));
         }
 
@@ -39,11 +39,6 @@ namespace StatusControl
             _loadingSequence.Restart();
             await slider.DOValue(1, loadingDelay).From(0).WithCancellation(_cts.Token);
             _loadingSequence.PlayBackwards();
-            while (_loadingSequence.IsComplete())
-            {
-                await UniTask.Yield();
-                gameObject.SetActive(false);
-            }
         }
 
         public async UniTaskVoid StopLoading()

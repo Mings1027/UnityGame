@@ -29,6 +29,7 @@ namespace ManagerControl
             _patchMap = new Dictionary<string, long>();
             startGameButton.onClick.AddListener(StartGameButton);
             downLoadButton.onClick.AddListener(DownLoadButton);
+            LocaleManager.ChangeLocale(0);
         }
 
         private void Start()
@@ -36,7 +37,6 @@ namespace ManagerControl
             Time.timeScale = 1;
             downLoadPanel.SetActive(false);
             InitAddressable().Forget();
-            LocaleManager.ChangeLocale(0);
         }
 
         private async UniTaskVoid InitAddressable()
@@ -81,8 +81,9 @@ namespace ManagerControl
                 downLoadButton.gameObject.SetActive(false);
 
                 sizeInfoText.enabled = false;
-                downLoadText.DOCounter(0, 100, 0.5f);
-                await downSlider.DOValue(1, 0.5f).From(0);
+                downLoadText.text = "100 %";
+                downSlider.value = 1;
+                await UniTask.Delay(500);
                 StartGame();
                 // 게임 시작되는 부분
             }

@@ -38,10 +38,11 @@ namespace UIControl
         private UnitTower _curUnitTower;
 
         private Image _toggleTowerBtnImage;
-        private Image[] _speedButtons;
+        // private Image[] _speedButtons;
 
         private TMP_Text[] _damageTextList;
         private TMP_Text[] _towerCostTexts;
+        private TMP_Text _curSpeedText;
 
         private int _sellTowerCost;
         private int _towerCost;
@@ -50,7 +51,6 @@ namespace UIControl
         private bool _isShowTowerBtn;
         private bool _isSpeedUp;
         private bool _callNotEnoughTween;
-        private bool _isOnTowerButton;
         private bool _isPanelOpen;
 
         private Vector3 _prevPos;
@@ -204,7 +204,7 @@ namespace UIControl
         {
             _toggleTowerBtnImage = toggleTowerButton.transform.GetChild(0).GetComponent<Image>();
             _onOffTowerBtnSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(towerPanel.DOAnchorPosX(250, 0.5f).SetRelative().SetEase(Ease.InOutBack))
+                .Append(towerPanel.DOAnchorPosX(0, 0.5f).From().SetRelative().SetEase(Ease.InOutBack))
                 .Join(_toggleTowerBtnImage.transform.DORotate(new Vector3(0, 180, 0), 0.5f, RotateMode.LocalAxisAdd));
 
             _towerInfoPanelTween =
@@ -215,8 +215,8 @@ namespace UIControl
                 .Append(pausePanel.DOLocalMoveY(0, 0.5f).From(Screen.height).SetEase(Ease.OutBack))
                 .Join(pauseButton.transform.DOLocalMoveY(200, 0.25f).SetRelative().SetEase(Ease.InOutBack))
                 .Join(mainMenuButton.transform.DOScale(1, 0.1f).From(0))
-                // .OnComplete(() => Application.targetFrameRate = 30))
-                .PrependCallback(() => _cameraManager.enabled = !_cameraManager.enabled);
+                .PrependCallback(() => _cameraManager.enabled = !_cameraManager.enabled)
+                .OnComplete(() => Application.targetFrameRate = 30);
 
             _changeLanguageSequence = DOTween.Sequence().SetAutoKill(false).SetUpdate(true).Pause()
                 .Append(languagePanel.DOScale(1, 0.1f).From(0))
@@ -227,7 +227,8 @@ namespace UIControl
                 .Append(notEnoughCostPanel.DOScale(0, 0.5f).SetDelay(0.3f).SetEase(Ease.InBounce));
 
             _cantMoveImageSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(cantMoveImage.transform.DOScale(1, 0.5f).From(0).SetLoops(2, LoopType.Yoyo))
+                .Append(cantMoveImage.transform.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBounce)
+                    .SetLoops(2, LoopType.Yoyo))
                 .Join(cantMoveImage.DOFade(0, 0.5f).From(1));
         }
 
@@ -295,7 +296,7 @@ namespace UIControl
             {
                 SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
                 Time.timeScale = _curTimeScale;
-                // Application.targetFrameRate = 60;
+                Application.targetFrameRate = 60;
                 _pauseSequence.PlayBackwards();
             });
             bgmToggle.isOn = false;
@@ -320,12 +321,6 @@ namespace UIControl
                 _changeLanguageSequence.Restart();
             });
 
-            _speedButtons = new Image[speedUpButton.transform.childCount];
-            for (int i = 0; i < _speedButtons.Length; i++)
-            {
-                _speedButtons[i] = speedUpButton.transform.GetChild(i).GetComponent<Image>();
-            }
-
             for (var i = 0; i < languageButtons.childCount; i++)
             {
                 var index = i;
@@ -343,14 +338,13 @@ namespace UIControl
                 SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
                 SpeedUp();
             });
+            _curSpeedText = speedUpButton.GetComponentInChildren<TMP_Text>();
         }
 
         private async UniTaskVoid ToggleTowerButtons()
         {
             if (!_isShowTowerBtn)
             {
-                OnToggleButton();
-
                 _isShowTowerBtn = true;
                 _onOffTowerBtnSequence.Restart();
             }
@@ -364,7 +358,13 @@ namespace UIControl
                 {
                     await _toggleTowerBtnImage.DOFade(0, 1);
 
-                    _isOnTowerButton = false;
+                    if (_isShowTowerBtn)
+                    {
+                        _toggleTowerBtnImage.DOFade(1, 0);
+                        toggleTowerButton.enabled = true;
+                        return;
+                    }
+
                     toggleTowerButton.enabled = false;
                 }
             }
@@ -512,20 +512,12 @@ namespace UIControl
                 towerLevel, GetTowerUpgradeCost(in towerType), _sellTowerCost);
         }
 
-        private void OnToggleButton()
-        {
-            if (_isOnTowerButton) return;
-            _toggleTowerBtnImage.DOFade(1, 0.2f).OnComplete(() =>
-            {
-                _isOnTowerButton = true;
-                toggleTowerButton.enabled = true;
-            });
-        }
-
         public void UIOff()
         {
-            OnToggleButton();
             OffUI();
+            if (_isShowTowerBtn) return;
+            _toggleTowerBtnImage.DOFade(1, 0.2f);
+            toggleTowerButton.enabled = true;
         }
 
         private int GetTowerUpgradeCost(in TowerType towerType)
@@ -621,6 +613,10 @@ namespace UIControl
             return false;
         }
 
+        public void GameEnd()
+        {
+        }
+
         private async UniTaskVoid GameStart()
         {
             _cam.cullingMask = int.MaxValue;
@@ -629,7 +625,7 @@ namespace UIControl
             _cameraManager.enabled = false;
             toggleTowerButton.raycastTarget = false;
             await DOTween.Sequence()
-                .Append(_cam.transform.DOLocalMove(new Vector3(0, 40, -40), 1.5f).SetEase(Ease.OutQuad))
+                .Append(_cam.transform.DOLocalMove(new Vector3(0, 40, -40), 1.5f))
                 .Join(_cam.DOOrthoSize(17, 1.5f).From(100).SetEase(Ease.OutQuad))
                 .Join(_cam.transform.DOLocalMove(new Vector3(0, 20, -20), 1.5f));
             SoundManager.Instance.PlayBGM(SoundEnum.WaveEnd);
@@ -655,14 +651,8 @@ namespace UIControl
         {
             _curTimeScale = (byte)(_curTimeScale % 3 + 1);
             Time.timeScale = _curTimeScale;
-            for (int i = 0; i < 3; i++)
-            {
-                _speedButtons[i].enabled = false;
-                if (i < _curTimeScale)
-                {
-                    _speedButtons[i].enabled = true;
-                }
-            }
+
+            _curSpeedText.text = "x" + _curTimeScale;
         }
     }
 }

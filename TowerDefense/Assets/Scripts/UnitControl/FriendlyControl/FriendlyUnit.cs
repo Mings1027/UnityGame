@@ -97,8 +97,8 @@ namespace UnitControl.FriendlyControl
 
         public void OnPointerUp(PointerEventData eventData)
         {
-            if (!Input.GetTouch(0).deltaPosition.Equals(Vector2.zero)) return;
             if (Input.touchCount > 1) return;
+            if (!Input.GetTouch(0).deltaPosition.Equals(Vector2.zero)) return;
             _parentTower.OnPointerUp(null);
         }
 
@@ -138,10 +138,15 @@ namespace UnitControl.FriendlyControl
             _navMeshAgent.SetDestination(targetPos);
         }
 
+        public void UnitAnimation()
+        {
+            if (_moveInput || _health.IsDead) return;
+            _anim.SetBool(IsWalk, !_navMeshAgent.velocity.Equals(Vector3.zero));
+        }
+
         public async UniTaskVoid UnitAttackAsync(CancellationTokenSource cts)
         {
             if (_health.IsDead) return;
-            _anim.SetBool(IsWalk, !_navMeshAgent.velocity.Equals(Vector3.zero));
 
             if (_moveInput || !_targetInAtkRange || !_isTargeting || _isAttacking) return;
             _isAttacking = true;
@@ -186,6 +191,8 @@ namespace UnitControl.FriendlyControl
         public async UniTask MoveToTouchPos(Vector3 pos)
         {
             _moveInput = true;
+            _targetInAtkRange = false;
+            _isTargeting = false;
             _anim.SetBool(IsWalk, true);
             _navMeshAgent.isStopped = false;
             _navMeshAgent.stoppingDistance = 0.1f;

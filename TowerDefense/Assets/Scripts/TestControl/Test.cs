@@ -5,8 +5,18 @@ using UnityEngine.UI;
 
 namespace TestControl
 {
+    public struct TESTEST
+    {
+        private int size;
+
+        public void aaa()
+        {
+            
+        }
+    }
     public class Test : MonoBehaviour
     {
+        private TESTEST _testest;
         private Image image;
         private Transform shadowParent;
         private Transform shadow;
@@ -15,6 +25,13 @@ namespace TestControl
 
         [SerializeField] private float rotateSpeed;
 
+        private void Awake()
+        {
+            if (_testest.Equals(default(TESTEST)))
+            {
+                _testest.aaa();
+            }
+        }
         // private void Awake()
         // {
         //     shadowParent = transform.GetChild(0);

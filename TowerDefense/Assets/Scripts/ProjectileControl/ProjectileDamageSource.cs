@@ -7,22 +7,22 @@ namespace ProjectileControl
     public class ProjectileDamageSource : MonoBehaviour
     {
         private Projectile _projectile;
-        private DecalProjector shadowDecal;
+        private DecalProjector _shadowDecal;
 
         private void Awake()
         {
             _projectile = GetComponentInParent<Projectile>();
-            shadowDecal = _projectile.transform.GetChild(3).GetComponent<DecalProjector>();
+            _shadowDecal = _projectile.transform.GetChild(3).GetComponent<DecalProjector>();
         }
 
         private void OnEnable()
         {
-            shadowDecal.enabled = true;
+            _shadowDecal.enabled = true;
         }
 
         private void OnDisable()
         {
-            shadowDecal.enabled = false;
+            _shadowDecal.enabled = false;
             if (!_projectile.target) return;
             _projectile.Hit();
         }

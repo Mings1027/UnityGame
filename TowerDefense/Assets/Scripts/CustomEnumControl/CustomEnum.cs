@@ -43,6 +43,13 @@ namespace CustomEnumControl
         //==============Unit==============
         AssassinUnit,
         DefenderUnit,
+        
+        //==============Tower=============
+        AssassinTower,
+        BallistaTower,
+        CanonTower,
+        DefenceTower,
+        WizardTower
     }
 
     public enum UIPoolObjectKey

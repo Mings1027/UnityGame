@@ -33,7 +33,12 @@ namespace ManagerControl
             base.Start();
             IndicatorInit();
         }
-        
+
+        private void OnDisable()
+        {
+            _cts?.Cancel();
+            _cts?.Dispose();
+        }
 
         #endregion
 
@@ -43,7 +48,7 @@ namespace ManagerControl
         {
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
-            // Application.targetFrameRate = 60;
+            Application.targetFrameRate = 60;
             TargetingAsync().Forget();
             AttackAsync().Forget();
         }
@@ -53,7 +58,7 @@ namespace ManagerControl
             _cts?.Cancel();
 
             TargetInit();
-            // SlowDownFrameRate().Forget();
+            SlowDownFrameRate().Forget();
             PoolObjectManager.PoolCleaner().Forget();
         }
 
@@ -75,6 +80,7 @@ namespace ManagerControl
             while (!_cts.IsCancellationRequested)
             {
                 await UniTask.Delay(100, cancellationToken: _cts.Token);
+                if (_cts.IsCancellationRequested) return;
                 for (var i = 0; i < _towers.Count; i++)
                 {
                     _towers[i].TowerAttackAsync(_cts);
@@ -94,11 +100,11 @@ namespace ManagerControl
         private async UniTaskVoid SlowDownFrameRate()
         {
             var frameRate = 60;
-            while (frameRate > 30)
+            while (frameRate > 30 && !_cts.IsCancellationRequested)
             {
                 frameRate -= 1;
                 Application.targetFrameRate = frameRate;
-                await UniTask.Yield();
+                await UniTask.Yield(_cts.Token);
             }
         }
 

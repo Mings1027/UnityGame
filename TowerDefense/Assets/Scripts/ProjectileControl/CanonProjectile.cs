@@ -7,7 +7,7 @@ namespace ProjectileControl
         private bool _isLockOnTarget;
         private Vector3 _targetEndPos;
         private Collider[] _targetColliders;
-        private AudioSource explosionAudio;
+        private AudioSource _explosionAudio;
 
         [SerializeField] private LayerMask enemyLayer;
         [SerializeField] private float atkRange;
@@ -16,7 +16,7 @@ namespace ProjectileControl
         {
             base.Awake();
             _targetColliders = new Collider[5];
-            explosionAudio = GetComponentInChildren<AudioSource>();
+            _explosionAudio = GetComponentInChildren<AudioSource>();
         }
 
         protected override void OnEnable()
@@ -44,7 +44,7 @@ namespace ProjectileControl
         public override void Hit()
         {
             base.Hit();
-            explosionAudio.Play();
+            _explosionAudio.Play();
             if (_targetEndPos == Vector3.zero) return;
             var pos = transform.position;
 

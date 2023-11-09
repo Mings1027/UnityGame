@@ -9,7 +9,7 @@ namespace TowerControl
         private Transform _childObj;
         [SerializeField] private ParticleSystem canonSmoke;
 
-        private void OnDestroy()
+        private void OnDisable()
         {
             _atkSequence?.Kill();
         }

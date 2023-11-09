@@ -24,8 +24,6 @@ namespace ManagerControl
         private sbyte _enemyLevel; // Increase After Boss Wave
         private byte _enemyDataIndex; // 
 
-        private Camera _cam;
-        private CameraManager _cameraManager;
         private CancellationTokenSource _cts;
         private List<EnemyUnit> _enemyList;
         private NavMeshSurface _bossNavmesh;
@@ -38,10 +36,6 @@ namespace ManagerControl
         [SerializeField] private byte bossWaveTerm;
         [SerializeField] private EnemyData[] enemiesData;
         [SerializeField] private EnemyData[] bossData;
-        [SerializeField] private float healthBarMinSize;
-
-        [FormerlySerializedAs("healthBarMxaSize")] [SerializeField]
-        private float healthBarMaxSize;
 
         #region Unity Event
 
@@ -49,7 +43,6 @@ namespace ManagerControl
         {
             _enemyLevel = 1;
             _enemyDataIndex = 1;
-            _cam = Camera.main;
             _enemyList = new List<EnemyUnit>();
             _bossNavmesh = GetComponent<NavMeshSurface>();
             // var enemyDataGuids = AssetDatabase.FindAssets("t: EnemyData", new[] { "Assets/EnemyData" });
@@ -60,12 +53,6 @@ namespace ManagerControl
             //         AssetDatabase.LoadAssetAtPath<EnemyData>(
             //             AssetDatabase.GUIDToAssetPath(enemyDataGuids.ToArray()[i]));
             // }
-        }
-
-        protected override void Start()
-        {
-            base.Start();
-            _cameraManager = _cam.GetComponentInParent<CameraManager>();
         }
 
         private void OnEnable()
@@ -176,11 +163,11 @@ namespace ManagerControl
             };
             enemyUnit.OnDisableEvent += () =>
             {
-                ProgressBarCanvasController.RemoveProgressBar(enemyUnit.HealthBarTransform);
+                ProgressBarUIController.Remove(enemyUnit.HealthBarTransform);
                 healthBar.RemoveEvent();
             };
 
-            ProgressBarCanvasController.AddProgressBar(healthBar, enemyUnit.HealthBarTransform);
+            ProgressBarUIController.Add(healthBar, enemyUnit.HealthBarTransform);
         }
 
         #endregion
@@ -285,6 +272,9 @@ namespace ManagerControl
             TowerManager.Instance.StopTargeting();
             SoundManager.Instance.PlayBGM(SoundEnum.WaveEnd);
             enabled = false;
+
+            if (!_isLastWave) return;
+            UIManager.Instance.GameEnd();
         }
     }
 }

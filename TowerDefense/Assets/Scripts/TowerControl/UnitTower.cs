@@ -31,11 +31,22 @@ namespace TowerControl
 
         #region Unity Event
 
-        private void OnDestroy()
+        private void OnDisable()
         {
-            for (var i = 0; i < _units.Count; i++)
+            if (_isReSpawning)
             {
-                if (!_units[i]) continue;
+                _unitReSpawnBar.StopLoading().Forget();
+                ProgressBarUIController.Remove(_reSpawnBarTransform);
+            }
+
+            for (int i = _units.Count - 1; i >= 0; i--)
+            {
+                ProgressBarUIController.Remove(_units[i].healthBarTransform);
+            }
+
+            for (var i = _units.Count - 1; i >= 0; i--)
+            {
+                if (_units[i] == null) continue;
                 _units[i].gameObject.SetActive(false);
             }
         }
@@ -43,8 +54,8 @@ namespace TowerControl
         public override void OnPointerUp(PointerEventData eventData)
         {
             base.OnPointerUp(eventData);
-            if (!Input.GetTouch(0).deltaPosition.Equals(Vector2.zero)) return;
             if (Input.touchCount > 1) return;
+            if (!Input.GetTouch(0).deltaPosition.Equals(Vector2.zero)) return;
             ActiveUnitIndicator();
         }
 
@@ -71,20 +82,17 @@ namespace TowerControl
                 var unitHealth = _units[i].GetComponent<UnitHealth>();
                 var unitTowerData = (UnitTowerData)TowerData;
                 unitHealth.Init(unitTowerData.UnitHealth);
+                unitHealth.OnDeadEvent += () => DeadEvent(unit);
+                _units[i].OnDisableEvent += healthBar.RemoveEvent;
 
-                _units[i].OnDisableEvent += () =>
-                {
-                    healthBar.RemoveEvent();
-                    DeadEvent(unit);
-                };
-                ProgressBarCanvasController.AddProgressBar(healthBar, _units[i].healthBarTransform);
+                ProgressBarUIController.Add(healthBar, _units[i].healthBarTransform);
             }
 
             _isUnitSpawn = true;
 
             if (!_isReSpawning) return;
             _unitReSpawnBar.StopLoading();
-            ProgressBarCanvasController.RemoveProgressBar(_reSpawnBarTransform);
+            ProgressBarUIController.Remove(_reSpawnBarTransform);
         }
 
         private void UnitUpgrade(int damage, float delay)
@@ -98,7 +106,7 @@ namespace TowerControl
 
         private void DeadEvent(FriendlyUnit unit)
         {
-            ProgressBarCanvasController.RemoveProgressBar(unit.healthBarTransform);
+            ProgressBarUIController.Remove(unit.healthBarTransform);
 
             _units.Remove(unit);
             if (_units.Count > 0) return;
@@ -112,10 +120,11 @@ namespace TowerControl
         {
             _isReSpawning = true;
             _unitReSpawnBar = PoolObjectManager.Get<ReSpawnBar>(UIPoolObjectKey.ReSpawnBar);
+            ProgressBarUIController.Add(_unitReSpawnBar, _reSpawnBarTransform);
             _unitReSpawnBar.Init();
-            ProgressBarCanvasController.AddProgressBar(_unitReSpawnBar, _reSpawnBarTransform);
             await _unitReSpawnBar.StartLoading(5);
-            ProgressBarCanvasController.RemoveProgressBar(_reSpawnBarTransform);
+            _unitReSpawnBar.gameObject.SetActive(false);
+            ProgressBarUIController.Remove(_reSpawnBarTransform);
 
             _isReSpawning = false;
 
@@ -145,7 +154,7 @@ namespace TowerControl
 
         public override void TowerTargetInit()
         {
-            for (var i = 0; i < _units.Count; i++)
+            for (var i = _units.Count - 1; i >= 0; i--)
             {
                 _units[i].UnitTargetInit();
             }
@@ -153,7 +162,7 @@ namespace TowerControl
 
         public override void TowerTargeting()
         {
-            for (var i = 0; i < _units.Count; i++)
+            for (var i = _units.Count - 1; i >= 0; i--)
             {
                 _units[i].UnitTargeting();
             }
@@ -162,9 +171,10 @@ namespace TowerControl
         public override async UniTaskVoid TowerAttackAsync(CancellationTokenSource cts)
         {
             await UniTask.Delay(100, cancellationToken: cts.Token);
-            for (var i = 0; i < _units.Count; i++)
+            for (var i = _units.Count - 1; i >= 0; i--)
             {
                 _units[i].UnitAttackAsync(cts).Forget();
+                _units[i].UnitAnimation();
             }
         }
 
@@ -196,7 +206,7 @@ namespace TowerControl
         public async UniTask StartUnitMove(Vector3 touchPos)
         {
             var tasks = new UniTask[_units.Count];
-            for (var i = 0; i < _units.Count; i++)
+            for (var i = _units.Count - 1; i >= 0; i--)
             {
                 var angle = i * ((float)Math.PI * 2f) / _units.Count;
                 var pos = touchPos + new Vector3((float)Math.Cos(angle), 0, (float)Math.Sin(angle));

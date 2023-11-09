@@ -14,7 +14,7 @@ namespace UIControl
         private void Awake()
         {
             _bounceSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(toggleTowerButton.DOAnchorPosX(50, 1).SetEase(ease));
+                .Append(toggleTowerButton.DOAnchorPosX(50, 0.7f).SetEase(ease));
             toggleTowerButton.GetComponent<Button>().onClick.AddListener(BounceButton);
         }
 

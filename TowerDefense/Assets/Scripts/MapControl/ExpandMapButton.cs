@@ -2,6 +2,7 @@ using System;
 using CustomEnumControl;
 using InterfaceControl;
 using ManagerControl;
+using PoolObjectControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -27,8 +28,11 @@ namespace MapControl
 
         public void OnPointerUp(PointerEventData eventData)
         {
+            if (Input.touchCount > 1) return;
             if (!Input.GetTouch(0).deltaPosition.Equals(Vector2.zero)) return;
-            OnExpandMapEvent?.Invoke(transform.position);
+            var position = transform.position;
+            PoolObjectManager.Get(PoolObjectKey.ExpandMapSmoke, position);
+            OnExpandMapEvent?.Invoke(position);
             SoundManager.Instance.PlayBGM(SoundEnum.WaveStart);
         }
     }

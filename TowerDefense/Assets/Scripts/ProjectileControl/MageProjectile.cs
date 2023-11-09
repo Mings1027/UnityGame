@@ -4,14 +4,14 @@ namespace ProjectileControl
 {
     public sealed class MageProjectile : Projectile
     {
-        private byte decreaseSpeed;
-        private byte slowCoolTime;
+        private byte _decreaseSpeed;
+        private byte _slowCoolTime;
 
         public override void ColorInit(sbyte effectIndex)
         {
             base.ColorInit(effectIndex);
-            decreaseSpeed = (byte)(effectIndex + 1);
-            slowCoolTime = decreaseSpeed;
+            _decreaseSpeed = (byte)(effectIndex + 1);
+            _slowCoolTime = _decreaseSpeed;
         }
 
         public override void Hit()
@@ -19,7 +19,7 @@ namespace ProjectileControl
             base.Hit();
             TryDamage(target);
             target.TryGetComponent(out EnemyStatus enemyStatus);
-            enemyStatus.SlowEffect(decreaseSpeed, slowCoolTime);
+            enemyStatus.SlowEffect(_decreaseSpeed, _slowCoolTime);
         }
     }
 }
