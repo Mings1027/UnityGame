@@ -19,10 +19,10 @@ namespace StatusControl
             _border = transform.GetChild(0);
         }
 
-        public override void Init(Progressive progressive)
+        public override void Init(Progressive progress)
         {
-            base.Init(progressive);
-            Progressive.OnUpdateBarEvent += ShakeBarEvent;
+            base.Init(progress);
+            progressive.OnUpdateBarEvent += ShakeBarEvent;
         }
 
         private void ShakeBarEvent() => _border
@@ -32,7 +32,7 @@ namespace StatusControl
 
         public void RemoveEvent()
         {
-            Progressive.OnUpdateBarEvent -= ShakeBarEvent;
+            progressive.OnUpdateBarEvent -= ShakeBarEvent;
             gameObject.SetActive(false);
         }
     }

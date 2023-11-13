@@ -1,6 +1,5 @@
 using System;
 using System.Threading;
-using Cysharp.Threading.Tasks;
 using DataControl;
 using EPOOutline;
 using UnityEngine;
@@ -16,7 +15,7 @@ namespace TowerControl
         private bool _isBuilt;
 
         protected BoxCollider BoxCollider;
-
+        
         public event Action<Tower> OnClickTower;
         public float TowerRange { get; private set; }
         public sbyte TowerLevel { get; private set; }
@@ -56,9 +55,8 @@ namespace TowerControl
 
         #region Abstract Function
 
+        public abstract void TowerUpdate(CancellationTokenSource cts);
         public abstract void TowerTargetInit();
-        public abstract void TowerTargeting();
-        public abstract UniTaskVoid TowerAttackAsync(CancellationTokenSource cts);
 
         #endregion
 

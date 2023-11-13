@@ -20,12 +20,13 @@ namespace ManagerControl
         private Touch _firstTouch, _secondTouch;
         private Vector3 _curPos, _newPos;
 
-        public event Action OnHealthBarZoomEvent;
+        public event Action OnResizeUIEvent;
 
         [SerializeField] private float rotationSpeed;
         [SerializeField] private float zoomSpeed;
         [SerializeField] private float decreaseMoveSpeed;
 
+        [SerializeField] private float orthoSize;
         [SerializeField] private Vector2Int camSizeMinMax;
         [SerializeField] private Vector2 uiSizeMinMax;
         [SerializeField] private Vector2Int camPosLimit;
@@ -179,14 +180,24 @@ namespace ManagerControl
 
             _modifiedMoveSpeed = orthographicSize / 20;
 
-            var t = Mathf.InverseLerp(25, camSizeMinMax.y, orthographicSize);
+            var t = Mathf.InverseLerp(orthoSize, camSizeMinMax.y, orthographicSize);
             var newCamPos = Vector3.Lerp(minCamPos, maxCamPos, t);
             _cam.transform.localPosition = newCamPos;
 
-            OnHealthBarZoomEvent?.Invoke();
+            OnResizeUIEvent?.Invoke();
         }
-        
-        public void ResizeUIElement(Transform healthBarTransform)
+
+        public async UniTask GameStartCamZoom()
+        {
+            await DOTween.Sequence().Append(_cam.transform.DOLocalMove(maxCamPos, 1.5f))
+                .Join(_cam.DOOrthoSize(17, 1.5f).From(100).SetEase(Ease.OutQuad))
+                .Join(_cam.transform.DOLocalMove(minCamPos, 1.5f));
+            var t = Mathf.InverseLerp(orthoSize, camSizeMinMax.y, _cam.orthographicSize);
+            var newCamPos = Vector3.Lerp(minCamPos, maxCamPos, t);
+            _cam.transform.localPosition = newCamPos;
+        }
+
+        public void ResizeUI(Transform healthBarTransform)
         {
             var t = Mathf.InverseLerp(camSizeMinMax.y, camSizeMinMax.x, _cam.orthographicSize);
             var newScale = Vector3.Lerp(Vector3.one * uiSizeMinMax.x, Vector3.one * uiSizeMinMax.y, t);

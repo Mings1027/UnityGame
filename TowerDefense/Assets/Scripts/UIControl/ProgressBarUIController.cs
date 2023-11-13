@@ -10,38 +10,38 @@ namespace UIControl
         private static ProgressBarUIController _inst;
         private Camera _cam;
         private CameraManager _cameraManager;
-        private Dictionary<ProgressBar, Transform> _progressBarDictionary;
+        private Dictionary<ProgressBar, Transform> _barDictionary;
         private Dictionary<Transform, ProgressBar> _inverseDic;
 
         private void Awake()
         {
             _inst = this;
             _cam = Camera.main;
-            _progressBarDictionary = new Dictionary<ProgressBar, Transform>();
+            _barDictionary = new Dictionary<ProgressBar, Transform>();
             _inverseDic = new Dictionary<Transform, ProgressBar>();
         }
 
         private void Start()
         {
             _cameraManager = _cam.GetComponentInParent<CameraManager>();
-            _cameraManager.OnHealthBarZoomEvent += ResizeUI;
+            _cameraManager.OnResizeUIEvent += ResizeUI;
         }
 
         private void Update()
         {
             if (Input.touchCount > 0)
             {
-                foreach (var pro in _progressBarDictionary.Keys)
+                foreach (var bar in _barDictionary.Keys)
                 {
-                    pro.transform.position = _cam.WorldToScreenPoint(_progressBarDictionary[pro].position)
+                    bar.transform.position = _cam.WorldToScreenPoint(_barDictionary[bar].position)
                                              + (Vector3)Input.GetTouch(0).deltaPosition.normalized;
                 }
             }
             else
             {
-                foreach (var pro in _progressBarDictionary.Keys)
+                foreach (var bar in _barDictionary.Keys)
                 {
-                    pro.transform.position = _cam.WorldToScreenPoint(_progressBarDictionary[pro].position);
+                    bar.transform.position = _cam.WorldToScreenPoint(_barDictionary[bar].position);
                 }
             }
         }
@@ -50,15 +50,15 @@ namespace UIControl
         {
             foreach (var key in _inverseDic.Keys)
             {
-                _cameraManager.ResizeUIElement(_inverseDic[key].transform);
+                _cameraManager.ResizeUI(_inverseDic[key].transform);
             }
         }
 
         private void SetProgressBar(ProgressBar progressBar, Transform barPosition)
         {
-            _progressBarDictionary[progressBar] = barPosition;
+            _barDictionary[progressBar] = barPosition;
             _inverseDic[barPosition] = progressBar;
-            _cameraManager.ResizeUIElement(progressBar.transform);
+            _cameraManager.ResizeUI(progressBar.transform);
 
             progressBar.transform.position = _cam.WorldToScreenPoint(barPosition.position);
         }
@@ -69,7 +69,7 @@ namespace UIControl
 
             var key = _inverseDic[barPosition];
             _inverseDic.Remove(barPosition);
-            _progressBarDictionary.Remove(key);
+            _barDictionary.Remove(key);
         }
 
         public static void Add(ProgressBar progressBar, Transform barPosition)

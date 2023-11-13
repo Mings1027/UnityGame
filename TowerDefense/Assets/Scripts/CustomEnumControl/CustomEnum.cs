@@ -20,6 +20,14 @@ namespace CustomEnumControl
         SellTower3
     }
 
+    public enum UnitState
+    {
+        Patrol,
+        Chase,
+        Attack,
+        Dead
+    }
+
     public enum PoolObjectKey
     {
         None,
@@ -43,7 +51,7 @@ namespace CustomEnumControl
         //==============Unit==============
         AssassinUnit,
         DefenderUnit,
-        
+
         //==============Tower=============
         AssassinTower,
         BallistaTower,

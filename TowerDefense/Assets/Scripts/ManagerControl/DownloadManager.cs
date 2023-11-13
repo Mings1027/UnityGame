@@ -5,6 +5,8 @@ using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -30,6 +32,9 @@ namespace ManagerControl
             startGameButton.onClick.AddListener(StartGameButton);
             downLoadButton.onClick.AddListener(DownLoadButton);
             LocaleManager.ChangeLocale(0);
+            
+            var urp = (UniversalRenderPipelineAsset)GraphicsSettings.currentRenderPipeline;
+            urp.shadowDistance = 100;
         }
 
         private void Start()
@@ -189,6 +194,8 @@ namespace ManagerControl
         private void StartGame()
         {
             SceneManager.LoadScene("MainGameScene");
+            var urp = (UniversalRenderPipelineAsset)GraphicsSettings.currentRenderPipeline;
+            urp.shadowDistance = 25;
         }
     }
 }

@@ -5,6 +5,7 @@ using DataControl;
 using DG.Tweening;
 using GameControl;
 using ManagerControl;
+using MapControl;
 using PoolObjectControl;
 using StatusControl;
 using TMPro;
@@ -38,7 +39,6 @@ namespace UIControl
         private UnitTower _curUnitTower;
 
         private Image _toggleTowerBtnImage;
-        // private Image[] _speedButtons;
 
         private TMP_Text[] _damageTextList;
         private TMP_Text[] _towerCostTexts;
@@ -125,11 +125,12 @@ namespace UIControl
         protected override void Awake()
         {
             base.Awake();
-            eventSystem.enabled = false;
+            // eventSystem.enabled = false;
             towerCardUI = GetComponentInChildren<TowerCardUI>();
             _cameraManager = FindObjectOfType<CameraManager>();
             BaseTowerHealth = GetComponent<Health>();
             _cam = Camera.main;
+            MapSelectButtonInit();
             TowerButtonInit();
             TowerInit();
             TweenInit();
@@ -230,6 +231,28 @@ namespace UIControl
                 .Append(cantMoveImage.transform.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBounce)
                     .SetLoops(2, LoopType.Yoyo))
                 .Join(cantMoveImage.DOFade(0, 0.5f).From(1));
+        }
+
+        private void MapSelectButtonInit()
+        {
+            var mapSelectPanel = transform.GetChild(0);
+            mapSelectPanel.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBack);
+            for (int i = 0; i < mapSelectPanel.childCount; i++)
+            {
+                var index = i;
+                mapSelectPanel.GetChild(i).GetComponent<Button>().onClick.AddListener(() => MapSelectButton(index + 1));
+            }
+        }
+
+        private async UniTaskVoid MapSelectButton(int index)
+        {
+            FindObjectOfType<MapManager>().MakeMap(index);
+            await transform.GetChild(0).DOScale(0, 0.5f).SetEase(Ease.InBack);
+            await infoWindow.DOAnchorPosY(0, 0.5f).From(new Vector2(0, 300)).SetEase(Ease.OutBack);
+            await towerPanel.DOAnchorPosX(0, 0.5f).SetEase(Ease.OutBack);
+
+            GetComponent<TutorialController>().TutorialButton();
+            Destroy(transform.GetChild(0).gameObject);
         }
 
         private void TowerButtonInit()
@@ -374,17 +397,12 @@ namespace UIControl
 
         public Sprite WhatTypeOfThisTower(TowerData t) => t.IsMagicTower ? magicSprite : physicalSprite;
 
-        public void InstantiateTower(TowerType towerType, Vector3 placePos, Vector3 towerForward,
-            bool isUnitTower)
+        public void InstantiateTower(TowerType towerType, Vector3 placePos, Vector3 towerForward)
         {
             var t = Instantiate(_towerObjDictionary[towerType], placePos, Quaternion.identity).GetComponent<Tower>();
             var towerTransform = t.transform;
             towerTransform.GetChild(0).position = towerTransform.position + new Vector3(0, 2, 0);
             towerTransform.GetChild(0).forward = towerForward;
-            if (isUnitTower)
-            {
-                SetUnitPosition(t);
-            }
 
             var towerData = _towerDataDictionary[towerType];
             BuildTower(t, placePos, towerData).Forget();
@@ -415,13 +433,6 @@ namespace UIControl
 
             TowerSetting(t, towerData);
             TowerManager.Instance.AddTower(t);
-        }
-
-        private void SetUnitPosition(Component t)
-        {
-            NavMesh.SamplePosition(t.transform.position, out var hit, 5, NavMesh.AllAreas);
-            t.TryGetComponent(out UnitTower u);
-            u.unitSpawnPosition = hit.position;
         }
 
         private void TowerSetting(Tower t, TowerData towerData)
@@ -623,18 +634,10 @@ namespace UIControl
             waveText.text = "0";
             Time.timeScale = 1;
             _cameraManager.enabled = false;
-            toggleTowerButton.raycastTarget = false;
-            await DOTween.Sequence()
-                .Append(_cam.transform.DOLocalMove(new Vector3(0, 40, -40), 1.5f))
-                .Join(_cam.DOOrthoSize(17, 1.5f).From(100).SetEase(Ease.OutQuad))
-                .Join(_cam.transform.DOLocalMove(new Vector3(0, 20, -20), 1.5f));
+            await _cameraManager.GameStartCamZoom();
             SoundManager.Instance.PlayBGM(SoundEnum.WaveEnd);
-            eventSystem.enabled = true;
+            // eventSystem.enabled = true;
             _cameraManager.enabled = true;
-            await infoWindow.DOAnchorPosY(0, 0.5f).From(new Vector2(0, 300)).SetEase(Ease.OutBack);
-            await towerPanel.DOAnchorPosX(0, 0.5f).SetEase(Ease.OutBack);
-            toggleTowerButton.raycastTarget = true;
-            GetComponent<TutorialController>().TutorialButton();
         }
 
         private void GameOver()

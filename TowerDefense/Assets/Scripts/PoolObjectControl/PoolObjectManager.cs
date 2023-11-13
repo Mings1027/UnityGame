@@ -49,6 +49,7 @@ namespace PoolObjectControl
         }
 
         private static PoolObjectManager _inst;
+        private Camera _cam;
         private Dictionary<PoolObjectKey, Stack<GameObject>> _prefabDictionary;
         private Dictionary<PoolObjectKey, Pool> _poolDictionary;
         private Dictionary<UIPoolObjectKey, Stack<GameObject>> _uiPrefabDictionary;
@@ -62,9 +63,10 @@ namespace PoolObjectControl
         [SerializeField] private UIPool[] uiPools;
         [SerializeField] private EnemyPool[] enemyPools;
 
-        private void Awake()
+        private void Start()
         {
             _inst = this;
+            _cam = Camera.main;
             _prefabDictionary = new Dictionary<PoolObjectKey, Stack<GameObject>>();
             _poolDictionary = new Dictionary<PoolObjectKey, Pool>();
             _uiPrefabDictionary = new Dictionary<UIPoolObjectKey, Stack<GameObject>>();
@@ -189,9 +191,9 @@ namespace PoolObjectControl
             throw new Exception("Component not found");
         }
 
-        public static T Get<T>(UIPoolObjectKey uiPoolObjectKey) where T : Component
+        public static T Get<T>(UIPoolObjectKey uiPoolObjectKey, Vector3 position) where T : Component
         {
-            var obj = _inst.Spawn(uiPoolObjectKey, _inst.canvas.position, Quaternion.identity);
+            var obj = _inst.Spawn(uiPoolObjectKey, _inst._cam.WorldToScreenPoint(position), Quaternion.identity);
             if (obj.TryGetComponent(out T component)) return component;
             obj.SetActive(false);
             throw new Exception("Component not found");

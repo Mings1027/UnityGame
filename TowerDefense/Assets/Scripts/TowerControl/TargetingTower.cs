@@ -7,15 +7,17 @@ using UnityEngine;
 
 namespace TowerControl
 {
+
     public abstract class TargetingTower : Tower
     {
         private AudioSource _attackSound;
-        private Collider[] _targetColliders;
+
         private bool _isAttack;
         private sbyte _effectIndex;
         private int _damage;
         private float _attackDelay;
         private bool _isAttacking;
+        private Collider[] _targetColliders;
 
         protected bool IsTargeting;
         protected Collider Target;
@@ -40,7 +42,7 @@ namespace TowerControl
             projectile.ColorInit(_effectIndex);
             projectile.Init(_damage, Target);
         }
-        
+
         protected virtual void Attack()
         {
             ProjectileInit();
@@ -63,15 +65,16 @@ namespace TowerControl
             _isAttacking = false;
         }
 
-        public override void TowerTargeting()
+        public override void TowerUpdate(CancellationTokenSource cts)
+        {
+            Patrol();
+            Attack(cts);
+        }
+
+        private void Patrol()
         {
             var size = Physics.OverlapSphereNonAlloc(transform.position, TowerRange, _targetColliders, targetLayer);
-            if (size <= 0)
-            {
-                Target = null;
-                IsTargeting = false;
-                return;
-            }
+            if (size <= 0) return;
 
             var shortestDistance = Mathf.Infinity;
             Collider nearestTarget = null;
@@ -88,7 +91,7 @@ namespace TowerControl
             IsTargeting = true;
         }
 
-        public override async UniTaskVoid TowerAttackAsync(CancellationTokenSource cts)
+        private async UniTaskVoid Attack(CancellationTokenSource cts)
         {
             if (!IsTargeting || _isAttacking) return;
             _isAttacking = true;
@@ -97,6 +100,41 @@ namespace TowerControl
             await UniTask.Delay(TimeSpan.FromSeconds(_attackDelay), cancellationToken: cts.Token);
             _isAttacking = false;
         }
+
+        // public override void TowerTargeting()
+        // {
+        //     var size = Physics.OverlapSphereNonAlloc(transform.position, TowerRange, _targetColliders, targetLayer);
+        //     if (size <= 0)
+        //     {
+        //         Target = null;
+        //         IsTargeting = false;
+        //         return;
+        //     }
+        //
+        //     var shortestDistance = Mathf.Infinity;
+        //     Collider nearestTarget = null;
+        //     for (var i = 0; i < size; i++)
+        //     {
+        //         var distanceToResult =
+        //             Vector3.SqrMagnitude(transform.position - _targetColliders[i].transform.position);
+        //         if (distanceToResult >= shortestDistance) continue;
+        //         shortestDistance = distanceToResult;
+        //         nearestTarget = _targetColliders[i];
+        //     }
+        //
+        //     Target = nearestTarget;
+        //     IsTargeting = true;
+        // }
+        //
+        // public override async UniTaskVoid TowerAttackAsync(CancellationTokenSource cts)
+        // {
+        //     if (!IsTargeting || _isAttacking) return;
+        //     _isAttacking = true;
+        //     _attackSound.Play();
+        //     Attack();
+        //     await UniTask.Delay(TimeSpan.FromSeconds(_attackDelay), cancellationToken: cts.Token);
+        //     _isAttacking = false;
+        // }
 
         public override void TowerSetting(MeshFilter towerMesh, int damageData, byte rangeData,
             float attackDelayData)

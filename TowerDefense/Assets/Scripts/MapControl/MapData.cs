@@ -18,18 +18,10 @@ namespace MapControl
         [SerializeField] private DirectionFlag wayDirectionFlag;
 
         public List<Vector3> wayPointList { get; private set; }
-        public List<Vector3> diagonalDir { get; private set; }
         public List<Vector3> placementTile { get; private set; }
 
         private void Awake()
         {
-            diagonalDir = new List<Vector3>
-            {
-                new(1, 0, 1),
-                new(-1, 0, 1),
-                new(-1, 0, -1),
-                new(1, 0, -1)
-            };
             wayPointList = new List<Vector3>();
         }
 

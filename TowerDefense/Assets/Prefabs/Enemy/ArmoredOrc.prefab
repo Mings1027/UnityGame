@@ -68,7 +68,7 @@ Transform:
   m_Children:
   - {fileID: 1621860733651098654}
   - {fileID: 6683413568851294763}
-  - {fileID: 3136970369329961125}
+  - {fileID: 4606708049294630394}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -108,7 +108,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 69a8ba2ae84f541738fa26a09cd7606e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sightRange: 1.5
+  sightRange: 2
   targetLayer:
     serializedVersion: 2
     m_Bits: 512
@@ -135,8 +135,8 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.3
-  m_Center: {x: 0, y: 0.5, z: 0}
+  m_Radius: 0.35
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!195 &-1837114063297218586
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -146,12 +146,12 @@ NavMeshAgent:
   m_GameObject: {fileID: 1565534273846441980}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.25
+  m_Radius: 0.1
   m_Speed: 3.5
   m_Acceleration: 100
   avoidancePriority: 49
   m_AngularSpeed: 720
-  m_StoppingDistance: 1.2
+  m_StoppingDistance: 0.5
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
@@ -181,7 +181,7 @@ AudioSource:
   Priority: 128
   DopplerLevel: 1
   MinDistance: 1
-  MaxDistance: 50
+  MaxDistance: 20
   Pan2D: 0
   rolloffMode: 0
   BypassEffects: 0
@@ -361,7 +361,7 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!1001 &2790315962306800770
+--- !u!1001 &3665825555171977693
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -381,7 +381,7 @@ PrefabInstance:
     - target: {fileID: 950805410488562727, guid: afd6abb049d824933b3487200168e817,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.2
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 950805410488562727, guid: afd6abb049d824933b3487200168e817,
         type: 3}
@@ -423,6 +423,16 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2899165940229937065, guid: afd6abb049d824933b3487200168e817,
+        type: 3}
+      propertyPath: m_Size.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2899165940229937065, guid: afd6abb049d824933b3487200168e817,
+        type: 3}
+      propertyPath: m_Size.y
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 6676682798914993397, guid: afd6abb049d824933b3487200168e817,
         type: 3}
       propertyPath: m_Name
@@ -430,9 +440,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: afd6abb049d824933b3487200168e817, type: 3}
---- !u!4 &3136970369329961125 stripped
+--- !u!4 &4606708049294630394 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 950805410488562727, guid: afd6abb049d824933b3487200168e817,
     type: 3}
-  m_PrefabInstance: {fileID: 2790315962306800770}
+  m_PrefabInstance: {fileID: 3665825555171977693}
   m_PrefabAsset: {fileID: 0}

@@ -10,11 +10,11 @@ namespace MapControl
 {
     public class ExpandMapButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
-        public event Action<Vector3> OnExpandMapEvent;
+        public event Action<Transform> OnExpandMapEvent;
 
         public void Expand()
         {
-            OnExpandMapEvent?.Invoke(transform.position);
+            OnExpandMapEvent?.Invoke(transform);
         }
 
         private void OnDisable()
@@ -32,7 +32,7 @@ namespace MapControl
             if (!Input.GetTouch(0).deltaPosition.Equals(Vector2.zero)) return;
             var position = transform.position;
             PoolObjectManager.Get(PoolObjectKey.ExpandMapSmoke, position);
-            OnExpandMapEvent?.Invoke(position);
+            OnExpandMapEvent?.Invoke(transform);
             SoundManager.Instance.PlayBGM(SoundEnum.WaveStart);
         }
     }

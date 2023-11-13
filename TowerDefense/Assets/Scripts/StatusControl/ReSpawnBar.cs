@@ -8,16 +8,8 @@ namespace StatusControl
 {
     public class ReSpawnBar : ProgressBar
     {
-        private Camera _cam;
-        private Vector3 _position;
         private CancellationTokenSource _cts;
         private Sequence _loadingSequence;
-
-        protected override void Awake()
-        {
-            base.Awake();
-            _cam = Camera.main;
-        }
 
         private void OnDisable()
         {
@@ -28,10 +20,8 @@ namespace StatusControl
         {
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
-            transform.position = _cam.WorldToScreenPoint(_position);
             _loadingSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(transform.DOScale(transform.localScale.x, 0.5f).From(0).SetEase(Ease.OutBack))
-                .Join(transform.DOLocalMoveY(3, 0.5f).SetEase(Ease.OutBack));
+                .Append(transform.DOScale(transform.localScale.x, 0.5f).From(0).SetEase(Ease.OutBack));
         }
 
         public async UniTask StartLoading(float loadingDelay)
@@ -44,12 +34,9 @@ namespace StatusControl
         public async UniTaskVoid StopLoading()
         {
             _cts?.Cancel();
-            _loadingSequence.PlayBackwards();
-            while (_loadingSequence.IsComplete())
-            {
-                await UniTask.Yield();
-                gameObject.SetActive(false);
-            }
+            await DOTween.Sequence().Append(transform.DOScale(0, 0.5f)).SetEase(Ease.OutBack)
+                .Join(transform.DOLocalMoveY(0, 0.5f).SetEase(Ease.OutBack));
+            gameObject.SetActive(false);
         }
     }
 }

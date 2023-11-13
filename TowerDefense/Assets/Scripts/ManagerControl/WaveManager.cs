@@ -16,19 +16,19 @@ using Random = UnityEngine.Random;
 
 namespace ManagerControl
 {
-    public class WaveManager : Singleton<WaveManager>
+    public class WaveManager : MonoBehaviour
     {
         private bool _startWave;
         private bool _isLastWave;
-        private bool _isBossWave;
         private sbyte _enemyLevel; // Increase After Boss Wave
         private byte _enemyDataIndex; // 
 
         private CancellationTokenSource _cts;
         private List<EnemyUnit> _enemyList;
-        private NavMeshSurface _bossNavmesh;
 
         public event Action OnPlaceExpandButtonEvent;
+        public bool IsBossWave { get; private set; }
+        public bool EndWave { get; set; }
         // public event Action OnEndOfGameEvent;
 
         [SerializeField, Range(0, 255)] private byte curWave;
@@ -39,12 +39,11 @@ namespace ManagerControl
 
         #region Unity Event
 
-        protected override void Awake()
+        private void Awake()
         {
             _enemyLevel = 1;
             _enemyDataIndex = 1;
             _enemyList = new List<EnemyUnit>();
-            _bossNavmesh = GetComponent<NavMeshSurface>();
             // var enemyDataGuids = AssetDatabase.FindAssets("t: EnemyData", new[] { "Assets/EnemyData" });
             // enemiesData = new EnemyData[enemyDataGuids.Length];
             // for (var i = 0; i < enemyDataGuids.ToArray().Length; i++)
@@ -78,8 +77,7 @@ namespace ManagerControl
             if (curWave % 5 == 0 && _enemyDataIndex < enemiesData.Length) _enemyDataIndex++;
             if (curWave % bossWaveTerm == 0)
             {
-                _isBossWave = true;
-                _bossNavmesh.BuildNavMesh();
+                IsBossWave = true;
             }
 
             _isLastWave = curWave == lastWave;
@@ -92,9 +90,9 @@ namespace ManagerControl
             UIManager.Instance.WaveText.text = curWave.ToString();
             SpawnEnemy(wayPoints).Forget();
 
-            if (_isBossWave)
+            if (IsBossWave)
             {
-                if (_isLastWave)
+                if (_isLastWave || EndWave)
                 {
                     LastWave(wayPoints).Forget();
                 }
@@ -105,9 +103,7 @@ namespace ManagerControl
             }
 
             EnemyTargeting().Forget();
-            EnemyAttack().Forget();
-            // IsArrived().Forget();
-            IfStuck().Forget();
+            // EnemyAttack().Forget();
         }
 
         #region Enemy Spawn
@@ -120,54 +116,35 @@ namespace ManagerControl
                 for (var j = 0; j < _enemyDataIndex; j++)
                 {
                     await UniTask.Delay(100, cancellationToken: _cts.Token);
-                    EnemyInitTest(wayPoints[i], enemiesData[j]);
+                    EnemyInit(wayPoints[i], enemiesData[j]);
                 }
             }
         }
 
-        // private void EnemyInit(Vector3 wayPoint, EnemyData enemyData)
-        // {
-        //     var enemyUnit = PoolObjectManager.Get<EnemyUnit>(enemyData.EnemyKey, wayPoint + Random.insideUnitSphere);
-        //     _enemyList.Add(enemyUnit);
-        //     enemyUnit.Init(enemyData);
-        //     enemyUnit.OnArrivedBaseTower += () => UIManager.Instance.BaseTowerHealth.Damage(1);
-        //     enemyUnit.TryGetComponent(out Health enemyHealth);
-        //     enemyHealth.Init(enemyData.Health * _enemyLevel);
-        //     enemyHealth.OnDeadEvent += () => UIManager.Instance.TowerCost += enemyData.EnemyCoin * _enemyLevel;
-        //     enemyUnit.TryGetComponent(out EnemyStatus enemyStatus);
-        //     enemyStatus.defaultSpeed = enemyData.Speed;
-        // }
-
-        private void EnemyInitTest(Vector3 wayPoint, EnemyData enemyData)
+        private void EnemyInit(Vector3 wayPoint, EnemyData enemyData)
         {
-            var enemyUnit = PoolObjectManager.Get<EnemyUnit>(enemyData.EnemyKey, wayPoint + Random.insideUnitSphere);
+            var enemyUnit = PoolObjectManager.Get<EnemyUnit>(enemyData.EnemyKey, wayPoint);
             _enemyList.Add(enemyUnit);
-            enemyUnit.Init(enemyData);
+            enemyUnit.Init();
+            enemyUnit.SpawnInit(enemyData);
             enemyUnit.GetComponent<EnemyStatus>().defaultSpeed = enemyData.Speed;
-            enemyUnit.OnArrivedBaseTower += () =>
-            {
-                UIManager.Instance.BaseTowerHealth.Damage(1);
-                DecreaseEnemyCount(enemyUnit);
-            };
 
-            var healthBar = PoolObjectManager.Get<HealthBar>(UIPoolObjectKey.EnemyHealthBar);
+            var healthBar = PoolObjectManager.Get<HealthBar>(UIPoolObjectKey.EnemyHealthBar,
+                enemyUnit.healthBarTransform.position);
             healthBar.Init(enemyUnit.GetComponent<Progressive>());
 
             var enemyHealth = enemyUnit.GetComponent<UnitHealth>();
             enemyHealth.Init(enemyData.Health * _enemyLevel);
 
-            enemyHealth.OnDeadEvent += () =>
-            {
-                UIManager.Instance.TowerCost += enemyData.EnemyCoin * _enemyLevel;
-                DecreaseEnemyCount(enemyUnit);
-            };
+            enemyHealth.OnDeadEvent += () => { UIManager.Instance.TowerCost += enemyData.EnemyCoin * _enemyLevel; };
             enemyUnit.OnDisableEvent += () =>
             {
-                ProgressBarUIController.Remove(enemyUnit.HealthBarTransform);
+                DecreaseEnemyCount(enemyUnit);
+                ProgressBarUIController.Remove(enemyUnit.healthBarTransform);
                 healthBar.RemoveEvent();
             };
 
-            ProgressBarUIController.Add(healthBar, enemyUnit.HealthBarTransform);
+            ProgressBarUIController.Add(healthBar, enemyUnit.healthBarTransform);
         }
 
         #endregion
@@ -179,60 +156,24 @@ namespace ManagerControl
             while (!_cts.IsCancellationRequested)
             {
                 await UniTask.Delay(500, cancellationToken: _cts.Token);
-                for (var i = 0; i < _enemyList.Count; i++)
+                for (var i = _enemyList.Count - 1; i >= 0; i--)
                 {
-                    _enemyList[i].Targeting();
-                    await UniTask.Delay(100, cancellationToken: _cts.Token);
+                    _enemyList[i].UnitUpdate(_cts);
                 }
             }
         }
 
-        private async UniTaskVoid EnemyAttack()
-        {
-            while (!_cts.IsCancellationRequested)
-            {
-                await UniTask.Delay(100, cancellationToken: _cts.Token);
-                for (var i = 0; i < _enemyList.Count; i++)
-                {
-                    _enemyList[i].AttackAsync(_cts).Forget();
-                    await UniTask.Delay(100, cancellationToken: _cts.Token);
-                }
-            }
-        }
-
-        private async UniTaskVoid IsArrived()
-        {
-            while (!_cts.IsCancellationRequested)
-            {
-                await UniTask.Delay(100, cancellationToken: _cts.Token);
-                for (var i = 0; i < _enemyList.Count; i++)
-                {
-                    if (!_enemyList[i].gameObject.activeSelf)
-                    {
-                        DecreaseEnemyCount(_enemyList[i]);
-                    }
-
-                    await UniTask.Delay(100, cancellationToken: _cts.Token);
-                }
-            }
-        }
-
-        private async UniTaskVoid IfStuck()
-        {
-            while (!_cts.IsCancellationRequested)
-            {
-                await UniTask.Delay(5000, cancellationToken: _cts.Token);
-                for (var i = 0; i < _enemyList.Count; i++)
-                {
-                    if (Vector3.Distance(_enemyList[i].prevPos, _enemyList[i].transform.position) <= 5)
-                    {
-                        _enemyList[i].ResetNavmesh().Forget();
-                    }
-
-                    await UniTask.Delay(3000, cancellationToken: _cts.Token);
-                }
-            }
-        }
+        // private async UniTaskVoid EnemyAttack()
+        // {
+        //     while (!_cts.IsCancellationRequested)
+        //     {
+        //         await UniTask.Delay(100, cancellationToken: _cts.Token);
+        //         for (var i = _enemyList.Count - 1; i >= 0; i--)
+        //         {
+        //             _enemyList[i].Attacking(_cts).Forget();
+        //         }
+        //     }
+        // }
 
         #endregion
 
@@ -243,10 +184,10 @@ namespace ManagerControl
             {
                 await UniTask.Delay(100, cancellationToken: _cts.Token);
                 var ranPoint = wayPoints[Random.Range(0, wayPoints.Count)];
-                EnemyInitTest(ranPoint, bossData[0]);
+                EnemyInit(ranPoint, bossData[0]);
             }
 
-            _isBossWave = false;
+            IsBossWave = false;
             _enemyLevel++;
         }
 
@@ -258,7 +199,7 @@ namespace ManagerControl
             {
                 await UniTask.Delay(100, cancellationToken: _cts.Token);
                 var ranPoint = wayPoints[Random.Range(0, wayPoints.Count)];
-                EnemyInitTest(ranPoint, bossData[0]);
+                EnemyInit(ranPoint, bossData[0]);
             }
         }
 
@@ -273,7 +214,7 @@ namespace ManagerControl
             SoundManager.Instance.PlayBGM(SoundEnum.WaveEnd);
             enabled = false;
 
-            if (!_isLastWave) return;
+            if (!_isLastWave && !EndWave) return;
             UIManager.Instance.GameEnd();
         }
     }

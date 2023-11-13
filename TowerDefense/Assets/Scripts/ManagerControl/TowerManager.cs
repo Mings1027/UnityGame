@@ -50,7 +50,7 @@ namespace ManagerControl
             _cts = new CancellationTokenSource();
             Application.targetFrameRate = 60;
             TargetingAsync().Forget();
-            AttackAsync().Forget();
+            // AttackAsync().Forget();
         }
 
         public void StopTargeting()
@@ -66,28 +66,27 @@ namespace ManagerControl
         {
             while (!_cts.IsCancellationRequested)
             {
-                await UniTask.Delay(500, cancellationToken: _cts.Token);
+                await UniTask.Delay(100, cancellationToken: _cts.Token);
                 for (var i = 0; i < _towers.Count; i++)
                 {
-                    _towers[i].TowerTargeting();
+                    _towers[i].TowerUpdate(_cts);
                     // await UniTask.Delay(10, cancellationToken: _cts.Token);
                 }
             }
         }
 
-        private async UniTaskVoid AttackAsync()
-        {
-            while (!_cts.IsCancellationRequested)
-            {
-                await UniTask.Delay(100, cancellationToken: _cts.Token);
-                if (_cts.IsCancellationRequested) return;
-                for (var i = 0; i < _towers.Count; i++)
-                {
-                    _towers[i].TowerAttackAsync(_cts);
-                    // await UniTask.Delay(10, cancellationToken: _cts.Token);
-                }
-            }
-        }
+        // private async UniTaskVoid AttackAsync()
+        // {
+        //     while (!_cts.IsCancellationRequested)
+        //     {
+        //         await UniTask.Delay(100, cancellationToken: _cts.Token);
+        //         for (var i = 0; i < _towers.Count; i++)
+        //         {
+        //             _towers[i].TowerAttackAsync(_cts);
+        //             // await UniTask.Delay(10, cancellationToken: _cts.Token);
+        //         }
+        //     }
+        // }
 
         private void TargetInit()
         {
@@ -148,7 +147,7 @@ namespace ManagerControl
             unitDestinationIndicator.enabled = true;
             unitDestinationIndicator.transform.position = pos;
 
-            await unitTower.StartUnitMove(pos);
+            await unitTower.UnitMove(pos);
             unitDestinationIndicator.enabled = false;
         }
 

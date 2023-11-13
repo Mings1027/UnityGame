@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
 using Cysharp.Threading.Tasks;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.AI;
@@ -11,6 +13,7 @@ namespace ManagerControl
         private List<GameObject> _gameObjects;
 
         [SerializeField] private AssetReferenceGameObject[] managerObjects;
+        // [SerializeField] private AssetLabelReference managerLabel;
 
         protected void Awake()
         {
@@ -20,7 +23,7 @@ namespace ManagerControl
 
         protected void Start()
         {
-            SpawnObject().Forget();
+            SpawnObject();
         }
 
         private void OnDisable()
@@ -28,16 +31,17 @@ namespace ManagerControl
             Release();
         }
 
-        private async UniTaskVoid SpawnObject()
+        private void SpawnObject()
         {
             for (var i = 0; i < managerObjects.Length; i++)
             {
                 managerObjects[i].InstantiateAsync().Completed += obj => { _gameObjects.Add(obj.Result); };
             }
 
-            await UniTask.Delay(2000);
-            transform.GetChild(0).GetComponent<NavMeshSurface>().RemoveData();
-            Destroy(transform.GetChild(0).gameObject);
+            for (int i = 0; i < _gameObjects.Count; i++)
+            {
+                
+            }
         }
 
         private void Release()
