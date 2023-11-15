@@ -108,6 +108,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 69a8ba2ae84f541738fa26a09cd7606e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  attackTargetCount: 1
+  atkRange: 1
   sightRange: 2
   targetLayer:
     serializedVersion: 2
@@ -151,11 +153,11 @@ NavMeshAgent:
   m_Acceleration: 100
   avoidancePriority: 49
   m_AngularSpeed: 720
-  m_StoppingDistance: 0.5
+  m_StoppingDistance: 1
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
-  m_Height: 0.00001
+  m_Height: 0.5
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
@@ -170,7 +172,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 1156792606349440736, guid: 12c02601c80f546bea113c6157c70322,
     type: 2}
-  m_audioClip: {fileID: 8300000, guid: 180f35aef2ea2654086bcbb52d58ec0b, type: 3}
+  m_audioClip: {fileID: 8300000, guid: c0a43b183657f7645921cf4cc70dbe6e, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1

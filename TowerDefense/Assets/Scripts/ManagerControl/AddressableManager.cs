@@ -37,11 +37,6 @@ namespace ManagerControl
             {
                 managerObjects[i].InstantiateAsync().Completed += obj => { _gameObjects.Add(obj.Result); };
             }
-
-            for (int i = 0; i < _gameObjects.Count; i++)
-            {
-                
-            }
         }
 
         private void Release()

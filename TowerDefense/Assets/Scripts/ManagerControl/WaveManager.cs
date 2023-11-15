@@ -81,6 +81,7 @@ namespace ManagerControl
             }
 
             _isLastWave = curWave == lastWave;
+
             StartWave(ref wayPoints);
         }
 
@@ -102,8 +103,8 @@ namespace ManagerControl
                 }
             }
 
-            EnemyTargeting().Forget();
-            // EnemyAttack().Forget();
+            EnemyUpdate().Forget();
+            IfStuck().Forget();
         }
 
         #region Enemy Spawn
@@ -136,12 +137,16 @@ namespace ManagerControl
             var enemyHealth = enemyUnit.GetComponent<UnitHealth>();
             enemyHealth.Init(enemyData.Health * _enemyLevel);
 
-            enemyHealth.OnDeadEvent += () => { UIManager.Instance.TowerCost += enemyData.EnemyCoin * _enemyLevel; };
+            enemyHealth.OnDeadEvent += () =>
+            {
+                UIManager.Instance.TowerCost += enemyData.EnemyCoin * _enemyLevel;
+                ProgressBarUIController.Remove(enemyUnit.healthBarTransform);
+            };
             enemyUnit.OnDisableEvent += () =>
             {
                 DecreaseEnemyCount(enemyUnit);
-                ProgressBarUIController.Remove(enemyUnit.healthBarTransform);
-                healthBar.RemoveEvent();
+                if (!enemyHealth.IsDead)
+                    ProgressBarUIController.Remove(enemyUnit.healthBarTransform);
             };
 
             ProgressBarUIController.Add(healthBar, enemyUnit.healthBarTransform);
@@ -151,11 +156,11 @@ namespace ManagerControl
 
         #region Enemy Update Loop
 
-        private async UniTaskVoid EnemyTargeting()
+        private async UniTaskVoid EnemyUpdate()
         {
             while (!_cts.IsCancellationRequested)
             {
-                await UniTask.Delay(500, cancellationToken: _cts.Token);
+                await UniTask.Delay(250, cancellationToken: _cts.Token);
                 for (var i = _enemyList.Count - 1; i >= 0; i--)
                 {
                     _enemyList[i].UnitUpdate(_cts);
@@ -163,17 +168,17 @@ namespace ManagerControl
             }
         }
 
-        // private async UniTaskVoid EnemyAttack()
-        // {
-        //     while (!_cts.IsCancellationRequested)
-        //     {
-        //         await UniTask.Delay(100, cancellationToken: _cts.Token);
-        //         for (var i = _enemyList.Count - 1; i >= 0; i--)
-        //         {
-        //             _enemyList[i].Attacking(_cts).Forget();
-        //         }
-        //     }
-        // }
+        private async UniTaskVoid IfStuck()
+        {
+            while (!_cts.IsCancellationRequested)
+            {
+                await UniTask.Delay(5000, cancellationToken: _cts.Token);
+                for (int i = _enemyList.Count - 1; i >= 0; i--)
+                {
+                    _enemyList[i].Stuck();
+                }
+            }
+        }
 
         #endregion
 
@@ -208,11 +213,11 @@ namespace ManagerControl
             if (!_startWave) return;
             _enemyList.Remove(enemyUnit);
             if (_enemyList.Count > 0) return;
-            _startWave = false;
+            enabled = false;
             OnPlaceExpandButtonEvent?.Invoke();
+            _startWave = false;
             TowerManager.Instance.StopTargeting();
             SoundManager.Instance.PlayBGM(SoundEnum.WaveEnd);
-            enabled = false;
 
             if (!_isLastWave && !EndWave) return;
             UIManager.Instance.GameEnd();

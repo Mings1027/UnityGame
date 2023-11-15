@@ -214,10 +214,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f5034a77b7d784cad979b34e43abf2fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  attackTargetCount: 1
+  atkRange: 1
+  sightRange: 2
   targetLayer:
     serializedVersion: 2
     m_Bits: 256
-  sightRange: 2
 --- !u!114 &-209796604355700094
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -252,16 +254,16 @@ NavMeshAgent:
   m_GameObject: {fileID: 7952787121515888648}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.15
-  m_Speed: 3.5
+  m_Radius: 0.2
+  m_Speed: 1.5
   m_Acceleration: 100
-  avoidancePriority: 51
+  avoidancePriority: 50
   m_AngularSpeed: 2880
-  m_StoppingDistance: 0.5
+  m_StoppingDistance: 1
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
-  m_Height: 0.00001
+  m_Height: 0.5
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
@@ -276,7 +278,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 1156792606349440736, guid: 12c02601c80f546bea113c6157c70322,
     type: 2}
-  m_audioClip: {fileID: 8300000, guid: a7736c1763bd76c4eb0d52aaad581deb, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 77692b84fda5f91499002d6a2955dc34, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1

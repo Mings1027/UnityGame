@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using TMPro;
@@ -42,6 +43,7 @@ namespace ManagerControl
             Time.timeScale = 1;
             downLoadPanel.SetActive(false);
             InitAddressable().Forget();
+            SoundManager.Instance.PlayBGM(SoundEnum.GameStart);
         }
 
         private async UniTaskVoid InitAddressable()
@@ -132,7 +134,7 @@ namespace ManagerControl
         private async UniTask PatchFiles()
         {
             var labels = new List<string>();
-            for (int i = 0; i < assetLabels.Length; i++)
+            for (var i = 0; i < assetLabels.Length; i++)
             {
                 labels.Add(assetLabels[i].labelString);
             }
@@ -195,7 +197,7 @@ namespace ManagerControl
         {
             SceneManager.LoadScene("MainGameScene");
             var urp = (UniversalRenderPipelineAsset)GraphicsSettings.currentRenderPipeline;
-            urp.shadowDistance = 25;
+            urp.shadowDistance = 30;
         }
     }
 }

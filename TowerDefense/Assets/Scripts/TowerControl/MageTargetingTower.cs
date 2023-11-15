@@ -18,7 +18,7 @@ namespace TowerControl
         protected override void Init()
         {
             base.Init();
-            FirePos = crystal;
+            firePos = crystal;
 
             _atkSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(crystal.DOScale(1.2f, 0.5f).From(1).SetEase(Ease.InOutSine))

@@ -53,9 +53,8 @@ namespace ManagerControl
             }
         }
 
-        protected override void Start()
+        private void Start()
         {
-            base.Start();
             _bgmOn = _sfxOn = true;
         }
 

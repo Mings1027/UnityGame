@@ -31,12 +31,12 @@ namespace StatusControl
             _loadingSequence.PlayBackwards();
         }
 
-        public async UniTaskVoid StopLoading()
+        public void StopLoading()
         {
             _cts?.Cancel();
-            await DOTween.Sequence().Append(transform.DOScale(0, 0.5f)).SetEase(Ease.OutBack)
-                .Join(transform.DOLocalMoveY(0, 0.5f).SetEase(Ease.OutBack));
-            gameObject.SetActive(false);
+            DOTween.Sequence().Append(transform.DOScale(0, 0.5f)).SetEase(Ease.OutBack)
+                .Join(transform.DOLocalMoveY(0, 0.5f).SetEase(Ease.OutBack))
+                .OnComplete(() => { gameObject.SetActive(false); });
         }
     }
 }

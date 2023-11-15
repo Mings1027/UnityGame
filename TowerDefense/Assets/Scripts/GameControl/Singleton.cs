@@ -25,25 +25,36 @@ namespace GameControl
             }
         }
 
+        [SerializeField] private bool dontDestroyOnLoad;
+
         protected virtual void Awake()
         {
             _applicationQuit = false;
+            if (!dontDestroyOnLoad) return;
+            var obj = FindObjectsOfType<T>();
+            if (obj.Length == 1)
+            {
+                DontDestroyOnLoad(gameObject);
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
         }
 
-        protected virtual void Start()
-        {
-            _applicationQuit = false;
-        }
-
+        // protected virtual void Start()
+        // {
+        //     _applicationQuit = false;
+        // }
 
         private void OnApplicationQuit()
         {
             _applicationQuit = true;
         }
 
-        private void OnDestroy()
-        {
-            _applicationQuit = true;
-        }
+        // private void OnDestroy()
+        // {
+        //     _applicationQuit = true;
+        // }
     }
 }

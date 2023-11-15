@@ -9,6 +9,7 @@ using PoolObjectControl;
 using UIControl;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 namespace MapControl
@@ -50,17 +51,17 @@ namespace MapControl
         private Dictionary<string, GameObject> _mapDictionary;
 
         private HashSet<Vector3> _wayPointsHashSet;
-
-        public bool EndWave { get; private set; }
-
+        
         [SerializeField] private WaveManager waveManager;
         [SerializeField] private byte mapSize;
         [SerializeField] private GameObject[] mapPrefabs;
         [SerializeField] private GameObject portalGate;
+
         [SerializeField] private GameObject[] obstaclePrefabs;
-        // [SerializeField] private GameObject[] uniqueMap;
+
         [SerializeField] private LayerMask groundLayer;
-        // [SerializeField, Range(0, 100)] private int portalSpawnProbability;
+
+        [SerializeField, Range(0, 100)] private int connectionProbability;
         [SerializeField, Range(0, 200)] private byte maxSize;
         [SerializeField] private Transform mapMesh;
         [SerializeField] private Transform obstacleMesh;
@@ -97,7 +98,7 @@ namespace MapControl
 
         public void MakeMap(int index)
         {
-            waveManager.OnPlaceExpandButtonEvent += PlaceExpandButtons;
+            waveManager.OnPlaceExpandButtonEvent += () => PlaceExpandButtons();
             PlaceStartMap(index);
             CombineMesh();
             CombineObstacleMesh();
@@ -216,7 +217,7 @@ namespace MapControl
             AddRandomDirection();
             PlaceNewMap();
             SetNewMapForward();
-            CheckIsPortalMap();
+            IsPortalMap();
             RemoveWayPoints();
             SetWayPoints();
             PlaceObstacle();
@@ -296,8 +297,8 @@ namespace MapControl
                 if (_isNullMapArray[i])
                 {
                     _nullMapIndexString += i;
-                    var ran = Random.Range(0, 100);
-                    if (ran <= 70)
+                    var ran = Random.Range(0, 101);
+                    if (ran <= connectionProbability)
                     {
                         _connectionString += i;
                     }
@@ -310,13 +311,6 @@ namespace MapControl
                     }
                 }
             }
-
-            // if (_nullMapIndexString == null) return;
-            //
-            // var ranIndex = Random.Range(0, _nullMapIndexString.Length);
-            // _connectionString += _nullMapIndexString[ranIndex];
-            // _connectionString = string.Concat(_connectionString.OrderBy(c => c));
-            // _connectionString = new string(_connectionString.Distinct().ToArray());
         }
 
         private void PlaceNewMap()
@@ -337,7 +331,7 @@ namespace MapControl
             _newMapObject.SetWayPoint(mapSize / 2);
         }
 
-        private void CheckIsPortalMap()
+        private void IsPortalMap()
         {
             if (_connectionString.Length != 1) return;
             var t = _newMapObject.transform;
@@ -381,8 +375,6 @@ namespace MapControl
                     _expandBtnPosHashSet.Add(_newMapTransform.position + _dirToWayPoint * mapSize);
                 }
             }
-
-            if (_expandBtnPosHashSet.Count == 0) waveManager.EndWave = true;
         }
 
         private void PlaceObstacle()
@@ -416,8 +408,17 @@ namespace MapControl
         }
 
         //Call When Wave is over
-        private void PlaceExpandButtons()
+        private async UniTaskVoid PlaceExpandButtons()
         {
+            if (_expandBtnPosHashSet.Count == 0)
+            {
+                print(_wayPointsHashSet.Count);
+                waveManager.WaveInit(_wayPointsHashSet.ToArray());
+                await UniTask.Yield();
+                if (waveManager.IsBossWave) _bossNavMeshSurface.BuildNavMesh();
+                return;
+            }
+
             foreach (var pos in _expandBtnPosHashSet)
             {
                 _expandButtons.Add(PoolObjectManager.Get<ExpandMapButton>(PoolObjectKey.ExpandButton, pos));

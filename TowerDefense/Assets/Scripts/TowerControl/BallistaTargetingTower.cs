@@ -12,9 +12,9 @@ namespace TowerControl
 
         private void LateUpdate()
         {
-            if (!IsTargeting) return;
+            if (!isTargeting) return;
 
-            var t = Target.transform;
+            var t = target.transform;
             var targetPos = t.position + t.forward;
             var dir = targetPos - transform.position;
             var rotGoal = Quaternion.LookRotation(dir) * Quaternion.Euler(-45f, 0f, 0f);
@@ -24,7 +24,7 @@ namespace TowerControl
         protected override void Init()
         {
             base.Init();
-            FirePos = ballista;
+            firePos = ballista;
             ballista.localScale = Vector3.zero;
         }
 

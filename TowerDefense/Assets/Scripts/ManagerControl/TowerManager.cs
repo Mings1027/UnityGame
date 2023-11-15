@@ -28,9 +28,8 @@ namespace ManagerControl
             _towers = new List<Tower>(50);
         }
 
-        protected override void Start()
+        private void Start()
         {
-            base.Start();
             IndicatorInit();
         }
 
@@ -70,24 +69,10 @@ namespace ManagerControl
                 for (var i = 0; i < _towers.Count; i++)
                 {
                     _towers[i].TowerUpdate(_cts);
-                    // await UniTask.Delay(10, cancellationToken: _cts.Token);
                 }
             }
         }
-
-        // private async UniTaskVoid AttackAsync()
-        // {
-        //     while (!_cts.IsCancellationRequested)
-        //     {
-        //         await UniTask.Delay(100, cancellationToken: _cts.Token);
-        //         for (var i = 0; i < _towers.Count; i++)
-        //         {
-        //             _towers[i].TowerAttackAsync(_cts);
-        //             // await UniTask.Delay(10, cancellationToken: _cts.Token);
-        //         }
-        //     }
-        // }
-
+        
         private void TargetInit()
         {
             for (var i = 0; i < _towers.Count; i++)

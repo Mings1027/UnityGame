@@ -8,7 +8,7 @@ namespace StatusControl
         public bool IsDead => Current <= 0;
         public event Action OnDeadEvent;
 
-        protected virtual void OnDisable()
+        protected override void OnDisable()
         {
             OnDeadEvent = null;
         }

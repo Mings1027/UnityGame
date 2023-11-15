@@ -19,6 +19,12 @@ namespace StatusControl
             progressive.OnUpdateBarEvent += UpdateBarEvent;
         }
 
+        public virtual void RemoveEvent()
+        {
+            if (!progressive) return;
+            progressive.OnUpdateBarEvent -= UpdateBarEvent;
+        }
+
         private void UpdateBarEvent()
         {
             slider.value = progressive.Ratio;

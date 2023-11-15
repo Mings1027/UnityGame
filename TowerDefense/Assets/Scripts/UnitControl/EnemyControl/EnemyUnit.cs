@@ -6,6 +6,8 @@ namespace UnitControl.EnemyControl
 {
     public class EnemyUnit : Unit
     {
+        private Vector3 _prevPos;
+
         private void OnTriggerEnter(Collider other)
         {
             if (other.CompareTag("BaseTower"))
@@ -16,9 +18,8 @@ namespace UnitControl.EnemyControl
 
         protected override void Patrol()
         {
-            navMeshAgent.SetDestination(Vector3.zero);
-            anim.SetBool(IsWalk, true);
             base.Patrol();
+            navMeshAgent.SetDestination(Vector3.zero);
         }
 
         public void SetAnimationSpeed(float animSpeed)
@@ -35,6 +36,14 @@ namespace UnitControl.EnemyControl
             damage = enemyData.Damage;
             navMeshAgent.SetDestination(Vector3.zero);
             anim.SetBool(IsWalk, true);
+        }
+
+        public void Stuck()
+        {
+            if (unitState == UnitState.Attack || Vector3.Distance(_prevPos, transform.position) >= 5) return;
+            navMeshAgent.enabled = false;
+            navMeshAgent.enabled = true;
+            _prevPos = transform.position;
         }
     }
 }

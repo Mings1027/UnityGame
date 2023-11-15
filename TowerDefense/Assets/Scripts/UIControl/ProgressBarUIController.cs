@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using GameControl;
 using ManagerControl;
 using UnityEngine;
 using ProgressBar = StatusControl.ProgressBar;
@@ -10,15 +11,15 @@ namespace UIControl
         private static ProgressBarUIController _inst;
         private Camera _cam;
         private CameraManager _cameraManager;
-        private Dictionary<ProgressBar, Transform> _barDictionary;
-        private Dictionary<Transform, ProgressBar> _inverseDic;
+        private SerializableDictionary<ProgressBar, Transform> _barDictionary;
+        private SerializableDictionary<Transform, ProgressBar> _inverseDic;
 
         private void Awake()
         {
             _inst = this;
             _cam = Camera.main;
-            _barDictionary = new Dictionary<ProgressBar, Transform>();
-            _inverseDic = new Dictionary<Transform, ProgressBar>();
+            _barDictionary = new SerializableDictionary<ProgressBar, Transform>();
+            _inverseDic = new SerializableDictionary<Transform, ProgressBar>();
         }
 
         private void Start()
@@ -70,6 +71,8 @@ namespace UIControl
             var key = _inverseDic[barPosition];
             _inverseDic.Remove(barPosition);
             _barDictionary.Remove(key);
+            key.RemoveEvent();
+            key.gameObject.SetActive(false);
         }
 
         public static void Add(ProgressBar progressBar, Transform barPosition)

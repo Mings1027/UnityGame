@@ -12,6 +12,7 @@ namespace CustomEnumControl
 
     public enum SoundEnum
     {
+        GameStart,
         WaveStart,
         WaveEnd,
         ButtonSound,
@@ -24,8 +25,7 @@ namespace CustomEnumControl
     {
         Patrol,
         Chase,
-        Attack,
-        Dead
+        Attack
     }
 
     public enum PoolObjectKey

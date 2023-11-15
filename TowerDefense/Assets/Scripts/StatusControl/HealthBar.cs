@@ -25,15 +25,15 @@ namespace StatusControl
             progressive.OnUpdateBarEvent += ShakeBarEvent;
         }
 
+        public override void RemoveEvent()
+        {
+            base.RemoveEvent();
+            progressive.OnUpdateBarEvent -= ShakeBarEvent;
+        }
+
         private void ShakeBarEvent() => _border
             .DOShakeRotation(duration, new Vector3(0, 0, strength), vibrato, randomness, true,
                 ShakeRandomnessMode.Harmonic)
             .OnComplete(() => _border.localRotation = quaternion.identity);
-
-        public void RemoveEvent()
-        {
-            progressive.OnUpdateBarEvent -= ShakeBarEvent;
-            gameObject.SetActive(false);
-        }
     }
 }

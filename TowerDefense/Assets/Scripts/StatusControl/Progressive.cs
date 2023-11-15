@@ -29,6 +29,11 @@ namespace StatusControl
             _current = Initial;
         }
 
+        protected virtual void OnDisable()
+        {
+            OnUpdateBarEvent = null;
+        }
+
         public void Init(float amount)
         {
             Initial = amount;

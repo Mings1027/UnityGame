@@ -19,7 +19,7 @@ namespace ProjectileControl
         private Vector3 _centerPos;
         private bool _isArrived;
 
-        protected float Lerp;
+        protected float lerp;
 
         public Collider target { get; private set; }
 
@@ -41,7 +41,7 @@ namespace ProjectileControl
             _projectileDamageSource.enabled = true;
             _startPos = transform.position;
             _trailParticle.Play();
-            Lerp = 0;
+            lerp = 0;
             _isArrived = false;
         }
 
@@ -64,13 +64,13 @@ namespace ProjectileControl
 
         protected void ProjectilePath(Vector3 endPos)
         {
-            if (Lerp < 1)
+            if (lerp < 1)
             {
-                _gravity = Mathf.Lerp(0.8f, 1.5f, Lerp);
-                Lerp += Time.deltaTime * _gravity * speed;
+                _gravity = Mathf.Lerp(0.8f, 1.5f, lerp);
+                lerp += Time.deltaTime * _gravity * speed;
                 _centerPos = (_startPos + endPos) * 0.5f + Vector3.up * height;
-                _curPos = Vector3.Lerp(Vector3.Lerp(_startPos, _centerPos, Lerp),
-                    Vector3.Lerp(_centerPos, endPos, Lerp), Lerp);
+                _curPos = Vector3.Lerp(Vector3.Lerp(_startPos, _centerPos, lerp),
+                    Vector3.Lerp(_centerPos, endPos, lerp), lerp);
                 var t = transform;
                 var dir = (_curPos - t.position).normalized;
                 t.position = _curPos;
@@ -105,9 +105,8 @@ namespace ProjectileControl
 
         protected void TryDamage(Collider t)
         {
-            if (!t.TryGetComponent(out IDamageable damageable) || !t.gameObject.activeSelf) return;
+            if (!t.TryGetComponent(out IDamageable damageable) || !t.enabled) return;
             damageable.Damage(_damage);
-            DataManager.SumDamage(towerData.TowerType, _damage);
         }
     }
 }

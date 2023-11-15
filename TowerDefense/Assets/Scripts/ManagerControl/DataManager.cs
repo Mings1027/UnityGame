@@ -6,12 +6,12 @@ using UnityEngine;
 
 namespace ManagerControl
 {
-    public class DataManager : MonoBehaviour
+    public abstract class DataManager
     {
         private static string _path;
         private static Dictionary<TowerType, int> damageDic { get; set; }
 
-        private void Awake()
+        public void InitDictionary()
         {
             _path = Application.persistentDataPath + "/Damage";
 
@@ -33,17 +33,17 @@ namespace ManagerControl
             }
         }
 
-        public static void SumDamage(TowerType towerTypeEnum, int damage)
-        {
-            damageDic[towerTypeEnum] += damage;
-        }
-
         public static void InitDamage()
         {
             foreach (var damage in damageDic.Keys)
             {
                 damageDic[damage] = 0;
             }
+        }
+
+        public static void SumDamage(TowerType towerTypeEnum, int damage)
+        {
+            damageDic[towerTypeEnum] += damage;
         }
 
         public static void SaveDamageData()

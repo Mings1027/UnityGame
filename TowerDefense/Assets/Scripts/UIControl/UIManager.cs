@@ -27,10 +27,9 @@ namespace UIControl
         private Dictionary<TowerType, int> _towerCountDictionary;
         private Dictionary<TowerType, TMP_Text> _towerCostTextDictionary;
 
-        private Sequence _onOffTowerBtnSequence;
         private Tween _towerInfoPanelTween;
+        private Sequence _onOffTowerBtnSequence;
         private Sequence _pauseSequence;
-        private Sequence _changeLanguageSequence;
         private Sequence _notEnoughCostSequence;
         private Sequence _cantMoveImageSequence;
         private Sequence _camZoomSequence;
@@ -101,12 +100,8 @@ namespace UIControl
         [Header("----------Game Over-------------"), SerializeField]
         private GameObject gameOverPanel;
 
-        [SerializeField] private Transform languagePanel;
-        [SerializeField] private Transform languageButtons;
         [SerializeField] private Transform pausePanel;
 
-        [SerializeField] private Button openLanguagePanelButton;
-        [SerializeField] private Button closeLanguagePanelButton;
         [SerializeField] private Button pauseButton;
         [SerializeField] private Button resumeButton;
         [SerializeField] private Button mainMenuButton;
@@ -125,7 +120,6 @@ namespace UIControl
         protected override void Awake()
         {
             base.Awake();
-            // eventSystem.enabled = false;
             towerCardUI = GetComponentInChildren<TowerCardUI>();
             _cameraManager = FindObjectOfType<CameraManager>();
             BaseTowerHealth = GetComponent<Health>();
@@ -139,9 +133,8 @@ namespace UIControl
             towerPanel.anchoredPosition = new Vector2(-200, 0);
         }
 
-        protected override void Start()
+        private void Start()
         {
-            base.Start();
             gameOverPanel.SetActive(false);
             healthBar.Init(BaseTowerHealth);
             BaseTowerHealth.Init(lifeCount);
@@ -154,7 +147,6 @@ namespace UIControl
             _towerInfoPanelTween?.Kill();
             _notEnoughCostSequence?.Kill();
             _pauseSequence?.Kill();
-            _changeLanguageSequence?.Kill();
             _onOffTowerBtnSequence?.Kill();
             _cantMoveImageSequence?.Kill();
             _camZoomSequence?.Kill();
@@ -204,24 +196,18 @@ namespace UIControl
         private void TweenInit()
         {
             _toggleTowerBtnImage = toggleTowerButton.transform.GetChild(0).GetComponent<Image>();
-            _onOffTowerBtnSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(towerPanel.DOAnchorPosX(0, 0.5f).From().SetRelative().SetEase(Ease.InOutBack))
-                .Join(_toggleTowerBtnImage.transform.DORotate(new Vector3(0, 180, 0), 0.5f, RotateMode.LocalAxisAdd));
 
             _towerInfoPanelTween =
                 towerInfoUI.transform.DOScale(1, 0.15f).From(0).SetEase(Ease.OutBack).SetAutoKill(false).Pause();
 
-            _pauseSequence = DOTween.Sequence().SetAutoKill(false).SetUpdate(true).Pause()
-                .Append(pausePanel.DOScale(1, 0.1f).From(0))
-                .Append(pausePanel.DOLocalMoveY(0, 0.5f).From(Screen.height).SetEase(Ease.OutBack))
-                .Join(pauseButton.transform.DOLocalMoveY(200, 0.25f).SetRelative().SetEase(Ease.InOutBack))
-                .Join(mainMenuButton.transform.DOScale(1, 0.1f).From(0))
-                .PrependCallback(() => _cameraManager.enabled = !_cameraManager.enabled)
-                .OnComplete(() => Application.targetFrameRate = 30);
+            _onOffTowerBtnSequence = DOTween.Sequence().SetAutoKill(false).Pause()
+                .Append(towerPanel.DOAnchorPosX(0, 0.5f).From().SetRelative().SetEase(Ease.InOutBack))
+                .Join(_toggleTowerBtnImage.transform.DORotate(new Vector3(0, 180, 0), 0.5f, RotateMode.LocalAxisAdd));
 
-            _changeLanguageSequence = DOTween.Sequence().SetAutoKill(false).SetUpdate(true).Pause()
-                .Append(languagePanel.DOScale(1, 0.1f).From(0))
-                .Append(languagePanel.DOLocalMoveY(0, 0.5f).From(Screen.height).SetEase(Ease.OutBack));
+            _pauseSequence = DOTween.Sequence().SetAutoKill(false).SetUpdate(true).Pause()
+                .Append(pausePanel.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBack))
+                .Join(pauseButton.transform.DOScale(0, 0.5f))
+                .PrependCallback(() => _cameraManager.enabled = !_cameraManager.enabled);
 
             _notEnoughCostSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(notEnoughCostPanel.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBounce))
@@ -236,7 +222,7 @@ namespace UIControl
         private void MapSelectButtonInit()
         {
             var mapSelectPanel = transform.GetChild(0);
-            mapSelectPanel.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBack);
+            mapSelectPanel.DOScale(1, 0.5f).From(0.3f).SetEase(Ease.OutBack);
             for (int i = 0; i < mapSelectPanel.childCount; i++)
             {
                 var index = i;
@@ -246,6 +232,7 @@ namespace UIControl
 
         private async UniTaskVoid MapSelectButton(int index)
         {
+            eventSystem.enabled = false;
             FindObjectOfType<MapManager>().MakeMap(index);
             await transform.GetChild(0).DOScale(0, 0.5f).SetEase(Ease.InBack);
             await infoWindow.DOAnchorPosY(0, 0.5f).From(new Vector2(0, 300)).SetEase(Ease.OutBack);
@@ -253,6 +240,8 @@ namespace UIControl
 
             GetComponent<TutorialController>().TutorialButton();
             Destroy(transform.GetChild(0).gameObject);
+            eventSystem.enabled = true;
+            _cameraManager.enabled = true;
         }
 
         private void TowerButtonInit()
@@ -326,38 +315,24 @@ namespace UIControl
             bgmToggle.onValueChanged.AddListener(delegate
             {
                 SoundManager.Instance.ToggleBGM(!bgmToggle.isOn);
-                // BGMToggleImage();
                 SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
             });
             sfxToggle.isOn = false;
             sfxToggle.onValueChanged.AddListener(delegate
             {
                 SoundManager.Instance.ToggleSfx(!sfxToggle.isOn);
-                // SfxToggleImage();
                 SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
             });
 
-            mainMenuButton.onClick.AddListener(() => SceneManager.LoadScene("Lobby"));
-            openLanguagePanelButton.onClick.AddListener(() =>
+            mainMenuButton.onClick.AddListener(delegate
             {
-                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
-                _changeLanguageSequence.Restart();
+                SoundManager.Instance.PlayBGM(SoundEnum.GameStart);
+                SceneManager.LoadScene("Lobby");
             });
-
-            for (var i = 0; i < languageButtons.childCount; i++)
-            {
-                var index = i;
-                languageButtons.GetChild(i).GetComponent<Button>().onClick.AddListener(() =>
-                {
-                    SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
-                    LocaleManager.ChangeLocale(index);
-                });
-            }
-
-            closeLanguagePanelButton.onClick.AddListener(_changeLanguageSequence.PlayBackwards);
 
             speedUpButton.onClick.AddListener(() =>
             {
+                speedUpButton.transform.DOScale(1, 0.2f).From(0.5f).SetEase(Ease.OutBack);
                 SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
                 SpeedUp();
             });
@@ -635,9 +610,8 @@ namespace UIControl
             Time.timeScale = 1;
             _cameraManager.enabled = false;
             await _cameraManager.GameStartCamZoom();
-            SoundManager.Instance.PlayBGM(SoundEnum.WaveEnd);
+            SoundManager.Instance.PlayBGM(SoundEnum.GameStart);
             // eventSystem.enabled = true;
-            _cameraManager.enabled = true;
         }
 
         private void GameOver()

@@ -75,7 +75,6 @@ namespace PoolObjectControl
             _enemyPoolDictionary = new Dictionary<EnemyPoolObjectKey, EnemyPool>();
             PoolInit();
             MatchPoolKeyToPrefabKey();
-            MatchEnemyKeyToPrefabKey();
 #if UNITY_EDITOR
             SortPool();
 #endif
@@ -84,22 +83,23 @@ namespace PoolObjectControl
         [ContextMenu("Sort Pool")]
         private void SortPool() => Array.Sort(pools);
 
-        [ContextMenu("Match Pool Object Key To Prefab Key")]
+        [ContextMenu("Init Prefab key from Pool")]
         private void MatchPoolKeyToPrefabKey()
         {
             for (var i = 0; i < pools.Length; i++)
             {
                 pools[i].prefab.GetComponent<PoolObject>().PoolObjKey = pools[i].poolObjectKey;
             }
-        }
 
-        [ContextMenu("Match Enemy Key To Prefab Key")]
-        private void MatchEnemyKeyToPrefabKey()
-        {
             for (var i = 0; i < enemyPools.Length; i++)
             {
                 enemyPools[i].enemyPrefab.GetComponent<EnemyPoolObject>().enemyPoolObjKey =
                     enemyPools[i].enemyPoolObjKey;
+            }
+
+            for (int i = 0; i < uiPools.Length; i++)
+            {
+                uiPools[i].uiPrefab.GetComponent<UIPoolObject>().UIPoolObjKey = uiPools[i].uiPoolObjectKey;
             }
         }
 

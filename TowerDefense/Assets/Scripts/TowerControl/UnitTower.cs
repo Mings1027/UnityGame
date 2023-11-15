@@ -22,7 +22,7 @@ namespace TowerControl
         private int _damage;
         private float _atkDelay;
         private Vector3 _unitCenterPosition;
-        private List<FriendlyUnit> _units;
+        private List<TowerUnit> _units;
         private ReSpawnBar _unitReSpawnBar;
         private Transform _reSpawnBarTransform;
 
@@ -75,21 +75,18 @@ namespace TowerControl
                 var angle = i * ((float)Math.PI * 2f) / unitCount;
                 var pos = _unitCenterPosition + new Vector3((float)Math.Cos(angle) * unitRadius, 0,
                     (float)Math.Sin(angle) * unitRadius);
-                var unit = PoolObjectManager.Get<FriendlyUnit>(TowerData.PoolObjectKey, transform.position);
+                var unit = PoolObjectManager.Get<TowerUnit>(TowerData.PoolObjectKey, transform.position);
                 _units.Add(unit);
                 _units[i].transform.DOJump(pos, 2, 1, 0.5f).SetEase(Ease.OutSine);
                 _units[i].Init();
-                _units[i].SpawnInit(this, TowerData.TowerType, pos);
+                _units[i].InfoInit(this, /*TowerData.TowerType,*/ pos);
                 _units[i].UnitTargetInit();
+                _units[i].GetComponent<UnitHealth>().OnDeadEvent += () => DeadEvent(unit);
+
                 var healthBar = PoolObjectManager.Get<HealthBar>(UIPoolObjectKey.UnitHealthBar,
                     _units[i].healthBarTransform.position);
                 healthBar.Init(_units[i].GetComponent<Progressive>());
 
-                var unitHealth = _units[i].GetComponent<UnitHealth>();
-                var unitTowerData = (UnitTowerData)TowerData;
-                unitHealth.Init(unitTowerData.UnitHealth);
-                unitHealth.OnDeadEvent += () => DeadEvent(unit);
-                _units[i].OnDisableEvent += healthBar.RemoveEvent;
 
                 ProgressBarUIController.Add(healthBar, _units[i].healthBarTransform);
             }
@@ -110,7 +107,7 @@ namespace TowerControl
             }
         }
 
-        private void DeadEvent(FriendlyUnit unit)
+        private void DeadEvent(TowerUnit unit)
         {
             ProgressBarUIController.Remove(unit.healthBarTransform);
 
@@ -156,7 +153,7 @@ namespace TowerControl
         {
             base.Init();
             _reSpawnBarTransform = transform.GetChild(1);
-            _units = new List<FriendlyUnit>(unitCount);
+            _units = new List<TowerUnit>(unitCount);
         }
 
         public override void TowerTargetInit()
