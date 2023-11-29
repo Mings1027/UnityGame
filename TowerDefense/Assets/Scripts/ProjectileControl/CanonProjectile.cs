@@ -1,3 +1,5 @@
+using Cysharp.Threading.Tasks;
+using InterfaceControl;
 using UnityEngine;
 
 namespace ProjectileControl
@@ -27,19 +29,46 @@ namespace ProjectileControl
 
         protected override void Update()
         {
+            if (isArrived) return;
             if (!_isLockOnTarget && lerp >= 0.5f)
             {
                 _isLockOnTarget = true;
                 _targetEndPos = target.transform.position;
             }
 
-            ProjectilePath(lerp < 0.5f ? target.transform.position : _targetEndPos);
+            if (lerp < 1)
+            {
+                ProjectilePath(lerp < 0.5f ? target.transform.position : _targetEndPos);
+            }
+            else
+            {
+                isArrived = true;
+                DisableProjectile();
+            }
         }
 
         private void OnDrawGizmos()
         {
             Gizmos.DrawWireSphere(transform.position, atkRange);
         }
+
+        // public override async UniTaskVoid ProjectileUpdate()
+        // {
+        //     while (lerp < 1)
+        //     {
+        //         await UniTask.Delay(10);
+        //
+        //         if (!_isLockOnTarget && lerp >= 0.5f)
+        //         {
+        //             _isLockOnTarget = true;
+        //             _targetEndPos = target.transform.position;
+        //         }
+        //
+        //         ProjectilePath(lerp < 0.5f ? target.transform.position : _targetEndPos);
+        //     }
+        //
+        //     DisableProjectile();
+        // }
 
         public override void Hit()
         {
@@ -51,10 +80,12 @@ namespace ProjectileControl
             var size = Physics.OverlapSphereNonAlloc(pos, atkRange, _targetColliders, enemyLayer);
 
             if (size <= 0) return;
-
+            var dividedDamage = 1.0f / size * damage;
             for (var i = 0; i < size; i++)
             {
-                TryDamage(_targetColliders[i]);
+                var t = _targetColliders[i];
+                if (!t.TryGetComponent(out IDamageable damageable) || !t.enabled) return;
+                damageable.Damage(dividedDamage);
             }
         }
 

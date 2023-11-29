@@ -1,14 +1,13 @@
 using CustomEnumControl;
 using DG.Tweening;
-using GameControl;
 using UIControl;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace ManagerControl
 {
     public class InputManager : MonoBehaviour
     {
-        private CameraManager _cameraManager;
         private Camera _cam;
         private Transform _cursorChild;
         private Vector3 _worldGridPos;
@@ -30,7 +29,6 @@ namespace ManagerControl
 
         protected void Awake()
         {
-            _cameraManager = FindObjectOfType<CameraManager>();
             _cam = Camera.main;
             _cursorMeshRenderer = cubeCursor.GetComponentInChildren<MeshRenderer>();
             _cursorChild = cubeCursor.GetChild(0);
@@ -54,6 +52,12 @@ namespace ManagerControl
 
             _selectedTowerType = TowerType.None;
             cubeCursor.position = Vector3.zero + Vector3.down * 5;
+            _cursorMeshRenderer.enabled = false;
+        }
+
+        private void OnEnable()
+        {
+            _cursorMeshRenderer.enabled = true;
         }
 
         private void Update()
@@ -75,19 +79,11 @@ namespace ManagerControl
             }
         }
 
-        private void OnDisable()
-        {
-            if (_canPlace && !UIManager.Instance.IsOnUI)
-            {
-                PlaceTower();
-            }
-
-            StopPlacement();
-        }
-
 #if UNITY_EDITOR
         private void OnDrawGizmos()
         {
+            Gizmos.color = Color.black;
+            Gizmos.DrawSphere(Input.mousePosition, 0.5f);
             if (!_cursorChild) return;
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(_cursorChild.position + Vector3.up * 3, 1);
@@ -99,11 +95,20 @@ namespace ManagerControl
             }
         }
 #endif
-        private void StopPlacement()
+        public void TryPlaceTower()
+        {
+            if (_canPlace && !TowerButton.IsOnButton)
+            {
+                PlaceTower();
+            }
+
+            StopPlacement();
+        }
+
+        public void StopPlacement()
         {
             _startPlacement = false;
             _canPlace = false;
-            _cameraManager.enabled = true;
             _worldGridPos = Vector3.zero + Vector3.down * 5;
 
             _cursorMeshRenderer.transform.DOScale(0, 0.25f).SetEase(Ease.OutBack).OnComplete(() =>
@@ -116,7 +121,6 @@ namespace ManagerControl
         {
             _startPlacement = true;
             UIManager.Instance.OffUI();
-            _cameraManager.enabled = false;
             _cursorMeshRenderer.transform.DOScale(2, 0.25f).SetEase(Ease.OutBack);
             if (!UIManager.Instance.IsEnoughCost(towerType))
             {

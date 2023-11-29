@@ -1,94 +1,85 @@
-using System;
 using System.Globalization;
 using Cysharp.Threading.Tasks;
 using DataControl;
 using DG.Tweening;
-using ManagerControl;
+using GameControl;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Localization;
-using UnityEngine.Localization.Settings;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace UIControl
 {
     public class TowerCardUI : MonoBehaviour
     {
-        private Canvas _canvas;
         private Vector3 _buttonPos;
         private Vector3 _initPos;
-        private Locale _prevLanguage;
         private TowerData _towerData;
-        private Sequence _cardFloatingSequence;
-        private const string CardKey = "Card-";
+        private Sequence _openCardSequence;
+        private Tweener _moveCardTween;
+
+        public bool IsOpen { get; private set; }
 
         [SerializeField] private TMP_Text towerNameText;
         [SerializeField] private TMP_Text towerDescriptionText;
         [SerializeField] private TMP_Text healthText;
         [SerializeField] private TMP_Text damageText;
-        [SerializeField] private TMP_Text attackDelayText;
+        [SerializeField] private TMP_Text delayText;
 
         [SerializeField] private GameObject healthImage;
         [SerializeField] private Image damageImage;
+        [SerializeField] private Image delayImage;
 
         private void Awake()
         {
-            _canvas = GetComponent<Canvas>();
             _initPos = transform.position;
-            var rectTransform = GetComponent<RectTransform>();
-            _cardFloatingSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(rectTransform.DOAnchorPosY(10, 1).From(new Vector2(-10, 0)).SetEase(Ease.InOutSine));
+            _openCardSequence = DOTween.Sequence().SetAutoKill(false).Pause()
+                .Append(transform.DOScale(1, 0.25f).From(0))
+                .Join(transform.GetChild(0).DORotate(new Vector3(0, 360, 0), 0.25f, RotateMode.FastBeyond360));
+            _moveCardTween = transform.DOMove(_initPos, 0.25f).From().SetAutoKill(false);
         }
 
-        private void Start()
+        public void OpenTowerCard(Transform buttonTransform, TowerData towerData)
         {
-            _canvas.enabled = false;
-        }
+            IsOpen = true;
+            _buttonPos = buttonTransform.position;
 
-        public async UniTaskVoid OpenTowerCard(Vector3 from, TowerData towerData)
-        {
-            _canvas.enabled = true;
-            _buttonPos = from;
-
-            if (!towerData.Equals(_towerData) || !LocalizationSettings.SelectedLocale.Equals(_prevLanguage))
+            if (!towerData.Equals(_towerData))
             {
                 _towerData = towerData;
-                _prevLanguage = LocalizationSettings.SelectedLocale;
+                var uiManager = UIManager.Instance;
 
-                towerNameText.text = LocaleManager.GetLocalizedString(towerData.TowerType.ToString());
-
-                towerDescriptionText.text = LocaleManager.GetLocalizedString(CardKey + towerData.TowerType);
+                towerNameText.text = uiManager.towerNameDic[towerData.TowerType];
+                towerDescriptionText.text = uiManager.towerInfoDic[towerData.TowerType];
 
                 healthImage.SetActive(towerData.IsUnitTower);
                 if (towerData.IsUnitTower)
                 {
                     var unitTowerData = (UnitTowerData)towerData;
-                    healthText.text = unitTowerData.UnitHealth.ToString();
+                    healthText.text = CachedNumber.GetUIText(unitTowerData.UnitHealth);
+                    delayText.text = CachedNumber.GetUIText(unitTowerData.UnitReSpawnTime);
+                }
+                else
+                {
+                    delayText.text = CachedNumber.GetUIText(towerData.AttackRpm);
                 }
 
-                damageImage.sprite = UIManager.Instance.WhatTypeOfThisTower(_towerData);
-
-                var towerLevelData = towerData.TowerLevels[0];
-                damageText.text = towerLevelData.damage.ToString();
-                attackDelayText.text = towerLevelData.attackDelay.ToString(CultureInfo.InvariantCulture);
+                damageImage.sprite = uiManager.GetTowerType(_towerData);
+                delayImage.sprite = uiManager.IsUnitTower(towerData);
+                damageText.text = CachedNumber.GetUIText(towerData.BaseDamage);
             }
 
-            await DOTween.Sequence().Append(transform.DOScale(1, 0.25f).From(0))
-                .Join(transform.DOMove(_initPos, 0.25f).From(_buttonPos))
-                .Join(transform.GetChild(0).DORotate(new Vector3(0, 360, 0), 0.25f, RotateMode.FastBeyond360));
-
-            _cardFloatingSequence.SetLoops(-1, LoopType.Yoyo).Restart();
+            _openCardSequence.Restart();
+            _moveCardTween.ChangeStartValue(_buttonPos)
+                .ChangeEndValue(_buttonPos + new Vector3(0, 450, 0)).Restart();
         }
 
-        public async UniTaskVoid DisableCard()
+        public void CloseCard()
         {
-            _cardFloatingSequence.Pause();
-            await DOTween.Sequence()
-                .Append(transform.DOScale(0, 0.25f))
-                .Join(transform.DOMove(_buttonPos, 0.25f))
-                .Join(transform.GetChild(0).DORotate(new Vector3(0, 180, 0), 0.25f));
+            IsOpen = false;
 
-            _canvas.enabled = false;
+            _openCardSequence.PlayBackwards();
+            _moveCardTween.ChangeStartValue(_buttonPos + new Vector3(0, 450, 0)).ChangeEndValue(_buttonPos).Restart();
         }
     }
 }

@@ -1,9 +1,8 @@
-using System;
 using UnityEngine;
 
 namespace GameControl
 {
-    public abstract class Singleton<T> : MonoBehaviour where T : Component
+    public abstract class Singleton<T> : MonoBehaviour where T : MonoBehaviour
     {
         private static bool _applicationQuit;
         private static T _instance;

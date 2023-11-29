@@ -2,6 +2,6 @@ namespace InterfaceControl
 {
     public interface IDamageable
     {
-        void Damage(in float amount);
+        void Damage(float amount);
     }
 }

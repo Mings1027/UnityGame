@@ -27,7 +27,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4007819560865385027}
-  m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
@@ -128,8 +128,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4708717802849921056}
   - component: {fileID: 3400502233355181962}
+  - component: {fileID: 5747828200866207406}
   - component: {fileID: -8415576314900231898}
-  - component: {fileID: -1754260666240364650}
   - component: {fileID: -794810501770913793}
   - component: {fileID: 345671202734314005}
   - component: {fileID: -3709403999054635264}
@@ -171,6 +171,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87565c88d3b8c4441b8f629778f1fbb6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &5747828200866207406
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5337725742545187482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6719794b54cb7466489824b89cb28c32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &-8415576314900231898
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -184,23 +196,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attackTargetCount: 1
-  atkRange: 1
+  atkRange: 1.5
   sightRange: 2
   targetLayer:
     serializedVersion: 2
     m_Bits: 256
---- !u!114 &-1754260666240364650
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5337725742545187482}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6719794b54cb7466489824b89cb28c32, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!135 &-794810501770913793
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -212,8 +212,8 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.3
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0.5, z: 0}
 --- !u!195 &345671202734314005
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -224,7 +224,7 @@ NavMeshAgent:
   m_Enabled: 1
   m_AgentTypeID: 0
   m_Radius: 0.2
-  m_Speed: 2
+  m_Speed: 3
   m_Acceleration: 100
   avoidancePriority: 50
   m_AngularSpeed: 2880
@@ -233,7 +233,7 @@ NavMeshAgent:
   m_AutoBraking: 1
   m_AutoRepath: 1
   m_Height: 0.5
-  m_BaseOffset: 0
+  m_BaseOffset: 0.03
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
 --- !u!82 &-3709403999054635264
@@ -258,7 +258,7 @@ AudioSource:
   Priority: 128
   DopplerLevel: 1
   MinDistance: 1
-  MaxDistance: 50
+  MaxDistance: 20
   Pan2D: 0
   rolloffMode: 0
   BypassEffects: 0

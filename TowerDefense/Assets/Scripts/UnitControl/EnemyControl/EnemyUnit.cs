@@ -1,4 +1,6 @@
+using System.Threading;
 using CustomEnumControl;
+using Cysharp.Threading.Tasks;
 using DataControl;
 using UnityEngine;
 
@@ -10,10 +12,15 @@ namespace UnitControl.EnemyControl
 
         private void OnTriggerEnter(Collider other)
         {
-            if (other.CompareTag("BaseTower"))
-            {
-                gameObject.SetActive(false);
-            }
+            if (!other.CompareTag("BaseTower")) return;
+            thisCollider.enabled = false;
+            gameObject.SetActive(false);
+        }
+
+        public override void UnitUpdate(CancellationTokenSource cts)
+        {
+            if (!navMeshAgent.enabled) return;
+            base.UnitUpdate(cts);
         }
 
         protected override void Patrol()
@@ -38,12 +45,16 @@ namespace UnitControl.EnemyControl
             anim.SetBool(IsWalk, true);
         }
 
-        public void Stuck()
+        public void StorePrevPos() => _prevPos = transform.position;
+
+        public async UniTaskVoid IfStuck(CancellationTokenSource cts)
         {
-            if (unitState == UnitState.Attack || Vector3.Distance(_prevPos, transform.position) >= 5) return;
-            navMeshAgent.enabled = false;
-            navMeshAgent.enabled = true;
-            _prevPos = transform.position;
+            if (unitState == UnitState.Patrol && Vector3.Distance(_prevPos, transform.position) < 1.5f)
+            {
+                navMeshAgent.enabled = false;
+                await UniTask.Delay(50, cancellationToken: cts.Token);
+                navMeshAgent.enabled = true;
+            }
         }
     }
 }

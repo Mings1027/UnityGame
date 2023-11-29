@@ -1,6 +1,7 @@
 using CustomEnumControl;
 using DG.Tweening;
 using ManagerControl;
+using UIControl;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,6 +10,7 @@ namespace GameControl
     public class LanguageController : MonoBehaviour
     {
         private Sequence _changeLanguageSequence;
+        [SerializeField] private TowerInfoUI towerInfoUI;
         [SerializeField] private Transform languagePanel;
         [SerializeField] private Transform languageButtons;
         [SerializeField] private Button openLanguagePanelButton;
@@ -17,8 +19,7 @@ namespace GameControl
         private void Start()
         {
             _changeLanguageSequence = DOTween.Sequence().SetAutoKill(false).SetUpdate(true).Pause()
-                .Append(languagePanel.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBack))
-                .OnComplete(() => Application.targetFrameRate = 10);
+                .Append(languagePanel.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBack));
 
             for (int i = 0; i < languageButtons.childCount; i++)
             {
@@ -39,7 +40,6 @@ namespace GameControl
 
             closeLanguagePanelButton.onClick.AddListener(() =>
             {
-                Application.targetFrameRate = 60;
                 _changeLanguageSequence.PlayBackwards();
             });
         }

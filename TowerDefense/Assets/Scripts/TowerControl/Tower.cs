@@ -14,11 +14,14 @@ namespace TowerControl
         private MeshFilter _meshFilter;
         private bool _isBuilt;
 
-        protected BoxCollider BoxCollider;
-        
+        protected BoxCollider boxCollider;
+        protected float AttackDelay { get; private set; }
+
         public event Action<Tower> OnClickTower;
-        public float TowerRange { get; private set; }
+        public byte TowerRange { get; private set; }
+        public int Damage { get; private set; }
         public sbyte TowerLevel { get; private set; }
+
         public Outlinable Outline { get; private set; }
         public TowerData TowerData => towerData;
 
@@ -31,7 +34,7 @@ namespace TowerControl
             Init();
         }
 
-        private void OnEnable()
+        protected virtual void OnEnable()
         {
             TowerLevel = -1;
             Outline.enabled = false;
@@ -63,15 +66,15 @@ namespace TowerControl
         private void ColliderSize()
         {
             var rendererY = _meshRenderer.bounds.size.y;
-            var size = BoxCollider.size;
+            var size = boxCollider.size;
             size = new Vector3(size.x, rendererY, size.z);
-            BoxCollider.size = size;
+            boxCollider.size = size;
         }
 
         protected virtual void Init()
         {
             Outline = GetComponent<Outlinable>();
-            BoxCollider = GetComponent<BoxCollider>();
+            boxCollider = GetComponent<BoxCollider>();
             _meshFilter = transform.GetChild(0).GetComponent<MeshFilter>();
             _meshRenderer = transform.GetChild(0).GetComponent<MeshRenderer>();
             _defaultMesh = _meshFilter;
@@ -85,10 +88,12 @@ namespace TowerControl
         }
 
         public virtual void TowerSetting(MeshFilter towerMesh, int damageData, byte rangeData,
-            float attackDelayData)
+            ushort rpmData)
         {
             _isBuilt = true;
             TowerRange = rangeData;
+            Damage = damageData;
+            AttackDelay = 60 / (float)rpmData;
             _meshFilter.sharedMesh = towerMesh.sharedMesh;
 
             ColliderSize();

@@ -7,47 +7,47 @@ using UnityEngine.Serialization;
 
 namespace PoolObjectControl
 {
+    [Serializable]
+    public class Pool : IComparable<Pool>
+    {
+        public PoolObjectKey poolObjectKey;
+        public GameObject prefab;
+        public byte initSize;
+
+        public int CompareTo(Pool other)
+        {
+            return string.CompareOrdinal(poolObjectKey.ToString(), other.poolObjectKey.ToString());
+        }
+    }
+
+    [Serializable]
+    public class UIPool : IComparable<UIPool>
+    {
+        public UIPoolObjectKey uiPoolObjectKey;
+        public GameObject uiPrefab;
+        public byte initSize;
+
+        public int CompareTo(UIPool other)
+        {
+            return string.CompareOrdinal(uiPoolObjectKey.ToString(), other.uiPoolObjectKey.ToString());
+        }
+    }
+
+    [Serializable]
+    public class EnemyPool : IComparable<EnemyPool>
+    {
+        public EnemyPoolObjectKey enemyPoolObjKey;
+        public GameObject enemyPrefab;
+        public byte initSize;
+
+        public int CompareTo(EnemyPool other)
+        {
+            return string.CompareOrdinal(enemyPoolObjKey.ToString(), other.enemyPoolObjKey.ToString());
+        }
+    }
+
     public class PoolObjectManager : MonoBehaviour
     {
-        [Serializable]
-        public class Pool : IComparable<Pool>
-        {
-            public PoolObjectKey poolObjectKey;
-            public GameObject prefab;
-            public byte initSize;
-
-            public int CompareTo(Pool other)
-            {
-                return string.CompareOrdinal(poolObjectKey.ToString(), other.poolObjectKey.ToString());
-            }
-        }
-
-        [Serializable]
-        public class UIPool : IComparable<UIPool>
-        {
-            public UIPoolObjectKey uiPoolObjectKey;
-            public GameObject uiPrefab;
-            public byte initSize;
-
-            public int CompareTo(UIPool other)
-            {
-                return string.CompareOrdinal(uiPoolObjectKey.ToString(), other.uiPoolObjectKey.ToString());
-            }
-        }
-
-        [Serializable]
-        public class EnemyPool : IComparable<EnemyPool>
-        {
-            public EnemyPoolObjectKey enemyPoolObjKey;
-            public GameObject enemyPrefab;
-            public byte initSize;
-
-            public int CompareTo(EnemyPool other)
-            {
-                return string.CompareOrdinal(enemyPoolObjKey.ToString(), other.enemyPoolObjKey.ToString());
-            }
-        }
-
         private static PoolObjectManager _inst;
         private Camera _cam;
         private Dictionary<PoolObjectKey, Stack<GameObject>> _prefabDictionary;
@@ -97,7 +97,7 @@ namespace PoolObjectControl
                     enemyPools[i].enemyPoolObjKey;
             }
 
-            for (int i = 0; i < uiPools.Length; i++)
+            for (var i = 0; i < uiPools.Length; i++)
             {
                 uiPools[i].uiPrefab.GetComponent<UIPoolObject>().UIPoolObjKey = uiPools[i].uiPoolObjectKey;
             }
@@ -122,18 +122,18 @@ namespace PoolObjectControl
                 }
             }
 
-            for (int i = 0; i < uiPools.Length; i++)
+            for (var i = 0; i < uiPools.Length; i++)
             {
                 _uiPoolDictionary.Add(uiPools[i].uiPoolObjectKey, uiPools[i]);
                 uiPools[i].uiPrefab.GetComponent<UIPoolObject>().UIPoolObjKey = uiPools[i].uiPoolObjectKey;
             }
 
-            for (int i = 0; i < uiPools.Length; i++)
+            for (var i = 0; i < uiPools.Length; i++)
             {
                 var uiPool = uiPools[i];
                 if (uiPool.uiPrefab == null) throw new Exception($"{uiPool.uiPoolObjectKey} doesn't exist");
                 _uiPrefabDictionary.Add(uiPool.uiPoolObjectKey, new Stack<GameObject>());
-                for (int j = 0; j < uiPool.initSize; j++)
+                for (var j = 0; j < uiPool.initSize; j++)
                 {
                     CreateUIObject(uiPool.uiPoolObjectKey, uiPool.uiPrefab);
                 }
@@ -170,41 +170,69 @@ namespace PoolObjectControl
         public static T Get<T>(PoolObjectKey poolObjectKey, Transform t) where T : Component
         {
             var obj = _inst.Spawn(poolObjectKey, t.position, t.rotation);
+#if UNITY_EDITOR
             if (obj.TryGetComponent(out T component)) return component;
             obj.SetActive(false);
-            throw new Exception("Component not found");
+            throw new Exception($"{poolObjectKey} Component not found");
+#else
+            obj.TryGetComponent(out T component);
+            return component;
+#endif
         }
 
         public static T Get<T>(PoolObjectKey poolObjectKey, Vector3 position) where T : Component
         {
             var obj = _inst.Spawn(poolObjectKey, position, Quaternion.identity);
+#if UNITY_EDITOR
             if (obj.TryGetComponent(out T component)) return component;
             obj.SetActive(false);
             throw new Exception($"{poolObjectKey} Component not found");
+#else
+            obj.TryGetComponent(out T component);
+            return component;
+#endif
         }
 
         public static T Get<T>(PoolObjectKey poolObjectKey, Vector3 position, Quaternion rotation) where T : Component
         {
             var obj = _inst.Spawn(poolObjectKey, position, rotation);
+#if UNITY_EDITOR
             if (obj.TryGetComponent(out T component)) return component;
             obj.SetActive(false);
-            throw new Exception("Component not found");
+            throw new Exception($"{poolObjectKey} Component not found");
+#else
+            obj.TryGetComponent(out T component);
+            return component;
+#endif
         }
+
+        public static void Get(UIPoolObjectKey uiPoolObjectKey, Vector3 position) =>
+            _inst.Spawn(uiPoolObjectKey, position, Quaternion.identity);
 
         public static T Get<T>(UIPoolObjectKey uiPoolObjectKey, Vector3 position) where T : Component
         {
             var obj = _inst.Spawn(uiPoolObjectKey, _inst._cam.WorldToScreenPoint(position), Quaternion.identity);
+#if UNITY_EDITOR
             if (obj.TryGetComponent(out T component)) return component;
             obj.SetActive(false);
-            throw new Exception("Component not found");
+            throw new Exception($"{uiPoolObjectKey} Component not found");
+#else
+            obj.TryGetComponent(out T component);
+            return component;
+#endif
         }
 
-        public static T Get<T>(EnemyPoolObjectKey enemyPoolObjectKey, Vector3 position) where T : Component
+        public static T Get<T>(EnemyPoolObjectKey enemyPoolObjectKey, in Vector3 position) where T : Component
         {
             var obj = _inst.Spawn(enemyPoolObjectKey, position, Quaternion.identity);
+#if UNITY_EDITOR
             if (obj.TryGetComponent(out T component)) return component;
             obj.SetActive(false);
-            throw new Exception("Component not found");
+            throw new Exception($"{enemyPoolObjectKey} Component not found");
+#else
+            obj.TryGetComponent(out T component);
+            return component;
+#endif
         }
 
         public static void ReturnToPool(GameObject obj, PoolObjectKey poolObjKey)

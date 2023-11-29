@@ -1,61 +1,75 @@
-using System.Collections.Generic;
+using System;
 using System.IO;
-using CustomEnumControl;
-using GameControl;
 using UnityEngine;
 
 namespace ManagerControl
 {
-    public abstract class DataManager
+    [Serializable]
+    public class SurvivedWave
     {
+        public byte[] survivedWave = { 0, 0, 0, 0 };
+    }
+
+    public static class DataManager
+    {
+        public static SurvivedWave SurvivedWaves { get; private set; }
+
         private static string _path;
-        private static Dictionary<TowerType, int> damageDic { get; set; }
+        private static byte _difficultyLevel;
+        private static byte _lastSurvivedWave;
 
-        public void InitDictionary()
+        private const string Filename = "/waves.txt";
+
+        public static void Init()
         {
-            _path = Application.persistentDataPath + "/Damage";
+            _path = Application.persistentDataPath + Filename;
 
-            if (Directory.Exists(_path))
+            SurvivedWaves = new SurvivedWave();
+            LoadData();
+        }
+
+        public static void SetLevel(byte index)
+        {
+            _difficultyLevel = index;
+            _lastSurvivedWave = SurvivedWaves.survivedWave[_difficultyLevel - 1];
+        }
+
+        private static void SaveData()
+        {
+            var data = JsonUtility.ToJson(SurvivedWaves);
+            File.WriteAllText(_path, data);
+        }
+
+        public static void LoadData()
+        {
+            if (!File.Exists(_path))
             {
-                LoadDamageData();
+                SaveData();
             }
-            else
+
+            var data = File.ReadAllText(_path);
+            SurvivedWaves = JsonUtility.FromJson<SurvivedWave>(data);
+        }
+
+        public static void SaveLastSurvivedWave()
+        {
+            if (_lastSurvivedWave < SurvivedWaves.survivedWave[_difficultyLevel - 1])
+                SaveData();
+        }
+
+        public static void UpdateSurvivedWave(byte wave)
+        {
+            SurvivedWaves.survivedWave[_difficultyLevel - 1] = wave;
+        }
+
+        public static void WaveDataInit()
+        {
+            for (int i = 0; i < SurvivedWaves.survivedWave.Length; i++)
             {
-                Directory.CreateDirectory(_path);
-                damageDic = new Dictionary<TowerType, int>
-                {
-                    { TowerType.Assassin, 0 }, { TowerType.Ballista, 0 },
-                    { TowerType.Canon, 0 }, { TowerType.Defender, 0 },
-                    { TowerType.Wizard, 0 },
-                };
-                var jsonData = DictionaryJsonUtility.ToJson(damageDic, true);
-                File.WriteAllText(_path + "/damage.txt", jsonData);
+                SurvivedWaves.survivedWave[i] = 0;
             }
-        }
 
-        public static void InitDamage()
-        {
-            foreach (var damage in damageDic.Keys)
-            {
-                damageDic[damage] = 0;
-            }
-        }
-
-        public static void SumDamage(TowerType towerTypeEnum, int damage)
-        {
-            damageDic[towerTypeEnum] += damage;
-        }
-
-        public static void SaveDamageData()
-        {
-            var data = DictionaryJsonUtility.ToJson(damageDic);
-            File.WriteAllText(_path + "/damage.txt", data);
-        }
-
-        public static void LoadDamageData()
-        {
-            var data = File.ReadAllText(_path + "/damage.txt");
-            damageDic = DictionaryJsonUtility.FromJson<TowerType, int>(data);
+            SaveData();
         }
     }
 }

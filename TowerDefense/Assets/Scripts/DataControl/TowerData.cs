@@ -1,7 +1,5 @@
-using System;
 using CustomEnumControl;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace DataControl
 {
@@ -9,29 +7,42 @@ namespace DataControl
     {
         public bool IsUnitTower => isUnitTower;
         public bool IsMagicTower => isMagicTower;
-        public TowerInfoData[] TowerLevels => towerLevels;
+
+        public MeshFilter[] TowerMeshes => towerMeshes;
+
+        public int BaseDamage { get; private set; }
+        public byte AttackRange { get; private set; }
+        public ushort AttackRpm { get; private set; }
+
         public GameObject Tower => tower;
-        public PoolObjectKey PoolObjectKey => poolObjectKey;
         public TowerType TowerType => towerType;
         public int TowerBuildCost => towerBuildCost;
         public int TowerUpgradeCost => towerUpgradeCost;
 
         [SerializeField] private bool isUnitTower;
         [SerializeField] private bool isMagicTower;
-        [SerializeField] private TowerInfoData[] towerLevels;
+
+        [SerializeField] private int initDamage;
+        [SerializeField] private byte initRange;
+        [SerializeField] private ushort initRpm;
+        [SerializeField] private MeshFilter[] towerMeshes;
+
         [SerializeField] private GameObject tower;
-        [SerializeField] private PoolObjectKey poolObjectKey;
         [SerializeField] private TowerType towerType;
         [SerializeField, Range(0, 200)] private int towerBuildCost;
         [SerializeField, Range(0, 200)] private int towerUpgradeCost;
 
-        [Serializable]
-        public class TowerInfoData
+        public virtual void InitState()
         {
-            public MeshFilter towerMesh;
-            public int damage;
-            public byte attackRange;
-            public float attackDelay;
+            BaseDamage = initDamage;
+            AttackRange = initRange;
+            AttackRpm = initRpm;
+        }
+
+        public virtual void UpgradeData()
+        {
+            BaseDamage += 5;
+            AttackRange += 1;
         }
     }
 }

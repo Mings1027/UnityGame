@@ -24,6 +24,8 @@ namespace ManagerControl
         }
 
         private bool _bgmOn, _sfxOn;
+        private float _bgmVolume;
+
         private Dictionary<SoundEnum, AudioClip> _musicDictionary;
         private Dictionary<SoundEnum, AudioClip> _effectDictionary;
 
@@ -56,6 +58,8 @@ namespace ManagerControl
         private void Start()
         {
             _bgmOn = _sfxOn = true;
+            audioMixer.GetFloat("BGM", out var vol);
+            _bgmVolume = vol;
         }
 
         public void PlayBGM(SoundEnum clipName)
@@ -73,7 +77,7 @@ namespace ManagerControl
         public void ToggleBGM(bool active)
         {
             _bgmOn = active;
-            audioMixer.SetFloat("BGM", _bgmOn ? 0 : -80);
+            audioMixer.SetFloat("BGM", _bgmOn ? _bgmVolume : -80);
         }
 
         public void ToggleSfx(bool active)

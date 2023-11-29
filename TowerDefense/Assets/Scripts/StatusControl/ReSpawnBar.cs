@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace StatusControl
 {
-    public class ReSpawnBar : ProgressBar
+    public class ReSpawnBar : StatusBar
     {
         private CancellationTokenSource _cts;
         private Sequence _loadingSequence;

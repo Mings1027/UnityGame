@@ -15,10 +15,11 @@ namespace CustomEnumControl
         GameStart,
         WaveStart,
         WaveEnd,
+        BossTheme,
         ButtonSound,
-        SellTower1,
-        SellTower2,
-        SellTower3
+        LowCost,
+        MediumCost,
+        HighCost
     }
 
     public enum UnitState
@@ -26,6 +27,15 @@ namespace CustomEnumControl
         Patrol,
         Chase,
         Attack
+    }
+
+    public enum CamState
+    {
+        Move,
+        CheckZoomRotate,
+        Rotate,
+        Zoom,
+        Idle
     }
 
     public enum PoolObjectKey
@@ -38,6 +48,7 @@ namespace CustomEnumControl
         //==============Smoke==============
         ExpandMapSmoke,
         BuildSmoke,
+        ObstacleSmoke,
 
         //==============Projectile==============
         BallistaProjectile,
@@ -48,23 +59,17 @@ namespace CustomEnumControl
 
         BloodVfx,
 
-        //==============Unit==============
-        AssassinUnit,
-        DefenderUnit,
-
         //==============Tower=============
-        AssassinTower,
-        BallistaTower,
-        CanonTower,
-        DefenceTower,
-        WizardTower
+        AssassinUnit,
+        DefenderUnit
     }
 
     public enum UIPoolObjectKey
     {
         UnitHealthBar,
         EnemyHealthBar,
-        ReSpawnBar
+        ReSpawnBar,
+        CoinText
     }
 
     public enum EnemyPoolObjectKey

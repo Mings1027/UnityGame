@@ -14,35 +14,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isUnitTower: 1
   isMagicTower: 0
-  towerLevels:
-  - towerMesh: {fileID: -6400281290468069383, guid: 57e9ca1972df7944e8027988c19964e0,
-      type: 3}
-    damage: 10
-    attackRange: 7
-    attackDelay: 1
-  - towerMesh: {fileID: -6400281290468069383, guid: e6e4e3c996269714cbd83ca0eb3a99e3,
-      type: 3}
-    damage: 20
-    attackRange: 7
-    attackDelay: 1
-  - towerMesh: {fileID: -6400281290468069383, guid: 5bfe0e359c66cff4db26316e49a2ef74,
-      type: 3}
-    damage: 40
-    attackRange: 7
-    attackDelay: 1
-  - towerMesh: {fileID: -6400281290468069383, guid: 9966af8366ccf8d4fad2d387f409638d,
-      type: 3}
-    damage: 80
-    attackRange: 7
-    attackDelay: 1
-  - towerMesh: {fileID: -6400281290468069383, guid: 25810a19e94edec41aea57b8ba8cdff1,
-      type: 3}
-    damage: 130
-    attackRange: 7
-    attackDelay: 1
+  initDamage: 10
+  initRange: 7
+  initDelay: 1
+  initRpm: 70
+  towerMeshes:
+  - {fileID: -6400281290468069383, guid: 57e9ca1972df7944e8027988c19964e0, type: 3}
+  - {fileID: -6400281290468069383, guid: e6e4e3c996269714cbd83ca0eb3a99e3, type: 3}
+  - {fileID: -6400281290468069383, guid: 5bfe0e359c66cff4db26316e49a2ef74, type: 3}
+  - {fileID: -6400281290468069383, guid: 9966af8366ccf8d4fad2d387f409638d, type: 3}
+  - {fileID: -6400281290468069383, guid: 25810a19e94edec41aea57b8ba8cdff1, type: 3}
   tower: {fileID: 3847918098510183265, guid: 8d942512867e1284e9d6225db845f190, type: 3}
-  poolObjectKey: 8
   towerType: 0
-  towerBuildCost: 20
-  towerUpgradeCost: 30
-  unitHealth: 100
+  towerBuildCost: 100
+  towerUpgradeCost: 80
+  initUnitHealth: 50
+  initReSpawnTime: 10

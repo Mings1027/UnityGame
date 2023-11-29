@@ -10,7 +10,7 @@ namespace ProjectileControl
         public override void ColorInit(sbyte effectIndex)
         {
             base.ColorInit(effectIndex);
-            _decreaseSpeed = (byte)(effectIndex + 1);
+            _decreaseSpeed = (byte)(effectIndex + 2);   //2 3 4
             _slowCoolTime = _decreaseSpeed;
         }
 

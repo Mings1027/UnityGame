@@ -4,24 +4,52 @@ using UnityEngine.EventSystems;
 
 namespace UIControl
 {
-    public class TowerButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler
+    public class TowerButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler,
+        IBeginDragHandler, IDragHandler, IEndDragHandler
     {
-        public event Action<int, Vector3> OnClick;
+        public event Action<int, Transform> OnPressTowerButtonEvent;
+        public event Action OnCloseCardEvent;
+        public event Action OnPlaceTowerEvent;
+        public event Action<PointerEventData> OnBeginDragEvent;
+        public event Action<PointerEventData> OnDragEvent;
+        public event Action<PointerEventData> OnEndDragEvent;
+        public static bool IsOnButton { get; private set; }
         public byte buttonIndex { get; set; }
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            OnClick?.Invoke(buttonIndex, transform.position);
+            IsOnButton = true;
+            UIManager.IsOnUI = true;
+            OnPressTowerButtonEvent?.Invoke(buttonIndex, transform);
         }
 
         public void OnPointerUp(PointerEventData eventData)
         {
-            UIManager.Instance.towerCardUI.DisableCard().Forget();
+            OnPlaceTowerEvent?.Invoke();
+            IsOnButton = false;
+            UIManager.IsOnUI = false;
+            OnCloseCardEvent?.Invoke();
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            UIManager.Instance.towerCardUI.DisableCard().Forget();
+            IsOnButton = false;
+            OnCloseCardEvent?.Invoke();
+        }
+
+        public void OnBeginDrag(PointerEventData eventData)
+        {
+            OnBeginDragEvent?.Invoke(eventData);
+        }
+
+        public void OnDrag(PointerEventData eventData)
+        {
+            OnDragEvent?.Invoke(eventData);
+        }
+
+        public void OnEndDrag(PointerEventData eventData)
+        {
+            OnEndDragEvent?.Invoke(eventData);
         }
     }
 }

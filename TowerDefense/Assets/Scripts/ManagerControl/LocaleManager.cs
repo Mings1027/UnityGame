@@ -11,6 +11,7 @@ namespace ManagerControl
         private static bool _isChanging;
         
         public const string TowerCardTable = "TowerCard Table";
+        public const string CardKey = "Card-";
 
         public static void ChangeLocale(int index)
         {

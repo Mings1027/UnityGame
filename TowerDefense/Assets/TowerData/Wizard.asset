@@ -12,38 +12,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 460b90e61958b426781315c336aeabed, type: 3}
   m_Name: Wizard
   m_EditorClassIdentifier: 
+  isUnitTower: 0
   isMagicTower: 1
-  towerLevels:
-  - towerMesh: {fileID: -6400281290468069383, guid: 3e36d627174953540a043d7111c23248,
-      type: 3}
-    damage: 10
-    attackRange: 13
-    attackDelay: 2
-  - towerMesh: {fileID: -6400281290468069383, guid: 39b9595078c532a47883ec09301622c7,
-      type: 3}
-    damage: 15
-    attackRange: 13
-    attackDelay: 2
-  - towerMesh: {fileID: -6400281290468069383, guid: 09ecbe8cf1b084942a9a2623090665be,
-      type: 3}
-    damage: 20
-    attackRange: 13
-    attackDelay: 1.5
-  - towerMesh: {fileID: -6400281290468069383, guid: 24593f17b27ea484c91f5ed3da88c7ff,
-      type: 3}
-    damage: 50
-    attackRange: 15
-    attackDelay: 1.5
-  - towerMesh: {fileID: -6400281290468069383, guid: 486bd33de5fa44a5393fb0bc17549840,
-      type: 3}
-    damage: 70
-    attackRange: 17
-    attackDelay: 1.5
+  initDamage: 10
+  initRange: 10
+  initDelay: 2
+  initRpm: 40
+  towerMeshes:
+  - {fileID: -6400281290468069383, guid: 3e36d627174953540a043d7111c23248, type: 3}
+  - {fileID: -6400281290468069383, guid: 39b9595078c532a47883ec09301622c7, type: 3}
+  - {fileID: -6400281290468069383, guid: 09ecbe8cf1b084942a9a2623090665be, type: 3}
+  - {fileID: -6400281290468069383, guid: 24593f17b27ea484c91f5ed3da88c7ff, type: 3}
+  - {fileID: -6400281290468069383, guid: 486bd33de5fa44a5393fb0bc17549840, type: 3}
   tower: {fileID: 4440219121197004554, guid: c6d784db220a82540bcd8c36e16873db, type: 3}
-  poolObjectKey: 5
   towerType: 3
   towerBuildCost: 40
   towerUpgradeCost: 50
+  poolObjectKey: 6
   projectileColor:
   - m_Mode: 2
     m_GradientMin:

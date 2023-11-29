@@ -14,12 +14,14 @@ namespace UIControl
         private void Awake()
         {
             _bounceSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(toggleTowerButton.DOAnchorPosX(50, 0.7f).SetEase(ease));
+                .Append(toggleTowerButton.DOAnchorPosY(70, 0.7f).SetEase(ease));
             toggleTowerButton.GetComponent<Button>().onClick.AddListener(BounceButton);
+            toggleTowerButton.gameObject.SetActive(false);
         }
 
         public void TutorialButton()
         {
+            toggleTowerButton.gameObject.SetActive(true);
             _bounceSequence.SetLoops(-1, LoopType.Yoyo).Restart();
         }
 

@@ -1,3 +1,5 @@
+using System;
+using System.Threading;
 using DG.Tweening;
 using UnityEngine;
 
@@ -10,8 +12,9 @@ namespace TowerControl
         [SerializeField] private Transform ballista;
         [SerializeField] private float smoothTurnSpeed;
 
-        private void LateUpdate()
+        public override void TowerUpdate(CancellationTokenSource cts)
         {
+            base.TowerUpdate(cts);
             if (!isTargeting) return;
 
             var t = target.transform;
@@ -26,25 +29,22 @@ namespace TowerControl
             base.Init();
             firePos = ballista;
             ballista.localScale = Vector3.zero;
+            var ballistaChild = ballista.GetChild(0);
+            atkSequence = DOTween.Sequence().SetAutoKill(false).Pause()
+                .Append(ballistaChild.DOLocalMove(ballistaChild.forward * -0.2f, 0.2f)
+                    .SetEase(Ease.OutExpo).SetLoops(2, LoopType.Yoyo));
         }
 
-        public override void TowerSetting(MeshFilter towerMesh, int damageData, byte rangeData, float attackDelayData)
+        public override void TowerSetting(MeshFilter towerMesh, int damageData, byte rangeData, ushort rpmData)
         {
-            base.TowerSetting(towerMesh, damageData, rangeData, attackDelayData);
+            base.TowerSetting(towerMesh, damageData, rangeData, rpmData);
             BallistaInit();
         }
 
         private void BallistaInit()
         {
-            ballista.position = transform.position + new Vector3(0, BoxCollider.size.y, 0);
+            ballista.position = transform.position + new Vector3(0, boxCollider.size.y, 0);
             ballista.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBack);
-        }
-
-        protected override void Attack()
-        {
-            ballista.DOMove(ballista.position - ballista.forward * 0.2f, 0.2f).SetEase(Ease.OutExpo)
-                .SetLoops(2, LoopType.Yoyo);
-            base.Attack();
         }
     }
 }

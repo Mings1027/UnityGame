@@ -15,9 +15,10 @@ namespace UnitControl
     {
         private Transform _childMeshTransform;
         private AudioSource _audioSource;
-        private Collider _collider;
-        private bool _isAttacking;
+        private Sequence _deadSequence;
 
+        protected bool isAttacking;
+        protected Collider thisCollider;
         protected Collider[] targetCollider;
         protected Health health;
         protected Collider target;
@@ -49,17 +50,34 @@ namespace UnitControl
             _audioSource = GetComponent<AudioSource>();
             anim = GetComponentInChildren<Animator>();
             navMeshAgent = GetComponent<NavMeshAgent>();
-            _collider = GetComponent<Collider>();
+            thisCollider = GetComponent<Collider>();
             health = GetComponent<Health>();
             targetCollider = new Collider[attackTargetCount];
+
+            _deadSequence = DOTween.Sequence().SetAutoKill(false).Pause()
+                .Append(_childMeshTransform.DOLocalJump(-_childMeshTransform.forward, Random.Range(4, 7), 1, 1))
+                .Join(_childMeshTransform.DOLocalRotate(new Vector3(-360, 0, 0), 1, RotateMode.FastBeyond360))
+                .Join(transform.DOScale(0, 1).From(transform.localScale))
+                .OnComplete(() =>
+                {
+                    gameObject.SetActive(false);
+                    _childMeshTransform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
+                    transform.localScale = Vector3.one;
+
+                    // _childMeshTransform.localPosition = Vector3.zero;
+                });
         }
 
-        private void OnDisable()
+        protected virtual void OnDisable()
         {
             OnDisableEvent?.Invoke();
             OnDisableEvent = null;
             _childMeshTransform.rotation = Quaternion.identity;
-            _childMeshTransform.localScale = Vector3.one;
+        }
+
+        private void OnDestroy()
+        {
+            _deadSequence?.Kill();
         }
 #if UNITY_EDITOR
         protected virtual void OnDrawGizmos()
@@ -73,7 +91,7 @@ namespace UnitControl
 
         #endregion
 
-        public void UnitUpdate(CancellationTokenSource cts)
+        public virtual void UnitUpdate(CancellationTokenSource cts)
         {
             if (health.IsDead) return;
             switch (unitState)
@@ -85,7 +103,7 @@ namespace UnitControl
                     Chase();
                     break;
                 case UnitState.Attack:
-                    ReadyToAttack(cts).Forget();
+                    Attack(cts).Forget();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -117,58 +135,46 @@ namespace UnitControl
             }
         }
 
-        private async UniTaskVoid ReadyToAttack(CancellationTokenSource cts)
+        private async UniTaskVoid Attack(CancellationTokenSource cts)
         {
-            if (Vector3.Distance(target.transform.position, transform.position) > atkRange || !target.enabled)
-            {
-                unitState = UnitState.Patrol;
-                _isAttacking = false;
-                return;
-            }
-
-            if (_isAttacking) return;
-            _isAttacking = true;
-            Attack();
-            await UniTask.Delay(TimeSpan.FromSeconds(atkDelay), cancellationToken: cts.Token);
-            _isAttacking = false;
-        }
-
-        protected virtual void Attack()
-        {
-            transform.forward = target.transform.position - transform.position;
+            if (isAttacking) return;
+            isAttacking = true;
+            var t = transform;
+            t.Rotate(target.transform.position - t.position);
             anim.SetTrigger(IsAttack);
             _audioSource.Play();
             TryDamage();
+            await UniTask.Delay(TimeSpan.FromSeconds(atkDelay), cancellationToken: cts.Token);
+            isAttacking = false;
+
+            if (Vector3.Distance(target.transform.position, transform.position) > atkRange || !target.enabled)
+            {
+                unitState = UnitState.Patrol;
+                isAttacking = false;
+            }
         }
 
         protected virtual void TryDamage()
         {
-            if (target.enabled && target.TryGetComponent(out IDamageable damageable)) damageable.Damage(damage);
+            if (target.enabled && target.TryGetComponent(out IDamageable damageable))
+                damageable.Damage(damage);
         }
 
-        private void Dead()
+        protected virtual void Dead()
         {
-            _collider.enabled = false;
-            navMeshAgent.isStopped = true;
+            thisCollider.enabled = false;
+            navMeshAgent.enabled = false;
             anim.enabled = false;
-            DOTween.Sequence()
-                .Append(_childMeshTransform.DOLocalJump(-_childMeshTransform.forward, Random.Range(4, 7), 1, 1))
-                .Join(_childMeshTransform.DOLocalRotate(new Vector3(-360, 0, 0), 1, RotateMode.FastBeyond360))
-                .Join(_childMeshTransform.DOScale(0, 1))
-                .OnComplete(() =>
-                {
-                    gameObject.SetActive(false);
-                    _childMeshTransform.localPosition = Vector3.zero;
-                });
+            _deadSequence.Restart();
         }
 
         public void Init()
         {
-            _collider.enabled = true;
+            thisCollider.enabled = true;
             target = null;
-            _isAttacking = false;
+            isAttacking = false;
             health.OnDeadEvent += Dead;
-            navMeshAgent.isStopped = false;
+            navMeshAgent.enabled = true;
             anim.enabled = true;
         }
     }

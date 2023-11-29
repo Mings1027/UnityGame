@@ -1,45 +1,130 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using DataControl;
+using DG.Tweening;
 using ManagerControl;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace UIControl
 {
-    public class TowerButtonController : MonoBehaviour
+    public class TowerButtonController : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
     {
+        private bool _isStartPlacement;
+        private bool _isDrag;
+        private RectTransform _rectTransform;
+        private Tweener _slideDownTween;
+        private Tweener _slideUpTween;
         private InputManager _inputManager;
+
         private Dictionary<int, TowerData> _towerButtonDic;
+
+        private float _rectHeight;
+
+        [SerializeField] private TowerCardUI towerCardUI;
+
+        #region Unity Event
+
+        public void OnBeginDrag(PointerEventData eventData)
+        {
+            _isDrag = true;
+        }
+
+        public void OnDrag(PointerEventData eventData)
+        {
+            if (eventData.position.y > _rectHeight + 50)
+            {
+                _isStartPlacement = true;
+            }
+
+            var rectAnchorPos = _rectTransform.anchoredPosition;
+            if (_isStartPlacement)
+            {
+                if (eventData.delta.y > 0)
+                {
+                    rectAnchorPos += new Vector2(0, eventData.delta.y);
+                }
+            }
+            else
+            {
+                rectAnchorPos += new Vector2(0, eventData.delta.y);
+            }
+
+            if (rectAnchorPos.y > 0) rectAnchorPos = Vector2.zero;
+            else if (rectAnchorPos.y < -200) rectAnchorPos = new Vector2(0, -200);
+            _rectTransform.anchoredPosition = rectAnchorPos;
+        }
+
+        public void OnEndDrag(PointerEventData eventData)
+        {
+            _isStartPlacement = false;
+            _isDrag = false;
+            if (_rectTransform.anchoredPosition.y > -_rectHeight * 0.5f)
+            {
+                _slideUpTween.ChangeStartValue(_rectTransform.anchoredPosition).ChangeEndValue(Vector2.zero).Restart();
+                _inputManager.StopPlacement();
+            }
+            else
+            {
+                _slideDownTween.ChangeStartValue(_rectTransform.anchoredPosition).Restart();
+                UIManager.Instance.SlideDown();
+            }
+        }
+
+        #endregion
 
         public void Init()
         {
+            _rectTransform = GetComponent<RectTransform>();
+            _slideDownTween = _rectTransform.DOAnchorPosY(-250, 0.25f).SetAutoKill(false).Pause();
+            _slideUpTween = _rectTransform.DOAnchorPosY(-250, 0.25f).From().SetAutoKill(false).Pause();
+
             _inputManager = FindObjectOfType<InputManager>();
             _towerButtonDic = new Dictionary<int, TowerData>();
+
+            _rectHeight = _rectTransform.rect.height;
+
             var towerButtons = transform.GetChild(0);
             for (var i = 0; i < towerButtons.childCount; i++)
             {
                 var towerButton = towerButtons.GetChild(i).GetComponent<TowerButton>();
                 towerButton.buttonIndex = (byte)i;
-                towerButton.OnClick += ClickTowerButton;
+                towerButton.OnPressTowerButtonEvent += PressTowerButton;
+                towerButton.OnCloseCardEvent += CloseTowerCard;
+                towerButton.OnPlaceTowerEvent += () => _inputManager.TryPlaceTower();
+                towerButton.OnBeginDragEvent += OnBeginDrag;
+                towerButton.OnDragEvent += OnDrag;
+                towerButton.OnEndDragEvent += OnEndDrag;
             }
         }
 
-        private void ClickTowerButton(int index, Vector3 pos)
+        private void PressTowerButton(int index, Transform buttonPos)
         {
             _inputManager.enabled = true;
             _inputManager.StartPlacement(_towerButtonDic[index].TowerType, _towerButtonDic[index].IsUnitTower);
-            OpenTowerInfo(_towerButtonDic[index], pos).Forget();
+            OpenTowerCard(_towerButtonDic[index], buttonPos).Forget();
         }
 
-        private async UniTaskVoid OpenTowerInfo(TowerData towerData, Vector3 pos)
+        private async UniTaskVoid OpenTowerCard(TowerData towerData, Transform buttonPos)
         {
             await UniTask.Delay(300);
-            if (UIManager.Instance.IsOnUI)
+            if (_isDrag) return;
+            if (TowerButton.IsOnButton)
             {
-                UIManager.Instance.towerCardUI.OpenTowerCard(pos, towerData);
+                towerCardUI.OpenTowerCard(buttonPos, towerData);
+            }
+        }
+
+        private void CloseTowerCard()
+        {
+            if (towerCardUI.IsOpen)
+            {
+                towerCardUI.CloseCard();
             }
         }
 
         public void SetDictionary(int index, TowerData towerData) => _towerButtonDic.Add(index, towerData);
+
+        public void SlideUp() => _slideUpTween.ChangeStartValue(_rectTransform.anchoredPosition).Restart();
     }
 }

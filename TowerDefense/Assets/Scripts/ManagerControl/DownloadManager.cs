@@ -6,9 +6,11 @@ using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.EventSystems;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace ManagerControl
@@ -19,29 +21,41 @@ namespace ManagerControl
         private Dictionary<string, long> _patchMap;
 
         [Header("UI")] [SerializeField] private Button startGameButton;
-        [SerializeField] private Button downLoadButton;
         [SerializeField] private GameObject downLoadPanel;
-        [SerializeField] private Slider downSlider;
-        [SerializeField] private TMP_Text downLoadText;
         [SerializeField] private TMP_Text sizeInfoText;
+        [SerializeField] private Button downLoadButton;
+        [SerializeField] private Button cancelButton;
+        [SerializeField] private TMP_Text downValueText;
+        [SerializeField] private Slider downSlider;
 
         [Header("Label")] [SerializeField] private AssetLabelReference[] assetLabels;
 
         private void Awake()
         {
             _patchMap = new Dictionary<string, long>();
-            startGameButton.onClick.AddListener(StartGameButton);
-            downLoadButton.onClick.AddListener(DownLoadButton);
-            LocaleManager.ChangeLocale(0);
-            
-            var urp = (UniversalRenderPipelineAsset)GraphicsSettings.currentRenderPipeline;
-            urp.shadowDistance = 100;
+            startGameButton.onClick.AddListener(() =>
+            {
+                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
+                StartGameButton();
+            });
+            downLoadButton.onClick.AddListener(() =>
+            {
+                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
+                DownLoadButton();
+            });
+            cancelButton.onClick.AddListener(() =>
+            {
+                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
+                startGameButton.gameObject.SetActive(true);
+                downLoadPanel.transform.DOScale(0, 0.25f).SetEase(Ease.InBack);
+            });
         }
 
         private void Start()
         {
             Time.timeScale = 1;
             downLoadPanel.SetActive(false);
+            downSlider.gameObject.SetActive(false);
             InitAddressable().Forget();
             SoundManager.Instance.PlayBGM(SoundEnum.GameStart);
         }
@@ -76,19 +90,16 @@ namespace ManagerControl
                 _patchSize += handle.Result;
             }
 
-            downLoadPanel.SetActive(true);
-            startGameButton.gameObject.SetActive(false);
-
             if (_patchSize > decimal.Zero) // 다운로드 할 것이 있음
             {
+                downLoadPanel.SetActive(true);
+                await downLoadPanel.transform.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack);
                 sizeInfoText.text = GetFilSize(_patchSize);
             }
             else // 다운로드 할 것이 없음
             {
-                downLoadButton.gameObject.SetActive(false);
-
                 sizeInfoText.enabled = false;
-                downLoadText.text = "100 %";
+                downValueText.text = " 100 % ";
                 downSlider.value = 1;
                 await UniTask.Delay(500);
                 StartGame();
@@ -126,8 +137,10 @@ namespace ManagerControl
 
         private void DownLoadButton()
         {
+            downLoadPanel.transform.DOScale(0, 0.25f).SetEase(Ease.InBack);
             downLoadButton.gameObject.SetActive(false);
-
+            cancelButton.gameObject.SetActive(false);
+            downSlider.gameObject.SetActive(true);
             PatchFiles().Forget();
         }
 
@@ -172,13 +185,13 @@ namespace ManagerControl
         private async UniTask CheckDownLoad()
         {
             var total = 0f;
-            downLoadText.text = "0 %";
+            downValueText.text = "0 %";
 
             while (true)
             {
                 total += _patchMap.Sum(tmp => tmp.Value);
                 downSlider.value = total / _patchSize;
-                downLoadText.text = (int)(downSlider.value * 100) + " %";
+                downValueText.text = (int)(downSlider.value * 100) + " %";
 
                 if (total == _patchSize)
                 {
@@ -196,8 +209,7 @@ namespace ManagerControl
         private void StartGame()
         {
             SceneManager.LoadScene("MainGameScene");
-            var urp = (UniversalRenderPipelineAsset)GraphicsSettings.currentRenderPipeline;
-            urp.shadowDistance = 30;
+            DataManager.Init();
         }
     }
 }

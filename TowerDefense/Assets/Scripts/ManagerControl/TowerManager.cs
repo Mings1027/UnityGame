@@ -3,40 +3,67 @@ using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
-using GameControl;
 using PoolObjectControl;
 using TowerControl;
+using UIControl;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace ManagerControl
 {
-    public class TowerManager : Singleton<TowerManager>
+    public class TowerManager : MonoBehaviour
     {
+        private static TowerManager _towerManager;
         private CancellationTokenSource _cts;
+        private Camera _cam;
+        private CameraManager _cameraManager;
         private List<Tower> _towers;
+        private UnitTower _unitTower;
+        private Tweener _camMoveTween;
+        private Tweener _camZoomTween;
+
+        private float _prevSize;
+        private Vector3 _prevPos;
 
         [Header("----------Indicator----------"), SerializeField]
         private MeshRenderer rangeIndicator;
 
-        [SerializeField] private MeshRenderer unitDestinationIndicator;
+        [SerializeField] private float camZoomTime;
 
         #region Unity Event
 
-        protected override void Awake()
+        protected void Awake()
         {
-            base.Awake();
+            _towerManager = this;
+            _cam = Camera.main;
             _towers = new List<Tower>(50);
         }
 
         private void Start()
         {
+            _cameraManager = _cam.GetComponentInParent<CameraManager>();
+            _camMoveTween = _cameraManager.transform.DOMove(_cameraManager.transform.position, camZoomTime)
+                .SetAutoKill(false).Pause();
+            _camZoomTween = _cam.DOOrthoSize(10, camZoomTime).SetAutoKill(false).Pause();
             IndicatorInit();
+            enabled = false;
         }
 
-        private void OnDisable()
+        private void Update()
+        {
+            if (Input.touchCount <= 0) return;
+            CheckMoveUnit();
+        }
+
+        private void OnDestroy()
         {
             _cts?.Cancel();
             _cts?.Dispose();
+        }
+
+        private void OnApplicationPause(bool pauseStatus)
+        {
+            Application.targetFrameRate = pauseStatus ? 20 : 90;
         }
 
         #endregion
@@ -47,9 +74,8 @@ namespace ManagerControl
         {
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
-            Application.targetFrameRate = 60;
+            Application.targetFrameRate = 90;
             TargetingAsync().Forget();
-            // AttackAsync().Forget();
         }
 
         public void StopTargeting()
@@ -65,17 +91,21 @@ namespace ManagerControl
         {
             while (!_cts.IsCancellationRequested)
             {
-                await UniTask.Delay(100, cancellationToken: _cts.Token);
-                for (var i = 0; i < _towers.Count; i++)
+                await UniTask.Delay(10, cancellationToken: _cts.Token);
+                if (Time.timeScale == 0) continue;
+
+                var towerCount = _towers.Count;
+                for (var i = 0; i < towerCount; i++)
                 {
                     _towers[i].TowerUpdate(_cts);
                 }
             }
         }
-        
+
         private void TargetInit()
         {
-            for (var i = 0; i < _towers.Count; i++)
+            var towerCount = _towers.Count;
+            for (var i = 0; i < towerCount; i++)
             {
                 _towers[i].TowerTargetInit();
             }
@@ -84,11 +114,11 @@ namespace ManagerControl
         private async UniTaskVoid SlowDownFrameRate()
         {
             var frameRate = 60;
-            while (frameRate > 30 && !_cts.IsCancellationRequested)
+            while (frameRate > 45)
             {
                 frameRate -= 1;
                 Application.targetFrameRate = frameRate;
-                await UniTask.Yield(_cts.Token);
+                await UniTask.Delay(1000, cancellationToken: _cts.Token);
             }
         }
 
@@ -97,8 +127,47 @@ namespace ManagerControl
         private void IndicatorInit()
         {
             rangeIndicator.transform.localScale = Vector3.zero;
-            unitDestinationIndicator.enabled = false;
         }
+
+        #region Private Method
+
+        public void FocusUnitTower(UnitTower unitTower)
+        {
+            enabled = true;
+            _unitTower = unitTower;
+            _prevSize = _cam.orthographicSize;
+            _prevPos = _cameraManager.transform.position;
+            _camMoveTween.ChangeStartValue(_prevPos).ChangeEndValue(_unitTower.transform.position).Restart();
+            _camZoomTween.ChangeStartValue(_prevSize).ChangeEndValue(10f).Restart();
+        }
+
+        private void RewindCam()
+        {
+            enabled = false;
+            _camMoveTween.ChangeStartValue(_cameraManager.transform.position).ChangeEndValue(_prevPos).Restart();
+            _camZoomTween.ChangeStartValue(_cam.orthographicSize).ChangeEndValue(_prevSize).Restart();
+        }
+
+        private void CheckMoveUnit()
+        {
+            var touch = Input.GetTouch(0);
+            if (!touch.deltaPosition.Equals(Vector2.zero)) return;
+            var ray = _cam.ScreenPointToRay(Input.mousePosition);
+            Physics.Raycast(ray, out var hit);
+            if (hit.collider && hit.collider.CompareTag("Ground") &&
+                Vector3.Distance(_unitTower.transform.position, hit.point) <= _unitTower.TowerRange)
+            {
+                _unitTower.UnitMove(new Vector3(hit.point.x, 0, hit.point.z));
+                RewindCam();
+                UIManager.Instance.OffUI();
+            }
+            else
+            {
+                UIManager.Instance.YouCannotMove();
+            }
+        }
+
+        #endregion
 
         #region Public Method
 
@@ -112,28 +181,16 @@ namespace ManagerControl
             _towers.Remove(tower);
         }
 
-        public void SetIndicator(Tower curSelectedTower)
+        public static async UniTaskVoid DisableProjectile(GameObject g)
         {
-            var curTowerPos = curSelectedTower.transform.position;
+            var time = 2f;
+            while (time > 0 && !ReferenceEquals(_towerManager, null))
+            {
+                time -= Time.deltaTime;
+                await UniTask.Yield();
+            }
 
-            var r = rangeIndicator.transform;
-            r.DOScale(new Vector3(curSelectedTower.TowerRange, 0.5f, curSelectedTower.TowerRange), 0.15f)
-                .SetEase(Ease.OutBack);
-            r.position = curTowerPos;
-        }
-
-        public void OffIndicator()
-        {
-            rangeIndicator.transform.DOScale(0, 0.2f).SetEase(Ease.InBack);
-        }
-
-        public async UniTaskVoid StartMoveUnit(UnitTower unitTower, Vector3 pos)
-        {
-            unitDestinationIndicator.enabled = true;
-            unitDestinationIndicator.transform.position = pos;
-
-            await unitTower.UnitMove(pos);
-            unitDestinationIndicator.enabled = false;
+            g.SetActive(false);
         }
 
         #endregion

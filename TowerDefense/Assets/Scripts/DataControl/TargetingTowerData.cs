@@ -1,3 +1,4 @@
+using CustomEnumControl;
 using UnityEngine;
 
 namespace DataControl
@@ -6,6 +7,9 @@ namespace DataControl
     public class TargetingTowerData : TowerData
     {
         public ParticleSystem.MinMaxGradient[] ProjectileColor => projectileColor;
+        public PoolObjectKey PoolObjectKey => poolObjectKey;
+
+        [SerializeField] private PoolObjectKey poolObjectKey;
         [SerializeField] private ParticleSystem.MinMaxGradient[] projectileColor;
     }
 }

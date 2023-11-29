@@ -1,12 +1,14 @@
+using System;
 using DG.Tweening;
 using Unity.Mathematics;
 using UnityEngine;
 
 namespace StatusControl
 {
-    public class HealthBar : ProgressBar
+    public class HealthBar : StatusBar
     {
         private Transform _border;
+        private Tween _shakeBarTween;
 
         [SerializeField] private float duration;
         [SerializeField] private float strength;
@@ -17,6 +19,15 @@ namespace StatusControl
         {
             base.Awake();
             _border = transform.GetChild(0);
+            _shakeBarTween = _border
+                .DOShakeRotation(duration, new Vector3(0, 0, strength), vibrato, randomness, true,
+                    ShakeRandomnessMode.Harmonic).SetUpdate(true)
+                .OnComplete(() => _border.localRotation = quaternion.identity).SetAutoKill(false);
+        }
+
+        private void OnDestroy()
+        {
+            _shakeBarTween?.Kill();
         }
 
         public override void Init(Progressive progress)
@@ -31,9 +42,6 @@ namespace StatusControl
             progressive.OnUpdateBarEvent -= ShakeBarEvent;
         }
 
-        private void ShakeBarEvent() => _border
-            .DOShakeRotation(duration, new Vector3(0, 0, strength), vibrato, randomness, true,
-                ShakeRandomnessMode.Harmonic)
-            .OnComplete(() => _border.localRotation = quaternion.identity);
+        private void ShakeBarEvent() => _shakeBarTween.Restart();
     }
 }

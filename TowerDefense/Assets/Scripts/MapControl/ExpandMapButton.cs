@@ -5,6 +5,7 @@ using ManagerControl;
 using PoolObjectControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using Random = UnityEngine.Random;
 
 namespace MapControl
 {
@@ -33,7 +34,6 @@ namespace MapControl
             var position = transform.position;
             PoolObjectManager.Get(PoolObjectKey.ExpandMapSmoke, position);
             OnExpandMapEvent?.Invoke(transform);
-            SoundManager.Instance.PlayBGM(SoundEnum.WaveStart);
         }
     }
 }

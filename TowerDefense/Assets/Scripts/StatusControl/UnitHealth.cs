@@ -6,9 +6,9 @@ namespace StatusControl
 {
     public class UnitHealth : Health
     {
-        public override void Damage(in float amount)
+        public override void Damage(float amount)
         {
-            base.Damage(in amount);
+            base.Damage(amount);
 
             PoolObjectManager.Get(PoolObjectKey.BloodVfx, transform.position);
         }

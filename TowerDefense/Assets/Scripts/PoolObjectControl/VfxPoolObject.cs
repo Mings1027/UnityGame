@@ -6,19 +6,26 @@ namespace PoolObjectControl
     public class VfxPoolObject : MonoBehaviour
     {
         private ParticleSystem _particleSystem;
-        private float _particleLifeTime;
+        private Tween _disableTween;
 
         private void Awake()
         {
             _particleSystem = GetComponent<ParticleSystem>();
             var mainModule = _particleSystem.main;
-            _particleLifeTime = mainModule.startLifetime.constant;
+            _disableTween = DOVirtual
+                .DelayedCall(mainModule.startLifetime.constant, () => gameObject.SetActive(false), false)
+                .SetAutoKill(false).Pause();
         }
 
         private void OnEnable()
         {
             _particleSystem.Play();
-            DOVirtual.DelayedCall(_particleLifeTime, () => gameObject.SetActive(false));
+            _disableTween.Restart();
+        }
+
+        private void OnDestroy()
+        {
+            _disableTween?.Kill();
         }
     }
 }

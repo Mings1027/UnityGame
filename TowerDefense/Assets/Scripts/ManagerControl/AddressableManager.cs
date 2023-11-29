@@ -13,17 +13,16 @@ namespace ManagerControl
         private List<GameObject> _gameObjects;
 
         [SerializeField] private AssetReferenceGameObject[] managerObjects;
-        // [SerializeField] private AssetLabelReference managerLabel;
 
         protected void Awake()
         {
             _gameObjects = new List<GameObject>();
-            Application.targetFrameRate = 60;
+            Screen.sleepTimeout = SleepTimeout.NeverSleep;
         }
 
         protected void Start()
         {
-            SpawnObject();
+            SpawnObject().Forget();
         }
 
         private void OnDisable()
@@ -31,12 +30,17 @@ namespace ManagerControl
             Release();
         }
 
-        private void SpawnObject()
+        private async UniTaskVoid SpawnObject()
         {
             for (var i = 0; i < managerObjects.Length; i++)
             {
-                managerObjects[i].InstantiateAsync().Completed += obj => { _gameObjects.Add(obj.Result); };
+                var handle = managerObjects[i].InstantiateAsync();
+                await handle;
+                handle.Completed += obj => _gameObjects.Add(obj.Result);
             }
+
+            await UniTask.Delay(100);
+            Destroy(GameObject.Find("Plane"));
         }
 
         private void Release()
@@ -45,6 +49,7 @@ namespace ManagerControl
             {
                 if (_gameObjects.Count <= 0) return;
                 var index = _gameObjects.Count - 1;
+                if (_gameObjects[index] == null) continue;
                 Addressables.ReleaseInstance(_gameObjects[index]);
                 _gameObjects.RemoveAt(index);
             }

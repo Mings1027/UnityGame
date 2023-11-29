@@ -40,8 +40,7 @@ namespace UnitControl.EnemyControl
                 cancellationToken: this.GetCancellationTokenOnDestroy());
             _navMeshAgent.speed = defaultSpeed;
             _enemyUnit.SetAnimationSpeed(defaultSpeed);
-            await UniTask.Delay(TimeSpan.FromSeconds(slowCoolTime),
-                cancellationToken: this.GetCancellationTokenOnDestroy());
+            await UniTask.Delay(TimeSpan.FromSeconds(slowCoolTime));
             _isSlowed = false;
         }
     }

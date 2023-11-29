@@ -1,6 +1,8 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using DataControl;
+using DG.Tweening;
 using PoolObjectControl;
 using ProjectileControl;
 using UnityEngine;
@@ -11,14 +13,13 @@ namespace TowerControl
     {
         private AudioSource _attackSound;
 
-        private bool _isAttack;
         private sbyte _effectIndex;
-        private int _damage;
-        private float _attackDelay;
         private bool _isAttacking;
+        private bool _isPatrol;
         private Collider[] _targetColliders;
 
         protected bool isTargeting;
+        protected Sequence atkSequence;
         protected Collider target;
         protected Transform firePos;
 
@@ -34,6 +35,14 @@ namespace TowerControl
         *                                               Unity Event
         =========================================================================================================================================*/
 
+        #region Unity Event
+
+        private void OnDestroy()
+        {
+            atkSequence?.Kill();
+        }
+
+        #endregion
 
         #region Override Function
 
@@ -54,29 +63,45 @@ namespace TowerControl
 
         public override void TowerUpdate(CancellationTokenSource cts)
         {
-            Patrol();
-            if (!isTargeting || _isAttacking) return;
-            AttackAsync(cts).Forget();
+            if (!_isPatrol)
+            {
+                Patrol().Forget();
+            }
+            else
+            {
+                if (isTargeting && !_isAttacking)
+                {
+                    AttackAsync(cts).Forget();
+                }
+            }
         }
 
-        private void Patrol()
+        private async UniTaskVoid Patrol()
         {
+            _isPatrol = true;
             var size = Physics.OverlapSphereNonAlloc(transform.position, TowerRange, _targetColliders, targetLayer);
-            if (size <= 0) return;
+            if (size <= 0)
+            {
+                target = null;
+                isTargeting = false;
+                await UniTask.Delay(500);
+                _isPatrol = false;
+                return;
+            }
 
             var shortestDistance = Mathf.Infinity;
-            Collider nearestTarget = null;
             for (var i = 0; i < size; i++)
             {
                 var distanceToResult =
                     Vector3.SqrMagnitude(transform.position - _targetColliders[i].transform.position);
                 if (distanceToResult >= shortestDistance) continue;
                 shortestDistance = distanceToResult;
-                nearestTarget = _targetColliders[i];
+                target = _targetColliders[i];
             }
 
-            target = nearestTarget;
-            isTargeting = target;
+            isTargeting = true;
+            await UniTask.Delay(500);
+            _isPatrol = false;
         }
 
         private async UniTaskVoid AttackAsync(CancellationTokenSource cts)
@@ -84,37 +109,31 @@ namespace TowerControl
             _isAttacking = true;
             _attackSound.Play();
             Attack();
-            await UniTask.Delay(TimeSpan.FromSeconds(_attackDelay), cancellationToken: cts.Token);
+            await UniTask.Delay(TimeSpan.FromSeconds(AttackDelay), cancellationToken: cts.Token);
             _isAttacking = false;
-        }
-
-        private void ProjectileInit()
-        {
-            var projectile =
-                PoolObjectManager.Get<Projectile>(TowerData.PoolObjectKey, firePos.position, Quaternion.identity);
-          
-            projectile.ColorInit(_effectIndex);
-            projectile.Init(_damage, target);
         }
 
         protected virtual void Attack()
         {
-            ProjectileInit();
+            atkSequence.Restart();
+            var targetingTowerData = (TargetingTowerData)TowerData;
+            var projectile =
+                PoolObjectManager.Get<Projectile>(targetingTowerData.PoolObjectKey, firePos.position,
+                    Quaternion.identity);
+
+            projectile.ColorInit(_effectIndex);
+            projectile.Init(Damage, target);
         }
 
         public override void TowerSetting(MeshFilter towerMesh, int damageData, byte rangeData,
-            float attackDelayData)
+            ushort rpmData)
         {
-            base.TowerSetting(towerMesh, damageData, rangeData, attackDelayData);
-
-            _damage = damageData;
+            base.TowerSetting(towerMesh, damageData, rangeData, rpmData);
 
             if (TowerLevel % 2 == 0)
             {
                 _effectIndex++;
             }
-
-            _attackDelay = attackDelayData;
         }
 
         #endregion
