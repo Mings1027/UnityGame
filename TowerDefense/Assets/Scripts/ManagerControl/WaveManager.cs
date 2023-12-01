@@ -6,8 +6,10 @@ using Cysharp.Threading.Tasks;
 using DataControl;
 using PoolObjectControl;
 using StatusControl;
+using TextControl;
 using UIControl;
 using UnitControl.EnemyControl;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
 using Random = UnityEngine.Random;
@@ -127,6 +129,7 @@ namespace ManagerControl
 
             EnemyUpdate().Forget();
             CheckStuck().Forget();
+            CheckEnemyDisable().Forget();
         }
 
         #region Enemy Spawn
@@ -134,9 +137,9 @@ namespace ManagerControl
         private async UniTaskVoid SpawnEnemy(IReadOnlyList<Vector3> wayPoints)
         {
             await UniTask.Delay(500, cancellationToken: _cts.Token);
-            for (int i = 0; i < _enemyDataIndex; i++)
+            for (var i = 0; i < _enemyDataIndex; i++)
             {
-                for (int j = 0; j < wayPoints.Count; j++)
+                for (var j = 0; j < wayPoints.Count; j++)
                 {
                     EnemyInit(enemiesData[i], wayPoints[j]);
                 }
@@ -147,7 +150,8 @@ namespace ManagerControl
 
         private void EnemyInit(EnemyData enemyData, in Vector3 wayPoint)
         {
-            NavMesh.SamplePosition(wayPoint, out var hit, 5, NavMesh.AllAreas);
+            var ranPoint = wayPoint + Random.insideUnitSphere * 3;
+            NavMesh.SamplePosition(ranPoint, out var hit, 5, NavMesh.AllAreas);
             var enemyUnit = PoolObjectManager.Get<EnemyUnit>(enemyData.EnemyKey, hit.position);
             _enemyList.Add(enemyUnit);
             enemyUnit.Init();
@@ -160,20 +164,22 @@ namespace ManagerControl
 
             var enemyHealth = enemyUnit.GetComponent<UnitHealth>();
             enemyHealth.Init(enemyData.Health * _enemyLevel);
-
+            var statusUI = StatusBarUIController.Instance;
             enemyHealth.OnDeadEvent += () =>
             {
-                UIManager.Instance.TowerCost += enemyData.EnemyCoin * _enemyLevel;
-                StatusBarUIController.Instance.Remove(enemyUnit.healthBarTransform);
+                var coin = (ushort)(enemyData.EnemyCoin * _enemyLevel);
+                PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, enemyUnit.transform.position)
+                    .SetText(coin);
+                UIManager.Instance.TowerCost += coin;
+                statusUI.Remove(enemyUnit.healthBarTransform);
             };
             enemyUnit.OnDisableEvent += () =>
             {
-                DecreaseEnemyCount(enemyUnit);
                 if (!enemyHealth.IsDead)
-                    StatusBarUIController.Instance.Remove(enemyUnit.healthBarTransform);
+                    statusUI.Remove(enemyUnit.healthBarTransform);
             };
 
-            StatusBarUIController.Instance.Add(healthBar, enemyUnit.healthBarTransform);
+            statusUI.Add(healthBar, enemyUnit.healthBarTransform);
         }
 
         #endregion
@@ -197,20 +203,26 @@ namespace ManagerControl
         {
             while (!_cts.IsCancellationRequested)
             {
-                await UniTask.Delay(1000, cancellationToken: _cts.Token);
-
-                var enemyCount = _enemyList.Count - 1;
-                for (int i = enemyCount - 1; i >= 0; i--)
-                {
-                    _enemyList[i].StorePrevPos();
-                }
-
                 await UniTask.Delay(5000, cancellationToken: _cts.Token);
 
                 var leftEnemyCount = _enemyList.Count - 1;
-                for (int i = leftEnemyCount - 1; i >= 0; i--)
+                for (var i = leftEnemyCount; i >= 0; i--)
                 {
                     _enemyList[i].IfStuck(_cts).Forget();
+                }
+            }
+        }
+
+        private async UniTaskVoid CheckEnemyDisable()
+        {
+            while (!_cts.IsCancellationRequested)
+            {
+                await UniTask.Delay(10);
+                var enemyCount = _enemyList.Count - 1;
+                for (var i = enemyCount; i >= 0; i--)
+                {
+                    if (!_enemyList[i].gameObject.activeSelf)
+                        DecreaseEnemyCount(_enemyList[i]);
                 }
             }
         }

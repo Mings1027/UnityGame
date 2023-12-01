@@ -39,7 +39,11 @@ namespace UIControl
             _moveCardTween = transform.DOMove(_initPos, 0.25f).From().SetAutoKill(false);
         }
 
-        public void OpenTowerCard(Transform buttonTransform, TowerData towerData)
+        public void DataInit()
+        {
+            _towerData = null;
+        }
+        public void OpenTowerCard(TowerData towerData, Transform buttonTransform)
         {
             IsOpen = true;
             _buttonPos = buttonTransform.position;

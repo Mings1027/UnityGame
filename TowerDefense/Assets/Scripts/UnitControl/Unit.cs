@@ -63,8 +63,6 @@ namespace UnitControl
                     gameObject.SetActive(false);
                     _childMeshTransform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
                     transform.localScale = Vector3.one;
-
-                    // _childMeshTransform.localPosition = Vector3.zero;
                 });
         }
 
@@ -147,10 +145,10 @@ namespace UnitControl
             await UniTask.Delay(TimeSpan.FromSeconds(atkDelay), cancellationToken: cts.Token);
             isAttacking = false;
 
-            if (Vector3.Distance(target.transform.position, transform.position) > atkRange || !target.enabled)
+            if (!target || !target.enabled ||
+                Vector3.Distance(target.transform.position, transform.position) > atkRange)
             {
                 unitState = UnitState.Patrol;
-                isAttacking = false;
             }
         }
 

@@ -28,7 +28,7 @@ namespace StatusControl
         {
             _loadingSequence.Restart();
             await slider.DOValue(1, loadingDelay).From(0).WithCancellation(_cts.Token);
-            _loadingSequence.PlayBackwards();
+            _loadingSequence.OnRewind(() => gameObject.SetActive(false)).PlayBackwards();
         }
 
         public void StopLoading()

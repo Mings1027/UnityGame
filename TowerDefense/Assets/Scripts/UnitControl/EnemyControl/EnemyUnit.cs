@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
@@ -36,6 +37,7 @@ namespace UnitControl.EnemyControl
 
         public void SpawnInit(EnemyData enemyData)
         {
+            _prevPos = transform.position;
             unitState = UnitState.Patrol;
             navMeshAgent.speed = enemyData.Speed;
             SetAnimationSpeed(navMeshAgent.speed);
@@ -45,15 +47,17 @@ namespace UnitControl.EnemyControl
             anim.SetBool(IsWalk, true);
         }
 
-        public void StorePrevPos() => _prevPos = transform.position;
-
         public async UniTaskVoid IfStuck(CancellationTokenSource cts)
         {
             if (unitState == UnitState.Patrol && Vector3.Distance(_prevPos, transform.position) < 1.5f)
             {
                 navMeshAgent.enabled = false;
-                await UniTask.Delay(50, cancellationToken: cts.Token);
+                await UniTask.Delay(500, cancellationToken: cts.Token);
+                if (!gameObject.activeSelf) return;
                 navMeshAgent.enabled = true;
+                navMeshAgent.ResetPath();
+                navMeshAgent.SetDestination(Vector3.zero);
+                _prevPos = transform.position;
             }
         }
     }

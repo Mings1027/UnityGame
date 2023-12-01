@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DataControl;
 using DG.Tweening;
@@ -12,11 +13,10 @@ namespace TowerControl
     public abstract class TargetingTower : Tower
     {
         private AudioSource _attackSound;
-
         private sbyte _effectIndex;
         private bool _isAttacking;
-        private bool _isPatrol;
         private Collider[] _targetColliders;
+        private TowerState _towerState;
 
         protected bool isTargeting;
         protected Sequence atkSequence;
@@ -56,6 +56,7 @@ namespace TowerControl
 
         public override void TowerTargetInit()
         {
+            _towerState = TowerState.Patrol;
             target = null;
             isTargeting = false;
             _isAttacking = false;
@@ -63,29 +64,24 @@ namespace TowerControl
 
         public override void TowerUpdate(CancellationTokenSource cts)
         {
-            if (!_isPatrol)
+            switch (_towerState)
             {
-                Patrol().Forget();
-            }
-            else
-            {
-                if (isTargeting && !_isAttacking)
-                {
+                case TowerState.Patrol:
+                    Patrol();
+                    break;
+                case TowerState.Attack:
                     AttackAsync(cts).Forget();
-                }
+                    break;
             }
         }
 
-        private async UniTaskVoid Patrol()
+        private void Patrol()
         {
-            _isPatrol = true;
             var size = Physics.OverlapSphereNonAlloc(transform.position, TowerRange, _targetColliders, targetLayer);
             if (size <= 0)
             {
                 target = null;
                 isTargeting = false;
-                await UniTask.Delay(500);
-                _isPatrol = false;
                 return;
             }
 
@@ -100,12 +96,16 @@ namespace TowerControl
             }
 
             isTargeting = true;
-            await UniTask.Delay(500);
-            _isPatrol = false;
+            _towerState = TowerState.Attack;
         }
 
         private async UniTaskVoid AttackAsync(CancellationTokenSource cts)
         {
+            if (_isAttacking)
+            {
+                _towerState = TowerState.Patrol;
+                return;
+            }
             _isAttacking = true;
             _attackSound.Play();
             Attack();
@@ -123,6 +123,8 @@ namespace TowerControl
 
             projectile.ColorInit(_effectIndex);
             projectile.Init(Damage, target);
+            projectile.ProjectileUpdate().Forget();
+            _towerState = TowerState.Patrol;
         }
 
         public override void TowerSetting(MeshFilter towerMesh, int damageData, byte rangeData,

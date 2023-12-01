@@ -8,7 +8,7 @@ using DG.Tweening;
 using PoolObjectControl;
 using StatusControl;
 using UIControl;
-using UnitControl.TowerControl;
+using UnitControl.TowerUnitControl;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.EventSystems;
@@ -130,7 +130,6 @@ namespace TowerControl
             StatusBarUIController.Instance.Add(_unitReSpawnBar, _reSpawnBarTransform);
             _unitReSpawnBar.Init();
             await _unitReSpawnBar.StartLoading(10);
-            _unitReSpawnBar.gameObject.SetActive(false);
             StatusBarUIController.Instance.Remove(_reSpawnBarTransform);
 
             _isReSpawning = false;
@@ -218,7 +217,7 @@ namespace TowerControl
                 var angle = i * ((float)Math.PI * 2f) / count;
                 var pos = touchPos + new Vector3((float)Math.Cos(angle) * unitRadius, 0,
                     (float)Math.Sin(angle) * unitRadius);
-                _units[i].Move(pos).Forget();
+                _units[i].Move(pos);
             }
 
             OffUnitIndicator();

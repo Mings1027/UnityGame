@@ -7,29 +7,32 @@ namespace UIControl
     public class TutorialController : MonoBehaviour
     {
         private Sequence _bounceSequence;
-
-        [SerializeField] private RectTransform toggleTowerButton;
+        private RectTransform _rectTransform;
         [SerializeField] private Ease ease;
 
         private void Awake()
         {
+            _rectTransform = GetComponent<RectTransform>();
             _bounceSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(toggleTowerButton.DOAnchorPosY(70, 0.7f).SetEase(ease));
-            toggleTowerButton.GetComponent<Button>().onClick.AddListener(BounceButton);
-            toggleTowerButton.gameObject.SetActive(false);
+                .Append(_rectTransform.DOAnchorPosY(70, 0.7f).SetEase(ease));
+            var toggleBtn = _rectTransform.GetComponent<Button>();
+            toggleBtn.onClick.AddListener(BounceButton);
+            toggleBtn.enabled = false;
+            gameObject.SetActive(false);
         }
 
         public void TutorialButton()
         {
-            toggleTowerButton.gameObject.SetActive(true);
+            gameObject.SetActive(true);
+            _rectTransform.GetComponent<Button>().enabled = true;
             _bounceSequence.SetLoops(-1, LoopType.Yoyo).Restart();
         }
 
         private void BounceButton()
         {
-            toggleTowerButton.anchoredPosition = Vector2.zero;
+            _rectTransform.anchoredPosition = Vector2.zero;
             _bounceSequence.Kill();
-            toggleTowerButton.GetComponent<Button>().onClick.RemoveListener(BounceButton);
+            _rectTransform.GetComponent<Button>().onClick.RemoveListener(BounceButton);
             Destroy(GetComponent<TutorialController>());
         }
     }

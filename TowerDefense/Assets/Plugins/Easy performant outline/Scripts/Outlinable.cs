@@ -54,206 +54,110 @@ namespace EPOOutline
     [ExecuteAlways]
     public class Outlinable : MonoBehaviour
     {
-        private static List<TargetStateListener> tempListeners = new List<TargetStateListener>();
-        
-        private static HashSet<Outlinable> outlinables = new HashSet<Outlinable>();
+        private static List<TargetStateListener> _tempListeners = new();
 
-        [System.Serializable]
+        private static readonly HashSet<Outlinable> Outlinables = new();
+
+        [Serializable]
         public class OutlineProperties
         {
 #pragma warning disable CS0649
-            [SerializeField]
-            private bool enabled = true;
+            [SerializeField] private bool enabled = true;
 
             public bool Enabled
             {
-                get
-                {
-                    return enabled;
-                }
-
-                set
-                {
-                    enabled = value;
-                }
+                get => enabled;
+                set => enabled = value;
             }
 
-            [SerializeField]
-            private Color color = Color.yellow;
+            [SerializeField] private Color color = Color.yellow;
 
             public Color Color
             {
-                get
-                {
-                    return color;
-                }
-
-                set
-                {
-                    color = value;
-                }
+                get => color;
+                set => color = value;
             }
 
-            [SerializeField]
-            [Range(0.0f, 1.0f)]
-            private float dilateShift = 1.0f;
+            [SerializeField] [Range(0.0f, 1.0f)] private float dilateShift = 1.0f;
 
             public float DilateShift
             {
-                get
-                {
-                    return dilateShift;
-                }
-
-                set
-                {
-                    dilateShift = value;
-                }
+                get => dilateShift;
+                set => dilateShift = value;
             }
 
-            [SerializeField]
-            [Range(0.0f, 1.0f)]
-            private float blurShift = 1.0f;
+            [SerializeField] [Range(0.0f, 1.0f)] private float blurShift = 1.0f;
 
             public float BlurShift
             {
-                get
-                {
-                    return blurShift;
-                }
-
-                set
-                {
-                    blurShift = value;
-                }
+                get => blurShift;
+                set => blurShift = value;
             }
 
             [SerializeField, SerializedPassInfo("Fill style", "Hidden/EPO/Fill/")]
-            private SerializedPass fillPass = new SerializedPass();
+            private SerializedPass fillPass = new();
 
-            public SerializedPass FillPass
-            {
-                get
-                {
-                    return fillPass;
-                }
-            }
+            public SerializedPass FillPass => fillPass;
 #pragma warning restore CS0649
         }
 
-        [SerializeField]
-        private ComplexMaskingMode complexMaskingMode;
-        
-        [SerializeField]
-        private OutlinableDrawingMode drawingMode = OutlinableDrawingMode.Normal;
+        [SerializeField] private ComplexMaskingMode complexMaskingMode;
 
-        [SerializeField]
-        private int outlineLayer = 0;
+        [SerializeField] private OutlinableDrawingMode drawingMode = OutlinableDrawingMode.Normal;
 
-        [SerializeField]
-        private List<OutlineTarget> outlineTargets = new List<OutlineTarget>();
+        [SerializeField] private int outlineLayer;
 
-        [SerializeField]
-        private RenderStyle renderStyle = RenderStyle.Single;
+        [SerializeField] private List<OutlineTarget> outlineTargets = new();
+
+        [SerializeField] private RenderStyle renderStyle = RenderStyle.Single;
 
 #pragma warning disable CS0649
-        [SerializeField]
-        private OutlineProperties outlineParameters = new OutlineProperties();
+        [SerializeField] private OutlineProperties outlineParameters = new();
 
-        [SerializeField]
-        private OutlineProperties backParameters = new OutlineProperties();
+        [SerializeField] private OutlineProperties backParameters = new();
 
-        [SerializeField]
-        private OutlineProperties frontParameters = new OutlineProperties();
+        [SerializeField] private OutlineProperties frontParameters = new();
 
-        private bool shouldValidateTargets = false;
-        
+        private bool _shouldValidateTargets;
+
 #pragma warning restore CS0649
 
         public RenderStyle RenderStyle
         {
-            get
-            {
-                return renderStyle;
-            }
+            get => renderStyle;
 
-            set
-            {
-                renderStyle = value;
-            }
+            set => renderStyle = value;
         }
 
         public ComplexMaskingMode ComplexMaskingMode
         {
-            get
-            {
-                return complexMaskingMode;
-            }
+            get => complexMaskingMode;
 
-            set
-            {
-                complexMaskingMode = value;
-            }
+            set => complexMaskingMode = value;
         }
 
-        public bool ComplexMaskingEnabled
-        {
-            get
-            {
-                return complexMaskingMode != ComplexMaskingMode.None;
-            }
-        }
+        public bool ComplexMaskingEnabled => complexMaskingMode != ComplexMaskingMode.None;
 
         public OutlinableDrawingMode DrawingMode
         {
-            get
-            {
-                return drawingMode;
-            }
+            get => drawingMode;
 
-            set
-            {
-                drawingMode = value;
-            }
+            set => drawingMode = value;
         }
 
         public int OutlineLayer
         {
-            get
-            {
-                return outlineLayer;
-            }
+            get => outlineLayer;
 
-            set
-            {
-                outlineLayer = value;
-            }
+            set => outlineLayer = value;
         }
 
-        public IReadOnlyList<OutlineTarget> OutlineTargets
-        {
-            get
-            {
-                return outlineTargets;
-            }
-        }
+        public IReadOnlyList<OutlineTarget> OutlineTargets => outlineTargets;
 
-        public OutlineProperties OutlineParameters
-        {
-            get
-            {
-                return outlineParameters;
-            }
-        }
+        public OutlineProperties OutlineParameters => outlineParameters;
 
-        public OutlineProperties BackParameters
-        {
-            get
-            {
-                return backParameters;
-            }
-        }
-        
+        public OutlineProperties BackParameters => backParameters;
+
         public bool NeedFillMask
         {
             get
@@ -262,27 +166,16 @@ namespace EPOOutline
                     return false;
 
                 if (renderStyle == RenderStyle.FrontBack)
-                    return (frontParameters.Enabled || backParameters.Enabled) && (frontParameters.FillPass.Material != null || backParameters.FillPass.Material != null);
+                    return (frontParameters.Enabled || backParameters.Enabled) &&
+                           (frontParameters.FillPass.Material != null || backParameters.FillPass.Material != null);
                 else
                     return false;
             }
         }
 
-        public OutlineProperties FrontParameters
-        {
-            get
-            {
-                return frontParameters;
-            }
-        }
+        public OutlineProperties FrontParameters => frontParameters;
 
-        public bool IsObstacle
-        {
-            get
-            {
-                return (drawingMode & OutlinableDrawingMode.Obstacle) != 0;
-            }
-        }
+        public bool IsObstacle => (drawingMode & OutlinableDrawingMode.Obstacle) != 0;
 
         public bool TryAddTarget(OutlineTarget target)
         {
@@ -300,17 +193,14 @@ namespace EPOOutline
                 var listener = target.renderer.GetComponent<TargetStateListener>();
                 if (listener == null)
                     return;
-                
+
                 listener.RemoveCallback(this, UpdateVisibility);
             }
         }
-        
+
         public OutlineTarget this[int index]
         {
-            get
-            {
-                return outlineTargets[index];
-            }
+            get => outlineTargets[index];
 
             set
             {
@@ -321,13 +211,14 @@ namespace EPOOutline
 
         private void Reset()
         {
-            AddAllChildRenderersToRenderingList(RenderersAddingMode.SkinnedMeshRenderer | RenderersAddingMode.MeshRenderer | RenderersAddingMode.SpriteRenderer);
+            AddAllChildRenderersToRenderingList(RenderersAddingMode.SkinnedMeshRenderer |
+                                                RenderersAddingMode.MeshRenderer | RenderersAddingMode.SpriteRenderer);
         }
 
         private void OnValidate()
         {
             outlineLayer = Mathf.Clamp(outlineLayer, 0, 63);
-            shouldValidateTargets = true;
+            _shouldValidateTargets = true;
         }
 
         private void SubscribeToVisibilityChange(GameObject go)
@@ -352,7 +243,7 @@ namespace EPOOutline
         {
             if (!enabled)
             {
-                outlinables.Remove(this);
+                Outlinables.Remove(this);
                 return;
             }
 
@@ -366,12 +257,12 @@ namespace EPOOutline
             {
                 if (target.IsVisible)
                 {
-                    outlinables.Add(this);
+                    Outlinables.Add(this);
                     return;
                 }
             }
 
-            outlinables.Remove(this);
+            Outlinables.Remove(this);
         }
 
         private void OnEnable()
@@ -381,7 +272,7 @@ namespace EPOOutline
 
         private void OnDisable()
         {
-            outlinables.Remove(this);
+            Outlinables.Remove(this);
         }
 
         private void Awake()
@@ -398,13 +289,13 @@ namespace EPOOutline
 
         private void OnDestroy()
         {
-            outlinables.Remove(this);
+            Outlinables.Remove(this);
         }
-        
+
         public static void GetAllActiveOutlinables(Camera camera, List<Outlinable> outlinablesList)
         {
             outlinablesList.Clear();
-            foreach (var outlinable in outlinables)
+            foreach (var outlinable in Outlinables)
                 outlinablesList.Add(outlinable);
         }
 
@@ -418,7 +309,8 @@ namespace EPOOutline
                 return 1;
         }
 
-        public void AddAllChildRenderersToRenderingList(RenderersAddingMode renderersAddingMode = RenderersAddingMode.All)
+        public void AddAllChildRenderersToRenderingList(
+            RenderersAddingMode renderersAddingMode = RenderersAddingMode.All)
         {
             outlineTargets.Clear();
             var renderers = GetComponentsInChildren<Renderer>(true);
@@ -435,20 +327,23 @@ namespace EPOOutline
 
         private void Update()
         {
-            if (!shouldValidateTargets)
+            if (!_shouldValidateTargets)
                 return;
 
-            shouldValidateTargets = false;
+            _shouldValidateTargets = false;
             ValidateTargets();
         }
 
         private bool MatchingMode(Renderer renderer, RenderersAddingMode mode)
         {
-            return 
-                (!(renderer is MeshRenderer) && !(renderer is SkinnedMeshRenderer) && !(renderer is SpriteRenderer) && (mode & RenderersAddingMode.Others) != RenderersAddingMode.None) ||
+            return
+                (!(renderer is MeshRenderer) && !(renderer is SkinnedMeshRenderer) && !(renderer is SpriteRenderer) &&
+                 (mode & RenderersAddingMode.Others) != RenderersAddingMode.None) ||
                 (renderer is MeshRenderer && (mode & RenderersAddingMode.MeshRenderer) != RenderersAddingMode.None) ||
-                (renderer is SpriteRenderer && (mode & RenderersAddingMode.SpriteRenderer) != RenderersAddingMode.None) ||
-                (renderer is SkinnedMeshRenderer && (mode & RenderersAddingMode.SkinnedMeshRenderer) != RenderersAddingMode.None);
+                (renderer is SpriteRenderer &&
+                 (mode & RenderersAddingMode.SpriteRenderer) != RenderersAddingMode.None) ||
+                (renderer is SkinnedMeshRenderer &&
+                 (mode & RenderersAddingMode.SkinnedMeshRenderer) != RenderersAddingMode.None);
         }
 
 #if UNITY_EDITOR

@@ -22,6 +22,11 @@ namespace CustomEnumControl
         HighCost
     }
 
+    public enum TowerState
+    {
+        Patrol,
+        Attack
+    }
     public enum UnitState
     {
         Patrol,
@@ -69,7 +74,7 @@ namespace CustomEnumControl
         UnitHealthBar,
         EnemyHealthBar,
         ReSpawnBar,
-        CoinText
+        FloatingText
     }
 
     public enum EnemyPoolObjectKey

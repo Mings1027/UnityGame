@@ -1,5 +1,50 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &49779223312788078
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5747138609006988442}
+  - component: {fileID: 6077884536439040509}
+  m_Layer: 0
+  m_Name: MoveUnitController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5747138609006988442
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 49779223312788078}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 238135668513969074}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6077884536439040509
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 49779223312788078}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74b74dfdb3f454d22974db54a239cb91, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  camZoomTime: 1
 --- !u!1 &50328562643222091
 GameObject:
   m_ObjectHideFlags: 0
@@ -166,7 +211,7 @@ GameObject:
   - component: {fileID: 242128855327032991}
   - component: {fileID: 4105049918495631804}
   m_Layer: 5
-  m_Name: Tower Panel
+  m_Name: Tower Card Panel
   m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -191,7 +236,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -800, y: 225}
+  m_SizeDelta: {x: -1200, y: 225}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!222 &9199834489480230961
 CanvasRenderer:
@@ -332,6 +377,7 @@ GameObject:
   - component: {fileID: 238135667569637541}
   - component: {fileID: 238135667569637540}
   - component: {fileID: 238135667569637543}
+  - component: {fileID: 1742046553250823539}
   m_Layer: 5
   m_Name: Toggle Tower Button
   m_TagString: UI
@@ -442,6 +488,19 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1742046553250823539
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 238135667569637536}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cf26f00783c5d47be81f098feb920b17, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ease: 27
 --- !u!1 &238135668153487607
 GameObject:
   m_ObjectHideFlags: 0
@@ -473,7 +532,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8310981534581720784}
-  m_RootOrder: 2
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -530,7 +589,6 @@ GameObject:
   - component: {fileID: 238135668513969085}
   - component: {fileID: 238135668513969084}
   - component: {fileID: 238135668513969087}
-  - component: {fileID: 5668451711344564453}
   - component: {fileID: 7714028815823464042}
   - component: {fileID: 8019981517054441820}
   m_Layer: 5
@@ -557,7 +615,7 @@ RectTransform:
   - {fileID: 295552648274526841}
   - {fileID: 2070340732021048179}
   - {fileID: 665793760903282533}
-  - {fileID: 2580553655524170172}
+  - {fileID: 5747138609006988442}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -627,20 +685,6 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &5668451711344564453
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 238135668513969086}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cf26f00783c5d47be81f098feb920b17, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  toggleTowerButton: {fileID: 238135667569637537}
-  ease: 27
 --- !u!114 &7714028815823464042
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -690,7 +734,7 @@ MonoBehaviour:
   sfxToggle: {fileID: 6604446628524665962}
   costText: {fileID: 1033239882778456162}
   waveText: {fileID: 3073903680114549036}
-  rangeIndicator: {fileID: 419268667772728542}
+  moveUnitController: {fileID: 6077884536439040509}
 --- !u!114 &8019981517054441820
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1110,7 +1154,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 30.65
+  m_fontSize: 36.3
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1326,7 +1370,7 @@ GameObject:
   - component: {fileID: 7429858159439893461}
   - component: {fileID: 5702227211038443390}
   m_Layer: 5
-  m_Name: Image
+  m_Name: Cost Image
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1422,7 +1466,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 71715233947505873}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
@@ -2629,7 +2673,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 25.95
+  m_fontSize: 34.5
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -2725,7 +2769,7 @@ GameObject:
   - component: {fileID: 4625502643214411390}
   - component: {fileID: 172144303096327496}
   m_Layer: 5
-  m_Name: DefenderButton
+  m_Name: DefenderCard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2984,7 +3028,7 @@ GameObject:
   - component: {fileID: 2761841986432634222}
   - component: {fileID: 7795799317455205265}
   m_Layer: 5
-  m_Name: Sell Gold Image
+  m_Name: Sell Cost Image
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3200,10 +3244,10 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 5159117015595362324}
   - {fileID: 4298721322107969037}
+  - {fileID: 5159117015595362324}
   m_Father: {fileID: 71715233947505873}
-  m_RootOrder: 6
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
@@ -3262,7 +3306,7 @@ GameObject:
   - component: {fileID: 4262693258836746625}
   - component: {fileID: 8964973781186563037}
   m_Layer: 5
-  m_Name: AssassinButton
+  m_Name: AssassinCard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3829,7 +3873,6 @@ RectTransform:
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1423191059768222628}
-  - {fileID: 7460923780140280784}
   - {fileID: 238135668153487562}
   - {fileID: 8751546082022037823}
   m_Father: {fileID: 238135668513969074}
@@ -4278,7 +4321,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36.7
+  m_fontSize: 34.5
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -4546,7 +4589,7 @@ GameObject:
   - component: {fileID: 923446743186639011}
   - component: {fileID: 2971048237433969760}
   m_Layer: 5
-  m_Name: Tower Buttons
+  m_Name: Tower Build Card
   m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4738,7 +4781,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3584571858630230570}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -5913,7 +5956,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 29.8
+  m_fontSize: 36.3
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -7862,7 +7905,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 405.35596, y: 0}
   m_SizeDelta: {x: 350, y: 300}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4512128318520882510
@@ -8657,7 +8700,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3413043549373675313}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -8965,7 +9008,7 @@ RectTransform:
   m_Children:
   - {fileID: 8245102632003779971}
   m_Father: {fileID: 71715233947505873}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
@@ -9469,7 +9512,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 25.95
+  m_fontSize: 34.5
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -9701,11 +9744,11 @@ RectTransform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 898215214233574391}
-  m_Father: {fileID: 8310981534581720784}
-  m_RootOrder: 1
+  m_Father: {fileID: 1423191059768222628}
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
@@ -10283,7 +10326,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 25.95
+  m_fontSize: 34.5
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -11199,7 +11242,7 @@ GameObject:
   - component: {fileID: 6498839926205564129}
   - component: {fileID: 3752527027562607954}
   m_Layer: 5
-  m_Name: WizardButton
+  m_Name: WizardCard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11352,10 +11395,10 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 3688800649953423371}
   - {fileID: 5737961537316266714}
+  - {fileID: 3688800649953423371}
   m_Father: {fileID: 71715233947505873}
-  m_RootOrder: 5
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
@@ -11806,7 +11849,7 @@ MonoBehaviour:
   damageText: {fileID: 6638605406142495041}
   attackRangeText: {fileID: 3884541790663453094}
   rpmText: {fileID: 3668644096097037799}
-  sellGoldText: {fileID: 1053894117800887917}
+  sellCostText: {fileID: 1053894117800887917}
 --- !u!1 &5940839347568003153
 GameObject:
   m_ObjectHideFlags: 0
@@ -12052,6 +12095,7 @@ RectTransform:
   - {fileID: 238135667569637537}
   - {fileID: 238135666778688184}
   - {fileID: 6291042617386473483}
+  - {fileID: 7460923780140280784}
   - {fileID: 6601451980291710149}
   m_Father: {fileID: 8310981534581720784}
   m_RootOrder: 0
@@ -12090,10 +12134,10 @@ RectTransform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 71715233947505873}
-  m_RootOrder: 2
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
@@ -12775,7 +12819,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3584571858630230570}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -12852,7 +12896,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8310981534581720784}
-  m_RootOrder: 3
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -13156,7 +13200,7 @@ GameObject:
   - component: {fileID: 7483563173910649763}
   - component: {fileID: 5037905348398157365}
   m_Layer: 5
-  m_Name: CanonButton
+  m_Name: CanonCard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13311,7 +13355,7 @@ RectTransform:
   - {fileID: 1310126529603909877}
   - {fileID: 7262908962892999624}
   m_Father: {fileID: 1423191059768222628}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
@@ -13340,7 +13384,7 @@ GameObject:
   - component: {fileID: 3333682663235629590}
   - component: {fileID: 4511995198167076971}
   m_Layer: 5
-  m_Name: BallistaButton
+  m_Name: BallistaCard
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13644,7 +13688,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 34.2
+  m_fontSize: 45.25
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -13814,7 +13858,7 @@ GameObject:
   - component: {fileID: 4997987410631005560}
   - component: {fileID: 1053894117800887917}
   m_Layer: 5
-  m_Name: Sell Gold Text
+  m_Name: Sell Cost Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14071,7 +14115,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 27.7
+  m_fontSize: 36.3
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -14630,7 +14674,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 25.95
+  m_fontSize: 34.5
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -14929,7 +14973,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36.7
+  m_fontSize: 34.5
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -15837,93 +15881,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   towerInfoUI: {fileID: 5770973841870053454}
+  towerCardUI: {fileID: 5816112278389453039}
   languagePanel: {fileID: 2070340732021048179}
   languageButtons: {fileID: 5134349686789626829}
   openLanguagePanelButton: {fileID: 2823979729731751855}
   closeLanguagePanelButton: {fileID: 7459082322949073969}
---- !u!1 &7942844839205544049
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2580553655524170172}
-  - component: {fileID: 2513374851205236377}
-  - component: {fileID: 419268667772728542}
-  m_Layer: 0
-  m_Name: RangeIndicator
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &2580553655524170172
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7942844839205544049}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -960.00006, y: -668.7458, z: 0}
-  m_LocalScale: {x: 1.0576271, y: 0.21152543, z: 1.0576271}
-  m_ConstrainProportionsScale: 1
-  m_Children: []
-  m_Father: {fileID: 238135668513969074}
-  m_RootOrder: 5
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!33 &2513374851205236377
-MeshFilter:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7942844839205544049}
-  m_Mesh: {fileID: 2534964839176971238, guid: cf439453a5f5e4c8089f2fcea81d8772, type: 3}
---- !u!23 &419268667772728542
-MeshRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7942844839205544049}
-  m_Enabled: 1
-  m_CastShadows: 0
-  m_ReceiveShadows: 1
-  m_DynamicOccludee: 1
-  m_StaticShadowCaster: 0
-  m_MotionVectors: 1
-  m_LightProbeUsage: 1
-  m_ReflectionProbeUsage: 1
-  m_RayTracingMode: 2
-  m_RayTraceProcedural: 0
-  m_RenderingLayerMask: 1
-  m_RendererPriority: 0
-  m_Materials:
-  - {fileID: 2100000, guid: 203f99d6b07a447b094084cd1ee69251, type: 2}
-  m_StaticBatchInfo:
-    firstSubMesh: 0
-    subMeshCount: 0
-  m_StaticBatchRoot: {fileID: 0}
-  m_ProbeAnchor: {fileID: 0}
-  m_LightProbeVolumeOverride: {fileID: 0}
-  m_ScaleInLightmap: 1
-  m_ReceiveGI: 1
-  m_PreserveUVs: 0
-  m_IgnoreNormalsForChartDetection: 0
-  m_ImportantGI: 0
-  m_StitchLightmapSeams: 1
-  m_SelectedEditorRenderState: 3
-  m_MinimumChartSize: 4
-  m_AutoUVMaxDistance: 0.5
-  m_AutoUVMaxAngle: 89
-  m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 0
-  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &7951481570656401541
 GameObject:
   m_ObjectHideFlags: 0
@@ -15955,7 +15917,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3413043549373675313}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -16251,7 +16213,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 22.7
+  m_fontSize: 36.3
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -16623,7 +16585,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -17365,11 +17327,11 @@ RectTransform:
   m_Children:
   - {fileID: 5800932126742599996}
   - {fileID: 2814625237196879701}
-  - {fileID: 93322165774323334}
-  - {fileID: 7217206518453491556}
-  - {fileID: 512000340886995674}
   - {fileID: 3413043549373675313}
   - {fileID: 3584571858630230570}
+  - {fileID: 7217206518453491556}
+  - {fileID: 512000340886995674}
+  - {fileID: 93322165774323334}
   m_Father: {fileID: 1423191059768222628}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

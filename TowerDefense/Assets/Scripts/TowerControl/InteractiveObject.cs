@@ -17,11 +17,13 @@ namespace TowerControl
 
         public void OnPointerUp(PointerEventData eventData)
         {
+            if (Input.touchCount != 1) return;
+            if (Input.GetTouch(0).deltaPosition != Vector2.zero) return;
             var position = transform.position;
             PoolObjectManager.Get(PoolObjectKey.ObstacleSmoke, position);
-            var num = Random.Range(10, 500);
-            PoolObjectManager.Get<CoinText>(UIPoolObjectKey.CoinText, position).SetText(num);
-            
+            var num = (ushort)(Random.Range(10, 50) * 10);
+            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, position).SetText(num);
+
             SoundManager.Instance.PlaySound(num < 100 ? SoundEnum.LowCost :
                 num < 250 ? SoundEnum.MediumCost : SoundEnum.HighCost);
 

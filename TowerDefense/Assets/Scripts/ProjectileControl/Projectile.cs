@@ -1,4 +1,6 @@
+using Cysharp.Threading.Tasks;
 using DataControl;
+using DG.Tweening;
 using InterfaceControl;
 using ManagerControl;
 using UnityEngine;
@@ -18,7 +20,6 @@ namespace ProjectileControl
         private Vector3 _startPos;
         private Vector3 _centerPos;
 
-        protected bool isArrived;
         protected int damage;
         protected float lerp;
         protected Collider target;
@@ -42,37 +43,23 @@ namespace ProjectileControl
             _startPos = transform.position;
             _trailParticle.Play();
             lerp = 0;
-            isArrived = false;
         }
 
-        protected virtual void Update()
-        {
-            if (isArrived) return;
-            if (lerp < 1)
-            {
-                ProjectilePath(target.bounds.center);
-            }
-            else
-            {
-                isArrived = true;
-                DisableProjectile();
-            }
-        }
         /*============================================================================================================
          *                                  Unity Event
          ============================================================================================================*/
 
-        // public virtual async UniTaskVoid ProjectileUpdate()
-        // {
-        //     while (lerp < 1)
-        //     {
-        //         await UniTask.Delay(10);
-        //
-        //         ProjectilePath(target.bounds.center);
-        //     }
-        //
-        //     DisableProjectile();
-        // }
+        public virtual async UniTaskVoid ProjectileUpdate()
+        {
+            while (lerp < 1)
+            {
+                await UniTask.Delay(10);
+        
+                ProjectilePath(target.bounds.center);
+            }
+        
+            DisableProjectile().Forget();
+        }   
 
         protected void ProjectilePath(Vector3 endPos)
         {
@@ -88,12 +75,13 @@ namespace ProjectileControl
             _projectileMesh.transform.rotation = Quaternion.LookRotation(dir);
         }
 
-        protected void DisableProjectile()
+        protected async UniTaskVoid DisableProjectile()
         {
             Hit();
             _projectileMesh.enabled = false;
             _shadowDecal.enabled = false;
-            TowerManager.DisableProjectile(gameObject).Forget();
+            await UniTask.Delay(2000);
+            gameObject.SetActive(false);
         }
 
         public virtual void Init(int dmg, Collider t)

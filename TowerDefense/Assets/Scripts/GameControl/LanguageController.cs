@@ -11,6 +11,7 @@ namespace GameControl
     {
         private Sequence _changeLanguageSequence;
         [SerializeField] private TowerInfoUI towerInfoUI;
+        [SerializeField] private TowerCardUI towerCardUI;
         [SerializeField] private Transform languagePanel;
         [SerializeField] private Transform languageButtons;
         [SerializeField] private Button openLanguagePanelButton;
@@ -29,6 +30,8 @@ namespace GameControl
                     {
                         SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
                         LocaleManager.ChangeLocale(index);
+                        towerInfoUI.TypeInit();
+                        towerCardUI.DataInit();
                     });
             }
 

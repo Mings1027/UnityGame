@@ -27,48 +27,28 @@ namespace ProjectileControl
             _isLockOnTarget = false;
         }
 
-        protected override void Update()
-        {
-            if (isArrived) return;
-            if (!_isLockOnTarget && lerp >= 0.5f)
-            {
-                _isLockOnTarget = true;
-                _targetEndPos = target.transform.position;
-            }
-
-            if (lerp < 1)
-            {
-                ProjectilePath(lerp < 0.5f ? target.transform.position : _targetEndPos);
-            }
-            else
-            {
-                isArrived = true;
-                DisableProjectile();
-            }
-        }
-
         private void OnDrawGizmos()
         {
             Gizmos.DrawWireSphere(transform.position, atkRange);
         }
 
-        // public override async UniTaskVoid ProjectileUpdate()
-        // {
-        //     while (lerp < 1)
-        //     {
-        //         await UniTask.Delay(10);
-        //
-        //         if (!_isLockOnTarget && lerp >= 0.5f)
-        //         {
-        //             _isLockOnTarget = true;
-        //             _targetEndPos = target.transform.position;
-        //         }
-        //
-        //         ProjectilePath(lerp < 0.5f ? target.transform.position : _targetEndPos);
-        //     }
-        //
-        //     DisableProjectile();
-        // }
+        public override async UniTaskVoid ProjectileUpdate()
+        {
+            while (lerp < 1)
+            {
+                await UniTask.Delay(10);
+        
+                if (!_isLockOnTarget && lerp >= 0.5f)
+                {
+                    _isLockOnTarget = true;
+                    _targetEndPos = target.transform.position;
+                }
+        
+                ProjectilePath(lerp < 0.5f ? target.transform.position : _targetEndPos);
+            }
+        
+            DisableProjectile().Forget();
+        }
 
         public override void Hit()
         {

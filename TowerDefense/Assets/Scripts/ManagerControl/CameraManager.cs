@@ -14,6 +14,8 @@ namespace ManagerControl
         private CamState _camState;
         private Touch _firstTouch;
         private bool _canMove;
+        private bool _startSmoothStop;
+        private float _decreaseSpeed;
         private float _modifiedMoveSpeed;
         private Vector3 _curPos, _newPos;
         private Vector2 _t1T2Vec;
@@ -25,7 +27,8 @@ namespace ManagerControl
         [SerializeField, Range(1, 3)] private float zoomSpeed;
         [SerializeField, Range(0, 2)] private float decreaseMoveSpeed;
         [SerializeField, Range(5, 20)] private int movingStartOrthoSize;
-        [SerializeField] private byte dragAngle;
+        [SerializeField, Range(0, 90)] private byte dragAngle;
+        [SerializeField] private float modifiedDivide;
 
         [SerializeField] private Vector2Int camBoundsMinMax;
         [SerializeField] private Vector3 minCamPos, maxCamPos;
@@ -35,13 +38,13 @@ namespace ManagerControl
         private void Awake()
         {
             _cam = Camera.main;
-            _snapRotateTween = transform.DORotate(SnappedVector(), 0.5f).SetEase(Ease.OutBounce)
+            _snapRotateTween = transform.DORotate(SnappedVector(), 0.5f).SetEase(Ease.OutCubic)
                 .SetAutoKill(false).Pause();
         }
 
         private void OnEnable()
         {
-            _modifiedMoveSpeed = _cam.orthographicSize / maxCamPos.y;
+            _modifiedMoveSpeed = _cam.orthographicSize / modifiedDivide;
         }
 
         private void Start()
@@ -75,31 +78,47 @@ namespace ManagerControl
 
         private void Idle()
         {
-            if (Input.touchCount == 1)
+            if (Input.touchCount != 0)
             {
-                var touch1 = Input.GetTouch(0);
-                if (touch1.phase == TouchPhase.Began)
+                if (Input.touchCount == 1)
                 {
-                    _firstTouchPos = touch1.position;
-                    _canMove = !UIManager.IsOnUI;
-                    if (_canMove) _camState = CamState.Move;
-                }
+                    var touch1 = Input.GetTouch(0);
+                    if (touch1.phase == TouchPhase.Began)
+                    {
+                        _startSmoothStop = false;
+                        _firstTouchPos = touch1.position;
+                        _canMove = !UIManager.IsOnUI;
+                        if (_canMove) _camState = CamState.Move;
+                    }
 
-                if (touch1.phase is TouchPhase.Stationary)
+                    if (touch1.phase is TouchPhase.Stationary)
+                    {
+                        _canMove = !UIManager.IsOnUI;
+                        if (_canMove) _camState = CamState.Move;
+                    }
+                }
+                else if (Input.touchCount == 2)
                 {
-                    _canMove = !UIManager.IsOnUI;
-                    if (_canMove) _camState = CamState.Move;
+                    var touch1 = Input.touches[0];
+                    var touch2 = Input.touches[1];
+                    if (touch1.phase == TouchPhase.Began && touch2.phase == TouchPhase.Began)
+                    {
+                        _firstTouchPos = touch1.position;
+                        _secondTouchPos = touch2.position;
+                        _camState = CamState.CheckZoomRotate;
+                    }
                 }
             }
-            else if (Input.touchCount == 2)
+            else if (_startSmoothStop)
             {
-                var touch1 = Input.touches[0];
-                var touch2 = Input.touches[1];
-                if (touch1.phase == TouchPhase.Began && touch2.phase == TouchPhase.Began)
+                if (_decreaseSpeed > 0)
                 {
-                    _firstTouchPos = touch1.position;
-                    _secondTouchPos = touch2.position;
-                    _camState = CamState.CheckZoomRotate;
+                    _decreaseSpeed -= Time.deltaTime * decreaseMoveSpeed;
+                    CamMove(_decreaseSpeed);
+                }
+                else
+                {
+                    _startSmoothStop = false;
                 }
             }
         }
@@ -110,22 +129,26 @@ namespace ManagerControl
             {
                 _firstTouch = Input.touches[0];
 
-                if (_firstTouch.phase == TouchPhase.Moved && _canMove)
+                if (_firstTouch.phase == TouchPhase.Moved)
                 {
-                    CamMove(moveSpeed);
-                }
-
-                if (_firstTouch.phase == TouchPhase.Ended)
-                {
-                    _camState = CamState.Idle;
                     if (_canMove)
                     {
-                        MovingAsync().Forget();
+                        CamMove(moveSpeed);
+                    }
+                }
+
+                else if (_firstTouch.phase == TouchPhase.Ended)
+                {
+                    _camState = CamState.Idle;
+                    if (_canMove && _firstTouch.deltaPosition != Vector2.zero)
+                    {
+                        _startSmoothStop = true;
+                        _decreaseSpeed = _modifiedMoveSpeed;
                     }
                 }
             }
 
-            if (Input.touchCount == 2)
+            else if (Input.touchCount == 2)
             {
                 var touch = Input.touches[1];
                 if (touch.phase == TouchPhase.Began)
@@ -174,27 +197,44 @@ namespace ManagerControl
 
         private void CheckZoomRotate()
         {
-            if (Input.touchCount == 2)
+            if (Input.touchCount == 1)
+            {
+                var touch1 = Input.GetTouch(0);
+                if (touch1.phase == TouchPhase.Began)
+                {
+                    _firstTouchPos = touch1.position;
+                    _canMove = !UIManager.IsOnUI;
+                    if (_canMove) _camState = CamState.Move;
+                }
+
+                if (touch1.phase is TouchPhase.Stationary)
+                {
+                    _canMove = !UIManager.IsOnUI;
+                    if (_canMove) _camState = CamState.Move;
+                }
+            }
+
+            else if (Input.touchCount == 2)
             {
                 var touch1 = Input.GetTouch(0);
                 var touch2 = Input.GetTouch(1);
 
                 if (touch1.phase == TouchPhase.Moved || touch2.phase == TouchPhase.Moved)
                 {
-                    var t2Angle = Vector2.Angle(-_t1T2Vec, touch2.position - _secondTouchPos);
                     var t1Angle = Vector2.Angle(_t1T2Vec, touch1.position - _firstTouchPos);
+                    var t2Angle = Vector2.Angle(-_t1T2Vec, touch2.position - _secondTouchPos);
                     if (Vector2.Distance(_firstTouchPos, touch1.position) > 50 ||
                         Vector2.Distance(_secondTouchPos, touch2.position) > 50)
                     {
-                        if ((t1Angle < dragAngle && t2Angle < dragAngle) ||
-                            (t1Angle > 180 - dragAngle && t2Angle > 180 - dragAngle))
-                        {
-                            _camState = CamState.Zoom;
-                        }
-                        else
+                        if (t1Angle > dragAngle && t1Angle < 180 - dragAngle ||
+                            t2Angle > dragAngle && t2Angle < 180 - dragAngle)
                         {
                             _camState = CamState.Rotate;
                             _snapRotateTween.Pause();
+                        }
+                        else
+                        {
+                            _camState = CamState.Zoom;
                         }
                     }
                 }
@@ -207,7 +247,24 @@ namespace ManagerControl
 
         private void CamZoom()
         {
-            if (Input.touchCount == 2)
+            if (Input.touchCount == 1)
+            {
+                var touch1 = Input.GetTouch(0);
+                if (touch1.phase == TouchPhase.Began)
+                {
+                    _firstTouchPos = touch1.position;
+                    _canMove = !UIManager.IsOnUI;
+                    if (_canMove) _camState = CamState.Move;
+                }
+
+                if (touch1.phase == TouchPhase.Stationary)
+                {
+                    _canMove = !UIManager.IsOnUI;
+                    if (_canMove) _camState = CamState.Move;
+                }
+            }
+
+            else if (Input.touchCount == 2)
             {
                 var touch1 = Input.touches[0];
                 var touch2 = Input.touches[1];
@@ -227,7 +284,6 @@ namespace ManagerControl
                         orthoSizeMinMax.x, orthoSizeMinMax.y);
                     _cam.orthographicSize = orthographicSize;
 
-                    _modifiedMoveSpeed = orthographicSize / maxCamPos.y;
 
                     var t = Mathf.InverseLerp(movingStartOrthoSize, orthoSizeMinMax.y, orthographicSize);
                     var newCamPos = Vector3.Lerp(minCamPos, maxCamPos, t);
@@ -238,13 +294,31 @@ namespace ManagerControl
                 if (touch1.phase == TouchPhase.Ended || touch2.phase == TouchPhase.Ended)
                 {
                     _camState = CamState.Move;
+                    _modifiedMoveSpeed = _cam.orthographicSize / modifiedDivide;
                 }
             }
         }
 
         private void CamRotate()
         {
-            if (Input.touchCount == 2)
+            if (Input.touchCount == 1)
+            {
+                var touch1 = Input.GetTouch(0);
+                if (touch1.phase == TouchPhase.Began)
+                {
+                    _firstTouchPos = touch1.position;
+                    _canMove = !UIManager.IsOnUI;
+                    if (_canMove) _camState = CamState.Move;
+                }
+
+                if (touch1.phase is TouchPhase.Stationary)
+                {
+                    _canMove = !UIManager.IsOnUI;
+                    if (_canMove) _camState = CamState.Move;
+                }
+            }
+
+            else if (Input.touchCount == 2)
             {
                 var touch1 = Input.GetTouch(0);
                 var touch2 = Input.GetTouch(1);
@@ -293,15 +367,15 @@ namespace ManagerControl
             var t = Mathf.InverseLerp(movingStartOrthoSize, orthoSizeMinMax.y, _cam.orthographicSize);
             var newCamPos = Vector3.Lerp(minCamPos, maxCamPos, t);
             _cam.transform.localPosition = newCamPos;
-            _modifiedMoveSpeed = _cam.orthographicSize / maxCamPos.y;
+            _modifiedMoveSpeed = _cam.orthographicSize / modifiedDivide;
         }
 
-        public void ResizeUI(Transform healthBarTransform)
+        public void ResizeUI(Transform statusBar)
         {
             var t = Mathf.InverseLerp(orthoSizeMinMax.y, orthoSizeMinMax.x, _cam.orthographicSize);
             var newScale = Vector3.Lerp(Vector3.one * uiSizeMinMax.x, Vector3.one * uiSizeMinMax.y, t);
 
-            healthBarTransform.localScale = newScale;
+            statusBar.localScale = newScale;
         }
     }
 }

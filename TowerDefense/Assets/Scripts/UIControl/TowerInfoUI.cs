@@ -6,7 +6,6 @@ using TowerControl;
 using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace UIControl
@@ -34,7 +33,7 @@ namespace UIControl
         [SerializeField] private TextMeshProUGUI damageText;
         [SerializeField] private TextMeshProUGUI attackRangeText;
         [SerializeField] private TextMeshProUGUI rpmText;
-        [SerializeField] private TextMeshProUGUI sellGoldText;
+        [SerializeField] private TextMeshProUGUI sellCostText;
 
         #region Unity Event
 
@@ -69,14 +68,20 @@ namespace UIControl
 
         #endregion
 
-        public void SetFollowTarget(Vector3 towerPos)
+        public void TypeInit()
         {
+            _towerType = TowerType.None;
+        }
+        public void SetInfoUI(Vector3 towerPos)
+        {
+            //버튼 init moveUnitBtn, upgradeBtn
             _isTargeting = true;
             _followTowerPos = towerPos;
         }
 
-        public void SetTowerInfo(Tower tower, bool isUnitTower, sbyte level, int upgradeCost, int sellGold)
+        public void SetTowerInfo(Tower tower, bool isUnitTower, sbyte level, ushort upgradeCost, ushort sellCost)
         {
+            //upgradeBtn
             if (isUnitTower)
             {
                 var unitTower = (UnitTower)tower;
@@ -101,10 +106,10 @@ namespace UIControl
             }
 
             DisplayStarsForTowerLevel(level);
-            costText.text = CachedNumber.GetCostText(upgradeCost);
+            costText.text = upgradeCost + "g";
             damageText.text = CachedNumber.GetUIText(tower.Damage);
             attackRangeText.text = CachedNumber.GetUIText(tower.TowerRange);
-            sellGoldText.text = CachedNumber.GetCostText(sellGold);
+            sellCostText.text = sellCost + "g";
         }
 
         private void DisplayStarsForTowerLevel(sbyte level)
