@@ -10,8 +10,7 @@ namespace GameControl
     public class LanguageController : MonoBehaviour
     {
         private Sequence _changeLanguageSequence;
-        [SerializeField] private TowerInfoUI towerInfoUI;
-        [SerializeField] private TowerCardUI towerCardUI;
+
         [SerializeField] private Transform languagePanel;
         [SerializeField] private Transform languageButtons;
         [SerializeField] private Button openLanguagePanelButton;
@@ -30,8 +29,6 @@ namespace GameControl
                     {
                         SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
                         LocaleManager.ChangeLocale(index);
-                        towerInfoUI.TypeInit();
-                        towerCardUI.DataInit();
                     });
             }
 
@@ -41,10 +38,7 @@ namespace GameControl
                 _changeLanguageSequence.Restart();
             });
 
-            closeLanguagePanelButton.onClick.AddListener(() =>
-            {
-                _changeLanguageSequence.PlayBackwards();
-            });
+            closeLanguagePanelButton.onClick.AddListener(() => { _changeLanguageSequence.PlayBackwards(); });
         }
     }
 }

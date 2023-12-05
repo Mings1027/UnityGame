@@ -62,7 +62,7 @@ namespace UIControl
             if (_rectTransform.anchoredPosition.y > -_rectHeight * 0.5f)
             {
                 _slideUpTween.ChangeStartValue(_rectTransform.anchoredPosition).ChangeEndValue(Vector2.zero).Restart();
-                _inputManager.StopPlacement();
+                _inputManager.TryPlaceTower();
             }
             else
             {
@@ -91,7 +91,6 @@ namespace UIControl
                 towerButton.buttonIndex = (byte)i;
                 towerButton.OnOpenTowerCardEvent += OpenTowerCard;
                 towerButton.OnCloseCardEvent += CloseTowerCard;
-                towerButton.OnPlaceTowerEvent += () => _inputManager.TryPlaceTower();
                 towerButton.OnBeginDragEvent += OnBeginDrag;
                 towerButton.OnStartPlacement += StartPlacement;
                 towerButton.OnDragEvent += OnDrag;

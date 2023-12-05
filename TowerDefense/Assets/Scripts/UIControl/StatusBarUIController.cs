@@ -55,7 +55,6 @@ namespace UIControl
         public void Remove(Transform barPosition)
         {
             if (!_inverseDic.ContainsKey(barPosition)) return;
-print("re");
             var key = _inverseDic[barPosition];
             _inverseDic.Remove(barPosition);
             _barDictionary.Remove(key);

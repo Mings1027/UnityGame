@@ -68,20 +68,14 @@ namespace UIControl
 
         #endregion
 
-        public void TypeInit()
-        {
-            _towerType = TowerType.None;
-        }
         public void SetInfoUI(Vector3 towerPos)
         {
-            //버튼 init moveUnitBtn, upgradeBtn
             _isTargeting = true;
             _followTowerPos = towerPos;
         }
 
         public void SetTowerInfo(Tower tower, bool isUnitTower, sbyte level, ushort upgradeCost, ushort sellCost)
         {
-            //upgradeBtn
             if (isUnitTower)
             {
                 var unitTower = (UnitTower)tower;

@@ -1,11 +1,11 @@
-using System.Globalization;
-using Cysharp.Threading.Tasks;
 using DataControl;
 using DG.Tweening;
 using GameControl;
+using ManagerControl;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 
 namespace UIControl
@@ -37,12 +37,10 @@ namespace UIControl
                 .Append(transform.DOScale(1, 0.25f).From(0))
                 .Join(transform.GetChild(0).DORotate(new Vector3(0, 360, 0), 0.25f, RotateMode.FastBeyond360));
             _moveCardTween = transform.DOMove(_initPos, 0.25f).From().SetAutoKill(false);
+
+            LocalizationSettings.SelectedLocaleChanged += OnChangeLocale;
         }
 
-        public void DataInit()
-        {
-            _towerData = null;
-        }
         public void OpenTowerCard(TowerData towerData, Transform buttonTransform)
         {
             IsOpen = true;
@@ -84,6 +82,13 @@ namespace UIControl
 
             _openCardSequence.PlayBackwards();
             _moveCardTween.ChangeStartValue(_buttonPos + new Vector3(0, 450, 0)).ChangeEndValue(_buttonPos).Restart();
+        }
+
+        private void OnChangeLocale(Locale locale)
+        {
+            var uiManager = UIManager.Instance;
+            towerNameText.text = uiManager.towerNameDic[_towerData.TowerType];
+            towerDescriptionText.text = uiManager.towerInfoDic[_towerData.TowerType];
         }
     }
 }

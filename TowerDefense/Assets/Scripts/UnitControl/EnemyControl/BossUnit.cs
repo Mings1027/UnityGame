@@ -4,6 +4,12 @@ namespace UnitControl.EnemyControl
 {
     public class BossUnit : EnemyUnit
     {
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+            Destroy(gameObject);
+        }
+
         protected override void TryDamage()
         {
             for (var i = 0; i < targetCollider.Length; i++)

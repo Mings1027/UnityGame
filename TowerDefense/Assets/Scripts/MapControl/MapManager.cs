@@ -428,14 +428,12 @@ namespace MapControl
 
         private async UniTaskVoid SetMap()
         {
-            _waveManager.WaveInit();
-            SoundManager.Instance.PlayBGM(_waveManager.IsBossWave ? SoundEnum.BossTheme : SoundEnum.WaveStart);
-
             await _newMapObject.transform.DOScale(1, 0.25f).From(0).WithCancellation(_cts.Token);
             CombineMesh();
             // CombineObstacleMesh();
             navMeshSurface.BuildNavMesh();
             await UniTask.Delay(1000, cancellationToken: _cts.Token);
+            _waveManager.WaveInit();
             var wayPoints = _wayPointsHashSet.ToArray();
             _waveManager.WaveStart(wayPoints, _expandBtnPosHashSet.Count == 0);
         }

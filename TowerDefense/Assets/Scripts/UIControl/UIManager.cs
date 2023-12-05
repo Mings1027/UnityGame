@@ -41,6 +41,7 @@ namespace UIControl
         private Sequence _cantMoveImageSequence;
         private Sequence _camZoomSequence;
         private Tween _towerInfoWindowTween;
+        private Tween _upgradeButtonTween;
 
         private Tower _curSelectedTower;
         private UnitTower _curUnitTower;
@@ -52,7 +53,7 @@ namespace UIControl
         private TMP_Text _curSpeedText;
 
         private ushort _sellTowerCost;
-        private ushort _towerCost;
+        private int _towerCost;
         private byte _curTimeScale;
         private bool _isShowTowerBtn;
         private bool _isSpeedUp;
@@ -61,7 +62,7 @@ namespace UIControl
 
         private Vector3 _prevPos;
 
-        public ushort TowerCost
+        public int TowerCost
         {
             get => _towerCost;
             set
@@ -78,7 +79,7 @@ namespace UIControl
         public Dictionary<TowerType, string> towerInfoDic { get; private set; }
 
         [SerializeField] private HealthBar healthBar;
-        [SerializeField] private byte lifeCount;
+        [SerializeField] private int lifeCount;
         [SerializeField] private ushort startCost;
 
         [SerializeField] private Transform notEnoughCostPanel;
@@ -156,14 +157,13 @@ namespace UIControl
 
         private void OnDisable()
         {
-            // _towerCostSequence?.Kill();
             _upgradeSellPanelTween?.Kill();
             _notEnoughCostSequence?.Kill();
             _pauseSequence?.Kill();
-            // _onOffTowerBtnSequence?.Kill();
             _cantMoveImageSequence?.Kill();
             _camZoomSequence?.Kill();
             _towerInfoWindowTween?.Kill();
+            _upgradeButtonTween?.Kill();
         }
 
         public void OnPointerDown(PointerEventData eventData)
@@ -237,6 +237,8 @@ namespace UIControl
 
             _towerInfoWindowTween = infoWindow.DOAnchorPosY(200, 0.3f).From()
                 .OnComplete(() => _openInfoWindow = true).SetAutoKill(false).Pause();
+            _upgradeButtonTween = upgradeButton.transform.DOScale(1.1f, 0.1f).From(1).SetLoops(2, LoopType.Yoyo)
+                .SetAutoKill(false).Pause();
         }
 
         private void TowerButtonInit()
@@ -265,8 +267,7 @@ namespace UIControl
             {
                 SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
                 TowerUpgrade();
-                // UpdateTowerInfo();
-                upgradeButton.transform.DOScale(1.1f, 0.1f).From(1).SetLoops(2, LoopType.Yoyo);
+                _upgradeButtonTween.Restart();
             });
             moveUnitButton.GetComponent<Button>().onClick.AddListener(MoveUnitButton);
             checkMoveUnitPanel.enabled = false;
@@ -439,7 +440,7 @@ namespace UIControl
 
         public bool IsEnoughCost(TowerType towerType)
         {
-            if (_towerCost >= _towerDataDictionary[towerType].TowerBuildCost * (_towerCountDictionary[towerType] + 1))
+            if (_towerCost >= GetCurBuildCost(towerType))
             {
                 return true;
             }
@@ -468,13 +469,11 @@ namespace UIControl
         {
             var towerType = t.TowerData.TowerType;
 
+            var lostCost = GetCurBuildCost(towerType);
             _towerCountDictionary[towerType]++;
-            var lostCost = (ushort)(towerData.TowerBuildCost * _towerCountDictionary[towerType]);
             TowerCost -= lostCost;
-            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, placePos)
-                .SetText(lostCost, false);
-            _towerCostTextDictionary[towerType].text =
-                towerData.TowerBuildCost * (_towerCountDictionary[towerType] + 1) + "g";
+            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, placePos).SetText(lostCost, false);
+            _towerCostTextDictionary[towerType].text = GetCurBuildCost(towerType) + "g";
             await DOTween.Sequence().Join(t.transform.GetChild(0).DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack))
                 .Append(t.transform.GetChild(0).DOMoveY(placePos.y, 0.5f).SetEase(Ease.InExpo)
                     .OnComplete(() =>
@@ -518,10 +517,9 @@ namespace UIControl
                 towerData.AttackRange, towerData.AttackRpm);
             upgradeButton.SetActive(!towerLevel.Equals(4));
 
-            _towerRangeIndicator.SetIndicator(in position, tempTower.TowerRange);
+            _towerRangeIndicator.SetIndicator(position, tempTower.TowerRange);
 
-            _sellTowerCost = (ushort)(towerData.TowerBuildCost * _towerCountDictionary[towerType] +
-                                      towerData.TowerUpgradeCost / 2 * towerLevel);
+            _sellTowerCost = GetTowerSellCost(towerType);
             towerInfoUI.SetTowerInfo(tempTower, towerData.IsUnitTower, towerLevel, upgradeCost,
                 _sellTowerCost);
         }
@@ -554,7 +552,7 @@ namespace UIControl
 
             var position = clickedTower.transform.position;
             towerInfoUI.SetInfoUI(position);
-            _towerRangeIndicator.SetIndicator(in position, clickedTower.TowerRange);
+            _towerRangeIndicator.SetIndicator(position, clickedTower.TowerRange);
             UpdateTowerInfo();
         }
 
@@ -563,15 +561,27 @@ namespace UIControl
             var towerType = _curSelectedTower.TowerData.TowerType;
             var towerLevel = _curSelectedTower.TowerLevel;
             var curTowerData = _towerDataDictionary[towerType];
-            _sellTowerCost = (ushort)(curTowerData.TowerBuildCost * _towerCountDictionary[towerType] +
-                                      curTowerData.TowerUpgradeCost * towerLevel);
+            _sellTowerCost = GetTowerSellCost(towerType);
             towerInfoUI.SetTowerInfo(_curSelectedTower, curTowerData.IsUnitTower,
                 towerLevel, GetTowerUpgradeCost(in towerType), _sellTowerCost);
         }
 
         private ushort GetTowerUpgradeCost(in TowerType towerType)
         {
-            return (ushort)(_towerDataDictionary[towerType].TowerUpgradeCost * _towerCountDictionary[towerType]);
+            return (ushort)(_towerDataDictionary[towerType].TowerUpgradeCost +
+                            _towerDataDictionary[towerType].ExtraUpgradeCost * _towerCountDictionary[towerType]);
+        }
+
+        private ushort GetTowerSellCost(in TowerType towerType)
+        {
+            return (ushort)(_towerDataDictionary[towerType].TowerBuildCost +
+                            _towerDataDictionary[towerType].ExtraBuildCost * (_towerCountDictionary[towerType] - 1));
+        }
+
+        private ushort GetCurBuildCost(in TowerType towerType)
+        {
+            return (ushort)(_towerDataDictionary[towerType].TowerBuildCost +
+                            _towerDataDictionary[towerType].ExtraBuildCost * _towerCountDictionary[towerType]);
         }
 
         private void MoveUnitButton()
@@ -590,8 +600,7 @@ namespace UIControl
 
             var towerData = _curSelectedTower.TowerData;
             _towerCountDictionary[towerData.TowerType]--;
-            _towerCostTextDictionary[towerData.TowerType].text =
-                towerData.TowerBuildCost * (_towerCountDictionary[towerData.TowerType] + 1) + "g";
+            _towerCostTextDictionary[towerData.TowerType].text = GetCurBuildCost(towerData.TowerType) + "g";
             var position = _curSelectedTower.transform.position;
             PoolObjectManager.Get(PoolObjectKey.BuildSmoke, position);
 

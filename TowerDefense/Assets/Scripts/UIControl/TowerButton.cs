@@ -9,9 +9,8 @@ namespace UIControl
     {
         public event Action<int, Transform> OnOpenTowerCardEvent;
         public event Action OnCloseCardEvent;
-        public event Action OnPlaceTowerEvent;
         public event Action<PointerEventData> OnBeginDragEvent;
-        public event Action<int> OnStartPlacement; 
+        public event Action<int> OnStartPlacement;
         public event Action<PointerEventData> OnDragEvent;
         public event Action<PointerEventData> OnEndDragEvent;
         public static bool IsOnButton { get; private set; }
@@ -26,7 +25,6 @@ namespace UIControl
 
         public void OnPointerUp(PointerEventData eventData)
         {
-            OnPlaceTowerEvent?.Invoke();
             IsOnButton = false;
             UIManager.IsOnUI = false;
             OnCloseCardEvent?.Invoke();

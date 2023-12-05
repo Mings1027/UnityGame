@@ -54,12 +54,12 @@ namespace ProjectileControl
             while (lerp < 1)
             {
                 await UniTask.Delay(10);
-        
+
                 ProjectilePath(target.bounds.center);
             }
-        
+
             DisableProjectile().Forget();
-        }   
+        }
 
         protected void ProjectilePath(Vector3 endPos)
         {
@@ -81,7 +81,8 @@ namespace ProjectileControl
             _projectileMesh.enabled = false;
             _shadowDecal.enabled = false;
             await UniTask.Delay(2000);
-            gameObject.SetActive(false);
+            if (gameObject)
+                gameObject.SetActive(false);
         }
 
         public virtual void Init(int dmg, Collider t)

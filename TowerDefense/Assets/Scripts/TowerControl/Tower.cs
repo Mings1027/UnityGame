@@ -58,8 +58,8 @@ namespace TowerControl
 
         #region Abstract Function
 
+        public abstract void TowerTargeting();
         public abstract void TowerUpdate(CancellationTokenSource cts);
-        // public abstract void TowerAttack(CancellationTokenSource cts);
         public abstract void TowerTargetInit();
 
         #endregion

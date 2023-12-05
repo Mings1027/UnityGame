@@ -13,7 +13,7 @@ namespace ManagerControl
         private CancellationTokenSource _cts;
         private List<Tower> _towers;
         private UnitTower _unitTower;
-        
+
         #region Unity Event
 
         protected void Awake()
@@ -42,7 +42,8 @@ namespace ManagerControl
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
             Application.targetFrameRate = 60;
-            TargetingAsync().Forget();
+            TowerTargeting().Forget();
+            TowerUpdate().Forget();
         }
 
         public void StopTargeting()
@@ -53,7 +54,22 @@ namespace ManagerControl
             PoolObjectManager.PoolCleaner().Forget();
         }
 
-        private async UniTaskVoid TargetingAsync()
+        private async UniTaskVoid TowerTargeting()
+        {
+            while (!_cts.IsCancellationRequested)
+            {
+                await UniTask.Delay(500, cancellationToken: _cts.Token);
+                if (Time.timeScale == 0) continue;
+
+                var towerCount = _towers.Count;
+                for (var i = 0; i < towerCount; i++)
+                {
+                    _towers[i].TowerTargeting();
+                }
+            }
+        }
+
+        private async UniTaskVoid TowerUpdate()
         {
             while (!_cts.IsCancellationRequested)
             {

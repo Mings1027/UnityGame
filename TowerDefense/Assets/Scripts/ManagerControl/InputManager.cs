@@ -9,7 +9,9 @@ namespace ManagerControl
     public class InputManager : MonoBehaviour
     {
         private Camera _cam;
+        private Tween _meshScaleTween;
         private Transform _cursorChild;
+        private Vector3 _prevCursorPos;
         private Vector3 _worldGridPos;
         private TowerType _selectedTowerType;
         private bool _isUnitTower;
@@ -22,6 +24,7 @@ namespace ManagerControl
         private MeshRenderer _cursorMeshRenderer;
         private RaycastHit _hit;
 
+        // [SerializeField] private Transform zoomCamArm;
         [SerializeField] private Transform cubeCursor;
         [SerializeField] private Grid grid;
         [SerializeField] private LayerMask groundLayer;
@@ -30,9 +33,9 @@ namespace ManagerControl
         protected void Awake()
         {
             _cam = Camera.main;
+
             _cursorMeshRenderer = cubeCursor.GetComponentInChildren<MeshRenderer>();
             _cursorChild = cubeCursor.GetChild(0);
-
             _checkDir = new[]
             {
                 Vector3.forward, Vector3.back, Vector3.left, Vector3.right,
@@ -53,11 +56,18 @@ namespace ManagerControl
             _selectedTowerType = TowerType.None;
             cubeCursor.position = Vector3.zero + Vector3.down * 5;
             _cursorMeshRenderer.enabled = false;
+            _meshScaleTween = _cursorMeshRenderer.transform.DOScale(2, 0.25f).From(0).SetEase(Ease.OutBack)
+                .SetAutoKill(false).Pause();
         }
 
         private void OnEnable()
         {
             _cursorMeshRenderer.enabled = true;
+        }
+
+        private void Start()
+        {
+            _prevCursorPos = cubeCursor.position;
         }
 
         private void Update()
@@ -68,6 +78,7 @@ namespace ManagerControl
             if (_startPlacement)
             {
                 UpdateCursorPosition();
+                // UpdateZoomCamPos();
                 CheckCanPlace();
                 CursorAppear();
             }
@@ -105,23 +116,11 @@ namespace ManagerControl
             StopPlacement();
         }
 
-        public void StopPlacement()
-        {
-            _startPlacement = false;
-            _canPlace = false;
-            _worldGridPos = Vector3.zero + Vector3.down * 5;
-
-            _cursorMeshRenderer.transform.DOScale(0, 0.25f).SetEase(Ease.OutBack).OnComplete(() =>
-            {
-                cubeCursor.position = _worldGridPos;
-            });
-        }
-
         public void StartPlacement(TowerType towerType, bool isUnitTower)
         {
             _startPlacement = true;
             UIManager.Instance.OffUI();
-            _cursorMeshRenderer.transform.DOScale(2, 0.25f).SetEase(Ease.OutBack);
+            _meshScaleTween.Restart();
             if (!UIManager.Instance.IsEnoughCost(towerType))
             {
                 _startPlacement = false;
@@ -131,6 +130,14 @@ namespace ManagerControl
             if (_selectedTowerType == towerType) return;
             _isUnitTower = isUnitTower;
             _selectedTowerType = towerType;
+        }
+
+        private void StopPlacement()
+        {
+            _startPlacement = false;
+            _canPlace = false;
+            _worldGridPos = Vector3.zero + Vector3.down * 5;
+            _meshScaleTween.OnRewind(() => cubeCursor.position = _worldGridPos).PlayBackwards();
         }
 
         private void UpdateCursorPosition()
@@ -147,6 +154,11 @@ namespace ManagerControl
             cubeCursor.position = _worldGridPos;
         }
 
+        // private void UpdateZoomCamPos()
+        // {
+        //     zoomCamArm.position = cubeCursor.position;
+        // }
+
         private void CheckCanPlace()
         {
             _canPlace = _isGround && CheckPlacementTile();
@@ -155,24 +167,20 @@ namespace ManagerControl
 
         private void CursorAppear()
         {
+            if (_prevCursorPos == cubeCursor.position) return;
+            _prevCursorPos = cubeCursor.position;
             if (_isGround)
             {
                 if (!_isAppeared)
                 {
-                    _cursorMeshRenderer.transform.DOScale(2, 0.25f).SetEase(Ease.OutBack).OnComplete(() =>
-                    {
-                        _isAppeared = true;
-                    });
+                    _meshScaleTween.OnComplete(() => { _isAppeared = true; }).Restart();
                 }
             }
             else
             {
                 if (_isAppeared)
                 {
-                    _cursorMeshRenderer.transform.DOScale(0, 0.25f).SetEase(Ease.OutBack).OnComplete(() =>
-                    {
-                        _isAppeared = false;
-                    });
+                    _meshScaleTween.OnRewind(() => { _isAppeared = false; }).PlayBackwards();
                 }
             }
         }
@@ -186,7 +194,7 @@ namespace ManagerControl
             {
                 if (!Physics.Raycast(_cursorChild.position + _checkDir[i] + Vector3.up, Vector3.down,
                         out _hit, 10)) continue;
-                if (_hit.collider.CompareTag("Ground"))
+                if (_hit.collider.CompareTag("Ground") || _hit.collider.CompareTag("Unit"))
                 {
                     return true;
                 }

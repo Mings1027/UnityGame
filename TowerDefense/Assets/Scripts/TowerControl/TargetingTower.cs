@@ -62,13 +62,18 @@ namespace TowerControl
             _isAttacking = false;
         }
 
+        public override void TowerTargeting()
+        {
+            Patrol();
+        }
+
         public override void TowerUpdate(CancellationTokenSource cts)
         {
             switch (_towerState)
             {
-                case TowerState.Patrol:
-                    Patrol();
-                    break;
+                // case TowerState.Patrol:
+                //     Patrol();
+                //     break;
                 case TowerState.Attack:
                     AttackAsync(cts).Forget();
                     break;

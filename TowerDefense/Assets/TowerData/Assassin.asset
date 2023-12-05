@@ -14,9 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isUnitTower: 1
   isMagicTower: 0
-  initDamage: 10
-  initRange: 7
-  initRpm: 70
   towerMeshes:
   - {fileID: -6400281290468069383, guid: 57e9ca1972df7944e8027988c19964e0, type: 3}
   - {fileID: -6400281290468069383, guid: e6e4e3c996269714cbd83ca0eb3a99e3, type: 3}
@@ -25,7 +22,12 @@ MonoBehaviour:
   - {fileID: -6400281290468069383, guid: 25810a19e94edec41aea57b8ba8cdff1, type: 3}
   tower: {fileID: 3847918098510183265, guid: 8d942512867e1284e9d6225db845f190, type: 3}
   towerType: 0
+  initDamage: 10
+  initRange: 7
+  initRpm: 70
   towerBuildCost: 150
+  extraBuildCost: 75
   towerUpgradeCost: 70
+  extraUpgradeCost: 20
   initUnitHealth: 50
   initReSpawnTime: 10

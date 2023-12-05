@@ -27,6 +27,7 @@ namespace CustomEnumControl
         Patrol,
         Attack
     }
+
     public enum UnitState
     {
         Patrol,
@@ -79,10 +80,23 @@ namespace CustomEnumControl
 
     public enum EnemyPoolObjectKey
     {
+        None,
         Goblin,
         Orc,
         ArmoredGoblin,
         ArmoredOrc,
-        Ooogie
+
+        Zombie,
+        Skeleton,
+        Spider,
+        Mummy,
+        Lich,
+        Sphinx,
+        
+        Santa,
+        Reindeer,
+        JackOLantern,
+        SnowMan,
+        Werewolf,
     }
 }

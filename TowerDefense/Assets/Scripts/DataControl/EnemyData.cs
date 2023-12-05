@@ -1,21 +1,17 @@
-using CustomEnumControl;
 using UnityEngine;
 
 namespace DataControl
 {
-    [CreateAssetMenu]
-    public class EnemyData : ScriptableObject
+    public abstract class EnemyData : ScriptableObject
     {
-        public EnemyPoolObjectKey EnemyKey => enemyKey;
+        public byte StartSpawnWave => startSpawnWave;
         public float Speed => speed;
-        public ushort EnemyCoin => enemyCoin;
         public float AttackDelay => attackDelay;
         public ushort Damage => damage;
         public int Health => health;
 
-        [SerializeField] private EnemyPoolObjectKey enemyKey;
+        [SerializeField] private byte startSpawnWave;
         [Range(0, 5)] [SerializeField] private float speed;
-        [SerializeField] private ushort enemyCoin;
         [SerializeField] private float attackDelay;
         [SerializeField] private ushort damage;
         [SerializeField] private int health;

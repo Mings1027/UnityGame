@@ -1,18 +1,17 @@
-using DG.Tweening;
 using ManagerControl;
 using TowerControl;
 using UIControl;
+using UniTaskTweenControl;
 using UnityEngine;
 
 namespace UnitControl.TowerUnitControl
 {
     public class MoveUnitController : MonoBehaviour
     {
+        private UIManager _uiManager;
         private Camera _cam;
         private CameraManager _cameraManager;
         private UnitTower _unitTower;
-        private Tweener _camMoveTween;
-        private Tweener _camZoomTween;
 
         private float _prevSize;
         private Vector3 _prevPos;
@@ -26,10 +25,8 @@ namespace UnitControl.TowerUnitControl
 
         private void Start()
         {
+            _uiManager = UIManager.Instance;
             _cameraManager = _cam.GetComponentInParent<CameraManager>();
-            _camMoveTween = _cameraManager.transform.DOMove(_cameraManager.transform.position, camZoomTime)
-                .SetAutoKill(false).Pause();
-            _camZoomTween = _cam.DOOrthoSize(10, camZoomTime).SetAutoKill(false).Pause();
             enabled = false;
         }
 
@@ -45,15 +42,15 @@ namespace UnitControl.TowerUnitControl
             _unitTower = unitTower;
             _prevSize = _cam.orthographicSize;
             _prevPos = _cameraManager.transform.position;
-            _camMoveTween.ChangeStartValue(_prevPos).ChangeEndValue(_unitTower.transform.position).Restart();
-            _camZoomTween.ChangeStartValue(_prevSize).ChangeEndValue(10f).Restart();
+            _cameraManager.transform.MoveTween(_prevPos, unitTower.transform.position, camZoomTime);
+            _cam.OrthoSizeTween(_prevSize, 10, camZoomTime);
         }
 
         private void RewindCam()
         {
             enabled = false;
-            _camMoveTween.ChangeStartValue(_cameraManager.transform.position).ChangeEndValue(_prevPos).Restart();
-            _camZoomTween.ChangeStartValue(_cam.orthographicSize).ChangeEndValue(_prevSize).Restart();
+            _cameraManager.transform.MoveTween(_cameraManager.transform.position, _prevPos, camZoomTime);
+            _cam.OrthoSizeTween(_cam.orthographicSize, _prevSize, camZoomTime);
         }
 
         private void CheckMoveUnit()
@@ -67,11 +64,11 @@ namespace UnitControl.TowerUnitControl
             {
                 _unitTower.UnitMove(new Vector3(hit.point.x, 0, hit.point.z));
                 RewindCam();
-                UIManager.Instance.OffUI();
+                _uiManager.OffUI();
             }
             else
             {
-                UIManager.Instance.YouCannotMove();
+                _uiManager.YouCannotMove();
             }
         }
     }

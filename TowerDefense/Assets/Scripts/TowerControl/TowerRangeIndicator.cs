@@ -1,4 +1,6 @@
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using UniTaskTweenControl;
 using UnityEngine;
 
 namespace TowerControl
@@ -6,23 +8,25 @@ namespace TowerControl
     public class TowerRangeIndicator : MonoBehaviour
     {
         private MeshRenderer _rangeIndicator;
-        private Tweener _rangeIndicatorTween;
 
         private void Awake()
         {
             _rangeIndicator = GetComponent<MeshRenderer>();
-            _rangeIndicatorTween = _rangeIndicator.transform.DOScale(Vector3.one, 0.15f).SetEase(Ease.OutBack)
-                .SetAutoKill(false).Pause();
             _rangeIndicator.transform.localScale = Vector3.zero;
         }
 
-        public void SetIndicator(in Vector3 pos, int towerRange)
+        public void SetIndicator(Vector3 pos, int towerRange)
         {
-            _rangeIndicator.transform.position = pos;
-            _rangeIndicatorTween.ChangeStartValue(_rangeIndicator.transform.localScale)
-                .ChangeEndValue(new Vector3(towerRange, 0.5f, towerRange)).Restart();
+            _rangeIndicator.enabled = true;
+            var r = _rangeIndicator.transform;
+            r.position = pos;
+            var targetScale = new Vector3(towerRange, 0.5f, towerRange);
+            _rangeIndicator.transform.ScaleTween(targetScale, 0.2f);
         }
 
-        public void DisableIndicator() => _rangeIndicatorTween.ChangeEndValue(Vector3.zero).Restart();
+        public void DisableIndicator()
+        {
+            _rangeIndicator.transform.ScaleTween(Vector3.zero, 0.2f, () => _rangeIndicator.enabled = false);
+        }
     }
 }

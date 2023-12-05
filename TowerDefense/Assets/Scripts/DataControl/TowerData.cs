@@ -10,27 +10,33 @@ namespace DataControl
 
         public MeshFilter[] TowerMeshes => towerMeshes;
 
+        public GameObject Tower => tower;
+        public TowerType TowerType => towerType;
+
         public ushort BaseDamage { get; private set; }
         public byte AttackRange { get; private set; }
         public ushort AttackRpm { get; private set; }
 
-        public GameObject Tower => tower;
-        public TowerType TowerType => towerType;
         public ushort TowerBuildCost => towerBuildCost;
+        public byte ExtraBuildCost => extraBuildCost;
         public ushort TowerUpgradeCost => towerUpgradeCost;
+        public byte ExtraUpgradeCost => extraUpgradeCost;
 
         [SerializeField] private bool isUnitTower;
         [SerializeField] private bool isMagicTower;
-
-        [SerializeField] private ushort initDamage;
-        [SerializeField] private byte initRange;
-        [SerializeField] private ushort initRpm;
         [SerializeField] private MeshFilter[] towerMeshes;
 
         [SerializeField] private GameObject tower;
         [SerializeField] private TowerType towerType;
+
+        [SerializeField] private ushort initDamage;
+        [SerializeField] private byte initRange;
+        [SerializeField] private ushort initRpm;
+
         [SerializeField, Range(0, 1000)] private ushort towerBuildCost;
+        [SerializeField, Range(0, 255)] private byte extraBuildCost;
         [SerializeField, Range(0, 1000)] private ushort towerUpgradeCost;
+        [SerializeField, Range(0, 255)] private byte extraUpgradeCost;
 
         public virtual void InitState()
         {

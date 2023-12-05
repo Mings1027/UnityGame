@@ -17,6 +17,7 @@ namespace TowerControl
 {
     public class UnitTower : Tower
     {
+        private CancellationTokenSource _cts;
         private bool _isUnitSpawn;
         private bool _isReSpawning;
         private Vector3 _unitCenterPosition;
@@ -33,8 +34,17 @@ namespace TowerControl
 
         #region Unity Event
 
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
+        }
+
         private void OnDisable()
         {
+            _cts?.Cancel();
+            _cts?.Dispose();
             if (_isReSpawning)
             {
                 _unitReSpawnBar.StopLoading();
@@ -65,7 +75,7 @@ namespace TowerControl
 
         #endregion
 
-        #region Private Function
+        #region Unit Control
 
         private void UnitSpawn()
         {
@@ -129,7 +139,7 @@ namespace TowerControl
                 PoolObjectManager.Get<ReSpawnBar>(UIPoolObjectKey.ReSpawnBar, _reSpawnBarTransform.position);
             StatusBarUIController.Instance.Add(_unitReSpawnBar, _reSpawnBarTransform);
             _unitReSpawnBar.Init();
-            await _unitReSpawnBar.StartLoading(10);
+            await _unitReSpawnBar.StartLoading(10, _cts);
             StatusBarUIController.Instance.Remove(_reSpawnBarTransform);
 
             _isReSpawning = false;
@@ -172,6 +182,15 @@ namespace TowerControl
             }
 
             UnitMove(_unitCenterPosition);
+        }
+
+        public override void TowerTargeting()
+        {
+            var count = _units.Count - 1;
+            for (int i = count; i >= 0; i--)
+            {
+                _units[i].UnitTargeting();
+            }
         }
 
         public override void TowerUpdate(CancellationTokenSource cts)

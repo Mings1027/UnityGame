@@ -19,16 +19,30 @@ namespace TowerControl
         {
             if (Input.touchCount != 1) return;
             if (Input.GetTouch(0).deltaPosition != Vector2.zero) return;
-            var position = transform.position;
-            PoolObjectManager.Get(PoolObjectKey.ObstacleSmoke, position);
-            var num = (ushort)(Random.Range(10, 50) * 10);
-            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, position).SetText(num);
+
+            PoolObjectManager.Get(PoolObjectKey.ObstacleSmoke, transform.position);
+            var ran = Random.Range(0, 10);
+            if (ran < 2)
+            {
+                UIManager.Instance.BaseTowerHealth.Heal(1);
+            }
+            else
+            {
+                EarnCoin();
+            }
+
+            Destroy(gameObject);
+        }
+
+        private void EarnCoin()
+        {
+            var num = (ushort)(Random.Range(10, 30) * 10);
+            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, transform.position).SetText(num);
 
             SoundManager.Instance.PlaySound(num < 100 ? SoundEnum.LowCost :
                 num < 250 ? SoundEnum.MediumCost : SoundEnum.HighCost);
 
             UIManager.Instance.TowerCost += num;
-            Destroy(gameObject);
         }
     }
 }

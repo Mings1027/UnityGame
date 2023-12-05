@@ -12,20 +12,20 @@ using UnitControl.EnemyControl;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 namespace ManagerControl
 {
     public class WaveManager : MonoBehaviour
     {
-        // private NavMeshSurface _bossNavMeshSurface;
         private TowerManager _towerManager;
         private bool _startWave;
         private bool _isLastWave;
         private bool _isEndless;
+        private bool _isBossWave;
 
-        private sbyte _enemyLevel; // Increase After Boss Wave
-        private byte _enemyDataIndex; // 
+        private sbyte _bossIndex; // Increase After Boss Wave
 
         private CancellationTokenSource _cts;
         private List<EnemyUnit> _enemyList;
@@ -33,31 +33,20 @@ namespace ManagerControl
 
         public event Action OnPlaceExpandButtonEvent;
         public event Action OnBossWaveEvent;
-        public bool IsBossWave { get; private set; }
         public static byte curWave { get; private set; }
 
         [SerializeField] private byte lastWave;
-        [SerializeField] private byte bossWaveTerm;
-        [SerializeField] private EnemyData[] enemiesData;
-        [SerializeField] private EnemyData[] bossData;
+        [SerializeField] private MonsterData[] monsterData;
+        [SerializeField] private GameObject[] bossPrefabs;
+        [SerializeField] private BossData[] bossesData;
 
         #region Unity Event
 
         private void Awake()
         {
-            // _bossNavMeshSurface = GetComponent<NavMeshSurface>();
-            _enemyLevel = 1;
-            _enemyDataIndex = 1;
+            _bossIndex = 0;
             _enemyList = new List<EnemyUnit>();
             curWave = 0;
-            // var enemyDataGuids = AssetDatabase.FindAssets("t: EnemyData", new[] { "Assets/EnemyData" });
-            // enemiesData = new EnemyData[enemyDataGuids.Length];
-            // for (var i = 0; i < enemyDataGuids.ToArray().Length; i++)
-            // {
-            //     enemiesData[i] =
-            //         AssetDatabase.LoadAssetAtPath<EnemyData>(
-            //             AssetDatabase.GUIDToAssetPath(enemyDataGuids.ToArray()[i]));
-            // }
         }
 
         private void Start()
@@ -79,6 +68,15 @@ namespace ManagerControl
 
         #endregion
 
+        public void WaveInit()
+        {
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
+            curWave++;
+            _isLastWave = curWave == lastWave;
+            if (curWave % 15 == 0) _isBossWave = true;
+        }
+
         public void WaveStart(Vector3[] wayPoints, bool isEndless)
         {
             _wayPoints = wayPoints;
@@ -87,72 +85,70 @@ namespace ManagerControl
             StartWave();
         }
 
+        private void StartWave()
+        {
+            _towerManager.StartTargeting();
+            UIManager.Instance.WaveText.text = curWave.ToString();
+            SpawnEnemy(_wayPoints).Forget();
+            if (_isBossWave)
+            {
+                _isBossWave = false;
+                SoundManager.Instance.PlayBGM(SoundEnum.BossTheme);
+                SpawnBoss(_wayPoints[Random.Range(0, _wayPoints.Length)]).Forget();
+            }
+            else
+            {
+                SoundManager.Instance.PlayBGM(SoundEnum.WaveStart);
+            }
+
+            EnemyTargeting().Forget();
+            EnemyUpdate().Forget();
+            CheckStuck().Forget();
+        }
+
         private void WaveStop()
         {
             _cts?.Cancel();
             _enemyList.Clear();
         }
 
-        public void WaveInit()
-        {
-            _cts?.Dispose();
-            _cts = new CancellationTokenSource();
-            curWave++;
-            if (curWave % 5 == 0 && _enemyDataIndex < enemiesData.Length) _enemyDataIndex++;
-            if (curWave % bossWaveTerm == 0)
-            {
-                IsBossWave = true;
-                OnBossWaveEvent?.Invoke();
-                UIManager.Instance.UpgradeTowerData();
-            }
-
-            _isLastWave = curWave == lastWave;
-        }
-
-        private void StartWave()
-        {
-            _towerManager.StartTargeting();
-            UIManager.Instance.WaveText.text = curWave.ToString();
-            SpawnEnemy(_wayPoints).Forget();
-
-            if (IsBossWave)
-            {
-                if (_isLastWave)
-                {
-                    LastWave(_wayPoints).Forget();
-                }
-                else
-                {
-                    SpawnBoss(_wayPoints).Forget();
-                }
-            }
-
-            EnemyUpdate().Forget();
-            CheckStuck().Forget();
-            CheckEnemyDisable().Forget();
-        }
-
         #region Enemy Spawn
 
         private async UniTaskVoid SpawnEnemy(IReadOnlyList<Vector3> wayPoints)
         {
-            await UniTask.Delay(500, cancellationToken: _cts.Token);
-            for (var i = 0; i < _enemyDataIndex; i++)
+            var monsterDataLength = monsterData.Length;
+            for (var i = 0; i < monsterDataLength; i++)
             {
-                for (var j = 0; j < wayPoints.Count; j++)
-                {
-                    EnemyInit(enemiesData[i], wayPoints[j]);
-                }
-
                 await UniTask.Delay(500, cancellationToken: _cts.Token);
+                if (monsterData[i].StartSpawnWave > curWave) continue;
+
+                var wayPointsCount = wayPoints.Count;
+                for (var wayPoint = 0; wayPoint < wayPointsCount; wayPoint++)
+                {
+                    var ranPoint = wayPoints[wayPoint] + Random.insideUnitSphere * 3;
+                    NavMesh.SamplePosition(ranPoint, out var hit, 5, NavMesh.AllAreas);
+                    var enemyUnit = PoolObjectManager.Get<EnemyUnit>(monsterData[i].EnemyKey, hit.position);
+                    EnemyInit(enemyUnit, monsterData[i]);
+                }
             }
         }
 
-        private void EnemyInit(EnemyData enemyData, in Vector3 wayPoint)
+        private async UniTaskVoid SpawnBoss(Vector3 ranWayPoint)
         {
-            var ranPoint = wayPoint + Random.insideUnitSphere * 3;
+            OnBossWaveEvent?.Invoke();
+            UIManager.Instance.UpgradeTowerData();
+            await UniTask.Delay(2000, cancellationToken: _cts.Token);
+
+            var ranPoint = ranWayPoint + Random.insideUnitSphere * 3;
             NavMesh.SamplePosition(ranPoint, out var hit, 5, NavMesh.AllAreas);
-            var enemyUnit = PoolObjectManager.Get<EnemyUnit>(enemyData.EnemyKey, hit.position);
+            var bossUnit = Instantiate(bossPrefabs[_bossIndex], hit.position, Quaternion.identity)
+                .GetComponent<BossUnit>();
+            BossInit(bossUnit, bossesData[_bossIndex]);
+            _bossIndex++;
+        }
+
+        private void EnemyInit(EnemyUnit enemyUnit, EnemyData enemyData)
+        {
             _enemyList.Add(enemyUnit);
             enemyUnit.Init();
             enemyUnit.SpawnInit(enemyData);
@@ -163,11 +159,11 @@ namespace ManagerControl
             healthBar.Init(enemyUnit.GetComponent<Progressive>());
 
             var enemyHealth = enemyUnit.GetComponent<UnitHealth>();
-            enemyHealth.Init(enemyData.Health * _enemyLevel);
+            enemyHealth.Init(enemyData.Health);
             var statusUI = StatusBarUIController.Instance;
             enemyHealth.OnDeadEvent += () =>
             {
-                var coin = (ushort)(enemyData.EnemyCoin * _enemyLevel);
+                var coin = enemyData.StartSpawnWave;
                 PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, enemyUnit.transform.position)
                     .SetText(coin);
                 UIManager.Instance.TowerCost += coin;
@@ -175,6 +171,39 @@ namespace ManagerControl
             };
             enemyUnit.OnDisableEvent += () =>
             {
+                DecreaseEnemyCount(enemyUnit);
+                if (!enemyHealth.IsDead)
+                    statusUI.Remove(enemyUnit.healthBarTransform);
+            };
+
+            statusUI.Add(healthBar, enemyUnit.healthBarTransform);
+        }
+
+        private void BossInit(EnemyUnit enemyUnit, BossData bossData)
+        {
+            _enemyList.Add(enemyUnit);
+            enemyUnit.Init();
+            enemyUnit.SpawnInit(bossData);
+            enemyUnit.GetComponent<EnemyStatus>().defaultSpeed = bossData.Speed;
+
+            var healthBar = PoolObjectManager.Get<HealthBar>(UIPoolObjectKey.EnemyHealthBar,
+                enemyUnit.healthBarTransform.position);
+            healthBar.Init(enemyUnit.GetComponent<Progressive>());
+
+            var enemyHealth = enemyUnit.GetComponent<UnitHealth>();
+            enemyHealth.Init(bossData.Health);
+            var statusUI = StatusBarUIController.Instance;
+            enemyHealth.OnDeadEvent += () =>
+            {
+                var coin = (ushort)(bossData.StartSpawnWave + bossData.DroppedGold);
+                PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, enemyUnit.transform.position)
+                    .SetText(coin);
+                UIManager.Instance.TowerCost += coin;
+                statusUI.Remove(enemyUnit.healthBarTransform);
+            };
+            enemyUnit.OnDisableEvent += () =>
+            {
+                DecreaseEnemyCount(enemyUnit);
                 if (!enemyHealth.IsDead)
                     statusUI.Remove(enemyUnit.healthBarTransform);
             };
@@ -186,13 +215,26 @@ namespace ManagerControl
 
         #region Enemy Update Loop
 
+        private async UniTaskVoid EnemyTargeting()
+        {
+            while (!_cts.IsCancellationRequested)
+            {
+                await UniTask.Delay(500, cancellationToken: _cts.Token);
+                var enemyCount = _enemyList.Count;
+                for (var i = enemyCount - 1; i >= 0; i--)
+                {
+                    _enemyList[i].EnemyTargeting();
+                }
+            }
+        }
+
         private async UniTaskVoid EnemyUpdate()
         {
             while (!_cts.IsCancellationRequested)
             {
                 await UniTask.Delay(250, cancellationToken: _cts.Token);
-                var enemyCount = _enemyList.Count - 1;
-                for (var i = enemyCount; i >= 0; i--)
+                var enemyCount = _enemyList.Count;
+                for (var i = enemyCount - 1; i >= 0; i--)
                 {
                     _enemyList[i].UnitUpdate(_cts);
                 }
@@ -205,55 +247,15 @@ namespace ManagerControl
             {
                 await UniTask.Delay(5000, cancellationToken: _cts.Token);
 
-                var leftEnemyCount = _enemyList.Count - 1;
-                for (var i = leftEnemyCount; i >= 0; i--)
+                var leftEnemyCount = _enemyList.Count;
+                for (var i = leftEnemyCount - 1; i >= 0; i--)
                 {
                     _enemyList[i].IfStuck(_cts).Forget();
                 }
             }
         }
 
-        private async UniTaskVoid CheckEnemyDisable()
-        {
-            while (!_cts.IsCancellationRequested)
-            {
-                await UniTask.Delay(10);
-                var enemyCount = _enemyList.Count - 1;
-                for (var i = enemyCount; i >= 0; i--)
-                {
-                    if (!_enemyList[i].gameObject.activeSelf)
-                        DecreaseEnemyCount(_enemyList[i]);
-                }
-            }
-        }
-
         #endregion
-
-        private async UniTaskVoid SpawnBoss(IReadOnlyList<Vector3> wayPoints)
-        {
-            await UniTask.Delay(2000, cancellationToken: _cts.Token);
-            for (var i = 0; i < _enemyLevel; i++)
-            {
-                await UniTask.Delay(100, cancellationToken: _cts.Token);
-                var ranPoint = wayPoints[Random.Range(0, wayPoints.Count)];
-                EnemyInit(bossData[0], ranPoint);
-            }
-
-            IsBossWave = false;
-            _enemyLevel++;
-        }
-
-        private async UniTaskVoid LastWave(IReadOnlyList<Vector3> wayPoints)
-        {
-            // 마지막 웨이브라고 알려주기
-            await UniTask.Delay(5000, cancellationToken: _cts.Token);
-            for (var i = 0; i < wayPoints.Count; i++)
-            {
-                await UniTask.Delay(100, cancellationToken: _cts.Token);
-                var ranPoint = wayPoints[Random.Range(0, wayPoints.Count)];
-                EnemyInit(bossData[0], ranPoint);
-            }
-        }
 
         private void DecreaseEnemyCount(EnemyUnit enemyUnit)
         {
