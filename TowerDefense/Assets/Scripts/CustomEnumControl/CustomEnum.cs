@@ -67,13 +67,15 @@ namespace CustomEnumControl
 
         //==============Tower=============
         AssassinUnit,
-        DefenderUnit
+        DefenderUnit,
+        TransformSmoke
     }
 
     public enum UIPoolObjectKey
     {
         UnitHealthBar,
         EnemyHealthBar,
+        BossHealthBar,
         ReSpawnBar,
         FloatingText
     }
@@ -81,22 +83,28 @@ namespace CustomEnumControl
     public enum EnemyPoolObjectKey
     {
         None,
+        
         Goblin,
         Orc,
         ArmoredGoblin,
         ArmoredOrc,
+        Troll,
 
         Zombie,
         Skeleton,
         Spider,
         Mummy,
         Lich,
-        Sphinx,
+        
+        Witch,
+        Bat,
+        Vampire,
+        JackOLantern,
+        Werewolf,
+        
         
         Santa,
         Reindeer,
-        JackOLantern,
         SnowMan,
-        Werewolf,
     }
 }

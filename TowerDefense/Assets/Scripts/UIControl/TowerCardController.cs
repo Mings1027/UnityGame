@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using DataControl;
@@ -16,6 +17,7 @@ namespace UIControl
         private Tweener _slideDownTween;
         private Tweener _slideUpTween;
         private InputManager _inputManager;
+        private CameraManager _cameraManager;
 
         private Dictionary<int, TowerData> _towerButtonDic;
 
@@ -79,6 +81,7 @@ namespace UIControl
             _slideDownTween = _rectTransform.DOAnchorPosY(-250, 0.25f).SetAutoKill(false).Pause();
             _slideUpTween = _rectTransform.DOAnchorPosY(-250, 0.25f).From().SetAutoKill(false).Pause();
 
+            if (Camera.main != null) _cameraManager = Camera.main.GetComponentInParent<CameraManager>();
             _inputManager = FindObjectOfType<InputManager>();
             _towerButtonDic = new Dictionary<int, TowerData>();
 
@@ -89,8 +92,10 @@ namespace UIControl
             {
                 var towerButton = towerButtons.GetChild(i).GetComponent<TowerButton>();
                 towerButton.buttonIndex = (byte)i;
-                towerButton.OnOpenTowerCardEvent += OpenTowerCard;
-                towerButton.OnCloseCardEvent += CloseTowerCard;
+                towerButton.OnPointerDownEvent += PointerDown;
+                towerButton.OnCamDisableEvent += () => _cameraManager.enabled = false;
+                towerButton.OnPointerUpEvent += CloseTowerCard;
+                towerButton.OnCamEnableEvent += () => _cameraManager.enabled = true;
                 towerButton.OnBeginDragEvent += OnBeginDrag;
                 towerButton.OnStartPlacement += StartPlacement;
                 towerButton.OnDragEvent += OnDrag;
@@ -98,7 +103,7 @@ namespace UIControl
             }
         }
 
-        private void OpenTowerCard(int index, Transform buttonPos) =>
+        private void PointerDown(int index, Transform buttonPos) =>
             OpenCardAsync(_towerButtonDic[index], buttonPos).Forget();
 
         private async UniTaskVoid OpenCardAsync(TowerData towerData, Transform buttonPos)

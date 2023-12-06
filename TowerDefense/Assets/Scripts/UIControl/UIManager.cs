@@ -97,6 +97,7 @@ namespace UIControl
         [SerializeField] private TowerData[] towerDataList;
 
         [SerializeField] private TowerInfoUI towerInfoUI;
+        [SerializeField] private TowerCardUI towerCardUI;
         [SerializeField] private GameObject upgradeButton;
         [SerializeField] private GameObject moveUnitButton;
         [SerializeField] private GameObject sellTowerButton;
@@ -340,9 +341,14 @@ namespace UIControl
             {
                 towerInfoDic[towerType] = LocaleManager.GetLocalizedString(LocaleManager.CardKey + towerType);
             }
+
+            towerInfoUI.LocaleTowerName();
+            towerCardUI.LocaleCardInfo();
         }
 
         #endregion
+
+        #region Public Method
 
         public void UpgradeTowerData()
         {
@@ -365,6 +371,7 @@ namespace UIControl
         }
 
         public Sprite GetTowerType(TowerData t) => t.IsMagicTower ? magicSprite : physicalSprite;
+
         public Sprite IsUnitTower(TowerData t) => t.IsUnitTower ? reSpawnSprite : rpmSprite;
 
         public void InstantiateTower(TowerType towerType, Vector3 placePos, Vector3 towerForward)
@@ -440,7 +447,7 @@ namespace UIControl
 
         public bool IsEnoughCost(TowerType towerType)
         {
-            if (_towerCost >= GetCurBuildCost(towerType))
+            if (_towerCost >= GetBuildCost(towerType))
             {
                 return true;
             }
@@ -456,6 +463,10 @@ namespace UIControl
             DataManager.SaveLastSurvivedWave();
         }
 
+        #endregion
+
+        #region Private Method
+
         private void ToggleTowerButtons()
         {
             IsOnUI = false;
@@ -469,11 +480,11 @@ namespace UIControl
         {
             var towerType = t.TowerData.TowerType;
 
-            var lostCost = GetCurBuildCost(towerType);
+            var lostCost = GetBuildCost(towerType);
             _towerCountDictionary[towerType]++;
             TowerCost -= lostCost;
-            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, placePos).SetText(lostCost, false);
-            _towerCostTextDictionary[towerType].text = GetCurBuildCost(towerType) + "g";
+            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, placePos).SetCostText(lostCost, false);
+            _towerCostTextDictionary[towerType].text = GetBuildCost(towerType) + "g";
             await DOTween.Sequence().Join(t.transform.GetChild(0).DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack))
                 .Append(t.transform.GetChild(0).DOMoveY(placePos.y, 0.5f).SetEase(Ease.InExpo)
                     .OnComplete(() =>
@@ -496,7 +507,7 @@ namespace UIControl
             var towerType = tempTower.TowerData.TowerType;
             var towerData = _towerDataDictionary[towerType];
 
-            var upgradeCost = GetTowerUpgradeCost(in towerType);
+            var upgradeCost = GetUpgradeCost(in towerType);
             if (_towerCost < upgradeCost)
             {
                 _notEnoughCostSequence.Restart();
@@ -506,7 +517,7 @@ namespace UIControl
             TowerCost -= upgradeCost;
             var position = tempTower.transform.position;
             PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, position)
-                .SetText(upgradeCost, false);
+                .SetCostText(upgradeCost, false);
 
             PoolObjectManager.Get(PoolObjectKey.BuildSmoke, position);
 
@@ -520,7 +531,7 @@ namespace UIControl
             _towerRangeIndicator.SetIndicator(position, tempTower.TowerRange);
 
             _sellTowerCost = GetTowerSellCost(towerType);
-            towerInfoUI.SetTowerInfo(tempTower, towerData.IsUnitTower, towerLevel, upgradeCost,
+            towerInfoUI.SetTowerInfo(tempTower, towerData.IsUnitTower, towerLevel, GetUpgradeCost(in towerType),
                 _sellTowerCost);
         }
 
@@ -563,13 +574,19 @@ namespace UIControl
             var curTowerData = _towerDataDictionary[towerType];
             _sellTowerCost = GetTowerSellCost(towerType);
             towerInfoUI.SetTowerInfo(_curSelectedTower, curTowerData.IsUnitTower,
-                towerLevel, GetTowerUpgradeCost(in towerType), _sellTowerCost);
+                towerLevel, GetUpgradeCost(in towerType), _sellTowerCost);
         }
 
-        private ushort GetTowerUpgradeCost(in TowerType towerType)
+        private ushort GetBuildCost(in TowerType towerType)
+        {
+            return (ushort)(_towerDataDictionary[towerType].TowerBuildCost +
+                            _towerDataDictionary[towerType].ExtraBuildCost * _towerCountDictionary[towerType]);
+        }
+
+        private ushort GetUpgradeCost(in TowerType towerType)
         {
             return (ushort)(_towerDataDictionary[towerType].TowerUpgradeCost +
-                            _towerDataDictionary[towerType].ExtraUpgradeCost * _towerCountDictionary[towerType]);
+                            _towerDataDictionary[towerType].ExtraUpgradeCost * _curSelectedTower.TowerLevel);
         }
 
         private ushort GetTowerSellCost(in TowerType towerType)
@@ -577,13 +594,7 @@ namespace UIControl
             return (ushort)(_towerDataDictionary[towerType].TowerBuildCost +
                             _towerDataDictionary[towerType].ExtraBuildCost * (_towerCountDictionary[towerType] - 1));
         }
-
-        private ushort GetCurBuildCost(in TowerType towerType)
-        {
-            return (ushort)(_towerDataDictionary[towerType].TowerBuildCost +
-                            _towerDataDictionary[towerType].ExtraBuildCost * _towerCountDictionary[towerType]);
-        }
-
+        
         private void MoveUnitButton()
         {
             SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
@@ -600,13 +611,13 @@ namespace UIControl
 
             var towerData = _curSelectedTower.TowerData;
             _towerCountDictionary[towerData.TowerType]--;
-            _towerCostTextDictionary[towerData.TowerType].text = GetCurBuildCost(towerData.TowerType) + "g";
+            _towerCostTextDictionary[towerData.TowerType].text = GetBuildCost(towerData.TowerType) + "g";
             var position = _curSelectedTower.transform.position;
             PoolObjectManager.Get(PoolObjectKey.BuildSmoke, position);
 
             TowerCost += _sellTowerCost;
             PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, position)
-                .SetText(_sellTowerCost);
+                .SetCostText(_sellTowerCost);
             _sellTowerCost = 0;
             _towerManager.RemoveTower(_curSelectedTower);
             Destroy(_curSelectedTower.gameObject);
@@ -639,5 +650,7 @@ namespace UIControl
 
             _curSpeedText.text = "x" + _curTimeScale;
         }
+
+        #endregion
     }
 }

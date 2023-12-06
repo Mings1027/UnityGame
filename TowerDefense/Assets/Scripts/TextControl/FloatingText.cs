@@ -33,9 +33,18 @@ namespace TextControl
             _alphaTween.OnComplete(() => gameObject.SetActive(false)).Restart();
         }
 
-        public void SetText(ushort number, bool isGainedCoin = true)
+        public void SetCostText(ushort number, bool isPlusValue = true)
         {
-            _text.text = CachedNumber.GetFloatingText(number, isGainedCoin);
+            _text.text = isPlusValue
+                ? "+" + CachedNumber.GetFloatingText(number) + "g"
+                : "-" + CachedNumber.GetFloatingText(number) + "g";
+        }
+
+        public void SetHpText(ushort number, bool isPlusValue = true)
+        {
+            _text.text = isPlusValue
+                ? "+" + CachedNumber.GetFloatingText(number) + " HP"
+                : "-" + CachedNumber.GetFloatingText(number) + " HP";
         }
     }
 }

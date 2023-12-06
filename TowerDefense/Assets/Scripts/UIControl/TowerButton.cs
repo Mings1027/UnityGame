@@ -7,8 +7,9 @@ namespace UIControl
     public class TowerButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler,
         IBeginDragHandler, IDragHandler, IEndDragHandler
     {
-        public event Action<int, Transform> OnOpenTowerCardEvent;
-        public event Action OnCloseCardEvent;
+        public event Action OnCamDisableEvent, OnCamEnableEvent;
+        public event Action<int, Transform> OnPointerDownEvent;
+        public event Action OnPointerUpEvent;
         public event Action<PointerEventData> OnBeginDragEvent;
         public event Action<int> OnStartPlacement;
         public event Action<PointerEventData> OnDragEvent;
@@ -20,20 +21,21 @@ namespace UIControl
         {
             IsOnButton = true;
             UIManager.IsOnUI = true;
-            OnOpenTowerCardEvent?.Invoke(buttonIndex, transform);
+            OnPointerDownEvent?.Invoke(buttonIndex, transform);
+            OnCamDisableEvent?.Invoke();
         }
 
         public void OnPointerUp(PointerEventData eventData)
         {
-            IsOnButton = false;
             UIManager.IsOnUI = false;
-            OnCloseCardEvent?.Invoke();
+            OnPointerUpEvent?.Invoke();
+            OnCamEnableEvent?.Invoke();
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
             IsOnButton = false;
-            OnCloseCardEvent?.Invoke();
+            OnPointerUpEvent?.Invoke();
         }
 
         public void OnBeginDrag(PointerEventData eventData)

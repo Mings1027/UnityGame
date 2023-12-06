@@ -36,8 +36,10 @@ namespace ManagerControl
         public static byte curWave { get; private set; }
 
         [SerializeField] private byte lastWave;
-        [SerializeField] private MonsterData[] monsterData;
-        [SerializeField] private GameObject[] bossPrefabs;
+
+        [SerializeField] private byte bossWaveTerm;
+
+        [SerializeField] private EnemyData[] enemiesData;
         [SerializeField] private BossData[] bossesData;
 
         #region Unity Event
@@ -74,7 +76,13 @@ namespace ManagerControl
             _cts = new CancellationTokenSource();
             curWave++;
             _isLastWave = curWave == lastWave;
-            if (curWave % 15 == 0) _isBossWave = true;
+            if (curWave == bossWaveTerm)
+            {
+                _isBossWave = true;
+                bossWaveTerm += 10;
+            }
+            // if (curWave % bossWaveTerm == 0) _isBossWave = true;
+            SoundManager.Instance.PlayBGM(_isBossWave ? SoundEnum.BossTheme : SoundEnum.WaveStart);
         }
 
         public void WaveStart(Vector3[] wayPoints, bool isEndless)
@@ -93,12 +101,7 @@ namespace ManagerControl
             if (_isBossWave)
             {
                 _isBossWave = false;
-                SoundManager.Instance.PlayBGM(SoundEnum.BossTheme);
                 SpawnBoss(_wayPoints[Random.Range(0, _wayPoints.Length)]).Forget();
-            }
-            else
-            {
-                SoundManager.Instance.PlayBGM(SoundEnum.WaveStart);
             }
 
             EnemyTargeting().Forget();
@@ -116,19 +119,21 @@ namespace ManagerControl
 
         private async UniTaskVoid SpawnEnemy(IReadOnlyList<Vector3> wayPoints)
         {
-            var monsterDataLength = monsterData.Length;
-            for (var i = 0; i < monsterDataLength; i++)
+            var enemiesDataLength = enemiesData.Length;
+            for (var i = 0; i < enemiesDataLength; i++)
             {
                 await UniTask.Delay(500, cancellationToken: _cts.Token);
-                if (monsterData[i].StartSpawnWave > curWave) continue;
+                var enemyData = enemiesData[i];
+                if (enemyData.StartSpawnWave > curWave) continue;
 
                 var wayPointsCount = wayPoints.Count;
                 for (var wayPoint = 0; wayPoint < wayPointsCount; wayPoint++)
                 {
                     var ranPoint = wayPoints[wayPoint] + Random.insideUnitSphere * 3;
                     NavMesh.SamplePosition(ranPoint, out var hit, 5, NavMesh.AllAreas);
-                    var enemyUnit = PoolObjectManager.Get<EnemyUnit>(monsterData[i].EnemyKey, hit.position);
-                    EnemyInit(enemyUnit, monsterData[i]);
+                    enemyData.EnemyPrefab.TryGetComponent(out EnemyPoolObject enemyPoolObject);
+                    var enemyUnit = PoolObjectManager.Get<EnemyUnit>(enemyPoolObject.enemyPoolObjKey, hit.position);
+                    EnemyInit(enemyUnit, enemyData);
                 }
             }
         }
@@ -141,9 +146,9 @@ namespace ManagerControl
 
             var ranPoint = ranWayPoint + Random.insideUnitSphere * 3;
             NavMesh.SamplePosition(ranPoint, out var hit, 5, NavMesh.AllAreas);
-            var bossUnit = Instantiate(bossPrefabs[_bossIndex], hit.position, Quaternion.identity)
+            var bossUnit = Instantiate(bossesData[_bossIndex].EnemyPrefab, hit.position, Quaternion.identity)
                 .GetComponent<BossUnit>();
-            BossInit(bossUnit, bossesData[_bossIndex]);
+            BossInit(bossUnit, (BossData)bossUnit.EnemyData);
             _bossIndex++;
         }
 
@@ -161,22 +166,27 @@ namespace ManagerControl
             var enemyHealth = enemyUnit.GetComponent<UnitHealth>();
             enemyHealth.Init(enemyData.Health);
             var statusUI = StatusBarUIController.Instance;
+            statusUI.Add(healthBar, enemyUnit.healthBarTransform);
             enemyHealth.OnDeadEvent += () =>
             {
                 var coin = enemyData.StartSpawnWave;
                 PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, enemyUnit.transform.position)
-                    .SetText(coin);
+                    .SetCostText(coin);
                 UIManager.Instance.TowerCost += coin;
-                statusUI.Remove(enemyUnit.healthBarTransform);
+                // statusUI.Remove(enemyUnit.healthBarTransform);
+
+                if (!enemyUnit.TryGetComponent(out TransformEnemy transformEnemy)) return;
+                var position = enemyUnit.transform.position;
+                PoolObjectManager.Get(PoolObjectKey.TransformSmoke, position);
+                SpawnTransformEnemy(transformEnemy.SpawnCount, transformEnemy.EnemyPoolObjectKey,
+                    position);
             };
             enemyUnit.OnDisableEvent += () =>
             {
                 DecreaseEnemyCount(enemyUnit);
-                if (!enemyHealth.IsDead)
-                    statusUI.Remove(enemyUnit.healthBarTransform);
+                // if (!enemyHealth.IsDead)
+                statusUI.Remove(enemyUnit.healthBarTransform);
             };
-
-            statusUI.Add(healthBar, enemyUnit.healthBarTransform);
         }
 
         private void BossInit(EnemyUnit enemyUnit, BossData bossData)
@@ -186,29 +196,28 @@ namespace ManagerControl
             enemyUnit.SpawnInit(bossData);
             enemyUnit.GetComponent<EnemyStatus>().defaultSpeed = bossData.Speed;
 
-            var healthBar = PoolObjectManager.Get<HealthBar>(UIPoolObjectKey.EnemyHealthBar,
+            var healthBar = PoolObjectManager.Get<HealthBar>(UIPoolObjectKey.BossHealthBar,
                 enemyUnit.healthBarTransform.position);
             healthBar.Init(enemyUnit.GetComponent<Progressive>());
 
             var enemyHealth = enemyUnit.GetComponent<UnitHealth>();
             enemyHealth.Init(bossData.Health);
             var statusUI = StatusBarUIController.Instance;
+            statusUI.Add(healthBar, enemyUnit.healthBarTransform);
             enemyHealth.OnDeadEvent += () =>
             {
                 var coin = (ushort)(bossData.StartSpawnWave + bossData.DroppedGold);
                 PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, enemyUnit.transform.position)
-                    .SetText(coin);
+                    .SetCostText(coin);
                 UIManager.Instance.TowerCost += coin;
-                statusUI.Remove(enemyUnit.healthBarTransform);
+                // statusUI.Remove(enemyUnit.healthBarTransform);
             };
             enemyUnit.OnDisableEvent += () =>
             {
                 DecreaseEnemyCount(enemyUnit);
-                if (!enemyHealth.IsDead)
-                    statusUI.Remove(enemyUnit.healthBarTransform);
+                // if (!enemyHealth.IsDead)
+                statusUI.Remove(enemyUnit.healthBarTransform);
             };
-
-            statusUI.Add(healthBar, enemyUnit.healthBarTransform);
         }
 
         #endregion
@@ -256,6 +265,15 @@ namespace ManagerControl
         }
 
         #endregion
+
+        private void SpawnTransformEnemy(byte spawnCount, EnemyPoolObjectKey enemyPoolObjectKey, Vector3 spawnPos)
+        {
+            for (var i = 0; i < spawnCount; i++)
+            {
+                var enemyUnit = PoolObjectManager.Get<EnemyUnit>(enemyPoolObjectKey, spawnPos);
+                EnemyInit(enemyUnit, enemyUnit.EnemyData);
+            }
+        }
 
         private void DecreaseEnemyCount(EnemyUnit enemyUnit)
         {

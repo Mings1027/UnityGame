@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Threading;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
@@ -118,6 +119,15 @@ namespace UnitControl.TowerUnitControl
             }
         }
 
+        [Conditional("UNITY_EDITOR")]
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(transform.position, atkRange);
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(transform.position, sightRange);
+        }
+
         #endregion
 
         #region Unit Update
@@ -182,7 +192,7 @@ namespace UnitControl.TowerUnitControl
             if (_isAttacking) return;
             _isAttacking = true;
             var t = transform;
-            t.Rotate(_target.transform.position - t.position);
+            transform.rotation = Quaternion.LookRotation(_target.transform.position - t.position);
             _anim.SetTrigger(IsAttack);
             _audioSource.Play();
             TryDamage();

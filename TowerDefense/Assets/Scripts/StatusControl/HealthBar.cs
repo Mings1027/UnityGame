@@ -1,4 +1,3 @@
-using System;
 using DG.Tweening;
 using Unity.Mathematics;
 using UnityEngine;
@@ -9,6 +8,7 @@ namespace StatusControl
     {
         private Transform _border;
         private Tween _shakeBarTween;
+        private Health _health;
 
         [SerializeField] private float duration;
         [SerializeField] private float strength;
@@ -33,13 +33,14 @@ namespace StatusControl
         public override void Init(Progressive progress)
         {
             base.Init(progress);
-            progressive.OnUpdateBarEvent += ShakeBarEvent;
+            _health = (Health)progressive;
+            _health.OnShakeEvent += ShakeBarEvent;
         }
 
         public override void RemoveEvent()
         {
             base.RemoveEvent();
-            progressive.OnUpdateBarEvent -= ShakeBarEvent;
+            _health.OnShakeEvent -= ShakeBarEvent;
         }
 
         private void ShakeBarEvent() => _shakeBarTween.Restart();

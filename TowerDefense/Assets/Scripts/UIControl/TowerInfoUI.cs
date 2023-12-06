@@ -4,7 +4,6 @@ using ManagerControl;
 using TMPro;
 using TowerControl;
 using UnityEngine;
-using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 
@@ -48,8 +47,6 @@ namespace UIControl
             {
                 _starImages[i] = stars.GetChild(i).GetChild(0).GetComponent<Image>();
             }
-
-            LocalizationSettings.SelectedLocaleChanged += OnChangeLocale;
         }
 
         private void LateUpdate()
@@ -116,7 +113,7 @@ namespace UIControl
             }
         }
 
-        private void OnChangeLocale(Locale locale)
+        public void LocaleTowerName()
         {
             LocaleManager.ChangeLocaleAsync(LocaleManager.TowerCardTable, _towerType.ToString(), towerNameText)
                 .Forget();

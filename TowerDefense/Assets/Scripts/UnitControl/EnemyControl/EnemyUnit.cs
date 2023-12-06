@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Threading;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
@@ -15,7 +16,6 @@ namespace UnitControl.EnemyControl
     public class EnemyUnit : MonoBehaviour
     {
         private Transform _childMeshTransform;
-        private AudioSource _audioSource;
         private Sequence _deadSequence;
 
         private bool _isAttacking;
@@ -36,10 +36,12 @@ namespace UnitControl.EnemyControl
 
         public Transform healthBarTransform { get; private set; }
         public event Action OnDisableEvent;
+        public EnemyData EnemyData => enemyData;
 
-        [SerializeField, Range(1, 5)] private byte attackTargetCount;
-        [SerializeField, Range(1, 7)] private float atkRange;
-        [SerializeField, Range(1, 10)] private float sightRange;
+        [SerializeField] private EnemyData enemyData;
+        [SerializeField, Range(0, 5)] private byte attackTargetCount;
+        [SerializeField, Range(0, 7)] private float atkRange;
+        [SerializeField, Range(0, 10)] private float sightRange;
         [SerializeField] private LayerMask targetLayer;
         private Vector3 _prevPos;
 
@@ -49,7 +51,6 @@ namespace UnitControl.EnemyControl
         {
             _childMeshTransform = transform.GetChild(0);
             healthBarTransform = transform.GetChild(1);
-            _audioSource = GetComponent<AudioSource>();
             _anim = GetComponentInChildren<Animator>();
             _navMeshAgent = GetComponent<NavMeshAgent>();
             _thisCollider = GetComponent<Collider>();
@@ -79,7 +80,6 @@ namespace UnitControl.EnemyControl
         {
             OnDisableEvent?.Invoke();
             OnDisableEvent = null;
-            _childMeshTransform.rotation = Quaternion.identity;
         }
 
         private void OnDestroy()
@@ -87,6 +87,7 @@ namespace UnitControl.EnemyControl
             _deadSequence?.Kill();
         }
 
+        [Conditional("UNITY_EDITOR")]
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.red;
@@ -112,17 +113,12 @@ namespace UnitControl.EnemyControl
             if (_health.IsDead) return;
             switch (_unitState)
             {
-                // case UnitState.Patrol:
-                //     Patrol();
-                //     break;
                 case UnitState.Chase:
                     Chase();
                     break;
                 case UnitState.Attack:
                     Attack(cts).Forget();
                     break;
-                // default:
-                //     throw new ArgumentOutOfRangeException();
             }
 
             _anim.SetBool(IsWalk, _navMeshAgent.velocity != Vector3.zero);
@@ -165,9 +161,8 @@ namespace UnitControl.EnemyControl
             if (_isAttacking) return;
             _isAttacking = true;
             var t = transform;
-            t.Rotate(_target.transform.position - t.position);
+            transform.rotation = Quaternion.LookRotation(_target.transform.position - t.position);
             _anim.SetTrigger(IsAttack);
-            // _audioSource.Play();
             TryDamage();
             await UniTask.Delay(TimeSpan.FromSeconds(_atkDelay), cancellationToken: cts.Token);
             _isAttacking = false;

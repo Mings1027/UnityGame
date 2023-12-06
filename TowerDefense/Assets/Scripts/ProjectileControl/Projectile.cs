@@ -1,8 +1,6 @@
 using Cysharp.Threading.Tasks;
 using DataControl;
-using DG.Tweening;
 using InterfaceControl;
-using ManagerControl;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
 
@@ -80,7 +78,7 @@ namespace ProjectileControl
             Hit();
             _projectileMesh.enabled = false;
             _shadowDecal.enabled = false;
-            await UniTask.Delay(2000);
+            await UniTask.Delay(2000, DelayType.UnscaledDeltaTime);
             if (gameObject)
                 gameObject.SetActive(false);
         }

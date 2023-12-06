@@ -10,7 +10,7 @@ namespace UnitControl.TowerUnitControl
     {
         private UIManager _uiManager;
         private Camera _cam;
-        private CameraManager _cameraManager;
+        private Transform _camArm;
         private UnitTower _unitTower;
 
         private float _prevSize;
@@ -26,7 +26,7 @@ namespace UnitControl.TowerUnitControl
         private void Start()
         {
             _uiManager = UIManager.Instance;
-            _cameraManager = _cam.GetComponentInParent<CameraManager>();
+            _camArm = _cam.transform.parent;
             enabled = false;
         }
 
@@ -41,15 +41,15 @@ namespace UnitControl.TowerUnitControl
             enabled = true;
             _unitTower = unitTower;
             _prevSize = _cam.orthographicSize;
-            _prevPos = _cameraManager.transform.position;
-            _cameraManager.transform.MoveTween(_prevPos, unitTower.transform.position, camZoomTime);
+            _prevPos = _camArm.position;
+            _camArm.MoveTween(_prevPos, unitTower.transform.position, camZoomTime);
             _cam.OrthoSizeTween(_prevSize, 10, camZoomTime);
         }
 
         private void RewindCam()
         {
             enabled = false;
-            _cameraManager.transform.MoveTween(_cameraManager.transform.position, _prevPos, camZoomTime);
+            _camArm.MoveTween(_camArm.position, _prevPos, camZoomTime);
             _cam.OrthoSizeTween(_cam.orthographicSize, _prevSize, camZoomTime);
         }
 

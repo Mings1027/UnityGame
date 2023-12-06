@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using CustomEnumControl;
 using DG.Tweening;
 using UIControl;
@@ -24,7 +25,6 @@ namespace ManagerControl
         private MeshRenderer _cursorMeshRenderer;
         private RaycastHit _hit;
 
-        // [SerializeField] private Transform zoomCamArm;
         [SerializeField] private Transform cubeCursor;
         [SerializeField] private Grid grid;
         [SerializeField] private LayerMask groundLayer;
@@ -72,13 +72,12 @@ namespace ManagerControl
 
         private void Update()
         {
-            if (Input.touchCount <= 0) return;
+            if (Input.touchCount != 1) return;
             var touch = Input.GetTouch(0);
 
             if (_startPlacement)
             {
                 UpdateCursorPosition();
-                // UpdateZoomCamPos();
                 CheckCanPlace();
                 CursorAppear();
             }
@@ -90,7 +89,12 @@ namespace ManagerControl
             }
         }
 
-#if UNITY_EDITOR
+        private void OnDisable()
+        {
+            StopPlacement();
+        }
+
+        [Conditional("UNITY_EDITOR")]
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.black;
@@ -105,7 +109,7 @@ namespace ManagerControl
                 Gizmos.DrawRay(_cursorChild.position + _checkDir[i], Vector3.down * 10);
             }
         }
-#endif
+
         public void TryPlaceTower()
         {
             if (_canPlace && !TowerButton.IsOnButton)
@@ -153,11 +157,6 @@ namespace ManagerControl
             _worldGridPos.y = 0;
             cubeCursor.position = _worldGridPos;
         }
-
-        // private void UpdateZoomCamPos()
-        // {
-        //     zoomCamArm.position = cubeCursor.position;
-        // }
 
         private void CheckCanPlace()
         {

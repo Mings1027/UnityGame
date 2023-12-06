@@ -4,7 +4,6 @@ using GameControl;
 using ManagerControl;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 
@@ -37,8 +36,6 @@ namespace UIControl
                 .Append(transform.DOScale(1, 0.25f).From(0))
                 .Join(transform.GetChild(0).DORotate(new Vector3(0, 360, 0), 0.25f, RotateMode.FastBeyond360));
             _moveCardTween = transform.DOMove(_initPos, 0.25f).From().SetAutoKill(false);
-
-            LocalizationSettings.SelectedLocaleChanged += OnChangeLocale;
         }
 
         public void OpenTowerCard(TowerData towerData, Transform buttonTransform)
@@ -84,7 +81,7 @@ namespace UIControl
             _moveCardTween.ChangeStartValue(_buttonPos + new Vector3(0, 450, 0)).ChangeEndValue(_buttonPos).Restart();
         }
 
-        private void OnChangeLocale(Locale locale)
+        public void LocaleCardInfo()
         {
             var uiManager = UIManager.Instance;
             towerNameText.text = uiManager.towerNameDic[_towerData.TowerType];

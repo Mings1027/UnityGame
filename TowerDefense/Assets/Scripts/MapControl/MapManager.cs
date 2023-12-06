@@ -432,8 +432,8 @@ namespace MapControl
             CombineMesh();
             // CombineObstacleMesh();
             navMeshSurface.BuildNavMesh();
-            await UniTask.Delay(1000, cancellationToken: _cts.Token);
             _waveManager.WaveInit();
+            await UniTask.Delay(500, cancellationToken: _cts.Token);
             var wayPoints = _wayPointsHashSet.ToArray();
             _waveManager.WaveStart(wayPoints, _expandBtnPosHashSet.Count == 0);
         }

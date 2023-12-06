@@ -24,7 +24,7 @@ namespace TowerControl
             var ran = Random.Range(0, 10);
             if (ran < 2)
             {
-                UIManager.Instance.BaseTowerHealth.Heal(1);
+                HealBaseTower();
             }
             else
             {
@@ -34,10 +34,16 @@ namespace TowerControl
             Destroy(gameObject);
         }
 
+        private void HealBaseTower()
+        {
+            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, transform.position).SetHpText(1);
+            UIManager.Instance.BaseTowerHealth.Heal(1);
+        }
+
         private void EarnCoin()
         {
             var num = (ushort)(Random.Range(10, 30) * 10);
-            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, transform.position).SetText(num);
+            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, transform.position).SetCostText(num);
 
             SoundManager.Instance.PlaySound(num < 100 ? SoundEnum.LowCost :
                 num < 250 ? SoundEnum.MediumCost : SoundEnum.HighCost);

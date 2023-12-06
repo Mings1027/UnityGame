@@ -9,13 +9,13 @@ namespace GameControl
         private static readonly Dictionary<ushort, string> CachedFloatingTextDictionary = new();
         private static readonly Dictionary<float, string> CachedUITextDictionary = new();
 
-        public static string GetFloatingText(ushort value, bool isGainedCoin)
+        public static string GetFloatingText(ushort value)
         {
             if (CachedFloatingTextDictionary.TryGetValue(value, out var cached))
-                return isGainedCoin ? "+" + cached : "-" + cached;
+                return cached;
             var floatingText = value.ToString();
             CachedFloatingTextDictionary.Add(value, floatingText);
-            return isGainedCoin ? "+" + floatingText : "-" + floatingText;
+            return floatingText;
         }
 
         public static string GetUIText(float value)
