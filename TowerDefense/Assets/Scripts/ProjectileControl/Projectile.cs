@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using DataControl;
+using DG.Tweening;
 using InterfaceControl;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
@@ -12,6 +13,7 @@ namespace ProjectileControl
         private ParticleSystem _hitParticle;
         private MeshRenderer _projectileMesh;
         private DecalProjector _shadowDecal;
+        private Tween _destroyTween;
 
         private float _gravity;
         private Vector3 _curPos;
@@ -32,6 +34,7 @@ namespace ProjectileControl
             _trailParticle = transform.GetChild(1).GetComponent<ParticleSystem>();
             _hitParticle = transform.GetChild(2).GetComponent<ParticleSystem>();
             _shadowDecal = transform.GetChild(3).GetComponent<DecalProjector>();
+            _destroyTween = DOVirtual.DelayedCall(2, () => gameObject.SetActive(false)).SetAutoKill(false).Pause();
         }
 
         protected virtual void OnEnable()
@@ -56,7 +59,7 @@ namespace ProjectileControl
                 ProjectilePath(target.bounds.center);
             }
 
-            DisableProjectile().Forget();
+            DisableProjectile();
         }
 
         protected void ProjectilePath(Vector3 endPos)
@@ -73,14 +76,12 @@ namespace ProjectileControl
             _projectileMesh.transform.rotation = Quaternion.LookRotation(dir);
         }
 
-        protected async UniTaskVoid DisableProjectile()
+        protected void DisableProjectile()
         {
             Hit();
             _projectileMesh.enabled = false;
             _shadowDecal.enabled = false;
-            await UniTask.Delay(2000, DelayType.UnscaledDeltaTime);
-            if (gameObject)
-                gameObject.SetActive(false);
+            _destroyTween.Restart();
         }
 
         public virtual void Init(int dmg, Collider t)

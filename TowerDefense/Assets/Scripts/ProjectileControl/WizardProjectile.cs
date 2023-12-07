@@ -18,7 +18,7 @@ namespace ProjectileControl
         {
             base.Hit();
             TryDamage(target);
-            target.TryGetComponent(out EnemyStatus enemyStatus);
+            target.TryGetComponent(out MonsterStatus enemyStatus);
             enemyStatus.SlowEffect(_decreaseSpeed, _slowCoolTime);
         }
     }

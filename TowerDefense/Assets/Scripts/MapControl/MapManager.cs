@@ -73,6 +73,8 @@ namespace MapControl
 #if UNITY_EDITOR
         [SerializeField] private bool drawGizmos;
         [SerializeField] private float drawSphereRadius;
+        [SerializeField] private Vector3 colliderCenter;
+        [SerializeField] private Vector3 colliderSize;
 #endif
 
         #region Unity Event
@@ -560,6 +562,16 @@ namespace MapControl
                 _expandButtons[index].Expand();
                 await UniTask.Yield();
                 PlaceExpandButtons();
+            }
+        }
+
+        [ContextMenu("Set Map Collider")]
+        private void SetMapCollider()
+        {
+            for (int i = 0; i < mapPrefabs.Length; i++)
+            {
+                mapPrefabs[i].GetComponent<BoxCollider>().center = colliderCenter;
+                mapPrefabs[i].GetComponent<BoxCollider>().size = colliderSize;
             }
         }
 #endif

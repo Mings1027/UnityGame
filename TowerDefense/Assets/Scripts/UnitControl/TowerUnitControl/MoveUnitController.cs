@@ -1,3 +1,4 @@
+using System;
 using ManagerControl;
 using TowerControl;
 using UIControl;
@@ -17,6 +18,7 @@ namespace UnitControl.TowerUnitControl
         private Vector3 _prevPos;
 
         [SerializeField] private float camZoomTime;
+        [SerializeField] private LayerMask unitLayer;
 
         private void Awake()
         {
@@ -58,7 +60,7 @@ namespace UnitControl.TowerUnitControl
             var touch = Input.GetTouch(0);
             if (!touch.deltaPosition.Equals(Vector2.zero)) return;
             var ray = _cam.ScreenPointToRay(Input.mousePosition);
-            Physics.Raycast(ray, out var hit);
+            Physics.Raycast(ray, out var hit, int.MaxValue, ~unitLayer);
             if (hit.collider && hit.collider.CompareTag("Ground") &&
                 Vector3.Distance(_unitTower.transform.position, hit.point) <= _unitTower.TowerRange)
             {

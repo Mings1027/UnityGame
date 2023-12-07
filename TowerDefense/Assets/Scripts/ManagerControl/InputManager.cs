@@ -27,7 +27,7 @@ namespace ManagerControl
 
         [SerializeField] private Transform cubeCursor;
         [SerializeField] private Grid grid;
-        [SerializeField] private LayerMask groundLayer;
+        [SerializeField] private LayerMask groundLayer, unitLayer;
         [SerializeField] private Color[] cubeColor;
 
         protected void Awake()
@@ -192,8 +192,8 @@ namespace ManagerControl
             for (var i = 0; i < _checkDir.Length; i++)
             {
                 if (!Physics.Raycast(_cursorChild.position + _checkDir[i] + Vector3.up, Vector3.down,
-                        out _hit, 10)) continue;
-                if (_hit.collider.CompareTag("Ground") || _hit.collider.CompareTag("Unit"))
+                        out _hit, 10, ~unitLayer)) continue;
+                if (_hit.collider.CompareTag("Ground"))
                 {
                     return true;
                 }

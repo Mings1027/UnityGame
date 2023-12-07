@@ -11,16 +11,16 @@ using TowerControl;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.EventSystems;
+using Debug = UnityEngine.Debug;
 using Random = UnityEngine.Random;
 
 namespace UnitControl.TowerUnitControl
 {
-    public sealed class TowerUnit : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+    public sealed class TowerUnit : MonoBehaviour
     {
         private Transform _childMeshTransform;
         private AudioSource _audioSource;
         private Sequence _deadSequence;
-
         private UnitTower _parentTower;
         private Collider _thisCollider;
         private Collider[] _targetCollider;
@@ -29,12 +29,12 @@ namespace UnitControl.TowerUnitControl
         private Animator _anim;
         private NavMeshAgent _navMeshAgent;
 
+        private LayerMask _targetLayer;
         private UnitState _unitState;
+        private Vector3 _originPos;
 
         private int _damage;
         private float _atkDelay;
-
-        private Vector3 _originPos;
         private bool _moveInput;
         private bool _isAttacking;
 
@@ -47,7 +47,6 @@ namespace UnitControl.TowerUnitControl
         [SerializeField, Range(1, 5)] private byte attackTargetCount;
         [SerializeField, Range(1, 7)] private float atkRange;
         [SerializeField, Range(1, 10)] private float sightRange;
-        [SerializeField] private LayerMask targetLayer;
 
         public Outlinable outline { get; private set; }
 
@@ -55,6 +54,7 @@ namespace UnitControl.TowerUnitControl
 
         private void Awake()
         {
+            _targetLayer = LayerMask.GetMask("Monster");
             _childMeshTransform = transform.GetChild(0);
             healthBarTransform = transform.GetChild(1);
             _audioSource = GetComponent<AudioSource>();
@@ -78,6 +78,16 @@ namespace UnitControl.TowerUnitControl
             outline.enabled = false;
         }
 
+
+        private void OnValidate()
+        {
+            if (atkRange > sightRange)
+            {
+                Debug.LogError("atkRange must be smaller than Sight Range");
+                atkRange = sightRange;
+            }
+        }
+
         private void OnDisable()
         {
             OnDisableEvent?.Invoke();
@@ -88,17 +98,6 @@ namespace UnitControl.TowerUnitControl
         private void OnDestroy()
         {
             _deadSequence?.Kill();
-        }
-
-        public void OnPointerDown(PointerEventData eventData)
-        {
-        }
-
-        public void OnPointerUp(PointerEventData eventData)
-        {
-            if (Input.touchCount > 1) return;
-            if (!Input.GetTouch(0).deltaPosition.Equals(Vector2.zero)) return;
-            _parentTower.OnPointerUp(null);
         }
 
         private void Update()
@@ -156,7 +155,7 @@ namespace UnitControl.TowerUnitControl
 
         private void Patrol()
         {
-            var size = Physics.OverlapSphereNonAlloc(transform.position, sightRange, _targetCollider, targetLayer);
+            var size = Physics.OverlapSphereNonAlloc(transform.position, sightRange, _targetCollider, _targetLayer);
             if (size <= 0)
             {
                 if (Vector3.Distance(_originPos, transform.position) > 2)
@@ -180,7 +179,8 @@ namespace UnitControl.TowerUnitControl
                 return;
             }
 
-            if (_navMeshAgent.isOnNavMesh) _navMeshAgent.SetDestination(_target.transform.position);
+            if (_navMeshAgent.isOnNavMesh)
+                _navMeshAgent.SetDestination(_target.transform.position + Random.insideUnitSphere * atkRange);
             if (Vector3.Distance(_target.transform.position, transform.position) <= atkRange)
             {
                 _unitState = UnitState.Attack;
@@ -221,6 +221,10 @@ namespace UnitControl.TowerUnitControl
             _deadSequence.Restart();
         }
 
+        #endregion
+
+        #region Public Mothod
+
         public void Init()
         {
             _thisCollider.enabled = true;
@@ -230,10 +234,6 @@ namespace UnitControl.TowerUnitControl
             _navMeshAgent.enabled = true;
             _anim.enabled = true;
         }
-
-        #endregion
-
-        #region Public Mothod
 
         public void UnitTargetInit()
         {
@@ -253,8 +253,11 @@ namespace UnitControl.TowerUnitControl
             _moveInput = true;
             _anim.SetBool(IsWalk, true);
             _navMeshAgent.stoppingDistance = 0.1f;
-            _navMeshAgent.SetDestination(pos);
+            if (_navMeshAgent.isOnNavMesh)
+                _navMeshAgent.SetDestination(pos);
         }
+
+        public void ActiveIndicator() => _parentTower.OnPointerUp(null);
 
         public void InfoInit(UnitTower unitTower, Vector3 pos)
         {

@@ -1,4 +1,5 @@
 using UIControl;
+using UnitControl.EnemyControl;
 using UnityEngine;
 
 namespace TowerControl
@@ -7,7 +8,8 @@ namespace TowerControl
     {
         private void OnTriggerEnter(Collider other)
         {
-            UIManager.Instance.BaseTowerHealth.Damage(1);
+            other.TryGetComponent(out MonsterUnit monsterUnit);
+            UIManager.Instance.BaseTowerHealth.Damage(monsterUnit is BossUnit ? 5 : 1);
         }
     }
 }

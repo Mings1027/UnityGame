@@ -46,8 +46,8 @@ namespace ProjectileControl
         
                 ProjectilePath(lerp < 0.5f ? target.transform.position : _targetEndPos);
             }
-        
-            DisableProjectile().Forget();
+
+            DisableProjectile();
         }
 
         public override void Hit()

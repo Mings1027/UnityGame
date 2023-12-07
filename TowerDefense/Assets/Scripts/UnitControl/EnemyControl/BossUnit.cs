@@ -2,7 +2,7 @@ using InterfaceControl;
 
 namespace UnitControl.EnemyControl
 {
-    public class BossUnit : EnemyUnit
+    public class BossUnit : MonsterUnit
     {
         protected override void OnDisable()
         {

@@ -17,13 +17,13 @@ namespace TowerControl
         private bool _isAttacking;
         private Collider[] _targetColliders;
         private TowerState _towerState;
+        private LayerMask _targetLayer;
 
         protected bool isTargeting;
         protected Sequence atkSequence;
         protected Collider target;
         protected Transform firePos;
 
-        [SerializeField] private LayerMask targetLayer;
 
 #if UNITY_EDITOR
         private void OnDrawGizmos()
@@ -49,6 +49,7 @@ namespace TowerControl
         protected override void Init()
         {
             base.Init();
+            _targetLayer = LayerMask.GetMask("Monster");
             _attackSound = GetComponent<AudioSource>();
             _effectIndex = -1;
             _targetColliders = new Collider[3];
@@ -69,20 +70,12 @@ namespace TowerControl
 
         public override void TowerUpdate(CancellationTokenSource cts)
         {
-            switch (_towerState)
-            {
-                // case TowerState.Patrol:
-                //     Patrol();
-                //     break;
-                case TowerState.Attack:
-                    AttackAsync(cts).Forget();
-                    break;
-            }
+            if (_towerState == TowerState.Attack) AttackAsync(cts).Forget();
         }
 
         private void Patrol()
         {
-            var size = Physics.OverlapSphereNonAlloc(transform.position, TowerRange, _targetColliders, targetLayer);
+            var size = Physics.OverlapSphereNonAlloc(transform.position, TowerRange, _targetColliders, _targetLayer);
             if (size <= 0)
             {
                 target = null;
@@ -111,6 +104,7 @@ namespace TowerControl
                 _towerState = TowerState.Patrol;
                 return;
             }
+
             _isAttacking = true;
             _attackSound.Play();
             Attack();

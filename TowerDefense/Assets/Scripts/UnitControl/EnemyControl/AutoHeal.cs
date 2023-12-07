@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace UnitControl.EnemyControl
 {
-    [RequireComponent(typeof(EnemyUnit))]
+    [RequireComponent(typeof(MonsterUnit))]
     public class AutoHeal : MonoBehaviour
     {
         private CancellationTokenSource _cts;

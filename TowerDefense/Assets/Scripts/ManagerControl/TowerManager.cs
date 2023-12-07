@@ -48,8 +48,12 @@ namespace ManagerControl
 
         public void StopTargeting()
         {
-            _cts?.Cancel();
-            _cts?.Dispose();
+            if (!_cts.IsCancellationRequested)
+            {
+                _cts?.Cancel();
+                _cts?.Dispose();
+            }
+
             TargetInit();
             PoolObjectManager.PoolCleaner().Forget();
         }

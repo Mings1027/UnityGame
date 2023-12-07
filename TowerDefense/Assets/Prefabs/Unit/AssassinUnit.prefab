@@ -130,13 +130,14 @@ GameObject:
   - component: {fileID: 3400502233355181962}
   - component: {fileID: 5747828200866207406}
   - component: {fileID: -8415576314900231898}
+  - component: {fileID: -6204526728998596143}
   - component: {fileID: -794810501770913793}
   - component: {fileID: 345671202734314005}
   - component: {fileID: -3709403999054635264}
   - component: {fileID: 3491163522816756676}
   m_Layer: 9
   m_Name: AssassinUnit
-  m_TagString: Unit
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -198,9 +199,18 @@ MonoBehaviour:
   attackTargetCount: 1
   atkRange: 1.5
   sightRange: 3
-  targetLayer:
-    serializedVersion: 2
-    m_Bits: 256
+--- !u!114 &-6204526728998596143
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5337725742545187482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3ad42cc2bd724896a60b52218a3a7bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!135 &-794810501770913793
 SphereCollider:
   m_ObjectHideFlags: 0

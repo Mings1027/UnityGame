@@ -80,15 +80,14 @@ namespace CustomEnumControl
         FloatingText
     }
 
-    public enum EnemyPoolObjectKey
+    public enum MonsterPoolObjectKey
     {
-        None,
-        
         Goblin,
         Orc,
         ArmoredGoblin,
         ArmoredOrc,
         Troll,
+        SiegeRam,
 
         Zombie,
         Skeleton,
