@@ -10,7 +10,6 @@ namespace DataControl
 
         public MeshFilter[] TowerMeshes => towerMeshes;
 
-        public GameObject Tower => tower;
         public TowerType TowerType => towerType;
 
         public ushort BaseDamage { get; private set; }
@@ -26,7 +25,6 @@ namespace DataControl
         [SerializeField] private bool isMagicTower;
         [SerializeField] private MeshFilter[] towerMeshes;
 
-        [SerializeField] private GameObject tower;
         [SerializeField] private TowerType towerType;
 
         [SerializeField] private ushort initDamage;

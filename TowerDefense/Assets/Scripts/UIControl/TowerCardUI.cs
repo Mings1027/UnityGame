@@ -1,10 +1,8 @@
 using DataControl;
 using DG.Tweening;
 using GameControl;
-using ManagerControl;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 
 namespace UIControl

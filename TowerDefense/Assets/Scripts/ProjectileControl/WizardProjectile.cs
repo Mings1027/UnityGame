@@ -1,3 +1,4 @@
+using System;
 using UnitControl.EnemyControl;
 
 namespace ProjectileControl
@@ -10,7 +11,7 @@ namespace ProjectileControl
         public override void ColorInit(sbyte effectIndex)
         {
             base.ColorInit(effectIndex);
-            _decreaseSpeed = (byte)(effectIndex + 2);   //2 3 4
+            _decreaseSpeed = (byte)Math.Pow(2, effectIndex + 1); //2 4 8
             _slowCoolTime = _decreaseSpeed;
         }
 

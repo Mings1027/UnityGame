@@ -44,6 +44,7 @@ namespace UnitControl.EnemyControl
         [SerializeField, Range(0, 5)] private byte attackTargetCount;
         [SerializeField, Range(0, 7)] private float atkRange;
         [SerializeField, Range(0, 10)] private float sightRange;
+        [SerializeField] private byte baseOffset;
 
         #region Unity Event
 
@@ -79,17 +80,11 @@ namespace UnitControl.EnemyControl
             }
         }
 
-        private void OnTriggerEnter(Collider other)
-        {
-            if (!other.CompareTag("BaseTower")) return;
-            _thisCollider.enabled = false;
-            gameObject.SetActive(false);
-        }
-
         protected virtual void OnDisable()
         {
             OnDisableEvent?.Invoke();
             OnDisableEvent = null;
+            _navMeshAgent.baseOffset = 0;
         }
 
         private void OnDestroy()
@@ -142,8 +137,9 @@ namespace UnitControl.EnemyControl
                 if (_navMeshAgent.isOnNavMesh)
                 {
                     _navMeshAgent.SetDestination(Vector3.zero);
-                    return;
                 }
+
+                return;
             }
 
             _target = targetCollider[0];
@@ -171,7 +167,10 @@ namespace UnitControl.EnemyControl
             if (_isAttacking) return;
             _isAttacking = true;
             var t = transform;
-            transform.rotation = Quaternion.LookRotation(_target.transform.position - t.position);
+            var targetRot = Quaternion.LookRotation(_target.transform.position - t.position);
+            targetRot.eulerAngles = new Vector3(0, targetRot.eulerAngles.y, targetRot.eulerAngles.z);
+            t.rotation = targetRot;
+
             _anim.SetTrigger(IsAttack);
             TryDamage();
             await UniTask.Delay(TimeSpan.FromSeconds(_atkDelay), cancellationToken: cts.Token);
@@ -210,9 +209,11 @@ namespace UnitControl.EnemyControl
 
         #endregion
 
-        public void SetAnimationSpeed(float animSpeed)
+        public void SetSpeed(float animSpeed, float atkDelay)
         {
+            _navMeshAgent.speed = animSpeed;
             _anim.speed = animSpeed;
+            _atkDelay = atkDelay;
         }
 
         public void SpawnInit(MonsterData monsterData)
@@ -220,11 +221,24 @@ namespace UnitControl.EnemyControl
             _prevPos = transform.position;
             _unitState = UnitState.Patrol;
             _navMeshAgent.speed = monsterData.Speed;
-            SetAnimationSpeed(_navMeshAgent.speed);
+            SetSpeed(_navMeshAgent.speed, _atkDelay);
             _atkDelay = monsterData.AttackDelay;
             damage = monsterData.Damage;
             if (_navMeshAgent.isOnNavMesh) _navMeshAgent.SetDestination(Vector3.zero);
             _anim.SetBool(IsWalk, true);
+            SetBaseOffset().Forget();
+        }
+
+        private async UniTaskVoid SetBaseOffset()
+        {
+            var lerp = 0f;
+            while (_navMeshAgent.baseOffset < baseOffset)
+            {
+                await UniTask.Delay(10);
+                lerp += Time.deltaTime;
+                var offset = Mathf.Lerp(0, baseOffset, lerp);
+                _navMeshAgent.baseOffset = offset;
+            }
         }
 
         public async UniTaskVoid IfStuck(CancellationTokenSource cts)
@@ -235,7 +249,6 @@ namespace UnitControl.EnemyControl
                 await UniTask.Delay(500, cancellationToken: cts.Token);
                 if (!gameObject.activeSelf) return;
                 _navMeshAgent.enabled = true;
-                _navMeshAgent.ResetPath();
                 if (_navMeshAgent.isOnNavMesh) _navMeshAgent.SetDestination(Vector3.zero);
                 _prevPos = transform.position;
             }

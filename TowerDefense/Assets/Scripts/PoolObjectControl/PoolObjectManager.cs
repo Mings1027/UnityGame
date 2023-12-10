@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
+using DataControl;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -56,8 +57,8 @@ namespace PoolObjectControl
         private Dictionary<PoolObjectKey, Pool> _poolDictionary;
         private Dictionary<UIPoolObjectKey, Stack<GameObject>> _uiPrefabDictionary;
         private Dictionary<UIPoolObjectKey, UIPool> _uiPoolDictionary;
-        private Dictionary<MonsterPoolObjectKey, Stack<GameObject>> _enemyPrefabDictionary;
-        private Dictionary<MonsterPoolObjectKey, EnemyPool> _enemyPoolDictionary;
+        private Dictionary<MonsterPoolObjectKey, Stack<GameObject>> _monsterPrefabDictionary;
+        private Dictionary<MonsterPoolObjectKey, EnemyPool> _monsterPoolDictionary;
 
         [SerializeField] private Transform canvas;
         [SerializeField] private byte poolMaxSize;
@@ -73,8 +74,8 @@ namespace PoolObjectControl
             _poolDictionary = new Dictionary<PoolObjectKey, Pool>();
             _uiPrefabDictionary = new Dictionary<UIPoolObjectKey, Stack<GameObject>>();
             _uiPoolDictionary = new Dictionary<UIPoolObjectKey, UIPool>();
-            _enemyPrefabDictionary = new Dictionary<MonsterPoolObjectKey, Stack<GameObject>>();
-            _enemyPoolDictionary = new Dictionary<MonsterPoolObjectKey, EnemyPool>();
+            _monsterPrefabDictionary = new Dictionary<MonsterPoolObjectKey, Stack<GameObject>>();
+            _monsterPoolDictionary = new Dictionary<MonsterPoolObjectKey, EnemyPool>();
             PoolInit();
             // MatchPoolKeyToPrefabKey();
 #if UNITY_EDITOR
@@ -88,74 +89,61 @@ namespace PoolObjectControl
         [ContextMenu("Set Prefab key from Pool")]
         private void MatchPoolKeyToPrefabKey()
         {
-            for (var i = 0; i < pools.Length; i++)
+            foreach (var t in pools)
             {
-                pools[i].prefab.GetComponent<PoolObject>().PoolObjKey = pools[i].poolObjectKey;
+                t.prefab.GetComponent<PoolObject>().PoolObjKey = t.poolObjectKey;
             }
 
-            for (var i = 0; i < uiPools.Length; i++)
+            foreach (var t in uiPools)
             {
-                uiPools[i].uiPrefab.GetComponent<UIPoolObject>().UIPoolObjKey = uiPools[i].uiPoolObjectKey;
+                t.uiPrefab.GetComponent<UIPoolObject>().UIPoolObjKey = t.uiPoolObjectKey;
             }
 
-            for (var i = 0; i < enemyPools.Length; i++)
+            foreach (var t in enemyPools)
             {
-                enemyPools[i].enemyPrefab.GetComponent<MonsterPoolObject>().MonsterPoolObjKey =
-                    enemyPools[i].monsterPoolObjKey;
+                t.enemyPrefab.GetComponent<MonsterPoolObject>().MonsterPoolObjKey =
+                    t.monsterPoolObjKey;
             }
         }
 #endif
         private void PoolInit()
         {
-            for (var i = 0; i < pools.Length; i++)
+            foreach (var t in pools)
             {
-                _poolDictionary.Add(pools[i].poolObjectKey, pools[i]);
-                pools[i].prefab.GetComponent<PoolObject>().PoolObjKey = pools[i].poolObjectKey;
-            }
+                _poolDictionary.Add(t.poolObjectKey, t);
+                t.prefab.GetComponent<PoolObject>().PoolObjKey = t.poolObjectKey;
 
-            for (var i = 0; i < pools.Length; i++)
-            {
-                var pool = pools[i];
-                if (pool.prefab == null) throw new Exception($"{pool.poolObjectKey} doesn't exist");
-                _prefabDictionary.Add(pool.poolObjectKey, new Stack<GameObject>());
-                for (var j = 0; j < pool.initSize; j++)
+                if (t.prefab == null) throw new Exception($"{t.poolObjectKey} doesn't exist");
+                _prefabDictionary.Add(t.poolObjectKey, new Stack<GameObject>());
+                for (var j = 0; j < t.initSize; j++)
                 {
-                    CreateNewObject(pool.poolObjectKey, pool.prefab);
+                    CreateNewObject(t.poolObjectKey, t.prefab);
                 }
             }
 
-            for (var i = 0; i < uiPools.Length; i++)
+            foreach (var t in uiPools)
             {
-                _uiPoolDictionary.Add(uiPools[i].uiPoolObjectKey, uiPools[i]);
-                uiPools[i].uiPrefab.GetComponent<UIPoolObject>().UIPoolObjKey = uiPools[i].uiPoolObjectKey;
-            }
+                _uiPoolDictionary.Add(t.uiPoolObjectKey, t);
+                t.uiPrefab.GetComponent<UIPoolObject>().UIPoolObjKey = t.uiPoolObjectKey;
 
-            for (var i = 0; i < uiPools.Length; i++)
-            {
-                var uiPool = uiPools[i];
-                if (uiPool.uiPrefab == null) throw new Exception($"{uiPool.uiPoolObjectKey} doesn't exist");
-                _uiPrefabDictionary.Add(uiPool.uiPoolObjectKey, new Stack<GameObject>());
-                for (var j = 0; j < uiPool.initSize; j++)
+                if (t.uiPrefab == null) throw new Exception($"{t.uiPoolObjectKey} doesn't exist");
+                _uiPrefabDictionary.Add(t.uiPoolObjectKey, new Stack<GameObject>());
+                for (var j = 0; j < t.initSize; j++)
                 {
-                    CreateUIObject(uiPool.uiPoolObjectKey, uiPool.uiPrefab);
+                    CreateUIObject(t.uiPoolObjectKey, t.uiPrefab);
                 }
             }
 
-            for (var i = 0; i < enemyPools.Length; i++)
+            foreach (var t in enemyPools)
             {
-                _enemyPoolDictionary.Add(enemyPools[i].monsterPoolObjKey, enemyPools[i]);
-                enemyPools[i].enemyPrefab.GetComponent<MonsterPoolObject>().MonsterPoolObjKey =
-                    enemyPools[i].monsterPoolObjKey;
-            }
+                _monsterPoolDictionary.Add(t.monsterPoolObjKey, t);
+                t.enemyPrefab.GetComponent<MonsterPoolObject>().MonsterPoolObjKey = t.monsterPoolObjKey;
 
-            for (var i = 0; i < enemyPools.Length; i++)
-            {
-                var enemyPool = enemyPools[i];
-                if (enemyPool.enemyPrefab == null) throw new Exception($"{enemyPool.monsterPoolObjKey} doesn't exist");
-                _enemyPrefabDictionary.Add(enemyPool.monsterPoolObjKey, new Stack<GameObject>());
-                for (var j = 0; j < enemyPool.initSize; j++)
+                if (t.enemyPrefab == null) throw new Exception($"{t.monsterPoolObjKey} doesn't exist");
+                _monsterPrefabDictionary.Add(t.monsterPoolObjKey, new Stack<GameObject>());
+                for (var j = 0; j < t.initSize; j++)
                 {
-                    CreateEnemyObject(enemyPool.monsterPoolObjKey, enemyPool.enemyPrefab);
+                    CreateEnemyObject(t.monsterPoolObjKey, t.enemyPrefab);
                 }
             }
         }
@@ -251,8 +239,8 @@ namespace PoolObjectControl
 
         public static void ReturnToPool(GameObject obj, MonsterPoolObjectKey monsterPoolObjectKey)
         {
-            if (!_inst._enemyPoolDictionary.TryGetValue(monsterPoolObjectKey, out _)) return;
-            _inst._enemyPrefabDictionary[monsterPoolObjectKey].Push(obj);
+            if (!_inst._monsterPoolDictionary.TryGetValue(monsterPoolObjectKey, out _)) return;
+            _inst._monsterPrefabDictionary[monsterPoolObjectKey].Push(obj);
         }
 
         public static async UniTaskVoid PoolCleaner()
@@ -269,14 +257,29 @@ namespace PoolObjectControl
                 }
             }
 
-            foreach (var key in _inst._enemyPrefabDictionary.Keys)
+            foreach (var key in _inst._monsterPrefabDictionary.Keys)
             {
-                var outOfRange = _inst._enemyPrefabDictionary[key].Count > _inst.poolMaxSize;
+                var outOfRange = _inst._monsterPrefabDictionary[key].Count > _inst.poolMaxSize;
 
                 while (outOfRange)
                 {
-                    Destroy(_inst._enemyPrefabDictionary[key].Pop());
-                    outOfRange = _inst._enemyPrefabDictionary[key].Count > _inst.poolMaxSize;
+                    Destroy(_inst._monsterPrefabDictionary[key].Pop());
+                    outOfRange = _inst._monsterPrefabDictionary[key].Count > _inst.poolMaxSize;
+                    await UniTask.Delay(100);
+                }
+            }
+        }
+
+        public static async UniTaskVoid MonsterPoolCleaner(NormalMonsterData[] monsterData)
+        {
+            for (var i = 0; i < monsterData.Length; i++)
+            {
+                var monsterKey = monsterData[i].MonsterPoolObjectKey;
+                var outOfRange = _inst._monsterPrefabDictionary[monsterKey].Count > 0;
+                while (outOfRange)
+                {
+                    Destroy(_inst._monsterPrefabDictionary[monsterKey].Pop());
+                    outOfRange = _inst._monsterPrefabDictionary[monsterKey].Count > 0;
                     await UniTask.Delay(100);
                 }
             }
@@ -329,13 +332,13 @@ namespace PoolObjectControl
         private GameObject Spawn(MonsterPoolObjectKey monsterPoolObjectKey, Vector3 position, Quaternion rotation)
         {
 #if UNITY_EDITOR
-            if (!_enemyPrefabDictionary.ContainsKey(monsterPoolObjectKey))
+            if (!_monsterPrefabDictionary.ContainsKey(monsterPoolObjectKey))
                 throw new Exception($"Pool with tag {monsterPoolObjectKey} doesn't exist.");
 #endif
-            var enemyPoolStack = _enemyPrefabDictionary[monsterPoolObjectKey];
+            var enemyPoolStack = _monsterPrefabDictionary[monsterPoolObjectKey];
             if (enemyPoolStack.Count <= 0)
             {
-                _enemyPoolDictionary.TryGetValue(monsterPoolObjectKey, out var enemyPool);
+                _monsterPoolDictionary.TryGetValue(monsterPoolObjectKey, out var enemyPool);
 #if UNITY_EDITOR
                 if (enemyPool == null) throw new Exception($"Pool with tag {monsterPoolObjectKey} doesn't exist.");
 #endif

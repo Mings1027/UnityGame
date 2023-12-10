@@ -10,6 +10,7 @@ namespace TowerControl
         {
             other.TryGetComponent(out MonsterUnit monsterUnit);
             UIManager.Instance.BaseTowerHealth.Damage(monsterUnit is BossUnit ? 5 : 1);
+            other.gameObject.SetActive(false);
         }
     }
 }

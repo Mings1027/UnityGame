@@ -175,18 +175,6 @@ namespace ManagerControl
             }
         }
 
-        // private async UniTaskVoid MovingAsync()
-        // {
-        //     if (_firstTouch.deltaPosition.Equals(Vector2.zero)) return;
-        //     var decreaseSpeed = _modifiedMoveSpeed;
-        //     while (decreaseSpeed > 0)
-        //     {
-        //         decreaseSpeed -= Time.deltaTime * decreaseMoveSpeed;
-        //         CamMove(decreaseSpeed);
-        //         await UniTask.Delay(10);
-        //     }
-        // }
-
         private bool IsInBounds(Vector3 position)
         {
             return position.x > -camBoundsMinMax.x &&

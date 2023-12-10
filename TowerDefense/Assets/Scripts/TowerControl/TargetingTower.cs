@@ -12,13 +12,13 @@ namespace TowerControl
 {
     public abstract class TargetingTower : Tower
     {
-        private AudioSource _attackSound;
         private sbyte _effectIndex;
         private bool _isAttacking;
-        private Collider[] _targetColliders;
-        private TowerState _towerState;
-        private LayerMask _targetLayer;
 
+        protected Collider[] targetColliders;
+        protected AudioSource attackSound;
+        protected TowerState towerState;
+        protected LayerMask targetLayer;
         protected bool isTargeting;
         protected Sequence atkSequence;
         protected Collider target;
@@ -49,15 +49,15 @@ namespace TowerControl
         protected override void Init()
         {
             base.Init();
-            _targetLayer = LayerMask.GetMask("Monster");
-            _attackSound = GetComponent<AudioSource>();
+            targetLayer = LayerMask.GetMask("Monster");
+            attackSound = GetComponent<AudioSource>();
             _effectIndex = -1;
-            _targetColliders = new Collider[3];
+            targetColliders = new Collider[3];
         }
 
         public override void TowerTargetInit()
         {
-            _towerState = TowerState.Patrol;
+            towerState = TowerState.Patrol;
             target = null;
             isTargeting = false;
             _isAttacking = false;
@@ -70,12 +70,12 @@ namespace TowerControl
 
         public override void TowerUpdate(CancellationTokenSource cts)
         {
-            if (_towerState == TowerState.Attack) AttackAsync(cts).Forget();
+            if (towerState == TowerState.Attack) AttackAsync(cts).Forget();
         }
 
-        private void Patrol()
+        protected virtual void Patrol()
         {
-            var size = Physics.OverlapSphereNonAlloc(transform.position, TowerRange, _targetColliders, _targetLayer);
+            var size = Physics.OverlapSphereNonAlloc(transform.position, TowerRange, targetColliders, targetLayer);
             if (size <= 0)
             {
                 target = null;
@@ -87,26 +87,25 @@ namespace TowerControl
             for (var i = 0; i < size; i++)
             {
                 var distanceToResult =
-                    Vector3.SqrMagnitude(transform.position - _targetColliders[i].transform.position);
+                    Vector3.SqrMagnitude(transform.position - targetColliders[i].transform.position);
                 if (distanceToResult >= shortestDistance) continue;
                 shortestDistance = distanceToResult;
-                target = _targetColliders[i];
+                target = targetColliders[i];
             }
 
             isTargeting = true;
-            _towerState = TowerState.Attack;
+            towerState = TowerState.Attack;
         }
 
         private async UniTaskVoid AttackAsync(CancellationTokenSource cts)
         {
             if (_isAttacking)
             {
-                _towerState = TowerState.Patrol;
+                towerState = TowerState.Patrol;
                 return;
             }
 
             _isAttacking = true;
-            _attackSound.Play();
             Attack();
             await UniTask.Delay(TimeSpan.FromSeconds(AttackDelay), cancellationToken: cts.Token);
             _isAttacking = false;
@@ -115,6 +114,7 @@ namespace TowerControl
         protected virtual void Attack()
         {
             atkSequence.Restart();
+            attackSound.Play();
             var targetingTowerData = (TargetingTowerData)TowerData;
             var projectile =
                 PoolObjectManager.Get<Projectile>(targetingTowerData.PoolObjectKey, firePos.position,
@@ -123,7 +123,6 @@ namespace TowerControl
             projectile.ColorInit(_effectIndex);
             projectile.Init(Damage, target);
             projectile.ProjectileUpdate().Forget();
-            _towerState = TowerState.Patrol;
         }
 
         public override void TowerSetting(MeshFilter towerMesh, int damageData, byte rangeData,

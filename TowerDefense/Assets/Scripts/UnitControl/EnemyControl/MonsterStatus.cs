@@ -12,6 +12,7 @@ namespace UnitControl.EnemyControl
         private NavMeshAgent _navMeshAgent;
         private bool _isSlowed;
         private float _defaultSpeed;
+        private float _defaultAtkDelay;
 
         private void Awake()
         {
@@ -19,19 +20,23 @@ namespace UnitControl.EnemyControl
             _navMeshAgent = GetComponent<NavMeshAgent>();
         }
 
-        public void StatInit(float defaultSpeed)
+        public void StatInit(float defaultSpeed, float defaultAtkDelay)
         {
             _isSlowed = false;
             _defaultSpeed = defaultSpeed;
+            _defaultAtkDelay = defaultAtkDelay;
         }
 
         public void SlowEffect(byte decreaseSpeed, byte slowCoolTime)
         {
             if (_isSlowed) return;
             _isSlowed = true;
-            if (_navMeshAgent.speed - decreaseSpeed < 0.5f) _navMeshAgent.speed = 0.5f;
-            else _navMeshAgent.speed -= decreaseSpeed;
-            _monsterUnit.SetAnimationSpeed(_navMeshAgent.speed);
+            var speed = _navMeshAgent.speed;
+
+            if (speed - decreaseSpeed < 0.5f) speed = 0.5f;
+            else speed -= decreaseSpeed;
+            var increaseAtkDelay = _defaultAtkDelay + decreaseSpeed;
+            _monsterUnit.SetSpeed(speed, increaseAtkDelay);
             SlowAsync(slowCoolTime).Forget();
         }
 
@@ -40,7 +45,7 @@ namespace UnitControl.EnemyControl
             await UniTask.Delay(TimeSpan.FromSeconds(slowCoolTime),
                 cancellationToken: this.GetCancellationTokenOnDestroy());
             _navMeshAgent.speed = _defaultSpeed;
-            _monsterUnit.SetAnimationSpeed(_defaultSpeed);
+            _monsterUnit.SetSpeed(_defaultSpeed, _defaultAtkDelay);
             await UniTask.Delay(TimeSpan.FromSeconds(slowCoolTime));
             _isSlowed = false;
         }

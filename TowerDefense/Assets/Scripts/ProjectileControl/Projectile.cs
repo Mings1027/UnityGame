@@ -1,3 +1,5 @@
+using System;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using DataControl;
 using DG.Tweening;
@@ -20,6 +22,7 @@ namespace ProjectileControl
         private Vector3 _startPos;
         private Vector3 _centerPos;
 
+        protected CancellationTokenSource cts;
         protected int damage;
         protected float lerp;
         protected Collider target;
@@ -44,8 +47,19 @@ namespace ProjectileControl
             _startPos = transform.position;
             _trailParticle.Play();
             lerp = 0;
+            cts?.Dispose();
+            cts = new CancellationTokenSource();
         }
 
+        private void OnDisable()
+        {
+            cts.Cancel();
+        }
+
+        private void OnDestroy()
+        {
+            cts.Dispose();
+        }
         /*============================================================================================================
          *                                  Unity Event
          ============================================================================================================*/
@@ -54,7 +68,7 @@ namespace ProjectileControl
         {
             while (lerp < 1)
             {
-                await UniTask.Delay(10);
+                await UniTask.Delay(10, cancellationToken: cts.Token);
 
                 ProjectilePath(target.bounds.center);
             }

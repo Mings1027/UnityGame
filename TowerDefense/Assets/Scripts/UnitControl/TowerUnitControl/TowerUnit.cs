@@ -10,7 +10,6 @@ using StatusControl;
 using TowerControl;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.EventSystems;
 using Debug = UnityEngine.Debug;
 using Random = UnityEngine.Random;
 
@@ -42,7 +41,6 @@ namespace UnitControl.TowerUnitControl
         private static readonly int IsAttack = Animator.StringToHash("isAttack");
 
         public Transform healthBarTransform { get; private set; }
-        public event Action OnDisableEvent;
 
         [SerializeField, Range(1, 5)] private byte attackTargetCount;
         [SerializeField, Range(1, 7)] private float atkRange;
@@ -90,8 +88,6 @@ namespace UnitControl.TowerUnitControl
 
         private void OnDisable()
         {
-            OnDisableEvent?.Invoke();
-            OnDisableEvent = null;
             _childMeshTransform.rotation = Quaternion.identity;
         }
 
@@ -192,7 +188,10 @@ namespace UnitControl.TowerUnitControl
             if (_isAttacking) return;
             _isAttacking = true;
             var t = transform;
-            transform.rotation = Quaternion.LookRotation(_target.transform.position - t.position);
+            var targetRot = Quaternion.LookRotation(_target.transform.position - t.position);
+            targetRot.eulerAngles = new Vector3(0, targetRot.eulerAngles.y, targetRot.eulerAngles.z);
+            t.rotation = targetRot;
+            
             _anim.SetTrigger(IsAttack);
             _audioSource.Play();
             TryDamage();

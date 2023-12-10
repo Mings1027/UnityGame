@@ -48,13 +48,13 @@ namespace TowerControl
             if (_isReSpawning)
             {
                 _unitReSpawnBar.StopLoading();
-                StatusBarUIController.Instance.Remove(_reSpawnBarTransform);
+                StatusBarUIController.Instance.Remove(_reSpawnBarTransform, true);
             }
 
             var count = _units.Count;
             for (var i = count - 1; i >= 0; i--)
             {
-                StatusBarUIController.Instance.Remove(_units[i].healthBarTransform);
+                StatusBarUIController.Instance.Remove(_units[i].healthBarTransform, true);
             }
 
             for (var i = count - 1; i >= 0; i--)

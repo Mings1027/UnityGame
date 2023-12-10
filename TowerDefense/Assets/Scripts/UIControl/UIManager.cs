@@ -95,7 +95,7 @@ namespace UIControl
         private RectTransform infoWindow;
 
         [SerializeField] private TowerData[] towerDataList;
-
+        [SerializeField] private GameObject[] towerPrefabs;
         [SerializeField] private TowerInfoUI towerInfoUI;
         [SerializeField] private TowerCardUI towerCardUI;
         [SerializeField] private GameObject upgradeButton;
@@ -188,11 +188,12 @@ namespace UIControl
             _towerCountDictionary = new Dictionary<TowerType, ushort>();
             _towerCostTextDictionary = new Dictionary<TowerType, TMP_Text>();
 
-            foreach (var t in towerDataList)
+            for (var i = 0; i < towerDataList.Length; i++)
             {
+                var t = towerDataList[i];
                 t.InitState();
                 _towerDataDictionary.Add(t.TowerType, t);
-                _towerObjDictionary.Add(t.TowerType, t.Tower);
+                _towerObjDictionary.Add(t.TowerType, towerPrefabs[i]);
                 _towerCountDictionary.Add(t.TowerType, 0);
             }
 
@@ -594,7 +595,7 @@ namespace UIControl
             return (ushort)(_towerDataDictionary[towerType].TowerBuildCost +
                             _towerDataDictionary[towerType].ExtraBuildCost * (_towerCountDictionary[towerType] - 1));
         }
-        
+
         private void MoveUnitButton()
         {
             SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
@@ -641,6 +642,7 @@ namespace UIControl
             Time.timeScale = 0;
             DataManager.UpdateSurvivedWave((byte)(WaveManager.curWave - 1));
             DataManager.SaveLastSurvivedWave();
+            _towerManager.StopTargeting();
         }
 
         private void SpeedUp()

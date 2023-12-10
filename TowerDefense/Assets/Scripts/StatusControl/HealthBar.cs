@@ -37,9 +37,9 @@ namespace StatusControl
             _health.OnShakeEvent += ShakeBarEvent;
         }
 
-        public override void RemoveEvent()
+        public override void RemoveEvent(bool removeDirectly)
         {
-            base.RemoveEvent();
+            base.RemoveEvent(removeDirectly);
             _health.OnShakeEvent -= ShakeBarEvent;
         }
 

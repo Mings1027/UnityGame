@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -9,7 +8,6 @@ using ManagerControl;
 using PoolObjectControl;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 namespace MapControl
@@ -434,7 +432,7 @@ namespace MapControl
             CombineMesh();
             // CombineObstacleMesh();
             navMeshSurface.BuildNavMesh();
-            _waveManager.WaveInit();
+            _waveManager.WaveInitTest();
             await UniTask.Delay(500, cancellationToken: _cts.Token);
             var wayPoints = _wayPointsHashSet.ToArray();
             _waveManager.WaveStart(wayPoints, _expandBtnPosHashSet.Count == 0);

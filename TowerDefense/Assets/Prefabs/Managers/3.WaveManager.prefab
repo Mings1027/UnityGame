@@ -45,26 +45,29 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lastWave: 45
-  bossWaveTerm: 15
-  normalMonstersData:
-  - {fileID: 11400000, guid: 43c5b91bcda474b7cbe26801044b0a4f, type: 2}
-  - {fileID: 11400000, guid: 4d150ce3df62045448d9738cfdc76f09, type: 2}
-  - {fileID: 11400000, guid: 1c78d4b8158214fefab7a1520f8dcd47, type: 2}
-  - {fileID: 11400000, guid: f9e1d647504164064b5cd98a9458edab, type: 2}
-  - {fileID: 11400000, guid: 21cfce12a5be84f34b624d3cff5b9c0d, type: 2}
-  - {fileID: 11400000, guid: cdeec307b4d8f48318b051e4e317e362, type: 2}
-  - {fileID: 11400000, guid: adf260af9947f4bcb9884e121459448a, type: 2}
-  - {fileID: 11400000, guid: aecd1ef69580b4fa781e7459d382c503, type: 2}
-  - {fileID: 11400000, guid: 35508cbf72bc544c98ebbdd89e24aca9, type: 2}
-  - {fileID: 11400000, guid: ca4bf86222c714dcfba17d8309e25dce, type: 2}
-  - {fileID: 11400000, guid: af42ea11036b7485cbe7b5e701d5bdae, type: 2}
-  - {fileID: 11400000, guid: d55b6b7eac8314276bd34d9e57698085, type: 2}
-  - {fileID: 11400000, guid: 8c1899343caa34941b39f342a0685258, type: 2}
-  - {fileID: 11400000, guid: 4a3004a2c33ef46acb207dee1aef2211, type: 2}
-  - {fileID: 11400000, guid: 22780dcffe25d4ec48d99aa05aa5c66b, type: 2}
-  - {fileID: 11400000, guid: 0ff2d2aa2792445739d9c1cad3dfafb3, type: 2}
-  bossesData:
-  - {fileID: 11400000, guid: 97152ad883a12459f8e09f9f5b4f1123, type: 2}
-  - {fileID: 11400000, guid: 76ab1766e3a0642d291353f8df9586d9, type: 2}
-  - {fileID: 11400000, guid: 8a64e2986345b4992a052e806f54bf52, type: 2}
-  - {fileID: 11400000, guid: 4d687fa88fdd04c0da2dcad305b746a1, type: 2}
+  monsterData:
+  - normalMonsterData:
+    - {fileID: 11400000, guid: 43c5b91bcda474b7cbe26801044b0a4f, type: 2}
+    - {fileID: 11400000, guid: 4d150ce3df62045448d9738cfdc76f09, type: 2}
+    - {fileID: 11400000, guid: 1c78d4b8158214fefab7a1520f8dcd47, type: 2}
+    - {fileID: 11400000, guid: f9e1d647504164064b5cd98a9458edab, type: 2}
+    - {fileID: 11400000, guid: 21cfce12a5be84f34b624d3cff5b9c0d, type: 2}
+    - {fileID: 11400000, guid: cdeec307b4d8f48318b051e4e317e362, type: 2}
+    startBossWave: 15
+    bossMonsterData: {fileID: 11400000, guid: 97152ad883a12459f8e09f9f5b4f1123, type: 2}
+  - normalMonsterData:
+    - {fileID: 11400000, guid: adf260af9947f4bcb9884e121459448a, type: 2}
+    - {fileID: 11400000, guid: aecd1ef69580b4fa781e7459d382c503, type: 2}
+    - {fileID: 11400000, guid: 35508cbf72bc544c98ebbdd89e24aca9, type: 2}
+    - {fileID: 11400000, guid: ca4bf86222c714dcfba17d8309e25dce, type: 2}
+    - {fileID: 11400000, guid: af42ea11036b7485cbe7b5e701d5bdae, type: 2}
+    startBossWave: 25
+    bossMonsterData: {fileID: 11400000, guid: 76ab1766e3a0642d291353f8df9586d9, type: 2}
+  - normalMonsterData:
+    - {fileID: 11400000, guid: d55b6b7eac8314276bd34d9e57698085, type: 2}
+    - {fileID: 11400000, guid: 8c1899343caa34941b39f342a0685258, type: 2}
+    - {fileID: 11400000, guid: 4a3004a2c33ef46acb207dee1aef2211, type: 2}
+    - {fileID: 11400000, guid: 22780dcffe25d4ec48d99aa05aa5c66b, type: 2}
+    - {fileID: 11400000, guid: 0ff2d2aa2792445739d9c1cad3dfafb3, type: 2}
+    startBossWave: 35
+    bossMonsterData: {fileID: 11400000, guid: 8a64e2986345b4992a052e806f54bf52, type: 2}

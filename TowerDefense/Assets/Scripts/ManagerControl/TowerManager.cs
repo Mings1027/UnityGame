@@ -55,14 +55,13 @@ namespace ManagerControl
             }
 
             TargetInit();
-            PoolObjectManager.PoolCleaner().Forget();
         }
 
         private async UniTaskVoid TowerTargeting()
         {
             while (!_cts.IsCancellationRequested)
             {
-                await UniTask.Delay(500, cancellationToken: _cts.Token);
+                await UniTask.Delay(100, cancellationToken: _cts.Token);
                 if (Time.timeScale == 0) continue;
 
                 var towerCount = _towers.Count;

@@ -8,7 +8,7 @@ namespace StatusControl
     {
         private float _current;
 
-        protected float Current
+        public float Current
         {
             get => _current;
             set

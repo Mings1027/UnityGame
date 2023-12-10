@@ -52,14 +52,13 @@ namespace UIControl
             statusBar.transform.position = _cam.WorldToScreenPoint(barPosition.position);
         }
 
-        public void Remove(Transform barPosition)
+        public void Remove(Transform barPosition, bool removeDirectly = false)
         {
             if (!_inverseDic.ContainsKey(barPosition)) return;
             var key = _inverseDic[barPosition];
             _inverseDic.Remove(barPosition);
             _barDictionary.Remove(key);
-            key.RemoveEvent();
-            key.gameObject.SetActive(false);
+            key.RemoveEvent(removeDirectly);
         }
     }
 }

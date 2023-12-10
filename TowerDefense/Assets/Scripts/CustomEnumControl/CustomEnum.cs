@@ -7,6 +7,7 @@ namespace CustomEnumControl
         Canon,
         Wizard,
         Defender,
+        Laser,
         None
     }
 

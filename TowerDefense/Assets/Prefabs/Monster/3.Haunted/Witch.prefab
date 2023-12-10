@@ -76,13 +76,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 69a8ba2ae84f541738fa26a09cd7606e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyData: {fileID: 11400000, guid: 0ecbb3757035041408a457b627f8de0a, type: 2}
-  attackTargetCount: 1
-  atkRange: 1
-  sightRange: 2
-  targetLayer:
-    serializedVersion: 2
-    m_Bits: 512
+  attackTargetCount: 2
+  atkRange: 2
+  sightRange: 3
+  baseOffset: 1
 --- !u!114 &1705236735105301527
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -117,17 +114,17 @@ NavMeshAgent:
   m_GameObject: {fileID: 1705236735105301522}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.00001
+  m_Radius: 0.01
   m_Speed: 2
   m_Acceleration: 100
   avoidancePriority: 50
   m_AngularSpeed: 720
-  m_StoppingDistance: 1
+  m_StoppingDistance: 0
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1
   m_Height: 0.5
-  m_BaseOffset: 1
+  m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 1
 --- !u!1 &2635354549890035564
