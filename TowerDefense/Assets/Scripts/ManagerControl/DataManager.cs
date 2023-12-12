@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using GameControl;
 using UnityEngine;
 
 namespace ManagerControl
@@ -10,10 +11,11 @@ namespace ManagerControl
         public byte[] survivedWave = { 0, 0, 0, 0 };
     }
 
-    public static class DataManager
+    public abstract class DataManager
     {
+        public static int Xp { get; set; }
         public static SurvivedWave SurvivedWaves { get; private set; }
-
+        public static bool _isGameOver { get; private set; }
         private static string _path;
         private static byte _difficultyLevel;
         private static byte _lastSurvivedWave;
@@ -22,7 +24,9 @@ namespace ManagerControl
 
         public static void Init()
         {
+            _isGameOver = false;
             _path = Application.persistentDataPath + Filename;
+            _difficultyLevel = 0;
 
             SurvivedWaves = new SurvivedWave();
             LoadData();
@@ -53,8 +57,18 @@ namespace ManagerControl
 
         public static void SaveLastSurvivedWave()
         {
+            if (_isGameOver) return;
+            _isGameOver = true;
             if (_lastSurvivedWave < SurvivedWaves.survivedWave[_difficultyLevel - 1])
+            {
                 SaveData();
+            }
+
+            var prevXp = PlayerPrefs.GetInt(StringManager.Xp);
+            var xp = SurvivedWaves.survivedWave[_difficultyLevel - 1] *
+                (SurvivedWaves.survivedWave[_difficultyLevel - 1] + 1) * _difficultyLevel / 2;
+            PlayerPrefs.SetInt(StringManager.Xp, prevXp + xp);
+            Xp = PlayerPrefs.GetInt(StringManager.Xp);
         }
 
         public static void UpdateSurvivedWave(byte wave)

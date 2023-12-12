@@ -26,6 +26,7 @@ namespace UIControl
         [SerializeField] private GameObject healthImage;
         [SerializeField] private Image damageImage;
         [SerializeField] private Image delayImage;
+        [SerializeField] private GameObject towerStatusPanel;
 
         private void Awake()
         {
@@ -50,20 +51,29 @@ namespace UIControl
                 towerDescriptionText.text = uiManager.towerInfoDic[towerData.TowerType];
 
                 healthImage.SetActive(towerData.IsUnitTower);
-                if (towerData.IsUnitTower)
+
+                if (towerData is BattleTowerData battleTowerData)
                 {
-                    var unitTowerData = (UnitTowerData)towerData;
-                    healthText.text = CachedNumber.GetUIText(unitTowerData.UnitHealth);
-                    delayText.text = CachedNumber.GetUIText(unitTowerData.UnitReSpawnTime);
+                    towerStatusPanel.SetActive(true);
+                    if (battleTowerData.IsUnitTower)
+                    {
+                        var unitTowerData = (UnitTowerData)battleTowerData;
+                        healthText.text = CachedNumber.GetUIText(unitTowerData.UnitHealth);
+                        delayText.text = CachedNumber.GetUIText(unitTowerData.UnitReSpawnTime);
+                    }
+                    else
+                    {
+                        delayText.text = CachedNumber.GetUIText(battleTowerData.AttackRpm);
+                    }
+
+                    damageImage.sprite = uiManager.GetTowerType(_towerData);
+                    delayImage.sprite = uiManager.IsUnitTower(battleTowerData);
+                    damageText.text = CachedNumber.GetUIText(battleTowerData.BaseDamage);
                 }
                 else
                 {
-                    delayText.text = CachedNumber.GetUIText(towerData.AttackRpm);
+                    towerStatusPanel.SetActive(false);
                 }
-
-                damageImage.sprite = uiManager.GetTowerType(_towerData);
-                delayImage.sprite = uiManager.IsUnitTower(towerData);
-                damageText.text = CachedNumber.GetUIText(towerData.BaseDamage);
             }
 
             _openCardSequence.Restart();
@@ -81,6 +91,7 @@ namespace UIControl
 
         public void LocaleCardInfo()
         {
+            if (_towerData == null) return;
             var uiManager = UIManager.Instance;
             towerNameText.text = uiManager.towerNameDic[_towerData.TowerType];
             towerDescriptionText.text = uiManager.towerInfoDic[_towerData.TowerType];

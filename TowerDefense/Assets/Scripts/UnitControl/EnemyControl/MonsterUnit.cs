@@ -5,6 +5,7 @@ using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DataControl;
 using DG.Tweening;
+using GameControl;
 using InterfaceControl;
 using StatusControl;
 using UnityEngine;
@@ -28,9 +29,8 @@ namespace UnitControl.EnemyControl
         private LayerMask _targetLayer;
         private UnitState _unitState;
         private Vector3 _prevPos;
-
-        private bool _isAttacking;
-        private float _atkDelay;
+        private Cooldown _attackCooldown;
+        private Cooldown _patrolCooldown;
 
         protected Collider[] targetCollider;
         protected int damage;
@@ -80,11 +80,18 @@ namespace UnitControl.EnemyControl
             }
         }
 
+        private void OnEnable()
+        {
+            _navMeshAgent.enabled = true;
+        }
+
         protected virtual void OnDisable()
         {
+            _navMeshAgent.baseOffset = 0;
+            _navMeshAgent.enabled = false;
+            _thisCollider.enabled = false;
             OnDisableEvent?.Invoke();
             OnDisableEvent = null;
-            _navMeshAgent.baseOffset = 0;
         }
 
         private void OnDestroy()
@@ -103,34 +110,72 @@ namespace UnitControl.EnemyControl
 
         #endregion
 
-        #region Unit Update
+        #region Init
 
-        public void EnemyTargeting()
+        public void Init()
         {
-            if (!_navMeshAgent.enabled) return;
-            if (_health.IsDead) return;
-            Patrol();
+            _thisCollider.enabled = true;
+            _target = null;
+            _health.OnDeadEvent += Dead;
+            _anim.enabled = true;
+            _patrolCooldown.cooldownTime = 0.5f;
         }
 
-        public void UnitUpdate(CancellationTokenSource cts)
+        public void SpawnInit(MonsterData monsterData)
+        {
+            _prevPos = transform.position;
+            _unitState = UnitState.Patrol;
+            _navMeshAgent.speed = monsterData.Speed;
+            SetSpeed(_navMeshAgent.speed, _attackCooldown.cooldownTime);
+            _attackCooldown.cooldownTime = monsterData.AttackDelay;
+            damage = monsterData.Damage;
+            if (_navMeshAgent.isOnNavMesh) _navMeshAgent.SetDestination(Vector3.zero);
+            _anim.SetBool(IsWalk, true);
+            SetBaseOffset().Forget();
+        }
+
+        private async UniTaskVoid SetBaseOffset()
+        {
+            if (baseOffset == 0) return;
+            var lerp = 0f;
+            while (_navMeshAgent.baseOffset < baseOffset)
+            {
+                await UniTask.Delay(10);
+                lerp += Time.deltaTime;
+                var offset = Mathf.Lerp(0, baseOffset, lerp);
+                _navMeshAgent.baseOffset = offset;
+            }
+        }
+
+        #endregion
+
+        #region Unit Update
+
+        public void MonsterUpdate()
         {
             if (!_navMeshAgent.enabled) return;
             if (_health.IsDead) return;
             switch (_unitState)
             {
+                case UnitState.Patrol:
+                    Patrol();
+                    break;
                 case UnitState.Chase:
                     Chase();
                     break;
                 case UnitState.Attack:
-                    Attack(cts).Forget();
+                    Attack();
                     break;
             }
 
             _anim.SetBool(IsWalk, _navMeshAgent.velocity != Vector3.zero);
         }
 
+        #region Monster State
+
         private void Patrol()
         {
+            if (_patrolCooldown.IsCoolingDown) return;
             var size = Physics.OverlapSphereNonAlloc(transform.position, sightRange, targetCollider, _targetLayer);
             if (size <= 0)
             {
@@ -144,6 +189,7 @@ namespace UnitControl.EnemyControl
 
             _target = targetCollider[0];
             _unitState = UnitState.Chase;
+            _patrolCooldown.StartCooldown();
         }
 
         private void Chase()
@@ -162,10 +208,17 @@ namespace UnitControl.EnemyControl
             }
         }
 
-        private async UniTaskVoid Attack(CancellationTokenSource cts)
+        private void Attack()
         {
-            if (_isAttacking) return;
-            _isAttacking = true;
+            if (!_target || !_target.enabled ||
+                Vector3.Distance(_target.transform.position, transform.position) > atkRange)
+            {
+                _unitState = UnitState.Patrol;
+                return;
+            }
+
+            if (_attackCooldown.IsCoolingDown) return;
+
             var t = transform;
             var targetRot = Quaternion.LookRotation(_target.transform.position - t.position);
             targetRot.eulerAngles = new Vector3(0, targetRot.eulerAngles.y, targetRot.eulerAngles.z);
@@ -173,14 +226,8 @@ namespace UnitControl.EnemyControl
 
             _anim.SetTrigger(IsAttack);
             TryDamage();
-            await UniTask.Delay(TimeSpan.FromSeconds(_atkDelay), cancellationToken: cts.Token);
-            _isAttacking = false;
 
-            if (!_target || !_target.enabled ||
-                Vector3.Distance(_target.transform.position, transform.position) > atkRange)
-            {
-                _unitState = UnitState.Patrol;
-            }
+            _attackCooldown.StartCooldown();
         }
 
         protected virtual void TryDamage()
@@ -188,6 +235,8 @@ namespace UnitControl.EnemyControl
             if (_target.enabled && _target.TryGetComponent(out IDamageable damageable))
                 damageable.Damage(damage);
         }
+
+        #endregion
 
         private void Dead()
         {
@@ -197,48 +246,13 @@ namespace UnitControl.EnemyControl
             _deadSequence.Restart();
         }
 
-        public void Init()
-        {
-            _thisCollider.enabled = true;
-            _target = null;
-            _isAttacking = false;
-            _health.OnDeadEvent += Dead;
-            _navMeshAgent.enabled = true;
-            _anim.enabled = true;
-        }
-
         #endregion
 
         public void SetSpeed(float animSpeed, float atkDelay)
         {
             _navMeshAgent.speed = animSpeed;
             _anim.speed = animSpeed;
-            _atkDelay = atkDelay;
-        }
-
-        public void SpawnInit(MonsterData monsterData)
-        {
-            _prevPos = transform.position;
-            _unitState = UnitState.Patrol;
-            _navMeshAgent.speed = monsterData.Speed;
-            SetSpeed(_navMeshAgent.speed, _atkDelay);
-            _atkDelay = monsterData.AttackDelay;
-            damage = monsterData.Damage;
-            if (_navMeshAgent.isOnNavMesh) _navMeshAgent.SetDestination(Vector3.zero);
-            _anim.SetBool(IsWalk, true);
-            SetBaseOffset().Forget();
-        }
-
-        private async UniTaskVoid SetBaseOffset()
-        {
-            var lerp = 0f;
-            while (_navMeshAgent.baseOffset < baseOffset)
-            {
-                await UniTask.Delay(10);
-                lerp += Time.deltaTime;
-                var offset = Mathf.Lerp(0, baseOffset, lerp);
-                _navMeshAgent.baseOffset = offset;
-            }
+            _attackCooldown.cooldownTime = atkDelay;
         }
 
         public async UniTaskVoid IfStuck(CancellationTokenSource cts)

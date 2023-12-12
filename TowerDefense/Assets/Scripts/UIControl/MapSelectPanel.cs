@@ -1,11 +1,9 @@
-using System;
 using CustomEnumControl;
 using DG.Tweening;
 using ManagerControl;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace UIControl
@@ -27,8 +25,10 @@ namespace UIControl
         private void Start()
         {
             _eventSystem = EventSystem.current;
+            _eventSystem.enabled = false;
+
             deleteWaveDataPanel.enabled = false;
-            transform.DOScale(1, 0.5f).From(0.3f).SetEase(Ease.OutBack);
+            transform.DOScale(1, 0.5f).From(0.3f).SetEase(Ease.OutBack).OnComplete(() => _eventSystem.enabled = true);
             var difficultySelectButtons = transform.GetChild(0);
             for (var i = 0; i < difficultySelectButtons.childCount; i++)
             {
@@ -36,10 +36,10 @@ namespace UIControl
                 difficultySelectButtons.GetChild(i).GetComponent<Button>().onClick.AddListener(() =>
                 {
                     if (Input.touchCount > 1) return;
-                    _eventSystem.enabled = false;
                     SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
                     SoundManager.Instance.PlayBGM(SoundEnum.WaveEnd);
                     UIManager.Instance.MapSelectButton(index + 1).Forget();
+                    _eventSystem.enabled = false;
                     transform.DOScale(0, 0.5f).SetEase(Ease.InBack)
                         .OnComplete(() =>
                         {

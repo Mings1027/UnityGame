@@ -1,10 +1,10 @@
 using System;
 using System.Diagnostics;
-using System.Threading;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using EPOOutline;
+using GameControl;
 using InterfaceControl;
 using StatusControl;
 using TowerControl;
@@ -32,10 +32,9 @@ namespace UnitControl.TowerUnitControl
         private UnitState _unitState;
         private Vector3 _originPos;
 
+        private Cooldown _cooldown;
         private int _damage;
-        private float _atkDelay;
         private bool _moveInput;
-        private bool _isAttacking;
 
         private static readonly int IsWalk = Animator.StringToHash("isWalk");
         private static readonly int IsAttack = Animator.StringToHash("isAttack");
@@ -118,31 +117,29 @@ namespace UnitControl.TowerUnitControl
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(transform.position, atkRange);
+            var position = transform.position;
+            Gizmos.DrawWireSphere(position, atkRange);
             Gizmos.color = Color.cyan;
-            Gizmos.DrawWireSphere(transform.position, sightRange);
+            Gizmos.DrawWireSphere(position, sightRange);
         }
 
         #endregion
 
         #region Unit Update
 
-        public void UnitTargeting()
-        {
-            if (_health.IsDead) return;
-            Patrol();
-        }
-
-        public void UnitUpdate(CancellationTokenSource cts)
+        public void UnitUpdate()
         {
             if (_health.IsDead) return;
             switch (_unitState)
             {
+                case UnitState.Patrol:
+                    Patrol();
+                    break;
                 case UnitState.Chase:
                     Chase();
                     break;
                 case UnitState.Attack:
-                    Attack(cts).Forget();
+                    Attack();
                     break;
             }
 
@@ -183,27 +180,28 @@ namespace UnitControl.TowerUnitControl
             }
         }
 
-        private async UniTaskVoid Attack(CancellationTokenSource cts)
+        private void Attack()
         {
-            if (_isAttacking) return;
-            _isAttacking = true;
-            var t = transform;
-            var targetRot = Quaternion.LookRotation(_target.transform.position - t.position);
-            targetRot.eulerAngles = new Vector3(0, targetRot.eulerAngles.y, targetRot.eulerAngles.z);
-            t.rotation = targetRot;
-            
-            _anim.SetTrigger(IsAttack);
-            _audioSource.Play();
-            TryDamage();
-            await UniTask.Delay(TimeSpan.FromSeconds(_atkDelay), cancellationToken: cts.Token);
-            _isAttacking = false;
-
             if (!_target || !_target.enabled ||
                 Vector3.Distance(_target.transform.position, transform.position) > atkRange)
             {
                 _unitState = UnitState.Patrol;
                 _anim.enabled = false;
+                return;
             }
+
+            if (_cooldown.IsCoolingDown) return;
+
+            var t = transform;
+            var targetRot = Quaternion.LookRotation(_target.transform.position - t.position);
+            targetRot.eulerAngles = new Vector3(0, targetRot.eulerAngles.y, targetRot.eulerAngles.z);
+            t.rotation = targetRot;
+
+            _anim.SetTrigger(IsAttack);
+            _audioSource.Play();
+            TryDamage();
+
+            _cooldown.StartCooldown();
         }
 
         private void TryDamage()
@@ -228,7 +226,6 @@ namespace UnitControl.TowerUnitControl
         {
             _thisCollider.enabled = true;
             _target = null;
-            _isAttacking = false;
             _health.OnDeadEvent += Dead;
             _navMeshAgent.enabled = true;
             _anim.enabled = true;
@@ -236,7 +233,6 @@ namespace UnitControl.TowerUnitControl
 
         public void UnitTargetInit()
         {
-            _isAttacking = false;
             Move(_originPos);
             _unitState = UnitState.Patrol;
             _target = null;
@@ -273,7 +269,7 @@ namespace UnitControl.TowerUnitControl
         {
             _damage = damage;
             _health.Init(healthAmount);
-            _atkDelay = attackDelayData;
+            _cooldown.cooldownTime = attackDelayData;
         }
 
         #endregion

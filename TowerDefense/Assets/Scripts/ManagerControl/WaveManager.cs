@@ -10,10 +10,8 @@ using StatusControl;
 using TextControl;
 using UIControl;
 using UnitControl.EnemyControl;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 namespace ManagerControl
@@ -34,7 +32,6 @@ namespace ManagerControl
         private bool _isEndless;
         private bool _isBossWave;
         private byte _themeIndex;
-        // private sbyte _bossIndex; // Increase After Boss Wave
 
         private CancellationTokenSource _cts;
         private List<MonsterUnit> _monsterList;
@@ -44,7 +41,6 @@ namespace ManagerControl
         public event Action OnBossWaveEvent;
         public static byte curWave { get; private set; }
 
-        [SerializeField] private byte lastWave;
         [SerializeField] private Wave[] monsterData;
 
         #region Unity Event
@@ -67,6 +63,15 @@ namespace ManagerControl
             _cts = new CancellationTokenSource();
         }
 
+        // private void Update()
+        // {
+        //     var enemyCount = _monsterList.Count;
+        //     for (var i = enemyCount - 1; i >= 0; i--)
+        //     {
+        //         _monsterList[i].MonsterUpdate();
+        //     }
+        // }
+
         private void OnDisable()
         {
             _cts?.Cancel();
@@ -75,11 +80,11 @@ namespace ManagerControl
 
         #endregion
 
-        public void WaveInitTest()
+        public void WaveInit()
         {
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
-            
+
             PoolObjectManager.PoolCleaner().Forget();
             if (_isBossWave)
             {
@@ -97,6 +102,7 @@ namespace ManagerControl
 
         public void WaveStart(Vector3[] wayPoints, bool isEndless)
         {
+            enabled = true;
             _wayPoints = wayPoints;
             _startWave = true;
             _isEndless = isEndless;
@@ -107,65 +113,48 @@ namespace ManagerControl
         {
             _towerManager.StartTargeting();
             UIManager.Instance.WaveText.text = curWave.ToString();
-            SpawnEnemyTest(_wayPoints).Forget();
+            SpawnEnemy(_wayPoints).Forget();
             if (_isBossWave)
             {
-                SpawnBossTest(_wayPoints[Random.Range(0, _wayPoints.Length)]).Forget();
+                SpawnBoss(_wayPoints[Random.Range(0, _wayPoints.Length)]).Forget();
             }
 
-            MonsterTargeting().Forget();
             MonsterUpdate().Forget();
-            CheckStuck().Forget();
+            // CheckStuck().Forget();
         }
 
         private void WaveStop()
         {
-            _cts?.Cancel();
-            _monsterList.Clear();
+            if (gameObject == null) return;
+            enabled = false;
         }
 
         #region Enemy Spawn
 
-        private async UniTaskVoid SpawnEnemyTest(Vector3[] wayPoints)
+        private async UniTaskVoid SpawnEnemy(Vector3[] wayPoints)
         {
             var normalMonsterDataLength = monsterData[_themeIndex].normalMonsterData.Length;
-            for (int i = 0; i < normalMonsterDataLength; i++)
+            for (var i = 0; i < normalMonsterDataLength; i++)
             {
                 await UniTask.Delay(500, cancellationToken: _cts.Token);
                 var normalMonsterData = monsterData[_themeIndex].normalMonsterData[i];
                 if (normalMonsterData.StartSpawnWave > curWave) continue;
-                if (normalMonsterData.IsTransformingMonster)
+                var wayPointCount = wayPoints.Length;
+                for (var j = 0; j < wayPointCount; j++)
                 {
-                    var spawnCount = Random.Range(1, 5);
-                    for (int j = 0; j < spawnCount; j++)
-                    {
-                        var ranWayPoint = Random.Range(0, wayPoints.Length);
-                        var ranPoint = wayPoints[ranWayPoint] + Random.insideUnitSphere * 3;
-                        NavMesh.SamplePosition(ranPoint, out var hit, 5, NavMesh.AllAreas);
-                        var monster =
-                            PoolObjectManager.Get<MonsterUnit>(normalMonsterData.MonsterPoolObjectKey, hit.position);
-                        MonsterInit(monster, normalMonsterData);
-                    }
-                }
-                else
-                {
-                    var wayPointCount = wayPoints.Length;
-                    for (int j = 0; j < wayPointCount; j++)
-                    {
-                        var ranPoint = wayPoints[j] + Random.insideUnitSphere * 3;
-                        NavMesh.SamplePosition(ranPoint, out var hit, 5, NavMesh.AllAreas);
-                        var monster =
-                            PoolObjectManager.Get<MonsterUnit>(normalMonsterData.MonsterPoolObjectKey, hit.position);
-                        MonsterInit(monster, normalMonsterData);
-                    }
+                    var ranPoint = wayPoints[j] + Random.insideUnitSphere * 3;
+                    NavMesh.SamplePosition(ranPoint, out var hit, 5, NavMesh.AllAreas);
+                    var monster =
+                        PoolObjectManager.Get<MonsterUnit>(normalMonsterData.MonsterPoolObjectKey, hit.position);
+                    MonsterInit(monster, normalMonsterData);
                 }
             }
         }
 
-        private async UniTaskVoid SpawnBossTest(Vector3 ranWayPoint)
+        private async UniTaskVoid SpawnBoss(Vector3 ranWayPoint)
         {
             OnBossWaveEvent?.Invoke();
-            UIManager.Instance.UpgradeTowerData();
+            // UIManager.Instance.UpgradeTowerData();
             await UniTask.Delay(2000, cancellationToken: _cts.Token);
             var ranPoint = ranWayPoint + Random.insideUnitSphere * 3;
             NavMesh.SamplePosition(ranPoint, out var hit, 5, NavMesh.AllAreas);
@@ -185,11 +174,11 @@ namespace ManagerControl
                 monsterUnit.healthBarTransform.position);
             healthBar.Init(monsterUnit.GetComponent<Progressive>());
 
-            var enemyHealth = monsterUnit.GetComponent<UnitHealth>();
-            enemyHealth.Init(normalMonsterData.Health);
+            var monsterHealth = monsterUnit.GetComponent<UnitHealth>();
+            monsterHealth.Init(normalMonsterData.Health);
             var statusUI = StatusBarUIController.Instance;
             statusUI.Add(healthBar, monsterUnit.healthBarTransform);
-            enemyHealth.OnDeadEvent += () =>
+            monsterHealth.OnDeadEvent += () =>
             {
                 var coin = normalMonsterData.StartSpawnWave;
                 PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, monsterUnit.transform.position)
@@ -206,7 +195,7 @@ namespace ManagerControl
             monsterUnit.OnDisableEvent += () =>
             {
                 DecreaseEnemyCount(monsterUnit);
-                if (enemyHealth.IsDead) return;
+                if (monsterHealth.IsDead) return;
                 statusUI.Remove(monsterUnit.healthBarTransform, true);
             };
         }
@@ -228,8 +217,7 @@ namespace ManagerControl
             statusUI.Add(healthBar, monsterUnit.healthBarTransform);
             monsterHealth.OnDeadEvent += () =>
             {
-                var coin = (ushort)(monsterData[_themeIndex].bossMonsterData.DroppedGold +
-                                    bossMonsterData.DroppedGold);
+                var coin = bossMonsterData.DroppedGold;
                 PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, monsterUnit.transform.position)
                     .SetCostText(coin);
                 UIManager.Instance.TowerCost += coin;
@@ -247,42 +235,16 @@ namespace ManagerControl
 
         #region Enemy Update Loop
 
-        private async UniTaskVoid MonsterTargeting()
-        {
-            while (!_cts.IsCancellationRequested)
-            {
-                await UniTask.Delay(500, cancellationToken: _cts.Token);
-                var enemyCount = _monsterList.Count;
-                for (var i = enemyCount - 1; i >= 0; i--)
-                {
-                    _monsterList[i].EnemyTargeting();
-                }
-            }
-        }
-
         private async UniTaskVoid MonsterUpdate()
         {
             while (!_cts.IsCancellationRequested)
             {
-                await UniTask.Delay(250, cancellationToken: _cts.Token);
-                var enemyCount = _monsterList.Count;
-                for (var i = enemyCount - 1; i >= 0; i--)
-                {
-                    _monsterList[i].UnitUpdate(_cts);
-                }
-            }
-        }
-
-        private async UniTaskVoid CheckStuck()
-        {
-            while (!_cts.IsCancellationRequested)
-            {
-                await UniTask.Delay(5000, cancellationToken: _cts.Token);
+                await UniTask.Delay(10, cancellationToken: _cts.Token);
 
                 var leftEnemyCount = _monsterList.Count;
                 for (var i = leftEnemyCount - 1; i >= 0; i--)
                 {
-                    _monsterList[i].IfStuck(_cts).Forget();
+                    _monsterList[i].MonsterUpdate();
                 }
             }
         }
@@ -294,7 +256,7 @@ namespace ManagerControl
             var ranPosition = pos + Random.insideUnitSphere * 2;
             NavMesh.SamplePosition(ranPosition, out var hit, 5, NavMesh.AllAreas);
             PoolObjectManager.Get(PoolObjectKey.TransformSmoke, hit.position);
-            for (int i = 0; i < transformMonster.SpawnCount; i++)
+            for (var i = 0; i < transformMonster.SpawnCount; i++)
             {
                 var monster =
                     PoolObjectManager.Get<MonsterUnit>(transformMonster.TransformMonsterData.MonsterPoolObjectKey,
@@ -308,6 +270,7 @@ namespace ManagerControl
             if (!_startWave) return;
             _monsterList.Remove(monsterUnit);
             if (_monsterList.Count > 0) return;
+            if (DataManager._isGameOver) return;
             WaveStop();
             _towerManager.StopTargeting();
             DataManager.UpdateSurvivedWave(curWave);
@@ -322,7 +285,7 @@ namespace ManagerControl
         {
             if (_isEndless)
             {
-                WaveInitTest();
+                WaveInit();
                 StartWave();
             }
             else

@@ -1,18 +1,17 @@
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using DG.Tweening;
-using PoolObjectControl;
 using TowerControl;
+using UIControl;
 using UnityEngine;
 
 namespace ManagerControl
 {
     public class TowerManager : MonoBehaviour
     {
-        private CancellationTokenSource _cts;
         private List<Tower> _towers;
         private UnitTower _unitTower;
+        private CancellationTokenSource _cts;
 
         #region Unity Event
 
@@ -21,12 +20,14 @@ namespace ManagerControl
             _towers = new List<Tower>(50);
         }
 
-        private void OnDisable()
-        {
-            if (_cts.IsCancellationRequested) return;
-            _cts?.Cancel();
-            _cts?.Dispose();
-        }
+        // private void Update()
+        // {
+        //     var towerCount = _towers.Count;
+        //     for (var i = 0; i < towerCount; i++)
+        //     {
+        //         _towers[i].TowerUpdate();
+        //     }
+        // }
 
         private void OnApplicationPause(bool pauseStatus)
         {
@@ -39,52 +40,21 @@ namespace ManagerControl
 
         public void StartTargeting()
         {
+            enabled = true;
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
             Application.targetFrameRate = 60;
-            TowerTargeting().Forget();
+            UIManager.Instance.Mana.StartManaRegen();
             TowerUpdate().Forget();
         }
 
         public void StopTargeting()
         {
-            if (!_cts.IsCancellationRequested)
-            {
-                _cts?.Cancel();
-                _cts?.Dispose();
-            }
-
+            enabled = false;
+            _cts?.Cancel();
+            _cts?.Dispose();
             TargetInit();
-        }
-
-        private async UniTaskVoid TowerTargeting()
-        {
-            while (!_cts.IsCancellationRequested)
-            {
-                await UniTask.Delay(100, cancellationToken: _cts.Token);
-                if (Time.timeScale == 0) continue;
-
-                var towerCount = _towers.Count;
-                for (var i = 0; i < towerCount; i++)
-                {
-                    _towers[i].TowerTargeting();
-                }
-            }
-        }
-
-        private async UniTaskVoid TowerUpdate()
-        {
-            while (!_cts.IsCancellationRequested)
-            {
-                await UniTask.Delay(10, cancellationToken: _cts.Token);
-                if (Time.timeScale == 0) continue;
-
-                var towerCount = _towers.Count;
-                for (var i = 0; i < towerCount; i++)
-                {
-                    _towers[i].TowerUpdate(_cts);
-                }
-            }
+            UIManager.Instance.Mana.StopManaRegen();
         }
 
         private void TargetInit()
@@ -97,6 +67,19 @@ namespace ManagerControl
         }
 
         #endregion
+
+        private async UniTaskVoid TowerUpdate()
+        {
+            while (!_cts.IsCancellationRequested)
+            {
+                await UniTask.Delay(10);
+                var towerCount = _towers.Count;
+                for (var i = 0; i < towerCount; i++)
+                {
+                    _towers[i].TowerUpdate();
+                }
+            }
+        }
 
         #region Public Method
 

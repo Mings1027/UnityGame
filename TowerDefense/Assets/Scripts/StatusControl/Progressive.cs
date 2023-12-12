@@ -11,7 +11,7 @@ namespace StatusControl
         public float Current
         {
             get => _current;
-            set
+            protected set
             {
                 _current = value;
                 OnUpdateBarEvent?.Invoke();
@@ -19,7 +19,7 @@ namespace StatusControl
         }
 
         protected float Initial { get; private set; }
-
+        protected bool IsFull => _current >= Initial;
         public float Ratio => _current / Initial;
 
         public event Action OnUpdateBarEvent;
@@ -34,7 +34,7 @@ namespace StatusControl
             OnUpdateBarEvent = null;
         }
 
-        public void Init(float amount)
+        public virtual void Init(float amount)
         {
             Initial = amount;
             Current = amount;

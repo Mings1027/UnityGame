@@ -6,6 +6,7 @@ using DG.Tweening;
 using InterfaceControl;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.Serialization;
 
 namespace ProjectileControl
 {
@@ -104,7 +105,7 @@ namespace ProjectileControl
             target = t;
         }
 
-        public virtual void ColorInit(sbyte effectIndex)
+        public void ColorInit(sbyte effectIndex)
         {
             var trailColor = _trailParticle.main;
             trailColor.startColor = towerData.ProjectileColor[effectIndex];

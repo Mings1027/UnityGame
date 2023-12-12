@@ -144,9 +144,9 @@ namespace TowerControl
 
             _isReSpawning = false;
 
-            if (_isUnitSpawn) return;
+            if (_isUnitSpawn || _isReSpawning) return;
             UnitSpawn();
-            UnitUpgrade(Damage, AttackDelay);
+            UnitUpgrade(Damage, cooldown.cooldownTime);
         }
 
         private void ActiveUnitIndicator()
@@ -184,21 +184,12 @@ namespace TowerControl
             UnitMove(_unitCenterPosition);
         }
 
-        public override void TowerTargeting()
+        public override void TowerUpdate()
         {
             var count = _units.Count - 1;
-            for (int i = count; i >= 0; i--)
+            for (var i = count; i >= 0; i--)
             {
-                _units[i].UnitTargeting();
-            }
-        }
-
-        public override void TowerUpdate(CancellationTokenSource cts)
-        {
-            var count = _units.Count - 1;
-            for (int i = count; i >= 0; i--)
-            {
-                _units[i].UnitUpdate(cts);
+                _units[i].UnitUpdate();
             }
         }
 
@@ -212,7 +203,7 @@ namespace TowerControl
                 UnitSpawn();
             }
 
-            UnitUpgrade(damageData, AttackDelay);
+            UnitUpgrade(damageData, cooldown.cooldownTime);
         }
 
         #endregion

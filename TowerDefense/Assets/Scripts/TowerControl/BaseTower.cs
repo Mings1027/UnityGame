@@ -8,8 +8,9 @@ namespace TowerControl
     {
         private void OnTriggerEnter(Collider other)
         {
-            other.TryGetComponent(out MonsterUnit monsterUnit);
-            UIManager.Instance.BaseTowerHealth.Damage(monsterUnit is BossUnit ? 5 : 1);
+            other.TryGetComponent(out MonsterStatus monsterStatus);
+            var damage = monsterStatus.BastTowerDamage;
+            UIManager.Instance.BaseTowerHealth.Damage(damage);
             other.gameObject.SetActive(false);
         }
     }

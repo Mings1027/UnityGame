@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
-using DG.Tweening;
 using ManagerControl;
 using PoolObjectControl;
 using UnityEngine;
@@ -54,6 +53,7 @@ namespace MapControl
 
         [SerializeField] private NavMeshSurface navMeshSurface;
         [SerializeField] private NavMeshSurface bossNavMeshSurface;
+        [SerializeField] private NavMeshSurface ramNavMeshSurface;
         [SerializeField] private byte mapSize;
         [SerializeField] private GameObject[] mapPrefabs;
         [SerializeField] private GameObject portalGate;
@@ -198,6 +198,7 @@ namespace MapControl
             PlaceObstacle();
             _map.Add(_newMapObject.gameObject);
             navMeshSurface.BuildNavMesh();
+            ramNavMeshSurface.BuildNavMesh();
         }
 
         private string SortMapIndex()
@@ -428,11 +429,11 @@ namespace MapControl
 
         private async UniTaskVoid SetMap()
         {
-            await _newMapObject.transform.DOScale(1, 0.25f).From(0).WithCancellation(_cts.Token);
             CombineMesh();
             // CombineObstacleMesh();
             navMeshSurface.BuildNavMesh();
-            _waveManager.WaveInitTest();
+            ramNavMeshSurface.BuildNavMesh();
+            _waveManager.WaveInit();
             await UniTask.Delay(500, cancellationToken: _cts.Token);
             var wayPoints = _wayPointsHashSet.ToArray();
             _waveManager.WaveStart(wayPoints, _expandBtnPosHashSet.Count == 0);

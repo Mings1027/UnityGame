@@ -39,7 +39,7 @@ namespace ManagerControl
                 handle.Completed += obj => _gameObjects.Add(obj.Result);
             }
 
-            await UniTask.Delay(100);
+            await UniTask.Delay(2000);
             Destroy(GameObject.Find("Plane"));
         }
 

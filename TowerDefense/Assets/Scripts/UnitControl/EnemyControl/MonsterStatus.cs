@@ -13,7 +13,8 @@ namespace UnitControl.EnemyControl
         private bool _isSlowed;
         private float _defaultSpeed;
         private float _defaultAtkDelay;
-
+        public byte BastTowerDamage => baseTowerDamage;
+        [SerializeField] private byte baseTowerDamage;
         private void Awake()
         {
             _monsterUnit = GetComponent<MonsterUnit>();

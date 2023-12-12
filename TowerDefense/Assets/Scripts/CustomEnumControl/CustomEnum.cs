@@ -8,6 +8,7 @@ namespace CustomEnumControl
         Wizard,
         Defender,
         Laser,
+        Mana,
         None
     }
 
@@ -101,7 +102,6 @@ namespace CustomEnumControl
         Vampire,
         JackOLantern,
         Werewolf,
-        
         
         Santa,
         Reindeer,

@@ -170,6 +170,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 48c9c55c88dfd492a8e9a32b5b0725a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  baseTowerDamage: 3
 --- !u!114 &4895844008966537235
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -210,7 +211,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e20ceb7a187cd44c0aa1145199dc6df5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  monsterPoolObjectKey: 0
   transformMonsterData: {fileID: 11400000, guid: 43c5b91bcda474b7cbe26801044b0a4f,
     type: 2}
   spawnCount: 3
@@ -235,11 +235,11 @@ NavMeshAgent:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8605942268721785234}
   m_Enabled: 1
-  m_AgentTypeID: 0
-  m_Radius: 0.3
+  m_AgentTypeID: -334000983
+  m_Radius: 0.5
   m_Speed: 2
   m_Acceleration: 100
-  avoidancePriority: 50
+  avoidancePriority: 49
   m_AngularSpeed: 720
   m_StoppingDistance: 1
   m_AutoTraverseOffMeshLink: 1
@@ -248,7 +248,7 @@ NavMeshAgent:
   m_Height: 0.5
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 1
+  m_ObstacleAvoidanceType: 0
 --- !u!1 &9109041283268242763
 GameObject:
   m_ObjectHideFlags: 0

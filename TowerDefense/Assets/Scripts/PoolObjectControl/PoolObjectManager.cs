@@ -35,15 +35,15 @@ namespace PoolObjectControl
     }
 
     [Serializable]
-    public class EnemyPool : IComparable<EnemyPool>
+    public class MonsterPool : IComparable<MonsterPool>
     {
         [FormerlySerializedAs("enemyPoolObjKey")]
         public MonsterPoolObjectKey monsterPoolObjKey;
 
-        public GameObject enemyPrefab;
+        [FormerlySerializedAs("enemyPrefab")] public GameObject monsterPrefab;
         public byte initSize;
 
-        public int CompareTo(EnemyPool other)
+        public int CompareTo(MonsterPool other)
         {
             return string.CompareOrdinal(monsterPoolObjKey.ToString(), other.monsterPoolObjKey.ToString());
         }
@@ -58,13 +58,13 @@ namespace PoolObjectControl
         private Dictionary<UIPoolObjectKey, Stack<GameObject>> _uiPrefabDictionary;
         private Dictionary<UIPoolObjectKey, UIPool> _uiPoolDictionary;
         private Dictionary<MonsterPoolObjectKey, Stack<GameObject>> _monsterPrefabDictionary;
-        private Dictionary<MonsterPoolObjectKey, EnemyPool> _monsterPoolDictionary;
+        private Dictionary<MonsterPoolObjectKey, MonsterPool> _monsterPoolDictionary;
 
         [SerializeField] private Transform canvas;
         [SerializeField] private byte poolMaxSize;
         [SerializeField] private Pool[] pools;
         [SerializeField] private UIPool[] uiPools;
-        [SerializeField] private EnemyPool[] enemyPools;
+        [FormerlySerializedAs("enemyPools")] [SerializeField] private MonsterPool[] monsterPools;
 
         private void Start()
         {
@@ -75,7 +75,7 @@ namespace PoolObjectControl
             _uiPrefabDictionary = new Dictionary<UIPoolObjectKey, Stack<GameObject>>();
             _uiPoolDictionary = new Dictionary<UIPoolObjectKey, UIPool>();
             _monsterPrefabDictionary = new Dictionary<MonsterPoolObjectKey, Stack<GameObject>>();
-            _monsterPoolDictionary = new Dictionary<MonsterPoolObjectKey, EnemyPool>();
+            _monsterPoolDictionary = new Dictionary<MonsterPoolObjectKey, MonsterPool>();
             PoolInit();
             // MatchPoolKeyToPrefabKey();
 #if UNITY_EDITOR
@@ -99,9 +99,9 @@ namespace PoolObjectControl
                 t.uiPrefab.GetComponent<UIPoolObject>().UIPoolObjKey = t.uiPoolObjectKey;
             }
 
-            foreach (var t in enemyPools)
+            foreach (var t in monsterPools)
             {
-                t.enemyPrefab.GetComponent<MonsterPoolObject>().MonsterPoolObjKey =
+                t.monsterPrefab.GetComponent<MonsterPoolObject>().MonsterPoolObjKey =
                     t.monsterPoolObjKey;
             }
         }
@@ -134,16 +134,16 @@ namespace PoolObjectControl
                 }
             }
 
-            foreach (var t in enemyPools)
+            foreach (var t in monsterPools)
             {
                 _monsterPoolDictionary.Add(t.monsterPoolObjKey, t);
-                t.enemyPrefab.GetComponent<MonsterPoolObject>().MonsterPoolObjKey = t.monsterPoolObjKey;
+                t.monsterPrefab.GetComponent<MonsterPoolObject>().MonsterPoolObjKey = t.monsterPoolObjKey;
 
-                if (t.enemyPrefab == null) throw new Exception($"{t.monsterPoolObjKey} doesn't exist");
+                if (t.monsterPrefab == null) throw new Exception($"{t.monsterPoolObjKey} doesn't exist");
                 _monsterPrefabDictionary.Add(t.monsterPoolObjKey, new Stack<GameObject>());
                 for (var j = 0; j < t.initSize; j++)
                 {
-                    CreateEnemyObject(t.monsterPoolObjKey, t.enemyPrefab);
+                    CreateMonsterObject(t.monsterPoolObjKey, t.monsterPrefab);
                 }
             }
         }
@@ -335,20 +335,20 @@ namespace PoolObjectControl
             if (!_monsterPrefabDictionary.ContainsKey(monsterPoolObjectKey))
                 throw new Exception($"Pool with tag {monsterPoolObjectKey} doesn't exist.");
 #endif
-            var enemyPoolStack = _monsterPrefabDictionary[monsterPoolObjectKey];
-            if (enemyPoolStack.Count <= 0)
+            var monsterPoolStack = _monsterPrefabDictionary[monsterPoolObjectKey];
+            if (monsterPoolStack.Count <= 0)
             {
-                _monsterPoolDictionary.TryGetValue(monsterPoolObjectKey, out var enemyPool);
+                _monsterPoolDictionary.TryGetValue(monsterPoolObjectKey, out var monsterPool);
 #if UNITY_EDITOR
-                if (enemyPool == null) throw new Exception($"Pool with tag {monsterPoolObjectKey} doesn't exist.");
+                if (monsterPool == null) throw new Exception($"Pool with tag {monsterPoolObjectKey} doesn't exist.");
 #endif
-                CreateEnemyObject(monsterPoolObjectKey, enemyPool.enemyPrefab);
+                CreateMonsterObject(monsterPoolObjectKey, monsterPool.monsterPrefab);
             }
 
-            var enemyPoolObj = enemyPoolStack.Pop();
-            enemyPoolObj.transform.SetPositionAndRotation(position, rotation);
-            enemyPoolObj.SetActive(true);
-            return enemyPoolObj;
+            var monsterPoolObj = monsterPoolStack.Pop();
+            monsterPoolObj.transform.SetPositionAndRotation(position, rotation);
+            monsterPoolObj.SetActive(true);
+            return monsterPoolObj;
         }
 
         private void CreateNewObject(PoolObjectKey poolObjectKey, GameObject prefab)
@@ -371,12 +371,12 @@ namespace PoolObjectControl
             obj.SetActive(false);
         }
 
-        private void CreateEnemyObject(MonsterPoolObjectKey monsterPoolObjectKey, GameObject prefab)
+        private void CreateMonsterObject(MonsterPoolObjectKey monsterPoolObjectKey, GameObject prefab)
         {
             var obj = Instantiate(prefab, transform);
-            if (!obj.TryGetComponent(out MonsterPoolObject enemyPoolObject))
-                throw new Exception($"You have to attach EnemyPoolObject.cs in {prefab} prefab");
-            enemyPoolObject.MonsterPoolObjKey = monsterPoolObjectKey;
+            if (!obj.TryGetComponent(out MonsterPoolObject monsterPoolObject))
+                throw new Exception($"You have to attach MonsterPoolObject.cs in {prefab} prefab");
+            monsterPoolObject.MonsterPoolObjKey = monsterPoolObjectKey;
             obj.name = monsterPoolObjectKey.ToString();
             obj.SetActive(false);
         }

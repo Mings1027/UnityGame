@@ -1,4 +1,5 @@
 using CustomEnumControl;
+using DataControl;
 using GameControl;
 using ManagerControl;
 using TMPro;
@@ -33,6 +34,7 @@ namespace UIControl
         [SerializeField] private TextMeshProUGUI attackRangeText;
         [SerializeField] private TextMeshProUGUI rpmText;
         [SerializeField] private TextMeshProUGUI sellCostText;
+        [SerializeField] private GameObject statusInfoPanel;
 
         #region Unity Event
 
@@ -71,17 +73,26 @@ namespace UIControl
             _followTowerPos = towerPos;
         }
 
+        public void SetSupportInfoUI()
+        {
+            statusInfoPanel.SetActive(false);
+        }
+
         public void SetTowerInfo(Tower tower, bool isUnitTower, sbyte level, ushort upgradeCost, ushort sellCost)
         {
-            if (isUnitTower)
+            if (!statusInfoPanel.activeSelf) statusInfoPanel.SetActive(true);
+            if (tower.TowerData is BattleTowerData battleTowerData)
             {
-                var unitTower = (UnitTower)tower;
-                healthText.text = CachedNumber.GetUIText(unitTower.UnitHealth * (level + 1));
-                rpmText.text = CachedNumber.GetUIText(unitTower.UnitReSpawnTime);
-            }
-            else
-            {
-                rpmText.text = CachedNumber.GetUIText(tower.TowerData.AttackRpm);
+                if (isUnitTower)
+                {
+                    var unitTower = (UnitTower)tower;
+                    healthText.text = CachedNumber.GetUIText(unitTower.UnitHealth * (level + 1));
+                    rpmText.text = CachedNumber.GetUIText(unitTower.UnitReSpawnTime);
+                }
+                else
+                {
+                    rpmText.text = CachedNumber.GetUIText(battleTowerData.AttackRpm);
+                }
             }
 
             healthObj.SetActive(isUnitTower);
@@ -100,6 +111,19 @@ namespace UIControl
             costText.text = upgradeCost + "g";
             damageText.text = CachedNumber.GetUIText(tower.Damage);
             attackRangeText.text = CachedNumber.GetUIText(tower.TowerRange);
+            sellCostText.text = sellCost + "g";
+        }
+
+        public void SetSupportTowerInfo(SupportTower tower, ushort sellCost)
+        {
+            var towerType = tower.TowerType;
+            if (!towerType.Equals(_towerType))
+            {
+                _towerType = towerType;
+                var uiManager = UIManager.Instance;
+                towerNameText.text = uiManager.towerNameDic[towerType];
+            }
+
             sellCostText.text = sellCost + "g";
         }
 

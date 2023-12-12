@@ -1,9 +1,10 @@
 using System;
-using System.Threading;
 using DataControl;
 using EPOOutline;
+using GameControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 
 namespace TowerControl
 {
@@ -15,8 +16,7 @@ namespace TowerControl
         private bool _isBuilt;
 
         protected BoxCollider boxCollider;
-        protected float AttackDelay { get; private set; }
-
+        protected Cooldown cooldown;
         public event Action<Tower> OnClickTower;
         public byte TowerRange { get; private set; }
         public int Damage { get; private set; }
@@ -58,8 +58,7 @@ namespace TowerControl
 
         #region Abstract Function
 
-        public abstract void TowerTargeting();
-        public abstract void TowerUpdate(CancellationTokenSource cts);
+        public abstract void TowerUpdate();
         public abstract void TowerTargetInit();
 
         #endregion
@@ -94,7 +93,7 @@ namespace TowerControl
             _isBuilt = true;
             TowerRange = rangeData;
             Damage = damageData;
-            AttackDelay = 60 / (float)rpmData;
+            cooldown.cooldownTime = 60 / (float)rpmData;
             _meshFilter.sharedMesh = towerMesh.sharedMesh;
 
             ColliderSize();

@@ -8,9 +8,8 @@ namespace ProjectileControl
         private byte _decreaseSpeed;
         private byte _slowCoolTime;
 
-        public override void ColorInit(sbyte effectIndex)
+        public void DeBuffInit(sbyte effectIndex)
         {
-            base.ColorInit(effectIndex);
             _decreaseSpeed = (byte)Math.Pow(2, effectIndex + 1); //2 4 8
             _slowCoolTime = _decreaseSpeed;
         }

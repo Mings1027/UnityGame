@@ -25,7 +25,7 @@ namespace StatusControl
             OnDeadEvent?.Invoke();
         }
 
-        public void Heal(in float amount)
+        public virtual void Heal(in float amount)
         {
             if (IsDead) return;
             if (Current >= Initial) return;

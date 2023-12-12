@@ -1,19 +1,23 @@
-using System.Threading;
 using CustomEnumControl;
+using DataControl;
 using InterfaceControl;
-using StatusControl;
+using UIControl;
 using UnityEngine;
 
 namespace TowerControl
 {
     public class LaserTargetingTower : TargetingTower, IHit
     {
+        private UIManager _uiManager;
+        private float _attackMana;
         [SerializeField] private LineRenderer beam;
 
         protected override void Init()
         {
             base.Init();
-            // targetLayer = LayerMask.GetMask("FlyingMonster");
+            _uiManager = UIManager.Instance;
+            var manaTowerData = (ManaTowerData)TowerData;
+            _attackMana = manaTowerData.attackMana;
             firePos = transform.GetChild(2);
         }
 
@@ -24,24 +28,27 @@ namespace TowerControl
             attackSound.Stop();
         }
 
-        public override void TowerUpdate(CancellationTokenSource cts)
-        {
-            base.TowerUpdate(cts);
-            if (target)
-            {
-                beam.enabled = true;
-                beam.SetPosition(0, firePos.position);
-                beam.SetPosition(1, target.bounds.center);
-            }
-            else
-            {
-                beam.enabled = false;
-                if (attackSound.isPlaying) attackSound.Stop();
-            }
-        }
+        // public override void TowerUpdate()
+        // {
+        //     base.TowerUpdate();
+        //     if (target)
+        //     {
+        //         beam.enabled = true;
+        //         beam.SetPosition(0, firePos.position);
+        //         beam.SetPosition(1, target.bounds.center);
+        //     }
+        //     // else if (!target || _uiManager.Mana.Current < _attackMana)
+        //     // {
+        //     //     print(_uiManager.Mana.Current);
+        //     //     beam.enabled = false;
+        //     //     if (attackSound.isPlaying) attackSound.Stop();
+        //     // }
+        // }
 
         protected override void Patrol()
         {
+            beam.enabled = false;
+            if (attackSound.isPlaying) attackSound.Stop();
             var size = Physics.OverlapSphereNonAlloc(transform.position, TowerRange, targetColliders, targetLayer);
             if (size <= 0)
             {
@@ -50,15 +57,23 @@ namespace TowerControl
                 return;
             }
 
-            var health = 0f;
+            if (_uiManager.Mana.Current < _attackMana) return;
+
+            var shortestDistance = float.MaxValue;
             for (var i = 0; i < size; i++)
             {
-                var curHealth = targetColliders[i].GetComponent<Health>().Current;
-                if (health < curHealth)
+                var distanceToResult =
+                    Vector3.SqrMagnitude(transform.position - targetColliders[i].transform.position);
+                if (distanceToResult >= shortestDistance) continue;
+                shortestDistance = distanceToResult;
+
+                if (targetColliders[i].CompareTag("Flying Monster"))
                 {
-                    health = curHealth;
                     target = targetColliders[i];
+                    break;
                 }
+
+                target = targetColliders[i];
             }
 
             isTargeting = true;
@@ -67,7 +82,18 @@ namespace TowerControl
 
         protected override void Attack()
         {
+            if (_uiManager.Mana.Current < _attackMana)
+            {
+                towerState = TowerState.Patrol;
+                return;
+            }
+
+            beam.enabled = true;
+            beam.SetPosition(0, firePos.position);
+            beam.SetPosition(1, target.bounds.center);
             Hit();
+            _uiManager.Mana.Damage(_attackMana);
+
             if (!attackSound.isPlaying)
                 attackSound.Play();
         }

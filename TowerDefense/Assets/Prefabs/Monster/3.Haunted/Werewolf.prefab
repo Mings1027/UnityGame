@@ -201,6 +201,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 48c9c55c88dfd492a8e9a32b5b0725a4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  baseTowerDamage: 1
 --- !u!114 &8406678165830187947
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -213,13 +214,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 69a8ba2ae84f541738fa26a09cd7606e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyData: {fileID: 11400000, guid: 0ff2d2aa2792445739d9c1cad3dfafb3, type: 2}
   attackTargetCount: 1
   atkRange: 1
   sightRange: 2
-  targetLayer:
-    serializedVersion: 2
-    m_Bits: 512
+  baseOffset: 0
 --- !u!114 &6642428265154561666
 MonoBehaviour:
   m_ObjectHideFlags: 0

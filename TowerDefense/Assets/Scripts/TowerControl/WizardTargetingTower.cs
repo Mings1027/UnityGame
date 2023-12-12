@@ -1,4 +1,7 @@
+using DataControl;
 using DG.Tweening;
+using PoolObjectControl;
+using ProjectileControl;
 using UnityEngine;
 
 namespace TowerControl
@@ -21,6 +24,19 @@ namespace TowerControl
 
             _crystalMeshFilter = crystal.GetComponent<MeshFilter>();
             crystal.localScale = Vector3.zero;
+        }
+
+        protected override void Attack()
+        {
+            atkSequence.Restart();
+            attackSound.Play();
+            var targetingTowerData = (TargetingTowerData)TowerData;
+            var projectile =
+                PoolObjectManager.Get<WizardProjectile>(targetingTowerData.PoolObjectKey, firePos.position);
+            projectile.ColorInit(effectIndex);
+            projectile.DeBuffInit(effectIndex);
+            projectile.Init(Damage, target);
+            projectile.ProjectileUpdate().Forget();
         }
 
         public override void TowerSetting(MeshFilter towerMesh, int damageData, byte rangeData,

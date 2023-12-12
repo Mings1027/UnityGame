@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 using DG.Tweening;
 using UnityEngine;
 
@@ -12,9 +11,9 @@ namespace TowerControl
         [SerializeField] private Transform ballista;
         [SerializeField] private float smoothTurnSpeed;
 
-        public override void TowerUpdate(CancellationTokenSource cts)
+        public override void TowerUpdate()
         {
-            base.TowerUpdate(cts);
+            base.TowerUpdate();
             if (!isTargeting) return;
 
             var t = target.transform;

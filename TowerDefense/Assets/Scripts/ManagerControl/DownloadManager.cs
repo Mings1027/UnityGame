@@ -17,6 +17,7 @@ namespace ManagerControl
         private Dictionary<string, long> _patchMap;
 
         [Header("UI")] [SerializeField] private Button startGameButton;
+        [SerializeField] private GameObject upgradeButton;
         [SerializeField] private GameObject downLoadPanel;
         [SerializeField] private TMP_Text sizeInfoText;
         [SerializeField] private Button downLoadButton;
@@ -43,6 +44,7 @@ namespace ManagerControl
             {
                 SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
                 startGameButton.gameObject.SetActive(true);
+                upgradeButton.SetActive(true);
                 downLoadPanel.transform.DOScale(0, 0.25f).SetEase(Ease.InBack);
             });
         }
@@ -64,6 +66,7 @@ namespace ManagerControl
         private void StartGameButton()
         {
             startGameButton.gameObject.SetActive(false);
+            upgradeButton.SetActive(false);
             CheckUpdateFiles().Forget();
         }
 
