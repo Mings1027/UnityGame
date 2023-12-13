@@ -1,3 +1,4 @@
+using System;
 using CustomEnumControl;
 using DataControl;
 using DG.Tweening;
@@ -16,9 +17,13 @@ namespace GameControl
         [SerializeField] private Transform upgradePanel;
         [SerializeField] private Transform towerButtons;
 
+        private void Awake()
+        {
+            upgradePanel.localScale = Vector3.zero;
+        }
+
         private void Start()
         {
-            upgradePanel.DOScale(0, 0);
             DataManager.Xp = PlayerPrefs.GetInt(StringManager.Xp);
             xpText.text = "XP : " + DataManager.Xp;
             upgradeButton.onClick.AddListener(UpgradePanel);

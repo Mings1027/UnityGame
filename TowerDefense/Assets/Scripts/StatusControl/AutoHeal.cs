@@ -1,9 +1,9 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using StatusControl;
+using UnitControl.EnemyControl;
 using UnityEngine;
 
-namespace UnitControl.EnemyControl
+namespace StatusControl
 {
     [RequireComponent(typeof(MonsterUnit))]
     public class AutoHeal : MonoBehaviour

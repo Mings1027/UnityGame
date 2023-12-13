@@ -82,6 +82,12 @@ namespace TowerControl
 
         #region Public Function
 
+        public virtual void ObjectDisable()
+        {
+            var g = gameObject;
+            g.SetActive(false);
+            Destroy(g);
+        }
         public void TowerLevelUp()
         {
             TowerLevel++;

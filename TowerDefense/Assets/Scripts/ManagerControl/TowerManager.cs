@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
@@ -28,6 +29,13 @@ namespace ManagerControl
         //         _towers[i].TowerUpdate();
         //     }
         // }
+        private void OnDisable()
+        {
+            if (_cts == null) return;
+            if (_cts.IsCancellationRequested) return;
+            _cts?.Cancel();
+            _cts?.Dispose();
+        }
 
         private void OnApplicationPause(bool pauseStatus)
         {
@@ -40,7 +48,7 @@ namespace ManagerControl
 
         public void StartTargeting()
         {
-            enabled = true;
+            // enabled = true;
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
             Application.targetFrameRate = 60;
@@ -50,7 +58,8 @@ namespace ManagerControl
 
         public void StopTargeting()
         {
-            enabled = false;
+            // enabled = false;
+            if (_cts.IsCancellationRequested) return;
             _cts?.Cancel();
             _cts?.Dispose();
             TargetInit();

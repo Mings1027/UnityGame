@@ -11,7 +11,6 @@ namespace TowerControl
             other.TryGetComponent(out MonsterStatus monsterStatus);
             var damage = monsterStatus.BastTowerDamage;
             UIManager.Instance.BaseTowerHealth.Damage(damage);
-            other.gameObject.SetActive(false);
         }
     }
 }

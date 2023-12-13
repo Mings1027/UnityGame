@@ -20,6 +20,15 @@ namespace StatusControl
             ManaRegenValue = 1;
         }
 
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+            if (_cts == null) return;
+            if (_cts.IsCancellationRequested) return;
+            _cts?.Cancel();
+            _cts?.Dispose();
+        }
+
         public override void Init(float amount)
         {
             base.Init(amount);

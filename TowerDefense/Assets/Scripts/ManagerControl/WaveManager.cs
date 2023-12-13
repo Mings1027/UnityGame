@@ -29,7 +29,6 @@ namespace ManagerControl
         private TowerManager _towerManager;
         private bool _startWave;
         private bool _isLastWave;
-        private bool _isEndless;
         private bool _isBossWave;
         private byte _themeIndex;
 
@@ -57,25 +56,13 @@ namespace ManagerControl
             _towerManager = FindObjectOfType<TowerManager>();
         }
 
-        private void OnEnable()
-        {
-            _cts?.Dispose();
-            _cts = new CancellationTokenSource();
-        }
-
-        // private void Update()
-        // {
-        //     var enemyCount = _monsterList.Count;
-        //     for (var i = enemyCount - 1; i >= 0; i--)
-        //     {
-        //         _monsterList[i].MonsterUpdate();
-        //     }
-        // }
-
         private void OnDisable()
         {
-            _cts?.Cancel();
             _monsterList.Clear();
+            if (_cts == null) return;
+            if (_cts.IsCancellationRequested) return;
+            _cts?.Cancel();
+            _cts?.Dispose();
         }
 
         #endregion
@@ -100,12 +87,10 @@ namespace ManagerControl
             SoundManager.Instance.PlayBGM(_isBossWave ? SoundEnum.BossTheme : SoundEnum.WaveStart);
         }
 
-        public void WaveStart(Vector3[] wayPoints, bool isEndless)
+        public void WaveStart(Vector3[] wayPoints)
         {
-            enabled = true;
             _wayPoints = wayPoints;
             _startWave = true;
-            _isEndless = isEndless;
             StartWave();
         }
 
@@ -120,13 +105,13 @@ namespace ManagerControl
             }
 
             MonsterUpdate().Forget();
-            // CheckStuck().Forget();
         }
 
         private void WaveStop()
         {
-            if (gameObject == null) return;
-            enabled = false;
+            _startWave = false;
+            _cts?.Cancel();
+            _cts?.Dispose();
         }
 
         #region Enemy Spawn
@@ -176,12 +161,13 @@ namespace ManagerControl
 
             var monsterHealth = monsterUnit.GetComponent<UnitHealth>();
             monsterHealth.Init(normalMonsterData.Health);
-            var statusUI = StatusBarUIController.Instance;
-            statusUI.Add(healthBar, monsterUnit.healthBarTransform);
+            // var statusUI = StatusBarUIController.Instance;
+            StatusBarUIController.Add(healthBar, monsterUnit.healthBarTransform);
             monsterHealth.OnDeadEvent += () =>
             {
                 var coin = normalMonsterData.StartSpawnWave;
-                PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, monsterUnit.transform.position)
+                PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText,
+                        monsterUnit.transform.position + Random.insideUnitSphere)
                     .SetCostText(coin);
                 UIManager.Instance.TowerCost += coin;
 
@@ -190,13 +176,13 @@ namespace ManagerControl
                     SpawnTransformMonster(monsterUnit.transform.position, transformMonster);
                 }
 
-                statusUI.Remove(monsterUnit.healthBarTransform);
+                StatusBarUIController.Remove(monsterUnit.healthBarTransform);
             };
             monsterUnit.OnDisableEvent += () =>
             {
                 DecreaseEnemyCount(monsterUnit);
                 if (monsterHealth.IsDead) return;
-                statusUI.Remove(monsterUnit.healthBarTransform, true);
+                StatusBarUIController.Remove(monsterUnit.healthBarTransform, true);
             };
         }
 
@@ -213,21 +199,22 @@ namespace ManagerControl
 
             var monsterHealth = monsterUnit.GetComponent<UnitHealth>();
             monsterHealth.Init(bossMonsterData.Health);
-            var statusUI = StatusBarUIController.Instance;
-            statusUI.Add(healthBar, monsterUnit.healthBarTransform);
+            // var statusUI = StatusBarUIController.Instance;
+            StatusBarUIController.Add(healthBar, monsterUnit.healthBarTransform);
             monsterHealth.OnDeadEvent += () =>
             {
                 var coin = bossMonsterData.DroppedGold;
-                PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, monsterUnit.transform.position)
+                PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText,
+                        monsterUnit.transform.position + Random.insideUnitSphere)
                     .SetCostText(coin);
                 UIManager.Instance.TowerCost += coin;
-                statusUI.Remove(monsterUnit.healthBarTransform);
+                StatusBarUIController.Remove(monsterUnit.healthBarTransform);
             };
             monsterUnit.OnDisableEvent += () =>
             {
                 DecreaseEnemyCount(monsterUnit);
                 if (monsterHealth.IsDead) return;
-                statusUI.Remove(monsterUnit.healthBarTransform, true);
+                StatusBarUIController.Remove(monsterUnit.healthBarTransform, true);
             };
         }
 
@@ -239,7 +226,7 @@ namespace ManagerControl
         {
             while (!_cts.IsCancellationRequested)
             {
-                await UniTask.Delay(10, cancellationToken: _cts.Token);
+                await UniTask.Delay(10);
 
                 var leftEnemyCount = _monsterList.Count;
                 for (var i = leftEnemyCount - 1; i >= 0; i--)
@@ -270,46 +257,19 @@ namespace ManagerControl
             if (!_startWave) return;
             _monsterList.Remove(monsterUnit);
             if (_monsterList.Count > 0) return;
-            if (DataManager._isGameOver) return;
             WaveStop();
             _towerManager.StopTargeting();
             DataManager.UpdateSurvivedWave(curWave);
+            SoundManager.Instance.PlayBGM(SoundEnum.WaveEnd);
 
-            CheckEndlessWave();
-
-            if (!_isLastWave) return;
-            UIManager.Instance.GameEnd();
-        }
-
-        private void CheckEndlessWave()
-        {
-            if (_isEndless)
+            if (_isLastWave)
             {
-                WaveInit();
-                StartWave();
+                UIManager.Instance.GameEnd();
             }
             else
             {
-                _startWave = false;
-                if (!_isLastWave)
-                {
-                    OnPlaceExpandButtonEvent?.Invoke();
-                }
-
-                SoundManager.Instance.PlayBGM(SoundEnum.WaveEnd);
+                OnPlaceExpandButtonEvent?.Invoke();
             }
         }
-
-        // [ContextMenu("Set Monster Pool Key")]
-        // private void SetMonsterPoolKey()
-        // {
-        //     var index = 0;
-        //     foreach (var value in Enum.GetValues(typeof(MonsterPoolObjectKey)))
-        //     {
-        //         if (index >= normalMonstersData.Length) break;
-        //         normalMonstersData[index].monsterPoolObjectKey = (MonsterPoolObjectKey)value;
-        //         index++;
-        //     }
-        // }
     }
 }

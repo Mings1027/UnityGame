@@ -45,24 +45,6 @@ namespace TowerControl
         {
             _cts?.Cancel();
             _cts?.Dispose();
-            if (_isReSpawning)
-            {
-                _unitReSpawnBar.StopLoading();
-                StatusBarUIController.Instance.Remove(_reSpawnBarTransform, true);
-            }
-
-            var count = _units.Count;
-            for (var i = count - 1; i >= 0; i--)
-            {
-                StatusBarUIController.Instance.Remove(_units[i].healthBarTransform, true);
-            }
-
-            for (var i = count - 1; i >= 0; i--)
-            {
-                if (_units[i] == null) continue;
-                _units[i].gameObject.SetActive(false);
-                _units[i].DisableParent();
-            }
         }
 
         public override void OnPointerUp(PointerEventData eventData)
@@ -99,14 +81,14 @@ namespace TowerControl
                     _units[i].healthBarTransform.position);
                 healthBar.Init(_units[i].GetComponent<Progressive>());
 
-                StatusBarUIController.Instance.Add(healthBar, _units[i].healthBarTransform);
+                StatusBarUIController.Add(healthBar, _units[i].healthBarTransform);
             }
 
             _isUnitSpawn = true;
 
             if (!_isReSpawning) return;
             _unitReSpawnBar.StopLoading();
-            StatusBarUIController.Instance.Remove(_reSpawnBarTransform);
+            StatusBarUIController.Remove(_reSpawnBarTransform);
         }
 
         private void UnitUpgrade(int damage, float delay)
@@ -121,7 +103,7 @@ namespace TowerControl
 
         private void DeadEvent(TowerUnit unit)
         {
-            StatusBarUIController.Instance.Remove(unit.healthBarTransform);
+            StatusBarUIController.Remove(unit.healthBarTransform);
 
             unit.DisableParent();
             _units.Remove(unit);
@@ -129,22 +111,28 @@ namespace TowerControl
 
             _isUnitSpawn = false;
             if (_isReSpawning) return;
-            UnitReSpawnAsync().Forget();
+            UnitReSpawnAsync();
         }
 
-        private async UniTaskVoid UnitReSpawnAsync()
+        private void UnitReSpawnAsync()
         {
             _isReSpawning = true;
             _unitReSpawnBar =
                 PoolObjectManager.Get<ReSpawnBar>(UIPoolObjectKey.ReSpawnBar, _reSpawnBarTransform.position);
-            StatusBarUIController.Instance.Add(_unitReSpawnBar, _reSpawnBarTransform);
+            StatusBarUIController.Add(_unitReSpawnBar, _reSpawnBarTransform);
             _unitReSpawnBar.Init();
-            await _unitReSpawnBar.StartLoading(10, _cts);
-            StatusBarUIController.Instance.Remove(_reSpawnBarTransform);
+            _unitReSpawnBar.OnRespawnEvent += UnitReSpawn;
+            _unitReSpawnBar.StartLoading(10);
+        }
+
+        private void UnitReSpawn()
+        {
+            StatusBarUIController.Remove(_reSpawnBarTransform);
 
             _isReSpawning = false;
 
             if (_isUnitSpawn || _isReSpawning) return;
+            if (_cts.IsCancellationRequested) return;
             UnitSpawn();
             UnitUpgrade(Damage, cooldown.cooldownTime);
         }
@@ -204,6 +192,32 @@ namespace TowerControl
             }
 
             UnitUpgrade(damageData, cooldown.cooldownTime);
+        }
+
+        public override void ObjectDisable()
+        {
+            _cts?.Cancel();
+            _cts?.Dispose();
+            if (_isReSpawning)
+            {
+                _unitReSpawnBar.StopLoading();
+                StatusBarUIController.Remove(_reSpawnBarTransform, true);
+            }
+
+            var count = _units.Count;
+            for (var i = count - 1; i >= 0; i--)
+            {
+                StatusBarUIController.Remove(_units[i].healthBarTransform, true);
+            }
+
+            for (var i = count - 1; i >= 0; i--)
+            {
+                if (_units[i] == null) continue;
+                _units[i].gameObject.SetActive(false);
+                _units[i].DisableParent();
+            }
+
+            base.ObjectDisable();
         }
 
         #endregion

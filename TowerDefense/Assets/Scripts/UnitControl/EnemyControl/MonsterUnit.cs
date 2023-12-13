@@ -1,6 +1,5 @@
 using System;
 using System.Diagnostics;
-using System.Threading;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DataControl;
@@ -10,7 +9,6 @@ using InterfaceControl;
 using StatusControl;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.Serialization;
 using Debug = UnityEngine.Debug;
 using Random = UnityEngine.Random;
 
@@ -28,7 +26,6 @@ namespace UnitControl.EnemyControl
 
         private LayerMask _targetLayer;
         private UnitState _unitState;
-        private Vector3 _prevPos;
         private Cooldown _attackCooldown;
         private Cooldown _patrolCooldown;
 
@@ -65,7 +62,7 @@ namespace UnitControl.EnemyControl
                 .Join(transform.DOScale(0, 1).From(transform.localScale))
                 .OnComplete(() =>
                 {
-                    gameObject.SetActive(false);
+                    DisableObject();
                     _childMeshTransform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
                     transform.localScale = Vector3.one;
                 });
@@ -83,15 +80,12 @@ namespace UnitControl.EnemyControl
         private void OnEnable()
         {
             _navMeshAgent.enabled = true;
+            _navMeshAgent.stoppingDistance = atkRange;
         }
 
-        protected virtual void OnDisable()
+        private void OnTriggerEnter(Collider other)
         {
-            _navMeshAgent.baseOffset = 0;
-            _navMeshAgent.enabled = false;
-            _thisCollider.enabled = false;
-            OnDisableEvent?.Invoke();
-            OnDisableEvent = null;
+            DisableObject();
         }
 
         private void OnDestroy()
@@ -103,9 +97,10 @@ namespace UnitControl.EnemyControl
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(transform.position, atkRange);
+            var position = transform.position;
+            Gizmos.DrawWireSphere(position, atkRange);
             Gizmos.color = Color.cyan;
-            Gizmos.DrawWireSphere(transform.position, sightRange);
+            Gizmos.DrawWireSphere(position, sightRange);
         }
 
         #endregion
@@ -123,7 +118,6 @@ namespace UnitControl.EnemyControl
 
         public void SpawnInit(MonsterData monsterData)
         {
-            _prevPos = transform.position;
             _unitState = UnitState.Patrol;
             _navMeshAgent.speed = monsterData.Speed;
             SetSpeed(_navMeshAgent.speed, _attackCooldown.cooldownTime);
@@ -248,24 +242,21 @@ namespace UnitControl.EnemyControl
 
         #endregion
 
+        protected virtual void DisableObject()
+        {
+            _navMeshAgent.baseOffset = 0;
+            _navMeshAgent.enabled = false;
+            _thisCollider.enabled = false;
+            OnDisableEvent?.Invoke();
+            OnDisableEvent = null;
+            gameObject.SetActive(false);
+        }
+
         public void SetSpeed(float animSpeed, float atkDelay)
         {
             _navMeshAgent.speed = animSpeed;
             _anim.speed = animSpeed;
             _attackCooldown.cooldownTime = atkDelay;
-        }
-
-        public async UniTaskVoid IfStuck(CancellationTokenSource cts)
-        {
-            if (_unitState == UnitState.Patrol && Vector3.Distance(_prevPos, transform.position) < 1.5f)
-            {
-                _navMeshAgent.enabled = false;
-                await UniTask.Delay(500, cancellationToken: cts.Token);
-                if (!gameObject.activeSelf) return;
-                _navMeshAgent.enabled = true;
-                if (_navMeshAgent.isOnNavMesh) _navMeshAgent.SetDestination(Vector3.zero);
-                _prevPos = transform.position;
-            }
         }
     }
 }

@@ -28,8 +28,9 @@ namespace TextControl
             Vector2 position = _rectTransform.localPosition;
             _scaleTween.Restart();
             var randomX = Random.Range(-20, 20);
-            _upTween.ChangeStartValue(position + new Vector2(randomX, Random.Range(40, 60)))
-                .ChangeEndValue(position + new Vector2(randomX, 100)).Restart();
+            var startPos = position + new Vector2(randomX, Random.Range(40, 100));
+            var endPos = startPos + new Vector2(randomX, 100);
+            _upTween.ChangeStartValue(startPos).ChangeEndValue(endPos).Restart();
             _alphaTween.OnComplete(() => gameObject.SetActive(false)).Restart();
         }
 

@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
@@ -25,6 +27,7 @@ namespace MapControl
         private MapData _newMapObject;
 
         private string _connectionString;
+        private string _nullMapString;
 
         private Transform _newMapTransform;
         private Vector3 _dirToWayPoint;
@@ -318,16 +321,16 @@ namespace MapControl
         private void AddRandomDirection()
         {
             _connectionString = null;
-            var tempProbability = connectionProbability;
+            _nullMapString = null;
             var nullMapArrayLength = _isNullMapArray.Length;
             for (var i = 0; i < nullMapArrayLength; i++)
             {
                 if (_isNullMapArray[i])
                 {
+                    _nullMapString += i;
                     var ran = Random.Range(0, 101);
-                    if (ran <= tempProbability)
+                    if (ran <= connectionProbability)
                     {
-                        tempProbability -= 10;
                         _connectionString += i;
                     }
                 }
@@ -339,11 +342,19 @@ namespace MapControl
                     }
                 }
             }
+
+            if (_connectionString is { Length: 1 } && _nullMapString != null)
+            {
+                var tempString = new StringBuilder(_nullMapString);
+                _connectionString += tempString[Random.Range(0, tempString.Length)];
+            }
         }
 
         private void PlaceNewMap()
         {
             if (_connectionString == null) return;
+
+            _connectionString = string.Concat(_connectionString.OrderBy(c => c));
 
             _newMapObject = Instantiate(_mapDictionary[_directionMappingDic[_connectionString]],
                 _newMapTransform.position, Quaternion.identity, mapMesh).GetComponent<MapData>();
@@ -436,7 +447,7 @@ namespace MapControl
             _waveManager.WaveInit();
             await UniTask.Delay(500, cancellationToken: _cts.Token);
             var wayPoints = _wayPointsHashSet.ToArray();
-            _waveManager.WaveStart(wayPoints, _expandBtnPosHashSet.Count == 0);
+            _waveManager.WaveStart(wayPoints);
         }
 
         //Call When Wave is over

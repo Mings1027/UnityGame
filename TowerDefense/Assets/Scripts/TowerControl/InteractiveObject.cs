@@ -36,7 +36,6 @@ namespace TowerControl
 
         private void HealBaseTower()
         {
-            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, transform.position).SetHpText(1);
             UIManager.Instance.BaseTowerHealth.Heal(1);
         }
 

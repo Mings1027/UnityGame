@@ -43,5 +43,12 @@ namespace TowerControl
             OnClickTower?.Invoke(this);
             Outline.enabled = true;
         }
+        
+        public virtual void ObjectDisable()
+        {
+            var g = gameObject;
+            g.SetActive(false);
+            Destroy(g);
+        }
     }
 }

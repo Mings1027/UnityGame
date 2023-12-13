@@ -20,7 +20,7 @@ namespace TowerControl
         protected Sequence atkSequence;
         protected Collider target;
         protected Transform firePos;
-        
+
 #if UNITY_EDITOR
         private void OnDrawGizmos()
         {
@@ -49,7 +49,7 @@ namespace TowerControl
             attackSound = GetComponent<AudioSource>();
             effectIndex = -1;
             targetColliders = new Collider[3];
-            _patrolCooldown.cooldownTime = 0.5f;
+            _patrolCooldown.cooldownTime = 0.2f;
         }
 
         public override void TowerTargetInit()
@@ -76,14 +76,17 @@ namespace TowerControl
 
         protected virtual void Patrol()
         {
-            if (_patrolCooldown.IsCoolingDown) return;
+            print("111");
             var size = Physics.OverlapSphereNonAlloc(transform.position, TowerRange, targetColliders, targetLayer);
             if (size <= 0)
             {
+                print("2");
                 target = null;
                 isTargeting = false;
                 return;
             }
+
+            // if (_patrolCooldown.IsCoolingDown) return;
 
             var shortestDistance = float.MaxValue;
             for (var i = 0; i < size; i++)
@@ -97,13 +100,14 @@ namespace TowerControl
 
             isTargeting = true;
             towerState = TowerState.Attack;
-            _patrolCooldown.StartCooldown();
+            // _patrolCooldown.StartCooldown();
         }
 
         private void AttackAsync()
         {
             if (!target || !target.enabled)
             {
+                print("333333333333333");
                 towerState = TowerState.Patrol;
                 return;
             }

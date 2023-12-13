@@ -1,7 +1,5 @@
-using System;
 using System.Diagnostics;
 using CustomEnumControl;
-using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using EPOOutline;
 using GameControl;
@@ -41,9 +39,9 @@ namespace UnitControl.TowerUnitControl
 
         public Transform healthBarTransform { get; private set; }
 
-        [SerializeField, Range(1, 5)] private byte attackTargetCount;
-        [SerializeField, Range(1, 7)] private float atkRange;
-        [SerializeField, Range(1, 10)] private float sightRange;
+        [SerializeField, Range(0, 5)] private byte attackTargetCount;
+        [SerializeField, Range(0, 7)] private float atkRange;
+        [SerializeField, Range(0, 10)] private float sightRange;
 
         public Outlinable outline { get; private set; }
 
@@ -51,6 +49,7 @@ namespace UnitControl.TowerUnitControl
 
         private void Awake()
         {
+            _cooldown = new Cooldown();
             _targetLayer = LayerMask.GetMask("Monster");
             _childMeshTransform = transform.GetChild(0);
             healthBarTransform = transform.GetChild(1);
@@ -67,7 +66,7 @@ namespace UnitControl.TowerUnitControl
                 .Join(transform.DOScale(0, 1).From(transform.localScale))
                 .OnComplete(() =>
                 {
-                    gameObject.SetActive(false);
+                    ObjectDisable();
                     _childMeshTransform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
                     transform.localScale = Vector3.one;
                 });
@@ -83,6 +82,11 @@ namespace UnitControl.TowerUnitControl
                 Debug.LogError("atkRange must be smaller than Sight Range");
                 atkRange = sightRange;
             }
+        }
+
+        private void OnEnable()
+        {
+            _navMeshAgent.stoppingDistance = atkRange;
         }
 
         private void OnDisable()
@@ -101,7 +105,7 @@ namespace UnitControl.TowerUnitControl
                 _navMeshAgent.stoppingDistance)
             {
                 _moveInput = false;
-                _navMeshAgent.stoppingDistance = 1;
+                _navMeshAgent.stoppingDistance = atkRange;
                 _anim.SetBool(IsWalk, false);
                 _anim.enabled = false;
                 enabled = false;
@@ -196,7 +200,8 @@ namespace UnitControl.TowerUnitControl
             var targetRot = Quaternion.LookRotation(_target.transform.position - t.position);
             targetRot.eulerAngles = new Vector3(0, targetRot.eulerAngles.y, targetRot.eulerAngles.z);
             t.rotation = targetRot;
-
+            // transform.forward = _target.bounds.center - transform.position;
+            
             _anim.SetTrigger(IsAttack);
             _audioSource.Play();
             TryDamage();
@@ -218,6 +223,10 @@ namespace UnitControl.TowerUnitControl
             _deadSequence.Restart();
         }
 
+        private void ObjectDisable()
+        {
+            gameObject.SetActive(false);
+        }
         #endregion
 
         #region Public Mothod

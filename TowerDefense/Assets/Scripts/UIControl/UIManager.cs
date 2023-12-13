@@ -689,7 +689,7 @@ namespace UIControl
                     .SetCostText(_sellTowerCost);
                 _sellTowerCost = 0;
                 _towerManager.RemoveTower(_curSelectedTower);
-                Destroy(_curSelectedTower.gameObject);
+                _curSelectedTower.ObjectDisable();
             }
             else
             {
@@ -703,7 +703,7 @@ namespace UIControl
                 PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, position)
                     .SetCostText(_sellTowerCost);
                 _sellTowerCost = 0;
-                Destroy(_curSupportTower.gameObject);
+                _curSupportTower.ObjectDisable();
             }
 
             OffUI();
@@ -711,7 +711,7 @@ namespace UIControl
 
         private async UniTaskVoid GameStart()
         {
-            StatusBarUIController.Instance.enabled = true;
+            // StatusBarUIController.Instance.enabled = true;
             waveText.text = "0";
             Time.timeScale = 1;
             await _cameraManager.GameStartCamZoom();

@@ -4,9 +4,9 @@ namespace UnitControl.EnemyControl
 {
     public class BossUnit : MonsterUnit
     {
-        protected override void OnDisable()
+        protected override void DisableObject()
         {
-            base.OnDisable();
+            base.DisableObject();
             Destroy(gameObject);
         }
 

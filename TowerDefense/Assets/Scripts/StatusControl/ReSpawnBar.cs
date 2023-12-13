@@ -1,18 +1,16 @@
 using System;
-using System.Threading;
-using Cysharp.Threading.Tasks;
 using DG.Tweening;
-using UnityEngine;
 
 namespace StatusControl
 {
     public class ReSpawnBar : StatusBar
     {
         private Sequence _loadingSequence;
-
+        public event Action OnRespawnEvent; 
         private void OnDisable()
         {
             _loadingSequence?.Kill();
+            OnRespawnEvent = null;
         }
 
         public void Init()
@@ -21,11 +19,14 @@ namespace StatusControl
                 .Append(transform.DOScale(transform.localScale.x, 0.5f).From(0).SetEase(Ease.OutBack));
         }
 
-        public async UniTask StartLoading(float loadingDelay, CancellationTokenSource cts)
+        public void StartLoading(float loadingDelay)
         {
             _loadingSequence.Restart();
-            await slider.DOValue(1, loadingDelay).From(0).WithCancellation(cts.Token);
-            _loadingSequence.OnRewind(() => gameObject.SetActive(false)).PlayBackwards();
+            slider.DOValue(1, loadingDelay).From(0).OnComplete(() =>
+            {
+                _loadingSequence.OnRewind(() => gameObject.SetActive(false)).PlayBackwards();
+                OnRespawnEvent?.Invoke();
+            }).Restart();
         }
 
         public void StopLoading()

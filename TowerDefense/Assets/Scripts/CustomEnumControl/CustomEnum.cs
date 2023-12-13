@@ -79,7 +79,9 @@ namespace CustomEnumControl
         EnemyHealthBar,
         BossHealthBar,
         ReSpawnBar,
-        FloatingText
+        FloatingText,
+        HealText,
+        DamageText
     }
 
     public enum MonsterPoolObjectKey

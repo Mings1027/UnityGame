@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 2013242177323929526}
   - component: {fileID: -475306777363347816}
   m_Layer: 0
-  m_Name: ExpandMapSmoke
+  m_Name: ExpandMapSmoke 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -663,12 +663,12 @@ ParticleSystem:
   ShapeModule:
     serializedVersion: 6
     enabled: 1
-    type: 17
+    type: 4
     angle: 85
     length: 5
     boxThickness: {x: 0, y: 0, z: 0}
     radiusThickness: 1
-    donutRadius: 0.0001
+    donutRadius: 0.2
     m_Position: {x: 0, y: 0, z: 0}
     m_Rotation: {x: -90, y: 0, z: 0}
     m_Scale: {x: 1, y: 1, z: 1}
@@ -750,7 +750,7 @@ ParticleSystem:
     sphericalDirectionAmount: 0
     randomPositionAmount: 0
     radius:
-      value: 5
+      value: 0.0001
       mode: 0
       spread: 0
       speed:
