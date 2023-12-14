@@ -21,6 +21,11 @@ namespace ManagerControl
             _towers = new List<Tower>(50);
         }
 
+        private void Start()
+        {
+            Application.targetFrameRate = 60;
+        }
+
         // private void Update()
         // {
         //     var towerCount = _towers.Count;

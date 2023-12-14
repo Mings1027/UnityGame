@@ -1,4 +1,5 @@
 using System;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -7,6 +8,7 @@ namespace UIControl
     public class TowerButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler,
         IBeginDragHandler, IDragHandler, IEndDragHandler
     {
+        private Tween _scaleTween;
         public event Action OnCamDisableEvent, OnCamEnableEvent;
         public event Action<int, Transform> OnPointerDownEvent;
         public event Action OnPointerUpEvent;
@@ -17,8 +19,14 @@ namespace UIControl
         public static bool IsOnButton { get; private set; }
         public byte buttonIndex { get; set; }
 
+        private void Awake()
+        {
+            _scaleTween = transform.DOScale(1.1f, 0.25f).From(1).SetEase(Ease.OutBack).SetAutoKill(false).Pause();
+        }
+
         public void OnPointerDown(PointerEventData eventData)
         {
+            _scaleTween.Restart();
             IsOnButton = true;
             UIManager.IsOnUI = true;
             OnPointerDownEvent?.Invoke(buttonIndex, transform);
@@ -27,6 +35,7 @@ namespace UIControl
 
         public void OnPointerUp(PointerEventData eventData)
         {
+            _scaleTween.PlayBackwards();
             UIManager.IsOnUI = false;
             OnPointerUpEvent?.Invoke();
             OnCamEnableEvent?.Invoke();
@@ -34,6 +43,7 @@ namespace UIControl
 
         public void OnPointerExit(PointerEventData eventData)
         {
+            _scaleTween.PlayBackwards();
             IsOnButton = false;
             OnPointerUpEvent?.Invoke();
         }

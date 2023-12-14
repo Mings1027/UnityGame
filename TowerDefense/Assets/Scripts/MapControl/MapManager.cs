@@ -25,6 +25,7 @@ namespace MapControl
         private WaveManager _waveManager;
 
         private MapData _newMapObject;
+        private GameObject _portalGateObject;
 
         private string _connectionString;
         private string _nullMapString;
@@ -70,8 +71,8 @@ namespace MapControl
         [SerializeField] private Transform mapMesh;
         [SerializeField] private Transform obstacleMesh;
 
-        [SerializeField] private byte maxMapCount;
 #if UNITY_EDITOR
+        [SerializeField] private byte maxMapCount;
         [SerializeField] private bool drawGizmos;
         [SerializeField] private float drawSphereRadius;
         [SerializeField] private Vector3 colliderCenter;
@@ -154,12 +155,12 @@ namespace MapControl
             {
                 new Vector3(1, 0, 1), new Vector3(-1, 0, 1), new Vector3(-1, 0, -1), new Vector3(1, 0, -1)
             };
-            _map = new List<GameObject>(maxMapCount);
+            _map = new List<GameObject>();
             _newMapWayPoints = new List<Vector3>(4);
-            _meshFilters = new List<MeshFilter>(maxMapCount);
+            _meshFilters = new List<MeshFilter>();
             // _obstacleMeshFilters = new List<MeshFilter>(300);
-            _expandBtnPosHashSet = new HashSet<Vector3>(100);
-            _expandButtons = new List<ExpandMapButton>(100);
+            _expandBtnPosHashSet = new HashSet<Vector3>();
+            _expandButtons = new List<ExpandMapButton>();
 
             _neighborMapArray = new MapData[4];
             _isNullMapArray = new bool[4];
@@ -248,6 +249,7 @@ namespace MapControl
             SetWayPoints();
             PlaceObstacle();
             SetMap().Forget();
+            // PlaceExpandButtons();
         }
 
         #region ExpandMap Function
@@ -343,6 +345,7 @@ namespace MapControl
                 }
             }
 
+            // 사방이 막히지 않았는데 하나만 연결된 경우 랜덤으로 하나를 더 이어줌
             if (_connectionString is { Length: 1 } && _nullMapString != null)
             {
                 var tempString = new StringBuilder(_nullMapString);
@@ -375,8 +378,9 @@ namespace MapControl
             if (_connectionString.Length != 1) return;
             var t = _newMapObject.transform;
             var forward = t.forward;
-            Instantiate(portalGate, t.position + forward * 1.75f,
-                Quaternion.identity, mapMesh).transform.forward = -forward;
+            _portalGateObject = Instantiate(portalGate, t.position + forward * 1.75f,
+                Quaternion.identity, mapMesh);
+            _portalGateObject.transform.forward = -forward;
         }
 
         private void RemoveWayPoints()
@@ -446,8 +450,15 @@ namespace MapControl
             ramNavMeshSurface.BuildNavMesh();
             _waveManager.WaveInit();
             await UniTask.Delay(500, cancellationToken: _cts.Token);
-            var wayPoints = _wayPointsHashSet.ToArray();
-            _waveManager.WaveStart(wayPoints);
+
+            if (_wayPointsHashSet.Count == 0)
+            {
+                _waveManager.BonusMap();
+            }
+            else
+            {
+                _waveManager.WaveStart(_wayPointsHashSet.ToArray());
+            }
         }
 
         //Call When Wave is over

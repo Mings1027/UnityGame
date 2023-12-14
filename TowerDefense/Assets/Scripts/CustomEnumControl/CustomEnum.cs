@@ -26,7 +26,8 @@ namespace CustomEnumControl
 
     public enum TowerState
     {
-        Patrol,
+        Detect,
+        
         Attack
     }
 

@@ -1,4 +1,3 @@
-using System;
 using CustomEnumControl;
 using DataControl;
 using DG.Tweening;
@@ -11,15 +10,21 @@ namespace GameControl
 {
     public class TowerUpgradeController : MonoBehaviour
     {
+        private Tween _upgradePanelTween;
         [SerializeField] private TMP_Text xpText;
         [SerializeField] private Button upgradeButton;
         [SerializeField] private Button closeButton;
         [SerializeField] private Transform upgradePanel;
         [SerializeField] private Transform towerButtons;
+        [SerializeField] private Transform towerCostTexts;
+        [SerializeField] private Transform levelCountTexts;
+        [SerializeField] private BattleTowerData[] towerData;
 
         private void Awake()
         {
-            upgradePanel.localScale = Vector3.zero;
+            _upgradePanelTween =
+                upgradePanel.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack).SetAutoKill(false).Pause();
+            closeButton.gameObject.SetActive(false);
         }
 
         private void Start()
@@ -30,22 +35,71 @@ namespace GameControl
             closeButton.onClick.AddListener(() =>
             {
                 upgradeButton.gameObject.SetActive(true);
-                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
-                upgradePanel.DOScale(0, 0.25f).SetEase(Ease.InBack);
+                closeButton.gameObject.SetActive(false);
+                _upgradePanelTween.PlayBackwards();
             });
+            TowerUpgradeButtonInit();
+        }
 
-            for (int i = 0; i < towerButtons.childCount; i++)
-            {
-                towerButtons.GetChild(i).GetComponent<TowerUpgradeButton>().OnSetXpTextEvent +=
-                    () => xpText.text = "XP : " + DataManager.Xp;
-            }
+        private void OnDestroy()
+        {
+            _upgradePanelTween?.Kill();
         }
 
         private void UpgradePanel()
         {
             upgradeButton.gameObject.SetActive(false);
             SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
-            upgradePanel.DOScale(1, 0.25f).SetEase(Ease.OutBack);
+            closeButton.gameObject.SetActive(true);
+            _upgradePanelTween.Restart();
+        }
+
+        private void TowerUpgradeButtonInit()
+        {
+            for (var i = 0; i < towerButtons.childCount; i++)
+            {
+                var towerUpgradeButton = towerButtons.GetChild(i).GetComponent<TowerUpgradeButton>();
+                var towerButton = towerUpgradeButton.GetComponent<Button>();
+                var towerCostText = towerCostTexts.GetChild(i).GetComponent<TMP_Text>();
+                var levelCountText = levelCountTexts.GetChild(i).GetComponent<TMP_Text>();
+                towerUpgradeButton.UpgradeCount =
+                    (byte)PlayerPrefs.GetInt(towerData[i].TowerType + StringManager.UpgradeCount);
+
+                if (towerUpgradeButton.UpgradeCount < 10)
+                {
+                    towerCostText.text = "XP : " + (towerUpgradeButton.UpgradeCount + 1) * 25;
+                    levelCountText.text = towerUpgradeButton.UpgradeCount + " / 10";
+                }
+                else
+                {
+                    towerCostText.text = "";
+                    levelCountText.text = "10 / 10";
+                    towerButton.interactable = false;
+                }
+
+                var index = i;
+                towerButton.onClick.AddListener(() =>
+                {
+                    SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
+                    if (towerUpgradeButton.UpgradeCount >= 10 ||
+                        DataManager.Xp < (towerUpgradeButton.UpgradeCount + 1) * 25) return;
+                    DataManager.Xp -= (towerUpgradeButton.UpgradeCount + 1) * 25;
+                    xpText.text = "XP : " + DataManager.Xp;
+                    towerUpgradeButton.UpgradeCount++;
+                    towerCostText.text = "XP : " + (towerUpgradeButton.UpgradeCount + 1) * 25;
+                    levelCountText.text = towerUpgradeButton.UpgradeCount + " / 10";
+                    PlayerPrefs.SetInt(StringManager.Xp, DataManager.Xp);
+                    PlayerPrefs.SetInt(towerData[index].TowerType + StringManager.UpgradeCount,
+                        towerUpgradeButton.UpgradeCount);
+                    towerData[index].UpgradeData(towerData[index].TowerType);
+
+                    if (towerUpgradeButton.UpgradeCount >= 10)
+                    {
+                        towerCostText.text = "";
+                        towerButton.interactable = false;
+                    }
+                });
+            }
         }
     }
 }

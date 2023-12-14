@@ -28,24 +28,7 @@ namespace TowerControl
             attackSound.Stop();
         }
 
-        // public override void TowerUpdate()
-        // {
-        //     base.TowerUpdate();
-        //     if (target)
-        //     {
-        //         beam.enabled = true;
-        //         beam.SetPosition(0, firePos.position);
-        //         beam.SetPosition(1, target.bounds.center);
-        //     }
-        //     // else if (!target || _uiManager.Mana.Current < _attackMana)
-        //     // {
-        //     //     print(_uiManager.Mana.Current);
-        //     //     beam.enabled = false;
-        //     //     if (attackSound.isPlaying) attackSound.Stop();
-        //     // }
-        // }
-
-        protected override void Patrol()
+        protected override void Detect()
         {
             beam.enabled = false;
             if (attackSound.isPlaying) attackSound.Stop();
@@ -84,7 +67,7 @@ namespace TowerControl
         {
             if (_uiManager.Mana.Current < _attackMana)
             {
-                towerState = TowerState.Patrol;
+                towerState = TowerState.Detect;
                 return;
             }
 

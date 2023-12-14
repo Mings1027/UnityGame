@@ -1,3 +1,4 @@
+using System;
 using CustomEnumControl;
 using DataControl;
 using DG.Tweening;
@@ -49,12 +50,12 @@ namespace TowerControl
             attackSound = GetComponent<AudioSource>();
             effectIndex = -1;
             targetColliders = new Collider[3];
-            _patrolCooldown.cooldownTime = 0.2f;
+            _patrolCooldown.cooldownTime = 0.5f;
         }
 
         public override void TowerTargetInit()
         {
-            towerState = TowerState.Patrol;
+            towerState = TowerState.Detect;
             target = null;
             isTargeting = false;
         }
@@ -63,30 +64,31 @@ namespace TowerControl
         {
             switch (towerState)
             {
-                case TowerState.Patrol:
-                    Patrol();
+                case TowerState.Detect:
+                    Detect();
                     break;
+                // case TowerState.CheckDistance:
+                //     CheckDistance();
+                //     break;
                 case TowerState.Attack:
-                    AttackAsync();
+                    ReadyToAttack();
                     break;
             }
         }
 
         #region Tower State
 
-        protected virtual void Patrol()
+        protected virtual void Detect()
         {
-            print("111");
             var size = Physics.OverlapSphereNonAlloc(transform.position, TowerRange, targetColliders, targetLayer);
             if (size <= 0)
             {
-                print("2");
                 target = null;
                 isTargeting = false;
                 return;
             }
 
-            // if (_patrolCooldown.IsCoolingDown) return;
+            if (_patrolCooldown.IsCoolingDown) return;
 
             var shortestDistance = float.MaxValue;
             for (var i = 0; i < size; i++)
@@ -99,16 +101,16 @@ namespace TowerControl
             }
 
             isTargeting = true;
-            towerState = TowerState.Attack;
-            // _patrolCooldown.StartCooldown();
+            if (!cooldown.IsCoolingDown)
+                towerState = TowerState.Attack;
+            _patrolCooldown.StartCooldown();
         }
 
-        private void AttackAsync()
+        private void ReadyToAttack()
         {
             if (!target || !target.enabled)
             {
-                print("333333333333333");
-                towerState = TowerState.Patrol;
+                towerState = TowerState.Detect;
                 return;
             }
 
@@ -116,6 +118,7 @@ namespace TowerControl
 
             Attack();
             cooldown.StartCooldown();
+            towerState = TowerState.Detect;
         }
 
         protected virtual void Attack()

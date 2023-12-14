@@ -1,3 +1,4 @@
+using System;
 using CustomEnumControl;
 using DG.Tweening;
 using ManagerControl;
@@ -9,7 +10,7 @@ namespace GameControl
 {
     public class LanguageController : MonoBehaviour
     {
-        private Sequence _changeLanguageSequence;
+        private Tween _changeLanguageTween;
 
         [SerializeField] private Transform languagePanel;
         [SerializeField] private Transform languageButtons;
@@ -18,15 +19,18 @@ namespace GameControl
 
         private void Start()
         {
-            _changeLanguageSequence = DOTween.Sequence().SetAutoKill(false).SetUpdate(true).Pause()
-                .Append(languagePanel.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBack));
+            _changeLanguageTween =
+                languagePanel.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack).SetUpdate(true).SetAutoKill(false)
+                    .Pause();
 
-            for (int i = 0; i < languageButtons.childCount; i++)
+            for (var i = 0; i < languageButtons.childCount; i++)
             {
                 var index = i;
-                languageButtons.GetChild(i).GetComponent<Button>().onClick
+                var languageButton = languageButtons.GetChild(i).GetComponent<Button>();
+                languageButton.onClick
                     .AddListener(() =>
                     {
+                        languageButton.transform.DOScale(1, 0.25f).From(0.7f).SetEase(Ease.OutBack).SetUpdate(true);
                         SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
                         LocaleManager.ChangeLocale(index);
                     });
@@ -34,11 +38,17 @@ namespace GameControl
 
             openLanguagePanelButton.onClick.AddListener(() =>
             {
+                openLanguagePanelButton.transform.DOScale(1, 0.25f).From(0.5f).SetEase(Ease.OutBack).SetUpdate(true);
                 SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
-                _changeLanguageSequence.Restart();
+                _changeLanguageTween.Restart();
             });
 
-            closeLanguagePanelButton.onClick.AddListener(() => { _changeLanguageSequence.PlayBackwards(); });
+            closeLanguagePanelButton.onClick.AddListener(() => { _changeLanguageTween.PlayBackwards(); });
+        }
+
+        private void OnDestroy()
+        {
+            _changeLanguageTween?.Kill();
         }
     }
 }

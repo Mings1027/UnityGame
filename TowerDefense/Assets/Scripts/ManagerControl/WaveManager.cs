@@ -4,7 +4,6 @@ using System.Threading;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DataControl;
-using GameControl;
 using PoolObjectControl;
 using StatusControl;
 using TextControl;
@@ -31,6 +30,7 @@ namespace ManagerControl
         private bool _isLastWave;
         private bool _isBossWave;
         private byte _themeIndex;
+        private bool _isBonusMap;
 
         private CancellationTokenSource _cts;
         private List<MonsterUnit> _monsterList;
@@ -94,6 +94,23 @@ namespace ManagerControl
             StartWave();
         }
 
+        public void BonusMap()
+        {
+            Array.Clear(_wayPoints, 0, _wayPoints.Length);
+            for (var i = 0; i < 50; i++)
+            {
+                if (NavMesh.SamplePosition(transform.position, out var hit, 200, NavMesh.AllAreas))
+                {
+                    _wayPoints[i] = hit.position;
+                }
+            }
+
+            UIManager.Instance.BonusMap();
+            _startWave = true;
+            _isLastWave = true;
+            StartWave();
+        }
+
         private void StartWave()
         {
             _towerManager.StartTargeting();
@@ -119,19 +136,22 @@ namespace ManagerControl
         private async UniTaskVoid SpawnEnemy(Vector3[] wayPoints)
         {
             var normalMonsterDataLength = monsterData[_themeIndex].normalMonsterData.Length;
-            for (var i = 0; i < normalMonsterDataLength; i++)
+            for (int i = 0; i < _themeIndex + 1; i++)
             {
-                await UniTask.Delay(500, cancellationToken: _cts.Token);
-                var normalMonsterData = monsterData[_themeIndex].normalMonsterData[i];
-                if (normalMonsterData.StartSpawnWave > curWave) continue;
-                var wayPointCount = wayPoints.Length;
-                for (var j = 0; j < wayPointCount; j++)
+                for (var normalDataIndex = 0; normalDataIndex < normalMonsterDataLength; normalDataIndex++)
                 {
-                    var ranPoint = wayPoints[j] + Random.insideUnitSphere * 3;
-                    NavMesh.SamplePosition(ranPoint, out var hit, 5, NavMesh.AllAreas);
-                    var monster =
-                        PoolObjectManager.Get<MonsterUnit>(normalMonsterData.MonsterPoolObjectKey, hit.position);
-                    MonsterInit(monster, normalMonsterData);
+                    await UniTask.Delay(500, cancellationToken: _cts.Token);
+                    var normalMonsterData = monsterData[_themeIndex].normalMonsterData[normalDataIndex];
+                    if (normalMonsterData.StartSpawnWave > curWave) continue;
+                    var wayPointCount = wayPoints.Length;
+                    for (var wayPoint = 0; wayPoint < wayPointCount; wayPoint++)
+                    {
+                        var ranPoint = wayPoints[wayPoint] + Random.insideUnitSphere * 3;
+                        NavMesh.SamplePosition(ranPoint, out var hit, 5, NavMesh.AllAreas);
+                        var monster =
+                            PoolObjectManager.Get<MonsterUnit>(normalMonsterData.MonsterPoolObjectKey, hit.position);
+                        MonsterInit(monster, normalMonsterData);
+                    }
                 }
             }
         }

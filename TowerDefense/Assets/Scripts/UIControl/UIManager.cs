@@ -130,12 +130,14 @@ namespace UIControl
         [SerializeField] private TextMeshProUGUI waveText;
 
         [SerializeField] private MoveUnitController moveUnitController;
+        [SerializeField] private GameObject bonusMapPanel;
 
         #region Unity Event
 
         protected override void Awake()
         {
             base.Awake();
+            Input.multiTouchEnabled = false;
             _cam = Camera.main;
 
             TowerButtonInit();
@@ -245,8 +247,8 @@ namespace UIControl
 
             _towerInfoWindowTween = infoWindow.DOAnchorPosY(200, 0.3f).From()
                 .OnComplete(() => _openInfoWindow = true).SetAutoKill(false).Pause();
-            _upgradeButtonTween = upgradeButton.transform.DOScale(1.1f, 0.1f).From(1).SetLoops(2, LoopType.Yoyo)
-                .SetAutoKill(false).Pause();
+            _upgradeButtonTween = upgradeButton.transform.DOScale(1, 0.2f).From(0.7f).SetEase(Ease.OutBack)
+                .SetUpdate(true).SetAutoKill(false);
         }
 
         private void TowerButtonInit()
@@ -299,6 +301,8 @@ namespace UIControl
 
             centerButton.onClick.AddListener(() =>
             {
+                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
+                centerButton.transform.DOScale(1, 0.2f).From(0.7f).SetEase(Ease.OutBack).SetUpdate(true);
                 if (_cameraManager.transform.position == Vector3.zero) return;
                 _cameraManager.transform.DOMove(Vector3.zero, 0.5f).SetEase(Ease.OutCubic);
             });
@@ -331,11 +335,13 @@ namespace UIControl
 
             speedUpButton.onClick.AddListener(() =>
             {
-                speedUpButton.transform.DOScale(1, 0.2f).From(0.5f).SetEase(Ease.OutBack);
+                speedUpButton.transform.DOScale(1, 0.2f).From(0.7f).SetEase(Ease.OutBack).SetUpdate(true);
                 SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
                 SpeedUp();
             });
             _curSpeedText = speedUpButton.GetComponentInChildren<TMP_Text>();
+
+            bonusMapPanel.SetActive(false);
         }
 
         private void ChangeLocaleDictionary(Locale locale)
@@ -475,6 +481,17 @@ namespace UIControl
             DataManager.SaveLastSurvivedWave();
         }
 
+        public void BonusMap()
+        {
+            bonusMapPanel.SetActive(true);
+            bonusMapPanel.transform.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack)
+                .OnComplete(() =>
+                {
+                    bonusMapPanel.transform.DOScale(0, 0.25f).SetEase(Ease.InBack).SetDelay(1)
+                        .OnComplete(() => bonusMapPanel.SetActive(false));
+                });
+        }
+
         #endregion
 
         #region Private Method
@@ -505,7 +522,7 @@ namespace UIControl
                         PoolObjectManager.Get(PoolObjectKey.BuildSmoke, placePos);
                         _cam.transform.DOShakePosition(0.05f);
                     }));
-
+            print(battleTowerData.BaseDamage);
             t.TowerLevelUp();
             t.TowerSetting(battleTowerData.TowerMeshes[t.TowerLevel], battleTowerData.BaseDamage,
                 battleTowerData.AttackRange,
@@ -523,7 +540,7 @@ namespace UIControl
             _towerCountDictionary[towerType]++;
 
             _sellTowerCost = GetTowerSellCost(towerType);
-            
+
             TowerCost -= lostCost;
             PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, placePos).SetCostText(lostCost, false);
             _towerCostTextDictionary[towerType].text = GetBuildCost(towerType) + "g";
@@ -563,7 +580,7 @@ namespace UIControl
             var towerLevel = tempTower.TowerLevel;
 
             tempTower.TowerSetting(battleTowerData.TowerMeshes[towerLevel],
-                battleTowerData.BaseDamage * (towerLevel + 2),
+                battleTowerData.BaseDamage * (towerLevel + 1),
                 battleTowerData.AttackRange, battleTowerData.AttackRpm);
             upgradeButton.SetActive(!towerLevel.Equals(4));
 
@@ -586,6 +603,7 @@ namespace UIControl
                 _curSupportTower.Outline.enabled = false;
                 _curSupportTower = null;
             }
+
             if (_curSelectedTower) _curSelectedTower.Outline.enabled = false;
             if (clickedTower.Equals(_curSelectedTower)) return;
 
