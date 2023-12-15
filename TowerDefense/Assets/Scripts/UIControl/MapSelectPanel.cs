@@ -11,15 +11,19 @@ namespace UIControl
     public class MapSelectPanel : MonoBehaviour
     {
         private EventSystem _eventSystem;
-        private Transform _deleteDataPanelImage;
+        private Transform _deleteDataPanel;
+        private Tween _deletePanelTween;
+
         [SerializeField] private Image deleteWaveDataPanel;
-        [SerializeField] private Button waveInitButton;
+        [SerializeField] private Button dataDeleteButton;
         [SerializeField] private Button yesButton;
         [SerializeField] private Button noButton;
 
         private void Awake()
         {
-            _deleteDataPanelImage = deleteWaveDataPanel.transform.GetChild(0);
+            _deleteDataPanel = deleteWaveDataPanel.transform.GetChild(0);
+            _deletePanelTween = _deleteDataPanel.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack).SetAutoKill(false)
+                .Pause();
         }
 
         private void Start()
@@ -62,15 +66,13 @@ namespace UIControl
 
         private void ButtonInit()
         {
-            _deleteDataPanelImage.DOScale(0, 0);
-            waveInitButton.onClick.AddListener(() =>
+            dataDeleteButton.onClick.AddListener(() =>
             {
                 if (Input.touchCount > 1) return;
                 deleteWaveDataPanel.enabled = true;
                 SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
                 _eventSystem.enabled = false;
-                _deleteDataPanelImage.DOScale(1, 0.5f).SetEase(Ease.OutBack)
-                    .OnComplete(() => _eventSystem.enabled = true);
+                _deletePanelTween.OnComplete(() => _eventSystem.enabled = true).Restart();
             });
             yesButton.onClick.AddListener(() =>
             {
@@ -79,8 +81,7 @@ namespace UIControl
                 SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
                 _eventSystem.enabled = false;
                 DataManager.WaveDataInit();
-                _deleteDataPanelImage.DOScale(0, 0.5f).SetEase(Ease.InBack)
-                    .OnComplete(() => _eventSystem.enabled = true);
+                _deletePanelTween.OnRewind(() => _eventSystem.enabled = true).PlayBackwards();
 
                 DataManager.LoadData();
                 var survivedWaves = DataManager.SurvivedWaves.survivedWave;
@@ -97,8 +98,7 @@ namespace UIControl
                 deleteWaveDataPanel.enabled = false;
                 SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
                 _eventSystem.enabled = false;
-                _deleteDataPanelImage.DOScale(0, 0.5f).SetEase(Ease.InBack)
-                    .OnComplete(() => _eventSystem.enabled = true);
+                _deletePanelTween.OnRewind(() => _eventSystem.enabled = true).PlayBackwards();
             });
         }
     }

@@ -1,5 +1,4 @@
 using DG.Tweening;
-using ManagerControl;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;

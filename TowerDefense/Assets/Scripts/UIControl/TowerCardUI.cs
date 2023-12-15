@@ -3,6 +3,7 @@ using DG.Tweening;
 using GameControl;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace UIControl
@@ -15,17 +16,18 @@ namespace UIControl
         private Sequence _openCardSequence;
         private Tweener _moveCardTween;
 
+        private TMP_Text _healthText;
+        private TMP_Text _damageText;
+        private TMP_Text _delayText;
+
         public bool IsOpen { get; private set; }
 
         [SerializeField] private TMP_Text towerNameText;
         [SerializeField] private TMP_Text towerDescriptionText;
-        [SerializeField] private TMP_Text healthText;
-        [SerializeField] private TMP_Text damageText;
-        [SerializeField] private TMP_Text delayText;
 
-        [SerializeField] private GameObject healthImage;
         [SerializeField] private Image damageImage;
-        [SerializeField] private Image delayImage;
+        [SerializeField] private GameObject healthObj;
+        [SerializeField] private GameObject delayObj;
         [SerializeField] private GameObject towerStatusPanel;
 
         private void Awake()
@@ -35,6 +37,10 @@ namespace UIControl
                 .Append(transform.DOScale(1, 0.25f).From(0))
                 .Join(transform.GetChild(0).DORotate(new Vector3(0, 360, 0), 0.25f, RotateMode.FastBeyond360));
             _moveCardTween = transform.DOMove(_initPos, 0.25f).From().SetAutoKill(false);
+
+            _healthText = healthObj.transform.GetChild(0).GetComponent<TMP_Text>();
+            _damageText = damageImage.transform.GetChild(0).GetComponent<TMP_Text>();
+            _delayText = delayObj.transform.GetChild(0).GetComponent<TMP_Text>();
         }
 
         public void OpenTowerCard(TowerData towerData, Transform buttonTransform)
@@ -50,7 +56,8 @@ namespace UIControl
                 towerNameText.text = uiManager.towerNameDic[towerData.TowerType];
                 towerDescriptionText.text = uiManager.towerInfoDic[towerData.TowerType];
 
-                healthImage.SetActive(towerData.IsUnitTower);
+                healthObj.SetActive(towerData.IsUnitTower);
+                delayObj.SetActive(!towerData.IsUnitTower);
 
                 if (towerData is BattleTowerData battleTowerData)
                 {
@@ -58,17 +65,15 @@ namespace UIControl
                     if (battleTowerData.IsUnitTower)
                     {
                         var unitTowerData = (UnitTowerData)battleTowerData;
-                        healthText.text = CachedNumber.GetUIText(unitTowerData.UnitHealth);
-                        delayText.text = CachedNumber.GetUIText(unitTowerData.UnitReSpawnTime);
+                        _healthText.text = CachedNumber.GetUIText(unitTowerData.UnitHealth);
                     }
                     else
                     {
-                        delayText.text = CachedNumber.GetUIText(battleTowerData.AttackRpm);
+                        _delayText.text = CachedNumber.GetUIText(battleTowerData.AttackRpm);
                     }
 
                     damageImage.sprite = uiManager.GetTowerType(_towerData);
-                    delayImage.sprite = uiManager.IsUnitTower(battleTowerData);
-                    damageText.text = CachedNumber.GetUIText(battleTowerData.BaseDamage);
+                    _damageText.text = CachedNumber.GetUIText(battleTowerData.BaseDamage);
                 }
                 else
                 {

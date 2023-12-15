@@ -122,7 +122,7 @@ namespace TowerControl
             StatusBarUIController.Add(_unitReSpawnBar, _reSpawnBarTransform);
             _unitReSpawnBar.Init();
             _unitReSpawnBar.OnRespawnEvent += UnitReSpawn;
-            _unitReSpawnBar.StartLoading(10);
+            _unitReSpawnBar.StartLoading(UnitReSpawnTime);
         }
 
         private void UnitReSpawn()

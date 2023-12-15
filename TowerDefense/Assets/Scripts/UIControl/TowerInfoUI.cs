@@ -6,6 +6,7 @@ using TMPro;
 using TowerControl;
 using UnityEngine;
 using UnityEngine.Localization.Settings;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace UIControl
@@ -20,21 +21,25 @@ namespace UIControl
         private bool _isTargeting;
         private Transform _statusInfoPanel;
 
+        private TMP_Text _healthText;
+        private TMP_Text _rangeText;
+        private TMP_Text _rpmText;
+        private TMP_Text _respawnText;
+        private TMP_Text _damageText;
+
         [Header("-------------Tower Status--------------")] [SerializeField]
         private Transform followTowerUI;
 
-        [SerializeField] private GameObject healthObj;
-        [SerializeField] private Transform stars;
         [SerializeField] private Image damageImage;
-        [SerializeField] private Image delayImage;
+        [SerializeField] private GameObject healthObj;
+        [SerializeField] private GameObject rangeObj;
+        [SerializeField] private GameObject rpmObj;
+        [SerializeField] private GameObject respawnObj;
+        [SerializeField] private Transform stars;
+
         [SerializeField] private TextMeshProUGUI towerNameText;
         [SerializeField] private TextMeshProUGUI costText;
-        [SerializeField] private TextMeshProUGUI healthText;
-        [SerializeField] private TextMeshProUGUI damageText;
-        [SerializeField] private TextMeshProUGUI attackRangeText;
-        [SerializeField] private TextMeshProUGUI rpmText;
         [SerializeField] private TextMeshProUGUI sellCostText;
-        [SerializeField] private GameObject statusInfoPanel;
 
         #region Unity Event
 
@@ -49,6 +54,12 @@ namespace UIControl
             {
                 _starImages[i] = stars.GetChild(i).GetChild(0).GetComponent<Image>();
             }
+
+            _healthText = healthObj.transform.GetChild(0).GetComponent<TMP_Text>();
+            _rangeText = rangeObj.transform.GetChild(0).GetComponent<TMP_Text>();
+            _rpmText = rpmObj.transform.GetChild(0).GetComponent<TMP_Text>();
+            _respawnText = respawnObj.transform.GetChild(0).GetComponent<TMP_Text>();
+            _damageText = damageImage.transform.GetChild(0).GetComponent<TMP_Text>();
         }
 
         private void LateUpdate()
@@ -75,27 +86,30 @@ namespace UIControl
 
         public void SetSupportInfoUI()
         {
-            statusInfoPanel.SetActive(false);
+            _statusInfoPanel.gameObject.SetActive(false);
         }
 
         public void SetTowerInfo(Tower tower, bool isUnitTower, sbyte level, ushort upgradeCost, ushort sellCost)
         {
-            if (!statusInfoPanel.activeSelf) statusInfoPanel.SetActive(true);
+            if (!_statusInfoPanel.gameObject.activeSelf) _statusInfoPanel.gameObject.SetActive(true);
             if (tower.TowerData is BattleTowerData battleTowerData)
             {
                 if (isUnitTower)
                 {
                     var unitTower = (UnitTower)tower;
-                    healthText.text = CachedNumber.GetUIText(unitTower.UnitHealth * (level + 1));
-                    rpmText.text = CachedNumber.GetUIText(unitTower.UnitReSpawnTime);
+                    _healthText.text = CachedNumber.GetUIText(unitTower.UnitHealth * (level + 1));
+                    _respawnText.text = CachedNumber.GetUIText(unitTower.UnitReSpawnTime);
                 }
                 else
                 {
-                    rpmText.text = CachedNumber.GetUIText(battleTowerData.AttackRpm);
+                    _rpmText.text = CachedNumber.GetUIText(battleTowerData.AttackRpm);
                 }
             }
 
             healthObj.SetActive(isUnitTower);
+            rangeObj.SetActive(!isUnitTower);
+            rpmObj.SetActive(!isUnitTower);
+            respawnObj.SetActive(isUnitTower);
 
             var towerType = tower.TowerData.TowerType;
             if (!towerType.Equals(_towerType))
@@ -104,13 +118,12 @@ namespace UIControl
                 var uiManager = UIManager.Instance;
                 towerNameText.text = uiManager.towerNameDic[towerType];
                 damageImage.sprite = uiManager.GetTowerType(tower.TowerData);
-                delayImage.sprite = uiManager.IsUnitTower(tower.TowerData);
             }
 
             DisplayStarsForTowerLevel(level);
             costText.text = upgradeCost + "g";
-            damageText.text = CachedNumber.GetUIText(tower.Damage);
-            attackRangeText.text = CachedNumber.GetUIText(tower.TowerRange);
+            _damageText.text = CachedNumber.GetUIText(tower.Damage);
+            _rangeText.text = CachedNumber.GetUIText(tower.TowerRange);
             sellCostText.text = sellCost + "g";
         }
 

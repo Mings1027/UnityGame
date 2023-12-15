@@ -377,9 +377,7 @@ namespace UIControl
         }
 
         public Sprite GetTowerType(TowerData t) => t.IsMagicTower ? magicSprite : physicalSprite;
-
-        public Sprite IsUnitTower(TowerData t) => t.IsUnitTower ? reSpawnSprite : rpmSprite;
-
+        
         public void InstantiateTower(TowerType towerType, Vector3 placePos, Vector3 towerForward)
         {
             var t = Instantiate(_towerObjDictionary[towerType], placePos, Quaternion.identity);
@@ -522,7 +520,6 @@ namespace UIControl
                         PoolObjectManager.Get(PoolObjectKey.BuildSmoke, placePos);
                         _cam.transform.DOShakePosition(0.05f);
                     }));
-            print(battleTowerData.BaseDamage);
             t.TowerLevelUp();
             t.TowerSetting(battleTowerData.TowerMeshes[t.TowerLevel], battleTowerData.BaseDamage,
                 battleTowerData.AttackRange,

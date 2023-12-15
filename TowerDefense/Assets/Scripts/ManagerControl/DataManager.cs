@@ -15,7 +15,7 @@ namespace ManagerControl
     {
         public static int Xp { get; set; }
         public static SurvivedWave SurvivedWaves { get; private set; }
-        public static bool IsGameOver { get; private set; }
+        private static bool IsGameOver { get; set; }
         private static string _path;
         private static byte _difficultyLevel;
         private static byte _lastSurvivedWave;
