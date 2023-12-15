@@ -218,9 +218,14 @@ namespace ManagerControl
 
         #endregion
 
-        private void StartGame()
+        private async UniTaskVoid StartGame()
         {
-            SceneManager.LoadScene("MainGameScene");
+            var asyncOperation = SceneManager.LoadSceneAsync("MainGameScene");
+            while (!asyncOperation.isDone)
+            {
+                await UniTask.Yield();
+            }
+
             DataManager.Init();
         }
     }

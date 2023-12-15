@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using DataControl;
@@ -93,7 +92,7 @@ namespace UIControl
                 var towerButton = towerButtons.GetChild(i).GetComponent<TowerButton>();
                 towerButton.buttonIndex = (byte)i;
                 towerButton.OnPointerDownEvent += PointerDown;
-                towerButton.OnCamDisableEvent += () => _cameraManager.enabled = false;
+                towerButton.OnCamDisableEvent += () => _cameraManager.DisableForPlaceTower();
                 towerButton.OnPointerUpEvent += CloseTowerCard;
                 towerButton.OnCamEnableEvent += () => _cameraManager.enabled = true;
                 towerButton.OnBeginDragEvent += OnBeginDrag;

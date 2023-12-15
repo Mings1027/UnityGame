@@ -365,5 +365,11 @@ namespace ManagerControl
 
             statusBar.localScale = newScale;
         }
+
+        public void DisableForPlaceTower()
+        {
+            enabled = false;
+            _startSmoothStop = false;
+        }
     }
 }

@@ -26,11 +26,6 @@ namespace TowerControl
             Outline.enabled = false;
         }
 
-        private void OnDisable()
-        {
-            UIManager.Instance.Mana.ManaRegenValue--;
-        }
-
         public void OnPointerDown(PointerEventData eventData)
         {
         }
@@ -43,9 +38,10 @@ namespace TowerControl
             OnClickTower?.Invoke(this);
             Outline.enabled = true;
         }
-        
+
         public virtual void ObjectDisable()
         {
+            UIManager.Instance.Mana.ManaRegenValue--;
             var g = gameObject;
             g.SetActive(false);
             Destroy(g);

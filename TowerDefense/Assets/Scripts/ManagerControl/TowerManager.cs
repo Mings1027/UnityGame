@@ -42,28 +42,21 @@ namespace ManagerControl
             _cts?.Dispose();
         }
 
-        private void OnApplicationPause(bool pauseStatus)
-        {
-            Application.targetFrameRate = pauseStatus ? 20 : 60;
-        }
-
         #endregion
 
         #region TowerControl
 
         public void StartTargeting()
         {
-            // enabled = true;
+            Application.targetFrameRate = 60;
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
-            Application.targetFrameRate = 60;
             UIManager.Instance.Mana.StartManaRegen();
             TowerUpdate().Forget();
         }
 
         public void StopTargeting()
         {
-            // enabled = false;
             if (_cts.IsCancellationRequested) return;
             _cts?.Cancel();
             _cts?.Dispose();
@@ -86,7 +79,7 @@ namespace ManagerControl
         {
             while (!_cts.IsCancellationRequested)
             {
-                await UniTask.Delay(10);
+                await UniTask.Yield();
                 var towerCount = _towers.Count;
                 for (var i = 0; i < towerCount; i++)
                 {

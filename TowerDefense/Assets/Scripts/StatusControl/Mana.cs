@@ -47,8 +47,8 @@ namespace StatusControl
         {
             if (IsFull) return;
             Current += amount;
-            manaText.text = Current + " / " + Initial;
             if (Current > Initial) Current = Initial;
+            manaText.text = Current + " / " + Initial;
         }
 
         private async UniTaskVoid AutoManaRegenerate()

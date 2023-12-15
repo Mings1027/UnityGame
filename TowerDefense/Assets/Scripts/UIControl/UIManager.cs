@@ -94,8 +94,6 @@ namespace UIControl
         [SerializeField] private Image checkMoveUnitPanel;
         [SerializeField] private Sprite physicalSprite;
         [SerializeField] private Sprite magicSprite;
-        [SerializeField] private Sprite rpmSprite;
-        [SerializeField] private Sprite reSpawnSprite;
 
         [Header("----------Tower Panel----------"), SerializeField]
         private RectTransform infoWindow;
@@ -183,6 +181,19 @@ namespace UIControl
         public void OnPointerUp(PointerEventData eventData)
         {
             IsOnUI = false;
+        }
+
+        private void OnApplicationFocus(bool hasFocus)
+        {
+            if (hasFocus)
+            {
+                Application.targetFrameRate = 60;
+                Resume();
+            }
+            else
+            {
+                Pause();
+            }
         }
 
         #endregion
@@ -294,9 +305,7 @@ namespace UIControl
             pauseButton.onClick.AddListener(() =>
             {
                 SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
-                Time.timeScale = 0;
-                pausePanelBlockImage.raycastTarget = false;
-                _pauseSequence.Restart();
+                Pause();
             });
 
             centerButton.onClick.AddListener(() =>
@@ -309,9 +318,7 @@ namespace UIControl
             resumeButton.onClick.AddListener(() =>
             {
                 SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
-                Time.timeScale = _curTimeScale;
-                pausePanelBlockImage.raycastTarget = true;
-                _pauseSequence.PlayBackwards();
+                Resume();
             });
             bgmToggle.isOn = false;
             bgmToggle.onValueChanged.AddListener(delegate
@@ -374,10 +381,11 @@ namespace UIControl
             await towerPanel.DOAnchorPosX(0, 0.5f).SetEase(Ease.OutBack);
             _cameraManager.enabled = true;
             toggleTowerButton.GetComponent<TutorialController>().TutorialButton();
+            Input.multiTouchEnabled = true;
         }
 
         public Sprite GetTowerType(TowerData t) => t.IsMagicTower ? magicSprite : physicalSprite;
-        
+
         public void InstantiateTower(TowerType towerType, Vector3 placePos, Vector3 towerForward)
         {
             var t = Instantiate(_towerObjDictionary[towerType], placePos, Quaternion.identity);
@@ -738,10 +746,10 @@ namespace UIControl
             resumeButton.interactable = false;
             gameOverPanel.SetActive(true);
             _pauseSequence.Restart();
-            Time.timeScale = 0;
+            _towerManager.StopTargeting();
             DataManager.UpdateSurvivedWave((byte)(WaveManager.curWave - 1));
             DataManager.SaveLastSurvivedWave();
-            _towerManager.StopTargeting();
+            Time.timeScale = 0;
         }
 
         private void SpeedUp()
@@ -750,6 +758,20 @@ namespace UIControl
             Time.timeScale = _curTimeScale;
 
             _curSpeedText.text = "x" + _curTimeScale;
+        }
+
+        private void Pause()
+        {
+            Time.timeScale = 0;
+            pausePanelBlockImage.raycastTarget = false;
+            _pauseSequence.Restart();
+        }
+
+        private void Resume()
+        {
+            Time.timeScale = _curTimeScale;
+            pausePanelBlockImage.raycastTarget = true;
+            _pauseSequence.PlayBackwards();
         }
 
         #endregion

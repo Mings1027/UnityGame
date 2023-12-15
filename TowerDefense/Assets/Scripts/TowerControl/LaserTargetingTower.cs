@@ -28,10 +28,26 @@ namespace TowerControl
             attackSound.Stop();
         }
 
+        public override void TowerUpdate()
+        {
+            base.TowerUpdate();
+            if (!target || !target.enabled || _uiManager.Mana.Current < _attackMana)
+            {
+                beam.enabled = false;
+                if (attackSound.isPlaying) attackSound.Stop();
+            }
+            else
+            {
+                beam.enabled = true;
+                beam.SetPosition(0, firePos.position);
+                beam.SetPosition(1, target.bounds.center);
+                if (!attackSound.isPlaying)
+                    attackSound.Play();
+            }
+        }
+
         protected override void Detect()
         {
-            beam.enabled = false;
-            if (attackSound.isPlaying) attackSound.Stop();
             var size = Physics.OverlapSphereNonAlloc(transform.position, TowerRange, targetColliders, targetLayer);
             if (size <= 0)
             {
@@ -71,14 +87,8 @@ namespace TowerControl
                 return;
             }
 
-            beam.enabled = true;
-            beam.SetPosition(0, firePos.position);
-            beam.SetPosition(1, target.bounds.center);
             Hit();
             _uiManager.Mana.Damage(_attackMana);
-
-            if (!attackSound.isPlaying)
-                attackSound.Play();
         }
 
         public void Hit()
