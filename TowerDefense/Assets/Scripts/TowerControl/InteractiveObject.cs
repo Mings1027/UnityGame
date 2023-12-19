@@ -2,6 +2,7 @@ using CustomEnumControl;
 using ManagerControl;
 using PoolObjectControl;
 using TextControl;
+// using TextControl;
 using UIControl;
 using UnityEngine;
 using UnityEngine.EventSystems;

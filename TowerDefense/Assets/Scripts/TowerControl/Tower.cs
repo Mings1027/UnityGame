@@ -1,28 +1,26 @@
 using System;
 using DataControl;
-using EPOOutline;
 using GameControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.Serialization;
 
 namespace TowerControl
 {
+    [DisallowMultipleComponent]
     public abstract class Tower : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         private MeshRenderer _meshRenderer;
         private MeshFilter _defaultMesh;
         private MeshFilter _meshFilter;
-        private bool _isBuilt;
 
+        protected bool isBuilt;
         protected BoxCollider boxCollider;
-        protected Cooldown cooldown;
-        public event Action<Tower> OnClickTower;
+        protected Cooldown attackCooldown;
+        public event Action<Tower> OnClickTowerAction;
         public byte TowerRange { get; private set; }
         public int Damage { get; private set; }
         public sbyte TowerLevel { get; private set; }
 
-        public Outlinable Outline { get; private set; }
         public TowerData TowerData => towerData;
 
         [SerializeField] private TowerData towerData;
@@ -37,7 +35,6 @@ namespace TowerControl
         protected virtual void OnEnable()
         {
             TowerLevel = -1;
-            Outline.enabled = false;
             _meshFilter = _defaultMesh;
         }
 
@@ -47,11 +44,10 @@ namespace TowerControl
 
         public virtual void OnPointerUp(PointerEventData eventData)
         {
-            if (!_isBuilt) return;
-            if (Input.touchCount > 1) return;
+            if (!isBuilt) return;
+            if (Input.touchCount != 1) return;
             if (!Input.GetTouch(0).deltaPosition.Equals(Vector2.zero)) return;
-            OnClickTower?.Invoke(this);
-            Outline.enabled = true;
+            OnClickTowerAction?.Invoke(this);
         }
 
         #endregion
@@ -73,7 +69,6 @@ namespace TowerControl
 
         protected virtual void Init()
         {
-            Outline = GetComponent<Outlinable>();
             boxCollider = GetComponent<BoxCollider>();
             _meshFilter = transform.GetChild(0).GetComponent<MeshFilter>();
             _meshRenderer = transform.GetChild(0).GetComponent<MeshRenderer>();
@@ -82,12 +77,13 @@ namespace TowerControl
 
         #region Public Function
 
-        public virtual void ObjectDisable()
+        public virtual void DisableObject()
         {
             var g = gameObject;
             g.SetActive(false);
             Destroy(g);
         }
+
         public void TowerLevelUp()
         {
             TowerLevel++;
@@ -96,10 +92,10 @@ namespace TowerControl
         public virtual void TowerSetting(MeshFilter towerMesh, int damageData, byte rangeData,
             ushort rpmData)
         {
-            _isBuilt = true;
+            isBuilt = true;
             TowerRange = rangeData;
             Damage = damageData;
-            cooldown.cooldownTime = 60 / (float)rpmData;
+            attackCooldown.cooldownTime = 60 / (float)rpmData;
             _meshFilter.sharedMesh = towerMesh.sharedMesh;
 
             ColliderSize();

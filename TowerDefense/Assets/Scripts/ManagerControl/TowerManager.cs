@@ -79,7 +79,7 @@ namespace ManagerControl
         {
             while (!_cts.IsCancellationRequested)
             {
-                await UniTask.Yield();
+                await UniTask.Delay(10);
                 var towerCount = _towers.Count;
                 for (var i = 0; i < towerCount; i++)
                 {

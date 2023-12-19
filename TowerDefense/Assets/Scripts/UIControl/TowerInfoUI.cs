@@ -1,3 +1,4 @@
+using System.Globalization;
 using CustomEnumControl;
 using DataControl;
 using GameControl;
@@ -97,12 +98,12 @@ namespace UIControl
                 if (isUnitTower)
                 {
                     var unitTower = (UnitTower)tower;
-                    _healthText.text = CachedNumber.GetUIText(unitTower.UnitHealth * (level + 1));
-                    _respawnText.text = CachedNumber.GetUIText(unitTower.UnitReSpawnTime);
+                    _healthText.text = (unitTower.UnitHealth * (level + 1)).ToString();
+                    _respawnText.text = unitTower.UnitReSpawnTime.ToString(CultureInfo.InvariantCulture);
                 }
                 else
                 {
-                    _rpmText.text = CachedNumber.GetUIText(battleTowerData.AttackRpm);
+                    _rpmText.text = battleTowerData.AttackRpm.ToString();
                 }
             }
 
@@ -122,8 +123,8 @@ namespace UIControl
 
             DisplayStarsForTowerLevel(level);
             costText.text = upgradeCost + "g";
-            _damageText.text = CachedNumber.GetUIText(tower.Damage);
-            _rangeText.text = CachedNumber.GetUIText(tower.TowerRange);
+            _damageText.text = tower.Damage.ToString();
+            _rangeText.text = tower.TowerRange.ToString();
             sellCostText.text = sellCost + "g";
         }
 

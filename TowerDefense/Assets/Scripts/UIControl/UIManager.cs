@@ -13,20 +13,18 @@ using StatusControl;
 using TextControl;
 using TMPro;
 using TowerControl;
-using UnitControl.TowerUnitControl;
+using UnitControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace UIControl
 {
     public class UIManager : Singleton<UIManager>, IPointerDownHandler, IPointerUpHandler
     {
-        private TowerRangeIndicator _towerRangeIndicator;
         private TowerManager _towerManager;
         private CameraManager _cameraManager;
         private TowerCardController _towerCardController;
@@ -53,6 +51,8 @@ namespace UIControl
         private TMP_Text[] _towerCostTexts;
         private TMP_Text _curSpeedText;
 
+        private TowerRangeIndicator _towerRangeIndicator;
+
         private ushort _sellTowerCost;
         private int _towerCost;
         private byte _curTimeScale;
@@ -69,7 +69,7 @@ namespace UIControl
             set
             {
                 _towerCost = value;
-                costText.text = CachedNumber.GetUIText(_towerCost);
+                costText.text = _towerCost.ToString();
             }
         }
 
@@ -114,6 +114,8 @@ namespace UIControl
 
         [SerializeField] private GameObject gameEndPanel;
         [SerializeField] private Transform pausePanel;
+        [SerializeField] private GameObject bonusMapPanel;
+
         [SerializeField] private Image pausePanelBlockImage;
         [SerializeField] private Button pauseButton;
         [SerializeField] private Button centerButton;
@@ -128,7 +130,6 @@ namespace UIControl
         [SerializeField] private TextMeshProUGUI waveText;
 
         [SerializeField] private MoveUnitController moveUnitController;
-        [SerializeField] private GameObject bonusMapPanel;
 
         #region Unity Event
 
@@ -143,14 +144,13 @@ namespace UIControl
             LocaleDictionaryInit();
             TweenInit();
             MenuButtonInit();
-
+            _towerRangeIndicator = FindObjectOfType<TowerRangeIndicator>();
             LocalizationSettings.SelectedLocaleChanged += ChangeLocaleDictionary;
         }
 
         private void Start()
         {
             _cameraManager = _cam.GetComponentInParent<CameraManager>();
-            _towerRangeIndicator = FindObjectOfType<TowerRangeIndicator>();
             _towerManager = FindObjectOfType<TowerManager>();
             gameOverPanel.SetActive(false);
             gameEndPanel.SetActive(false);
@@ -188,11 +188,11 @@ namespace UIControl
             if (hasFocus)
             {
                 Application.targetFrameRate = 60;
-                Resume();
+                Time.timeScale = _curTimeScale;
             }
             else
             {
-                Pause();
+                Time.timeScale = 0;
             }
         }
 
@@ -457,15 +457,13 @@ namespace UIControl
             _upgradeSellPanelTween.PlayBackwards();
 
             _isPanelOpen = false;
-            if (_curSelectedTower) _curSelectedTower.Outline.enabled = false;
             _curSelectedTower = null;
-            if (_curSupportTower) _curSupportTower.Outline.enabled = false;
             _curSupportTower = null;
             _towerRangeIndicator.DisableIndicator();
 
             if (checkMoveUnitPanel.enabled) checkMoveUnitPanel.enabled = false;
             if (!_curUnitTower) return;
-            _curUnitTower.OffUnitIndicator();
+            _curUnitTower.DeActiveUnitIndicator();
             _curUnitTower = null;
         }
 
@@ -532,7 +530,7 @@ namespace UIControl
             t.TowerSetting(battleTowerData.TowerMeshes[t.TowerLevel], battleTowerData.BaseDamage,
                 battleTowerData.AttackRange,
                 battleTowerData.AttackRpm);
-            t.OnClickTower += ClickTower;
+            t.OnClickTowerAction += ClickTower;
 
             _towerManager.AddTower(t);
         }
@@ -603,25 +601,14 @@ namespace UIControl
             _upgradeSellPanelTween.Restart();
 
             _isPanelOpen = true;
-            if (_curSupportTower)
-            {
-                _curSupportTower.Outline.enabled = false;
-                _curSupportTower = null;
-            }
+            if (_curSupportTower) _curSupportTower = null;
 
-            if (_curSelectedTower) _curSelectedTower.Outline.enabled = false;
             if (clickedTower.Equals(_curSelectedTower)) return;
 
-            if (_curUnitTower)
-            {
-                _curUnitTower.OffUnitIndicator();
-            }
+            if (_curUnitTower) _curUnitTower.DeActiveUnitIndicator();
 
             var isUnitTower = clickedTower.TowerData.IsUnitTower;
-            if (isUnitTower)
-            {
-                _curUnitTower = clickedTower.GetComponent<UnitTower>();
-            }
+            if (isUnitTower) _curUnitTower = clickedTower.GetComponent<UnitTower>();
 
             _curSelectedTower = clickedTower;
 
@@ -636,12 +623,11 @@ namespace UIControl
 
         private void ClickSupportTower(SupportTower clickTower)
         {
+            if (Input.touchCount != 1) return;
             SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
             _isPanelOpen = true;
-            if (_curSupportTower) _curSupportTower.Outline.enabled = false;
             if (_curSelectedTower)
             {
-                _curSelectedTower.Outline.enabled = false;
                 _towerRangeIndicator.DisableIndicator();
                 _curSelectedTower = null;
             }
@@ -651,8 +637,10 @@ namespace UIControl
             upgradeButton.SetActive(false);
             moveUnitButton.SetActive(false);
             _upgradeSellPanelTween.Restart();
-            towerInfoUI.SetInfoUI(clickTower.transform.position);
+            var position = clickTower.transform.position;
+            towerInfoUI.SetInfoUI(position);
             towerInfoUI.SetSupportInfoUI();
+            _towerRangeIndicator.SetIndicator(position);
             _sellTowerCost = GetTowerSellCost(clickTower.TowerType);
             towerInfoUI.SetSupportTowerInfo(clickTower, _sellTowerCost);
         }
@@ -712,10 +700,13 @@ namespace UIControl
                     .SetCostText(_sellTowerCost);
                 _sellTowerCost = 0;
                 _towerManager.RemoveTower(_curSelectedTower);
-                _curSelectedTower.ObjectDisable();
+                _curSelectedTower.DisableObject();
             }
             else
             {
+                SoundManager.Instance.PlaySound(_sellTowerCost < 100 ? SoundEnum.LowCost :
+                    _sellTowerCost < 250 ? SoundEnum.MediumCost : SoundEnum.HighCost);
+
                 var towerType = _curSupportTower.TowerType;
                 _towerCountDictionary[towerType]--;
                 _towerCostTextDictionary[towerType].text = GetBuildCost(towerType) + "g";

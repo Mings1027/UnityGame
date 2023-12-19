@@ -85,7 +85,7 @@ PlayerSettings:
   hideHomeButton: 0
   submitAnalytics: 1
   usePlayerLog: 1
-  bakeCollisionMeshes: 0
+  bakeCollisionMeshes: 1
   forceSingleInstance: 0
   useFlipModelSwapchain: 1
   resizableWindow: 0
@@ -221,7 +221,7 @@ PlayerSettings:
   iOSDeviceRequirements: []
   iOSURLSchemes: []
   macOSURLSchemes: []
-  iOSBackgroundModes: 128
+  iOSBackgroundModes: 0
   iOSMetalForceHardShadows: 0
   metalEditorSupport: 1
   metalAPIValidation: 1
@@ -544,8 +544,11 @@ PlayerSettings:
   - m_BuildTarget: Android
     m_EncodingQuality: 1
   - m_BuildTarget: iPhone
-    m_EncodingQuality: 1
-  m_BuildTargetGroupLightmapSettings: []
+    m_EncodingQuality: 0
+  m_BuildTargetGroupLightmapSettings:
+  - m_BuildTarget: iPhone
+    m_TextureStreamingEnabled: 0
+    m_TextureStreamingPriority: 0
   m_BuildTargetNormalMapEncoding:
   - m_BuildTarget: Android
     m_Encoding: 1
@@ -816,7 +819,7 @@ PlayerSettings:
     WebGL: UNITY_POST_PROCESSING_STACK_V2;TextMeshPro;EPO_DOTWEEN;URP_OUTLINE
     Windows Store Apps: UNITY_POST_PROCESSING_STACK_V2;TextMeshPro;EPO_DOTWEEN;URP_OUTLINE
     XboxOne: UNITY_POST_PROCESSING_STACK_V2;TextMeshPro;EPO_DOTWEEN;URP_OUTLINE
-    iPhone: UNITASK_DOTWEEN_SUPPORT;TextMeshPro;EPO_DOTWEEN;URP_OUTLINE
+    iPhone: UNITASK_DOTWEEN_SUPPORT;TextMeshPro
     tvOS: UNITY_POST_PROCESSING_STACK_V2;TextMeshPro;EPO_DOTWEEN;URP_OUTLINE
   additionalCompilerArguments: {}
   platformArchitecture: {}
@@ -845,7 +848,7 @@ PlayerSettings:
   selectedPlatform: 2
   additionalIl2CppArgs: 
   scriptingRuntimeVersion: 1
-  gcIncremental: 0
+  gcIncremental: 1
   assemblyVersionValidation: 1
   gcWBarrierValidation: 0
   apiCompatibilityLevelPerPlatform: {}

@@ -16,9 +16,8 @@ namespace MapControl
     public class MapManager : MonoBehaviour
     {
         private CancellationTokenSource _cts;
-        private MeshFilter _meshFilter;
-
-        private MeshRenderer _meshRenderer;
+        // private MeshFilter _meshFilter;
+        // private MeshRenderer _meshRenderer;
 
         // private MeshFilter _obstacleMeshFilter;
         // private MeshRenderer _obstacleMeshRenderer;
@@ -36,8 +35,9 @@ namespace MapControl
         private Vector3[] _checkDirection;
         private Vector3[] _diagonalDir;
         private List<GameObject> _map;
+
         private List<Vector3> _newMapWayPoints;
-        private List<MeshFilter> _meshFilters;
+        // private List<MeshFilter> _meshFilters;
         // private List<MeshFilter> _obstacleMeshFilters;
 
         private HashSet<Vector3> _expandBtnPosHashSet;
@@ -120,26 +120,14 @@ namespace MapControl
 
         #endregion
 
-        public void MakeMap(int index)
-        {
-            transform.GetChild(2).gameObject.SetActive(true);
-            _waveManager.OnPlaceExpandButtonEvent += PlaceExpandButtons;
-            PlaceStartMap(index);
-            CombineMesh();
-            // CombineObstacleMesh();
-
-            InitExpandButtonPosition();
-            PlaceExpandButtons();
-            // GenerateAutoMap().Forget();
-        }
 
         #region Init
 
         private void ComponentInit()
         {
             _waveManager = FindObjectOfType<WaveManager>();
-            _meshFilter = mapMesh.GetComponent<MeshFilter>();
-            _meshRenderer = mapMesh.GetComponent<MeshRenderer>();
+            // _meshFilter = mapMesh.GetComponent<MeshFilter>();
+            // _meshRenderer = mapMesh.GetComponent<MeshRenderer>();
             // _obstacleMeshFilter = obstacleMesh.GetComponent<MeshFilter>();
             // _obstacleMeshRenderer = obstacleMesh.GetComponent<MeshRenderer>();
         }
@@ -157,7 +145,7 @@ namespace MapControl
             };
             _map = new List<GameObject>();
             _newMapWayPoints = new List<Vector3>(4);
-            _meshFilters = new List<MeshFilter>();
+            // _meshFilters = new List<MeshFilter>();
             // _obstacleMeshFilters = new List<MeshFilter>(300);
             _expandBtnPosHashSet = new HashSet<Vector3>();
             _expandButtons = new List<ExpandMapButton>();
@@ -233,6 +221,20 @@ namespace MapControl
         }
 
         #endregion
+
+        public void MakeMap(int index)
+        {
+            transform.GetChild(2).gameObject.SetActive(true);
+            _waveManager.OnPlaceExpandButtonEvent += PlaceExpandButtons;
+            _waveManager.enabled = false;
+            PlaceStartMap(index);
+            // CombineMesh();
+            // CombineObstacleMesh();
+
+            InitExpandButtonPosition();
+            PlaceExpandButtons();
+            // GenerateAutoMap().Forget();
+        }
 
         private void ExpandMap(Transform newMapPos)
         {
@@ -444,7 +446,7 @@ namespace MapControl
 
         private async UniTaskVoid SetMap()
         {
-            CombineMesh();
+            // CombineMesh();
             // CombineObstacleMesh();
             navMeshSurface.BuildNavMesh();
             ramNavMeshSurface.BuildNavMesh();
@@ -473,42 +475,42 @@ namespace MapControl
             for (var i = 0; i < expandBtnCount; i++) _expandButtons[i].OnExpandMapEvent += ExpandMap;
         }
 
-        private void CombineMesh()
-        {
-            _meshFilters.Clear();
-            var mapCount = _map.Count;
-            for (var i = 0; i < mapCount; i++)
-            {
-                if (_map[i].transform.GetChild(0).TryGetComponent(out MeshFilter m))
-                {
-                    _meshFilters.Add(m);
-                }
-            }
-
-            var combineInstance = new CombineInstance[_meshFilters.Count];
-
-            for (var i = 0; i < _meshFilters.Count; i++)
-            {
-                combineInstance[i].mesh = _meshFilters[i].sharedMesh;
-                combineInstance[i].transform = _meshFilters[i].transform.localToWorldMatrix;
-            }
-
-            var mesh = _meshFilter.mesh;
-            mesh.Clear();
-            mesh.CombineMeshes(combineInstance);
-            if (_meshFilters[0].TryGetComponent(out MeshRenderer r))
-            {
-                _meshRenderer.sharedMaterial = r.sharedMaterial;
-            }
-
-            for (var i = 0; i < _meshFilters.Count; i++)
-            {
-                if (_meshFilters[i].TryGetComponent(out MeshRenderer meshRenderer))
-                {
-                    Destroy(meshRenderer);
-                }
-            }
-        }
+        // private void CombineMesh()
+        // {
+        //     _meshFilters.Clear();
+        //     var mapCount = _map.Count;
+        //     for (var i = 0; i < mapCount; i++)
+        //     {
+        //         if (_map[i].transform.GetChild(0).TryGetComponent(out MeshFilter m))
+        //         {
+        //             _meshFilters.Add(m);
+        //         }
+        //     }
+        //
+        //     var combineInstance = new CombineInstance[_meshFilters.Count];
+        //
+        //     for (var i = 0; i < _meshFilters.Count; i++)
+        //     {
+        //         combineInstance[i].mesh = _meshFilters[i].sharedMesh;
+        //         combineInstance[i].transform = _meshFilters[i].transform.localToWorldMatrix;
+        //     }
+        //
+        //     var mesh = _meshFilter.mesh;
+        //     mesh.Clear();
+        //     mesh.CombineMeshes(combineInstance);
+        //     if (_meshFilters[0].TryGetComponent(out MeshRenderer r))
+        //     {
+        //         _meshRenderer.sharedMaterial = r.sharedMaterial;
+        //     }
+        //
+        //     for (var i = 0; i < _meshFilters.Count; i++)
+        //     {
+        //         if (_meshFilters[i].TryGetComponent(out MeshRenderer meshRenderer))
+        //         {
+        //             Destroy(meshRenderer);
+        //         }
+        //     }
+        // }
 
         // private void CombineObstacleMesh()
         // {

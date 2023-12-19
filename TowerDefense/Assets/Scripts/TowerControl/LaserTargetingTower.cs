@@ -10,6 +10,7 @@ namespace TowerControl
     {
         private UIManager _uiManager;
         private float _attackMana;
+        private bool _isFlyingMonster;
         [SerializeField] private LineRenderer beam;
 
         protected override void Init()
@@ -28,23 +29,23 @@ namespace TowerControl
             attackSound.Stop();
         }
 
-        public override void TowerUpdate()
-        {
-            base.TowerUpdate();
-            if (!target || !target.enabled || _uiManager.Mana.Current < _attackMana)
-            {
-                beam.enabled = false;
-                if (attackSound.isPlaying) attackSound.Stop();
-            }
-            else
-            {
-                beam.enabled = true;
-                beam.SetPosition(0, firePos.position);
-                beam.SetPosition(1, target.bounds.center);
-                if (!attackSound.isPlaying)
-                    attackSound.Play();
-            }
-        }
+        // public override void TowerUpdate()
+        // {
+        //     base.TowerUpdate();
+        //     if (!target || !target.enabled || _uiManager.Mana.Current < _attackMana)
+        //     {
+        //         beam.enabled = false;
+        //         if (attackSound.isPlaying) attackSound.Stop();
+        //     }
+        //     else
+        //     {
+        //         beam.enabled = true;
+        //         beam.SetPosition(0, firePos.position);
+        //         beam.SetPosition(1, target.bounds.center);
+        //         if (!attackSound.isPlaying)
+        //             attackSound.Play();
+        //     }
+        // }
 
         protected override void Detect()
         {
@@ -68,25 +69,44 @@ namespace TowerControl
 
                 if (targetColliders[i].CompareTag("Flying Monster"))
                 {
+                    _isFlyingMonster = true;
                     target = targetColliders[i];
                     break;
                 }
 
+                _isFlyingMonster = false;
                 target = targetColliders[i];
             }
 
             isTargeting = true;
             towerState = TowerState.Attack;
+            beam.enabled = true;
+        }
+
+        protected override void ReadyToAttack()
+        {
+            if (!target || !target.enabled || _uiManager.Mana.Current < _attackMana)
+            {
+                towerState = TowerState.Detect;
+                if (attackSound.isPlaying) attackSound.Stop();
+                beam.enabled = false;
+                beam.SetPosition(0, firePos.position);
+                beam.SetPosition(1, firePos.position);
+                return;
+            }
+
+            beam.SetPosition(0, firePos.position);
+            beam.SetPosition(1, target.bounds.center);
+
+            if (attackCooldown.IsCoolingDown) return;
+            if (!attackSound.isPlaying)
+                attackSound.Play();
+            Attack();
+            attackCooldown.StartCooldown();
         }
 
         protected override void Attack()
         {
-            if (_uiManager.Mana.Current < _attackMana)
-            {
-                towerState = TowerState.Detect;
-                return;
-            }
-
             Hit();
             _uiManager.Mana.Damage(_attackMana);
         }
@@ -94,7 +114,7 @@ namespace TowerControl
         public void Hit()
         {
             if (!target.TryGetComponent(out IDamageable damageable) || !target.enabled) return;
-            damageable.Damage(Damage);
+            damageable.Damage(_isFlyingMonster ? Damage : Damage * 0.5f);
         }
     }
 }

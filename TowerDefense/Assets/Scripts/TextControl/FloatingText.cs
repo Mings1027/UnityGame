@@ -1,7 +1,7 @@
 using DG.Tweening;
-using GameControl;
 using TMPro;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace TextControl
 {
@@ -9,43 +9,47 @@ namespace TextControl
     {
         private RectTransform _rectTransform;
         private TMP_Text _text;
+        private Sequence _scaleAlphaSequence;
         private Tweener _upTween;
-        private Tweener _alphaTween;
-        private Tween _scaleTween;
 
         private void Awake()
         {
             _rectTransform = GetComponent<RectTransform>();
             _text = GetComponent<TMP_Text>();
 
-            _scaleTween = _rectTransform.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBack).SetAutoKill(false).Pause();
+            _scaleAlphaSequence = DOTween.Sequence().SetAutoKill(false).Pause()
+                .Append(_rectTransform.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBack))
+                .Join(_text.DOFade(0, 1.5f).From(1));
             _upTween = _rectTransform.DOAnchorPosY(_rectTransform.localPosition.y, 1.5f).SetAutoKill(false).Pause();
-            _alphaTween = _text.DOFade(0, 1.5f).From(1).SetAutoKill(false).Pause();
         }
 
         private void OnEnable()
         {
             Vector2 position = _rectTransform.localPosition;
-            _scaleTween.Restart();
             var randomX = Random.Range(-20, 20);
             var startPos = position + new Vector2(randomX, Random.Range(40, 100));
             var endPos = startPos + new Vector2(randomX, 100);
             _upTween.ChangeStartValue(startPos).ChangeEndValue(endPos).Restart();
-            _alphaTween.OnComplete(() => gameObject.SetActive(false)).Restart();
+            _scaleAlphaSequence.OnComplete(() => gameObject.SetActive(false)).Restart();
+        }
+
+        private void OnDestroy()
+        {
+            _scaleAlphaSequence?.Kill();
+            _upTween?.Kill();
         }
 
         public void SetCostText(ushort number, bool isPlusValue = true)
         {
             _text.text = isPlusValue
-                ? "+" + CachedNumber.GetFloatingText(number) + "g"
-                : "-" + CachedNumber.GetFloatingText(number) + "g";
+                ? "+" + number + "g"
+                : "-" + number + "g";
         }
-
-        public void SetHpText(ushort number, bool isPlusValue = true)
-        {
-            _text.text = isPlusValue
-                ? "+" + CachedNumber.GetFloatingText(number) + " HP"
-                : "-" + CachedNumber.GetFloatingText(number) + " HP";
-        }
+        // public void SetHpText(ushort number, bool isPlusValue = true)
+        // {
+        //     _text.text = isPlusValue
+        //         ? "+" + CachedNumber.GetFloatingText(number) + " HP"
+        //         : "-" + CachedNumber.GetFloatingText(number) + " HP";
+        // }
     }
 }

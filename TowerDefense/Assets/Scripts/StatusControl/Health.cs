@@ -3,6 +3,7 @@ using CustomEnumControl;
 using InterfaceControl;
 using PoolObjectControl;
 using TextControl;
+// using TextControl;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -24,9 +25,9 @@ namespace StatusControl
             Current -= amount;
             OnShakeEvent?.Invoke();
 
-            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.DamageText,
-                    transform.position + Random.insideUnitSphere)
-                .SetHpText((ushort)amount, false);
+            // PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.DamageText,
+            //         transform.position + Random.insideUnitSphere)
+            //     .SetHpText((ushort)amount, false);
             if (Current > 0f) return;
             OnDeadEvent?.Invoke();
         }
@@ -37,9 +38,12 @@ namespace StatusControl
             if (Current >= Initial) return;
 
             Current += amount;
-            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.HealText,
-                    transform.position + Random.insideUnitSphere)
-                .SetHpText((ushort)amount);
+            var randomRepeatCount = Random.Range(3, 7);
+            for (int i = 0; i < randomRepeatCount; i++)
+            {
+                PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.HealImage,
+                    transform.position + Random.insideUnitSphere);
+            }
 
             if (Current > Initial)
             {

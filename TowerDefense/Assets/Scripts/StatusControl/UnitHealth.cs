@@ -9,7 +9,7 @@ namespace StatusControl
         public override void Damage(float amount)
         {
             base.Damage(amount);
-
+        
             PoolObjectManager.Get(PoolObjectKey.BloodVfx, transform.position);
         }
     }

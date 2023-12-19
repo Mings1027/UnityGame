@@ -4,11 +4,12 @@ using System.Threading;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DataControl;
+using MonsterControl;
 using PoolObjectControl;
 using StatusControl;
 using TextControl;
+// using TextControl;
 using UIControl;
-using UnitControl.EnemyControl;
 using UnityEngine;
 using UnityEngine.AI;
 using Random = UnityEngine.Random;
@@ -164,7 +165,7 @@ namespace ManagerControl
             var ranPoint = ranWayPoint + Random.insideUnitSphere * 3;
             NavMesh.SamplePosition(ranPoint, out var hit, 5, NavMesh.AllAreas);
             var bossMonster = Instantiate(monsterData[_themeIndex].bossMonsterData.EnemyPrefab, hit.position,
-                Quaternion.identity).GetComponent<BossUnit>();
+                Quaternion.identity).GetComponent<GroundBossUnit>();
             BossInit(bossMonster, monsterData[_themeIndex].bossMonsterData);
         }
 
@@ -186,9 +187,9 @@ namespace ManagerControl
             monsterHealth.OnDeadEvent += () =>
             {
                 var coin = normalMonsterData.StartSpawnWave;
-                PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText,
-                        monsterUnit.transform.position + Random.insideUnitSphere)
-                    .SetCostText(coin);
+                // PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText,
+                //         monsterUnit.transform.position + Random.insideUnitSphere)
+                //     .SetCostText(coin);
                 UIManager.Instance.TowerCost += coin;
 
                 if (monsterUnit.TryGetComponent(out TransformMonster transformMonster))
@@ -246,7 +247,7 @@ namespace ManagerControl
         {
             while (!_cts.IsCancellationRequested)
             {
-                await UniTask.Delay(10);
+                await UniTask.Delay(10, cancellationToken: _cts.Token);
 
                 var leftEnemyCount = _monsterList.Count;
                 for (var i = leftEnemyCount - 1; i >= 0; i--)
@@ -260,11 +261,11 @@ namespace ManagerControl
 
         private void SpawnTransformMonster(Vector3 pos, TransformMonster transformMonster)
         {
-            var ranPosition = pos + Random.insideUnitSphere * 2;
-            NavMesh.SamplePosition(ranPosition, out var hit, 5, NavMesh.AllAreas);
-            PoolObjectManager.Get(PoolObjectKey.TransformSmoke, hit.position);
             for (var i = 0; i < transformMonster.SpawnCount; i++)
             {
+                var ranPosition = pos + Random.insideUnitSphere * 2;
+                NavMesh.SamplePosition(ranPosition, out var hit, 5, NavMesh.AllAreas);
+                PoolObjectManager.Get(PoolObjectKey.TransformSmoke, hit.position);
                 var monster =
                     PoolObjectManager.Get<MonsterUnit>(transformMonster.TransformMonsterData.MonsterPoolObjectKey,
                         hit.position);

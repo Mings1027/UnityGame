@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4495590511353934350}
   - component: {fileID: 3830412005822326973}
   - component: {fileID: 3830412005822326962}
-  - component: {fileID: 3830412005822326963}
+  - component: {fileID: -7775776490742624915}
   - component: {fileID: 3830412005822326960}
   - component: {fileID: 3830412005822326961}
   - component: {fileID: 3679293629623519020}
@@ -67,7 +67,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   baseTowerDamage: 1
---- !u!114 &3830412005822326963
+--- !u!114 &-7775776490742624915
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -76,13 +76,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 3830412005822326964}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 69a8ba2ae84f541738fa26a09cd7606e, type: 3}
+  m_Script: {fileID: 11500000, guid: 69ef38f7a7d664d6d99f4dae70ebb242, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   attackTargetCount: 1
-  atkRange: 1
-  sightRange: 2
-  baseOffset: 0
+  atkRange: 1.5
+  sightRange: 3.5
+  turnSpeed: 0.5
 --- !u!114 &3830412005822326960
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -134,7 +134,7 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.2
+  m_Radius: 0.3
   m_Center: {x: 0, y: 0.5, z: 0}
 --- !u!195 &3830412005822326967
 NavMeshAgent:
@@ -145,7 +145,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 3830412005822326964}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.2
+  m_Radius: 0.3
   m_Speed: 2
   m_Acceleration: 100
   avoidancePriority: 50

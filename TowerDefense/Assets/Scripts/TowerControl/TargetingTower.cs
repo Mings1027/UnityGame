@@ -11,7 +11,7 @@ namespace TowerControl
 {
     public abstract class TargetingTower : Tower
     {
-        protected Cooldown patrolCooldown;
+        private Cooldown _patrolCooldown;
         protected sbyte effectIndex;
         protected Collider[] targetColliders;
         protected AudioSource attackSound;
@@ -50,7 +50,7 @@ namespace TowerControl
             attackSound = GetComponent<AudioSource>();
             effectIndex = -1;
             targetColliders = new Collider[3];
-            patrolCooldown.cooldownTime = 0.5f;
+            _patrolCooldown.cooldownTime = 0.5f;
         }
 
         public override void TowerTargetInit()
@@ -85,7 +85,7 @@ namespace TowerControl
                 return;
             }
 
-            if (patrolCooldown.IsCoolingDown) return;
+            if (_patrolCooldown.IsCoolingDown) return;
 
             var shortestDistance = float.MaxValue;
             for (var i = 0; i < size; i++)
@@ -98,12 +98,12 @@ namespace TowerControl
             }
 
             isTargeting = true;
-            if (!cooldown.IsCoolingDown)
+            if (!attackCooldown.IsCoolingDown)
                 towerState = TowerState.Attack;
-            patrolCooldown.StartCooldown();
+            _patrolCooldown.StartCooldown();
         }
 
-        private void ReadyToAttack()
+        protected virtual void ReadyToAttack()
         {
             if (!target || !target.enabled)
             {
@@ -111,10 +111,10 @@ namespace TowerControl
                 return;
             }
 
-            if (cooldown.IsCoolingDown) return;
+            if (attackCooldown.IsCoolingDown) return;
 
             Attack();
-            cooldown.StartCooldown();
+            attackCooldown.StartCooldown();
             towerState = TowerState.Detect;
         }
 

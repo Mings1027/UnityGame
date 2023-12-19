@@ -1,0 +1,206 @@
+using System;
+using CustomEnumControl;
+using DataControl;
+using DG.Tweening;
+using GameControl;
+using InterfaceControl;
+using StatusControl;
+using UnityEngine;
+using UnityEngine.AI;
+using Random = UnityEngine.Random;
+
+namespace MonsterControl
+{
+    public abstract class MonsterUnit : MonoBehaviour
+    {
+        private Transform _childMeshTransform;
+        private Sequence _deadSequence;
+        private Collider _thisCollider;
+        private Animator _anim;
+
+        protected Cooldown attackCooldown;
+        protected Cooldown patrolCooldown;
+        protected Collider target;
+        protected Collider[] targetCollider;
+        protected LayerMask targetLayer;
+        protected UnitState unitState;
+
+        protected Health health;
+        protected NavMeshAgent navMeshAgent;
+        protected int damage;
+
+        private static readonly int IsWalk = Animator.StringToHash("isWalk");
+        private static readonly int IsAttack = Animator.StringToHash("isAttack");
+
+        public Transform healthBarTransform { get; private set; }
+        public event Action OnDisableEvent;
+
+        [SerializeField, Range(0, 5)] protected byte attackTargetCount;
+        [SerializeField, Range(0, 7)] protected float atkRange;
+        [SerializeField, Range(0, 10)] protected float sightRange;
+        [SerializeField] protected float turnSpeed;
+
+        #region Unity Event
+
+        protected virtual void Awake()
+        {
+            _childMeshTransform = transform.GetChild(0);
+            healthBarTransform = transform.GetChild(1);
+            _anim = GetComponentInChildren<Animator>();
+            navMeshAgent = GetComponent<NavMeshAgent>();
+            _thisCollider = GetComponent<Collider>();
+            health = GetComponent<Health>();
+
+            _deadSequence = DOTween.Sequence().SetAutoKill(false).Pause()
+                .Append(_childMeshTransform.DOLocalJump(-_childMeshTransform.forward, Random.Range(4, 7), 1, 1))
+                .Join(_childMeshTransform.DOLocalRotate(new Vector3(-360, 0, 0), 1, RotateMode.FastBeyond360))
+                .Join(transform.DOScale(0, 1).From(transform.localScale))
+                .OnComplete(() =>
+                {
+                    DisableObject();
+                    _childMeshTransform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
+                    transform.localScale = Vector3.one;
+                });
+        }
+
+        protected virtual void OnEnable()
+        {
+            navMeshAgent.enabled = true;
+        }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            DisableObject();
+        }
+
+        private void OnDestroy()
+        {
+            _deadSequence?.Kill();
+        }
+
+        private void OnDrawGizmos()
+        {
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireSphere(transform.position, atkRange);
+            Gizmos.color = Color.cyan;
+            Gizmos.DrawWireSphere(transform.position, sightRange);
+        }
+
+        #endregion
+
+        #region Init
+
+        public virtual void Init()
+        {
+            _thisCollider.enabled = true;
+            target = null;
+            health.OnDeadEvent += Dead;
+            _anim.enabled = true;
+        }
+
+        public virtual void SpawnInit(MonsterData monsterData)
+        {
+            unitState = UnitState.Patrol;
+            navMeshAgent.speed = monsterData.Speed;
+            SetSpeed(navMeshAgent.speed, attackCooldown.cooldownTime);
+            attackCooldown.cooldownTime = monsterData.AttackDelay;
+            damage = monsterData.Damage;
+            if (navMeshAgent.isOnNavMesh) navMeshAgent.SetDestination(Vector3.zero);
+            _anim.SetBool(IsWalk, true);
+        }
+
+        #endregion
+
+        #region Unit Update
+
+        // public abstract void MonsterUpdate();
+        public virtual void MonsterUpdate()
+        {
+            _anim.SetBool(IsWalk, navMeshAgent.velocity != Vector3.zero);
+        }
+
+        #region Monster State
+
+        protected virtual void Patrol()
+        {
+            if (patrolCooldown.IsCoolingDown) return;
+            var size = Physics.OverlapSphereNonAlloc(transform.position, sightRange, targetCollider, targetLayer);
+            if (size <= 0)
+            {
+                target = null;
+                if (navMeshAgent.isOnNavMesh)
+                {
+                    navMeshAgent.SetDestination(Vector3.zero);
+                }
+
+                patrolCooldown.StartCooldown();
+                return;
+            }
+
+            if (!target || !target.enabled)
+            {
+                target = targetCollider[0];
+            }
+
+            unitState = UnitState.Chase;
+            patrolCooldown.StartCooldown();
+        }
+
+
+        protected virtual void Attack()
+        {
+            if (!target || !target.enabled ||
+                Vector3.Distance(target.transform.position, transform.position) > atkRange)
+            {
+                unitState = UnitState.Patrol;
+                return;
+            }
+
+            if (attackCooldown.IsCoolingDown) return;
+
+            var t = transform;
+            var targetRot = Quaternion.LookRotation(target.transform.position - t.position);
+            t.rotation = Quaternion.Slerp(t.rotation, targetRot, turnSpeed);
+
+            _anim.SetTrigger(IsAttack);
+            TryDamage();
+
+            attackCooldown.StartCooldown();
+        }
+
+        protected virtual void TryDamage()
+        {
+            if (target.enabled && target.TryGetComponent(out IDamageable damageable))
+                damageable.Damage(damage);
+        }
+
+        #endregion
+
+        private void Dead()
+        {
+            _thisCollider.enabled = false;
+            navMeshAgent.enabled = false;
+            _anim.enabled = false;
+            _deadSequence.Restart();
+        }
+
+        #endregion
+
+        protected virtual void DisableObject()
+        {
+            navMeshAgent.baseOffset = 0;
+            navMeshAgent.enabled = false;
+            _thisCollider.enabled = false;
+            OnDisableEvent?.Invoke();
+            OnDisableEvent = null;
+            gameObject.SetActive(false);
+        }
+
+        public void SetSpeed(float animSpeed, float atkDelay)
+        {
+            navMeshAgent.speed = animSpeed;
+            _anim.speed = animSpeed;
+            attackCooldown.cooldownTime = atkDelay;
+        }
+    }
+}

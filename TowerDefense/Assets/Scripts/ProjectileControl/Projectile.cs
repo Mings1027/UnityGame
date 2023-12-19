@@ -1,12 +1,11 @@
-using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DataControl;
 using DG.Tweening;
+using GameControl;
 using InterfaceControl;
 using UnityEngine;
 using UnityEngine.Rendering.Universal;
-using UnityEngine.Serialization;
 
 namespace ProjectileControl
 {
@@ -22,6 +21,7 @@ namespace ProjectileControl
         private Vector3 _curPos;
         private Vector3 _startPos;
         private Vector3 _centerPos;
+        private Cooldown _disableCooldown;
 
         protected CancellationTokenSource cts;
         protected int damage;
@@ -38,6 +38,7 @@ namespace ProjectileControl
             _trailParticle = transform.GetChild(1).GetComponent<ParticleSystem>();
             _hitParticle = transform.GetChild(2).GetComponent<ParticleSystem>();
             _shadowDecal = transform.GetChild(3).GetComponent<DecalProjector>();
+            _disableCooldown.cooldownTime = 2;
             _destroyTween = DOVirtual.DelayedCall(2, () => gameObject.SetActive(false)).SetAutoKill(false).Pause();
         }
 
@@ -56,7 +57,7 @@ namespace ProjectileControl
         {
             cts.Cancel();
         }
-
+        
         private void OnDestroy()
         {
             cts.Dispose();
@@ -70,10 +71,10 @@ namespace ProjectileControl
             while (lerp < 1)
             {
                 await UniTask.Delay(10, cancellationToken: cts.Token);
-
+        
                 ProjectilePath(target.bounds.center);
             }
-
+        
             DisableProjectile();
         }
 

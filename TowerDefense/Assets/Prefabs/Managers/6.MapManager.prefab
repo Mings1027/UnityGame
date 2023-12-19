@@ -193,7 +193,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 39031de74b1634133b52724f0c5c58b8, type: 2}
+  - {fileID: 2100000, guid: 0b75058413c6445a884112450e78507c, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -354,7 +354,7 @@ MeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2623695867189686083}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 2
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -366,7 +366,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 9ed7de2530f764dc7b70db88a763d705, type: 2}
+  - {fileID: 2100000, guid: bab1d46061af246ba8a138d2ded99fbf, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -439,7 +439,6 @@ GameObject:
   m_Component:
   - component: {fileID: 6068436520631412391}
   - component: {fileID: 6068436520631412408}
-  - component: {fileID: 7695368431905845005}
   m_Layer: 0
   m_Name: 6.MapManager
   m_TagString: Untagged
@@ -502,7 +501,7 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 128
-  connectionProbability: 60
+  connectionProbability: 10
   maxSize: 200
   mapMesh: {fileID: 1996057941184193778}
   obstacleMesh: {fileID: 6297502037222795917}
@@ -511,15 +510,3 @@ MonoBehaviour:
   drawSphereRadius: 0.5
   colliderCenter: {x: 0, y: 0, z: 0}
   colliderSize: {x: 12, y: 0, z: 12}
---- !u!114 &7695368431905845005
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6068436520631412409}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 339d4582dc70243c7911059f1fee9761, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

@@ -82,7 +82,8 @@ namespace CustomEnumControl
         ReSpawnBar,
         FloatingText,
         HealText,
-        DamageText
+        DamageText,
+        HealImage
     }
 
     public enum MonsterPoolObjectKey

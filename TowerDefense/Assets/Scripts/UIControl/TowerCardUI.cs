@@ -65,15 +65,15 @@ namespace UIControl
                     if (battleTowerData.IsUnitTower)
                     {
                         var unitTowerData = (UnitTowerData)battleTowerData;
-                        _healthText.text = CachedNumber.GetUIText(unitTowerData.UnitHealth);
+                        _healthText.text = unitTowerData.UnitHealth.ToString();
                     }
                     else
                     {
-                        _delayText.text = CachedNumber.GetUIText(battleTowerData.AttackRpm);
+                        _delayText.text = battleTowerData.AttackRpm.ToString();
                     }
 
                     damageImage.sprite = uiManager.GetTowerType(_towerData);
-                    _damageText.text = CachedNumber.GetUIText(battleTowerData.BaseDamage);
+                    _damageText.text = battleTowerData.BaseDamage.ToString();
                 }
                 else
                 {

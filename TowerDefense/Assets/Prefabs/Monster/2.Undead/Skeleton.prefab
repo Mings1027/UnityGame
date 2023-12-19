@@ -11,10 +11,10 @@ GameObject:
   - component: {fileID: 125456988458589890}
   - component: {fileID: 6325316012892575192}
   - component: {fileID: 3261230217273740306}
-  - component: {fileID: 21291660195009250}
   - component: {fileID: -6973011696224387515}
   - component: {fileID: 5645286101528129417}
   - component: {fileID: 8951820817735635453}
+  - component: {fileID: 6867728382163797528}
   m_Layer: 8
   m_Name: Skeleton
   m_TagString: Untagged
@@ -65,22 +65,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   baseTowerDamage: 1
---- !u!114 &21291660195009250
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 789931878740804728}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 69a8ba2ae84f541738fa26a09cd7606e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  attackTargetCount: 1
-  atkRange: 1
-  sightRange: 2
-  baseOffset: 0
 --- !u!114 &-6973011696224387515
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -115,7 +99,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 789931878740804728}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.1
+  m_Radius: 0.3
   m_Speed: 3.5
   m_Acceleration: 100
   avoidancePriority: 49
@@ -128,6 +112,22 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 1
+--- !u!114 &6867728382163797528
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 789931878740804728}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69ef38f7a7d664d6d99f4dae70ebb242, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attackTargetCount: 1
+  atkRange: 1.5
+  sightRange: 3
+  turnSpeed: 0.5
 --- !u!1 &4822126370563756324
 GameObject:
   m_ObjectHideFlags: 0

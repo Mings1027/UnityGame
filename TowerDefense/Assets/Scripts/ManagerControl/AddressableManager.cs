@@ -5,6 +5,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.AI;
+using UnityEngine.Profiling;
 
 namespace ManagerControl
 {
@@ -18,6 +19,7 @@ namespace ManagerControl
         {
             _gameObjects = new List<GameObject>();
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
+            Profiler.maxUsedMemory = 134217728;
         }
 
         protected void Start()

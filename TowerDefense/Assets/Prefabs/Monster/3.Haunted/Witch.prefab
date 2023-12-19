@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 2081198945397483176}
   - component: {fileID: 1705236735105301528}
   - component: {fileID: 1705236735105301529}
-  - component: {fileID: 1705236735105301526}
+  - component: {fileID: 2582318606138240896}
   - component: {fileID: 1705236735105301527}
   - component: {fileID: 1705236735105301524}
   - component: {fileID: 1705236735105301525}
@@ -29,7 +29,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1705236735105301522}
-  m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -65,7 +65,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   baseTowerDamage: 1
---- !u!114 &1705236735105301526
+--- !u!114 &2582318606138240896
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -74,12 +74,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 1705236735105301522}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 69a8ba2ae84f541738fa26a09cd7606e, type: 3}
+  m_Script: {fileID: 11500000, guid: c40f853d07c8e416ca82fc3e9fa4476d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackTargetCount: 2
-  atkRange: 2
-  sightRange: 3
+  attackTargetCount: 1
+  atkRange: 5
+  sightRange: 5
+  turnSpeed: 1
   baseOffset: 1
 --- !u!114 &1705236735105301527
 MonoBehaviour:

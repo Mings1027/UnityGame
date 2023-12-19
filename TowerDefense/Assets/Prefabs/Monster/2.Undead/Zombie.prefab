@@ -147,11 +147,11 @@ GameObject:
   - component: {fileID: 9153099953065067471}
   - component: {fileID: 4559400891802188371}
   - component: {fileID: 3926181008418438300}
-  - component: {fileID: 4941955822971225344}
   - component: {fileID: -4245031218540713618}
   - component: {fileID: 8734514497154246542}
   - component: {fileID: 1031017979773360687}
   - component: {fileID: 926806066066760626}
+  - component: {fileID: 8516086672826459034}
   m_Layer: 8
   m_Name: Zombie
   m_TagString: Untagged
@@ -202,22 +202,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   baseTowerDamage: 1
---- !u!114 &4941955822971225344
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8380503212475996533}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 69a8ba2ae84f541738fa26a09cd7606e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  attackTargetCount: 1
-  atkRange: 1
-  sightRange: 2
-  baseOffset: 0
 --- !u!114 &-4245031218540713618
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -252,7 +236,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 8380503212475996533}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.1
+  m_Radius: 0.3
   m_Speed: 3.5
   m_Acceleration: 100
   avoidancePriority: 49
@@ -278,6 +262,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   healAmount: 25
+--- !u!114 &8516086672826459034
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8380503212475996533}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69ef38f7a7d664d6d99f4dae70ebb242, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attackTargetCount: 1
+  atkRange: 1.5
+  sightRange: 3
+  turnSpeed: 0.5
 --- !u!1001 &6037415478254895947
 PrefabInstance:
   m_ObjectHideFlags: 0

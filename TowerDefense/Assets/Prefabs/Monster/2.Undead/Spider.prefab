@@ -11,11 +11,10 @@ GameObject:
   - component: {fileID: 1760271662331742149}
   - component: {fileID: 690176526561108746}
   - component: {fileID: 2525924027814372629}
-  - component: {fileID: 2379396768798278488}
   - component: {fileID: 5252611779595017487}
-  - component: {fileID: 1705891842212828546}
   - component: {fileID: 7186291359293490117}
   - component: {fileID: 2354552718498934710}
+  - component: {fileID: -3623936382348621514}
   m_Layer: 8
   m_Name: Spider
   m_TagString: Untagged
@@ -66,22 +65,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   baseTowerDamage: 1
---- !u!114 &2379396768798278488
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1379910649677094271}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 69a8ba2ae84f541738fa26a09cd7606e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  attackTargetCount: 1
-  atkRange: 1
-  sightRange: 2
-  baseOffset: 0
 --- !u!114 &5252611779595017487
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -94,19 +77,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c332fd9c394e4e029edbc3f19d0040b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1705891842212828546
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1379910649677094271}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 918e18d0abe29439292eed8e4fc0d97d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  healAmount: 100
 --- !u!135 &7186291359293490117
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -129,7 +99,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 1379910649677094271}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.1
+  m_Radius: 0.3
   m_Speed: 3.5
   m_Acceleration: 100
   avoidancePriority: 49
@@ -142,6 +112,22 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 1
+--- !u!114 &-3623936382348621514
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1379910649677094271}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 69ef38f7a7d664d6d99f4dae70ebb242, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attackTargetCount: 1
+  atkRange: 1.5
+  sightRange: 3
+  turnSpeed: 0.5
 --- !u!1 &7812052406048703768
 GameObject:
   m_ObjectHideFlags: 0

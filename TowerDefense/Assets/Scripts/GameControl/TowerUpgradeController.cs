@@ -82,9 +82,9 @@ namespace GameControl
                 xpText.text = "XP : 0";
                 for (var i = 0; i < towerButtons.childCount; i++)
                 {
-                    var towerUpgradeButton = towerButtons.GetChild(i).GetComponent<TowerUpgradeButton>();
-                    var towerCostText = towerCostTexts.GetChild(i).GetComponent<TMP_Text>();
-                    var levelCountText = levelCountTexts.GetChild(i).GetComponent<TMP_Text>();
+                    var towerCostText = towerButtons.GetChild(i).GetChild(0).GetComponent<TMP_Text>();
+                    var towerUpgradeButton = towerButtons.GetChild(i).GetChild(1).GetComponent<TowerUpgradeButton>();
+                    var levelCountText = towerButtons.GetChild(i).GetChild(2).GetComponent<TMP_Text>();
                     var towerButton = towerUpgradeButton.GetComponent<Button>();
 
                     towerUpgradeButton.UpgradeCount = 0;

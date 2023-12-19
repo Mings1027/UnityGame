@@ -1,11 +1,10 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using UnitControl.EnemyControl;
+using MonsterControl;
 using UnityEngine;
 
 namespace StatusControl
 {
-    [RequireComponent(typeof(MonsterUnit))]
     public class AutoHeal : MonoBehaviour
     {
         private CancellationTokenSource _cts;

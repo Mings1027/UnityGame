@@ -2,13 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using CustomEnumControl;
-using Cysharp.Threading.Tasks;
 using DataControl;
 using DG.Tweening;
 using PoolObjectControl;
 using StatusControl;
 using UIControl;
-using UnitControl.TowerUnitControl;
+using UnitControl;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.EventSystems;
@@ -41,16 +40,11 @@ namespace TowerControl
             _cts = new CancellationTokenSource();
         }
 
-        private void OnDisable()
-        {
-            _cts?.Cancel();
-            _cts?.Dispose();
-        }
-
         public override void OnPointerUp(PointerEventData eventData)
         {
             base.OnPointerUp(eventData);
-            if (Input.touchCount > 1) return;
+            if (!isBuilt) return;
+            if (Input.touchCount != 1) return;
             if (!Input.GetTouch(0).deltaPosition.Equals(Vector2.zero)) return;
             ActiveUnitIndicator();
         }
@@ -134,7 +128,7 @@ namespace TowerControl
             if (_isUnitSpawn || _isReSpawning) return;
             if (_cts.IsCancellationRequested) return;
             UnitSpawn();
-            UnitUpgrade(Damage, cooldown.cooldownTime);
+            UnitUpgrade(Damage, attackCooldown.cooldownTime);
         }
 
         private void ActiveUnitIndicator()
@@ -142,7 +136,16 @@ namespace TowerControl
             var count = _units.Count;
             for (var i = count - 1; i >= 0; i--)
             {
-                _units[i].outline.enabled = true;
+                _units[i].ActiveIndicator();
+            }
+        }
+
+        public void DeActiveUnitIndicator()
+        {
+            var count = _units.Count - 1;
+            for (var i = count; i >= 0; i--)
+            {
+                _units[i].DeActiveIndicator();
             }
         }
 
@@ -191,10 +194,10 @@ namespace TowerControl
                 UnitSpawn();
             }
 
-            UnitUpgrade(damageData, cooldown.cooldownTime);
+            UnitUpgrade(damageData, attackCooldown.cooldownTime);
         }
 
-        public override void ObjectDisable()
+        public override void DisableObject()
         {
             _cts?.Cancel();
             _cts?.Dispose();
@@ -217,24 +220,14 @@ namespace TowerControl
                 _units[i].DisableParent();
             }
 
-            base.ObjectDisable();
+            base.DisableObject();
         }
 
         #endregion
 
-        public void OffUnitIndicator()
-        {
-            var count = _units.Count - 1;
-            for (var i = count; i >= 0; i--)
-            {
-                _units[i].outline.enabled = false;
-            }
-        }
-
         public void UnitMove(Vector3 touchPos)
         {
             _unitCenterPosition = touchPos;
-            // var tasks = new UniTask[_units.Count];
             var count = _units.Count;
             for (var i = count - 1; i >= 0; i--)
             {
@@ -244,8 +237,7 @@ namespace TowerControl
                 _units[i].Move(pos);
             }
 
-            OffUnitIndicator();
-            // await UniTask.WhenAll(tasks);
+            DeActiveUnitIndicator();
         }
     }
 }

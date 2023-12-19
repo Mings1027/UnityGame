@@ -116,7 +116,7 @@ GameObject:
   - component: {fileID: 8945734670165619496}
   - component: {fileID: 3124157469091055834}
   - component: {fileID: 4500614151331990734}
-  - component: {fileID: 4895844008966537235}
+  - component: {fileID: -5397066564100802914}
   - component: {fileID: 4893485089493174604}
   - component: {fileID: 6275214739673609255}
   - component: {fileID: 7881168693914115813}
@@ -171,7 +171,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   baseTowerDamage: 3
---- !u!114 &4895844008966537235
+--- !u!114 &-5397066564100802914
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -180,13 +180,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 8605942268721785234}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 69a8ba2ae84f541738fa26a09cd7606e, type: 3}
+  m_Script: {fileID: 11500000, guid: 69ef38f7a7d664d6d99f4dae70ebb242, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   attackTargetCount: 0
   atkRange: 0
   sightRange: 0
-  baseOffset: 0
+  turnSpeed: 0
 --- !u!114 &4893485089493174604
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -225,7 +225,7 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.7
+  m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!195 &6344219359372926350
 NavMeshAgent:
