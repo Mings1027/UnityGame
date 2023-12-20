@@ -1,6 +1,7 @@
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DataControl;
+using UIControl;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -8,7 +9,6 @@ namespace MonsterControl
 {
     public class FlyingMonster : MonsterUnit
     {
-        private byte _randomPointCount;
         [SerializeField] private byte baseOffset;
 
         protected override void Awake()
@@ -27,7 +27,6 @@ namespace MonsterControl
         public override void SpawnInit(MonsterData monsterData)
         {
             base.SpawnInit(monsterData);
-            _randomPointCount = 0;
             SetBaseOffset().Forget();
         }
 
@@ -63,6 +62,13 @@ namespace MonsterControl
 
         protected override void Patrol()
         {
+            if (navMeshAgent.destination == Vector3.zero &&
+                navMeshAgent.remainingDistance <= navMeshAgent.stoppingDistance)
+            {
+                UIManager.Instance.BaseTowerHealth.Damage(baseTowerDamage);
+                DisableObject();
+                return;
+            }
             var size = Physics.OverlapSphereNonAlloc(transform.position, sightRange, targetCollider, targetLayer);
             if (size <= 0)
             {

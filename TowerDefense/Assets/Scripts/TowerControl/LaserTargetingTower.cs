@@ -29,24 +29,6 @@ namespace TowerControl
             attackSound.Stop();
         }
 
-        // public override void TowerUpdate()
-        // {
-        //     base.TowerUpdate();
-        //     if (!target || !target.enabled || _uiManager.Mana.Current < _attackMana)
-        //     {
-        //         beam.enabled = false;
-        //         if (attackSound.isPlaying) attackSound.Stop();
-        //     }
-        //     else
-        //     {
-        //         beam.enabled = true;
-        //         beam.SetPosition(0, firePos.position);
-        //         beam.SetPosition(1, target.bounds.center);
-        //         if (!attackSound.isPlaying)
-        //             attackSound.Play();
-        //     }
-        // }
-
         protected override void Detect()
         {
             var size = Physics.OverlapSphereNonAlloc(transform.position, TowerRange, targetColliders, targetLayer);

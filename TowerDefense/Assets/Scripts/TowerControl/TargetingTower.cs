@@ -128,7 +128,6 @@ namespace TowerControl
 
             projectile.ColorInit(effectIndex);
             projectile.Init(Damage, target);
-            projectile.ProjectileUpdate().Forget();
         }
 
         #endregion

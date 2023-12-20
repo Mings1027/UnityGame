@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -66,10 +65,11 @@ namespace MapControl
 
         [SerializeField] private LayerMask groundLayer;
 
-        [SerializeField, Range(0, 100)] private int connectionProbability;
         [SerializeField, Range(0, 200)] private byte maxSize;
         [SerializeField] private Transform mapMesh;
         [SerializeField] private Transform obstacleMesh;
+
+        public byte connectionProbability { get; set; }
 
 #if UNITY_EDITOR
         [SerializeField] private byte maxMapCount;
@@ -119,8 +119,7 @@ namespace MapControl
 #endif
 
         #endregion
-
-
+        
         #region Init
 
         private void ComponentInit()

@@ -8,7 +8,6 @@ using MonsterControl;
 using PoolObjectControl;
 using StatusControl;
 using TextControl;
-// using TextControl;
 using UIControl;
 using UnityEngine;
 using UnityEngine.AI;
@@ -55,6 +54,15 @@ namespace ManagerControl
         private void Start()
         {
             _towerManager = FindObjectOfType<TowerManager>();
+        }
+
+        private void Update()
+        {
+            var leftEnemyCount = _monsterList.Count;
+            for (var i = leftEnemyCount - 1; i >= 0; i--)
+            {
+                _monsterList[i].MonsterUpdate();
+            }
         }
 
         private void OnDisable()
@@ -122,14 +130,13 @@ namespace ManagerControl
                 SpawnBoss(_wayPoints[Random.Range(0, _wayPoints.Length)]).Forget();
             }
 
-            MonsterUpdate().Forget();
+            enabled = true;
         }
 
         private void WaveStop()
         {
             _startWave = false;
-            _cts?.Cancel();
-            _cts?.Dispose();
+            enabled = false;
         }
 
         #region Enemy Spawn
@@ -176,7 +183,7 @@ namespace ManagerControl
             monsterUnit.SpawnInit(normalMonsterData);
             monsterUnit.GetComponent<MonsterStatus>().StatInit(normalMonsterData.Speed, normalMonsterData.AttackDelay);
 
-            var healthBar = PoolObjectManager.Get<HealthBar>(UIPoolObjectKey.EnemyHealthBar,
+            var healthBar = PoolObjectManager.Get<HealthBar>(UIPoolObjectKey.MonsterHealthBar,
                 monsterUnit.healthBarTransform.position);
             healthBar.Init(monsterUnit.GetComponent<Progressive>());
 
@@ -237,24 +244,6 @@ namespace ManagerControl
                 if (monsterHealth.IsDead) return;
                 StatusBarUIController.Remove(monsterUnit.healthBarTransform, true);
             };
-        }
-
-        #endregion
-
-        #region Enemy Update Loop
-
-        private async UniTaskVoid MonsterUpdate()
-        {
-            while (!_cts.IsCancellationRequested)
-            {
-                await UniTask.Delay(10, cancellationToken: _cts.Token);
-
-                var leftEnemyCount = _monsterList.Count;
-                for (var i = leftEnemyCount - 1; i >= 0; i--)
-                {
-                    _monsterList[i].MonsterUpdate();
-                }
-            }
         }
 
         #endregion

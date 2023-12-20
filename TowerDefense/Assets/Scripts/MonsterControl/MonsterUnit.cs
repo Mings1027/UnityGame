@@ -5,6 +5,7 @@ using DG.Tweening;
 using GameControl;
 using InterfaceControl;
 using StatusControl;
+using UIControl;
 using UnityEngine;
 using UnityEngine.AI;
 using Random = UnityEngine.Random;
@@ -39,6 +40,7 @@ namespace MonsterControl
         [SerializeField, Range(0, 7)] protected float atkRange;
         [SerializeField, Range(0, 10)] protected float sightRange;
         [SerializeField] protected float turnSpeed;
+        [SerializeField] protected byte baseTowerDamage;
 
         #region Unity Event
 
@@ -66,11 +68,6 @@ namespace MonsterControl
         protected virtual void OnEnable()
         {
             navMeshAgent.enabled = true;
-        }
-
-        private void OnTriggerEnter(Collider other)
-        {
-            DisableObject();
         }
 
         private void OnDestroy()
@@ -113,7 +110,6 @@ namespace MonsterControl
 
         #region Unit Update
 
-        // public abstract void MonsterUpdate();
         public virtual void MonsterUpdate()
         {
             _anim.SetBool(IsWalk, navMeshAgent.velocity != Vector3.zero);
@@ -123,6 +119,14 @@ namespace MonsterControl
 
         protected virtual void Patrol()
         {
+            if (navMeshAgent.destination == Vector3.zero &&
+                navMeshAgent.remainingDistance <= navMeshAgent.stoppingDistance)
+            {
+                UIManager.Instance.BaseTowerHealth.Damage(baseTowerDamage);
+                DisableObject();
+                return;
+            }
+
             if (patrolCooldown.IsCoolingDown) return;
             var size = Physics.OverlapSphereNonAlloc(transform.position, sightRange, targetCollider, targetLayer);
             if (size <= 0)

@@ -36,7 +36,6 @@ namespace TowerControl
             projectile.ColorInit(effectIndex);
             projectile.DeBuffInit(effectIndex);
             projectile.Init(Damage, target);
-            projectile.ProjectileUpdate().Forget();
         }
 
         public override void TowerSetting(MeshFilter towerMesh, int damageData, byte rangeData,

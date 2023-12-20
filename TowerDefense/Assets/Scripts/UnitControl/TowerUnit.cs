@@ -32,13 +32,12 @@ namespace UnitControl
 
         private Cooldown _atkCooldown;
         private int _damage;
-        private bool _moveInput;
 
         private static readonly int IsWalk = Animator.StringToHash("isWalk");
         private static readonly int IsAttack = Animator.StringToHash("isAttack");
 
         public Transform healthBarTransform { get; private set; }
-
+        
         [SerializeField, Range(0, 5)] private byte attackTargetCount;
         [SerializeField, Range(0, 7)] private float atkRange;
         [SerializeField, Range(0, 10)] private float sightRange;
@@ -94,7 +93,6 @@ namespace UnitControl
             if (Vector3.Distance(transform.position, _navMeshAgent.destination) <=
                 _navMeshAgent.stoppingDistance)
             {
-                _moveInput = false;
                 _navMeshAgent.stoppingDistance = atkRange;
                 enabled = false;
                 _anim.SetBool(IsWalk, false);
@@ -246,7 +244,6 @@ namespace UnitControl
         {
             enabled = true;
             _originPos = pos;
-            _moveInput = true;
             _anim.SetBool(IsWalk, true);
             _navMeshAgent.stoppingDistance = 0.1f;
             if (_navMeshAgent.isOnNavMesh)

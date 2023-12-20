@@ -9,6 +9,7 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Profiling;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace ManagerControl
@@ -21,7 +22,7 @@ namespace ManagerControl
 
         [Header("UI")] [SerializeField] private Button startGameButton;
         [SerializeField] private GameObject upgradeButton;
-        [SerializeField] private Image blackImage;
+        [SerializeField] private Image blockImage;
         [SerializeField] private GameObject downLoadPanel;
         [SerializeField] private TMP_Text sizeInfoText;
         [SerializeField] private Button downLoadButton;
@@ -51,7 +52,7 @@ namespace ManagerControl
                 SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
                 startGameButton.gameObject.SetActive(true);
                 upgradeButton.SetActive(true);
-                blackImage.enabled = false;
+                blockImage.enabled = false;
                 _downloadPanelTween.PlayBackwards();
             });
         }
@@ -59,7 +60,7 @@ namespace ManagerControl
         private void Start()
         {
             Time.timeScale = 1;
-            // downLoadPanel.SetActive(false);
+            blockImage.enabled = false;
             downSlider.gameObject.SetActive(false);
             InitAddressable().Forget();
             SoundManager.Instance.PlayBGM(SoundEnum.GameStart);
@@ -104,7 +105,7 @@ namespace ManagerControl
             if (_patchSize > decimal.Zero) // 다운로드 할 것이 있음
             {
                 // downLoadPanel.SetActive(true);
-                blackImage.enabled = true;
+                blockImage.enabled = true;
                 _downloadPanelTween.Restart();
                 sizeInfoText.text = GetFilSize(_patchSize);
             }
@@ -114,7 +115,7 @@ namespace ManagerControl
                 downValueText.text = " 100 % ";
                 downSlider.value = 1;
                 await UniTask.Delay(500);
-                StartGame();
+                StartGame().Forget();
                 // 게임 시작되는 부분
             }
         }
@@ -149,7 +150,7 @@ namespace ManagerControl
 
         private void DownLoadButton()
         {
-            blackImage.enabled = false;
+            blockImage.enabled = false;
             _downloadPanelTween.PlayBackwards();
             downLoadButton.gameObject.SetActive(false);
             cancelButton.gameObject.SetActive(false);
@@ -208,7 +209,7 @@ namespace ManagerControl
 
                 if (Math.Abs(total - _patchSize) < 0.01f)
                 {
-                    StartGame();
+                    StartGame().Forget();
                     break;
                 }
 

@@ -1,7 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Threading;
-using Cysharp.Threading.Tasks;
 using TowerControl;
 using UIControl;
 using UnityEngine;
@@ -12,7 +9,6 @@ namespace ManagerControl
     {
         private List<Tower> _towers;
         private UnitTower _unitTower;
-        private CancellationTokenSource _cts;
 
         #region Unity Event
 
@@ -26,20 +22,13 @@ namespace ManagerControl
             Application.targetFrameRate = 60;
         }
 
-        // private void Update()
-        // {
-        //     var towerCount = _towers.Count;
-        //     for (var i = 0; i < towerCount; i++)
-        //     {
-        //         _towers[i].TowerUpdate();
-        //     }
-        // }
-        private void OnDisable()
+        private void Update()
         {
-            if (_cts == null) return;
-            if (_cts.IsCancellationRequested) return;
-            _cts?.Cancel();
-            _cts?.Dispose();
+            var towerCount = _towers.Count;
+            for (var i = 0; i < towerCount; i++)
+            {
+                _towers[i].TowerUpdate();
+            }
         }
 
         #endregion
@@ -48,18 +37,15 @@ namespace ManagerControl
 
         public void StartTargeting()
         {
+            enabled = true;
             Application.targetFrameRate = 60;
-            _cts?.Dispose();
-            _cts = new CancellationTokenSource();
             UIManager.Instance.Mana.StartManaRegen();
-            TowerUpdate().Forget();
+            // TowerUpdate().Forget();
         }
 
         public void StopTargeting()
         {
-            if (_cts.IsCancellationRequested) return;
-            _cts?.Cancel();
-            _cts?.Dispose();
+            enabled = false;
             TargetInit();
             UIManager.Instance.Mana.StopManaRegen();
         }
@@ -74,19 +60,6 @@ namespace ManagerControl
         }
 
         #endregion
-
-        private async UniTaskVoid TowerUpdate()
-        {
-            while (!_cts.IsCancellationRequested)
-            {
-                await UniTask.Delay(10);
-                var towerCount = _towers.Count;
-                for (var i = 0; i < towerCount; i++)
-                {
-                    _towers[i].TowerUpdate();
-                }
-            }
-        }
 
         #region Public Method
 

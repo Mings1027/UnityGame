@@ -77,7 +77,7 @@ namespace CustomEnumControl
     public enum UIPoolObjectKey
     {
         UnitHealthBar,
-        EnemyHealthBar,
+        MonsterHealthBar,
         BossHealthBar,
         ReSpawnBar,
         FloatingText,

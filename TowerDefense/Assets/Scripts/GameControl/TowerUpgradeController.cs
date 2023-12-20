@@ -14,6 +14,7 @@ namespace GameControl
         private Tween _deletePanelTween;
 
         [SerializeField] private TMP_Text xpText;
+        [SerializeField] private Image blockImage;
         [SerializeField] private Button upgradeButton;
         [SerializeField] private Button closeButton;
         [SerializeField] private Button dataDeleteButton;
@@ -22,8 +23,6 @@ namespace GameControl
         [SerializeField] private Button noButton;
         [SerializeField] private Transform upgradePanel;
         [SerializeField] private Transform towerButtons;
-        [SerializeField] private Transform towerCostTexts;
-        [SerializeField] private Transform levelCountTexts;
         [SerializeField] private BattleTowerData[] towerData;
 
         private void Awake()
@@ -32,9 +31,8 @@ namespace GameControl
                 upgradePanel.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack).SetAutoKill(false).Pause();
             _deletePanelTween = deletePanel.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack).SetAutoKill(false).Pause()
                 .SetUpdate(true);
-            closeButton.gameObject.SetActive(false);
             Input.multiTouchEnabled = false;
-
+            blockImage.enabled = false;
             ButtonInit();
         }
 
@@ -55,7 +53,7 @@ namespace GameControl
         {
             upgradeButton.gameObject.SetActive(false);
             SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
-            closeButton.gameObject.SetActive(true);
+            blockImage.enabled = true;
             _upgradePanelTween.Restart();
         }
 
@@ -64,8 +62,9 @@ namespace GameControl
             upgradeButton.onClick.AddListener(UpgradePanel);
             closeButton.onClick.AddListener(() =>
             {
+                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
+                blockImage.enabled = false;
                 upgradeButton.gameObject.SetActive(true);
-                closeButton.gameObject.SetActive(false);
                 _upgradePanelTween.PlayBackwards();
             });
             dataDeleteButton.onClick.AddListener(() =>
@@ -106,10 +105,10 @@ namespace GameControl
             for (var i = 0; i < towerButtons.childCount; i++)
             {
                 var towerButtonParent = towerButtons.GetChild(i);
-                var towerCostText = towerButtonParent.GetChild(0).GetComponent<TMP_Text>();
-                var towerUpgradeButton = towerButtonParent.GetChild(1).GetComponent<TowerUpgradeButton>();
+                var levelCountText = towerButtonParent.GetChild(0).GetComponent<TMP_Text>();
+                var towerCostText = towerButtonParent.GetChild(1).GetComponent<TMP_Text>();
+                var towerUpgradeButton = towerButtonParent.GetChild(2).GetComponent<TowerUpgradeButton>();
                 var towerButton = towerUpgradeButton.GetComponent<Button>();
-                var levelCountText = towerButtonParent.GetChild(2).GetComponent<TMP_Text>();
                 towerUpgradeButton.UpgradeCount =
                     (byte)PlayerPrefs.GetInt(towerData[i].TowerType + StringManager.UpgradeCount);
 

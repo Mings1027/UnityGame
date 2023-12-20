@@ -23,7 +23,9 @@ namespace ManagerControl
             public AudioClip musicClip;
         }
 
-        private bool _bgmOn, _sfxOn;
+        private const string BGMKey = "BGM";
+        private const string SfxKey = "SFX";
+
         private float _bgmVolume;
 
         private Dictionary<SoundEnum, AudioClip> _musicDictionary;
@@ -35,6 +37,9 @@ namespace ManagerControl
         [SerializeField] private EffectSound[] effectSounds;
 
         [SerializeField] private AudioMixer audioMixer;
+
+        public bool BGMOn { get; private set; }
+        public bool SfxOn { get; private set; }
 
         protected override void Awake()
         {
@@ -53,13 +58,16 @@ namespace ManagerControl
             {
                 _effectDictionary.Add(effectSounds[i].effectName, effectSounds[i].effectSource);
             }
+
+            _bgmVolume = -5;
+            BGMOn = PlayerPrefs.GetInt(BGMKey, 1) == 1;
+            SfxOn = PlayerPrefs.GetInt(SfxKey, 1) == 1;
         }
 
         private void Start()
         {
-            _bgmOn = _sfxOn = true;
-            audioMixer.GetFloat("BGM", out var vol);
-            _bgmVolume = vol;
+            audioMixer.SetFloat("BGM", BGMOn ? _bgmVolume : -80);
+            audioMixer.SetFloat("SFX", SfxOn ? 0 : -80);
         }
 
         public void PlayBGM(SoundEnum clipName)
@@ -76,14 +84,16 @@ namespace ManagerControl
 
         public void ToggleBGM(bool active)
         {
-            _bgmOn = active;
-            audioMixer.SetFloat("BGM", _bgmOn ? _bgmVolume : -80);
+            BGMOn = active;
+            audioMixer.SetFloat("BGM", BGMOn ? _bgmVolume : -80);
+            PlayerPrefs.SetInt(BGMKey, BGMOn ? 1 : 0);
         }
 
         public void ToggleSfx(bool active)
         {
-            _sfxOn = active;
-            audioMixer.SetFloat("SFX", _sfxOn ? 0 : -80);
+            SfxOn = active;
+            audioMixer.SetFloat("SFX", SfxOn ? 0 : -80);
+            PlayerPrefs.SetInt(SfxKey, SfxOn ? 1 : 0);
         }
     }
 }

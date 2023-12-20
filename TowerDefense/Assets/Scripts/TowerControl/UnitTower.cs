@@ -40,16 +40,12 @@ namespace TowerControl
             _cts = new CancellationTokenSource();
         }
 
+        #endregion
+
         public override void OnPointerUp(PointerEventData eventData)
         {
             base.OnPointerUp(eventData);
-            if (!isBuilt) return;
-            if (Input.touchCount != 1) return;
-            if (!Input.GetTouch(0).deltaPosition.Equals(Vector2.zero)) return;
-            ActiveUnitIndicator();
         }
-
-        #endregion
 
         #region Unit Control
 
@@ -129,15 +125,6 @@ namespace TowerControl
             if (_cts.IsCancellationRequested) return;
             UnitSpawn();
             UnitUpgrade(Damage, attackCooldown.cooldownTime);
-        }
-
-        private void ActiveUnitIndicator()
-        {
-            var count = _units.Count;
-            for (var i = count - 1; i >= 0; i--)
-            {
-                _units[i].ActiveIndicator();
-            }
         }
 
         public void DeActiveUnitIndicator()
@@ -222,6 +209,22 @@ namespace TowerControl
 
             base.DisableObject();
         }
+
+        // private void ActiveOutline()
+        // {
+        //     for (int i = 0; i < _units.Count; i++)
+        //     {
+        //         // indicator.enabled = true;
+        //     }
+        // }
+        //
+        // private void DeActiveOutline()
+        // {
+        //     for (int i = 0; i < _units.Count; i++)
+        //     {
+        //         // indicator.enabled = false;
+        //     }
+        // }
 
         #endregion
 

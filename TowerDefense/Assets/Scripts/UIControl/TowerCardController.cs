@@ -68,7 +68,11 @@ namespace UIControl
             else
             {
                 _slideDownTween.ChangeStartValue(_rectTransform.anchoredPosition)
-                    .OnComplete(() => UIManager.Instance.SlideDown().Forget()).Restart();
+                    .OnComplete(() =>
+                    {
+                        UIManager.Instance.SlideDown().Forget();
+                        gameObject.SetActive(false);
+                    }).Restart();
             }
         }
 
@@ -131,6 +135,10 @@ namespace UIControl
 
         public void SetDictionary(int index, TowerData towerData) => _towerButtonDic.Add(index, towerData);
 
-        public void SlideUp() => _slideUpTween.ChangeStartValue(_rectTransform.anchoredPosition).Restart();
+        public void SlideUp()
+        {
+            gameObject.SetActive(true);
+            _slideUpTween.ChangeStartValue(_rectTransform.anchoredPosition).Restart();
+        }
     }
 }

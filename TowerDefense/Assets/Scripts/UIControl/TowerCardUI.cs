@@ -1,9 +1,7 @@
 using DataControl;
 using DG.Tweening;
-using GameControl;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace UIControl
@@ -81,6 +79,7 @@ namespace UIControl
                 }
             }
 
+            gameObject.SetActive(true);
             _openCardSequence.Restart();
             _moveCardTween.ChangeStartValue(_buttonPos)
                 .ChangeEndValue(_buttonPos + new Vector3(0, 450, 0)).Restart();
@@ -90,7 +89,7 @@ namespace UIControl
         {
             IsOpen = false;
 
-            _openCardSequence.PlayBackwards();
+            _openCardSequence.OnRewind(() => gameObject.SetActive(false)).PlayBackwards();
             _moveCardTween.ChangeStartValue(_buttonPos + new Vector3(0, 450, 0)).ChangeEndValue(_buttonPos).Restart();
         }
 

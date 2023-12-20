@@ -12,8 +12,8 @@ namespace TowerControl
         private MeshRenderer _meshRenderer;
         private MeshFilter _defaultMesh;
         private MeshFilter _meshFilter;
+        private bool _isBuilt;
 
-        protected bool isBuilt;
         protected BoxCollider boxCollider;
         protected Cooldown attackCooldown;
         public event Action<Tower> OnClickTowerAction;
@@ -44,7 +44,7 @@ namespace TowerControl
 
         public virtual void OnPointerUp(PointerEventData eventData)
         {
-            if (!isBuilt) return;
+            if (!_isBuilt) return;
             if (Input.touchCount != 1) return;
             if (!Input.GetTouch(0).deltaPosition.Equals(Vector2.zero)) return;
             OnClickTowerAction?.Invoke(this);
@@ -92,7 +92,7 @@ namespace TowerControl
         public virtual void TowerSetting(MeshFilter towerMesh, int damageData, byte rangeData,
             ushort rpmData)
         {
-            isBuilt = true;
+            _isBuilt = true;
             TowerRange = rangeData;
             Damage = damageData;
             attackCooldown.cooldownTime = 60 / (float)rpmData;

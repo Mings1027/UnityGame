@@ -258,6 +258,7 @@ namespace UIControl
 
             _towerInfoWindowTween = infoWindow.DOAnchorPosY(200, 0.3f).From()
                 .OnComplete(() => _openInfoWindow = true).SetAutoKill(false).Pause();
+
             _upgradeButtonTween = upgradeButton.transform.DOScale(1, 0.2f).From(0.7f).SetEase(Ease.OutBack)
                 .SetUpdate(true).SetAutoKill(false);
         }
@@ -320,13 +321,13 @@ namespace UIControl
                 SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
                 Resume();
             });
-            bgmToggle.isOn = false;
+            bgmToggle.isOn = !SoundManager.Instance.BGMOn;
             bgmToggle.onValueChanged.AddListener(delegate
             {
                 SoundManager.Instance.ToggleBGM(!bgmToggle.isOn);
                 SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
             });
-            sfxToggle.isOn = false;
+            sfxToggle.isOn = !SoundManager.Instance.SfxOn;
             sfxToggle.onValueChanged.AddListener(delegate
             {
                 SoundManager.Instance.ToggleSfx(!sfxToggle.isOn);
@@ -373,10 +374,22 @@ namespace UIControl
 
         public async UniTaskVoid MapSelectButton(int index)
         {
-            FindObjectOfType<MapManager>().MakeMap(index);
+            var mapManager = FindObjectOfType<MapManager>();
+            mapManager.MakeMap(index);
+
+            mapManager.connectionProbability = index switch
+            {
+                1 => 20,
+                2 => 40,
+                3 => 60,
+                4 => 70,
+                _ => mapManager.connectionProbability
+            };
+
             DataManager.SetLevel((byte)index);
 
             await transform.GetChild(0).DOScale(0, 0.5f).SetEase(Ease.InBack);
+            infoWindow.gameObject.SetActive(true);
             _towerInfoWindowTween.Restart();
             await towerPanel.DOAnchorPosX(0, 0.5f).SetEase(Ease.OutBack);
             _cameraManager.enabled = true;
@@ -418,6 +431,7 @@ namespace UIControl
 
             if (_openInfoWindow) return;
             _openInfoWindow = true;
+            infoWindow.gameObject.SetActive(true);
             _towerInfoWindowTween.Restart();
         }
 
@@ -428,7 +442,7 @@ namespace UIControl
             if (touch.deltaPosition.y > 15)
             {
                 _openInfoWindow = false;
-                _towerInfoWindowTween.PlayBackwards();
+                _towerInfoWindowTween.OnRewind(() => infoWindow.gameObject.SetActive(false)).PlayBackwards();
             }
         }
 
@@ -448,7 +462,8 @@ namespace UIControl
         public void YouCannotMove()
         {
             cantMoveImage.transform.position = Input.mousePosition;
-            _cantMoveImageSequence.Restart();
+            cantMoveImage.enabled = true;
+            _cantMoveImageSequence.OnComplete(() => cantMoveImage.enabled = false).Restart();
         }
 
         public void OffUI()
@@ -474,13 +489,16 @@ namespace UIControl
                 return true;
             }
 
-            _notEnoughCostSequence.Restart();
+            notEnoughCostPanel.gameObject.SetActive(true);
+            _notEnoughCostSequence.OnComplete(() => notEnoughCostPanel.gameObject.SetActive(false)).Restart();
+
             return false;
         }
 
         public void GameEnd()
         {
             gameEndPanel.SetActive(true);
+            resumeButton.interactable = false;
             _pauseSequence.Restart();
             DataManager.SaveLastSurvivedWave();
         }
@@ -568,7 +586,8 @@ namespace UIControl
             var upgradeCost = GetUpgradeCost(in towerType);
             if (_towerCost < upgradeCost)
             {
-                _notEnoughCostSequence.Restart();
+                notEnoughCostPanel.gameObject.SetActive(true);
+                _notEnoughCostSequence.OnComplete(() => notEnoughCostPanel.gameObject.SetActive(false)).Restart();
                 return;
             }
 
@@ -725,7 +744,6 @@ namespace UIControl
 
         private async UniTaskVoid GameStart()
         {
-            // StatusBarUIController.Instance.enabled = true;
             waveText.text = "0";
             Time.timeScale = 1;
             await _cameraManager.GameStartCamZoom();

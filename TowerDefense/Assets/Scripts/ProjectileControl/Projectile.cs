@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DataControl;
@@ -53,6 +54,19 @@ namespace ProjectileControl
             cts = new CancellationTokenSource();
         }
 
+        protected virtual void Update()
+        {
+            if (lerp < 1)
+            {
+                ProjectilePath(target.bounds.center);
+            }
+            else
+            {
+                DisableProjectile();
+            }
+            
+        }
+
         private void OnDisable()
         {
             cts.Cancel();
@@ -65,18 +79,6 @@ namespace ProjectileControl
         /*============================================================================================================
          *                                  Unity Event
          ============================================================================================================*/
-
-        public virtual async UniTaskVoid ProjectileUpdate()
-        {
-            while (lerp < 1)
-            {
-                await UniTask.Delay(10, cancellationToken: cts.Token);
-        
-                ProjectilePath(target.bounds.center);
-            }
-        
-            DisableProjectile();
-        }
 
         protected void ProjectilePath(Vector3 endPos)
         {
@@ -94,6 +96,7 @@ namespace ProjectileControl
 
         protected void DisableProjectile()
         {
+            enabled = false;
             Hit();
             _projectileMesh.enabled = false;
             _shadowDecal.enabled = false;
