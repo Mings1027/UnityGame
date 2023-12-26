@@ -8,7 +8,7 @@ namespace CustomEnumControl
         Wizard,
         Defender,
         Laser,
-        Mana,
+        ManaRecovery,
         None
     }
 
@@ -71,7 +71,10 @@ namespace CustomEnumControl
         //==============Tower=============
         AssassinUnit,
         DefenderUnit,
-        TransformSmoke
+        TransformSmoke,
+        BallistaHitParticle,
+        CanonHitParticle,
+        WizardHitParticle
     }
 
     public enum UIPoolObjectKey
@@ -83,7 +86,6 @@ namespace CustomEnumControl
         FloatingText,
         HealText,
         DamageText,
-        HealImage
     }
 
     public enum MonsterPoolObjectKey

@@ -11,6 +11,7 @@ using TextControl;
 using UIControl;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 namespace ManagerControl
@@ -30,7 +31,6 @@ namespace ManagerControl
         private bool _isLastWave;
         private bool _isBossWave;
         private byte _themeIndex;
-        private bool _isBonusMap;
 
         private CancellationTokenSource _cts;
         private List<MonsterUnit> _monsterList;
@@ -38,7 +38,10 @@ namespace ManagerControl
 
         public event Action OnPlaceExpandButtonEvent;
         public event Action OnBossWaveEvent;
-        public static byte curWave { get; private set; }
+        public byte curWave { get; private set; }
+        public bool IsStartWave { get; private set; }
+
+        [SerializeField] private TowerHp towerHp;
 
         [SerializeField] private Wave[] monsterData;
 
@@ -103,23 +106,6 @@ namespace ManagerControl
             StartWave();
         }
 
-        public void BonusMap()
-        {
-            Array.Clear(_wayPoints, 0, _wayPoints.Length);
-            for (var i = 0; i < 50; i++)
-            {
-                if (NavMesh.SamplePosition(transform.position, out var hit, 200, NavMesh.AllAreas))
-                {
-                    _wayPoints[i] = hit.position;
-                }
-            }
-
-            UIManager.Instance.BonusMap();
-            _startWave = true;
-            _isLastWave = true;
-            StartWave();
-        }
-
         private void StartWave()
         {
             _towerManager.StartTargeting();
@@ -131,12 +117,14 @@ namespace ManagerControl
             }
 
             enabled = true;
+            IsStartWave = true;
         }
 
         private void WaveStop()
         {
             _startWave = false;
             enabled = false;
+            IsStartWave = false;
         }
 
         #region Enemy Spawn
@@ -167,7 +155,6 @@ namespace ManagerControl
         private async UniTaskVoid SpawnBoss(Vector3 ranWayPoint)
         {
             OnBossWaveEvent?.Invoke();
-            // UIManager.Instance.UpgradeTowerData();
             await UniTask.Delay(2000, cancellationToken: _cts.Token);
             var ranPoint = ranWayPoint + Random.insideUnitSphere * 3;
             NavMesh.SamplePosition(ranPoint, out var hit, 5, NavMesh.AllAreas);
@@ -189,14 +176,13 @@ namespace ManagerControl
 
             var monsterHealth = monsterUnit.GetComponent<UnitHealth>();
             monsterHealth.Init(normalMonsterData.Health);
-            // var statusUI = StatusBarUIController.Instance;
             StatusBarUIController.Add(healthBar, monsterUnit.healthBarTransform);
             monsterHealth.OnDeadEvent += () =>
             {
                 var coin = normalMonsterData.StartSpawnWave;
-                // PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText,
-                //         monsterUnit.transform.position + Random.insideUnitSphere)
-                //     .SetCostText(coin);
+                PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText,
+                        monsterUnit.transform.position + Random.insideUnitSphere)
+                    .SetCostText(coin);
                 UIManager.Instance.TowerCost += coin;
 
                 if (monsterUnit.TryGetComponent(out TransformMonster transformMonster))
@@ -208,7 +194,7 @@ namespace ManagerControl
             };
             monsterUnit.OnDisableEvent += () =>
             {
-                DecreaseEnemyCount(monsterUnit);
+                DecreaseEnemyCount(monsterUnit, monsterHealth.IsDead);
                 if (monsterHealth.IsDead) return;
                 StatusBarUIController.Remove(monsterUnit.healthBarTransform, true);
             };
@@ -227,7 +213,6 @@ namespace ManagerControl
 
             var monsterHealth = monsterUnit.GetComponent<UnitHealth>();
             monsterHealth.Init(bossMonsterData.Health);
-            // var statusUI = StatusBarUIController.Instance;
             StatusBarUIController.Add(healthBar, monsterUnit.healthBarTransform);
             monsterHealth.OnDeadEvent += () =>
             {
@@ -240,7 +225,7 @@ namespace ManagerControl
             };
             monsterUnit.OnDisableEvent += () =>
             {
-                DecreaseEnemyCount(monsterUnit);
+                DecreaseEnemyCount(monsterUnit, monsterHealth.IsDead);
                 if (monsterHealth.IsDead) return;
                 StatusBarUIController.Remove(monsterUnit.healthBarTransform, true);
             };
@@ -262,23 +247,35 @@ namespace ManagerControl
             }
         }
 
-        private void DecreaseEnemyCount(MonsterUnit monsterUnit)
+        private void DecreaseEnemyCount(MonsterUnit monsterUnit, bool isDead)
         {
             if (!_startWave) return;
             _monsterList.Remove(monsterUnit);
-            if (_monsterList.Count > 0) return;
-            WaveStop();
-            _towerManager.StopTargeting();
-            DataManager.UpdateSurvivedWave(curWave);
-            SoundManager.Instance.PlayBGM(SoundEnum.WaveEnd);
+            var uiManager = UIManager.Instance;
+            if (!isDead) towerHp.towerHealth.Damage(monsterUnit.baseTowerDamage);
 
-            if (_isLastWave)
+            if (towerHp.towerHealth.IsDead)
             {
-                UIManager.Instance.GameEnd();
+                uiManager.GameOver();
+                return;
             }
-            else
+
+            if (_monsterList.Count <= 0)
             {
-                OnPlaceExpandButtonEvent?.Invoke();
+                _towerManager.StopTargeting();
+                if (_monsterList.Count > 0) return;
+
+                WaveStop();
+                SoundManager.Instance.PlayBGM(SoundEnum.WaveEnd);
+
+                if (_isLastWave)
+                {
+                    uiManager.GameEnd();
+                }
+                else
+                {
+                    OnPlaceExpandButtonEvent?.Invoke();
+                }
             }
         }
     }

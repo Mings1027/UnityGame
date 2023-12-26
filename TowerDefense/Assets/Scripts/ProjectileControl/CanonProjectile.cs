@@ -1,5 +1,7 @@
-using Cysharp.Threading.Tasks;
+using CustomEnumControl;
 using InterfaceControl;
+using ManagerControl;
+using PoolObjectControl;
 using UnityEngine;
 
 namespace ProjectileControl
@@ -8,18 +10,22 @@ namespace ProjectileControl
     {
         private bool _isLockOnTarget;
         private Vector3 _targetEndPos;
+
         private Collider[] _targetColliders;
-        private AudioSource _explosionAudio;
+
+        // private AudioSource _explosionAudio;
         private LayerMask _monsterLayer;
 
-        [SerializeField] private float atkRange;
+        [SerializeField] private AudioClip audioClip;
+        [SerializeField] private byte atkRange;
+        [SerializeField] private PoolObjectKey hitPoolObjectKey;
+
 
         protected override void Awake()
         {
             base.Awake();
-            _monsterLayer = LayerMask.GetMask("Monster");
+            _monsterLayer = LayerMask.GetMask("Monster") | LayerMask.GetMask("FlyingMonster");
             _targetColliders = new Collider[5];
-            _explosionAudio = GetComponentInChildren<AudioSource>();
         }
 
         protected override void OnEnable()
@@ -28,17 +34,19 @@ namespace ProjectileControl
             _isLockOnTarget = false;
         }
 
-        protected override void Update()
+        protected override void FixedUpdate()
         {
+            if (isArrived) return;
             if (lerp < 1)
             {
-                if (!_isLockOnTarget && lerp >= 0.5f)
+                if (lerp >= 0.4f && !_isLockOnTarget)
                 {
                     _isLockOnTarget = true;
                     _targetEndPos = target.transform.position;
+                    _targetEndPos.y = 0;
                 }
 
-                ProjectilePath(lerp < 0.5f ? target.transform.position : _targetEndPos);
+                ProjectilePath(lerp < 0.4f ? target.transform.position : _targetEndPos);
             }
             else
             {
@@ -51,10 +59,11 @@ namespace ProjectileControl
             Gizmos.DrawWireSphere(transform.position, atkRange);
         }
 
-        public override void Hit()
+        protected override void Hit(Collider col)
         {
-            base.Hit();
-            _explosionAudio.Play();
+            var mainModule = PoolObjectManager.Get<ParticleSystem>(hitPoolObjectKey, transform.position).main;
+            mainModule.startColor = towerData.ProjectileColor[effectIndex];
+            SoundManager.Instance.Play3DSound(audioClip, transform.position);
             if (_targetEndPos == Vector3.zero) return;
             var pos = transform.position;
 

@@ -6,7 +6,6 @@ namespace StatusControl
 {
     public class HealthBar : StatusBar
     {
-        private Transform _border;
         private Tween _shakeBarTween;
         private Health _health;
 
@@ -18,11 +17,10 @@ namespace StatusControl
         protected override void Awake()
         {
             base.Awake();
-            _border = transform.GetChild(0);
-            _shakeBarTween = _border
+            _shakeBarTween = transform
                 .DOShakeRotation(duration, new Vector3(0, 0, strength), vibrato, randomness, true,
                     ShakeRandomnessMode.Harmonic).SetUpdate(true)
-                .OnComplete(() => _border.localRotation = quaternion.identity).SetAutoKill(false);
+                .OnComplete(() => transform.localRotation = quaternion.identity).SetAutoKill(false);
         }
 
         private void OnDestroy()

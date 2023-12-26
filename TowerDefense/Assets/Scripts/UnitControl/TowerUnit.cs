@@ -3,6 +3,7 @@ using CustomEnumControl;
 using DG.Tweening;
 using GameControl;
 using InterfaceControl;
+using ManagerControl;
 using StatusControl;
 using TowerControl;
 using UnityEngine;
@@ -16,7 +17,6 @@ namespace UnitControl
     public sealed class TowerUnit : MonoBehaviour
     {
         private Transform _childMeshTransform;
-        private AudioSource _audioSource;
         private Sequence _deadSequence;
         private UnitTower _parentTower;
         private Collider _thisCollider;
@@ -37,7 +37,8 @@ namespace UnitControl
         private static readonly int IsAttack = Animator.StringToHash("isAttack");
 
         public Transform healthBarTransform { get; private set; }
-        
+
+        [SerializeField] private AudioClip audioClip;
         [SerializeField, Range(0, 5)] private byte attackTargetCount;
         [SerializeField, Range(0, 7)] private float atkRange;
         [SerializeField, Range(0, 10)] private float sightRange;
@@ -50,7 +51,6 @@ namespace UnitControl
             _targetLayer = LayerMask.GetMask("Monster");
             _childMeshTransform = transform.GetChild(0);
             healthBarTransform = transform.GetChild(1);
-            _audioSource = GetComponent<AudioSource>();
             _anim = GetComponentInChildren<Animator>();
             _navMeshAgent = GetComponent<NavMeshAgent>();
             _thisCollider = GetComponent<Collider>();
@@ -194,7 +194,7 @@ namespace UnitControl
             var targetRot = Quaternion.LookRotation((_target.transform.position - t.position).normalized);
             t.rotation = Quaternion.Slerp(t.rotation, targetRot, turnSpeed);
 
-            _audioSource.Play();
+            SoundManager.Instance.Play3DSound(audioClip, transform.position);
             _anim.SetTrigger(IsAttack);
             TryDamage();
 

@@ -1,5 +1,7 @@
 using DataControl;
+using DataControl.TowerData;
 using DG.Tweening;
+using ManagerControl;
 using PoolObjectControl;
 using ProjectileControl;
 using UnityEngine;
@@ -29,8 +31,9 @@ namespace TowerControl
         protected override void Attack()
         {
             atkSequence.Restart();
-            attackSound.Play();
-            var targetingTowerData = (TargetingTowerData)TowerData;
+            SoundManager.Instance.Play3DSound(audioClip, transform.position);
+            var targetingTowerData =
+                (TargetingTowerData)UIManager.Instance.TowerDataPrefabDictionary[TowerType].towerData;
             var projectile =
                 PoolObjectManager.Get<WizardProjectile>(targetingTowerData.PoolObjectKey, firePos.position);
             projectile.ColorInit(effectIndex);

@@ -1,5 +1,6 @@
 using System;
 using DG.Tweening;
+using ManagerControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -10,8 +11,8 @@ namespace UIControl
     {
         private Tween _scaleTween;
         public event Action OnCamDisableEvent, OnCamEnableEvent;
-        public event Action<int, Transform> OnPointerDownEvent;
-        public event Action OnPointerUpEvent;
+        public event Action<int, Transform> OnOpenCardEvent;
+        public event Action OnCloseCardEvent;
         public event Action<PointerEventData> OnBeginDragEvent;
         public event Action<int> OnStartPlacement;
         public event Action<PointerEventData> OnDragEvent;
@@ -28,16 +29,13 @@ namespace UIControl
         {
             _scaleTween.Restart();
             IsOnButton = true;
-            UIManager.IsOnUI = true;
-            OnPointerDownEvent?.Invoke(buttonIndex, transform);
             OnCamDisableEvent?.Invoke();
         }
 
         public void OnPointerUp(PointerEventData eventData)
         {
             _scaleTween.PlayBackwards();
-            UIManager.IsOnUI = false;
-            OnPointerUpEvent?.Invoke();
+            OnOpenCardEvent?.Invoke(buttonIndex, transform);
             OnCamEnableEvent?.Invoke();
         }
 
@@ -45,13 +43,13 @@ namespace UIControl
         {
             _scaleTween.PlayBackwards();
             IsOnButton = false;
-            OnPointerUpEvent?.Invoke();
         }
 
         public void OnBeginDrag(PointerEventData eventData)
         {
             OnBeginDragEvent?.Invoke(eventData);
             OnStartPlacement?.Invoke(buttonIndex);
+            OnCloseCardEvent?.Invoke();
         }
 
         public void OnDrag(PointerEventData eventData)

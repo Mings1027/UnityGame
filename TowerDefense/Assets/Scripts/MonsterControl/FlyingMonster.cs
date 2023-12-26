@@ -1,6 +1,7 @@
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DataControl;
+using ManagerControl;
 using UIControl;
 using UnityEngine;
 using UnityEngine.AI;
@@ -11,18 +12,18 @@ namespace MonsterControl
     {
         [SerializeField] private byte baseOffset;
 
-        protected override void Awake()
-        {
-            base.Awake();
-            targetLayer = LayerMask.GetMask("Tower");
-            targetCollider = new Collider[1];
-        }
+        // protected override void Awake()
+        // {
+        //     base.Awake();
+        //     targetLayer = LayerMask.GetMask("Tower");
+        //     targetCollider = new Collider[1];
+        // }
 
-        public override void Init()
-        {
-            base.Init();
-            patrolCooldown.cooldownTime = 3f;
-        }
+        // public override void Init()
+        // {
+        //     base.Init();
+        //     patrolCooldown.cooldownTime = 3f;
+        // }
 
         public override void SpawnInit(MonsterData monsterData)
         {
@@ -45,64 +46,77 @@ namespace MonsterControl
 
         public override void MonsterUpdate()
         {
-            if (!navMeshAgent.enabled) return;
-            if (health.IsDead) return;
-            switch (unitState)
+            var pos = transform.position;
+            pos.y = 0;
+            if (Vector3.Distance(pos, Vector3.zero) <= 0.5f)
             {
-                case UnitState.Patrol:
-                    Patrol();
-                    break;
-                case UnitState.Attack:
-                    Attack();
-                    break;
-            }
-
-            base.MonsterUpdate();
-        }
-
-        protected override void Patrol()
-        {
-            if (navMeshAgent.destination == Vector3.zero &&
-                navMeshAgent.remainingDistance <= navMeshAgent.stoppingDistance)
-            {
-                UIManager.Instance.BaseTowerHealth.Damage(baseTowerDamage);
                 DisableObject();
-                return;
             }
-            var size = Physics.OverlapSphereNonAlloc(transform.position, sightRange, targetCollider, targetLayer);
-            if (size <= 0)
-            {
-                target = null;
-                if (navMeshAgent.isOnNavMesh)
-                {
-                    navMeshAgent.SetDestination(Vector3.zero);
-                }
-
-                return;
-            }
-
-            if (!target || !target.enabled)
-            {
-                target = targetCollider[0];
-            }
-
-            unitState = UnitState.Attack;
         }
+        // public override void MonsterUpdate()
+        // {
+        //     if (!navMeshAgent.enabled) return;
+        //     if (health.IsDead) return;
+        //     switch (unitState)
+        //     {
+        //         case UnitState.Patrol:
+        //             Patrol();
+        //             break;
+        //         case UnitState.Attack:
+        //             Attack();
+        //             break;
+        //     }
+        //
+        //     base.MonsterUpdate();
+        // }
 
-        protected override void Attack()
-        {
-            if (attackCooldown.IsCoolingDown) return;
-            // var t = transform;
-            // var targetRot = Quaternion.LookRotation(target.transform.position - t.position);
-            // t.rotation = Quaternion.Slerp(t.rotation, targetRot, turnSpeed);
+        // protected override void Patrol()
+        // {
+        //     var pos = transform.position;
+        //     pos.y = 0;
+        //     if (Vector3.Distance(pos, Vector3.zero) <= 0.5f)
+        //     {
+        //         UIManager.Instance.BaseTowerHealth.Damage(baseTowerDamage);
+        //         DisableObject();
+        //         return;
+        //     }
+        //
+        //     if (nonAttackableMonster) return;
+        //     
+        //     var size = Physics.OverlapSphereNonAlloc(transform.position, sightRange, targetCollider, targetLayer);
+        //     if (size <= 0)
+        //     {
+        //         target = null;
+        //         if (navMeshAgent.isOnNavMesh)
+        //         {
+        //             navMeshAgent.SetDestination(Vector3.zero);
+        //         }
+        //
+        //         return;
+        //     }
+        //
+        //     if (!target || !target.enabled)
+        //     {
+        //         target = targetCollider[0];
+        //     }
+        //
+        //     unitState = UnitState.Attack;
+        // }
 
-            TryDamage();
-            unitState = UnitState.Patrol;
-            attackCooldown.StartCooldown();
-        }
-
-        protected override void TryDamage()
-        {
-        }
+        // protected override void Attack()
+        // {
+        //     if (attackCooldown.IsCoolingDown) return;
+        //     var t = transform;
+        //     var targetRot = Quaternion.LookRotation(target.transform.position - t.position);
+        //     t.rotation = Quaternion.Slerp(t.rotation, targetRot, turnSpeed);
+        //
+        //     TryDamage();
+        //     unitState = UnitState.Patrol;
+        //     attackCooldown.StartCooldown();
+        // }
+        //
+        // protected override void TryDamage()
+        // {
+        // }
     }
 }

@@ -17,8 +17,8 @@ namespace MonsterControl
         private Transform _childMeshTransform;
         private Sequence _deadSequence;
         private Collider _thisCollider;
-        private Animator _anim;
 
+        protected Animator _anim;
         protected Cooldown attackCooldown;
         protected Cooldown patrolCooldown;
         protected Collider target;
@@ -31,7 +31,7 @@ namespace MonsterControl
         protected int damage;
 
         private static readonly int IsWalk = Animator.StringToHash("isWalk");
-        private static readonly int IsAttack = Animator.StringToHash("isAttack");
+        protected static readonly int IsAttack = Animator.StringToHash("isAttack");
 
         public Transform healthBarTransform { get; private set; }
         public event Action OnDisableEvent;
@@ -40,7 +40,7 @@ namespace MonsterControl
         [SerializeField, Range(0, 7)] protected float atkRange;
         [SerializeField, Range(0, 10)] protected float sightRange;
         [SerializeField] protected float turnSpeed;
-        [SerializeField] protected byte baseTowerDamage;
+        [field: SerializeField] public byte baseTowerDamage { get; private set; }
 
         #region Unity Event
 
@@ -68,6 +68,7 @@ namespace MonsterControl
         protected virtual void OnEnable()
         {
             navMeshAgent.enabled = true;
+            navMeshAgent.SetDestination(Vector3.zero);
         }
 
         private void OnDestroy()
@@ -119,57 +120,11 @@ namespace MonsterControl
 
         protected virtual void Patrol()
         {
-            if (navMeshAgent.destination == Vector3.zero &&
-                navMeshAgent.remainingDistance <= navMeshAgent.stoppingDistance)
-            {
-                UIManager.Instance.BaseTowerHealth.Damage(baseTowerDamage);
-                DisableObject();
-                return;
-            }
-
-            if (patrolCooldown.IsCoolingDown) return;
-            var size = Physics.OverlapSphereNonAlloc(transform.position, sightRange, targetCollider, targetLayer);
-            if (size <= 0)
-            {
-                target = null;
-                if (navMeshAgent.isOnNavMesh)
-                {
-                    navMeshAgent.SetDestination(Vector3.zero);
-                }
-
-                patrolCooldown.StartCooldown();
-                return;
-            }
-
-            if (!target || !target.enabled)
-            {
-                target = targetCollider[0];
-            }
-
-            unitState = UnitState.Chase;
-            patrolCooldown.StartCooldown();
         }
 
 
         protected virtual void Attack()
         {
-            if (!target || !target.enabled ||
-                Vector3.Distance(target.transform.position, transform.position) > atkRange)
-            {
-                unitState = UnitState.Patrol;
-                return;
-            }
-
-            if (attackCooldown.IsCoolingDown) return;
-
-            var t = transform;
-            var targetRot = Quaternion.LookRotation(target.transform.position - t.position);
-            t.rotation = Quaternion.Slerp(t.rotation, targetRot, turnSpeed);
-
-            _anim.SetTrigger(IsAttack);
-            TryDamage();
-
-            attackCooldown.StartCooldown();
         }
 
         protected virtual void TryDamage()

@@ -175,7 +175,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d419928fb87174c1c8809b16a48d3745, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dontDestroyOnLoad: 1
+  dontDestroyOnLoad: 0
   musicSounds:
   - musicName: 0
     musicClip: {fileID: 8300000, guid: e6ee71813e1303e4cb8254dd48304712, type: 3}
@@ -195,6 +195,8 @@ MonoBehaviour:
   - effectName: 7
     effectSource: {fileID: 8300000, guid: d0440e1e7ebf542a1884646f52220a69, type: 3}
   audioMixer: {fileID: 24100000, guid: 12c02601c80f546bea113c6157c70322, type: 2}
+  minDistance: 10
+  maxDistance: 60
 --- !u!1 &8508866409628066979
 GameObject:
   m_ObjectHideFlags: 0

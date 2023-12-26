@@ -14,12 +14,14 @@ namespace StatusControl
             protected set
             {
                 _current = value;
+                if (_current <= 0) _current = 0;
+                if (_current > Initial) _current = Initial;
                 OnUpdateBarEvent?.Invoke();
             }
         }
 
         protected float Initial { get; private set; }
-        protected bool IsFull => _current >= Initial;
+        public bool IsFull => _current >= Initial;
         public float Ratio => _current / Initial;
 
         public event Action OnUpdateBarEvent;

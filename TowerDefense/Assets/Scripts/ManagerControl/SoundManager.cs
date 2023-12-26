@@ -23,10 +23,13 @@ namespace ManagerControl
             public AudioClip musicClip;
         }
 
+        private Camera _cam;
+
         private const string BGMKey = "BGM";
         private const string SfxKey = "SFX";
 
         private float _bgmVolume;
+        private float _inverseMaxMinusMin;
 
         private Dictionary<SoundEnum, AudioClip> _musicDictionary;
         private Dictionary<SoundEnum, AudioClip> _effectDictionary;
@@ -37,6 +40,7 @@ namespace ManagerControl
         [SerializeField] private EffectSound[] effectSounds;
 
         [SerializeField] private AudioMixer audioMixer;
+        [SerializeField] private byte minDistance, maxDistance;
 
         public bool BGMOn { get; private set; }
         public bool SfxOn { get; private set; }
@@ -44,6 +48,7 @@ namespace ManagerControl
         protected override void Awake()
         {
             base.Awake();
+            _inverseMaxMinusMin = 1.0f / (maxDistance - minDistance);
             _musicSource = transform.Find("Music Source").GetComponent<AudioSource>();
             _effectSource = transform.Find("Effect Source").GetComponent<AudioSource>();
 
@@ -66,6 +71,7 @@ namespace ManagerControl
 
         private void Start()
         {
+            _cam = Camera.main;
             audioMixer.SetFloat("BGM", BGMOn ? _bgmVolume : -80);
             audioMixer.SetFloat("SFX", SfxOn ? 0 : -80);
         }
@@ -76,10 +82,18 @@ namespace ManagerControl
             _musicSource.Play();
         }
 
-        public void PlaySound(SoundEnum clipName)
+        public void PlayUISound(SoundEnum clipName)
         {
             _effectSource.clip = _effectDictionary[clipName];
             _effectSource.Play();
+        }
+
+        public void Play3DSound(AudioClip audioClip, Vector3 position)
+        {
+            var distance = Vector3.Distance(_cam.transform.position, position);
+            if (distance > maxDistance) return;
+            var soundScale = Mathf.Clamp01((maxDistance - distance) * _inverseMaxMinusMin);
+            _effectSource.PlayOneShot(audioClip, soundScale);
         }
 
         public void ToggleBGM(bool active)

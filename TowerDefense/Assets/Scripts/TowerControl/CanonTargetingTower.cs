@@ -21,8 +21,8 @@ namespace TowerControl
 
         protected override void Attack()
         {
-            canonSmoke.Play();
             base.Attack();
+            canonSmoke.Play();
         }
     }
 }

@@ -12,6 +12,7 @@ namespace GameControl
     {
         private Tween _changeLanguageTween;
 
+        [SerializeField] private Image languagePanelBlockImage;
         [SerializeField] private Transform languagePanel;
         [SerializeField] private Transform languageButtons;
         [SerializeField] private Button openLanguagePanelButton;
@@ -19,6 +20,7 @@ namespace GameControl
 
         private void Start()
         {
+            languagePanelBlockImage.enabled = false;
             _changeLanguageTween =
                 languagePanel.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack).SetUpdate(true).SetAutoKill(false)
                     .Pause();
@@ -31,7 +33,7 @@ namespace GameControl
                     .AddListener(() =>
                     {
                         languageButton.transform.DOScale(1, 0.25f).From(0.7f).SetEase(Ease.OutBack).SetUpdate(true);
-                        SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
+                        SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
                         LocaleManager.ChangeLocale(index);
                     });
             }
@@ -39,11 +41,16 @@ namespace GameControl
             openLanguagePanelButton.onClick.AddListener(() =>
             {
                 openLanguagePanelButton.transform.DOScale(1, 0.25f).From(0.5f).SetEase(Ease.OutBack).SetUpdate(true);
-                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
+                SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
+                languagePanelBlockImage.enabled = true;
                 _changeLanguageTween.Restart();
             });
 
-            closeLanguagePanelButton.onClick.AddListener(() => { _changeLanguageTween.PlayBackwards(); });
+            closeLanguagePanelButton.onClick.AddListener(() =>
+            {
+                languagePanelBlockImage.enabled = false;
+                _changeLanguageTween.PlayBackwards();
+            });
         }
 
         private void OnDestroy()

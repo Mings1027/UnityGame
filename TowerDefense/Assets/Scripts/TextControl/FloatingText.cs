@@ -45,11 +45,12 @@ namespace TextControl
                 ? "+" + number + "g"
                 : "-" + number + "g";
         }
-        // public void SetHpText(ushort number, bool isPlusValue = true)
-        // {
-        //     _text.text = isPlusValue
-        //         ? "+" + CachedNumber.GetFloatingText(number) + " HP"
-        //         : "-" + CachedNumber.GetFloatingText(number) + " HP";
-        // }
+
+        public void SetHpText(ushort number, bool isPlusValue = true)
+        {
+            _text.text = isPlusValue
+                ? "+" + number + " HP"
+                : "-" + number + " HP";
+        }
     }
 }

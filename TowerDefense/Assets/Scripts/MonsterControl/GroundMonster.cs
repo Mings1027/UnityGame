@@ -1,4 +1,6 @@
 using CustomEnumControl;
+using ManagerControl;
+using UIControl;
 using UnityEngine;
 
 namespace MonsterControl
@@ -38,6 +40,39 @@ namespace MonsterControl
             base.MonsterUpdate();
         }
 
+        protected override void Patrol()
+        {
+            var pos = transform.position;
+            pos.y = 0;
+            if (Vector3.Distance(pos, Vector3.zero) <= navMeshAgent.stoppingDistance)
+            {
+                DisableObject();
+                return;
+            }
+
+            if (patrolCooldown.IsCoolingDown) return;
+            var size = Physics.OverlapSphereNonAlloc(transform.position, sightRange, targetCollider, targetLayer);
+            if (size <= 0)
+            {
+                target = null;
+                if (navMeshAgent.isOnNavMesh)
+                {
+                    navMeshAgent.SetDestination(Vector3.zero);
+                }
+
+                patrolCooldown.StartCooldown();
+                return;
+            }
+
+            if (!target || !target.enabled)
+            {
+                target = targetCollider[0];
+            }
+
+            unitState = UnitState.Chase;
+            patrolCooldown.StartCooldown();
+        }
+
         private void Chase()
         {
             if (!target.enabled)
@@ -52,6 +87,27 @@ namespace MonsterControl
             {
                 unitState = UnitState.Attack;
             }
+        }
+
+        protected override void Attack()
+        {
+            if (!target || !target.enabled ||
+                Vector3.Distance(target.transform.position, transform.position) > atkRange)
+            {
+                unitState = UnitState.Patrol;
+                return;
+            }
+
+            if (attackCooldown.IsCoolingDown) return;
+
+            var t = transform;
+            var targetRot = Quaternion.LookRotation(target.transform.position - t.position);
+            t.rotation = Quaternion.Slerp(t.rotation, targetRot, turnSpeed);
+
+            _anim.SetTrigger(IsAttack);
+            TryDamage();
+
+            attackCooldown.StartCooldown();
         }
     }
 }

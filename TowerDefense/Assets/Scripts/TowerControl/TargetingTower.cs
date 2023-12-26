@@ -1,20 +1,19 @@
-using System;
 using CustomEnumControl;
-using DataControl;
+using DataControl.TowerData;
 using DG.Tweening;
 using GameControl;
+using ManagerControl;
 using PoolObjectControl;
 using ProjectileControl;
 using UnityEngine;
 
 namespace TowerControl
 {
-    public abstract class TargetingTower : Tower
+    public abstract class TargetingTower : AttackTower
     {
         private Cooldown _patrolCooldown;
         protected sbyte effectIndex;
         protected Collider[] targetColliders;
-        protected AudioSource attackSound;
         protected TowerState towerState;
         protected LayerMask targetLayer;
         protected bool isTargeting;
@@ -22,6 +21,7 @@ namespace TowerControl
         protected Collider target;
         protected Transform firePos;
 
+        [SerializeField] protected AudioClip audioClip;
 #if UNITY_EDITOR
         private void OnDrawGizmos()
         {
@@ -47,7 +47,6 @@ namespace TowerControl
         {
             base.Init();
             targetLayer = LayerMask.GetMask("Monster") | LayerMask.GetMask("FlyingMonster");
-            attackSound = GetComponent<AudioSource>();
             effectIndex = -1;
             targetColliders = new Collider[3];
             _patrolCooldown.cooldownTime = 0.5f;
@@ -121,8 +120,9 @@ namespace TowerControl
         protected virtual void Attack()
         {
             atkSequence.Restart();
-            attackSound.Play();
-            var targetingTowerData = (TargetingTowerData)TowerData;
+            SoundManager.Instance.Play3DSound(audioClip, transform.position);
+            var targetingTowerData =
+                (TargetingTowerData)UIManager.Instance.TowerDataPrefabDictionary[TowerType].towerData;
             var projectile =
                 PoolObjectManager.Get<Projectile>(targetingTowerData.PoolObjectKey, firePos.position);
 

@@ -1,20 +1,22 @@
 using System.Collections.Generic;
+using DataControl;
 using TowerControl;
 using UIControl;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace ManagerControl
 {
     public class TowerManager : MonoBehaviour
     {
-        private List<Tower> _towers;
+        private List<AttackTower> _towers;
         private UnitTower _unitTower;
-
+        [FormerlySerializedAs("playerMana")] [SerializeField] private TowerMana towerMana;
         #region Unity Event
 
         protected void Awake()
         {
-            _towers = new List<Tower>(50);
+            _towers = new List<AttackTower>(50);
         }
 
         private void Start()
@@ -39,15 +41,14 @@ namespace ManagerControl
         {
             enabled = true;
             Application.targetFrameRate = 60;
-            UIManager.Instance.Mana.StartManaRegen();
-            // TowerUpdate().Forget();
+            towerMana.towerMana.StartManaRegen();
         }
 
         public void StopTargeting()
         {
             enabled = false;
             TargetInit();
-            UIManager.Instance.Mana.StopManaRegen();
+            towerMana.towerMana.StopManaRegen();
         }
 
         private void TargetInit()
@@ -63,12 +64,12 @@ namespace ManagerControl
 
         #region Public Method
 
-        public void AddTower(Tower tower)
+        public void AddTower(AttackTower tower)
         {
             _towers.Add(tower);
         }
 
-        public void RemoveTower(Tower tower)
+        public void RemoveTower(AttackTower tower)
         {
             _towers.Remove(tower);
         }

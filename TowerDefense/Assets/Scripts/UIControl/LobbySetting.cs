@@ -26,7 +26,7 @@ namespace UIControl
             settingButton.onClick.AddListener(() =>
             {
                 settingButton.transform.DOScale(1, 0.25f).From(0.5f).SetEase(Ease.OutBack);
-                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
+                SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
                 SettingPanel();
             });
             bgmToggle.isOn = !SoundManager.Instance.BGMOn;
@@ -34,14 +34,14 @@ namespace UIControl
             {
                 bgmToggle.transform.DOScale(1, 0.25f).From(0.5f).SetEase(Ease.OutBack);
                 SoundManager.Instance.ToggleBGM(!bgmToggle.isOn);
-                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
+                SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
             });
             sfxToggle.isOn = !SoundManager.Instance.SfxOn;
             sfxToggle.onValueChanged.AddListener(delegate
             {
                 sfxToggle.transform.DOScale(1, 0.25f).From(0.5f).SetEase(Ease.OutBack);
                 SoundManager.Instance.ToggleSfx(!sfxToggle.isOn);
-                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
+                SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
             });
         }
 

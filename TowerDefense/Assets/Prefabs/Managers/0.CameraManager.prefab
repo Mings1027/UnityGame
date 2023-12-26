@@ -51,9 +51,9 @@ MonoBehaviour:
   movingStartOrthoSize: 10
   dragAngle: 60
   modifiedDivide: 25
-  camBoundsMinMax: {x: 200, y: 200}
-  minCamPos: {x: 0, y: 15, z: -15}
-  maxCamPos: {x: 0, y: 30, z: -30}
+  movementBound: 200
+  minCamPos: {x: 0, y: 20, z: -20}
+  maxCamPos: {x: 0, y: 40, z: -40}
   orthoSizeMinMax: {x: 5, y: 50}
   uiSizeMinMax: {x: 0.1, y: 0.4}
 --- !u!1 &2159971795006988816
@@ -84,7 +84,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2159971795006988816}
   m_LocalRotation: {x: 0.38268343, y: 0, z: 0, w: 0.92387956}
-  m_LocalPosition: {x: 0, y: 20, z: -20}
+  m_LocalPosition: {x: 0, y: 40, z: -40}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

@@ -6,6 +6,7 @@ using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using ManagerControl;
 using PoolObjectControl;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
 using Random = UnityEngine.Random;
@@ -85,7 +86,6 @@ namespace MapControl
         {
             ComponentInit();
             MapDataInit();
-            transform.GetChild(2).gameObject.SetActive(false);
         }
 
         private void OnEnable()
@@ -97,6 +97,7 @@ namespace MapControl
         private void Start()
         {
             _waveManager.OnBossWaveEvent += bossNavMeshSurface.BuildNavMesh;
+            transform.GetChild(2).gameObject.SetActive(false);
         }
 
         private void OnDisable()
@@ -119,7 +120,7 @@ namespace MapControl
 #endif
 
         #endregion
-        
+
         #region Init
 
         private void ComponentInit()
@@ -346,18 +347,51 @@ namespace MapControl
                 }
             }
 
+            if (_nullMapString != null && _connectionString != null &&
+                _connectionString.Length == _nullMapString.Length && _connectionString.Contains(_nullMapString))
+            {
+                print($"con : {_connectionString}");
+                print(_nullMapString);
+                var ranIndex = Random.Range(0, _nullMapString.Length);
+                _connectionString += _nullMapString[ranIndex];
+                _connectionString = new string(_connectionString.Distinct().ToArray());
+            }
+
             // 사방이 막히지 않았는데 하나만 연결된 경우 랜덤으로 하나를 더 이어줌
             if (_connectionString is { Length: 1 } && _nullMapString != null)
             {
                 var tempString = new StringBuilder(_nullMapString);
                 _connectionString += tempString[Random.Range(0, tempString.Length)];
             }
+            // if (_connectionString == null) return;
+            // if (_wayPointsHashSet.Count == 1) // 길이 하나일 때
+            // {
+            //     var contains = _nullMapString != null && _nullMapString.Contains(_connectionString);
+            //     if (contains)
+            //     {
+            //         var tempString = new StringBuilder(_nullMapString);
+            //         _connectionString += tempString[Random.Range(0, tempString.Length)];
+            //     }
+            //     else
+            //     {
+            //         _connectionString += _nullMapString;
+            //         _connectionString = new string(_connectionString.Distinct().ToArray());
+            //     }
+            // }
+            // else
+            // {
+            //     // 사방이 막히지 않았는데 하나만 연결된 경우 랜덤으로 하나를 더 이어줌
+            //     if (_connectionString is { Length: 1 } && _nullMapString != null)
+            //     {
+            //         var tempString = new StringBuilder(_nullMapString);
+            //         _connectionString += tempString[Random.Range(0, tempString.Length)];
+            //     }
+            // }
         }
 
         private void PlaceNewMap()
         {
             if (_connectionString == null) return;
-
             _connectionString = string.Concat(_connectionString.OrderBy(c => c));
 
             _newMapObject = Instantiate(_mapDictionary[_directionMappingDic[_connectionString]],
@@ -451,15 +485,7 @@ namespace MapControl
             ramNavMeshSurface.BuildNavMesh();
             _waveManager.WaveInit();
             await UniTask.Delay(500, cancellationToken: _cts.Token);
-
-            if (_wayPointsHashSet.Count == 0)
-            {
-                _waveManager.BonusMap();
-            }
-            else
-            {
-                _waveManager.WaveStart(_wayPointsHashSet.ToArray());
-            }
+            _waveManager.WaveStart(_wayPointsHashSet.ToArray());
         }
 
         //Call When Wave is over

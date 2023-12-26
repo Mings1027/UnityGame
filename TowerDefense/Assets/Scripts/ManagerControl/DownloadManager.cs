@@ -21,37 +21,40 @@ namespace ManagerControl
         private Dictionary<string, long> _patchMap;
 
         [Header("UI")] [SerializeField] private Button startGameButton;
-        [SerializeField] private GameObject upgradeButton;
-        [SerializeField] private Image blockImage;
         [SerializeField] private GameObject downLoadPanel;
+        [SerializeField] private Image blockImage;
         [SerializeField] private TMP_Text sizeInfoText;
         [SerializeField] private Button downLoadButton;
         [SerializeField] private Button cancelButton;
         [SerializeField] private TMP_Text downValueText;
         [SerializeField] private Slider downSlider;
 
+        [Header("---Setting---")] [SerializeField]
+        private GameObject buttons;
+
         [Header("Label")] [SerializeField] private AssetLabelReference[] assetLabels;
 
         private void Awake()
         {
+            Profiler.maxUsedMemory = 134217728;
+
             _downloadPanelTween = downLoadPanel.transform.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack)
                 .SetAutoKill(false).Pause();
             _patchMap = new Dictionary<string, long>();
             startGameButton.onClick.AddListener(() =>
             {
-                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
+                SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
                 StartGameButton();
             });
             downLoadButton.onClick.AddListener(() =>
             {
-                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
+                SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
                 DownLoadButton();
             });
             cancelButton.onClick.AddListener(() =>
             {
-                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
-                startGameButton.gameObject.SetActive(true);
-                upgradeButton.SetActive(true);
+                SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
+                buttons.SetActive(true);
                 blockImage.enabled = false;
                 _downloadPanelTween.PlayBackwards();
             });
@@ -78,8 +81,7 @@ namespace ManagerControl
 
         private void StartGameButton()
         {
-            startGameButton.gameObject.SetActive(false);
-            upgradeButton.SetActive(false);
+            buttons.SetActive(false);
             CheckUpdateFiles().Forget();
         }
 
@@ -150,8 +152,8 @@ namespace ManagerControl
 
         private void DownLoadButton()
         {
-            blockImage.enabled = false;
             _downloadPanelTween.PlayBackwards();
+            blockImage.enabled = false;
             downLoadButton.gameObject.SetActive(false);
             cancelButton.gameObject.SetActive(false);
             downSlider.gameObject.SetActive(true);
@@ -227,8 +229,6 @@ namespace ManagerControl
             {
                 await UniTask.Yield();
             }
-
-            DataManager.Init();
         }
     }
 }

@@ -1,13 +1,11 @@
 using System.Globalization;
 using CustomEnumControl;
 using DataControl;
-using GameControl;
+using DataControl.TowerData;
 using ManagerControl;
 using TMPro;
 using TowerControl;
 using UnityEngine;
-using UnityEngine.Localization.Settings;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace UIControl
@@ -90,10 +88,11 @@ namespace UIControl
             _statusInfoPanel.gameObject.SetActive(false);
         }
 
-        public void SetTowerInfo(Tower tower, bool isUnitTower, sbyte level, ushort upgradeCost, ushort sellCost)
+        public void SetTowerInfo(AttackTower tower, bool isUnitTower, sbyte level, ushort upgradeCost, ushort sellCost)
         {
             if (!_statusInfoPanel.gameObject.activeSelf) _statusInfoPanel.gameObject.SetActive(true);
-            if (tower.TowerData is BattleTowerData battleTowerData)
+            if (UIManager.Instance.TowerDataPrefabDictionary[tower.TowerType].towerData
+                is AttackTowerData battleTowerData)
             {
                 if (isUnitTower)
                 {
@@ -112,13 +111,13 @@ namespace UIControl
             rpmObj.SetActive(!isUnitTower);
             respawnObj.SetActive(isUnitTower);
 
-            var towerType = tower.TowerData.TowerType;
+            var towerType = tower.TowerType;
             if (!towerType.Equals(_towerType))
             {
                 _towerType = towerType;
                 var uiManager = UIManager.Instance;
                 towerNameText.text = uiManager.towerNameDic[towerType];
-                damageImage.sprite = uiManager.GetTowerType(tower.TowerData);
+                damageImage.sprite = uiManager.GetTowerType(towerType);
             }
 
             DisplayStarsForTowerLevel(level);

@@ -1,5 +1,6 @@
 using CustomEnumControl;
 using PoolObjectControl;
+using TextControl;
 using UnityEngine;
 
 namespace StatusControl
@@ -9,7 +10,7 @@ namespace StatusControl
         public override void Damage(float amount)
         {
             base.Damage(amount);
-        
+
             PoolObjectManager.Get(PoolObjectKey.BloodVfx, transform.position);
         }
     }

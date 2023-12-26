@@ -1,6 +1,5 @@
 using System.Collections.Generic;
-using Cysharp.Threading.Tasks;
-using DataControl;
+using DataControl.TowerData;
 using DG.Tweening;
 using ManagerControl;
 using UnityEngine;
@@ -13,22 +12,21 @@ namespace UIControl
         private bool _isStartPlacement;
         private bool _isDrag;
         private RectTransform _rectTransform;
-        private Tweener _slideDownTween;
-        private Tweener _slideUpTween;
+        private Tweener _slideTween;
         private InputManager _inputManager;
-        private CameraManager _cameraManager;
 
         private Dictionary<int, TowerData> _towerButtonDic;
 
         private float _rectHeight;
 
-        [SerializeField] private TowerCardUI towerCardUI;
+        [SerializeField] private TowerDescriptionCard towerDescriptionCard;
 
         #region Unity Event
 
         public void OnBeginDrag(PointerEventData eventData)
         {
             _isDrag = true;
+            UIManager.Instance.CameraManager.enabled = false;
         }
 
         public void OnDrag(PointerEventData eventData)
@@ -58,21 +56,21 @@ namespace UIControl
 
         public void OnEndDrag(PointerEventData eventData)
         {
+            UIManager.Instance.CameraManager.enabled = true;
             _isStartPlacement = false;
             _isDrag = false;
             if (_rectTransform.anchoredPosition.y > -_rectHeight * 0.5f)
             {
-                _slideUpTween.ChangeStartValue(_rectTransform.anchoredPosition).ChangeEndValue(Vector2.zero).Restart();
+                //up
+                _slideTween.ChangeStartValue(_rectTransform.anchoredPosition).Restart();
                 _inputManager.TryPlaceTower();
             }
             else
             {
-                _slideDownTween.ChangeStartValue(_rectTransform.anchoredPosition)
-                    .OnComplete(() =>
-                    {
-                        UIManager.Instance.SlideDown().Forget();
-                        gameObject.SetActive(false);
-                    }).Restart();
+                //down
+                _slideTween.ChangeStartValue(_rectTransform.anchoredPosition)
+                    .ChangeEndValue(new Vector2(0, -250))
+                    .OnComplete(() => { UIManager.Instance.SlideDown().Forget(); }).Restart();
             }
         }
 
@@ -81,10 +79,8 @@ namespace UIControl
         public void Init()
         {
             _rectTransform = GetComponent<RectTransform>();
-            _slideDownTween = _rectTransform.DOAnchorPosY(-250, 0.25f).SetAutoKill(false).Pause();
-            _slideUpTween = _rectTransform.DOAnchorPosY(-250, 0.25f).From().SetAutoKill(false).Pause();
+            _slideTween = _rectTransform.DOAnchorPosY(-250, 0.25f).From().SetAutoKill(false).Pause();
 
-            if (Camera.main != null) _cameraManager = Camera.main.GetComponentInParent<CameraManager>();
             _inputManager = FindObjectOfType<InputManager>();
             _towerButtonDic = new Dictionary<int, TowerData>();
 
@@ -95,10 +91,10 @@ namespace UIControl
             {
                 var towerButton = towerButtons.GetChild(i).GetComponent<TowerButton>();
                 towerButton.buttonIndex = (byte)i;
-                towerButton.OnPointerDownEvent += PointerDown;
-                towerButton.OnCamDisableEvent += () => _cameraManager.DisableForPlaceTower();
-                towerButton.OnPointerUpEvent += CloseTowerCard;
-                towerButton.OnCamEnableEvent += () => _cameraManager.enabled = true;
+                towerButton.OnOpenCardEvent += OpenCard;
+                towerButton.OnCamDisableEvent += () => UIManager.Instance.CameraManager.DisableForPlaceTower();
+                towerButton.OnCloseCardEvent += CloseTowerCard;
+                towerButton.OnCamEnableEvent += () => UIManager.Instance.CameraManager.enabled = true;
                 towerButton.OnBeginDragEvent += OnBeginDrag;
                 towerButton.OnStartPlacement += StartPlacement;
                 towerButton.OnDragEvent += OnDrag;
@@ -106,17 +102,10 @@ namespace UIControl
             }
         }
 
-        private void PointerDown(int index, Transform buttonPos) =>
-            OpenCardAsync(_towerButtonDic[index], buttonPos).Forget();
-
-        private async UniTaskVoid OpenCardAsync(TowerData towerData, Transform buttonPos)
+        private void OpenCard(int index, Transform buttonPos)
         {
-            await UniTask.Delay(300);
             if (_isDrag) return;
-            if (TowerButton.IsOnButton)
-            {
-                towerCardUI.OpenTowerCard(towerData, buttonPos);
-            }
+            towerDescriptionCard.OpenTowerCard(_towerButtonDic[index].TowerType, buttonPos);
         }
 
         private void StartPlacement(int index)
@@ -127,9 +116,9 @@ namespace UIControl
 
         private void CloseTowerCard()
         {
-            if (towerCardUI.IsOpen)
+            if (towerDescriptionCard.IsOpen)
             {
-                towerCardUI.CloseCard();
+                towerDescriptionCard.CloseCard();
             }
         }
 
@@ -137,8 +126,8 @@ namespace UIControl
 
         public void SlideUp()
         {
-            gameObject.SetActive(true);
-            _slideUpTween.ChangeStartValue(_rectTransform.anchoredPosition).Restart();
+            _slideTween.ChangeStartValue(_rectTransform.anchoredPosition)
+                .ChangeEndValue(Vector2.zero).OnComplete(() => UIManager.Instance.ShowTowerButton()).Restart();
         }
     }
 }

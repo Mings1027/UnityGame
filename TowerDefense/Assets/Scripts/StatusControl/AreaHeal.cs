@@ -51,7 +51,8 @@ namespace StatusControl
                     _targetLayer);
                 for (var i = 0; i < size; i++)
                 {
-                    _targetColliders[i].GetComponent<Health>().Heal(healAmount);
+                    if (!_targetColliders[i].TryGetComponent(out Health targetHealth)) continue;
+                    targetHealth.Heal(healAmount);
                 }
             }
         }

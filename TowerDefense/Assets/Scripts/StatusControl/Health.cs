@@ -25,30 +25,17 @@ namespace StatusControl
             Current -= amount;
             OnShakeEvent?.Invoke();
 
-            // PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.DamageText,
-            //         transform.position + Random.insideUnitSphere)
-            //     .SetHpText((ushort)amount, false);
             if (Current > 0f) return;
             OnDeadEvent?.Invoke();
         }
 
-        public virtual void Heal(in float amount)
+        public virtual void Heal(in ushort amount)
         {
             if (IsDead) return;
             if (Current >= Initial) return;
-
             Current += amount;
-            var randomRepeatCount = Random.Range(3, 7);
-            for (int i = 0; i < randomRepeatCount; i++)
-            {
-                PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.HealImage,
-                    transform.position + Random.insideUnitSphere);
-            }
-
-            if (Current > Initial)
-            {
-                Current = Initial;
-            }
+            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.HealText,
+                transform.position + Random.insideUnitSphere).SetHpText(amount);
         }
     }
 }

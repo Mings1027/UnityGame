@@ -2,19 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using CustomEnumControl;
-using DataControl;
+using DataControl.TowerData;
 using DG.Tweening;
+using ManagerControl;
 using PoolObjectControl;
 using StatusControl;
 using UIControl;
 using UnitControl;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.EventSystems;
 
 namespace TowerControl
 {
-    public class UnitTower : Tower
+    public class UnitTower : AttackTower
     {
         private CancellationTokenSource _cts;
         private bool _isUnitSpawn;
@@ -41,11 +41,6 @@ namespace TowerControl
         }
 
         #endregion
-
-        public override void OnPointerUp(PointerEventData eventData)
-        {
-            base.OnPointerUp(eventData);
-        }
 
         #region Unit Control
 
@@ -86,7 +81,7 @@ namespace TowerControl
             var count = _units.Count;
             for (var i = count - 1; i >= 0; i--)
             {
-                var unitData = (UnitTowerData)TowerData;
+                var unitData = (SummoningTowerData)UIManager.Instance.TowerDataPrefabDictionary[TowerType].towerData;
                 _units[i].UnitUpgrade(damage, unitData.UnitHealth * (1 + TowerLevel), delay);
             }
         }
@@ -146,7 +141,7 @@ namespace TowerControl
             _reSpawnBarTransform = transform.GetChild(1);
             _units = new List<TowerUnit>(unitCount);
 
-            var unitTowerData = (UnitTowerData)TowerData;
+            var unitTowerData = (SummoningTowerData)UIManager.Instance.TowerDataPrefabDictionary[TowerType].towerData;
             UnitHealth = unitTowerData.UnitHealth;
             UnitReSpawnTime = unitTowerData.UnitReSpawnTime;
         }
@@ -209,22 +204,6 @@ namespace TowerControl
 
             base.DisableObject();
         }
-
-        // private void ActiveOutline()
-        // {
-        //     for (int i = 0; i < _units.Count; i++)
-        //     {
-        //         // indicator.enabled = true;
-        //     }
-        // }
-        //
-        // private void DeActiveOutline()
-        // {
-        //     for (int i = 0; i < _units.Count; i++)
-        //     {
-        //         // indicator.enabled = false;
-        //     }
-        // }
 
         #endregion
 

@@ -9,7 +9,7 @@ namespace StatusControl
     {
         private CancellationTokenSource _cts;
         private Health _health;
-        [SerializeField] private float healAmount;
+        [SerializeField] private ushort healAmount;
 
         private void Awake()
         {

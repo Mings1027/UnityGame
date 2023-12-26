@@ -1,3 +1,4 @@
+using System;
 using CustomEnumControl;
 using DG.Tweening;
 using ManagerControl;
@@ -26,13 +27,18 @@ namespace UIControl
                 .Pause();
         }
 
+        private void OnDestroy()
+        {
+            _deletePanelTween?.Kill();
+        }
+
         private void Start()
         {
             _eventSystem = EventSystem.current;
             _eventSystem.enabled = false;
 
             deleteWaveDataPanel.enabled = false;
-            transform.DOScale(1, 0.5f).From(0.3f).SetEase(Ease.OutBack).OnComplete(() => _eventSystem.enabled = true);
+            transform.DOScale(1, 0.5f).From(0.7f).SetEase(Ease.OutBack).OnComplete(() => _eventSystem.enabled = true);
             var difficultySelectButtons = transform.GetChild(0);
             for (var i = 0; i < difficultySelectButtons.childCount; i++)
             {
@@ -40,7 +46,7 @@ namespace UIControl
                 difficultySelectButtons.GetChild(i).GetComponent<Button>().onClick.AddListener(() =>
                 {
                     if (Input.touchCount > 1) return;
-                    SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
+                    SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
                     SoundManager.Instance.PlayBGM(SoundEnum.WaveEnd);
                     UIManager.Instance.MapSelectButton(index + 1).Forget();
                     _eventSystem.enabled = false;
@@ -53,6 +59,7 @@ namespace UIControl
                 });
             }
 
+            DataManager.Init();
             DataManager.LoadData();
             var survivedWaves = DataManager.SurvivedWaves.survivedWave;
             for (int i = 0; i < difficultySelectButtons.childCount; i++)
@@ -70,7 +77,7 @@ namespace UIControl
             {
                 if (Input.touchCount > 1) return;
                 deleteWaveDataPanel.enabled = true;
-                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
+                SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
                 _eventSystem.enabled = false;
                 _deletePanelTween.OnComplete(() => _eventSystem.enabled = true).Restart();
             });
@@ -78,7 +85,7 @@ namespace UIControl
             {
                 if (Input.touchCount > 1) return;
                 deleteWaveDataPanel.enabled = false;
-                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
+                SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
                 _eventSystem.enabled = false;
                 DataManager.WaveDataInit();
                 _deletePanelTween.OnRewind(() => _eventSystem.enabled = true).PlayBackwards();
@@ -96,7 +103,7 @@ namespace UIControl
             {
                 if (Input.touchCount > 1) return;
                 deleteWaveDataPanel.enabled = false;
-                SoundManager.Instance.PlaySound(SoundEnum.ButtonSound);
+                SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
                 _eventSystem.enabled = false;
                 _deletePanelTween.OnRewind(() => _eventSystem.enabled = true).PlayBackwards();
             });
