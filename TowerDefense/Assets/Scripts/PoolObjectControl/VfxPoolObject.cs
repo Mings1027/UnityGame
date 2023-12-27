@@ -13,7 +13,7 @@ namespace PoolObjectControl
             _particleSystem = GetComponent<ParticleSystem>();
             var mainModule = _particleSystem.main;
             _disableTween = DOVirtual
-                .DelayedCall(mainModule.startLifetime.constant, () => gameObject.SetActive(false), false)
+                .DelayedCall(mainModule.startLifetime.constant + 1, () => gameObject.SetActive(false), false)
                 .SetAutoKill(false).Pause();
         }
 

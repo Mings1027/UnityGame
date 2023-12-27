@@ -71,9 +71,13 @@ namespace ManagerControl
 
         private void Start()
         {
-            _cam = Camera.main;
             audioMixer.SetFloat("BGM", BGMOn ? _bgmVolume : -80);
             audioMixer.SetFloat("SFX", SfxOn ? 0 : -80);
+        }
+
+        public void SoundManagerInit()
+        {
+            _cam = Camera.main;
         }
 
         public void PlayBGM(SoundEnum clipName)
@@ -93,6 +97,7 @@ namespace ManagerControl
             var distance = Vector3.Distance(_cam.transform.position, position);
             if (distance > maxDistance) return;
             var soundScale = Mathf.Clamp01((maxDistance - distance) * _inverseMaxMinusMin);
+            soundScale *= 0.5f;
             _effectSource.PlayOneShot(audioClip, soundScale);
         }
 

@@ -13,6 +13,11 @@ namespace GameControl
             get
             {
                 if (_applicationQuit) return null;
+                if (!_instance)
+                {
+                    _instance = (T)FindAnyObjectByType(typeof(T));
+                }
+
                 return _instance;
             }
         }
@@ -22,7 +27,7 @@ namespace GameControl
         protected virtual void Awake()
         {
             _applicationQuit = false;
-            _instance = (T)FindAnyObjectByType(typeof(T));
+            // _instance = (T)FindAnyObjectByType(typeof(T));
             if (!dontDestroyOnLoad) return;
             var obj = FindObjectsOfType<T>();
             if (obj.Length == 1)

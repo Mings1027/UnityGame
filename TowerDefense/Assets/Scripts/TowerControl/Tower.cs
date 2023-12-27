@@ -1,3 +1,4 @@
+using System;
 using CustomEnumControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -8,7 +9,8 @@ namespace TowerControl
     public abstract class Tower : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         public TowerType TowerType => towerType;
-        
+        public event Action<Tower> OnClickTowerAction;
+
         [SerializeField] private TowerType towerType;
 
         #region Unity Event
@@ -23,6 +25,9 @@ namespace TowerControl
 
         public virtual void OnPointerUp(PointerEventData eventData)
         {
+            if (Input.touchCount != 1) return;
+            if (!Input.GetTouch(0).deltaPosition.Equals(Vector2.zero)) return;
+            OnClickTowerAction?.Invoke(this);
         }
 
         #endregion

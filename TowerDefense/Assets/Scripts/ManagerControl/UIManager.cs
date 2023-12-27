@@ -378,6 +378,15 @@ namespace ManagerControl
         public void InstantiateTower(TowerType towerType, Vector3 placePos, Vector3 towerForward)
         {
             var t = Instantiate(TowerDataPrefabDictionary[towerType].towerPrefab, placePos, Quaternion.identity);
+
+            var lostCost = GetBuildCost(towerType);
+            _towerCountDictionary[towerType]++;
+            TowerCost -= lostCost;
+
+            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, placePos).SetCostText(lostCost, false);
+            _towerCostTextDictionary[towerType].text = GetBuildCost(towerType) + "g";
+
+
             if (t.TryGetComponent(out AttackTower tower))
             {
                 var towerTransform = t.transform;
@@ -479,14 +488,7 @@ namespace ManagerControl
 
         private async UniTaskVoid BuildTower(AttackTower t, Vector3 placePos, TowerData towerData)
         {
-            var towerType = t.TowerType;
-            var battleTowerData = (AttackTowerData)towerData;
-            var lostCost = GetBuildCost(towerType);
-
-            _towerCountDictionary[towerType]++;
-            TowerCost -= lostCost;
-            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, placePos).SetCostText(lostCost, false);
-            _towerCostTextDictionary[towerType].text = GetBuildCost(towerType) + "g";
+            var attackTowerData = (AttackTowerData)towerData;
             await DOTween.Sequence().Join(t.transform.GetChild(0).DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack))
                 .Append(t.transform.GetChild(0).DOMoveY(placePos.y, 0.5f).SetEase(Ease.InExpo)
                     .OnComplete(() =>
@@ -495,9 +497,8 @@ namespace ManagerControl
                         _cam.transform.DOShakePosition(0.05f);
                     }));
             t.TowerLevelUp();
-            t.TowerSetting(battleTowerData.TowerMeshes[t.TowerLevel], battleTowerData.BaseDamage,
-                battleTowerData.AttackRange,
-                battleTowerData.AttackRpm);
+            t.TowerSetting(attackTowerData.TowerMeshes[t.TowerLevel], attackTowerData.BaseDamage,
+                attackTowerData.AttackRange, attackTowerData.AttackRpm);
             t.OnClickTowerAction += ClickTower;
 
             _towerManager.AddTower(t);
@@ -505,16 +506,6 @@ namespace ManagerControl
 
         private void BuildSupportTower(SupportTower t, Vector3 placePos)
         {
-            var towerType = t.TowerType;
-
-            var lostCost = GetBuildCost(towerType);
-            _towerCountDictionary[towerType]++;
-
-            _sellTowerCost = GetTowerSellCost(towerType);
-
-            TowerCost -= lostCost;
-            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, placePos).SetCostText(lostCost, false);
-            _towerCostTextDictionary[towerType].text = GetBuildCost(towerType) + "g";
             DOTween.Sequence().Join(t.transform.GetChild(0).DOScale(t.transform.GetChild(0).localScale, 0.25f).From(0)
                     .SetEase(Ease.OutBack))
                 .Append(t.transform.GetChild(0).DOMoveY(2, 0.5f).SetEase(Ease.InExpo))
@@ -523,7 +514,7 @@ namespace ManagerControl
                     PoolObjectManager.Get(PoolObjectKey.BuildSmoke, placePos);
                     _cam.transform.DOShakePosition(0.05f);
                 });
-            t.OnClickTower += ClickSupportTower;
+            t.OnClickTowerAction += ClickSupportTower;
             towerMana.towerMana.ManaRegenValue++;
         }
 
@@ -564,7 +555,7 @@ namespace ManagerControl
                 _sellTowerCost);
         }
 
-        private void ClickTower(AttackTower clickedTower)
+        private void ClickTower(Tower clickedTower)
         {
             if (Input.touchCount != 1) return;
             SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
@@ -580,18 +571,18 @@ namespace ManagerControl
             var isUnitTower = TowerDataPrefabDictionary[clickedTower.TowerType].towerData.IsUnitTower;
             if (isUnitTower) _curUnitTower = clickedTower.GetComponent<UnitTower>();
 
-            _curSelectedTower = clickedTower;
+            _curSelectedTower = (AttackTower)clickedTower;
 
             moveUnitButton.SetActive(isUnitTower);
-            upgradeButton.SetActive(!clickedTower.TowerLevel.Equals(4));
+            upgradeButton.SetActive(!_curSelectedTower.TowerLevel.Equals(4));
 
             var position = clickedTower.transform.position;
             towerInfoUI.SetInfoUI(position);
-            _towerRangeIndicator.SetIndicator(position, clickedTower.TowerRange);
+            _towerRangeIndicator.SetIndicator(position, _curSelectedTower.TowerRange);
             UpdateTowerInfo();
         }
 
-        private void ClickSupportTower(SupportTower clickTower)
+        private void ClickSupportTower(Tower clickTower)
         {
             if (Input.touchCount != 1) return;
             SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
@@ -603,7 +594,7 @@ namespace ManagerControl
             }
 
             if (clickTower.Equals(_curSupportTower)) return;
-            _curSupportTower = clickTower;
+            _curSupportTower = (SupportTower)clickTower;
             upgradeButton.SetActive(false);
             moveUnitButton.SetActive(false);
             _upgradeSellPanelTween.Restart();
@@ -612,7 +603,7 @@ namespace ManagerControl
             towerInfoUI.SetSupportInfoUI();
             _towerRangeIndicator.SetIndicator(position);
             _sellTowerCost = GetTowerSellCost(clickTower.TowerType);
-            towerInfoUI.SetSupportTowerInfo(clickTower, _sellTowerCost);
+            towerInfoUI.SetSupportTowerInfo(_curSupportTower, _sellTowerCost);
         }
 
         private void UpdateTowerInfo()
@@ -689,7 +680,7 @@ namespace ManagerControl
                 PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, position)
                     .SetCostText(_sellTowerCost);
                 _sellTowerCost = 0;
-                _curSupportTower.ObjectDisable();
+                _curSupportTower.DisableObject();
                 towerMana.towerMana.ManaRegenValue--;
             }
 
@@ -701,6 +692,7 @@ namespace ManagerControl
             waveText.text = "0";
             Time.timeScale = 1;
             CameraManager.GameStartCamZoom();
+            SoundManager.Instance.SoundManagerInit();
         }
 
         public void GameOver()
