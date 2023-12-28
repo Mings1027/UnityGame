@@ -22,7 +22,7 @@ namespace GameControl
         [SerializeField] private Button yesButton;
         [SerializeField] private Button noButton;
         [SerializeField] private Transform upgradePanel;
-        
+
         [SerializeField] private Image deletePanelBlockImage;
         [SerializeField] private Transform deletePanel;
 
@@ -103,8 +103,8 @@ namespace GameControl
 
                     towerUpgradeButton.UpgradeCount = 0;
                     towerButton.interactable = true;
-                    towerCostText.text = "XP : " + (towerUpgradeButton.UpgradeCount + 1) * 25;
-                    levelCountText.text = "0 / " + towerMaxLevel;
+                    towerCostText.text = "XP " + (towerUpgradeButton.UpgradeCount + 1) * 25;
+                    levelCountText.text = "Lv 0 / " + towerMaxLevel;
                     towerData[i].InitState();
                 }
             });
@@ -130,13 +130,13 @@ namespace GameControl
 
                 if (towerUpgradeButton.UpgradeCount < towerMaxLevel)
                 {
-                    towerCostText.text = "XP : " + (towerUpgradeButton.UpgradeCount + 1) * 25;
-                    levelCountText.text = towerUpgradeButton.UpgradeCount + " / " + towerMaxLevel;
+                    towerCostText.text = "XP " + (towerUpgradeButton.UpgradeCount + 1) * 25;
+                    levelCountText.text = "Lv " + towerUpgradeButton.UpgradeCount + " / " + towerMaxLevel;
                 }
                 else
                 {
                     towerCostText.text = "";
-                    levelCountText.text = towerMaxLevel + " / " + towerMaxLevel;
+                    levelCountText.text = "Lv " + towerMaxLevel + " / " + towerMaxLevel;
                     towerButton.interactable = false;
                 }
 
@@ -149,8 +149,8 @@ namespace GameControl
                     DataManager.Xp -= (towerUpgradeButton.UpgradeCount + 1) * 25;
                     xpText.text = "XP : " + DataManager.Xp;
                     towerUpgradeButton.UpgradeCount++;
-                    towerCostText.text = "XP : " + (towerUpgradeButton.UpgradeCount + 1) * 25;
-                    levelCountText.text = towerUpgradeButton.UpgradeCount + " / " + towerMaxLevel;
+                    towerCostText.text = "XP " + (towerUpgradeButton.UpgradeCount + 1) * 25;
+                    levelCountText.text = "Lv " + towerUpgradeButton.UpgradeCount + " / " + towerMaxLevel;
                     PlayerPrefs.SetInt(StringManager.Xp, DataManager.Xp);
                     PlayerPrefs.SetInt(towerData[index].TowerType + StringManager.UpgradeCount,
                         towerUpgradeButton.UpgradeCount);

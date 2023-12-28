@@ -1,3 +1,4 @@
+using System.Threading;
 using CustomEnumControl;
 using DataControl.TowerData;
 using DG.Tweening;
@@ -11,6 +12,7 @@ namespace TowerControl
 {
     public abstract class TargetingTower : AttackTower
     {
+        private CancellationTokenSource _cts;
         private Cooldown _patrolCooldown;
         protected sbyte effectIndex;
         protected Collider[] targetColliders;
@@ -37,6 +39,8 @@ namespace TowerControl
         private void OnDestroy()
         {
             atkSequence?.Kill();
+            _cts?.Cancel();
+            _cts?.Dispose();
         }
 
         #endregion
@@ -46,9 +50,11 @@ namespace TowerControl
         protected override void Init()
         {
             base.Init();
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
             targetLayer = LayerMask.GetMask("Monster") | LayerMask.GetMask("FlyingMonster");
             effectIndex = -1;
-            targetColliders = new Collider[3];
+            targetColliders = new Collider[1];
             _patrolCooldown.cooldownTime = 0.5f;
         }
 
@@ -86,19 +92,20 @@ namespace TowerControl
 
             if (_patrolCooldown.IsCoolingDown) return;
 
-            var shortestDistance = float.MaxValue;
-            for (var i = 0; i < size; i++)
-            {
-                var distanceToResult =
-                    Vector3.SqrMagnitude(transform.position - targetColliders[i].transform.position);
-                if (distanceToResult >= shortestDistance) continue;
-                shortestDistance = distanceToResult;
-                target = targetColliders[i];
-            }
+            // var shortestDistance = float.MaxValue;
+            // for (var i = 0; i < size; i++)
+            // {
+            //     var distanceToResult =
+            //         Vector3.SqrMagnitude(transform.position - targetColliders[i].transform.position);
+            //     if (distanceToResult >= shortestDistance) continue;
+            //     shortestDistance = distanceToResult;
+            //     target = targetColliders[i];
+            // }
 
             isTargeting = true;
-            if (!attackCooldown.IsCoolingDown)
-                towerState = TowerState.Attack;
+            target = targetColliders[0];
+            // if (!attackCooldown.IsCoolingDown)
+            towerState = TowerState.Attack;
             _patrolCooldown.StartCooldown();
         }
 

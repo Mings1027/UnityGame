@@ -13,7 +13,6 @@ namespace ProjectileControl
 
         private Collider[] _targetColliders;
 
-        // private AudioSource _explosionAudio;
         private LayerMask _monsterLayer;
 
         [SerializeField] private AudioClip audioClip;

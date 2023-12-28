@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using CustomEnumControl;
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using GameControl;
 using InterfaceControl;
@@ -32,6 +33,7 @@ namespace UnitControl
 
         private Cooldown _atkCooldown;
         private int _damage;
+        private bool _isMoving;
 
         private static readonly int IsWalk = Animator.StringToHash("isWalk");
         private static readonly int IsAttack = Animator.StringToHash("isAttack");
@@ -95,7 +97,7 @@ namespace UnitControl
             {
                 _navMeshAgent.stoppingDistance = atkRange;
                 enabled = false;
-                _anim.SetBool(IsWalk, false);
+                DisableObject().Forget();
                 return;
             }
 
@@ -222,7 +224,19 @@ namespace UnitControl
 
         #endregion
 
-        #region Public Mothod
+        #region Private Method
+
+        private async UniTaskVoid DisableObject()
+        {
+            _isMoving = false;
+            _anim.SetBool(IsWalk, false);
+            await UniTask.Delay(1000);
+            _anim.enabled = false;
+        }
+
+        #endregion
+
+        #region Public Method
 
         public void Init()
         {
@@ -242,7 +256,9 @@ namespace UnitControl
 
         public void Move(Vector3 pos)
         {
+            _isMoving = true;
             enabled = true;
+            _anim.enabled = true;
             _originPos = pos;
             _anim.SetBool(IsWalk, true);
             _navMeshAgent.stoppingDistance = 0.1f;
@@ -279,6 +295,13 @@ namespace UnitControl
         }
 
         public void ParentPointerUp() => _parentTower.OnPointerUp(null);
+        public void EnableAnim() => _anim.enabled = true;
+
+        public void DisableAnim()
+        {
+            if (_isMoving) return;
+            _anim.enabled = false;
+        }
 
         #endregion
     }

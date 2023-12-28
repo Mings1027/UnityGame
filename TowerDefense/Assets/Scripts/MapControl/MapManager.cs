@@ -1,12 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using ManagerControl;
 using PoolObjectControl;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
 using Random = UnityEngine.Random;
@@ -15,9 +13,8 @@ namespace MapControl
 {
     public class MapManager : MonoBehaviour
     {
-        private CancellationTokenSource _cts;
-        // private MeshFilter _meshFilter;
-        // private MeshRenderer _meshRenderer;
+        private MeshFilter _meshFilter;
+        private MeshRenderer _meshRenderer;
 
         // private MeshFilter _obstacleMeshFilter;
         // private MeshRenderer _obstacleMeshRenderer;
@@ -37,7 +34,7 @@ namespace MapControl
         private List<GameObject> _map;
 
         private List<Vector3> _newMapWayPoints;
-        // private List<MeshFilter> _meshFilters;
+        private List<MeshFilter> _meshFilters;
         // private List<MeshFilter> _obstacleMeshFilters;
 
         private HashSet<Vector3> _expandBtnPosHashSet;
@@ -88,23 +85,12 @@ namespace MapControl
             MapDataInit();
         }
 
-        private void OnEnable()
-        {
-            _cts?.Dispose();
-            _cts = new CancellationTokenSource();
-        }
-
         private void Start()
         {
             _waveManager.OnBossWaveEvent += bossNavMeshSurface.BuildNavMesh;
             transform.GetChild(2).gameObject.SetActive(false);
         }
 
-        private void OnDisable()
-        {
-            _cts?.Cancel();
-            _cts?.Dispose();
-        }
 #if UNITY_EDITOR
         private void OnDrawGizmos()
         {
@@ -126,8 +112,8 @@ namespace MapControl
         private void ComponentInit()
         {
             _waveManager = FindObjectOfType<WaveManager>();
-            // _meshFilter = mapMesh.GetComponent<MeshFilter>();
-            // _meshRenderer = mapMesh.GetComponent<MeshRenderer>();
+            _meshFilter = mapMesh.GetComponent<MeshFilter>();
+            _meshRenderer = mapMesh.GetComponent<MeshRenderer>();
             // _obstacleMeshFilter = obstacleMesh.GetComponent<MeshFilter>();
             // _obstacleMeshRenderer = obstacleMesh.GetComponent<MeshRenderer>();
         }
@@ -145,7 +131,7 @@ namespace MapControl
             };
             _map = new List<GameObject>();
             _newMapWayPoints = new List<Vector3>(4);
-            // _meshFilters = new List<MeshFilter>();
+            _meshFilters = new List<MeshFilter>();
             // _obstacleMeshFilters = new List<MeshFilter>(300);
             _expandBtnPosHashSet = new HashSet<Vector3>();
             _expandButtons = new List<ExpandMapButton>();
@@ -228,7 +214,7 @@ namespace MapControl
             _waveManager.OnPlaceExpandButtonEvent += PlaceExpandButtons;
             _waveManager.enabled = false;
             PlaceStartMap(index);
-            // CombineMesh();
+            CombineMesh();
             // CombineObstacleMesh();
 
             InitExpandButtonPosition();
@@ -250,7 +236,7 @@ namespace MapControl
             RemoveWayPoints();
             SetWayPoints();
             PlaceObstacle();
-            SetMap().Forget();
+            SetMap();
             // PlaceExpandButtons();
         }
 
@@ -477,15 +463,13 @@ namespace MapControl
                 obstacleMesh);
         }
 
-        private async UniTaskVoid SetMap()
+        private void SetMap()
         {
-            // CombineMesh();
+            CombineMesh();
             // CombineObstacleMesh();
             navMeshSurface.BuildNavMesh();
             ramNavMeshSurface.BuildNavMesh();
-            _waveManager.WaveInit();
-            await UniTask.Delay(500, cancellationToken: _cts.Token);
-            _waveManager.WaveStart(_wayPointsHashSet.ToArray());
+            _waveManager.WaveInit(_wayPointsHashSet.ToArray());
         }
 
         //Call When Wave is over
@@ -500,42 +484,42 @@ namespace MapControl
             for (var i = 0; i < expandBtnCount; i++) _expandButtons[i].OnExpandMapEvent += ExpandMap;
         }
 
-        // private void CombineMesh()
-        // {
-        //     _meshFilters.Clear();
-        //     var mapCount = _map.Count;
-        //     for (var i = 0; i < mapCount; i++)
-        //     {
-        //         if (_map[i].transform.GetChild(0).TryGetComponent(out MeshFilter m))
-        //         {
-        //             _meshFilters.Add(m);
-        //         }
-        //     }
-        //
-        //     var combineInstance = new CombineInstance[_meshFilters.Count];
-        //
-        //     for (var i = 0; i < _meshFilters.Count; i++)
-        //     {
-        //         combineInstance[i].mesh = _meshFilters[i].sharedMesh;
-        //         combineInstance[i].transform = _meshFilters[i].transform.localToWorldMatrix;
-        //     }
-        //
-        //     var mesh = _meshFilter.mesh;
-        //     mesh.Clear();
-        //     mesh.CombineMeshes(combineInstance);
-        //     if (_meshFilters[0].TryGetComponent(out MeshRenderer r))
-        //     {
-        //         _meshRenderer.sharedMaterial = r.sharedMaterial;
-        //     }
-        //
-        //     for (var i = 0; i < _meshFilters.Count; i++)
-        //     {
-        //         if (_meshFilters[i].TryGetComponent(out MeshRenderer meshRenderer))
-        //         {
-        //             Destroy(meshRenderer);
-        //         }
-        //     }
-        // }
+        private void CombineMesh()
+        {
+            _meshFilters.Clear();
+            var mapCount = _map.Count;
+            for (var i = 0; i < mapCount; i++)
+            {
+                if (_map[i].transform.GetChild(0).TryGetComponent(out MeshFilter m))
+                {
+                    _meshFilters.Add(m);
+                }
+            }
+        
+            var combineInstance = new CombineInstance[_meshFilters.Count];
+        
+            for (var i = 0; i < _meshFilters.Count; i++)
+            {
+                combineInstance[i].mesh = _meshFilters[i].sharedMesh;
+                combineInstance[i].transform = _meshFilters[i].transform.localToWorldMatrix;
+            }
+        
+            var mesh = _meshFilter.mesh;
+            mesh.Clear();
+            mesh.CombineMeshes(combineInstance);
+            if (_meshFilters[0].TryGetComponent(out MeshRenderer r))
+            {
+                _meshRenderer.sharedMaterial = r.sharedMaterial;
+            }
+        
+            for (var i = 0; i < _meshFilters.Count; i++)
+            {
+                if (_meshFilters[i].TryGetComponent(out MeshRenderer meshRenderer))
+                {
+                    Destroy(meshRenderer);
+                }
+            }
+        }
 
         // private void CombineObstacleMesh()
         // {

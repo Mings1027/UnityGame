@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DataControl.TowerData;
@@ -35,6 +36,7 @@ namespace ManagerControl
         private TowerManager _towerManager;
         private TowerCardController _towerCardController;
 
+        private CancellationTokenSource _cts;
         private Camera _cam;
 
         private Dictionary<TowerType, ushort> _towerCountDictionary;
@@ -57,12 +59,18 @@ namespace ManagerControl
         private TMP_Text _curSpeedText;
 
         private TowerRangeIndicator _towerRangeIndicator;
+        private Image _upgradeButtonImage;
+        private Image _sellButtonImage;
 
         private ushort _sellTowerCost;
         private int _towerCost;
         private byte _curTimeScale;
         private bool _isShowTowerBtn;
+
         private bool _isPanelOpen;
+
+        // private bool _clickUpgradeBtn;
+        private bool _clickSellBtn;
         private Vector3 _prevPos;
 
         public Dictionary<TowerType, TowerDataPrefab> TowerDataPrefabDictionary { get; private set; }
@@ -87,13 +95,16 @@ namespace ManagerControl
         [SerializeField] private GameHUD gameHUD;
         [SerializeField] private TowerMana towerMana;
 
-        [SerializeField] private ushort startCost;
-
         [SerializeField] private Transform notEnoughCostPanel;
         [SerializeField] private RectTransform towerPanel;
         [SerializeField] private Image cantMoveImage;
         [SerializeField] private Sprite physicalSprite;
+
         [SerializeField] private Sprite magicSprite;
+
+        // [SerializeField] private Sprite upgradeSprite;
+        [SerializeField] private Sprite sellSprite;
+        [SerializeField] private Sprite checkSprite;
 
         [SerializeField] private TowerDataPrefab[] towerDataPrefabs;
         [SerializeField] private TowerInfoUI towerInfoUI;
@@ -135,7 +146,8 @@ namespace ManagerControl
             base.Awake();
             Input.multiTouchEnabled = false;
             _cam = Camera.main;
-
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
             TowerButtonInit();
             TowerInit();
             LocaleDictionaryInit();
@@ -153,6 +165,7 @@ namespace ManagerControl
             gameOverPanel.SetActive(false);
             gameEndPanel.SetActive(false);
             GameStart();
+            CheckCamPos().Forget();
         }
 
         private void OnDisable()
@@ -163,6 +176,9 @@ namespace ManagerControl
             _cantMoveImageSequence?.Kill();
             _camZoomSequence?.Kill();
             _upgradeButtonTween?.Kill();
+
+            _cts?.Cancel();
+            _cts?.Dispose();
         }
 
         private void OnApplicationFocus(bool hasFocus)
@@ -264,19 +280,57 @@ namespace ManagerControl
             upgradeButton.GetComponent<Button>().onClick.AddListener(() =>
             {
                 SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
+                if (_clickSellBtn)
+                {
+                    _sellButtonImage.sprite = sellSprite;
+                    _clickSellBtn = false;
+                }
+
+                // if (_clickUpgradeBtn)
+                // {
+                //     _clickUpgradeBtn = false;
+                //     _upgradeButtonImage.sprite = upgradeSprite;
                 TowerUpgrade();
+                // }
+                // else
+                // {
+                //     _clickUpgradeBtn = true;
+                //     _upgradeButtonImage.sprite = checkSprite;
+                // }
+
                 _upgradeButtonTween.Restart();
             });
             moveUnitButton.GetComponent<Button>().onClick.AddListener(MoveUnitButton);
 
-            sellTowerButton.GetComponent<Button>().onClick.AddListener(SellTower);
+            sellTowerButton.GetComponent<Button>().onClick.AddListener(() =>
+            {
+                // if (_clickUpgradeBtn)
+                // {
+                //     _upgradeButtonImage.sprite = upgradeSprite;
+                //     _clickUpgradeBtn = false;
+                // }
+
+                if (_clickSellBtn)
+                {
+                    _clickSellBtn = false;
+                    _sellButtonImage.sprite = sellSprite;
+                    SellTower();
+                }
+                else
+                {
+                    SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
+                    _clickSellBtn = true;
+                    _sellButtonImage.sprite = checkSprite;
+                }
+            });
+
+            _upgradeButtonImage = upgradeButton.transform.GetChild(0).GetComponent<Image>();
+            _sellButtonImage = sellTowerButton.transform.GetChild(0).GetComponent<Image>();
         }
 
         private void MenuButtonInit()
         {
-            _towerCost = startCost;
             _curTimeScale = 1;
-            TowerCost = _towerCost;
 
             pauseButton.onClick.AddListener(() =>
             {
@@ -287,10 +341,12 @@ namespace ManagerControl
             centerButton.onClick.AddListener(() =>
             {
                 SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
-                centerButton.transform.DOScale(1, 0.2f).From(0.7f).SetEase(Ease.OutBack).SetUpdate(true);
-                if (CameraManager.transform.position == Vector3.zero) return;
+                centerButton.transform.DOScale(0, 0.2f).From(1).SetEase(Ease.InBack).SetUpdate(true)
+                    .OnComplete(() => centerButton.gameObject.SetActive(false));
                 CameraManager.transform.DOMove(Vector3.zero, 0.5f).SetEase(Ease.OutCubic);
             });
+            centerButton.gameObject.SetActive(false);
+
             resumeButton.onClick.AddListener(() =>
             {
                 SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
@@ -344,6 +400,21 @@ namespace ManagerControl
             if (towerDescriptionCard != null) towerDescriptionCard.LocaleCardInfo();
         }
 
+        private void ResetSprite()
+        {
+            // if (_clickUpgradeBtn)
+            // {
+            //     _clickUpgradeBtn = false;
+            //     _upgradeButtonImage.sprite = upgradeSprite;
+            // }
+
+            if (_clickSellBtn)
+            {
+                _clickSellBtn = false;
+                _sellButtonImage.sprite = sellSprite;
+            }
+        }
+
         #endregion
 
         #region Public Method
@@ -353,14 +424,28 @@ namespace ManagerControl
             var mapManager = (MapManager)FindAnyObjectByType(typeof(MapManager));
             mapManager.MakeMap(index);
 
-            mapManager.connectionProbability = index switch
+            switch (index)
             {
-                1 => 30,
-                2 => 50,
-                3 => 60,
-                4 => 70,
-                _ => mapManager.connectionProbability
-            };
+                case 1:
+                    mapManager.connectionProbability = 30;
+                    TowerCost = 2000;
+                    break;
+                case 2:
+                    mapManager.connectionProbability = 50;
+                    TowerCost = 4000;
+                    break;
+                case 3:
+                    mapManager.connectionProbability = 60;
+                    TowerCost = 5000;
+                    break;
+                case 4:
+                    mapManager.connectionProbability = 70;
+                    TowerCost = 6000;
+                    break;
+                default:
+                    mapManager.connectionProbability = mapManager.connectionProbability;
+                    break;
+            }
 
             DataManager.SetLevel((byte)index);
 
@@ -441,6 +526,7 @@ namespace ManagerControl
         public void OffUI()
         {
             if (!_isPanelOpen) return;
+
             _upgradeSellPanelTween.PlayBackwards();
 
             _isPanelOpen = false;
@@ -477,6 +563,20 @@ namespace ManagerControl
         #endregion
 
         #region Private Method
+
+        private async UniTaskVoid CheckCamPos()
+        {
+            while (!_cts.IsCancellationRequested)
+            {
+                await UniTask.Delay(2000);
+                if (Vector3.Distance(CameraManager.transform.position, Vector3.zero) > 10)
+                {
+                    if (centerButton.gameObject.activeSelf) continue;
+                    centerButton.gameObject.SetActive(true);
+                    centerButton.transform.DOScale(1, 0.2f).From(0).SetEase(Ease.OutBack).SetUpdate(true);
+                }
+            }
+        }
 
         private void ToggleTowerButtons()
         {
@@ -559,9 +659,10 @@ namespace ManagerControl
         {
             if (Input.touchCount != 1) return;
             SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
+            ResetSprite();
+            _isPanelOpen = true;
             _upgradeSellPanelTween.Restart();
 
-            _isPanelOpen = true;
             if (_curSupportTower) _curSupportTower = null;
 
             if (clickedTower.Equals(_curSelectedTower)) return;
@@ -586,6 +687,7 @@ namespace ManagerControl
         {
             if (Input.touchCount != 1) return;
             SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
+            ResetSprite();
             _isPanelOpen = true;
             if (_curSelectedTower)
             {

@@ -288,8 +288,8 @@ namespace PoolObjectControl
         private GameObject Spawn(PoolObjectKey poolObjKey, Vector3 position, Quaternion rotation)
         {
 #if UNITY_EDITOR
-            if (!_prefabDictionary.TryGetValue(poolObjKey, out _))
-                Debug.Log($"Pool doesn't exist {poolObjKey}");
+            // if (!_prefabDictionary.TryGetValue(poolObjKey, out _))
+            //     Debug.Log($"Pool doesn't exist {poolObjKey}");
 #endif
             var poolStack = _prefabDictionary[poolObjKey];
             if (poolStack.Count <= 0)

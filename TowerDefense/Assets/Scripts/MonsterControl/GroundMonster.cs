@@ -1,6 +1,4 @@
 using CustomEnumControl;
-using ManagerControl;
-using UIControl;
 using UnityEngine;
 
 namespace MonsterControl

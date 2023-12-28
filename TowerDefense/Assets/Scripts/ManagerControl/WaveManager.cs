@@ -59,15 +59,6 @@ namespace ManagerControl
             _towerManager = FindObjectOfType<TowerManager>();
         }
 
-        private void Update()
-        {
-            var leftEnemyCount = _monsterList.Count;
-            for (var i = leftEnemyCount - 1; i >= 0; i--)
-            {
-                _monsterList[i].MonsterUpdate();
-            }
-        }
-
         private void OnDisable()
         {
             _monsterList.Clear();
@@ -79,7 +70,7 @@ namespace ManagerControl
 
         #endregion
 
-        public void WaveInit()
+        public void WaveInit(Vector3[] wayPoints)
         {
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
@@ -97,10 +88,7 @@ namespace ManagerControl
             _isLastWave = _themeIndex == monsterData.Length - 1 && _isBossWave;
 
             SoundManager.Instance.PlayBGM(_isBossWave ? SoundEnum.BossTheme : SoundEnum.WaveStart);
-        }
 
-        public void WaveStart(Vector3[] wayPoints)
-        {
             _wayPoints = wayPoints;
             _startWave = true;
             StartWave();
@@ -118,6 +106,7 @@ namespace ManagerControl
 
             enabled = true;
             IsStartWave = true;
+            MonsterUpdate().Forget();
         }
 
         private void WaveStop()
@@ -128,6 +117,19 @@ namespace ManagerControl
         }
 
         #region Enemy Spawn
+
+        private async UniTaskVoid MonsterUpdate()
+        {
+            while (!_cts.IsCancellationRequested)
+            {
+                await UniTask.Delay(500);
+                var leftEnemyCount = _monsterList.Count;
+                for (var i = leftEnemyCount - 1; i >= 0; i--)
+                {
+                    _monsterList[i].MonsterUpdate();
+                }
+            }
+        }
 
         private async UniTaskVoid SpawnEnemy(Vector3[] wayPoints)
         {
