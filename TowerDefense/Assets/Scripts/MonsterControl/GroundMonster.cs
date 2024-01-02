@@ -40,14 +40,6 @@ namespace MonsterControl
 
         protected override void Patrol()
         {
-            var pos = transform.position;
-            pos.y = 0;
-            if (Vector3.Distance(pos, Vector3.zero) <= navMeshAgent.stoppingDistance)
-            {
-                DisableObject();
-                return;
-            }
-
             if (patrolCooldown.IsCoolingDown) return;
             var size = Physics.OverlapSphereNonAlloc(transform.position, sightRange, targetCollider, targetLayer);
             if (size <= 0)
@@ -102,7 +94,7 @@ namespace MonsterControl
             var targetRot = Quaternion.LookRotation(target.transform.position - t.position);
             t.rotation = Quaternion.Slerp(t.rotation, targetRot, turnSpeed);
 
-            _anim.SetTrigger(IsAttack);
+            anim.SetTrigger(IsAttack);
             TryDamage();
 
             attackCooldown.StartCooldown();

@@ -4,6 +4,7 @@ using System.Threading;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DataControl;
+using DataControl.MonsterDataControl;
 using MonsterControl;
 using PoolObjectControl;
 using StatusControl;
@@ -11,7 +12,6 @@ using TextControl;
 using UIControl;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 namespace ManagerControl
@@ -107,6 +107,7 @@ namespace ManagerControl
             enabled = true;
             IsStartWave = true;
             MonsterUpdate().Forget();
+            MonsterPosition().Forget();
         }
 
         private void WaveStop()
@@ -131,10 +132,23 @@ namespace ManagerControl
             }
         }
 
+        private async UniTaskVoid MonsterPosition()
+        {
+            while (!_cts.IsCancellationRequested)
+            {
+                await UniTask.Delay(250);
+                var enemyCount = _monsterList.Count;
+                for (var i = enemyCount - 1; i >= 0; i--)
+                {
+                    _monsterList[i].DistanceToBaseTower();
+                }
+            }
+        }
+
         private async UniTaskVoid SpawnEnemy(Vector3[] wayPoints)
         {
             var normalMonsterDataLength = monsterData[_themeIndex].normalMonsterData.Length;
-            for (int i = 0; i < _themeIndex + 1; i++)
+            for (var i = 0; i < _themeIndex + 1; i++)
             {
                 for (var normalDataIndex = 0; normalDataIndex < normalMonsterDataLength; normalDataIndex++)
                 {
@@ -172,13 +186,14 @@ namespace ManagerControl
             monsterUnit.SpawnInit(normalMonsterData);
             monsterUnit.GetComponent<MonsterStatus>().StatInit(normalMonsterData.Speed, normalMonsterData.AttackDelay);
 
+            var healthBarTransform = monsterUnit.healthBarTransform;
             var healthBar = PoolObjectManager.Get<HealthBar>(UIPoolObjectKey.MonsterHealthBar,
-                monsterUnit.healthBarTransform.position);
+                healthBarTransform.position);
             healthBar.Init(monsterUnit.GetComponent<Progressive>());
 
             var monsterHealth = monsterUnit.GetComponent<UnitHealth>();
             monsterHealth.Init(normalMonsterData.Health);
-            StatusBarUIController.Add(healthBar, monsterUnit.healthBarTransform);
+            StatusBarUIController.Add(healthBar, healthBarTransform);
             monsterHealth.OnDeadEvent += () =>
             {
                 var coin = normalMonsterData.StartSpawnWave;
@@ -192,13 +207,13 @@ namespace ManagerControl
                     SpawnTransformMonster(monsterUnit.transform.position, transformMonster);
                 }
 
-                StatusBarUIController.Remove(monsterUnit.healthBarTransform);
+                StatusBarUIController.Remove(healthBarTransform);
             };
             monsterUnit.OnDisableEvent += () =>
             {
                 DecreaseEnemyCount(monsterUnit, monsterHealth.IsDead);
                 if (monsterHealth.IsDead) return;
-                StatusBarUIController.Remove(monsterUnit.healthBarTransform, true);
+                StatusBarUIController.Remove(healthBarTransform, true);
             };
         }
 
@@ -209,13 +224,14 @@ namespace ManagerControl
             monsterUnit.SpawnInit(bossMonsterData);
             monsterUnit.GetComponent<MonsterStatus>().StatInit(bossMonsterData.Speed, bossMonsterData.AttackDelay);
 
+            var healthBarTransform = monsterUnit.healthBarTransform;
             var healthBar = PoolObjectManager.Get<HealthBar>(UIPoolObjectKey.BossHealthBar,
-                monsterUnit.healthBarTransform.position);
+                healthBarTransform.position);
             healthBar.Init(monsterUnit.GetComponent<Progressive>());
 
             var monsterHealth = monsterUnit.GetComponent<UnitHealth>();
             monsterHealth.Init(bossMonsterData.Health);
-            StatusBarUIController.Add(healthBar, monsterUnit.healthBarTransform);
+            StatusBarUIController.Add(healthBar, healthBarTransform);
             monsterHealth.OnDeadEvent += () =>
             {
                 var coin = bossMonsterData.DroppedGold;
@@ -223,13 +239,13 @@ namespace ManagerControl
                         monsterUnit.transform.position + Random.insideUnitSphere)
                     .SetCostText(coin);
                 UIManager.Instance.TowerCost += coin;
-                StatusBarUIController.Remove(monsterUnit.healthBarTransform);
+                StatusBarUIController.Remove(healthBarTransform);
             };
             monsterUnit.OnDisableEvent += () =>
             {
                 DecreaseEnemyCount(monsterUnit, monsterHealth.IsDead);
                 if (monsterHealth.IsDead) return;
-                StatusBarUIController.Remove(monsterUnit.healthBarTransform, true);
+                StatusBarUIController.Remove(healthBarTransform, true);
             };
         }
 

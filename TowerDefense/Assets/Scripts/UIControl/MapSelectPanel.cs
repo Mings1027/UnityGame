@@ -12,18 +12,17 @@ namespace UIControl
     public class MapSelectPanel : MonoBehaviour
     {
         private EventSystem _eventSystem;
-        private Transform _deleteDataPanel;
         private Tween _deletePanelTween;
 
-        [SerializeField] private Image deleteWaveDataPanel;
+        [SerializeField] private Transform deleteWaveDataPanel;
+        [SerializeField] private Image blockImage;
         [SerializeField] private Button dataDeleteButton;
         [SerializeField] private Button yesButton;
         [SerializeField] private Button noButton;
 
         private void Awake()
         {
-            _deleteDataPanel = deleteWaveDataPanel.transform.GetChild(0);
-            _deletePanelTween = _deleteDataPanel.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack).SetAutoKill(false)
+            _deletePanelTween = deleteWaveDataPanel.GetChild(1).DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack).SetAutoKill(false)
                 .Pause();
         }
 
@@ -36,8 +35,8 @@ namespace UIControl
         {
             _eventSystem = EventSystem.current;
             _eventSystem.enabled = false;
+            blockImage.enabled = false;
 
-            deleteWaveDataPanel.enabled = false;
             transform.DOScale(1, 0.5f).From(0.7f).SetEase(Ease.OutBack).OnComplete(() => _eventSystem.enabled = true);
             var difficultySelectButtons = transform.GetChild(0);
             for (var i = 0; i < difficultySelectButtons.childCount; i++)
@@ -45,7 +44,6 @@ namespace UIControl
                 var index = i;
                 difficultySelectButtons.GetChild(i).GetComponent<Button>().onClick.AddListener(() =>
                 {
-                    if (Input.touchCount > 1) return;
                     SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
                     SoundManager.Instance.PlayBGM(SoundEnum.WaveEnd);
                     UIManager.Instance.MapSelectButton(index + 1).Forget();
@@ -64,7 +62,7 @@ namespace UIControl
             var survivedWaves = DataManager.SurvivedWaves.survivedWave;
             for (int i = 0; i < difficultySelectButtons.childCount; i++)
             {
-                difficultySelectButtons.GetChild(i).GetChild(2).GetComponent<TMP_Text>().text =
+                difficultySelectButtons.GetChild(i).GetChild(3).GetComponent<TMP_Text>().text =
                     survivedWaves[i].ToString();
             }
 
@@ -75,16 +73,14 @@ namespace UIControl
         {
             dataDeleteButton.onClick.AddListener(() =>
             {
-                if (Input.touchCount > 1) return;
-                deleteWaveDataPanel.enabled = true;
+                blockImage.enabled = true;
                 SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
                 _eventSystem.enabled = false;
                 _deletePanelTween.OnComplete(() => _eventSystem.enabled = true).Restart();
             });
             yesButton.onClick.AddListener(() =>
             {
-                if (Input.touchCount > 1) return;
-                deleteWaveDataPanel.enabled = false;
+                blockImage.enabled = false;
                 SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
                 _eventSystem.enabled = false;
                 DataManager.WaveDataInit();
@@ -95,14 +91,13 @@ namespace UIControl
                 var difficultySelectButtons = transform.GetChild(0);
                 for (var i = 0; i < difficultySelectButtons.childCount; i++)
                 {
-                    difficultySelectButtons.GetChild(i).GetChild(2).GetComponent<TMP_Text>().text =
+                    difficultySelectButtons.GetChild(i).GetChild(3).GetComponent<TMP_Text>().text =
                         survivedWaves[i].ToString();
                 }
             });
             noButton.onClick.AddListener(() =>
             {
-                if (Input.touchCount > 1) return;
-                deleteWaveDataPanel.enabled = false;
+                blockImage.enabled = false;
                 SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
                 _eventSystem.enabled = false;
                 _deletePanelTween.OnRewind(() => _eventSystem.enabled = true).PlayBackwards();

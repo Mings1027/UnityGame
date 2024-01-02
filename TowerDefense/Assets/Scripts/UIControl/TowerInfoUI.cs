@@ -1,7 +1,7 @@
 using System.Globalization;
 using CustomEnumControl;
 using DataControl;
-using DataControl.TowerData;
+using DataControl.TowerDataControl;
 using ManagerControl;
 using TMPro;
 using TowerControl;
@@ -121,10 +121,10 @@ namespace UIControl
             }
 
             DisplayStarsForTowerLevel(level);
-            costText.text = upgradeCost + "g";
+            costText.text = upgradeCost + "G";
             _damageText.text = tower.Damage.ToString();
             _rangeText.text = tower.TowerRange.ToString();
-            sellCostText.text = sellCost + "g";
+            sellCostText.text = sellCost + "G";
         }
 
         public void SetSupportTowerInfo(SupportTower tower, ushort sellCost)
@@ -137,7 +137,7 @@ namespace UIControl
                 towerNameText.text = uiManager.towerNameDic[towerType];
             }
 
-            sellCostText.text = sellCost + "g";
+            sellCostText.text = sellCost + "G";
         }
 
         private void DisplayStarsForTowerLevel(sbyte level)

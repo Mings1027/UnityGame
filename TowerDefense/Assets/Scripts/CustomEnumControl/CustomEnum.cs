@@ -8,7 +8,7 @@ namespace CustomEnumControl
         Wizard,
         Defender,
         Laser,
-        ManaRecovery,
+        ManaCrystal,
         None
     }
 

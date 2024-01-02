@@ -1,13 +1,13 @@
 using CustomEnumControl;
 using DataControl;
-using DataControl.TowerData;
+using DataControl.TowerDataControl;
 using InterfaceControl;
 using ManagerControl;
 using UnityEngine;
 
 namespace TowerControl
 {
-    public class LaserTargetingTower : TargetingTower
+    public class LaserTargetingTower : ContinuousDamageTower
     {
         private float _attackMana;
         private bool _isFlyingMonster;
@@ -30,58 +30,53 @@ namespace TowerControl
 
         protected override void Detect()
         {
+            if (patrolCooldown.IsCoolingDown) return;
+            if (towerMana.towerMana.Current < _attackMana) return;
             var size = Physics.OverlapSphereNonAlloc(transform.position, TowerRange, targetColliders, targetLayer);
             if (size <= 0)
             {
                 target = null;
                 isTargeting = false;
+                patrolCooldown.StartCooldown();
                 return;
             }
 
-            if (towerMana.towerMana.Current < _attackMana) return;
-
-            var shortestDistance = float.MaxValue;
             for (var i = 0; i < size; i++)
             {
-                var distanceToResult =
-                    Vector3.SqrMagnitude(transform.position - targetColliders[i].transform.position);
-                if (distanceToResult >= shortestDistance) continue;
-                shortestDistance = distanceToResult;
-
                 if (targetColliders[i].CompareTag("Flying Monster"))
                 {
                     _isFlyingMonster = true;
                     target = targetColliders[i];
                     break;
                 }
-
-                _isFlyingMonster = false;
-                target = targetColliders[i];
             }
 
+            _isFlyingMonster = false;
+            var ranIndex = Random.Range(0, size);
+            target = targetColliders[ranIndex];
+
             isTargeting = true;
-            towerState = TowerState.Attack;
+            patrolCooldown.StartCooldown();
             beam.enabled = true;
+            towerState = TowerState.Attack;
         }
 
         protected override void ReadyToAttack()
         {
-            if (!target || !target.enabled || towerMana.towerMana.Current < _attackMana)
+            if (!target.enabled || towerMana.towerMana.Current < _attackMana)
             {
                 towerState = TowerState.Detect;
-                // if (attackSound.isPlaying) attackSound.Stop();
                 beam.enabled = false;
                 beam.SetPosition(0, firePos.position);
                 beam.SetPosition(1, firePos.position);
                 return;
             }
 
+            if (attackCooldown.IsCoolingDown) return;
+
             beam.SetPosition(0, firePos.position);
             beam.SetPosition(1, target.bounds.center);
 
-            if (attackCooldown.IsCoolingDown) return;
-            // if (!attackSound.isPlaying)
-            //     attackSound.Play();
             Attack();
             attackCooldown.StartCooldown();
         }
@@ -93,7 +88,7 @@ namespace TowerControl
             towerMana.towerMana.Damage(_attackMana);
         }
 
-        public void Hit()
+        protected override void Hit()
         {
             if (!target.TryGetComponent(out IDamageable damageable) || !target.enabled) return;
             damageable.Damage(_isFlyingMonster ? Damage : Damage * 0.5f);

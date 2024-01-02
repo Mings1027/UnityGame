@@ -1,11 +1,12 @@
 using CustomEnumControl;
 using DataControl;
-using DataControl.TowerData;
+using DataControl.TowerDataControl;
 using DG.Tweening;
 using ManagerControl;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Utilities;
 
 namespace GameControl
 {
@@ -13,6 +14,7 @@ namespace GameControl
     {
         private Tween _upgradePanelTween;
         private Tween _deletePanelTween;
+        private int _totalSpentXp;
 
         [SerializeField] private TMP_Text xpText;
         [SerializeField] private Image blockImage;
@@ -46,6 +48,7 @@ namespace GameControl
 
         private void Start()
         {
+            _totalSpentXp = PlayerPrefs.GetInt(StringManager.TotalSpentXp);
             DataManager.Xp = PlayerPrefs.GetInt(StringManager.Xp);
             xpText.text = "XP : " + DataManager.Xp;
             TowerUpgradeButtonInit();
@@ -92,8 +95,14 @@ namespace GameControl
                 deletePanelBlockImage.enabled = false;
                 _deletePanelTween.PlayBackwards();
                 PlayerPrefs.DeleteAll();
-                DataManager.Xp = 0;
-                xpText.text = "XP : 0";
+            
+                var allXp = _totalSpentXp + DataManager.Xp;
+
+                PlayerPrefs.SetInt(StringManager.Xp, allXp);
+                DataManager.Xp = allXp;
+                xpText.text = "XP " + allXp;
+                _totalSpentXp = 0;
+                
                 for (var i = 0; i < towerButtons.childCount; i++)
                 {
                     var levelCountText = towerButtons.GetChild(i).GetChild(0).GetComponent<TMP_Text>();
@@ -147,6 +156,8 @@ namespace GameControl
                     if (towerUpgradeButton.UpgradeCount >= towerMaxLevel ||
                         DataManager.Xp < (towerUpgradeButton.UpgradeCount + 1) * 25) return;
                     DataManager.Xp -= (towerUpgradeButton.UpgradeCount + 1) * 25;
+                    _totalSpentXp += (towerUpgradeButton.UpgradeCount + 1) * 25;
+                    PlayerPrefs.SetInt(StringManager.TotalSpentXp, _totalSpentXp);
                     xpText.text = "XP : " + DataManager.Xp;
                     towerUpgradeButton.UpgradeCount++;
                     towerCostText.text = "XP " + (towerUpgradeButton.UpgradeCount + 1) * 25;
@@ -163,6 +174,21 @@ namespace GameControl
                     }
                 });
             }
+        }
+
+        private void GetTowerUpgradeLevel()
+        {
+            // var allXp = 0;
+            // for (int i = 0; i < towerButtons.childCount; i++)
+            // {
+            //     var towerBtnParent = towerButtons.GetChild(i);
+            //     var towerUpgradeBtn = towerBtnParent.GetChild(2).GetComponent<TowerUpgradeButton>();
+            //     var towerLevel = towerUpgradeBtn.UpgradeCount;
+            //     for (int j = 0; j <= towerLevel; j++)
+            //     {
+            //         allXp += j * 25;
+            //     }
+            // }
         }
     }
 }

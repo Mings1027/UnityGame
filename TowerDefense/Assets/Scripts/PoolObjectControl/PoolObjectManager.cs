@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
-using DataControl;
+using DataControl.MonsterDataControl;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -37,10 +37,8 @@ namespace PoolObjectControl
     [Serializable]
     public class MonsterPool : IComparable<MonsterPool>
     {
-        [FormerlySerializedAs("enemyPoolObjKey")]
         public MonsterPoolObjectKey monsterPoolObjKey;
-
-        [FormerlySerializedAs("enemyPrefab")] public GameObject monsterPrefab;
+        public GameObject monsterPrefab;
         public byte initSize;
 
         public int CompareTo(MonsterPool other)
@@ -64,7 +62,7 @@ namespace PoolObjectControl
         [SerializeField] private byte poolMaxSize;
         [SerializeField] private Pool[] pools;
         [SerializeField] private UIPool[] uiPools;
-        [FormerlySerializedAs("enemyPools")] [SerializeField] private MonsterPool[] monsterPools;
+        [SerializeField] private MonsterPool[] monsterPools;
 
         private void Start()
         {
@@ -251,30 +249,32 @@ namespace PoolObjectControl
 
                 while (outOfRange)
                 {
+                    print(_inst._prefabDictionary[poolKey].Peek());
                     Destroy(_inst._prefabDictionary[poolKey].Pop());
                     outOfRange = _inst._prefabDictionary[poolKey].Count > _inst.poolMaxSize;
                     await UniTask.Delay(100);
                 }
             }
 
-            foreach (var key in _inst._monsterPrefabDictionary.Keys)
-            {
-                var outOfRange = _inst._monsterPrefabDictionary[key].Count > _inst.poolMaxSize;
-
-                while (outOfRange)
-                {
-                    Destroy(_inst._monsterPrefabDictionary[key].Pop());
-                    outOfRange = _inst._monsterPrefabDictionary[key].Count > _inst.poolMaxSize;
-                    await UniTask.Delay(100);
-                }
-            }
+            // foreach (var key in _inst._monsterPrefabDictionary.Keys)
+            // {
+            //     var outOfRange = _inst._monsterPrefabDictionary[key].Count > _inst.poolMaxSize;
+            //
+            //     while (outOfRange)
+            //     {
+            //         print(_inst._monsterPrefabDictionary[key].Peek());
+            //         Destroy(_inst._monsterPrefabDictionary[key].Pop());
+            //         outOfRange = _inst._monsterPrefabDictionary[key].Count > _inst.poolMaxSize;
+            //         await UniTask.Delay(100);
+            //     }
+            // }
         }
 
-        public static async UniTaskVoid MonsterPoolCleaner(NormalMonsterData[] monsterData)
+        public static async UniTaskVoid MonsterPoolCleaner(IEnumerable<NormalMonsterData> monsterData)
         {
-            for (var i = 0; i < monsterData.Length; i++)
+            foreach (var t in monsterData)
             {
-                var monsterKey = monsterData[i].MonsterPoolObjectKey;
+                var monsterKey = t.MonsterPoolObjectKey;
                 var outOfRange = _inst._monsterPrefabDictionary[monsterKey].Count > 0;
                 while (outOfRange)
                 {
@@ -298,6 +298,7 @@ namespace PoolObjectControl
 #if UNITY_EDITOR
                 if (pool == null) throw new Exception($"Pool with tag {poolObjKey} doesn't exist.");
 #endif
+
                 CreateNewObject(poolObjKey, pool.prefab);
             }
 
@@ -310,8 +311,8 @@ namespace PoolObjectControl
         private GameObject Spawn(UIPoolObjectKey uiPoolObjectKey, Vector3 position, Quaternion rotation)
         {
 #if UNITY_EDITOR
-            if (!_uiPrefabDictionary.TryGetValue(uiPoolObjectKey, out _))
-                Debug.Log($"Pool doesn't exist {uiPoolObjectKey}");
+            // if (!_uiPrefabDictionary.TryGetValue(uiPoolObjectKey, out _))
+            //     Debug.Log($"Pool doesn't exist {uiPoolObjectKey}");
 #endif
             var uiPoolStack = _uiPrefabDictionary[uiPoolObjectKey];
             if (uiPoolStack.Count <= 0)

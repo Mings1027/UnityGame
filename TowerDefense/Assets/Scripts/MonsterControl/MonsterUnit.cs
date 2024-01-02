@@ -1,6 +1,7 @@
 using System;
 using CustomEnumControl;
 using DataControl;
+using DataControl.MonsterDataControl;
 using DG.Tweening;
 using GameControl;
 using InterfaceControl;
@@ -18,7 +19,7 @@ namespace MonsterControl
         private Sequence _deadSequence;
         private Collider _thisCollider;
 
-        protected Animator _anim;
+        protected Animator anim;
         protected Cooldown attackCooldown;
         protected Cooldown patrolCooldown;
         protected Collider target;
@@ -48,7 +49,7 @@ namespace MonsterControl
         {
             _childMeshTransform = transform.GetChild(0);
             healthBarTransform = transform.GetChild(1);
-            _anim = GetComponentInChildren<Animator>();
+            anim = GetComponentInChildren<Animator>();
             navMeshAgent = GetComponent<NavMeshAgent>();
             _thisCollider = GetComponent<Collider>();
             health = GetComponent<Health>();
@@ -93,7 +94,7 @@ namespace MonsterControl
             _thisCollider.enabled = true;
             target = null;
             health.OnDeadEvent += Dead;
-            _anim.enabled = true;
+            anim.enabled = true;
         }
 
         public virtual void SpawnInit(MonsterData monsterData)
@@ -104,7 +105,7 @@ namespace MonsterControl
             attackCooldown.cooldownTime = monsterData.AttackDelay;
             damage = monsterData.Damage;
             if (navMeshAgent.isOnNavMesh) navMeshAgent.SetDestination(Vector3.zero);
-            _anim.SetBool(IsWalk, true);
+            anim.SetBool(IsWalk, true);
         }
 
         #endregion
@@ -113,7 +114,7 @@ namespace MonsterControl
 
         public virtual void MonsterUpdate()
         {
-            _anim.SetBool(IsWalk, navMeshAgent.velocity != Vector3.zero);
+            anim.SetBool(IsWalk, navMeshAgent.velocity != Vector3.zero);
         }
 
         #region Monster State
@@ -139,7 +140,7 @@ namespace MonsterControl
         {
             _thisCollider.enabled = false;
             navMeshAgent.enabled = false;
-            _anim.enabled = false;
+            anim.enabled = false;
             _deadSequence.Restart();
         }
 
@@ -158,8 +159,18 @@ namespace MonsterControl
         public void SetSpeed(float animSpeed, float atkDelay)
         {
             navMeshAgent.speed = animSpeed;
-            _anim.speed = animSpeed;
+            anim.speed = animSpeed;
             attackCooldown.cooldownTime = atkDelay;
+        }
+
+        public void DistanceToBaseTower()
+        {
+            var pos = transform.position;
+            pos.y = 0;
+            if (Vector3.Distance(pos, Vector3.zero) <= navMeshAgent.stoppingDistance)
+            {
+                DisableObject();
+            }
         }
     }
 }

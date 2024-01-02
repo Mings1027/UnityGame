@@ -1,4 +1,5 @@
 using DataControl;
+using DataControl.MonsterDataControl;
 using UnityEngine;
 
 namespace MonsterControl

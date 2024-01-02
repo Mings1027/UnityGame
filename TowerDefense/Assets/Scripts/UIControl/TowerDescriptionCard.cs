@@ -1,6 +1,6 @@
 using CustomEnumControl;
 using DataControl;
-using DataControl.TowerData;
+using DataControl.TowerDataControl;
 using DG.Tweening;
 using ManagerControl;
 using TMPro;

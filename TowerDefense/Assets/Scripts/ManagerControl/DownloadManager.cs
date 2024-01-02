@@ -116,6 +116,7 @@ namespace ManagerControl
                 sizeInfoText.enabled = false;
                 downValueText.text = " 100 % ";
                 downSlider.value = 1;
+                downSlider.gameObject.SetActive(true);
                 await UniTask.Delay(500);
                 StartGame().Forget();
                 // 게임 시작되는 부분
@@ -182,7 +183,7 @@ namespace ManagerControl
 
             await CheckDownLoad();
         }
-
+        
         private async UniTaskVoid DownLoadLabel(string label)
         {
             _patchMap.Add(label, 0);

@@ -1,4 +1,4 @@
-using DataControl.TowerData;
+using DataControl.TowerDataControl;
 using DG.Tweening;
 using InterfaceControl;
 using UnityEngine;

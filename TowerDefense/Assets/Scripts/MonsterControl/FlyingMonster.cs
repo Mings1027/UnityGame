@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using DataControl;
+using DataControl.MonsterDataControl;
 using UnityEngine;
 
 namespace MonsterControl

@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using Random = UnityEngine.Random;
 
-namespace TowerControl
+namespace MapControl
 {
     public class InteractiveObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {

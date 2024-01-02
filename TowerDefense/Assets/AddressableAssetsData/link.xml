@@ -1,11 +1,11 @@
 <linker>
   <assembly fullname="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-    <type fullname="DataControl.BossMonsterData" preserve="all" />
-    <type fullname="DataControl.NormalMonsterData" preserve="all" />
-    <type fullname="DataControl.TowerData.ManaUsingTowerData" preserve="all" />
-    <type fullname="DataControl.TowerData.SummoningTowerData" preserve="all" />
-    <type fullname="DataControl.TowerData.SupportTowerData" preserve="all" />
-    <type fullname="DataControl.TowerData.TargetingTowerData" preserve="all" />
+    <type fullname="DataControl.MonsterDataControl.BossMonsterData" preserve="all" />
+    <type fullname="DataControl.MonsterDataControl.NormalMonsterData" preserve="all" />
+    <type fullname="DataControl.TowerDataControl.ManaUsingTowerData" preserve="all" />
+    <type fullname="DataControl.TowerDataControl.SummoningTowerData" preserve="all" />
+    <type fullname="DataControl.TowerDataControl.SupportTowerData" preserve="all" />
+    <type fullname="DataControl.TowerDataControl.TargetingTowerData" preserve="all" />
     <type fullname="GameControl.LanguageController" preserve="all" />
     <type fullname="ManagerControl.CameraManager" preserve="all" />
     <type fullname="ManagerControl.InputManager" preserve="all" />
@@ -14,6 +14,7 @@
     <type fullname="ManagerControl.UIManager" preserve="all" />
     <type fullname="ManagerControl.WaveManager" preserve="all" />
     <type fullname="MapControl.ExpandMapButton" preserve="all" />
+    <type fullname="MapControl.InteractiveObject" preserve="all" />
     <type fullname="MapControl.MapData" preserve="all" />
     <type fullname="MapControl.MapManager" preserve="all" />
     <type fullname="MonsterControl.FlyingMonster" preserve="all" />
@@ -38,13 +39,12 @@
     <type fullname="StatusControl.TowerHealth" preserve="all" />
     <type fullname="StatusControl.UnitHealth" preserve="all" />
     <type fullname="TextControl.FloatingText" preserve="all" />
-    <type fullname="TowerControl.BallistaTargetingTower" preserve="all" />
-    <type fullname="TowerControl.CanonTargetingTower" preserve="all" />
-    <type fullname="TowerControl.InteractiveObject" preserve="all" />
+    <type fullname="TowerControl.BallistaProjectileTower" preserve="all" />
+    <type fullname="TowerControl.CanonProjectileTower" preserve="all" />
     <type fullname="TowerControl.LaserTargetingTower" preserve="all" />
     <type fullname="TowerControl.SupportTower" preserve="all" />
     <type fullname="TowerControl.UnitTower" preserve="all" />
-    <type fullname="TowerControl.WizardTargetingTower" preserve="all" />
+    <type fullname="TowerControl.WizardProjectileTower" preserve="all" />
     <type fullname="TowerHp" preserve="all" />
     <type fullname="TowerMana" preserve="all" />
     <type fullname="UIControl.GameHUD" preserve="all" />

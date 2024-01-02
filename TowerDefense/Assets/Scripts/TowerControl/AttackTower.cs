@@ -10,7 +10,8 @@ namespace TowerControl
         private MeshFilter _meshFilter;
         protected BoxCollider boxCollider;
         protected Cooldown attackCooldown;
-    
+        protected Cooldown patrolCooldown;
+
         public byte TowerRange { get; private set; }
         public int Damage { get; private set; }
         public sbyte TowerLevel { get; private set; }
@@ -61,6 +62,5 @@ namespace TowerControl
 
         public abstract void TowerUpdate();
         public abstract void TowerTargetInit();
-
     }
 }

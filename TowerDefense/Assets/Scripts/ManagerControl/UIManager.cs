@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
-using DataControl.TowerData;
+using DataControl.TowerDataControl;
 using DG.Tweening;
 using GameControl;
 using IndicatorControl;
@@ -59,7 +59,8 @@ namespace ManagerControl
         private TMP_Text _curSpeedText;
 
         private TowerRangeIndicator _towerRangeIndicator;
-        private Image _upgradeButtonImage;
+
+        // private Image _upgradeButtonImage;
         private Image _sellButtonImage;
 
         private ushort _sellTowerCost;
@@ -181,16 +182,15 @@ namespace ManagerControl
             _cts?.Dispose();
         }
 
-        private void OnApplicationFocus(bool hasFocus)
+        private void OnApplicationPause(bool pauseStatus)
         {
-            if (hasFocus)
+            if (pauseStatus)
             {
-                Application.targetFrameRate = 60;
-                Resume();
+                Pause();
             }
             else
             {
-                Pause();
+                Application.targetFrameRate = 60;
             }
         }
 
@@ -215,7 +215,7 @@ namespace ManagerControl
                 var towerType = towerDataPrefabs[i].towerData.TowerType;
                 _towerCostTextDictionary.Add(towerType, _towerCostTexts[i]);
                 _towerCostTextDictionary[towerType].text =
-                    TowerDataPrefabDictionary[towerType].towerData.TowerBuildCost + "g";
+                    TowerDataPrefabDictionary[towerType].towerData.TowerBuildCost + "G";
             }
         }
 
@@ -239,7 +239,7 @@ namespace ManagerControl
             _upgradeSellPanelTween = towerInfoUI.transform.DOScale(1, 0.15f).From(0).SetAutoKill(false).Pause();
 
             _pauseSequence = DOTween.Sequence().SetAutoKill(false).SetUpdate(true).Pause()
-                .Append(pausePanel.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBack))
+                .Append(pausePanel.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack))
                 .Join(pauseButton.transform.DOScale(0, 0.2f));
 
             _notEnoughCostSequence = DOTween.Sequence().SetAutoKill(false).Pause()
@@ -324,7 +324,7 @@ namespace ManagerControl
                 }
             });
 
-            _upgradeButtonImage = upgradeButton.transform.GetChild(0).GetComponent<Image>();
+            // _upgradeButtonImage = upgradeButton.transform.GetChild(0).GetComponent<Image>();
             _sellButtonImage = sellTowerButton.transform.GetChild(0).GetComponent<Image>();
         }
 
@@ -469,7 +469,7 @@ namespace ManagerControl
             TowerCost -= lostCost;
 
             PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, placePos).SetCostText(lostCost, false);
-            _towerCostTextDictionary[towerType].text = GetBuildCost(towerType) + "g";
+            _towerCostTextDictionary[towerType].text = GetBuildCost(towerType) + "G";
 
 
             if (t.TryGetComponent(out AttackTower tower))
@@ -568,12 +568,12 @@ namespace ManagerControl
         {
             while (!_cts.IsCancellationRequested)
             {
-                await UniTask.Delay(2000);
+                await UniTask.Delay(2000, cancellationToken: _cts.Token);
                 if (Vector3.Distance(CameraManager.transform.position, Vector3.zero) > 10)
                 {
                     if (centerButton.gameObject.activeSelf) continue;
                     centerButton.gameObject.SetActive(true);
-                    centerButton.transform.DOScale(1, 0.2f).From(0).SetEase(Ease.OutBack).SetUpdate(true);
+                    centerButton.transform.DOScale(1, 0.2f).From(0).SetEase(Ease.OutBack);
                 }
             }
         }
@@ -756,7 +756,7 @@ namespace ManagerControl
 
                 var towerType = _curSelectedTower.TowerType;
                 _towerCountDictionary[towerType]--;
-                _towerCostTextDictionary[towerType].text = GetBuildCost(towerType) + "g";
+                _towerCostTextDictionary[towerType].text = GetBuildCost(towerType) + "G";
                 var position = _curSelectedTower.transform.position;
                 PoolObjectManager.Get(PoolObjectKey.BuildSmoke, position);
 
@@ -774,7 +774,7 @@ namespace ManagerControl
 
                 var towerType = _curSupportTower.TowerType;
                 _towerCountDictionary[towerType]--;
-                _towerCostTextDictionary[towerType].text = GetBuildCost(towerType) + "g";
+                _towerCostTextDictionary[towerType].text = GetBuildCost(towerType) + "G";
                 var position = _curSupportTower.transform.position;
                 PoolObjectManager.Get(PoolObjectKey.BuildSmoke, position);
 

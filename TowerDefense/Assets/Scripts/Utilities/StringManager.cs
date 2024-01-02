@@ -1,12 +1,13 @@
 using System.Collections.Generic;
 using CustomEnumControl;
 
-namespace GameControl
+namespace Utilities
 {
     public static class StringManager
     {
         public const string Xp = "XP";
         public const string UpgradeCount = "UpgradeCount";
+        public const string TotalSpentXp = "TotalSpentXp";
 
         public static readonly Dictionary<TowerType, string> DamageDic = new()
         {

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
-using DataControl.TowerData;
+using CustomEnumControl;
+using DataControl.TowerDataControl;
 using DG.Tweening;
 using ManagerControl;
 using UnityEngine;
@@ -105,6 +106,7 @@ namespace UIControl
         private void OpenCard(int index, Transform buttonPos)
         {
             if (_isDrag) return;
+            SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
             towerDescriptionCard.OpenTowerCard(_towerButtonDic[index].TowerType, buttonPos);
         }
 

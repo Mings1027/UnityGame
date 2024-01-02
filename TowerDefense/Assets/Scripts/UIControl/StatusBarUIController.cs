@@ -19,7 +19,6 @@ namespace UIControl
             _cam = Camera.main;
             _barDictionary = new Dictionary<StatusBar, Transform>();
             _inverseDic = new Dictionary<Transform, StatusBar>();
-            // enabled = false;
         }
 
         private void Start()

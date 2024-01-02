@@ -23,7 +23,13 @@ namespace TextControl
             _upTween = _rectTransform.DOAnchorPosY(_rectTransform.localPosition.y, 1.5f).SetAutoKill(false).Pause();
         }
 
-        private void OnEnable()
+        private void OnDestroy()
+        {
+            _scaleAlphaSequence?.Kill();
+            _upTween?.Kill();
+        }
+
+        private void EnableObject()
         {
             Vector2 position = _rectTransform.localPosition;
             var randomX = Random.Range(-20, 20);
@@ -33,21 +39,17 @@ namespace TextControl
             _scaleAlphaSequence.OnComplete(() => gameObject.SetActive(false)).Restart();
         }
 
-        private void OnDestroy()
-        {
-            _scaleAlphaSequence?.Kill();
-            _upTween?.Kill();
-        }
-
         public void SetCostText(ushort number, bool isPlusValue = true)
         {
+            EnableObject();
             _text.text = isPlusValue
-                ? "+" + number + "g"
-                : "-" + number + "g";
+                ? "+" + number + "G"
+                : "-" + number + "G";
         }
 
         public void SetHpText(ushort number, bool isPlusValue = true)
         {
+            EnableObject();
             _text.text = isPlusValue
                 ? "+" + number + " HP"
                 : "-" + number + " HP";
