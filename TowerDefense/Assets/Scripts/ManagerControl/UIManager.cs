@@ -50,7 +50,7 @@ namespace ManagerControl
         private Tween _upgradeButtonTween;
 
         private AttackTower _curSelectedTower;
-        private UnitTower _curUnitTower;
+        private SummonTower _curSummonTower;
         private SupportTower _curSupportTower;
 
         private Image _toggleTowerBtnImage;
@@ -534,9 +534,9 @@ namespace ManagerControl
             _curSupportTower = null;
             _towerRangeIndicator.DisableIndicator();
 
-            if (!_curUnitTower) return;
-            _curUnitTower.DeActiveUnitIndicator();
-            _curUnitTower = null;
+            if (!_curSummonTower) return;
+            _curSummonTower.DeActiveUnitIndicator();
+            _curSummonTower = null;
         }
 
         public bool IsEnoughCost(TowerType towerType)
@@ -667,10 +667,10 @@ namespace ManagerControl
 
             if (clickedTower.Equals(_curSelectedTower)) return;
 
-            if (_curUnitTower) _curUnitTower.DeActiveUnitIndicator();
+            if (_curSummonTower) _curSummonTower.DeActiveUnitIndicator();
 
             var isUnitTower = TowerDataPrefabDictionary[clickedTower.TowerType].towerData.IsUnitTower;
-            if (isUnitTower) _curUnitTower = clickedTower.GetComponent<UnitTower>();
+            if (isUnitTower) _curSummonTower = clickedTower.GetComponent<SummonTower>();
 
             _curSelectedTower = (AttackTower)clickedTower;
 
@@ -742,7 +742,7 @@ namespace ManagerControl
         private void MoveUnitButton()
         {
             SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
-            moveUnitController.FocusUnitTower(_curUnitTower);
+            moveUnitController.FocusUnitTower(_curSummonTower);
             _upgradeSellPanelTween.PlayBackwards();
             moveUnitButton.SetActive(false);
         }

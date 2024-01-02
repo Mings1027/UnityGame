@@ -8,7 +8,7 @@ namespace UnitControl
     public class MoveTowerUnit : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         private TowerUnit _towerUnit;
-        private UnitTower _unitTower;
+        private SummonTower _summonTower;
 
         private void Awake()
         {

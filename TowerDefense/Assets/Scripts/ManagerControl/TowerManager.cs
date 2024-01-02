@@ -54,7 +54,7 @@ namespace ManagerControl
             var towerCount = _towers.Count;
             for (int i = 0; i < towerCount; i++)
             {
-                if (_towers[i].TryGetComponent(out UnitTower unitTower))
+                if (_towers[i].TryGetComponent(out SummonTower unitTower))
                 {
                     unitTower.ActiveAnim();
                 }
@@ -66,7 +66,7 @@ namespace ManagerControl
             for (var i = 0; i < towerCount; i++)
             {
                 _towers[i].TowerTargetInit();
-                if (_towers[i].TryGetComponent(out UnitTower unitTower))
+                if (_towers[i].TryGetComponent(out SummonTower unitTower))
                 {
                     unitTower.DeActiveAnim();
                 }

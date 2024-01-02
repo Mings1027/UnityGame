@@ -96,7 +96,7 @@ namespace UIControl
             {
                 if (isUnitTower)
                 {
-                    var unitTower = (UnitTower)tower;
+                    var unitTower = (SummonTower)tower;
                     _healthText.text = (unitTower.UnitHealth * (level + 1)).ToString();
                     _respawnText.text = unitTower.UnitReSpawnTime.ToString(CultureInfo.InvariantCulture);
                 }

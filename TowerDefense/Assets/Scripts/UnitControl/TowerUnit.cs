@@ -19,7 +19,7 @@ namespace UnitControl
     {
         private Transform _childMeshTransform;
         private Sequence _deadSequence;
-        private UnitTower _parentTower;
+        private SummonTower _parentTower;
         private Collider _thisCollider;
         private Collider[] _targetCollider;
         private Health _health;
@@ -276,10 +276,10 @@ namespace UnitControl
             //disable outline
         }
 
-        public void InfoInit(UnitTower unitTower, Vector3 pos)
+        public void InfoInit(SummonTower summonTower, Vector3 pos)
         {
             _originPos = pos;
-            _parentTower = unitTower;
+            _parentTower = summonTower;
         }
 
         public void DisableParent()

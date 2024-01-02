@@ -11,7 +11,7 @@ namespace UnitControl
         private UIManager _uiManager;
         private Camera _cam;
         private Transform _camArm;
-        private UnitTower _unitTower;
+        private SummonTower _summonTower;
 
         private float _prevSize;
         private Vector3 _prevPos;
@@ -37,13 +37,13 @@ namespace UnitControl
             CheckMoveUnit();
         }
 
-        public void FocusUnitTower(UnitTower unitTower)
+        public void FocusUnitTower(SummonTower summonTower)
         {
             enabled = true;
-            _unitTower = unitTower;
+            _summonTower = summonTower;
             _prevSize = _cam.orthographicSize;
             _prevPos = _camArm.position;
-            _camArm.MoveTween(_prevPos, unitTower.transform.position, camZoomTime);
+            _camArm.MoveTween(_prevPos, summonTower.transform.position, camZoomTime);
             _cam.OrthoSizeTween(_prevSize, 10, camZoomTime);
         }
 
@@ -61,9 +61,9 @@ namespace UnitControl
             var ray = _cam.ScreenPointToRay(Input.mousePosition);
             Physics.Raycast(ray, out var hit, int.MaxValue, ~unitLayer);
             if (hit.collider && hit.collider.CompareTag("Ground") &&
-                Vector3.Distance(_unitTower.transform.position, hit.point) <= _unitTower.TowerRange)
+                Vector3.Distance(_summonTower.transform.position, hit.point) <= _summonTower.TowerRange)
             {
-                _unitTower.UnitMove(new Vector3(hit.point.x, 0, hit.point.z));
+                _summonTower.UnitMove(new Vector3(hit.point.x, 0, hit.point.z));
                 RewindCam();
                 _uiManager.OffUI();
             }

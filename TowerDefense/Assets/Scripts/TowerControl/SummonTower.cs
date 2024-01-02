@@ -14,7 +14,7 @@ using UnityEngine.AI;
 
 namespace TowerControl
 {
-    public class SommonTower : AttackTower
+    public class SummonTower : AttackTower
     {
         private CancellationTokenSource _cts;
         private bool _isUnitSpawn;
