@@ -1,8 +1,6 @@
-using System;
 using CustomEnumControl;
 using DG.Tweening;
 using ManagerControl;
-using UIControl;
 using UnityEngine;
 using UnityEngine.UI;
 

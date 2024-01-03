@@ -3,12 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using DG.DemiEditor;
 using DG.DOTweenEditor.Core;
 using DG.DOTweenEditor.UI;
 using DG.Tweening;
-using DG.Tweening.Core;
 using UnityEditor;
 using UnityEngine;
 using DOTweenSettings = DG.Tweening.Core.DOTweenSettings;
@@ -193,10 +191,10 @@ namespace DG.DOTweenEditor
             onTweenCreatedProperty = base.serializedObject.FindProperty("onTweenCreated");
 
             // Convert _AnimationType to _animationTypeNoSlashes
-            int len = _AnimationType.Length;
+            var len = _AnimationType.Length;
             _animationTypeNoSlashes = new string[len];
-            for (int i = 0; i < len; ++i) {
-                string a = _AnimationType[i];
+            for (var i = 0; i < len; ++i) {
+                var a = _AnimationType[i];
                 a = a.Replace("/", "");
                 _animationTypeNoSlashes[i] = a;
             }
@@ -214,7 +212,7 @@ namespace DG.DOTweenEditor
             GUILayout.Space(3);
             EditorGUIUtils.SetGUIStyles();
 
-            bool playMode = Application.isPlaying;
+            var playMode = Application.isPlaying;
             _runtimeEditMode = _runtimeEditMode && playMode;
 
             GUILayout.BeginHorizontal();
@@ -273,7 +271,7 @@ namespace DG.DOTweenEditor
                 DeGUILayout.EndVBox();
             } else {
                 GUILayout.BeginHorizontal();
-                bool hasManager = _src.GetComponent<DOTweenVisualManager>() != null;
+                var hasManager = _src.GetComponent<DOTweenVisualManager>() != null;
                 EditorGUI.BeginChangeCheck();
                 _settings.showPreviewPanel = hasManager
                     ? DeGUILayout.ToggleButton(_settings.showPreviewPanel, "Preview Controls", styles.custom.inlineToggle)
@@ -291,7 +289,7 @@ namespace DG.DOTweenEditor
             }
 
             // Preview in editor
-            bool isPreviewing = _settings.showPreviewPanel ? DOTweenPreviewManager.PreviewGUI(_src) : false;
+            var isPreviewing = _settings.showPreviewPanel ? DOTweenPreviewManager.PreviewGUI(_src) : false;
 
             EditorGUI.BeginDisabledGroup(isPreviewing);
             // Choose target
@@ -304,7 +302,7 @@ namespace DG.DOTweenEditor
                             new Color(1f, 0.78f, 0f), DeGUI.colors.bg.toggleOn, new Color(0.33f, 0.14f, 0.02f), DeGUI.colors.content.toggleOn,
                             null, GUILayout.Width(47)
                         );
-                    bool innerChanged = EditorGUI.EndChangeCheck();
+                    var innerChanged = EditorGUI.EndChangeCheck();
                     if (innerChanged) {
                         _src.targetGO = null;
                         GUI.changed = true;
@@ -319,11 +317,11 @@ namespace DG.DOTweenEditor
                             GUILayout.Width(131)
                         );
                     }
-                bool check = EditorGUI.EndChangeCheck();
+                var check = EditorGUI.EndChangeCheck();
                 if (check) _refreshRequired = true;
             GUILayout.EndHorizontal();
 
-            GameObject targetGO = _src.targetIsSelf ? _src.gameObject : _src.targetGO;
+            var targetGO = _src.targetIsSelf ? _src.gameObject : _src.targetGO;
 
             if (targetGO == null) {
                 // Uses external target gameObject but it's not set
@@ -334,7 +332,7 @@ namespace DG.DOTweenEditor
                 }
             } else {
                 GUILayout.BeginHorizontal();
-                DOTweenAnimation.AnimationType prevAnimType = _src.animationType;
+                var prevAnimType = _src.animationType;
 //                _src.animationType = (DOTweenAnimation.AnimationType)EditorGUILayout.EnumPopup(_src.animationType, EditorGUIUtils.popupButton);
                 GUI.enabled = GUI.enabled && _src.isActive;
                 _src.animationType = AnimationToDOTweenAnimationType(_AnimationType[EditorGUILayout.Popup(DOTweenAnimationTypeToPopupId(_src.animationType), _AnimationType)]);
@@ -447,8 +445,8 @@ namespace DG.DOTweenEditor
 #if true // UI_MARKER
                 // Special cases in which multiple target types could be used (set after validation)
                 if (_chooseTargetMode == ChooseTargetMode.BetweenCanvasGroupAndImage && _src.forcedTargetType != DOTweenAnimation.TargetType.Unset) {
-                    FadeTargetType fadeTargetType = (FadeTargetType)Enum.Parse(typeof(FadeTargetType), _src.forcedTargetType.ToString());
-                    DOTweenAnimation.TargetType prevTargetType = _src.forcedTargetType;
+                    var fadeTargetType = (FadeTargetType)Enum.Parse(typeof(FadeTargetType), _src.forcedTargetType.ToString());
+                    var prevTargetType = _src.forcedTargetType;
                     _src.forcedTargetType = (DOTweenAnimation.TargetType)Enum.Parse(typeof(DOTweenAnimation.TargetType), EditorGUILayout.EnumPopup(_src.animationType + " Target", fadeTargetType).ToString());
                     if (_src.forcedTargetType != prevTargetType) {
                         // Target type change > assign correct target
@@ -482,7 +480,7 @@ namespace DG.DOTweenEditor
                     _src.loopType = (LoopType)EditorGUILayout.EnumPopup("   Loop Type", _src.loopType);
                 _src.id = EditorGUILayout.TextField("ID", _src.id);
 
-                bool canBeRelative = true;
+                var canBeRelative = true;
                 // End value and eventual specific options
                 switch (_src.animationType) {
                 case DOTweenAnimation.AnimationType.Move:
@@ -493,7 +491,7 @@ namespace DG.DOTweenEditor
                     break;
                 case DOTweenAnimation.AnimationType.Rotate:
                 case DOTweenAnimation.AnimationType.LocalRotate:
-                    bool isRigidbody2D = DOTweenModuleUtils.Physics.HasRigidbody2D(_src);
+                    var isRigidbody2D = DOTweenModuleUtils.Physics.HasRigidbody2D(_src);
                     if (isRigidbody2D) GUIEndValueFloat();
                     else {
                         GUIEndValueV3(targetGO);
@@ -589,7 +587,7 @@ namespace DG.DOTweenEditor
         // Returns TRUE if the Component layout on the src gameObject changed (a Component was added or removed)
         bool ComponentsChanged()
         {
-            int prevTotComponentsOnSrc = _totComponentsOnSrc;
+            var prevTotComponentsOnSrc = _totComponentsOnSrc;
             _totComponentsOnSrc = _src.gameObject.GetComponents<Component>().Length;
             return prevTotComponentsOnSrc != _totComponentsOnSrc;
         }
@@ -615,7 +613,7 @@ namespace DG.DOTweenEditor
 #endif
 #if true // TEXTMESHPRO_MARKER
             if (_TMPAnimationTypeToComponent.ContainsKey(_src.animationType)) {
-                foreach (Type t in _TMPAnimationTypeToComponent[_src.animationType]) {
+                foreach (var t in _TMPAnimationTypeToComponent[_src.animationType]) {
                     srcTarget = targetGO.GetComponent(t);
                     if (srcTarget != null) {
                         _src.target = srcTarget;
@@ -627,7 +625,7 @@ namespace DG.DOTweenEditor
 #endif
             // Then check for regular stuff
             if (_AnimationTypeToComponent.ContainsKey(_src.animationType)) {
-                foreach (Type t in _AnimationTypeToComponent[_src.animationType]) {
+                foreach (var t in _AnimationTypeToComponent[_src.animationType]) {
                     srcTarget = targetGO.GetComponent(t);
                     if (srcTarget != null) {
                         _src.target = srcTarget;
@@ -675,7 +673,7 @@ namespace DG.DOTweenEditor
             GUILayout.BeginHorizontal();
             GUIToFromButton();
             if (_src.useTargetAsV3) {
-                Transform prevT = _src.endValueTransform;
+                var prevT = _src.endValueTransform;
                 _src.endValueTransform = EditorGUILayout.ObjectField(_src.endValueTransform, typeof(Transform), true) as Transform;
                 if (_src.endValueTransform != prevT && _src.endValueTransform != null) {
 #if true // UI_MARKER
@@ -752,7 +750,7 @@ namespace DG.DOTweenEditor
 
         static void OnReset(DOTweenAnimation src)
         {
-            DOTweenSettings settings = DOTweenUtilityWindow.GetDOTweenSettings();
+            var settings = DOTweenUtilityWindow.GetDOTweenSettings();
             if (settings == null) return;
 
             Undo.RecordObject(src, "DOTweenAnimation");

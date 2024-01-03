@@ -1,11 +1,8 @@
 using System;
 using CustomEnumControl;
-using InterfaceControl;
-using ManagerControl;
 using PoolObjectControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using Random = UnityEngine.Random;
 
 namespace MapControl
 {

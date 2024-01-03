@@ -1,5 +1,4 @@
 using CustomEnumControl;
-using DataControl;
 using DataControl.TowerDataControl;
 using InterfaceControl;
 using ManagerControl;
@@ -37,8 +36,18 @@ namespace TowerControl
             {
                 target = null;
                 isTargeting = false;
-                patrolCooldown.StartCooldown();
                 return;
+            }
+
+            var shortestDistance = float.MaxValue;
+            for (var i = 0; i < size; i++)
+            {
+                var distanceToResult = Vector3.SqrMagnitude(transform.position - targetColliders[i].bounds.center);
+                if (shortestDistance > distanceToResult)
+                {
+                    shortestDistance = distanceToResult;
+                    target = targetColliders[i];
+                }
             }
 
             for (var i = 0; i < size; i++)
@@ -52,18 +61,15 @@ namespace TowerControl
             }
 
             _isFlyingMonster = false;
-            var ranIndex = Random.Range(0, size);
-            target = targetColliders[ranIndex];
-
             isTargeting = true;
-            patrolCooldown.StartCooldown();
             beam.enabled = true;
             towerState = TowerState.Attack;
+            patrolCooldown.StartCooldown();
         }
 
         protected override void ReadyToAttack()
         {
-            if (!target.enabled || towerMana.towerMana.Current < _attackMana)
+            if (!target || !target.enabled || towerMana.towerMana.Current < _attackMana)
             {
                 towerState = TowerState.Detect;
                 beam.enabled = false;

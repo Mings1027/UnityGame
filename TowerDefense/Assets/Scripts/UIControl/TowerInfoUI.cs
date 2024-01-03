@@ -1,6 +1,5 @@
 using System.Globalization;
 using CustomEnumControl;
-using DataControl;
 using DataControl.TowerDataControl;
 using ManagerControl;
 using TMPro;
@@ -49,7 +48,7 @@ namespace UIControl
             _cam = Camera.main;
             _starImages = new Image[stars.childCount];
             _statusInfoPanel = transform.GetChild(1);
-            for (int i = 0; i < _starImages.Length; i++)
+            for (var i = 0; i < _starImages.Length; i++)
             {
                 _starImages[i] = stars.GetChild(i).GetChild(0).GetComponent<Image>();
             }

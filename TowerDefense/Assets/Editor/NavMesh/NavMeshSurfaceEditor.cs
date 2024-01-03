@@ -1,11 +1,7 @@
 #define NAVMESHCOMPONENTS_SHOW_NAVMESHDATA_REF
 
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using UnityEditor.Experimental.SceneManagement;
 using UnityEditor.IMGUI.Controls;
-using UnityEditor.SceneManagement;
 using UnityEditorInternal;
 using UnityEngine.AI;
 using UnityEngine;
@@ -105,7 +101,7 @@ namespace UnityEditor.AI
             {
                 // Draw image
                 const float diagramHeight = 80.0f;
-                Rect agentDiagramRect = EditorGUILayout.GetControlRect(false, diagramHeight);
+                var agentDiagramRect = EditorGUILayout.GetControlRect(false, diagramHeight);
                 NavMeshEditorHelpers.DrawAgentDiagram(agentDiagramRect, bs.agentRadius, bs.agentHeight, bs.agentClimb, bs.agentSlope);
             }
             NavMeshComponentsGUIUtility.AgentTypePopup("Agent Type", m_AgentTypeID);
@@ -155,7 +151,7 @@ namespace UnityEditor.AI
                     {
                         if (!m_AgentTypeID.hasMultipleDifferentValues)
                         {
-                            float voxelsPerRadius = m_VoxelSize.floatValue > 0.0f ? (bs.agentRadius / m_VoxelSize.floatValue) : 0.0f;
+                            var voxelsPerRadius = m_VoxelSize.floatValue > 0.0f ? (bs.agentRadius / m_VoxelSize.floatValue) : 0.0f;
                             EditorGUILayout.LabelField(" ", voxelsPerRadius.ToString("0.00") + " voxels per agent radius", EditorStyles.miniLabel);
                         }
                         if (m_OverrideVoxelSize.boolValue)
@@ -175,7 +171,7 @@ namespace UnityEditor.AI
 
                     if (!m_TileSize.hasMultipleDifferentValues && !m_VoxelSize.hasMultipleDifferentValues)
                     {
-                        float tileWorldSize = m_TileSize.intValue * m_VoxelSize.floatValue;
+                        var tileWorldSize = m_TileSize.intValue * m_VoxelSize.floatValue;
                         EditorGUILayout.LabelField(" ", tileWorldSize.ToString("0.00") + " world units", EditorStyles.miniLabel);
                     }
 
@@ -270,7 +266,7 @@ namespace UnityEditor.AI
 
             // Show progress for the selected targets
             var bakeOperations = NavMeshAssetManager.instance.GetBakeOperations();
-            for (int i = bakeOperations.Count - 1; i >= 0; --i)
+            for (var i = bakeOperations.Count - 1; i >= 0; --i)
             {
                 if (!targets.Contains(bakeOperations[i].surface))
                     continue;
@@ -377,8 +373,8 @@ namespace UnityEditor.AI
                 if (EditorGUI.EndChangeCheck())
                 {
                     Undo.RecordObject(navSurface, "Modified NavMesh Surface");
-                    Vector3 center = m_BoundsHandle.center;
-                    Vector3 size = m_BoundsHandle.size;
+                    var center = m_BoundsHandle.center;
+                    var size = m_BoundsHandle.size;
                     navSurface.center = center;
                     navSurface.size = size;
                     EditorUtility.SetDirty(target);

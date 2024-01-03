@@ -239,7 +239,7 @@ namespace DG.Tweening
 //                return;
 //            }
 
-            GameObject tweenGO = GetTweenGO();
+            var tweenGO = GetTweenGO();
             if (target == null || tweenGO == null)
             {
                 if (targetIsSelf && target == null)
@@ -290,7 +290,7 @@ namespace DG.Tweening
 #if true // UI_MARKER
                             if (targetType == TargetType.RectTransform)
                             {
-                                RectTransform endValueT = endValueTransform as RectTransform;
+                                var endValueT = endValueTransform as RectTransform;
                                 if (endValueT == null)
                                 {
                                     Debug.LogWarning(
@@ -301,7 +301,7 @@ namespace DG.Tweening
                                 }
                                 else
                                 {
-                                    RectTransform rTarget = target as RectTransform;
+                                    var rTarget = target as RectTransform;
                                     if (rTarget == null)
                                     {
                                         Debug.LogWarning(
@@ -608,7 +608,7 @@ namespace DG.Tweening
                 tween.SetRelative(isRelative);
             }
 
-            GameObject setTarget = GetTweenTarget();
+            var setTarget = GetTweenTarget();
             tween.SetTarget(setTarget).SetDelay(delay).SetLoops(loops, loopType).SetAutoKill(autoKill)
                 .OnKill(() => tween = null);
             if (isSpeedBased) tween.SetSpeedBased();
@@ -673,9 +673,9 @@ namespace DG.Tweening
         /// </summary>
         public List<Tween> GetTweens()
         {
-            List<Tween> result = new List<Tween>();
-            DOTweenAnimation[] anims = this.GetComponents<DOTweenAnimation>();
-            foreach (DOTweenAnimation anim in anims)
+            var result = new List<Tween>();
+            var anims = this.GetComponents<DOTweenAnimation>();
+            foreach (var anim in anims)
             {
                 if (anim.tween != null && anim.tween.active) result.Add(anim.tween);
             }
@@ -698,7 +698,7 @@ namespace DG.Tweening
         /// </param>
         public void SetAnimationTarget(Component tweenTarget, bool useTweenTargetGameObjectForGroupOperations = true)
         {
-            TargetType newTargetType = TypeToDOTargetType(target.GetType());
+            var newTargetType = TypeToDOTargetType(target.GetType());
             if (newTargetType != targetType)
             {
                 Debug.LogError(
@@ -760,10 +760,10 @@ namespace DG.Tweening
         {
             _playCount = -1;
             // Rewind using Components order (in case there are multiple animations on the same property)
-            DOTweenAnimation[] anims = this.gameObject.GetComponents<DOTweenAnimation>();
-            for (int i = anims.Length - 1; i > -1; --i)
+            var anims = this.gameObject.GetComponents<DOTweenAnimation>();
+            for (var i = anims.Length - 1; i > -1; --i)
             {
-                Tween t = anims[i].tween;
+                var t = anims[i].tween;
                 if (t != null && t.IsInitialized()) anims[i].tween.Rewind();
             }
             // DOTween.Rewind(GetTweenTarget());
@@ -825,14 +825,14 @@ namespace DG.Tweening
         {
             _tmpTweens.Clear();
             DOTween.TweensByTarget(GetTweenTarget(), false, _tmpTweens);
-            int len = _tmpTweens.Count;
+            var len = _tmpTweens.Count;
             if (len == 0)
             {
                 Debugger.LogWarning((andPlay ? "DOGotoAndPlay" : "DoGotoAndPause") + " ► tween doesn't exist");
             }
             else
             {
-                for (int i = 0; i < _tmpTweens.Count; ++i)
+                for (var i = 0; i < _tmpTweens.Count; ++i)
                 {
                     _tmpTweens[i].Goto(time, andPlay);
                 }
@@ -913,11 +913,11 @@ namespace DG.Tweening
         /// </summary>
         public void DOPlayNext()
         {
-            DOTweenAnimation[] anims = this.GetComponents<DOTweenAnimation>();
+            var anims = this.GetComponents<DOTweenAnimation>();
             while (_playCount < anims.Length - 1)
             {
                 _playCount++;
-                DOTweenAnimation anim = anims[_playCount];
+                var anim = anims[_playCount];
                 if (anim != null && anim.tween != null && anim.tween.active && !anim.tween.IsPlaying() &&
                     !anim.tween.IsComplete())
                 {
@@ -987,8 +987,8 @@ namespace DG.Tweening
 
         public static TargetType TypeToDOTargetType(Type t)
         {
-            string str = t.ToString();
-            int dotIndex = str.LastIndexOf(".");
+            var str = t.ToString();
+            var dotIndex = str.LastIndexOf(".");
             if (dotIndex != -1) str = str.Substring(dotIndex + 1);
             if (str.IndexOf("Renderer") != -1 && (str != "SpriteRenderer")) str = "Renderer";
 //#if true // PHYSICS_MARKER
@@ -1044,7 +1044,7 @@ namespace DG.Tweening
         // Re-evaluate relative position of path
         void ReEvaluateRelativeTween()
         {
-            GameObject tweenGO = GetTweenGO();
+            var tweenGO = GetTweenGO();
             if (tweenGO == null)
             {
                 Debug.LogWarning(

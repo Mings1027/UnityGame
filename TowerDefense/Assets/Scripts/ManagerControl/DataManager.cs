@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using GameControl;
 using UnityEngine;
 using Utilities;
 
@@ -30,7 +29,7 @@ namespace ManagerControl
             _difficultyLevel = 0;
 
             SurvivedWaves = new SurvivedWave();
-            for (int i = 0; i < SurvivedWaves.survivedWave.Length; i++)
+            for (var i = 0; i < SurvivedWaves.survivedWave.Length; i++)
             {
                 SurvivedWaves.survivedWave[i] = 0;
             }
@@ -84,7 +83,7 @@ namespace ManagerControl
 
         public static void WaveDataInit()
         {
-            for (int i = 0; i < SurvivedWaves.survivedWave.Length; i++)
+            for (var i = 0; i < SurvivedWaves.survivedWave.Length; i++)
             {
                 SurvivedWaves.survivedWave[i] = 0;
             }

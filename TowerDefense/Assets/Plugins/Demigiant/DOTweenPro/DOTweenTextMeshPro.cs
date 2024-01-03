@@ -37,7 +37,7 @@ namespace DG.Tweening
         /// <param name="endValue">The end value to reach</param><param name="duration">The duration of the tween</param>
         public static TweenerCore<Color, Color, ColorOptions> DOColor(this TMP_Text target, Color endValue, float duration)
         {
-            TweenerCore<Color, Color, ColorOptions> t = DOTween.To(() => target.color, x => target.color = x, endValue, duration);
+            var t = DOTween.To(() => target.color, x => target.color = x, endValue, duration);
             t.SetTarget(target);
             return t;
         }
@@ -47,7 +47,7 @@ namespace DG.Tweening
         /// <param name="endValue">The end value to reach</param><param name="duration">The duration of the tween</param>
         public static TweenerCore<Color, Color, ColorOptions> DOFaceColor(this TMP_Text target, Color32 endValue, float duration)
         {
-            TweenerCore<Color, Color, ColorOptions> t = DOTween.To(() => target.faceColor, x => target.faceColor = x, endValue, duration);
+            var t = DOTween.To(() => target.faceColor, x => target.faceColor = x, endValue, duration);
             t.SetTarget(target);
             return t;
         }
@@ -57,7 +57,7 @@ namespace DG.Tweening
         /// <param name="endValue">The end value to reach</param><param name="duration">The duration of the tween</param>
         public static TweenerCore<Color, Color, ColorOptions> DOOutlineColor(this TMP_Text target, Color32 endValue, float duration)
         {
-            TweenerCore<Color, Color, ColorOptions> t = DOTween.To(() => target.outlineColor, x => target.outlineColor = x, endValue, duration);
+            var t = DOTween.To(() => target.outlineColor, x => target.outlineColor = x, endValue, duration);
             t.SetTarget(target);
             return t;
         }
@@ -68,7 +68,7 @@ namespace DG.Tweening
         /// <param name="useSharedMaterial">If TRUE will use the fontSharedMaterial instead than the fontMaterial</param>
         public static TweenerCore<Color, Color, ColorOptions> DOGlowColor(this TMP_Text target, Color endValue, float duration, bool useSharedMaterial = false)
         {
-            TweenerCore<Color, Color, ColorOptions> t = useSharedMaterial
+            var t = useSharedMaterial
                 ? target.fontSharedMaterial.DOColor(endValue, "_GlowColor", duration)
                 : target.fontMaterial.DOColor(endValue, "_GlowColor", duration);
             t.SetTarget(target);
@@ -80,7 +80,7 @@ namespace DG.Tweening
         /// <param name="endValue">The end value to reach</param><param name="duration">The duration of the tween</param>
         public static TweenerCore<Color, Color, ColorOptions> DOFade(this TMP_Text target, float endValue, float duration)
         {
-            TweenerCore<Color, Color, ColorOptions> t = DOTween.ToAlpha(() => target.color, x => target.color = x, endValue, duration);
+            var t = DOTween.ToAlpha(() => target.color, x => target.color = x, endValue, duration);
             t.SetTarget(target);
             return t;
         }
@@ -90,7 +90,7 @@ namespace DG.Tweening
         /// <param name="endValue">The end value to reach</param><param name="duration">The duration of the tween</param>
         public static TweenerCore<Color, Color, ColorOptions> DOFaceFade(this TMP_Text target, float endValue, float duration)
         {
-            TweenerCore<Color, Color, ColorOptions> t = DOTween.ToAlpha(() => target.faceColor, x => target.faceColor = x, endValue, duration);
+            var t = DOTween.ToAlpha(() => target.faceColor, x => target.faceColor = x, endValue, duration);
             t.SetTarget(target);
             return t;
         }
@@ -104,9 +104,9 @@ namespace DG.Tweening
         /// <param name="endValue">The end value to reach</param><param name="duration">The duration of the tween</param>
         public static TweenerCore<Vector3, Vector3, VectorOptions> DOScale(this TMP_Text target, float endValue, float duration)
         {
-            Transform trans = target.transform;
-            Vector3 endValueV3 = new Vector3(endValue, endValue, endValue);
-            TweenerCore<Vector3, Vector3, VectorOptions> t = DOTween.To(() => trans.localScale, x => trans.localScale = x, endValueV3, duration);
+            var trans = target.transform;
+            var endValueV3 = new Vector3(endValue, endValue, endValue);
+            var t = DOTween.To(() => trans.localScale, x => trans.localScale = x, endValueV3, duration);
             t.SetTarget(target);
             return t;
         }
@@ -122,9 +122,9 @@ namespace DG.Tweening
         public static TweenerCore<int, int, NoOptions> DOCounter(
             this TMP_Text target, int fromValue, int endValue, float duration, bool addThousandsSeparator = true, CultureInfo culture = null
         ){
-            int v = fromValue;
-            CultureInfo cInfo = !addThousandsSeparator ? null : culture ?? CultureInfo.InvariantCulture;
-            TweenerCore<int, int, NoOptions> t = DOTween.To(() => v, x => {
+            var v = fromValue;
+            var cInfo = !addThousandsSeparator ? null : culture ?? CultureInfo.InvariantCulture;
+            var t = DOTween.To(() => v, x => {
                 v = x;
                 target.text = addThousandsSeparator
                     ? v.ToString("N0", cInfo)
@@ -139,7 +139,7 @@ namespace DG.Tweening
         /// <param name="endValue">The end value to reach</param><param name="duration">The duration of the tween</param>
         public static TweenerCore<float, float, FloatOptions> DOFontSize(this TMP_Text target, float endValue, float duration)
         {
-            TweenerCore<float, float, FloatOptions> t = DOTween.To(() => target.fontSize, x => target.fontSize = x, endValue, duration);
+            var t = DOTween.To(() => target.fontSize, x => target.fontSize = x, endValue, duration);
             t.SetTarget(target);
             return t;
         }
@@ -149,7 +149,7 @@ namespace DG.Tweening
         /// <param name="endValue">The end value to reach</param><param name="duration">The duration of the tween</param>
         public static TweenerCore<int, int, NoOptions> DOMaxVisibleCharacters(this TMP_Text target, int endValue, float duration)
         {
-            TweenerCore<int, int, NoOptions> t = DOTween.To(() => target.maxVisibleCharacters, x => target.maxVisibleCharacters = x, endValue, duration);
+            var t = DOTween.To(() => target.maxVisibleCharacters, x => target.maxVisibleCharacters = x, endValue, duration);
             t.SetTarget(target);
             return t;
         }
@@ -165,7 +165,7 @@ namespace DG.Tweening
         /// Leave it to NULL (default) to use default ones</param>
         public static TweenerCore<string, string, StringOptions> DOText(this TMP_Text target, string endValue, float duration, bool richTextEnabled = true, ScrambleMode scrambleMode = ScrambleMode.None, string scrambleChars = null)
         {
-            TweenerCore<string, string, StringOptions> t = DOTween.To(() => target.text, x => target.text = x, endValue, duration);
+            var t = DOTween.To(() => target.text, x => target.text = x, endValue, duration);
             t.SetOptions(richTextEnabled, scrambleMode, scrambleChars)
                 .SetTarget(target);
             return t;
@@ -269,19 +269,19 @@ namespace DG.Tweening
             target.ForceMeshUpdate(true);
             textInfo = target.textInfo;
             _cachedMeshInfos = textInfo.CopyMeshInfoVertexData();
-            int totChars = textInfo.characterCount;
-            int totCurrent = _charTransforms.Count;
+            var totChars = textInfo.characterCount;
+            var totCurrent = _charTransforms.Count;
             if (totCurrent > totChars) {
                 _charTransforms.RemoveRange(totChars, totCurrent - totChars);
                 totCurrent = totChars;
             }
-            for (int i = 0; i < totCurrent; ++i) {
-                CharTransform c = _charTransforms[i];
+            for (var i = 0; i < totCurrent; ++i) {
+                var c = _charTransforms[i];
                 c.ResetTransformationData();
                 c.Refresh(textInfo, _cachedMeshInfos);
                 _charTransforms[i] = c;
             }
-            for (int i = totCurrent; i < totChars; ++i) _charTransforms.Add(new CharTransform(i, textInfo, _cachedMeshInfos));
+            for (var i = totCurrent; i < totChars; ++i) _charTransforms.Add(new CharTransform(i, textInfo, _cachedMeshInfos));
             _ignoreTextChangedEvent = false;
         }
 
@@ -290,8 +290,8 @@ namespace DG.Tweening
         /// </summary>
         public void Reset()
         {
-            int totCurrent = _charTransforms.Count;
-            for (int i = 0; i < totCurrent; ++i) _charTransforms[i].ResetAll(target, textInfo.meshInfo, _cachedMeshInfos);
+            var totCurrent = _charTransforms.Count;
+            for (var i = 0; i < totCurrent; ++i) _charTransforms[i].ResetAll(target, textInfo.meshInfo, _cachedMeshInfos);
         }
 
         void OnTextChanged(Object obj)
@@ -326,16 +326,16 @@ namespace DG.Tweening
         {
             firstVisibleCharIndex = -1; // First visible/existing charIndex from given index
             lastVisibleCharIndex = -1; // Last visible/existing charIndex backwards from given index
-            int charCount = textInfo.characterCount;
+            var charCount = textInfo.characterCount;
             if (fromCharIndex >= charCount) return false;
             if (toCharIndex >= charCount) toCharIndex = charCount - 1;
-            for (int i = fromCharIndex; i < toCharIndex + 1; ++i) {
+            for (var i = fromCharIndex; i < toCharIndex + 1; ++i) {
                 if (!_charTransforms[i].isVisible) continue;
                 firstVisibleCharIndex = i;
                 break;
             }
             if (firstVisibleCharIndex == -1) return false;
-            for (int i = toCharIndex; i > firstVisibleCharIndex - 1; --i) {
+            for (var i = toCharIndex; i > firstVisibleCharIndex - 1; --i) {
                 if (!_charTransforms[i].isVisible) continue;
                 lastVisibleCharIndex = i;
                 break;
@@ -357,10 +357,10 @@ namespace DG.Tweening
         {
             int firstVisibleCharIndex, lastVisibleCharIndex;
             if (!ValidateSpan(fromCharIndex, toCharIndex, out firstVisibleCharIndex, out lastVisibleCharIndex)) return;
-            for (int i = firstVisibleCharIndex; i < lastVisibleCharIndex + 1; ++i) {
+            for (var i = firstVisibleCharIndex; i < lastVisibleCharIndex + 1; ++i) {
                 if (!_charTransforms[i].isVisible) continue;
-                CharVertices v = _charTransforms[i].GetVertices();
-                float skew = SkewCharX(i, skewFactor, skewTop);
+                var v = _charTransforms[i].GetVertices();
+                var skew = SkewCharX(i, skewFactor, skewTop);
             }
         }
 
@@ -379,24 +379,24 @@ namespace DG.Tweening
             int firstVisibleCharIndex, lastVisibleCharIndex;
             if (!ValidateSpan(fromCharIndex, toCharIndex, out firstVisibleCharIndex, out lastVisibleCharIndex)) return;
             if (mode == TMPSkewSpanMode.AsMaxSkewFactor) {
-                CharVertices firstVisibleCharVertices = _charTransforms[firstVisibleCharIndex].GetVertices();
-                CharVertices lastVisibleCharVertices = _charTransforms[lastVisibleCharIndex].GetVertices();
-                float spanW = Mathf.Abs(lastVisibleCharVertices.bottomRight.x - firstVisibleCharVertices.bottomLeft.x);
-                float spanH = Mathf.Abs(lastVisibleCharVertices.topRight.y - lastVisibleCharVertices.bottomRight.y);
-                float ratio = spanH / spanW;
+                var firstVisibleCharVertices = _charTransforms[firstVisibleCharIndex].GetVertices();
+                var lastVisibleCharVertices = _charTransforms[lastVisibleCharIndex].GetVertices();
+                var spanW = Mathf.Abs(lastVisibleCharVertices.bottomRight.x - firstVisibleCharVertices.bottomLeft.x);
+                var spanH = Mathf.Abs(lastVisibleCharVertices.topRight.y - lastVisibleCharVertices.bottomRight.y);
+                var ratio = spanH / spanW;
                 skewFactor *= ratio;
             }
             float offsetY = 0;
-            CharVertices prevCharVertices = new CharVertices();
+            var prevCharVertices = new CharVertices();
             float prevCharSkew = 0;
             if (skewRight) {
-                for (int i = firstVisibleCharIndex; i < lastVisibleCharIndex + 1; ++i) {
+                for (var i = firstVisibleCharIndex; i < lastVisibleCharIndex + 1; ++i) {
                     if (!_charTransforms[i].isVisible) continue;
-                    CharVertices v = _charTransforms[i].GetVertices();
-                    float skew = SkewCharY(i, skewFactor, skewRight);
+                    var v = _charTransforms[i].GetVertices();
+                    var skew = SkewCharY(i, skewFactor, skewRight);
                     if (i > firstVisibleCharIndex) {
-                        float prevCharW = Mathf.Abs(prevCharVertices.bottomLeft.x - prevCharVertices.bottomRight.x);
-                        float charsDist = Mathf.Abs(v.bottomLeft.x - prevCharVertices.bottomRight.x);
+                        var prevCharW = Mathf.Abs(prevCharVertices.bottomLeft.x - prevCharVertices.bottomRight.x);
+                        var charsDist = Mathf.Abs(v.bottomLeft.x - prevCharVertices.bottomRight.x);
                         offsetY += prevCharSkew + (prevCharSkew * charsDist) / prevCharW;
                         SetCharOffset(i, new Vector3(0, _charTransforms[i].offset.y + offsetY, 0));
                     }
@@ -404,13 +404,13 @@ namespace DG.Tweening
                     prevCharSkew = skew;
                 }
             } else {
-                for (int i = lastVisibleCharIndex; i > firstVisibleCharIndex - 1; --i) {
+                for (var i = lastVisibleCharIndex; i > firstVisibleCharIndex - 1; --i) {
                     if (!_charTransforms[i].isVisible) continue;
-                    CharVertices v = _charTransforms[i].GetVertices();
-                    float skew = SkewCharY(i, skewFactor, skewRight);
+                    var v = _charTransforms[i].GetVertices();
+                    var skew = SkewCharY(i, skewFactor, skewRight);
                     if (i < lastVisibleCharIndex) {
-                        float prevCharW = Mathf.Abs(prevCharVertices.bottomLeft.x - prevCharVertices.bottomRight.x);
-                        float charsDist = Mathf.Abs(v.bottomRight.x - prevCharVertices.bottomLeft.x);
+                        var prevCharW = Mathf.Abs(prevCharVertices.bottomLeft.x - prevCharVertices.bottomRight.x);
+                        var charsDist = Mathf.Abs(v.bottomRight.x - prevCharVertices.bottomLeft.x);
                         offsetY += prevCharSkew + (prevCharSkew * charsDist) / prevCharW;
                         SetCharOffset(i, new Vector3(0, _charTransforms[i].offset.y + offsetY, 0));
                     }
@@ -477,7 +477,7 @@ namespace DG.Tweening
         public void SetCharColor(int charIndex, Color32 color)
         {
             if (!ValidateChar(charIndex)) return;
-            CharTransform c = _charTransforms[charIndex];
+            var c = _charTransforms[charIndex];
             c.UpdateColor(target, color, textInfo.meshInfo);
             _charTransforms[charIndex] = c;
         }
@@ -491,7 +491,7 @@ namespace DG.Tweening
         public void SetCharOffset(int charIndex, Vector3 offset)
         {
             if (!ValidateChar(charIndex)) return;
-            CharTransform c = _charTransforms[charIndex];
+            var c = _charTransforms[charIndex];
             c.UpdateGeometry(target, offset, c.rotation, c.scale, _cachedMeshInfos);
             _charTransforms[charIndex] = c;
         }
@@ -505,7 +505,7 @@ namespace DG.Tweening
         public void SetCharRotation(int charIndex, Vector3 rotation)
         {
             if (!ValidateChar(charIndex)) return;
-            CharTransform c = _charTransforms[charIndex];
+            var c = _charTransforms[charIndex];
             c.UpdateGeometry(target, c.offset, Quaternion.Euler(rotation), c.scale, _cachedMeshInfos);
             _charTransforms[charIndex] = c;
         }
@@ -519,7 +519,7 @@ namespace DG.Tweening
         public void SetCharScale(int charIndex, Vector3 scale)
         {
             if (!ValidateChar(charIndex)) return;
-            CharTransform c = _charTransforms[charIndex];
+            var c = _charTransforms[charIndex];
             c.UpdateGeometry(target, c.offset, c.rotation, scale, _cachedMeshInfos);
             _charTransforms[charIndex] = c;
         }
@@ -536,7 +536,7 @@ namespace DG.Tweening
         public void ShiftCharVertices(int charIndex, Vector3 topLeftShift, Vector3 topRightShift, Vector3 bottomLeftShift, Vector3 bottomRightShift)
         {
             if (!ValidateChar(charIndex)) return;
-            CharTransform c = _charTransforms[charIndex];
+            var c = _charTransforms[charIndex];
             c.ShiftVertices(target, topLeftShift, topRightShift, bottomLeftShift, bottomRightShift);
             _charTransforms[charIndex] = c;
         }
@@ -550,8 +550,8 @@ namespace DG.Tweening
         public float SkewCharX(int charIndex, float skewFactor, bool skewTop = true)
         {
             if (!ValidateChar(charIndex)) return 0;
-            Vector3 skewV = new Vector3(skewFactor, 0, 0);
-            CharTransform c = _charTransforms[charIndex];
+            var skewV = new Vector3(skewFactor, 0, 0);
+            var c = _charTransforms[charIndex];
             if (skewTop) c.ShiftVertices(target, skewV, skewV, Vector3.zero, Vector3.zero);
             else c.ShiftVertices(target, Vector3.zero, Vector3.zero, skewV, skewV);
             _charTransforms[charIndex] = c;
@@ -569,9 +569,9 @@ namespace DG.Tweening
         public float SkewCharY(int charIndex, float skewFactor, bool skewRight = true, bool fixedSkew = false)
         {
             if (!ValidateChar(charIndex)) return 0;
-            float skew = fixedSkew ? skewFactor : skewFactor * textInfo.characterInfo[charIndex].aspectRatio;
-            Vector3 skewV = new Vector3(0, skew, 0);
-            CharTransform c = _charTransforms[charIndex];
+            var skew = fixedSkew ? skewFactor : skewFactor * textInfo.characterInfo[charIndex].aspectRatio;
+            var skewV = new Vector3(0, skew, 0);
+            var c = _charTransforms[charIndex];
             if (skewRight) c.ShiftVertices(target, Vector3.zero, skewV, Vector3.zero, skewV);
             else c.ShiftVertices(target, skewV, Vector3.zero, skewV, Vector3.zero);
             _charTransforms[charIndex] = c;
@@ -586,7 +586,7 @@ namespace DG.Tweening
         public void ResetVerticesShift(int charIndex)
         {
             if (!ValidateChar(charIndex)) return;
-            CharTransform c = _charTransforms[charIndex];
+            var c = _charTransforms[charIndex];
             c.ResetVerticesShift(target);
             _charTransforms[charIndex] = c;
         }
@@ -602,7 +602,7 @@ namespace DG.Tweening
         public TweenerCore<Color, Color, ColorOptions> DOFadeChar(int charIndex, float endValue, float duration)
         {
             if (!ValidateChar(charIndex)) return null;
-            TweenerCore<Color, Color, ColorOptions> t = DOTween.ToAlpha(() => _charTransforms[charIndex].GetColor(textInfo.meshInfo), x => {
+            var t = DOTween.ToAlpha(() => _charTransforms[charIndex].GetColor(textInfo.meshInfo), x => {
                 _charTransforms[charIndex].UpdateAlpha(target, x, textInfo.meshInfo);
             }, endValue, duration);
             return t;
@@ -615,7 +615,7 @@ namespace DG.Tweening
         public TweenerCore<Color, Color, ColorOptions> DOColorChar(int charIndex, Color endValue, float duration)
         {
             if (!ValidateChar(charIndex)) return null;
-            TweenerCore<Color, Color, ColorOptions> t = DOTween.To(() => _charTransforms[charIndex].GetColor(textInfo.meshInfo), x => {
+            var t = DOTween.To(() => _charTransforms[charIndex].GetColor(textInfo.meshInfo), x => {
                 _charTransforms[charIndex].UpdateColor(target, x, textInfo.meshInfo);
             }, endValue, duration);
             return t;
@@ -628,8 +628,8 @@ namespace DG.Tweening
         public TweenerCore<Vector3, Vector3, VectorOptions> DOOffsetChar(int charIndex, Vector3 endValue, float duration)
         {
             if (!ValidateChar(charIndex)) return null;
-            TweenerCore<Vector3, Vector3, VectorOptions> t = DOTween.To(() => _charTransforms[charIndex].offset, x => {
-                CharTransform charT = _charTransforms[charIndex];
+            var t = DOTween.To(() => _charTransforms[charIndex].offset, x => {
+                var charT = _charTransforms[charIndex];
                 charT.UpdateGeometry(target, x, charT.rotation, charT.scale, _cachedMeshInfos);
                 _charTransforms[charIndex] = charT;
             }, endValue, duration);
@@ -644,8 +644,8 @@ namespace DG.Tweening
         public TweenerCore<Quaternion, Vector3, QuaternionOptions> DORotateChar(int charIndex, Vector3 endValue, float duration, RotateMode mode = RotateMode.Fast)
         {
             if (!ValidateChar(charIndex)) return null;
-            TweenerCore<Quaternion, Vector3, QuaternionOptions> t = DOTween.To(() => _charTransforms[charIndex].rotation, x => {
-                CharTransform charT = _charTransforms[charIndex];
+            var t = DOTween.To(() => _charTransforms[charIndex].rotation, x => {
+                var charT = _charTransforms[charIndex];
                 charT.UpdateGeometry(target, charT.offset, x, charT.scale, _cachedMeshInfos);
                 _charTransforms[charIndex] = charT;
             }, endValue, duration);
@@ -668,8 +668,8 @@ namespace DG.Tweening
         public TweenerCore<Vector3, Vector3, VectorOptions> DOScaleChar(int charIndex, Vector3 endValue, float duration)
         {
             if (!ValidateChar(charIndex)) return null;
-            TweenerCore<Vector3, Vector3, VectorOptions> t = DOTween.To(() => _charTransforms[charIndex].scale, x => {
-                CharTransform charT = _charTransforms[charIndex];
+            var t = DOTween.To(() => _charTransforms[charIndex].scale, x => {
+                var charT = _charTransforms[charIndex];
                 charT.UpdateGeometry(target, charT.offset, charT.rotation, x, _cachedMeshInfos);
                 _charTransforms[charIndex] = charT;
             }, endValue, duration);
@@ -693,7 +693,7 @@ namespace DG.Tweening
                 return null;
             }
             return DOTween.Punch(() => _charTransforms[charIndex].offset, x => {
-                CharTransform charT = _charTransforms[charIndex];
+                var charT = _charTransforms[charIndex];
                 charT.UpdateGeometry(target, x, charT.rotation, charT.scale, _cachedMeshInfos);
                 _charTransforms[charIndex] = charT;
             }, punch, duration, vibrato, elasticity);
@@ -716,7 +716,7 @@ namespace DG.Tweening
                 return null;
             }
             return DOTween.Punch(() => _charTransforms[charIndex].rotation.eulerAngles, x => {
-                CharTransform charT = _charTransforms[charIndex];
+                var charT = _charTransforms[charIndex];
                 charT.UpdateGeometry(target, charT.offset, Quaternion.Euler(x), charT.scale, _cachedMeshInfos);
                 _charTransforms[charIndex] = charT;
             }, punch, duration, vibrato, elasticity);
@@ -752,7 +752,7 @@ namespace DG.Tweening
                 return null;
             }
             return DOTween.Punch(() => _charTransforms[charIndex].scale, x => {
-                CharTransform charT = _charTransforms[charIndex];
+                var charT = _charTransforms[charIndex];
                 charT.UpdateGeometry(target, charT.offset, charT.rotation, x, _cachedMeshInfos);
                 _charTransforms[charIndex] = charT;
             }, punch, duration, vibrato, elasticity);
@@ -786,7 +786,7 @@ namespace DG.Tweening
                 return null;
             }
             return DOTween.Shake(() => _charTransforms[charIndex].offset, x => {
-                CharTransform charT = _charTransforms[charIndex];
+                var charT = _charTransforms[charIndex];
                 charT.UpdateGeometry(target, x, charT.rotation, charT.scale, _cachedMeshInfos);
                 _charTransforms[charIndex] = charT;
             }, duration, strength, vibrato, randomness, fadeOut);
@@ -808,7 +808,7 @@ namespace DG.Tweening
                 return null;
             }
             return DOTween.Shake(() => _charTransforms[charIndex].rotation.eulerAngles, x => {
-                CharTransform charT = _charTransforms[charIndex];
+                var charT = _charTransforms[charIndex];
                 charT.UpdateGeometry(target, charT.offset, Quaternion.Euler(x), charT.scale, _cachedMeshInfos);
                 _charTransforms[charIndex] = charT;
             }, duration, strength, vibrato, randomness, fadeOut);
@@ -842,7 +842,7 @@ namespace DG.Tweening
                 return null;
             }
             return DOTween.Shake(() => _charTransforms[charIndex].scale, x => {
-                CharTransform charT = _charTransforms[charIndex];
+                var charT = _charTransforms[charIndex];
                 charT.UpdateGeometry(target, charT.offset, charT.rotation, x, _cachedMeshInfos);
                 _charTransforms[charIndex] = charT;
             }, duration, strength, vibrato, randomness, fadeOut);
@@ -892,13 +892,13 @@ namespace DG.Tweening
 
             public void Refresh(TMP_TextInfo textInfo, TMP_MeshInfo[] cachedMeshInfos)
             {
-                TMP_CharacterInfo charInfo = textInfo.characterInfo[charIndex];
-                bool isSpaceChar = charInfo.character == ' ';
+                var charInfo = textInfo.characterInfo[charIndex];
+                var isSpaceChar = charInfo.character == ' ';
                 isVisible = charInfo.isVisible && !isSpaceChar;
                 _matIndex = charInfo.materialReferenceIndex;
                 _firstVertexIndex = charInfo.vertexIndex;
                 _meshInfo = textInfo.meshInfo[_matIndex];
-                Vector3[] cachedVertices = cachedMeshInfos[_matIndex].vertices;
+                var cachedVertices = cachedMeshInfos[_matIndex].vertices;
                 _charMidBaselineOffset = isSpaceChar
                     ? Vector3.zero
                     : (cachedVertices[_firstVertexIndex] + cachedVertices[_firstVertexIndex + 2]) * 0.5f;
@@ -921,8 +921,8 @@ namespace DG.Tweening
             public void ResetGeometry(TMP_Text target, TMP_MeshInfo[] cachedMeshInfos)
             {
                 ResetTransformationData();
-                Vector3[] destinationVertices = _meshInfo.vertices;
-                Vector3[] cachedVertices = cachedMeshInfos[_matIndex].vertices;
+                var destinationVertices = _meshInfo.vertices;
+                var cachedVertices = cachedMeshInfos[_matIndex].vertices;
                 destinationVertices[_firstVertexIndex + 0] = cachedVertices[_firstVertexIndex + 0];
                 destinationVertices[_firstVertexIndex + 1] = cachedVertices[_firstVertexIndex + 1];
                 destinationVertices[_firstVertexIndex + 2] = cachedVertices[_firstVertexIndex + 2];
@@ -933,8 +933,8 @@ namespace DG.Tweening
 
             public void ResetColors(TMP_Text target, TMP_MeshInfo[] meshInfos)
             {
-                Color color = target.color;
-                Color32[] vertexCols = meshInfos[_matIndex].colors32;
+                var color = target.color;
+                var vertexCols = meshInfos[_matIndex].colors32;
                 vertexCols[_firstVertexIndex] = color;
                 vertexCols[_firstVertexIndex + 1] = color;
                 vertexCols[_firstVertexIndex + 2] = color;
@@ -957,8 +957,8 @@ namespace DG.Tweening
 
             public void UpdateAlpha(TMP_Text target, Color alphaColor, TMP_MeshInfo[] meshInfos, bool apply = true)
             {
-                byte alphaByte = (byte)(alphaColor.a * 255);
-                Color32[] vertexCols = meshInfos[_matIndex].colors32;
+                var alphaByte = (byte)(alphaColor.a * 255);
+                var vertexCols = meshInfos[_matIndex].colors32;
                 vertexCols[_firstVertexIndex].a = alphaByte;
                 vertexCols[_firstVertexIndex + 1].a = alphaByte;
                 vertexCols[_firstVertexIndex + 2].a = alphaByte;
@@ -968,7 +968,7 @@ namespace DG.Tweening
 
             public void UpdateColor(TMP_Text target, Color32 color, TMP_MeshInfo[] meshInfos, bool apply = true)
             {
-                Color32[] vertexCols = meshInfos[_matIndex].colors32;
+                var vertexCols = meshInfos[_matIndex].colors32;
                 vertexCols[_firstVertexIndex] = color;
                 vertexCols[_firstVertexIndex + 1] = color;
                 vertexCols[_firstVertexIndex + 2] = color;
@@ -984,13 +984,13 @@ namespace DG.Tweening
 
                 if (!apply) return;
 
-                Vector3[] destinationVertices = _meshInfo.vertices;
-                Vector3[] cachedVertices = cachedMeshInfos[_matIndex].vertices;
+                var destinationVertices = _meshInfo.vertices;
+                var cachedVertices = cachedMeshInfos[_matIndex].vertices;
                 destinationVertices[_firstVertexIndex] = cachedVertices[_firstVertexIndex + 0] - _charMidBaselineOffset;
                 destinationVertices[_firstVertexIndex + 1] = cachedVertices[_firstVertexIndex + 1] - _charMidBaselineOffset;
                 destinationVertices[_firstVertexIndex + 2] = cachedVertices[_firstVertexIndex + 2] - _charMidBaselineOffset;
                 destinationVertices[_firstVertexIndex + 3] = cachedVertices[_firstVertexIndex + 3] - _charMidBaselineOffset;
-                Matrix4x4 matrix = Matrix4x4.TRS(this.offset, this.rotation, this.scale);
+                var matrix = Matrix4x4.TRS(this.offset, this.rotation, this.scale);
                 destinationVertices[_firstVertexIndex]
                     = matrix.MultiplyPoint3x4(destinationVertices[_firstVertexIndex + 0]) + _charMidBaselineOffset + _bottomLeftShift;
                 destinationVertices[_firstVertexIndex + 1]
@@ -1009,7 +1009,7 @@ namespace DG.Tweening
                 _topRightShift += topRightShift;
                 _bottomLeftShift += bottomLeftShift;
                 _bottomRightShift += bottomRightShift;
-                Vector3[] destinationVertices = _meshInfo.vertices;
+                var destinationVertices = _meshInfo.vertices;
                 destinationVertices[_firstVertexIndex] = destinationVertices[_firstVertexIndex] + _bottomLeftShift;
                 destinationVertices[_firstVertexIndex + 1] = destinationVertices[_firstVertexIndex + 1] + _topLeftShift;
                 destinationVertices[_firstVertexIndex + 2] = destinationVertices[_firstVertexIndex + 2] + _topRightShift;
@@ -1020,7 +1020,7 @@ namespace DG.Tweening
 
             public void ResetVerticesShift(TMP_Text target)
             {
-                Vector3[] destinationVertices = _meshInfo.vertices;
+                var destinationVertices = _meshInfo.vertices;
                 destinationVertices[_firstVertexIndex] = destinationVertices[_firstVertexIndex] - _bottomLeftShift;
                 destinationVertices[_firstVertexIndex + 1] = destinationVertices[_firstVertexIndex + 1] - _topLeftShift;
                 destinationVertices[_firstVertexIndex + 2] = destinationVertices[_firstVertexIndex + 2] - _topRightShift;

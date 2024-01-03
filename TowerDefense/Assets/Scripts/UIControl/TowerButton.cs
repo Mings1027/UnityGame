@@ -1,6 +1,5 @@
 using System;
 using DG.Tweening;
-using ManagerControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
 

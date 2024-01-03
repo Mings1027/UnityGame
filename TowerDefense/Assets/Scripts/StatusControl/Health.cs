@@ -4,7 +4,6 @@ using InterfaceControl;
 using PoolObjectControl;
 using TextControl;
 // using TextControl;
-using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace StatusControl

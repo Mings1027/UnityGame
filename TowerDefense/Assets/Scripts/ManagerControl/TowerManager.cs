@@ -39,7 +39,7 @@ namespace ManagerControl
             enabled = true;
             Application.targetFrameRate = 60;
             towerMana.towerMana.StartManaRegen();
-            ReadyToTarget();
+            // ReadyToTarget();
         }
 
         public void StopTargeting()
@@ -49,27 +49,27 @@ namespace ManagerControl
             towerMana.towerMana.StopManaRegen();
         }
 
-        private void ReadyToTarget()
-        {
-            var towerCount = _towers.Count;
-            for (int i = 0; i < towerCount; i++)
-            {
-                if (_towers[i].TryGetComponent(out SummonTower unitTower))
-                {
-                    unitTower.ActiveAnim();
-                }
-            }
-        }
+        // private void ReadyToTarget()
+        // {
+        //     var towerCount = _towers.Count;
+        //     for (var i = 0; i < towerCount; i++)
+        //     {
+        //         if (_towers[i].TryGetComponent(out SummonTower unitTower))
+        //         {
+        //             unitTower.ActiveAnim();
+        //         }
+        //     }
+        // }
         private void TargetInit()
         {
             var towerCount = _towers.Count;
             for (var i = 0; i < towerCount; i++)
             {
                 _towers[i].TowerTargetInit();
-                if (_towers[i].TryGetComponent(out SummonTower unitTower))
-                {
-                    unitTower.DeActiveAnim();
-                }
+                // if (_towers[i].TryGetComponent(out SummonTower unitTower))
+                // {
+                //     unitTower.DeActiveAnim();
+                // }
             }
         }
 

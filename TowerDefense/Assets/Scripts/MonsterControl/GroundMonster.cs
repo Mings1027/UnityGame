@@ -35,6 +35,13 @@ namespace MonsterControl
                     break;
             }
 
+            if (target && target.enabled)
+            {
+                var t = transform;
+                var targetRot = Quaternion.LookRotation(target.transform.position - t.position);
+                t.rotation = Quaternion.Slerp(t.rotation, targetRot, turnSpeed);
+            }
+
             base.MonsterUpdate();
         }
 
@@ -89,10 +96,6 @@ namespace MonsterControl
             }
 
             if (attackCooldown.IsCoolingDown) return;
-
-            var t = transform;
-            var targetRot = Quaternion.LookRotation(target.transform.position - t.position);
-            t.rotation = Quaternion.Slerp(t.rotation, targetRot, turnSpeed);
 
             anim.SetTrigger(IsAttack);
             TryDamage();

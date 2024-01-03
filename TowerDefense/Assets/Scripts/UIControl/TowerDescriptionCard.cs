@@ -1,11 +1,9 @@
 using CustomEnumControl;
-using DataControl;
 using DataControl.TowerDataControl;
 using DG.Tweening;
 using ManagerControl;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace UIControl

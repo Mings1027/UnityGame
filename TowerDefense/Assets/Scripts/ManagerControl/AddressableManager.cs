@@ -42,7 +42,7 @@ namespace ManagerControl
 
         private void Release()
         {
-            for (int i = _gameObjects.Count - 1; i >= 0; i--)
+            for (var i = _gameObjects.Count - 1; i >= 0; i--)
             {
                 if (_gameObjects.Count <= 0) return;
                 var index = _gameObjects.Count - 1;

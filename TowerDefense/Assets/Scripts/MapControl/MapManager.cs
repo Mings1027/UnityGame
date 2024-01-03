@@ -24,7 +24,7 @@ namespace MapControl
         private GameObject _portalGateObject;
 
         private string _connectionString;
-        private string _nullMapString;
+        private string _emptyMapString;
 
         private Transform _newMapTransform;
         private Vector3 _dirToWayPoint;
@@ -40,10 +40,11 @@ namespace MapControl
         private HashSet<Vector3> _expandBtnPosHashSet;
 
         private List<ExpandMapButton> _expandButtons;
+        // private List<GameObject> _wayPointPortals;
 
         private MapData[] _neighborMapArray;
 
-        private bool[] _isNullMapArray;
+        private bool[] _isEmptyMapArray;
         private bool[] _isConnectedArray;
         private bool _isEndLess;
 
@@ -70,6 +71,10 @@ namespace MapControl
         public byte connectionProbability { get; set; }
 
 #if UNITY_EDITOR
+        private Queue<string> _customMapQueue;
+
+        [SerializeField] private bool useCustomMap;
+        [SerializeField] private string customMap;
         [SerializeField] private byte maxMapCount;
         [SerializeField] private bool drawGizmos;
         [SerializeField] private float drawSphereRadius;
@@ -135,9 +140,17 @@ namespace MapControl
             // _obstacleMeshFilters = new List<MeshFilter>(300);
             _expandBtnPosHashSet = new HashSet<Vector3>();
             _expandButtons = new List<ExpandMapButton>();
-
+            // _wayPointPortals = new List<GameObject>();
+#if UNITY_EDITOR
+            _customMapQueue = new Queue<string>();
+            var splitString = customMap.Split(' ');
+            foreach (var str in splitString)
+            {
+                _customMapQueue.Enqueue(str);
+            }
+#endif
             _neighborMapArray = new MapData[4];
-            _isNullMapArray = new bool[4];
+            _isEmptyMapArray = new bool[4];
             _isConnectedArray = new bool[4];
 
             _directionMappingDic = new Dictionary<string, string>
@@ -145,7 +158,7 @@ namespace MapControl
                 { "0", "P" }, { "1", "P" }, { "2", "P" }, { "3", "P" },
                 { "01", "S" }, { "02", "L" }, { "03", "R" }, { "12", "R" }, { "13", "L" }, { "23", "S" },
                 { "012", "SL" }, { "013", "SR" }, { "023", "LR" }, { "123", "LR" },
-                { "0123", "SLR" }
+                { "0123", "SLR" },
             };
 
             _mapDictionary = new Dictionary<string, GameObject>();
@@ -226,13 +239,25 @@ namespace MapControl
         {
             _newMapTransform = newMapPos;
             DisableExpandButtons();
+
             InitConnectionState();
             CheckNeighborMap();
-            CheckConnectedDirection();
-            AddRandomDirection();
-            PlaceNewMap();
-            SetNewMapForward();
-            IsPortalMap();
+#if UNITY_EDITOR
+            if (!useCustomMap)
+            {
+#endif
+                CheckConnectedDirection();
+                AddRandomDirection();
+                PlaceNewMap();
+                SetNewMapForward();
+                SpawnPortal();
+#if UNITY_EDITOR
+            }
+            else
+            {
+                PlaceCustomMap();
+            }
+#endif
             RemoveWayPoints();
             SetWayPoints();
             PlaceObstacle();
@@ -254,6 +279,14 @@ namespace MapControl
             }
 
             _expandButtons.Clear();
+
+            // var wayPointCount = _wayPointsHashSet.Count;
+            // for (int i = 0; i < wayPointCount; i++)
+            // {
+            //     _wayPointPortals[i].SetActive(false);
+            // }
+            //
+            // _wayPointPortals.Clear();
         }
 
         private void InitConnectionState()
@@ -262,7 +295,7 @@ namespace MapControl
             for (var i = 0; i < neighborMapCount; i++)
             {
                 _neighborMapArray[i] = null;
-                _isNullMapArray[i] = false;
+                _isEmptyMapArray[i] = false;
                 _isConnectedArray[i] = false;
             }
         }
@@ -282,7 +315,7 @@ namespace MapControl
                 }
                 else
                 {
-                    _isNullMapArray[i] = true;
+                    _isEmptyMapArray[i] = true;
                 }
             }
         }
@@ -292,7 +325,7 @@ namespace MapControl
             var neighborMapCount = _neighborMapArray.Length;
             for (var i = 0; i < neighborMapCount; i++)
             {
-                if (_isNullMapArray[i]) continue;
+                if (_isEmptyMapArray[i]) continue;
 
                 var neighborPos = _neighborMapArray[i].transform.position;
                 var neighborToNewMapDir = (_newMapTransform.position - neighborPos).normalized;
@@ -311,13 +344,13 @@ namespace MapControl
         private void AddRandomDirection()
         {
             _connectionString = null;
-            _nullMapString = null;
-            var nullMapArrayLength = _isNullMapArray.Length;
+            _emptyMapString = null;
+            var nullMapArrayLength = _isEmptyMapArray.Length;
             for (var i = 0; i < nullMapArrayLength; i++)
             {
-                if (_isNullMapArray[i])
+                if (_isEmptyMapArray[i])
                 {
-                    _nullMapString += i;
+                    _emptyMapString += i;
                     var ran = Random.Range(0, 101);
                     if (ran <= connectionProbability)
                     {
@@ -333,20 +366,19 @@ namespace MapControl
                 }
             }
 
-            if (_nullMapString != null && _connectionString != null &&
-                _connectionString.Length == _nullMapString.Length && _connectionString.Contains(_nullMapString))
+            if (_emptyMapString != null && _connectionString != null &&
+                _connectionString.Length == _emptyMapString.Length
+                && !_connectionString.Contains(_emptyMapString))
             {
-                print($"con : {_connectionString}");
-                print(_nullMapString);
-                var ranIndex = Random.Range(0, _nullMapString.Length);
-                _connectionString += _nullMapString[ranIndex];
+                var ranIndex = Random.Range(0, _emptyMapString.Length);
+                _connectionString += _emptyMapString[ranIndex];
                 _connectionString = new string(_connectionString.Distinct().ToArray());
             }
 
             // 사방이 막히지 않았는데 하나만 연결된 경우 랜덤으로 하나를 더 이어줌
-            if (_connectionString is { Length: 1 } && _nullMapString != null)
+            if (_connectionString is { Length: 1 } && _emptyMapString != null)
             {
-                var tempString = new StringBuilder(_nullMapString);
+                var tempString = new StringBuilder(_emptyMapString);
                 _connectionString += tempString[Random.Range(0, tempString.Length)];
             }
             // if (_connectionString == null) return;
@@ -394,7 +426,7 @@ namespace MapControl
             _newMapObject.SetWayPoint(mapSize / 2);
         }
 
-        private void IsPortalMap()
+        private void SpawnPortal()
         {
             if (_connectionString.Length != 1) return;
             var t = _newMapObject.transform;
@@ -403,7 +435,37 @@ namespace MapControl
                 Quaternion.identity, mapMesh);
             _portalGateObject.transform.forward = -forward;
         }
+#if UNITY_EDITOR
+        private void PlaceCustomMap()
+        {
+            var curCustomMap = _customMapQueue.Dequeue();
+            _newMapObject = Instantiate(_mapDictionary[curCustomMap], _newMapTransform.position,
+                Quaternion.identity, mapMesh).GetComponent<MapData>();
 
+            _map.Add(_newMapObject.gameObject);
+
+            for (var i = 0; i < _neighborMapArray.Length; i++)
+            {
+                if (_isEmptyMapArray[i]) continue;
+
+                var neighborToNewMapDir =
+                    (_newMapTransform.position - _neighborMapArray[i].transform.position).normalized;
+                _newMapTransform.forward = neighborToNewMapDir;
+                _newMapObject.transform.forward = _newMapTransform.forward;
+                _newMapObject.SetWayPoint(mapSize / 2);
+                break;
+            }
+
+            if (curCustomMap == "P")
+            {
+                var t = _newMapObject.transform;
+                var forward = t.forward;
+                _portalGateObject = Instantiate(portalGate, t.position + forward * 1.75f,
+                    Quaternion.identity, mapMesh);
+                _portalGateObject.transform.forward = -forward;
+            }
+        }
+#endif
         private void RemoveWayPoints()
         {
             _newMapWayPoints.Clear();
@@ -495,23 +557,23 @@ namespace MapControl
                     _meshFilters.Add(m);
                 }
             }
-        
+
             var combineInstance = new CombineInstance[_meshFilters.Count];
-        
+
             for (var i = 0; i < _meshFilters.Count; i++)
             {
                 combineInstance[i].mesh = _meshFilters[i].sharedMesh;
                 combineInstance[i].transform = _meshFilters[i].transform.localToWorldMatrix;
             }
-        
+
             var mesh = _meshFilter.mesh;
             mesh.Clear();
             mesh.CombineMeshes(combineInstance);
-            if (_meshFilters[0].TryGetComponent(out MeshRenderer r))
-            {
-                _meshRenderer.sharedMaterial = r.sharedMaterial;
-            }
-        
+            // if (_meshFilters[0].TryGetComponent(out MeshRenderer r))
+            // {
+            //     _meshRenderer.sharedMaterial = r.sharedMaterial;
+            // }
+
             for (var i = 0; i < _meshFilters.Count; i++)
             {
                 if (_meshFilters[i].TryGetComponent(out MeshRenderer meshRenderer))
@@ -600,7 +662,7 @@ namespace MapControl
         [ContextMenu("Set Map Collider")]
         private void SetMapCollider()
         {
-            for (int i = 0; i < mapPrefabs.Length; i++)
+            for (var i = 0; i < mapPrefabs.Length; i++)
             {
                 mapPrefabs[i].GetComponent<BoxCollider>().center = colliderCenter;
                 mapPrefabs[i].GetComponent<BoxCollider>().size = colliderSize;

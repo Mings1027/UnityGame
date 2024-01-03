@@ -222,20 +222,20 @@ namespace TowerControl
             DeActiveUnitIndicator();
         }
 
-        public void ActiveAnim()
-        {
-            for (int i = 0; i < _units.Count; i++)
-            {
-                _units[i].EnableAnim();
-            }
-        }
-
-        public void DeActiveAnim()
-        {
-            for (int i = 0; i < _units.Count; i++)
-            {
-                _units[i].DisableAnim();
-            }
-        }
+        // public void ActiveAnim()
+        // {
+        //     for (var i = 0; i < _units.Count; i++)
+        //     {
+        //         _units[i].EnableAnim();
+        //     }
+        // }
+        //
+        // public void DeActiveAnim()
+        // {
+        //     for (var i = 0; i < _units.Count; i++)
+        //     {
+        //         _units[i].DisableAnim();
+        //     }
+        // }
     }
 }

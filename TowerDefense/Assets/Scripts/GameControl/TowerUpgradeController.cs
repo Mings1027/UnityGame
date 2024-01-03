@@ -1,5 +1,4 @@
 using CustomEnumControl;
-using DataControl;
 using DataControl.TowerDataControl;
 using DG.Tweening;
 using ManagerControl;

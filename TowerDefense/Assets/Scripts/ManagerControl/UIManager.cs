@@ -69,7 +69,7 @@ namespace ManagerControl
         private bool _isShowTowerBtn;
 
         private bool _isPanelOpen;
-
+        private bool _startMoveUnit;
         // private bool _clickUpgradeBtn;
         private bool _clickSellBtn;
         private Vector3 _prevPos;
@@ -79,8 +79,7 @@ namespace ManagerControl
         public int TowerCost
         {
             get => _towerCost;
-            set
-            {
+            set {
                 _towerCost = value;
                 costText.text = _towerCost.ToString();
             }
@@ -182,15 +181,15 @@ namespace ManagerControl
             _cts?.Dispose();
         }
 
-        private void OnApplicationPause(bool pauseStatus)
+        private void OnApplicationFocus(bool hasFocus)
         {
-            if (pauseStatus)
+            if (hasFocus)
             {
-                Pause();
+                Application.targetFrameRate = 60;
             }
             else
             {
-                Application.targetFrameRate = 60;
+                Pause();
             }
         }
 
@@ -471,7 +470,6 @@ namespace ManagerControl
             PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, placePos).SetCostText(lostCost, false);
             _towerCostTextDictionary[towerType].text = GetBuildCost(towerType) + "G";
 
-
             if (t.TryGetComponent(out AttackTower tower))
             {
                 var towerTransform = t.transform;
@@ -502,6 +500,22 @@ namespace ManagerControl
             gameHUD.DisplayHUD();
         }
 
+        public void OffUI()
+        {
+            if (!_isPanelOpen) return;
+
+            _upgradeSellPanelTween.PlayBackwards();
+            _startMoveUnit = false;
+            _isPanelOpen = false;
+            _curSelectedTower = null;
+            _curSupportTower = null;
+            _towerRangeIndicator.DisableIndicator();
+
+            if (!_curSummonTower) return;
+            _curSummonTower.DeActiveUnitIndicator();
+            _curSummonTower = null;
+        }
+
         public void ShowTowerButton() => _isShowTowerBtn = true;
 
         public async UniTaskVoid SlideDown()
@@ -523,22 +537,6 @@ namespace ManagerControl
             _cantMoveImageSequence.OnComplete(() => cantMoveImage.enabled = false).Restart();
         }
 
-        public void OffUI()
-        {
-            if (!_isPanelOpen) return;
-
-            _upgradeSellPanelTween.PlayBackwards();
-
-            _isPanelOpen = false;
-            _curSelectedTower = null;
-            _curSupportTower = null;
-            _towerRangeIndicator.DisableIndicator();
-
-            if (!_curSummonTower) return;
-            _curSummonTower.DeActiveUnitIndicator();
-            _curSummonTower = null;
-        }
-
         public bool IsEnoughCost(TowerType towerType)
         {
             if (_towerCost >= GetBuildCost(towerType))
@@ -554,10 +552,12 @@ namespace ManagerControl
 
         public void GameEnd()
         {
-            gameEndPanel.SetActive(true);
+            pausePanelBlockImage.raycastTarget = false;
             resumeButton.interactable = false;
+            gameEndPanel.SetActive(true);
             _pauseSequence.Restart();
             DataManager.SaveLastSurvivedWave();
+            Time.timeScale = 0;
         }
 
         #endregion
@@ -604,7 +604,7 @@ namespace ManagerControl
             _towerManager.AddTower(t);
         }
 
-        private void BuildSupportTower(SupportTower t, Vector3 placePos)
+        private void BuildSupportTower(Tower t, Vector3 placePos)
         {
             DOTween.Sequence().Join(t.transform.GetChild(0).DOScale(t.transform.GetChild(0).localScale, 0.25f).From(0)
                     .SetEase(Ease.OutBack))
@@ -657,6 +657,7 @@ namespace ManagerControl
 
         private void ClickTower(Tower clickedTower)
         {
+            if (_startMoveUnit) return;
             if (Input.touchCount != 1) return;
             SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
             ResetSprite();
@@ -685,6 +686,7 @@ namespace ManagerControl
 
         private void ClickSupportTower(Tower clickTower)
         {
+            if (_startMoveUnit) return;
             if (Input.touchCount != 1) return;
             SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
             ResetSprite();
@@ -745,6 +747,7 @@ namespace ManagerControl
             moveUnitController.FocusUnitTower(_curSummonTower);
             _upgradeSellPanelTween.PlayBackwards();
             moveUnitButton.SetActive(false);
+            _startMoveUnit = true;
         }
 
         private void SellTower()

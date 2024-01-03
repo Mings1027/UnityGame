@@ -74,7 +74,8 @@ namespace CustomEnumControl
         TransformSmoke,
         BallistaHitParticle,
         CanonHitParticle,
-        WizardHitParticle
+        WizardHitParticle,
+        WayPointPortal
     }
 
     public enum UIPoolObjectKey

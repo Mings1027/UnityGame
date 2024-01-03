@@ -34,6 +34,7 @@ namespace UnitControl
         private Cooldown _atkCooldown;
         private int _damage;
         private bool _isMoving;
+        private bool _startTargeting;
 
         private static readonly int IsWalk = Animator.StringToHash("isWalk");
         private static readonly int IsAttack = Animator.StringToHash("isAttack");
@@ -97,7 +98,7 @@ namespace UnitControl
             {
                 _navMeshAgent.stoppingDistance = atkRange;
                 enabled = false;
-                DisableObject().Forget();
+                DisableObject();
                 return;
             }
 
@@ -140,6 +141,13 @@ namespace UnitControl
             }
 
             _anim.SetBool(IsWalk, _navMeshAgent.velocity != Vector3.zero);
+
+            if (_target && _target.enabled)
+            {
+                var t = transform;
+                var targetRot = Quaternion.LookRotation(_target.transform.position - t.position);
+                t.rotation = Quaternion.Slerp(t.rotation, targetRot, turnSpeed);
+            }
         }
 
         private void Patrol()
@@ -192,10 +200,6 @@ namespace UnitControl
 
             if (_atkCooldown.IsCoolingDown) return;
 
-            var t = transform;
-            var targetRot = Quaternion.LookRotation((_target.transform.position - t.position).normalized);
-            t.rotation = Quaternion.Slerp(t.rotation, targetRot, turnSpeed);
-
             SoundManager.Instance.Play3DSound(audioClip, transform.position);
             _anim.SetTrigger(IsAttack);
             TryDamage();
@@ -226,12 +230,13 @@ namespace UnitControl
 
         #region Private Method
 
-        private async UniTaskVoid DisableObject()
+        private void DisableObject()
         {
             _isMoving = false;
             _anim.SetBool(IsWalk, false);
-            await UniTask.Delay(1000);
-            _anim.enabled = false;
+            // if (_startTargeting) return;
+            // await UniTask.Delay(1000);
+            // _anim.enabled = false;
         }
 
         #endregion
@@ -295,13 +300,19 @@ namespace UnitControl
         }
 
         public void ParentPointerUp() => _parentTower.OnPointerUp(null);
-        public void EnableAnim() => _anim.enabled = true;
 
-        public void DisableAnim()
-        {
-            if (_isMoving) return;
-            _anim.enabled = false;
-        }
+        // public void EnableAnim()
+        // {
+        //     _startTargeting = true;
+        //     _anim.enabled = true;
+        // }
+        //
+        // public void DisableAnim()
+        // {
+        //     _startTargeting = false;
+        //     if (_isMoving) return;
+        //     _anim.enabled = false;
+        // }
 
         #endregion
     }

@@ -4,7 +4,6 @@ using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DataControl.MonsterDataControl;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace PoolObjectControl
 {
@@ -149,7 +148,7 @@ namespace PoolObjectControl
         public static void Get(PoolObjectKey poolObjectKey, Transform t) =>
             _inst.Spawn(poolObjectKey, t.position, t.rotation);
 
-        public static void Get(PoolObjectKey poolObjectKey, Vector3 position) =>
+        public static GameObject Get(PoolObjectKey poolObjectKey, Vector3 position) =>
             _inst.Spawn(poolObjectKey, position, Quaternion.identity);
 
         public static void Get(PoolObjectKey poolObjectKey, Vector3 position, Quaternion rotation) =>

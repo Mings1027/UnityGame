@@ -123,8 +123,8 @@ namespace UnityEditor.AI
                 if (EditorGUI.EndChangeCheck())
                 {
                     Undo.RecordObject(vol, "Modified NavMesh Modifier Volume");
-                    Vector3 center = m_BoundsHandle.center;
-                    Vector3 size = m_BoundsHandle.size;
+                    var center = m_BoundsHandle.center;
+                    var size = m_BoundsHandle.size;
                     vol.center = center;
                     vol.size = size;
                     EditorUtility.SetDirty(target);

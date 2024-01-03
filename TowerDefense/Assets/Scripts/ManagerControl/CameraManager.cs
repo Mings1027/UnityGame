@@ -1,7 +1,5 @@
 using System;
-using System.Diagnostics;
 using CustomEnumControl;
-using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UnityEngine;
 

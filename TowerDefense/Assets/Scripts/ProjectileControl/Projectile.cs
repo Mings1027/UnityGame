@@ -11,7 +11,6 @@ namespace ProjectileControl
         private ParticleSystemRenderer _meshParticle;
         private ParticleSystem _trailParticle;
 
-        private DecalProjector _shadowDecal;
         private Tween _destroyTween;
 
         private Vector3 _curPos;
@@ -32,13 +31,11 @@ namespace ProjectileControl
         {
             _meshParticle = transform.GetChild(0).GetComponent<ParticleSystemRenderer>();
             _trailParticle = transform.GetChild(1).GetComponent<ParticleSystem>();
-            _shadowDecal = transform.GetChild(2).GetComponent<DecalProjector>();
             _destroyTween = DOVirtual.DelayedCall(2, () => gameObject.SetActive(false)).SetAutoKill(false).Pause();
         }
 
         protected virtual void OnEnable()
         {
-            _shadowDecal.enabled = true;
             _meshParticle.enabled = true;
             _startPos = transform.position;
             _trailParticle.Play();
@@ -85,7 +82,6 @@ namespace ProjectileControl
         {
             isArrived = true;
             lerp = 0;
-            _shadowDecal.enabled = false;
             _meshParticle.enabled = false;
             _destroyTween.Restart();
             Hit(target);

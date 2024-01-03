@@ -269,7 +269,7 @@ namespace UnityEditor.AI
         static public void CreateNavMeshLink(MenuCommand menuCommand)
         {
             var parent = menuCommand.context as GameObject;
-            GameObject go = NavMeshComponentsGUIUtility.CreateAndSelectGameObject("NavMesh Link", parent);
+            var go = NavMeshComponentsGUIUtility.CreateAndSelectGameObject("NavMesh Link", parent);
             go.AddComponent<NavMeshLink>();
             var view = SceneView.lastActiveSceneView;
             if (view != null)

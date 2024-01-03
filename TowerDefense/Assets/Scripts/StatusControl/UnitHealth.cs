@@ -1,7 +1,5 @@
 using CustomEnumControl;
 using PoolObjectControl;
-using TextControl;
-using UnityEngine;
 
 namespace StatusControl
 {

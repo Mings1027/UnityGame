@@ -90,16 +90,17 @@ namespace TowerControl
             }
 
             var shortestDistance = float.MaxValue;
-            for (int i = 0; i < size; i++)
+            for (var i = 0; i < size; i++)
             {
                 var distanceToResult = Vector3.SqrMagnitude(transform.position - _targetColliders[i].bounds.center);
-                if (distanceToResult >= shortestDistance) continue;
-                shortestDistance = distanceToResult;
-                target = _targetColliders[i];
+                if (shortestDistance > distanceToResult)
+                {
+                    shortestDistance = distanceToResult;
+                    target = _targetColliders[i];
+                }
             }
 
             isTargeting = true;
-            target = _targetColliders[0];
             _towerState = TowerState.Attack;
             patrolCooldown.StartCooldown();
         }

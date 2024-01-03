@@ -8,6 +8,7 @@ namespace TowerControl
         private MeshRenderer _meshRenderer;
         private MeshFilter _defaultMesh;
         private MeshFilter _meshFilter;
+        
         protected BoxCollider boxCollider;
         protected Cooldown attackCooldown;
         protected Cooldown patrolCooldown;

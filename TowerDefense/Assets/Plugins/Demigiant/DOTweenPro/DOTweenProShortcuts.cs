@@ -1,7 +1,6 @@
 ﻿// Author: Daniele Giardini - http://www.demigiant.com
 // Created: 2018/07/13
 
-using System;
 using DG.Tweening.Core;
 using DG.Tweening.Plugins;
 using UnityEngine;
@@ -15,7 +14,7 @@ namespace DG.Tweening
         {
             // Create stub instances of custom plugins, in order to allow IL2CPP to understand they must be included in the build
 #pragma warning disable 219
-            SpiralPlugin stub = new SpiralPlugin();
+            var stub = new SpiralPlugin();
 #pragma warning restore 219
         }
 
@@ -39,7 +38,7 @@ namespace DG.Tweening
             if (Mathf.Approximately(speed, 0)) speed = 1;
             if (axis == null || axis == Vector3.zero) axis = Vector3.forward;
 
-            TweenerCore<Vector3, Vector3, SpiralOptions> t = DOTween.To(SpiralPlugin.Get(), () => target.localPosition, x => target.localPosition = x, (Vector3)axis, duration)
+            var t = DOTween.To(SpiralPlugin.Get(), () => target.localPosition, x => target.localPosition = x, (Vector3)axis, duration)
                 .SetTarget(target);
 
             t.plugOptions.mode = mode;
@@ -71,7 +70,7 @@ namespace DG.Tweening
             if (Mathf.Approximately(speed, 0)) speed = 1;
             if (axis == null || axis == Vector3.zero) axis = Vector3.forward;
 
-            TweenerCore<Vector3, Vector3, SpiralOptions> t = DOTween.To(SpiralPlugin.Get(), () => target.position, target.MovePosition, (Vector3)axis, duration)
+            var t = DOTween.To(SpiralPlugin.Get(), () => target.position, target.MovePosition, (Vector3)axis, duration)
                 .SetTarget(target);
 
             t.plugOptions.mode = mode;

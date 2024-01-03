@@ -9,7 +9,6 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Profiling;
 using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace ManagerControl
@@ -90,7 +89,7 @@ namespace ManagerControl
         private async UniTaskVoid CheckUpdateFiles()
         {
             var labels = new List<string>();
-            for (int i = 0; i < assetLabels.Length; i++)
+            for (var i = 0; i < assetLabels.Length; i++)
             {
                 labels.Add(assetLabels[i].labelString);
             }

@@ -1,4 +1,3 @@
-using System;
 using CustomEnumControl;
 using DG.Tweening;
 using ManagerControl;
@@ -60,7 +59,7 @@ namespace UIControl
             DataManager.Init();
             DataManager.LoadData();
             var survivedWaves = DataManager.SurvivedWaves.survivedWave;
-            for (int i = 0; i < difficultySelectButtons.childCount; i++)
+            for (var i = 0; i < difficultySelectButtons.childCount; i++)
             {
                 difficultySelectButtons.GetChild(i).GetChild(3).GetComponent<TMP_Text>().text =
                     survivedWaves[i].ToString();

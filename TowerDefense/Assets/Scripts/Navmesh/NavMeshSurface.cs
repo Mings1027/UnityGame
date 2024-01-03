@@ -300,7 +300,7 @@ namespace UnityEngine.AI
                 }
                 else if (m_CollectObjects == CollectObjects.Volume)
                 {
-                    Matrix4x4 localToWorld = Matrix4x4.TRS(transform.position, transform.rotation, Vector3.one);
+                    var localToWorld = Matrix4x4.TRS(transform.position, transform.rotation, Vector3.one);
                     var worldBounds = GetWorldBounds(localToWorld, new Bounds(m_Center, m_Size));
 
                     UnityEditor.AI.NavMeshBuilder.CollectSourcesInStage(
@@ -320,7 +320,7 @@ namespace UnityEngine.AI
                 }
                 else if (m_CollectObjects == CollectObjects.Volume)
                 {
-                    Matrix4x4 localToWorld = Matrix4x4.TRS(transform.position, transform.rotation, Vector3.one);
+                    var localToWorld = Matrix4x4.TRS(transform.position, transform.rotation, Vector3.one);
                     var worldBounds = GetWorldBounds(localToWorld, new Bounds(m_Center, m_Size));
                     NavMeshBuilder.CollectSources(worldBounds, m_LayerMask, m_UseGeometry, m_DefaultArea, markups, sources);
                 }
@@ -355,7 +355,7 @@ namespace UnityEngine.AI
         private Bounds CalculateWorldBounds(List<NavMeshBuildSource> sources)
         {
             // Use the unscaled matrix for the NavMeshSurface
-            Matrix4x4 worldToLocal = Matrix4x4.TRS(transform.position, transform.rotation, Vector3.one);
+            var worldToLocal = Matrix4x4.TRS(transform.position, transform.rotation, Vector3.one);
             worldToLocal = worldToLocal.inverse;
 
             var result = new Bounds();

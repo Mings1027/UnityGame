@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
-using DataControl;
 using DataControl.MonsterDataControl;
 using MonsterControl;
 using PoolObjectControl;
@@ -107,7 +106,7 @@ namespace ManagerControl
             enabled = true;
             IsStartWave = true;
             MonsterUpdate().Forget();
-            MonsterPosition().Forget();
+            CheckMonsterPosition().Forget();
         }
 
         private void WaveStop()
@@ -132,7 +131,7 @@ namespace ManagerControl
             }
         }
 
-        private async UniTaskVoid MonsterPosition()
+        private async UniTaskVoid CheckMonsterPosition()
         {
             while (!_cts.IsCancellationRequested)
             {
@@ -160,6 +159,7 @@ namespace ManagerControl
                     {
                         var ranPoint = wayPoints[wayPoint] + Random.insideUnitSphere * 3;
                         NavMesh.SamplePosition(ranPoint, out var hit, 5, NavMesh.AllAreas);
+                        PoolObjectManager.Get(PoolObjectKey.TransformSmoke, hit.position);
                         var monster =
                             PoolObjectManager.Get<MonsterUnit>(normalMonsterData.MonsterPoolObjectKey, hit.position);
                         MonsterInit(monster, normalMonsterData);
@@ -174,6 +174,7 @@ namespace ManagerControl
             await UniTask.Delay(2000, cancellationToken: _cts.Token);
             var ranPoint = ranWayPoint + Random.insideUnitSphere * 3;
             NavMesh.SamplePosition(ranPoint, out var hit, 5, NavMesh.AllAreas);
+            PoolObjectManager.Get(PoolObjectKey.TransformSmoke, hit.position);
             var bossMonster = Instantiate(monsterData[_themeIndex].bossMonsterData.EnemyPrefab, hit.position,
                 Quaternion.identity).GetComponent<GroundBossUnit>();
             BossInit(bossMonster, monsterData[_themeIndex].bossMonsterData);

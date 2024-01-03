@@ -51,7 +51,7 @@ namespace UnityEditor.AI
             agentTypeNames[count] = "";
             agentTypeNames[count + 1] = "Open Agent Settings...";
 
-            bool validAgentType = index != -1;
+            var validAgentType = index != -1;
             if (!validAgentType)
             {
                 EditorGUILayout.HelpBox("Agent Type invalid.", MessageType.Warning);
@@ -85,7 +85,7 @@ namespace UnityEditor.AI
         public static void AgentMaskPopup(string labelName, SerializedProperty agentMask)
         {
             // Contents of the dropdown box.
-            string popupContent = "";
+            var popupContent = "";
 
             if (agentMask.hasMultipleDifferentValues)
                 popupContent = "\u2014";
@@ -97,7 +97,7 @@ namespace UnityEditor.AI
 
             EditorGUI.BeginProperty(popupRect, GUIContent.none, agentMask);
             popupRect = EditorGUI.PrefixLabel(popupRect, 0, new GUIContent(labelName));
-            bool pressed = GUI.Button(popupRect, content, EditorStyles.popup);
+            var pressed = GUI.Button(popupRect, content, EditorStyles.popup);
 
             if (pressed)
             {
@@ -166,7 +166,7 @@ namespace UnityEditor.AI
             }
 
             // Find which index this agent type is in the agentMask array.
-            int idx = -1;
+            var idx = -1;
             for (var j = 0; j < agentMask.arraySize; j++)
             {
                 var elem = agentMask.GetArrayElementAtIndex(j);

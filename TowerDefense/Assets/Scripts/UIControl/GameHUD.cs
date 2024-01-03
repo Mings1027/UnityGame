@@ -1,3 +1,4 @@
+using System;
 using DG.Tweening;
 using ManagerControl;
 using StatusControl;
@@ -22,7 +23,6 @@ namespace UIControl
         public void DisplayHUD()
         {
             if (_isHUDVisible) return;
-            gameObject.SetActive(true);
             _hudSlideTween.ChangeStartValue(_rectTransform.anchoredPosition)
                 .ChangeEndValue(new Vector2(0, _destinationHudPosY))
                 .OnComplete(() => _isHUDVisible = true).Restart();
@@ -35,7 +35,7 @@ namespace UIControl
             _rectTransform = GetComponent<RectTransform>();
             _destinationHudPosY = _rectTransform.anchoredPosition.y;
             _hudSlideTween = GetComponent<RectTransform>().DOAnchorPosY(200, 0.3f).From()
-                .SetAutoKill(false).Pause();
+                .SetAutoKill(false).Pause().SetUpdate(true);
 
             var health = healthBar.GetComponent<TowerHealth>();
             health.Init(playerHealth);
@@ -48,6 +48,11 @@ namespace UIControl
             manaBar.Init(mana);
             towerMana.Mana = playerMana;
             towerMana.towerMana = mana;
+        }
+
+        private void OnDisable()
+        {
+            _hudSlideTween?.Kill();
         }
 
         public void OnBeginDrag(PointerEventData eventData)

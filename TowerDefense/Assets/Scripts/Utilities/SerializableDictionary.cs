@@ -29,7 +29,7 @@ namespace GameControl
             if (keys.Count != values.Count)
                 throw new Exception(
                     $"there are {keys} keys and {values} values after deserialization. Make sure that both key and value types are serializable.");
-            for (int i = 0; i < keys.Count; i++)
+            for (var i = 0; i < keys.Count; i++)
             {
                 Add(keys[i], values[i]);
             }
