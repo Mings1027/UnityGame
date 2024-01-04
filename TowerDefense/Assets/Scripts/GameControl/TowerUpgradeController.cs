@@ -49,7 +49,7 @@ namespace GameControl
         {
             _totalSpentXp = PlayerPrefs.GetInt(StringManager.TotalSpentXp);
             DataManager.Xp = PlayerPrefs.GetInt(StringManager.Xp);
-            xpText.text = "XP : " + DataManager.Xp;
+            xpText.text = "XP " + DataManager.Xp;
             TowerUpgradeButtonInit();
         }
 
@@ -157,7 +157,7 @@ namespace GameControl
                     DataManager.Xp -= (towerUpgradeButton.UpgradeCount + 1) * 25;
                     _totalSpentXp += (towerUpgradeButton.UpgradeCount + 1) * 25;
                     PlayerPrefs.SetInt(StringManager.TotalSpentXp, _totalSpentXp);
-                    xpText.text = "XP : " + DataManager.Xp;
+                    xpText.text = "XP " + DataManager.Xp;
                     towerUpgradeButton.UpgradeCount++;
                     towerCostText.text = "XP " + (towerUpgradeButton.UpgradeCount + 1) * 25;
                     levelCountText.text = "Lv " + towerUpgradeButton.UpgradeCount + " / " + towerMaxLevel;

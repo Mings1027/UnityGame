@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using CustomEnumControl;
@@ -14,7 +15,7 @@ namespace MapControl
     public class MapManager : MonoBehaviour
     {
         private MeshFilter _meshFilter;
-        private MeshRenderer _meshRenderer;
+        // private MeshRenderer _meshRenderer;
 
         // private MeshFilter _obstacleMeshFilter;
         // private MeshRenderer _obstacleMeshRenderer;
@@ -107,7 +108,6 @@ namespace MapControl
                 Gizmos.DrawSphere(way, drawSphereRadius);
             }
         }
-
 #endif
 
         #endregion
@@ -118,7 +118,7 @@ namespace MapControl
         {
             _waveManager = FindObjectOfType<WaveManager>();
             _meshFilter = mapMesh.GetComponent<MeshFilter>();
-            _meshRenderer = mapMesh.GetComponent<MeshRenderer>();
+            // _meshRenderer = mapMesh.GetComponent<MeshRenderer>();
             // _obstacleMeshFilter = obstacleMesh.GetComponent<MeshFilter>();
             // _obstacleMeshRenderer = obstacleMesh.GetComponent<MeshRenderer>();
         }
@@ -127,8 +127,7 @@ namespace MapControl
         {
             _checkDirection = new[]
             {
-                Vector3.back * mapSize, Vector3.forward * mapSize, Vector3.left * mapSize,
-                Vector3.right * mapSize
+                Vector3.back * mapSize, Vector3.forward * mapSize, Vector3.left * mapSize, Vector3.right * mapSize
             };
             _diagonalDir = new[]
             {
@@ -155,10 +154,51 @@ namespace MapControl
 
             _directionMappingDic = new Dictionary<string, string>
             {
-                { "0", "P" }, { "1", "P" }, { "2", "P" }, { "3", "P" },
-                { "01", "S" }, { "02", "L" }, { "03", "R" }, { "12", "R" }, { "13", "L" }, { "23", "S" },
-                { "012", "SL" }, { "013", "SR" }, { "023", "LR" }, { "123", "LR" },
-                { "0123", "SLR" },
+                {
+                    "0", "P"
+                },
+                {
+                    "1", "P"
+                },
+                {
+                    "2", "P"
+                },
+                {
+                    "3", "P"
+                },
+                {
+                    "01", "S"
+                },
+                {
+                    "02", "L"
+                },
+                {
+                    "03", "R"
+                },
+                {
+                    "12", "R"
+                },
+                {
+                    "13", "L"
+                },
+                {
+                    "23", "S"
+                },
+                {
+                    "012", "SL"
+                },
+                {
+                    "013", "SR"
+                },
+                {
+                    "023", "LR"
+                },
+                {
+                    "123", "LR"
+                },
+                {
+                    "0123", "SLR"
+                },
             };
 
             _mapDictionary = new Dictionary<string, GameObject>();

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using CustomEnumControl;
 using DataControl.TowerDataControl;
 using DG.Tweening;
@@ -23,12 +24,12 @@ namespace TowerControl
 
         [SerializeField] protected AudioClip audioClip;
         [SerializeField, Range(1, 5)] private byte targetColliderCount;
-#if UNITY_EDITOR
+
+        [Conditional("UNITY_EDITOR")]
         private void OnDrawGizmos()
         {
             Gizmos.DrawWireSphere(transform.position, TowerRange);
         }
-#endif
         /*=========================================================================================================================================
         *                                               Unity Event
         =========================================================================================================================================*/

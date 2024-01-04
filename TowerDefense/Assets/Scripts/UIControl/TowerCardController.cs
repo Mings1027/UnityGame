@@ -82,7 +82,7 @@ namespace UIControl
             _rectTransform = GetComponent<RectTransform>();
             _slideTween = _rectTransform.DOAnchorPosY(-250, 0.25f).From().SetAutoKill(false).Pause();
 
-            _inputManager = FindObjectOfType<InputManager>();
+            _inputManager = (InputManager)FindAnyObjectByType(typeof(InputManager));
             _towerButtonDic = new Dictionary<int, TowerData>();
 
             _rectHeight = _rectTransform.rect.height;

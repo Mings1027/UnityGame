@@ -15,7 +15,7 @@ namespace ManagerControl
     {
         public static int Xp { get; set; }
         public static SurvivedWave SurvivedWaves { get; private set; }
-        private static bool IsGameOver { get; set; }
+        // private static bool IsGameOver { get; set; }
         private static string _path;
         private static byte _difficultyLevel;
         private static byte _lastSurvivedWave;
@@ -24,7 +24,7 @@ namespace ManagerControl
 
         public static void Init()
         {
-            IsGameOver = false;
+            // IsGameOver = false;
             _path = Application.persistentDataPath + Filename;
             _difficultyLevel = 0;
 
@@ -62,8 +62,8 @@ namespace ManagerControl
 
         public static void SaveLastSurvivedWave()
         {
-            if (IsGameOver) return;
-            IsGameOver = true;
+            // if (IsGameOver) return;
+            // IsGameOver = true;
             if (_lastSurvivedWave < SurvivedWaves.survivedWave[_difficultyLevel - 1])
             {
                 SaveData();

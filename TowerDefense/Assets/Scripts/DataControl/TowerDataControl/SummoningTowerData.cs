@@ -34,7 +34,7 @@ namespace DataControl.TowerDataControl
         {
             base.UpgradeData(type);
             var unitHealth = PlayerPrefs.GetInt(StringManager.UnitHealthDic[type]);
-            UnitHealth += (ushort)(unitHealth + 50);
+            UnitHealth = (ushort)(unitHealth + 50);
             PlayerPrefs.SetInt(StringManager.UnitHealthDic[type], UnitHealth);
         }
     }

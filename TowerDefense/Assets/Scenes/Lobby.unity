@@ -161,7 +161,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 8d701c2962cdc4064afa5891961bfcc7, type: 2}
+  - {fileID: 2100000, guid: 08889116aea6c4d05ae5428bb786ccea, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2808,7 +2808,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 578341537}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.1, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -3570,7 +3570,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: bab1d46061af246ba8a138d2ded99fbf, type: 2}
+  - {fileID: 2100000, guid: e3c98eca5b8a04de0a2961fe8591c877, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -9937,6 +9937,7 @@ GameObject:
   - component: {fileID: 1963640038}
   - component: {fileID: 1963640037}
   - component: {fileID: 1963640036}
+  - component: {fileID: 1963640039}
   m_Layer: 0
   m_Name: Camera
   m_TagString: MainCamera
@@ -10039,10 +10040,35 @@ Camera:
   m_HDR: 1
   m_AllowMSAA: 1
   m_AllowDynamicResolution: 0
-  m_ForceIntoRT: 0
+  m_ForceIntoRT: 1
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
   m_StereoSeparation: 0.022
+--- !u!114 &1963640039
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1963640034}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7bb42831ee5422f409e7f24f9e7488ea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  stage: 1
+  renderingStrategy: 0
+  renderingMode: 0
+  outlineLayerMask: -1
+  primaryBufferSizeMode: 0
+  primaryRendererScale: 0.75
+  primarySizeReference: 800
+  blurShift: 1
+  dilateShift: 1
+  dilateIterations: 1
+  dilateQuality: 0
+  blurIterations: 1
+  blurType: 1
 --- !u!1 &1968481626
 GameObject:
   m_ObjectHideFlags: 0
@@ -11250,7 +11276,7 @@ PrefabInstance:
     - target: {fileID: 2432601298867922504, guid: 1352f31f3006b4d1995404552df21535,
         type: 3}
       propertyPath: m_fontSize
-      value: 36.7
+      value: 34.5
       objectReference: {fileID: 0}
     - target: {fileID: 2432601298990750429, guid: 1352f31f3006b4d1995404552df21535,
         type: 3}

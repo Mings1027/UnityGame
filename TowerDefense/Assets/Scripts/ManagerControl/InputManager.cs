@@ -28,7 +28,9 @@ namespace ManagerControl
         [SerializeField] private Transform cubeCursor;
         [SerializeField] private Grid grid;
         [SerializeField] private LayerMask groundLayer, unitLayer;
+        [SerializeField] private Material cursorMaterial;
         [SerializeField] private Color[] cubeColor;
+        private static readonly int Property = Shader.PropertyToID("_Placement_Color");
 
         protected void Awake()
         {
@@ -38,16 +40,17 @@ namespace ManagerControl
             _cursorChild = cubeCursor.GetChild(0);
             _checkDir = new[]
             {
-                Vector3.forward, Vector3.back, Vector3.left, Vector3.right,
-                new Vector3(1, 0, 1), new Vector3(-1, 0, -1),
-                new Vector3(-1, 0, 1), new Vector3(1, 0, -1)
+                Vector3.forward, Vector3.back, Vector3.left, Vector3.right, new Vector3(1, 0, 1), new Vector3(-1, 0, -1), new Vector3(-1, 0, 1), new Vector3(1, 0, -1)
             };
             for (var i = 0; i < _checkDir.Length; i++)
             {
                 _checkDir[i] *= 2;
             }
 
-            _fourDir = new[] { Vector3.forward, Vector3.back, Vector3.left, Vector3.right };
+            _fourDir = new[]
+            {
+                Vector3.forward, Vector3.back, Vector3.left, Vector3.right
+            };
             for (var i = 0; i < _fourDir.Length; i++)
             {
                 _fourDir[i] *= 2;
@@ -161,7 +164,8 @@ namespace ManagerControl
         private void CheckCanPlace()
         {
             _canPlace = _isGround && CheckPlacementTile();
-            _cursorMeshRenderer.sharedMaterial.color = _canPlace ? cubeColor[0] : cubeColor[1];
+            cursorMaterial.SetColor(Property, _canPlace ? cubeColor[0] : cubeColor[1]);
+            // _cursorMeshRenderer.sharedMaterial.color = _canPlace ? cubeColor[0] : cubeColor[1];
         }
 
         private void CursorAppear()
@@ -220,7 +224,7 @@ namespace ManagerControl
 
             if (!foundGround) towerForward = _checkDir[Random.Range(0, 4)];
 
-            UIManager.Instance.InstantiateTower(_selectedTowerType, _worldGridPos, towerForward);
+            UIManager.Instance.InstantiateTower(_selectedTowerType, _worldGridPos, towerForward).Forget();
         }
     }
 }

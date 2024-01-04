@@ -17,7 +17,8 @@ MonoBehaviour:
       type: 3}
   m_RendererFeatures:
   - {fileID: 5826918851557210612}
-  m_RendererFeatureMap: f43918bad25fdd50
+  - {fileID: 2444891164770367496}
+  m_RendererFeatureMap: f43918bad25fdd5008f8a08e8fffed21
   m_UseNativeRenderPass: 0
   postProcessData: {fileID: 0}
   xrSystemData: {fileID: 11400000, guid: 60e1133243b97e347b653163a8c01b64, type: 2}
@@ -58,6 +59,19 @@ MonoBehaviour:
   m_ClusteredRendering: 0
   m_TileSize: 32
   m_IntermediateTextureMode: 0
+--- !u!114 &2444891164770367496
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d111dc2a0b22b142804f4d59508b893, type: 3}
+  m_Name: URPOutlineFeature
+  m_EditorClassIdentifier: 
+  m_Active: 1
 --- !u!114 &5826918851557210612
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -73,7 +87,7 @@ MonoBehaviour:
   m_Active: 1
   m_Settings:
     technique: 0
-    maxDrawDistance: 50
+    maxDrawDistance: 100
     dBufferSettings:
       surfaceData: 2
     screenSpaceSettings:

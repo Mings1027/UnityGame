@@ -57,8 +57,7 @@ namespace TowerControl
                 var towerUnit = PoolObjectManager.Get<TowerUnit>(unitObjectKey, transform.position);
                 _units.Add(towerUnit);
                 _units[i].transform.DOJump(pos, 2, 1, 0.5f).SetEase(Ease.OutSine);
-                _units[i].Init();
-                _units[i].InfoInit(this, pos);
+                _units[i].Init(this, pos);
                 _units[i].UnitTargetInit();
                 _units[i].GetComponent<UnitHealth>().OnDeadEvent += () => DeadEvent(towerUnit);
 
@@ -90,7 +89,7 @@ namespace TowerControl
         {
             StatusBarUIController.Remove(unit.healthBarTransform);
 
-            unit.DisableParent();
+            unit.DisableObject();
             _units.Remove(unit);
             if (_units.Count > 0) return;
 
@@ -122,10 +121,21 @@ namespace TowerControl
             UnitUpgrade(Damage, attackCooldown.cooldownTime);
         }
 
-        public void DeActiveUnitIndicator()
+        public override void ActiveIndicator()
         {
-            var count = _units.Count - 1;
-            for (var i = count; i >= 0; i--)
+            base.ActiveIndicator();
+            var count = _units.Count;
+            for (int i = 0; i < count; i++)
+            {
+                _units[i].ActiveIndicator();
+            }
+        }
+
+        public override void DeActiveIndicator()
+        {
+            base.DeActiveIndicator();
+            var count = _units.Count;
+            for (int i = 0; i < count; i++)
             {
                 _units[i].DeActiveIndicator();
             }
@@ -199,7 +209,7 @@ namespace TowerControl
             {
                 if (_units[i] == null) continue;
                 _units[i].gameObject.SetActive(false);
-                _units[i].DisableParent();
+                _units[i].DisableObject();
             }
 
             base.DisableObject();
@@ -219,7 +229,7 @@ namespace TowerControl
                 _units[i].Move(pos);
             }
 
-            DeActiveUnitIndicator();
+            DeActiveIndicator();
         }
 
         // public void ActiveAnim()

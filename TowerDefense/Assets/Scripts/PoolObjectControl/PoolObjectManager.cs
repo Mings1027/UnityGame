@@ -248,7 +248,6 @@ namespace PoolObjectControl
 
                 while (outOfRange)
                 {
-                    print(_inst._prefabDictionary[poolKey].Peek());
                     Destroy(_inst._prefabDictionary[poolKey].Pop());
                     outOfRange = _inst._prefabDictionary[poolKey].Count > _inst.poolMaxSize;
                     await UniTask.Delay(100);

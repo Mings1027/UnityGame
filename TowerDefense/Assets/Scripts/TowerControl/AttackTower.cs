@@ -17,8 +17,9 @@ namespace TowerControl
         public int Damage { get; private set; }
         public sbyte TowerLevel { get; private set; }
 
-        protected virtual void Awake()
+        protected override void Awake()
         {
+            base.Awake();
             Init();
         }
 

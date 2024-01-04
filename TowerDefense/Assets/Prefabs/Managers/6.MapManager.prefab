@@ -363,7 +363,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: bab1d46061af246ba8a138d2ded99fbf, type: 2}
+  - {fileID: 2100000, guid: e3c98eca5b8a04de0a2961fe8591c877, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -432,7 +432,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8e326d65ce054a439d27261e1e98e5d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  customMap: R S R L S L
   navMeshSurface: {fileID: 1996057941184193777}
   bossNavMeshSurface: {fileID: 1996057941184193774}
   ramNavMeshSurface: {fileID: 2807603584453259415}
@@ -461,6 +460,8 @@ MonoBehaviour:
   maxSize: 200
   mapMesh: {fileID: 1996057941184193778}
   obstacleMesh: {fileID: 6297502037222795917}
+  useCustomMap: 0
+  customMap: P P
   maxMapCount: 255
   drawGizmos: 1
   drawSphereRadius: 0.5

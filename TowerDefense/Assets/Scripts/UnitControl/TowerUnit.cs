@@ -2,9 +2,11 @@ using System.Diagnostics;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using EPOOutline;
 using GameControl;
 using InterfaceControl;
 using ManagerControl;
+using Plugins.Easy_performant_outline.Scripts;
 using StatusControl;
 using TowerControl;
 using UnityEngine;
@@ -26,6 +28,7 @@ namespace UnitControl
         private Collider _target;
         private Animator _anim;
         private NavMeshAgent _navMeshAgent;
+        private Outlinable _outlinable;
 
         private LayerMask _targetLayer;
         private UnitState _unitState;
@@ -33,7 +36,7 @@ namespace UnitControl
 
         private Cooldown _atkCooldown;
         private int _damage;
-        private bool _isMoving;
+        // private bool _isMoving;
         private bool _startTargeting;
 
         private static readonly int IsWalk = Animator.StringToHash("isWalk");
@@ -43,14 +46,16 @@ namespace UnitControl
 
         [SerializeField] private AudioClip audioClip;
         [SerializeField, Range(0, 5)] private byte attackTargetCount;
-        [SerializeField, Range(0, 7)] private float atkRange;
-        [SerializeField, Range(0, 10)] private float sightRange;
+        [SerializeField, Range(0, 7)] private byte atkRange;
+        [SerializeField, Range(0, 10)] private byte sightRange;
         [SerializeField] private float turnSpeed;
 
         #region Unity Event
 
         private void Awake()
         {
+            _outlinable = GetComponent<Outlinable>();
+            _outlinable.enabled = false;
             _targetLayer = LayerMask.GetMask("Monster");
             _childMeshTransform = transform.GetChild(0);
             healthBarTransform = transform.GetChild(1);
@@ -98,7 +103,8 @@ namespace UnitControl
             {
                 _navMeshAgent.stoppingDistance = atkRange;
                 enabled = false;
-                DisableObject();
+                // _isMoving = false;
+                _anim.SetBool(IsWalk, false);
                 return;
             }
 
@@ -164,9 +170,15 @@ namespace UnitControl
                 return;
             }
 
-            if (!_target || !_target.enabled)
+            var shortestDistance = float.MaxValue;
+            for (var i = 0; i < size; i++)
             {
-                _target = _targetCollider[0];
+                var distanceToResult = Vector3.SqrMagnitude(transform.position - _targetCollider[i].bounds.center);
+                if (shortestDistance > distanceToResult)
+                {
+                    shortestDistance = distanceToResult;
+                    _target = _targetCollider[i];
+                }
             }
 
             _unitState = UnitState.Chase;
@@ -230,21 +242,20 @@ namespace UnitControl
 
         #region Private Method
 
-        private void DisableObject()
+        public void DisableObject()
         {
-            _isMoving = false;
-            _anim.SetBool(IsWalk, false);
-            // if (_startTargeting) return;
-            // await UniTask.Delay(1000);
-            // _anim.enabled = false;
+            _parentTower = null;
+            _thisCollider.enabled = false;
         }
 
         #endregion
 
         #region Public Method
 
-        public void Init()
+        public void Init(SummonTower summonTower, Vector3 pos)
         {
+            _originPos = pos;
+            _parentTower = summonTower;
             _anim.enabled = true;
             _thisCollider.enabled = true;
             _target = null;
@@ -261,7 +272,7 @@ namespace UnitControl
 
         public void Move(Vector3 pos)
         {
-            _isMoving = true;
+            // _isMoving = true;
             enabled = true;
             _anim.enabled = true;
             _originPos = pos;
@@ -273,23 +284,15 @@ namespace UnitControl
 
         public void ActiveIndicator()
         {
-            //enable outline
+            _outlinable.enabled = true;
+            #if UNITY_EDITOR
+            print("I can't see unit indicator");
+            #endif
         }
 
         public void DeActiveIndicator()
         {
-            //disable outline
-        }
-
-        public void InfoInit(SummonTower summonTower, Vector3 pos)
-        {
-            _originPos = pos;
-            _parentTower = summonTower;
-        }
-
-        public void DisableParent()
-        {
-            _parentTower = null;
+            _outlinable.enabled = false;
         }
 
         public void UnitUpgrade(int damage, int healthAmount, float attackDelayData)
@@ -300,19 +303,6 @@ namespace UnitControl
         }
 
         public void ParentPointerUp() => _parentTower.OnPointerUp(null);
-
-        // public void EnableAnim()
-        // {
-        //     _startTargeting = true;
-        //     _anim.enabled = true;
-        // }
-        //
-        // public void DisableAnim()
-        // {
-        //     _startTargeting = false;
-        //     if (_isMoving) return;
-        //     _anim.enabled = false;
-        // }
 
         #endregion
     }

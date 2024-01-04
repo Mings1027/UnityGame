@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -36,6 +37,7 @@ namespace StatusControl
             _cts?.Dispose();
         }
 
+        [Conditional("UNITY_EDITOR")]
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.green;

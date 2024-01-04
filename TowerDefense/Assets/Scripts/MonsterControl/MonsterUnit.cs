@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using CustomEnumControl;
 using DataControl.MonsterDataControl;
 using DG.Tweening;
@@ -36,8 +37,8 @@ namespace MonsterControl
         public event Action OnDisableEvent;
 
         [SerializeField, Range(0, 5)] protected byte attackTargetCount;
-        [SerializeField, Range(0, 7)] protected float atkRange;
-        [SerializeField, Range(0, 10)] protected float sightRange;
+        [SerializeField, Range(0, 7)] protected byte atkRange;
+        [SerializeField, Range(0, 10)] protected byte sightRange;
         [SerializeField] protected float turnSpeed;
         [field: SerializeField] public byte baseTowerDamage { get; private set; }
 
@@ -64,22 +65,17 @@ namespace MonsterControl
                 });
         }
 
-        protected virtual void OnEnable()
-        {
-            navMeshAgent.enabled = true;
-            navMeshAgent.SetDestination(Vector3.zero);
-        }
-
         private void OnDestroy()
         {
             _deadSequence?.Kill();
         }
 
+        [Conditional("UNITY_EDITOR")]
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(transform.position, atkRange);
-            Gizmos.color = Color.cyan;
+            Gizmos.color = Color.green;
             Gizmos.DrawWireSphere(transform.position, sightRange);
         }
 
@@ -97,6 +93,7 @@ namespace MonsterControl
 
         public virtual void SpawnInit(MonsterData monsterData)
         {
+            navMeshAgent.enabled = true;
             unitState = UnitState.Patrol;
             navMeshAgent.speed = monsterData.Speed;
             SetSpeed(navMeshAgent.speed, attackCooldown.cooldownTime);
@@ -120,7 +117,6 @@ namespace MonsterControl
         protected virtual void Patrol()
         {
         }
-
 
         protected virtual void Attack()
         {

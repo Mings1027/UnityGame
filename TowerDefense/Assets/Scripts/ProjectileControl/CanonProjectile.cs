@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using CustomEnumControl;
 using InterfaceControl;
 using ManagerControl;
@@ -18,7 +19,6 @@ namespace ProjectileControl
         [SerializeField] private AudioClip audioClip;
         [SerializeField] private byte atkRange;
         [SerializeField] private PoolObjectKey hitPoolObjectKey;
-
 
         protected override void Awake()
         {
@@ -53,6 +53,7 @@ namespace ProjectileControl
             }
         }
 
+        [Conditional("UNITY_EDITOR")]
         private void OnDrawGizmos()
         {
             Gizmos.DrawWireSphere(transform.position, atkRange);

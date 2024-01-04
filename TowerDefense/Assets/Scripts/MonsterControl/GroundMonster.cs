@@ -57,13 +57,18 @@ namespace MonsterControl
                     navMeshAgent.SetDestination(Vector3.zero);
                 }
 
-                patrolCooldown.StartCooldown();
                 return;
             }
 
-            if (!target || !target.enabled)
+            var shortestDistance = float.MaxValue;
+            for (var i = 0; i < size; i++)
             {
-                target = targetCollider[0];
+                var distanceToResult = Vector3.SqrMagnitude(transform.position - targetCollider[i].bounds.center);
+                if (shortestDistance > distanceToResult)
+                {
+                    shortestDistance = distanceToResult;
+                    target = targetCollider[i];
+                }
             }
 
             unitState = UnitState.Chase;
