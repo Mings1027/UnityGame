@@ -58,7 +58,7 @@ namespace UnitControl
             var touch = Input.GetTouch(0);
             if (!touch.deltaPosition.Equals(Vector2.zero)) return;
             var ray = _cam.ScreenPointToRay(Input.mousePosition);
-            Physics.Raycast(ray, out var hit, int.MaxValue, ~unitLayer);
+            Physics.Raycast(ray, out var hit, int.MaxValue);
             if (hit.collider && hit.collider.CompareTag("Ground") &&
                 Vector3.Distance(_summonTower.transform.position, hit.point) <= _summonTower.TowerRange)
             {

@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8400488889830995508}
   - component: {fileID: 1614605779190347872}
   - component: {fileID: 934342333182273535}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: default
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -127,8 +127,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7871243082526077795}
-  - component: {fileID: 2456727027713132667}
-  - component: {fileID: 4801524693121730124}
   m_Layer: 0
   m_Name: HealthBarPosition
   m_TagString: Untagged
@@ -151,31 +149,6 @@ Transform:
   m_Father: {fileID: 7284054994422192818}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!135 &2456727027713132667
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6705614912636035949}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Center: {x: 0, y: -0.7, z: 0}
---- !u!114 &4801524693121730124
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6705614912636035949}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f3ad42cc2bd724896a60b52218a3a7bd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &7952787121515888648
 GameObject:
   m_ObjectHideFlags: 0
@@ -281,7 +254,7 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.3
+  m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!195 &-1478482093144477848
 NavMeshAgent:
@@ -438,6 +411,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: DecalShadow
+      objectReference: {fileID: 0}
+    - target: {fileID: 6676682798914993397, guid: b309a212396124e03831fcd00a63e61e,
+        type: 3}
+      propertyPath: m_Layer
+      value: 9
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b309a212396124e03831fcd00a63e61e, type: 3}

@@ -91,7 +91,9 @@ namespace ManagerControl
 
         public Dictionary<TowerType, string> towerNameDic { get; private set; }
         public Dictionary<TowerType, string> towerInfoDic { get; private set; }
-
+        
+        public bool enableMoveUnitController => moveUnitController.enabled;
+        
         [SerializeField] private GameHUD gameHUD;
         [SerializeField] private TowerMana towerMana;
 

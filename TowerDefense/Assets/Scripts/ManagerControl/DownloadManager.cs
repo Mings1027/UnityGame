@@ -35,6 +35,7 @@ namespace ManagerControl
 
         private void Awake()
         {
+            print(Application.dataPath);
             Profiler.maxUsedMemory = 134217728;
 
             _downloadPanelTween = downLoadPanel.transform.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack)

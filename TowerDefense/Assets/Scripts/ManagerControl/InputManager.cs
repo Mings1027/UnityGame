@@ -165,7 +165,6 @@ namespace ManagerControl
         {
             _canPlace = _isGround && CheckPlacementTile();
             cursorMaterial.SetColor(Property, _canPlace ? cubeColor[0] : cubeColor[1]);
-            // _cursorMeshRenderer.sharedMaterial.color = _canPlace ? cubeColor[0] : cubeColor[1];
         }
 
         private void CursorAppear()

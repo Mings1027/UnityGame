@@ -57,7 +57,7 @@ namespace Plugins.Easy_performant_outline.Scripts
     {
         // private static List<TargetStateListener> _tempListeners = new List<TargetStateListener>();
 
-        private static readonly HashSet<Outlinable> Outlinables = new HashSet<Outlinable>();
+        private static readonly HashSet<Outlinable> Outlinables = new();
 
         [Serializable]
         public class OutlineProperties
@@ -106,7 +106,7 @@ namespace Plugins.Easy_performant_outline.Scripts
             }
 
             [SerializeField, SerializedPassInfo("Fill style", "Hidden/EPO/Fill/")]
-            private SerializedPass fillPass = new SerializedPass();
+            private SerializedPass fillPass = new();
 
             public SerializedPass FillPass => fillPass;
 #pragma warning restore CS0649
@@ -122,20 +122,20 @@ namespace Plugins.Easy_performant_outline.Scripts
         private int outlineLayer;
 
         [SerializeField]
-        private List<OutlineTarget> outlineTargets = new List<OutlineTarget>();
+        private List<OutlineTarget> outlineTargets = new();
 
         [SerializeField]
         private RenderStyle renderStyle = RenderStyle.Single;
 
 #pragma warning disable CS0649
         [SerializeField]
-        private OutlineProperties outlineParameters = new OutlineProperties();
+        private OutlineProperties outlineParameters = new();
 
         [SerializeField]
-        private OutlineProperties backParameters = new OutlineProperties();
+        private OutlineProperties backParameters = new();
 
         [SerializeField]
-        private OutlineProperties frontParameters = new OutlineProperties();
+        private OutlineProperties frontParameters = new();
 
         private bool _shouldValidateTargets;
 

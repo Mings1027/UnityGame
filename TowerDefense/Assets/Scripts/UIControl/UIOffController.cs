@@ -13,6 +13,7 @@ namespace UIControl
         public void OnPointerUp(PointerEventData eventData)
         {
             if (Input.GetTouch(0).deltaPosition != Vector2.zero) return;
+            if (UIManager.Instance.enableMoveUnitController) return;
             UIManager.Instance.UIOff();
         }
     }

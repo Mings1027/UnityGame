@@ -1,8 +1,6 @@
 using System.Diagnostics;
 using CustomEnumControl;
-using Cysharp.Threading.Tasks;
 using DG.Tweening;
-using EPOOutline;
 using GameControl;
 using InterfaceControl;
 using ManagerControl;
@@ -36,7 +34,6 @@ namespace UnitControl
 
         private Cooldown _atkCooldown;
         private int _damage;
-        // private bool _isMoving;
         private bool _startTargeting;
 
         private static readonly int IsWalk = Animator.StringToHash("isWalk");
@@ -103,7 +100,6 @@ namespace UnitControl
             {
                 _navMeshAgent.stoppingDistance = atkRange;
                 enabled = false;
-                // _isMoving = false;
                 _anim.SetBool(IsWalk, false);
                 return;
             }
@@ -162,7 +158,7 @@ namespace UnitControl
             if (size <= 0)
             {
                 _target = null;
-                if (Vector3.Distance(_originPos, transform.position) > 2)
+                if (Vector3.Distance(_originPos, transform.position) > 1)
                 {
                     Move(_originPos);
                 }
@@ -272,7 +268,6 @@ namespace UnitControl
 
         public void Move(Vector3 pos)
         {
-            // _isMoving = true;
             enabled = true;
             _anim.enabled = true;
             _originPos = pos;
@@ -282,18 +277,9 @@ namespace UnitControl
                 _navMeshAgent.SetDestination(pos);
         }
 
-        public void ActiveIndicator()
-        {
-            _outlinable.enabled = true;
-            #if UNITY_EDITOR
-            print("I can't see unit indicator");
-            #endif
-        }
+        public void ActiveIndicator() => _outlinable.enabled = true;
 
-        public void DeActiveIndicator()
-        {
-            _outlinable.enabled = false;
-        }
+        public void DeActiveIndicator() => _outlinable.enabled = false;
 
         public void UnitUpgrade(int damage, int healthAmount, float attackDelayData)
         {

@@ -12,7 +12,7 @@ namespace UnitControl
 
         private void Awake()
         {
-            _towerUnit = GetComponentInParent<TowerUnit>();
+            _towerUnit = GetComponent<TowerUnit>();
         }
 
         public void OnPointerDown(PointerEventData eventData)
