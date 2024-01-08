@@ -708,6 +708,26 @@ namespace MapControl
                 mapPrefabs[i].GetComponent<BoxCollider>().size = colliderSize;
             }
         }
+
+        [ContextMenu("Set Map Placement Collider")]
+        private void SetMapPlacementCollider()
+        {
+            for (var i = 0; i < mapPrefabs.Length; i++)
+            {
+                var placementTiles = mapPrefabs[i].GetComponentsInChildren<BoxCollider>();
+                
+                for (var j = 1; j < placementTiles.Length; j++)
+                {
+                    var placementCenter = placementTiles[j].center;
+                    placementCenter.y = colliderCenter.y;
+                    placementTiles[j].center = placementCenter;
+
+                    var placementSize = placementTiles[j].size;
+                    placementSize.y = colliderSize.y;
+                    placementTiles[j].size = placementSize;
+                }
+            }
+        }
 #endif
     }
 }

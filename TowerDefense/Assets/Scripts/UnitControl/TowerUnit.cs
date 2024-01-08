@@ -142,18 +142,23 @@ namespace UnitControl
                     break;
             }
 
-            _anim.SetBool(IsWalk, _navMeshAgent.velocity != Vector3.zero);
+            // _anim.SetBool(IsWalk, _navMeshAgent.velocity != Vector3.zero);
 
             if (_target && _target.enabled)
             {
-                var t = transform;
-                var targetRot = Quaternion.LookRotation(_target.transform.position - t.position);
-                t.rotation = Quaternion.Slerp(t.rotation, targetRot, turnSpeed);
+                // var t = transform;
+                // var targetRot = Quaternion.LookRotation(_target.transform.position - t.position);
+                // t.rotation = Quaternion.Slerp(t.rotation, targetRot, turnSpeed);
+                var dir = (_target.transform.position - transform.position).normalized;
+                var targetRot = Quaternion.LookRotation(dir);
+                var eulerAngleDiff = targetRot.eulerAngles - transform.rotation.eulerAngles;
+                transform.Rotate(eulerAngleDiff);
             }
         }
 
         private void Patrol()
         {
+            _anim.SetBool(IsWalk, false);
             var size = Physics.OverlapSphereNonAlloc(transform.position, sightRange, _targetCollider, _targetLayer);
             if (size <= 0)
             {
@@ -182,6 +187,8 @@ namespace UnitControl
 
         private void Chase()
         {
+            _anim.SetBool(IsWalk, true);
+
             if (!_target.enabled)
             {
                 _unitState = UnitState.Patrol;
@@ -199,6 +206,7 @@ namespace UnitControl
 
         private void Attack()
         {
+            _anim.SetBool(IsWalk,false);
             if (!_target || !_target.enabled ||
                 Vector3.Distance(_target.transform.position, transform.position) > atkRange)
             {

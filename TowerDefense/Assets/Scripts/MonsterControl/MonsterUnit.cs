@@ -30,8 +30,8 @@ namespace MonsterControl
         protected NavMeshAgent navMeshAgent;
         protected int damage;
 
-        private static readonly int IsWalk = Animator.StringToHash("isWalk");
-        protected static readonly int IsAttack = Animator.StringToHash("isAttack");
+        private readonly int _isWalk = Animator.StringToHash("isWalk");
+        protected readonly int isAttack = Animator.StringToHash("isAttack");
 
         public Transform healthBarTransform { get; private set; }
         public event Action OnDisableEvent;
@@ -42,7 +42,7 @@ namespace MonsterControl
         [SerializeField] protected float turnSpeed;
         [field: SerializeField] public byte baseTowerDamage { get; private set; }
 
-        #region Unity Event
+#region Unity Event
 
         protected virtual void Awake()
         {
@@ -79,9 +79,9 @@ namespace MonsterControl
             Gizmos.DrawWireSphere(transform.position, sightRange);
         }
 
-        #endregion
+#endregion
 
-        #region Init
+#region Init
 
         public virtual void Init()
         {
@@ -100,19 +100,19 @@ namespace MonsterControl
             attackCooldown.cooldownTime = monsterData.AttackDelay;
             damage = monsterData.Damage;
             if (navMeshAgent.isOnNavMesh) navMeshAgent.SetDestination(Vector3.zero);
-            anim.SetBool(IsWalk, true);
+            anim.SetBool(_isWalk, true);
         }
 
-        #endregion
+#endregion
 
-        #region Unit Update
+#region Unit Update
 
         public virtual void MonsterUpdate()
         {
-            anim.SetBool(IsWalk, navMeshAgent.velocity != Vector3.zero);
+            anim.SetBool(_isWalk, navMeshAgent.velocity != Vector3.zero);
         }
 
-        #region Monster State
+#region Monster State
 
         protected virtual void Patrol()
         {
@@ -128,7 +128,7 @@ namespace MonsterControl
                 damageable.Damage(damage);
         }
 
-        #endregion
+#endregion
 
         private void Dead()
         {
@@ -138,7 +138,7 @@ namespace MonsterControl
             _deadSequence.Restart();
         }
 
-        #endregion
+#endregion
 
         protected virtual void DisableObject()
         {
@@ -161,9 +161,13 @@ namespace MonsterControl
         {
             var pos = transform.position;
             pos.y = 0;
+
             if (Vector3.Distance(pos, Vector3.zero) <= navMeshAgent.stoppingDistance)
             {
-                DisableObject();
+                if (gameObject.activeSelf)
+                {
+                    DisableObject();
+                }
             }
         }
     }

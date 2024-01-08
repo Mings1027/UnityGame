@@ -19,19 +19,15 @@ using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace ManagerControl
 {
-    [Serializable]
-    public class TowerDataPrefab
-    {
-        public TowerData towerData;
-        public GameObject towerPrefab;
-    }
-
     public class UIManager : Singleton<UIManager>
     {
+#region Private Variable
+
         private WaveManager _waveManager;
         private TowerManager _towerManager;
         private TowerCardController _towerCardController;
@@ -59,7 +55,6 @@ namespace ManagerControl
 
         private TowerRangeIndicator _towerRangeIndicator;
 
-        // private Image _upgradeButtonImage;
         private Image _sellButtonImage;
 
         private ushort _sellTowerCost;
@@ -69,9 +64,42 @@ namespace ManagerControl
 
         private bool _isPanelOpen;
         private bool _startMoveUnit;
-        // private bool _clickUpgradeBtn;
         private bool _clickSellBtn;
         private Vector3 _prevPos;
+
+        private TowerInfoUI _towerInfoUI;
+
+        private GameObject _upgradeButton;
+        private GameObject _sellTowerButton;
+        private GameObject _moveUnitButton;
+
+        private GameHUD _gameHUD;
+        private TextMeshProUGUI _costText;
+        private TextMeshProUGUI _waveText;
+        private Button _centerButton;
+        private Button _speedButton;
+        private Button _pauseButton;
+
+        private GameObject _toggleTowerButton;
+        private TowerDescriptionCard _towerDescriptionCard;
+
+        private RectTransform _towerCardPanel;
+        private Transform _notEnoughCostPanel;
+
+        private Transform _pausePanelBackground;
+        private Button _resumeButton;
+        private Button _mainMenuButton;
+        private Toggle _bgmToggle;
+        private Toggle _sfxToggle;
+        private GameObject _gameOverPanel;
+        private GameObject _gameEndPanel;
+        private Image _pausePanelBlockImage;
+
+        private MoveUnitController _moveUnitController;
+
+#endregion
+
+#region Property
 
         public Dictionary<TowerType, TowerDataPrefab> TowerDataPrefabDictionary { get; private set; }
 
@@ -81,67 +109,22 @@ namespace ManagerControl
             set
             {
                 _towerCost = value;
-                costText.text = _towerCost.ToString();
+                _costText.text = _towerCost.ToString();
             }
         }
 
         public CameraManager CameraManager { get; private set; }
 
-        public TextMeshProUGUI WaveText => waveText;
+        public TextMeshProUGUI WaveText => _waveText;
 
         public Dictionary<TowerType, string> towerNameDic { get; private set; }
         public Dictionary<TowerType, string> towerInfoDic { get; private set; }
-        
-        public bool enableMoveUnitController => moveUnitController.enabled;
-        
-        [SerializeField] private GameHUD gameHUD;
-        [SerializeField] private TowerMana towerMana;
 
-        [SerializeField] private Transform notEnoughCostPanel;
-        [SerializeField] private RectTransform towerPanel;
-        [SerializeField] private Image cantMoveImage;
-        [SerializeField] private Sprite physicalSprite;
+        public bool enableMoveUnitController => _moveUnitController.enabled;
 
-        [SerializeField] private Sprite magicSprite;
+#endregion
 
-        // [SerializeField] private Sprite upgradeSprite;
-        [SerializeField] private Sprite sellSprite;
-        [SerializeField] private Sprite checkSprite;
-
-        [SerializeField] private TowerDataPrefab[] towerDataPrefabs;
-        [SerializeField] private TowerInfoUI towerInfoUI;
-
-        [SerializeField] private TowerDescriptionCard towerDescriptionCard;
-
-        [SerializeField] private GameObject upgradeButton;
-        [SerializeField] private GameObject moveUnitButton;
-        [SerializeField] private GameObject sellTowerButton;
-
-        [Header("----------Tower Buttons----------")] [SerializeField]
-        private GameObject toggleTowerButton;
-
-        [Header("----------Game Over-------------"), SerializeField]
-        private GameObject gameOverPanel;
-
-        [SerializeField] private GameObject gameEndPanel;
-        [SerializeField] private Transform pausePanel;
-
-        [SerializeField] private Image pausePanelBlockImage;
-        [SerializeField] private Button pauseButton;
-        [SerializeField] private Button centerButton;
-        [SerializeField] private Button resumeButton;
-        [SerializeField] private Button mainMenuButton;
-        [SerializeField] private Button speedUpButton;
-
-        [SerializeField] private Toggle bgmToggle;
-        [SerializeField] private Toggle sfxToggle;
-
-        [SerializeField] private TextMeshProUGUI costText;
-        [SerializeField] private TextMeshProUGUI waveText;
-
-        [SerializeField] private MoveUnitController moveUnitController;
-
-        #region Unity Event
+#region Unity Event
 
         protected override void Awake()
         {
@@ -150,6 +133,10 @@ namespace ManagerControl
             _cam = Camera.main;
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
+            _waveManager = (WaveManager)FindAnyObjectByType(typeof(WaveManager));
+            _towerManager = (TowerManager)FindAnyObjectByType(typeof(TowerManager));
+
+            Init();
             TowerButtonInit();
             TowerInit();
             LocaleDictionaryInit();
@@ -162,10 +149,8 @@ namespace ManagerControl
         private void Start()
         {
             CameraManager = _cam.GetComponentInParent<CameraManager>();
-            _waveManager = (WaveManager)FindAnyObjectByType(typeof(WaveManager));
-            _towerManager = (TowerManager)FindAnyObjectByType(typeof(TowerManager));
-            gameOverPanel.SetActive(false);
-            gameEndPanel.SetActive(false);
+            _gameOverPanel.SetActive(false);
+            _gameEndPanel.SetActive(false);
             GameStart();
             CheckCamPos().Forget();
         }
@@ -195,16 +180,106 @@ namespace ManagerControl
             }
         }
 
-        #endregion
+#endregion
 
-        #region Init
+#region Init
+
+        private void Init()
+        {
+            var uiPanel = transform.Find("UI Panel");
+            _towerInfoUI = FindAnyObjectByType<TowerInfoUI>();
+            var followTowerInfoUI = _towerInfoUI.transform.GetChild(0);
+            _upgradeButton = followTowerInfoUI.Find("Upgrade Button").gameObject;
+            _sellTowerButton = followTowerInfoUI.Find("Sell Tower Button").gameObject;
+            _moveUnitButton = followTowerInfoUI.Find("Move Unit Button").gameObject;
+
+            _gameHUD = FindAnyObjectByType<GameHUD>();
+            var costBackground = _gameHUD.transform.Find("Cost Background");
+            _costText = costBackground.Find("Cost Text").GetComponent<TextMeshProUGUI>();
+            var waveBackground = _gameHUD.transform.Find("Wave Background");
+            _waveText = waveBackground.Find("Wave Text").GetComponent<TextMeshProUGUI>();
+            _centerButton = _gameHUD.transform.Find("Center Button").GetComponent<Button>();
+            _speedButton = _gameHUD.transform.Find("Speed Button").GetComponent<Button>();
+            _pauseButton = _gameHUD.transform.Find("Pause Button").GetComponent<Button>();
+
+            _toggleTowerButton = uiPanel.Find("Toggle Tower Button").gameObject;
+            _towerDescriptionCard = FindAnyObjectByType<TowerDescriptionCard>();
+            _towerCardPanel = uiPanel.Find("Tower Card Panel").GetComponent<RectTransform>();
+            _notEnoughCostPanel = uiPanel.Find("Not Enough Gold Message").GetComponent<RectTransform>();
+
+            _pausePanelBackground = uiPanel.Find("Pause Panel Background");
+            _resumeButton = _pausePanelBackground.Find("Resume Button").GetComponent<Button>();
+            var pausePanel = _pausePanelBackground.Find("Pause Panel");
+            _mainMenuButton = pausePanel.Find("Main Menu Button").GetComponent<Button>();
+            _bgmToggle = pausePanel.Find("BGM Toggle").GetComponent<Toggle>();
+            _sfxToggle = pausePanel.Find("SFX Toggle").GetComponent<Toggle>();
+            _gameOverPanel = pausePanel.Find("Game Over Background").gameObject;
+            _gameEndPanel = pausePanel.Find("Game End Background").gameObject;
+            _pausePanelBlockImage = pausePanel.Find("BlockImage").GetComponent<Image>();
+            _moveUnitController = FindAnyObjectByType<MoveUnitController>();
+        }
+
+        private void TowerButtonInit()
+        {
+            _towerCardController = _towerCardPanel.GetComponentInChildren<TowerCardController>();
+            _towerCardController.Init();
+            for (var i = 0; i < _towerManager.towerDataPrefabs.Length; i++)
+            {
+                _towerCardController.SetDictionary(i, _towerManager.towerDataPrefabs[i].towerData);
+            }
+
+            var towerButtons = _towerCardController.GetComponentsInChildren<TowerButton>();
+            _towerCostTexts = new TMP_Text[towerButtons.Length];
+            for (var i = 0; i < towerButtons.Length; i++)
+            {
+                _towerCostTexts[i] = towerButtons[i].GetComponentInChildren<TMP_Text>();
+            }
+
+            _toggleTowerButton.GetComponent<Button>().onClick.AddListener(() =>
+            {
+                SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
+                ToggleTowerButtons();
+            });
+
+            _upgradeButton.GetComponent<Button>().onClick.AddListener(() =>
+            {
+                SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
+                if (_clickSellBtn)
+                {
+                    // _sellButtonImage.sprite = sellSprite;
+                    _clickSellBtn = false;
+                }
+
+                TowerUpgrade();
+                _upgradeButtonTween.Restart();
+            });
+            _moveUnitButton.GetComponent<Button>().onClick.AddListener(MoveUnitButton);
+
+            _sellTowerButton.GetComponent<Button>().onClick.AddListener(() =>
+            {
+                if (_clickSellBtn)
+                {
+                    _clickSellBtn = false;
+                    _sellButtonImage.sprite = _gameHUD.sellSprite;
+                    SellTower();
+                }
+                else
+                {
+                    SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
+                    _clickSellBtn = true;
+                    _sellButtonImage.sprite = _gameHUD.checkSprite;
+                }
+            });
+
+            _sellButtonImage = _sellTowerButton.transform.GetChild(0).GetComponent<Image>();
+        }
 
         private void TowerInit()
         {
             TowerDataPrefabDictionary = new Dictionary<TowerType, TowerDataPrefab>();
             _towerCountDictionary = new Dictionary<TowerType, ushort>();
             _towerCostTextDictionary = new Dictionary<TowerType, TMP_Text>();
-
+            var towerDataPrefabs = _towerManager.towerDataPrefabs;
             for (var i = 0; i < towerDataPrefabs.Length; i++)
             {
                 TowerDataPrefabDictionary.Add(towerDataPrefabs[i].towerData.TowerType, towerDataPrefabs[i]);
@@ -235,120 +310,60 @@ namespace ManagerControl
 
         private void TweenInit()
         {
-            _toggleTowerBtnImage = toggleTowerButton.transform.GetChild(0).GetComponent<Image>();
+            _toggleTowerBtnImage = _toggleTowerButton.transform.GetChild(0).GetComponent<Image>();
 
-            _upgradeSellPanelTween = towerInfoUI.transform.DOScale(1, 0.15f).From(0).SetAutoKill(false).Pause();
+            _upgradeSellPanelTween = _towerInfoUI.transform.DOScale(1, 0.15f).From(0).SetAutoKill(false).Pause();
 
             _pauseSequence = DOTween.Sequence().SetAutoKill(false).SetUpdate(true).Pause()
-                .Append(pausePanel.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack))
-                .Join(pauseButton.transform.DOScale(0, 0.2f));
+                .Append(_pausePanelBackground.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack))
+                .Join(_pauseButton.transform.DOScale(0, 0.2f));
 
             _notEnoughCostSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(notEnoughCostPanel.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBounce))
-                .Append(notEnoughCostPanel.DOScale(0, 0.2f).SetDelay(0.3f));
+                .Append(_notEnoughCostPanel.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBounce))
+                .Append(_notEnoughCostPanel.DOScale(0, 0.2f).SetDelay(0.3f));
 
-            _cantMoveImageSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(cantMoveImage.transform.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBounce)
-                    .SetLoops(2, LoopType.Yoyo))
-                .Join(cantMoveImage.DOFade(0, 0.5f).From(1));
-
-            _upgradeButtonTween = upgradeButton.transform.DOScale(1, 0.2f).From(0.7f).SetEase(Ease.OutBack)
+            _upgradeButtonTween = _upgradeButton.transform.DOScale(1, 0.2f).From(0.7f).SetEase(Ease.OutBack)
                 .SetUpdate(true).SetAutoKill(false);
-        }
-
-        private void TowerButtonInit()
-        {
-            _towerCardController = towerPanel.GetComponentInChildren<TowerCardController>();
-            _towerCardController.Init();
-            for (var i = 0; i < towerDataPrefabs.Length; i++)
-            {
-                _towerCardController.SetDictionary(i, towerDataPrefabs[i].towerData);
-            }
-
-            var towerButtons = _towerCardController.GetComponentsInChildren<TowerButton>();
-            _towerCostTexts = new TMP_Text[towerButtons.Length];
-            for (var i = 0; i < towerButtons.Length; i++)
-            {
-                _towerCostTexts[i] = towerButtons[i].GetComponentInChildren<TMP_Text>();
-            }
-
-            toggleTowerButton.GetComponent<Button>().onClick.AddListener(() =>
-            {
-                SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
-                ToggleTowerButtons();
-            });
-
-            upgradeButton.GetComponent<Button>().onClick.AddListener(() =>
-            {
-                SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
-                if (_clickSellBtn)
-                {
-                    _sellButtonImage.sprite = sellSprite;
-                    _clickSellBtn = false;
-                }
-
-                TowerUpgrade();
-                _upgradeButtonTween.Restart();
-            });
-            moveUnitButton.GetComponent<Button>().onClick.AddListener(MoveUnitButton);
-
-            sellTowerButton.GetComponent<Button>().onClick.AddListener(() =>
-            {
-                if (_clickSellBtn)
-                {
-                    _clickSellBtn = false;
-                    _sellButtonImage.sprite = sellSprite;
-                    SellTower();
-                }
-                else
-                {
-                    SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
-                    _clickSellBtn = true;
-                    _sellButtonImage.sprite = checkSprite;
-                }
-            });
-
-            _sellButtonImage = sellTowerButton.transform.GetChild(0).GetComponent<Image>();
         }
 
         private void MenuButtonInit()
         {
             _curTimeScale = 1;
 
-            pauseButton.onClick.AddListener(() =>
+            _pauseButton.onClick.AddListener(() =>
             {
                 SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
                 Pause();
             });
 
-            centerButton.onClick.AddListener(() =>
+            _centerButton.onClick.AddListener(() =>
             {
                 SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
-                centerButton.transform.DOScale(0, 0.2f).From(1).SetEase(Ease.InBack).SetUpdate(true)
-                    .OnComplete(() => centerButton.gameObject.SetActive(false));
+                _centerButton.transform.DOScale(0, 0.2f).From(1).SetEase(Ease.InBack).SetUpdate(true)
+                    .OnComplete(() => _centerButton.gameObject.SetActive(false));
                 CameraManager.transform.DOMove(Vector3.zero, 0.5f).SetEase(Ease.OutCubic);
             });
-            centerButton.gameObject.SetActive(false);
+            _centerButton.gameObject.SetActive(false);
 
-            resumeButton.onClick.AddListener(() =>
+            _resumeButton.onClick.AddListener(() =>
             {
                 SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
                 Resume();
             });
-            bgmToggle.isOn = !SoundManager.Instance.BGMOn;
-            bgmToggle.onValueChanged.AddListener(delegate
+            _bgmToggle.isOn = !SoundManager.Instance.BGMOn;
+            _bgmToggle.onValueChanged.AddListener(delegate
             {
-                SoundManager.Instance.ToggleBGM(!bgmToggle.isOn);
+                SoundManager.Instance.ToggleBGM(!_bgmToggle.isOn);
                 SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
             });
-            sfxToggle.isOn = !SoundManager.Instance.SfxOn;
-            sfxToggle.onValueChanged.AddListener(delegate
+            _sfxToggle.isOn = !SoundManager.Instance.SfxOn;
+            _sfxToggle.onValueChanged.AddListener(delegate
             {
-                SoundManager.Instance.ToggleSfx(!sfxToggle.isOn);
+                SoundManager.Instance.ToggleSfx(!_sfxToggle.isOn);
                 SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
             });
 
-            mainMenuButton.onClick.AddListener(delegate
+            _mainMenuButton.onClick.AddListener(delegate
             {
                 SceneManager.LoadScene("Lobby");
                 if (_waveManager.curWave < 1) return;
@@ -358,13 +373,13 @@ namespace ManagerControl
                 DataManager.SaveLastSurvivedWave();
             });
 
-            speedUpButton.onClick.AddListener(() =>
+            _speedButton.onClick.AddListener(() =>
             {
-                speedUpButton.transform.DOScale(1, 0.2f).From(0.7f).SetEase(Ease.OutBack).SetUpdate(true);
+                _speedButton.transform.DOScale(1, 0.2f).From(0.7f).SetEase(Ease.OutBack).SetUpdate(true);
                 SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
                 SpeedUp();
             });
-            _curSpeedText = speedUpButton.GetComponentInChildren<TMP_Text>();
+            _curSpeedText = _speedButton.GetComponentInChildren<TMP_Text>();
         }
 
         private void ChangeLocaleDictionary(Locale locale)
@@ -379,19 +394,19 @@ namespace ManagerControl
                 towerInfoDic[towerType] = LocaleManager.GetLocalizedString(LocaleManager.CardKey + towerType);
             }
 
-            if (towerInfoUI != null) towerInfoUI.LocaleTowerName();
-            if (towerDescriptionCard != null) towerDescriptionCard.LocaleCardInfo();
+            if (_towerInfoUI != null) _towerInfoUI.LocaleTowerName();
+            if (_towerDescriptionCard != null) _towerDescriptionCard.LocaleCardInfo();
         }
 
         private void ResetSprite()
         {
             _clickSellBtn = false;
-            _sellButtonImage.sprite = sellSprite;
+            _sellButtonImage.sprite = _gameHUD.sellSprite;
         }
 
-        #endregion
+#endregion
 
-        #region Public Method
+#region Public Method
 
         public async UniTaskVoid MapSelectButton(int index)
         {
@@ -424,15 +439,15 @@ namespace ManagerControl
             DataManager.SetLevel((byte)index);
 
             await UniTask.Delay(500);
-            gameHUD.DisplayHUD();
-            await towerPanel.DOAnchorPosX(0, 0.5f).SetEase(Ease.OutBack);
+            _gameHUD.DisplayHUD();
+            await _towerCardPanel.DOAnchorPosX(0, 0.5f).SetEase(Ease.OutBack);
             CameraManager.enabled = true;
-            toggleTowerButton.GetComponent<TutorialController>().TutorialButton();
+            _toggleTowerButton.GetComponent<TutorialController>().TutorialButton();
             Input.multiTouchEnabled = true;
         }
 
         public Sprite GetTowerType(TowerType t) =>
-            TowerDataPrefabDictionary[t].towerData.IsMagicTower ? magicSprite : physicalSprite;
+            TowerDataPrefabDictionary[t].towerData.IsMagicTower ? _gameHUD.magicSprite : _gameHUD.physicalSprite;
 
         public async UniTaskVoid InstantiateTower(TowerType towerType, Vector3 placePos, Vector3 towerForward)
         {
@@ -464,7 +479,7 @@ namespace ManagerControl
             }
             else
             {
-                BuildSupportTower(towerObject.GetComponent<SupportTower>());
+                BuildSupportTower();
             }
 
             towerObject.TryGetComponent(out Tower tower);
@@ -476,11 +491,11 @@ namespace ManagerControl
             OffUI();
             if (!_isShowTowerBtn)
             {
-                toggleTowerButton.SetActive(true);
+                _toggleTowerButton.SetActive(true);
                 _toggleTowerBtnImage.DOFade(1, 0.2f);
             }
 
-            gameHUD.DisplayHUD();
+            _gameHUD.DisplayHUD();
         }
 
         public void OffUI()
@@ -503,20 +518,18 @@ namespace ManagerControl
         public async UniTaskVoid SlideDown()
         {
             _isShowTowerBtn = false;
-            toggleTowerButton.SetActive(true);
+            _toggleTowerButton.SetActive(true);
             await UniTask.Delay(2000);
             if (!_isShowTowerBtn)
             {
                 await _toggleTowerBtnImage.DOFade(0, 1);
-                toggleTowerButton.SetActive(false);
+                _toggleTowerButton.SetActive(false);
             }
         }
 
         public void YouCannotMove()
         {
-            cantMoveImage.transform.position = Input.mousePosition;
-            cantMoveImage.enabled = true;
-            _cantMoveImageSequence.OnComplete(() => cantMoveImage.enabled = false).Restart();
+            _gameHUD.CannotMoveHere();
         }
 
         public bool IsEnoughCost(TowerType towerType)
@@ -526,25 +539,25 @@ namespace ManagerControl
                 return true;
             }
 
-            notEnoughCostPanel.gameObject.SetActive(true);
-            _notEnoughCostSequence.OnComplete(() => notEnoughCostPanel.gameObject.SetActive(false)).Restart();
+            _notEnoughCostPanel.gameObject.SetActive(true);
+            _notEnoughCostSequence.OnComplete(() => _notEnoughCostPanel.gameObject.SetActive(false)).Restart();
 
             return false;
         }
 
         public void GameEnd()
         {
-            pausePanelBlockImage.raycastTarget = false;
-            resumeButton.interactable = false;
-            gameEndPanel.SetActive(true);
+            _pausePanelBlockImage.raycastTarget = false;
+            _resumeButton.interactable = false;
+            _gameEndPanel.SetActive(true);
             _pauseSequence.Restart();
             DataManager.SaveLastSurvivedWave();
             Time.timeScale = 0;
         }
 
-        #endregion
+#endregion
 
-        #region Private Method
+#region Private Method
 
         private async UniTaskVoid CheckCamPos()
         {
@@ -553,9 +566,9 @@ namespace ManagerControl
                 await UniTask.Delay(2000, cancellationToken: _cts.Token);
                 if (Vector3.Distance(CameraManager.transform.position, Vector3.zero) > 10)
                 {
-                    if (centerButton.gameObject.activeSelf) continue;
-                    centerButton.gameObject.SetActive(true);
-                    await centerButton.transform.DOScale(1, 0.2f).From(0).SetEase(Ease.OutBack);
+                    if (_centerButton.gameObject.activeSelf) continue;
+                    _centerButton.gameObject.SetActive(true);
+                    await _centerButton.transform.DOScale(1, 0.2f).From(0).SetEase(Ease.OutBack);
                 }
             }
         }
@@ -563,7 +576,7 @@ namespace ManagerControl
         private void ToggleTowerButtons()
         {
             if (_isShowTowerBtn) return;
-            toggleTowerButton.SetActive(false);
+            _toggleTowerButton.SetActive(false);
             _isShowTowerBtn = true;
             _towerCardController.SlideUp();
         }
@@ -579,9 +592,9 @@ namespace ManagerControl
             _towerManager.AddTower(attackTower);
         }
 
-        private void BuildSupportTower(SupportTower t)
+        private void BuildSupportTower()
         {
-            towerMana.towerMana.ManaRegenValue++;
+            _towerManager.TowerMana.towerMana.ManaRegenValue++;
         }
 
         private void TowerUpgrade()
@@ -594,8 +607,8 @@ namespace ManagerControl
             var upgradeCost = GetUpgradeCost(in towerType);
             if (_towerCost < upgradeCost)
             {
-                notEnoughCostPanel.gameObject.SetActive(true);
-                _notEnoughCostSequence.OnComplete(() => notEnoughCostPanel.gameObject.SetActive(false)).Restart();
+                _notEnoughCostPanel.gameObject.SetActive(true);
+                _notEnoughCostSequence.OnComplete(() => _notEnoughCostPanel.gameObject.SetActive(false)).Restart();
                 return;
             }
 
@@ -610,14 +623,14 @@ namespace ManagerControl
             var towerLevel = attackTower.TowerLevel;
 
             attackTower.TowerSetting(battleTowerData.TowerMeshes[towerLevel],
-                battleTowerData.BaseDamage * (towerLevel + 1),
+                battleTowerData.BaseDamage*(towerLevel + 1),
                 battleTowerData.AttackRange, battleTowerData.AttackRpm);
-            upgradeButton.SetActive(!towerLevel.Equals(4));
+            _upgradeButton.SetActive(!towerLevel.Equals(4));
 
             _towerRangeIndicator.SetIndicator(position, attackTower.TowerRange);
 
             _sellTowerCost = GetTowerSellCost(towerType);
-            towerInfoUI.SetTowerInfo(attackTower, towerData.IsUnitTower, towerLevel, GetUpgradeCost(in towerType),
+            _towerInfoUI.SetTowerInfo(attackTower, towerData.IsUnitTower, towerLevel, GetUpgradeCost(in towerType),
                 _sellTowerCost);
         }
 
@@ -653,37 +666,37 @@ namespace ManagerControl
                 UpdateSupportTowerInfo(clickedTower);
             }
 
-            towerInfoUI.SetInfoUI(position);
+            _towerInfoUI.SetInfoUI(position);
         }
 
         private void UpdateAttackTowerInfo(AttackTower attackTower, Vector3 position, bool isUnitTower)
         {
-            moveUnitButton.SetActive(isUnitTower);
-            upgradeButton.SetActive(!attackTower.TowerLevel.Equals(4));
+            _moveUnitButton.SetActive(isUnitTower);
+            _upgradeButton.SetActive(!attackTower.TowerLevel.Equals(4));
             _towerRangeIndicator.SetIndicator(position, attackTower.TowerRange);
             var towerType = _curSelectedTower.TowerType;
             var curTower = (AttackTower)_curSelectedTower;
             var towerLevel = curTower.TowerLevel;
             var curTowerData = TowerDataPrefabDictionary[towerType].towerData;
             _sellTowerCost = GetTowerSellCost(towerType);
-            towerInfoUI.SetTowerInfo(curTower, curTowerData.IsUnitTower,
+            _towerInfoUI.SetTowerInfo(curTower, curTowerData.IsUnitTower,
                 towerLevel, GetUpgradeCost(in towerType), _sellTowerCost);
         }
 
         private void UpdateSupportTowerInfo(Tower clickedTower)
         {
-            upgradeButton.SetActive(false);
-            moveUnitButton.SetActive(false);
-            towerInfoUI.SetSupportInfoUI();
+            _upgradeButton.SetActive(false);
+            _moveUnitButton.SetActive(false);
+            _towerInfoUI.SetSupportInfoUI();
             var supportTower = (SupportTower)_curSelectedTower;
             _sellTowerCost = GetTowerSellCost(clickedTower.TowerType);
-            towerInfoUI.SetSupportTowerInfo(supportTower, _sellTowerCost);
+            _towerInfoUI.SetSupportTowerInfo(supportTower, _sellTowerCost);
         }
 
         private ushort GetBuildCost(in TowerType towerType)
         {
             return (ushort)(TowerDataPrefabDictionary[towerType].towerData.TowerBuildCost +
-                            TowerDataPrefabDictionary[towerType].towerData.ExtraBuildCost *
+                            TowerDataPrefabDictionary[towerType].towerData.ExtraBuildCost*
                             _towerCountDictionary[towerType]);
         }
 
@@ -691,23 +704,23 @@ namespace ManagerControl
         {
             var curTower = (AttackTower)_curSelectedTower;
             return (ushort)(TowerDataPrefabDictionary[towerType].towerData.TowerUpgradeCost +
-                            TowerDataPrefabDictionary[towerType].towerData.ExtraUpgradeCost *
+                            TowerDataPrefabDictionary[towerType].towerData.ExtraUpgradeCost*
                             curTower.TowerLevel);
         }
 
         private ushort GetTowerSellCost(in TowerType towerType)
         {
             return (ushort)(TowerDataPrefabDictionary[towerType].towerData.TowerBuildCost +
-                            TowerDataPrefabDictionary[towerType].towerData.ExtraBuildCost *
+                            TowerDataPrefabDictionary[towerType].towerData.ExtraBuildCost*
                             (_towerCountDictionary[towerType] - 1));
         }
 
         private void MoveUnitButton()
         {
             SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
-            moveUnitController.FocusUnitTower(_curSummonTower);
+            _moveUnitController.FocusUnitTower(_curSummonTower);
             _upgradeSellPanelTween.PlayBackwards();
-            moveUnitButton.SetActive(false);
+            _moveUnitButton.SetActive(false);
             _startMoveUnit = true;
         }
 
@@ -731,7 +744,7 @@ namespace ManagerControl
             {
                 // 현재 supporttower 종류가 manaRecovery 밖에 없기 때문에 TryGetComponent(out SupportTower _) 를 
                 // 해도 되지만 여러개가 되면 TryGetComponent(out ManaTower _) 이런식으로 바꿔줘야함 
-                if (_curSelectedTower.TryGetComponent(out SupportTower _)) towerMana.towerMana.ManaRegenValue--;
+                if (_curSelectedTower.TryGetComponent(out SupportTower _)) _towerManager.TowerMana.towerMana.ManaRegenValue--;
             }
 
             _curSelectedTower.DisableObject();
@@ -741,7 +754,7 @@ namespace ManagerControl
 
         private void GameStart()
         {
-            waveText.text = "0";
+            _waveText.text = "0";
             Time.timeScale = 1;
             CameraManager.GameStartCamZoom();
             SoundManager.Instance.SoundManagerInit();
@@ -749,16 +762,16 @@ namespace ManagerControl
 
         public void GameOver()
         {
-            pausePanelBlockImage.raycastTarget = false;
-            resumeButton.interactable = false;
-            gameOverPanel.SetActive(true);
+            _pausePanelBlockImage.raycastTarget = false;
+            _resumeButton.interactable = false;
+            _gameOverPanel.SetActive(true);
             _pauseSequence.Restart();
             Time.timeScale = 0;
         }
 
         private void SpeedUp()
         {
-            _curTimeScale = (byte)(_curTimeScale % 3 + 1);
+            _curTimeScale = (byte)(_curTimeScale%3 + 1);
             Time.timeScale = _curTimeScale;
 
             _curSpeedText.text = "x" + _curTimeScale;
@@ -768,7 +781,7 @@ namespace ManagerControl
         {
             Input.multiTouchEnabled = false;
             Time.timeScale = 0;
-            pausePanelBlockImage.raycastTarget = false;
+            _pausePanelBlockImage.raycastTarget = false;
             _pauseSequence.Restart();
         }
 
@@ -776,10 +789,10 @@ namespace ManagerControl
         {
             Input.multiTouchEnabled = true;
             Time.timeScale = _curTimeScale;
-            pausePanelBlockImage.raycastTarget = true;
+            _pausePanelBlockImage.raycastTarget = true;
             _pauseSequence.PlayBackwards();
         }
 
-        #endregion
+#endregion
     }
 }

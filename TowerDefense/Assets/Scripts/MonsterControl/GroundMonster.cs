@@ -37,9 +37,13 @@ namespace MonsterControl
 
             if (target && target.enabled)
             {
-                var t = transform;
-                var targetRot = Quaternion.LookRotation(target.transform.position - t.position);
-                t.rotation = Quaternion.Slerp(t.rotation, targetRot, turnSpeed);
+                // var t = transform;
+                // var targetRot = Quaternion.LookRotation(target.transform.position - t.position);
+                // t.rotation = Quaternion.Slerp(t.rotation, targetRot, turnSpeed);
+                var dir = (target.transform.position - transform.position).normalized;
+                var targetRot = Quaternion.LookRotation(dir);
+                var eulerAngleDiff = targetRot.eulerAngles - transform.rotation.eulerAngles;
+                transform.Rotate(eulerAngleDiff);
             }
 
             base.MonsterUpdate();
@@ -102,7 +106,7 @@ namespace MonsterControl
 
             if (attackCooldown.IsCoolingDown) return;
 
-            anim.SetTrigger(IsAttack);
+            anim.SetTrigger(isAttack);
             TryDamage();
 
             attackCooldown.StartCooldown();

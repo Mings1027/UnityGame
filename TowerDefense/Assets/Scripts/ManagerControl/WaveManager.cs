@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
+using DataControl;
 using DataControl.MonsterDataControl;
 using MonsterControl;
 using PoolObjectControl;
@@ -58,6 +59,15 @@ namespace ManagerControl
             _towerManager = FindObjectOfType<TowerManager>();
         }
 
+        private void Update()
+        {
+            var enemyCount = _monsterList.Count;
+            for (var i = enemyCount - 1; i >= 0; i--)
+            {
+                _monsterList[i].DistanceToBaseTower();
+            }
+        }
+
         private void OnDisable()
         {
             _monsterList.Clear();
@@ -106,7 +116,6 @@ namespace ManagerControl
             enabled = true;
             IsStartWave = true;
             MonsterUpdate().Forget();
-            CheckMonsterPosition().Forget();
         }
 
         private void WaveStop()
@@ -127,19 +136,6 @@ namespace ManagerControl
                 for (var i = leftEnemyCount - 1; i >= 0; i--)
                 {
                     _monsterList[i].MonsterUpdate();
-                }
-            }
-        }
-
-        private async UniTaskVoid CheckMonsterPosition()
-        {
-            while (!_cts.IsCancellationRequested)
-            {
-                await UniTask.Delay(250);
-                var enemyCount = _monsterList.Count;
-                for (var i = enemyCount - 1; i >= 0; i--)
-                {
-                    _monsterList[i].DistanceToBaseTower();
                 }
             }
         }

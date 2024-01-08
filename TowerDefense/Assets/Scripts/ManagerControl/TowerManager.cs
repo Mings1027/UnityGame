@@ -1,19 +1,33 @@
+using System;
 using System.Collections.Generic;
+using DataControl;
+using DataControl.TowerDataControl;
 using TowerControl;
 using UnityEngine;
 
 namespace ManagerControl
 {
+    [Serializable]
+    public class TowerDataPrefab
+    {
+        public TowerData towerData;
+        public GameObject towerPrefab;
+    }
+
     public class TowerManager : MonoBehaviour
     {
         private List<AttackTower> _towers;
         [SerializeField] private TowerMana towerMana;
+        [field: SerializeField] public TowerDataPrefab[] towerDataPrefabs { get; private set; }
+
+        public TowerMana TowerMana => towerMana;
 
         #region Unity Event
 
         protected void Awake()
         {
             _towers = new List<AttackTower>(50);
+            Init();
         }
 
         private void Start()
@@ -31,7 +45,14 @@ namespace ManagerControl
         }
 
         #endregion
+#region Private Method
 
+        private void Init()
+        {
+
+        }
+
+  #endregion
         #region TowerControl
 
         public void StartTargeting()

@@ -16,6 +16,11 @@ namespace GameControl
                 if (!_instance)
                 {
                     _instance = (T)FindAnyObjectByType(typeof(T));
+                    if (!_instance)
+                    {
+                        var obj = new GameObject(typeof(T).ToString());
+                        _instance = obj.AddComponent<T>();
+                    }
                 }
 
                 return _instance;
@@ -27,7 +32,6 @@ namespace GameControl
         protected virtual void Awake()
         {
             _applicationQuit = false;
-            // _instance = (T)FindAnyObjectByType(typeof(T));
             if (!dontDestroyOnLoad) return;
             var obj = FindObjectsOfType<T>();
             if (obj.Length == 1)

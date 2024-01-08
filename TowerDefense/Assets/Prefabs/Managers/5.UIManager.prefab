@@ -699,57 +699,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dontDestroyOnLoad: 0
-  gameHUD: {fileID: 6950427999489102877}
-  towerMana: {fileID: 11400000, guid: bb8de2ab7dab642b8beb422fe2f3056c, type: 2}
-  notEnoughCostPanel: {fileID: 7460923780140280784}
-  towerPanel: {fileID: 238135666778688184}
-  cantMoveImage: {fileID: 238135668153487604}
-  physicalSprite: {fileID: 21300000, guid: 9435836be03c94579a23fa5daed3685a, type: 3}
-  magicSprite: {fileID: 21300000, guid: 818a511a2ccf641d987ae913c551b863, type: 3}
-  sellSprite: {fileID: 21300000, guid: 6aff483a1d07c48a2b06331be5c88de6, type: 3}
-  checkSprite: {fileID: 21300000, guid: 770d5dfa083594c56838ea96205c7b9a, type: 3}
-  towerDataPrefabs:
-  - towerData: {fileID: 11400000, guid: d3b587f152aae441a90ea4b71abad91f, type: 2}
-    towerPrefab: {fileID: 3847918098510183265, guid: 8d942512867e1284e9d6225db845f190,
-      type: 3}
-  - towerData: {fileID: 11400000, guid: b253b1c08c9244b2cbe38c4f085c0319, type: 2}
-    towerPrefab: {fileID: 6197179999279106558, guid: 6853988c5ba6a624baae558e60c7705a,
-      type: 3}
-  - towerData: {fileID: 11400000, guid: c736b278a53b54f25bff30f2fa28af16, type: 2}
-    towerPrefab: {fileID: 7895117123715481240, guid: 210d26a116210b7448e11f2f1b8c04fa,
-      type: 3}
-  - towerData: {fileID: 11400000, guid: f17b270196ea944929b305b16f4ede12, type: 2}
-    towerPrefab: {fileID: 1910714280161815426, guid: 7a286ab122b55db4b9b902a02b52e0f4,
-      type: 3}
-  - towerData: {fileID: 11400000, guid: c677db39c8ed144739f1fe9d57120980, type: 2}
-    towerPrefab: {fileID: 5210671368929389288, guid: 58def3c97b07c4916a28513c6f5efcb7,
-      type: 3}
-  - towerData: {fileID: 11400000, guid: 0d3cab14d90154954885d96752587919, type: 2}
-    towerPrefab: {fileID: 1032271493589045680, guid: b9d297451a4a742beaa6acdc9d980351,
-      type: 3}
-  - towerData: {fileID: 11400000, guid: 841c4bc622efe4c1091e9f7164373b49, type: 2}
-    towerPrefab: {fileID: 4440219121197004554, guid: c6d784db220a82540bcd8c36e16873db,
-      type: 3}
-  towerInfoUI: {fileID: 5770973841870053454}
-  towerDescriptionCard: {fileID: 5816112278389453039}
-  upgradeButton: {fileID: 1178607328671503538}
-  moveUnitButton: {fileID: 4637252018610307861}
-  sellTowerButton: {fileID: 6308687690856060520}
-  toggleTowerButton: {fileID: 238135667569637536}
-  gameOverPanel: {fileID: 3817604887416365915}
-  gameEndPanel: {fileID: 5076441922462509090}
-  pausePanel: {fileID: 6601451980291710149}
-  pausePanelBlockImage: {fileID: 3916131625996459303}
-  pauseButton: {fileID: 2996484630649440471}
-  centerButton: {fileID: 1840280690193447875}
-  resumeButton: {fileID: 7492731564087023856}
-  mainMenuButton: {fileID: 287562510383188032}
-  speedUpButton: {fileID: 7269572018400351847}
-  bgmToggle: {fileID: 3540272751167915457}
-  sfxToggle: {fileID: 6604446628524665962}
-  costText: {fileID: 1033239882778456162}
-  waveText: {fileID: 3073903680114549036}
-  moveUnitController: {fileID: 6077884536439040509}
 --- !u!1 &351392548486121626
 GameObject:
   m_ObjectHideFlags: 0
@@ -762,7 +711,7 @@ GameObject:
   - component: {fileID: 8172382736949559130}
   - component: {fileID: 4560971598676963058}
   m_Layer: 5
-  m_Name: Background
+  m_Name: Pause Panel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1474,7 +1423,7 @@ GameObject:
   - component: {fileID: 8515049266855597927}
   - component: {fileID: 1840280690193447875}
   m_Layer: 5
-  m_Name: CenterButton
+  m_Name: Center Button
   m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1964,7 +1913,7 @@ GameObject:
   - component: {fileID: 1669901683789171553}
   - component: {fileID: 3981321412770467924}
   m_Layer: 5
-  m_Name: UpgradeButton
+  m_Name: Upgrade Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8522,7 +8471,7 @@ GameObject:
   - component: {fileID: 6026578124780170548}
   - component: {fileID: 7269572018400351847}
   m_Layer: 5
-  m_Name: SpeedButton
+  m_Name: Speed Button
   m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -8979,7 +8928,7 @@ GameObject:
   - component: {fileID: 4637252018610307862}
   - component: {fileID: 7703348122725602988}
   m_Layer: 5
-  m_Name: MoveUnitButton
+  m_Name: Move Unit Button
   m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -11944,7 +11893,7 @@ GameObject:
   - component: {fileID: 1712456561926577337}
   - component: {fileID: 2996484630649440471}
   m_Layer: 5
-  m_Name: PauseButton
+  m_Name: Pause Button
   m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12269,7 +12218,7 @@ GameObject:
   - component: {fileID: 7088606125294835192}
   - component: {fileID: 2108108220692377023}
   m_Layer: 5
-  m_Name: Sell TowerButton
+  m_Name: Sell Tower Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -13031,7 +12980,7 @@ GameObject:
   - component: {fileID: 6601451980291710149}
   - component: {fileID: 6601451980291710155}
   m_Layer: 5
-  m_Name: Pause Panel
+  m_Name: Pause Panel Background
   m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15854,7 +15803,7 @@ GameObject:
   - component: {fileID: 5793674422347346768}
   - component: {fileID: 1033239882778456162}
   m_Layer: 5
-  m_Name: Cost Text (TMP)
+  m_Name: Cost Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17524,6 +17473,15 @@ MonoBehaviour:
   towerMana: {fileID: 11400000, guid: bb8de2ab7dab642b8beb422fe2f3056c, type: 2}
   playerHealth: 10
   playerMana: 100
+  cantMoveImage: {fileID: 238135668153487604}
+  <physicalSprite>k__BackingField: {fileID: 21300000, guid: 9435836be03c94579a23fa5daed3685a,
+    type: 3}
+  <magicSprite>k__BackingField: {fileID: 21300000, guid: 818a511a2ccf641d987ae913c551b863,
+    type: 3}
+  <sellSprite>k__BackingField: {fileID: 21300000, guid: 6aff483a1d07c48a2b06331be5c88de6,
+    type: 3}
+  <checkSprite>k__BackingField: {fileID: 21300000, guid: 770d5dfa083594c56838ea96205c7b9a,
+    type: 3}
 --- !u!222 &8595752524664982557
 CanvasRenderer:
   m_ObjectHideFlags: 0
