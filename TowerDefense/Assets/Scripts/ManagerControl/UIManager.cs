@@ -10,6 +10,7 @@ using GameControl;
 using IndicatorControl;
 using MapControl;
 using PoolObjectControl;
+using StatusControl;
 using TextControl;
 using TMPro;
 using TowerControl;
@@ -19,7 +20,6 @@ using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace ManagerControl
@@ -75,7 +75,6 @@ namespace ManagerControl
 
         private GameHUD _gameHUD;
         private TextMeshProUGUI _costText;
-        private TextMeshProUGUI _waveText;
         private Button _centerButton;
         private Button _speedButton;
         private Button _pauseButton;
@@ -115,7 +114,7 @@ namespace ManagerControl
 
         public CameraManager CameraManager { get; private set; }
 
-        public TextMeshProUGUI WaveText => _waveText;
+        public TextMeshProUGUI WaveText { get; private set; }
 
         public Dictionary<TowerType, string> towerNameDic { get; private set; }
         public Dictionary<TowerType, string> towerInfoDic { get; private set; }
@@ -129,30 +128,27 @@ namespace ManagerControl
         protected override void Awake()
         {
             base.Awake();
-            Input.multiTouchEnabled = false;
-            _cam = Camera.main;
-            _cts?.Dispose();
-            _cts = new CancellationTokenSource();
-            _waveManager = (WaveManager)FindAnyObjectByType(typeof(WaveManager));
-            _towerManager = (TowerManager)FindAnyObjectByType(typeof(TowerManager));
-
             Init();
             TowerButtonInit();
             TowerInit();
             LocaleDictionaryInit();
             TweenInit();
             MenuButtonInit();
-            _towerRangeIndicator = (TowerRangeIndicator)FindAnyObjectByType(typeof(TowerRangeIndicator));
             LocalizationSettings.SelectedLocaleChanged += ChangeLocaleDictionary;
         }
 
         private void Start()
         {
+            Application.targetFrameRate = 60;
             CameraManager = _cam.GetComponentInParent<CameraManager>();
             _gameOverPanel.SetActive(false);
             _gameEndPanel.SetActive(false);
             GameStart();
             CheckCamPos().Forget();
+
+            _towerInfoUI.Init();
+            _gameHUD.Init();
+            _towerManager.Init();
         }
 
         private void OnDisable()
@@ -163,7 +159,6 @@ namespace ManagerControl
             _cantMoveImageSequence?.Kill();
             _camZoomSequence?.Kill();
             _upgradeButtonTween?.Kill();
-
             _cts?.Cancel();
             _cts?.Dispose();
         }
@@ -186,27 +181,33 @@ namespace ManagerControl
 
         private void Init()
         {
+            Input.multiTouchEnabled = false;
+            _cam = Camera.main;
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
+
+            _waveManager = (WaveManager)FindAnyObjectByType(typeof(WaveManager));
+            _towerManager = (TowerManager)FindAnyObjectByType(typeof(TowerManager));
+            _towerRangeIndicator = (TowerRangeIndicator)FindAnyObjectByType(typeof(TowerRangeIndicator));
+
             var uiPanel = transform.Find("UI Panel");
             _towerInfoUI = FindAnyObjectByType<TowerInfoUI>();
             var followTowerInfoUI = _towerInfoUI.transform.GetChild(0);
             _upgradeButton = followTowerInfoUI.Find("Upgrade Button").gameObject;
             _sellTowerButton = followTowerInfoUI.Find("Sell Tower Button").gameObject;
             _moveUnitButton = followTowerInfoUI.Find("Move Unit Button").gameObject;
-
             _gameHUD = FindAnyObjectByType<GameHUD>();
             var costBackground = _gameHUD.transform.Find("Cost Background");
             _costText = costBackground.Find("Cost Text").GetComponent<TextMeshProUGUI>();
             var waveBackground = _gameHUD.transform.Find("Wave Background");
-            _waveText = waveBackground.Find("Wave Text").GetComponent<TextMeshProUGUI>();
+            WaveText = waveBackground.Find("Wave Text").GetComponent<TextMeshProUGUI>();
             _centerButton = _gameHUD.transform.Find("Center Button").GetComponent<Button>();
             _speedButton = _gameHUD.transform.Find("Speed Button").GetComponent<Button>();
             _pauseButton = _gameHUD.transform.Find("Pause Button").GetComponent<Button>();
-
             _toggleTowerButton = uiPanel.Find("Toggle Tower Button").gameObject;
             _towerDescriptionCard = FindAnyObjectByType<TowerDescriptionCard>();
             _towerCardPanel = uiPanel.Find("Tower Card Panel").GetComponent<RectTransform>();
             _notEnoughCostPanel = uiPanel.Find("Not Enough Gold Message").GetComponent<RectTransform>();
-
             _pausePanelBackground = uiPanel.Find("Pause Panel Background");
             _resumeButton = _pausePanelBackground.Find("Resume Button").GetComponent<Button>();
             var pausePanel = _pausePanelBackground.Find("Pause Panel");
@@ -223,6 +224,7 @@ namespace ManagerControl
         {
             _towerCardController = _towerCardPanel.GetComponentInChildren<TowerCardController>();
             _towerCardController.Init();
+
             for (var i = 0; i < _towerManager.towerDataPrefabs.Length; i++)
             {
                 _towerCardController.SetDictionary(i, _towerManager.towerDataPrefabs[i].towerData);
@@ -230,6 +232,7 @@ namespace ManagerControl
 
             var towerButtons = _towerCardController.GetComponentsInChildren<TowerButton>();
             _towerCostTexts = new TMP_Text[towerButtons.Length];
+
             for (var i = 0; i < towerButtons.Length; i++)
             {
                 _towerCostTexts[i] = towerButtons[i].GetComponentInChildren<TMP_Text>();
@@ -240,10 +243,10 @@ namespace ManagerControl
                 SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
                 ToggleTowerButtons();
             });
-
             _upgradeButton.GetComponent<Button>().onClick.AddListener(() =>
             {
                 SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
+
                 if (_clickSellBtn)
                 {
                     // _sellButtonImage.sprite = sellSprite;
@@ -254,7 +257,6 @@ namespace ManagerControl
                 _upgradeButtonTween.Restart();
             });
             _moveUnitButton.GetComponent<Button>().onClick.AddListener(MoveUnitButton);
-
             _sellTowerButton.GetComponent<Button>().onClick.AddListener(() =>
             {
                 if (_clickSellBtn)
@@ -270,7 +272,6 @@ namespace ManagerControl
                     _sellButtonImage.sprite = _gameHUD.checkSprite;
                 }
             });
-
             _sellButtonImage = _sellTowerButton.transform.GetChild(0).GetComponent<Image>();
         }
 
@@ -280,14 +281,13 @@ namespace ManagerControl
             _towerCountDictionary = new Dictionary<TowerType, ushort>();
             _towerCostTextDictionary = new Dictionary<TowerType, TMP_Text>();
             var towerDataPrefabs = _towerManager.towerDataPrefabs;
+
             for (var i = 0; i < towerDataPrefabs.Length; i++)
             {
                 TowerDataPrefabDictionary.Add(towerDataPrefabs[i].towerData.TowerType, towerDataPrefabs[i]);
-
                 var t = towerDataPrefabs[i].towerData;
                 t.InitState();
                 _towerCountDictionary.Add(t.TowerType, 0);
-
                 var towerType = towerDataPrefabs[i].towerData.TowerType;
                 _towerCostTextDictionary.Add(towerType, _towerCostTexts[i]);
                 _towerCostTextDictionary[towerType].text =
@@ -300,6 +300,7 @@ namespace ManagerControl
             towerNameDic = new Dictionary<TowerType, string>();
             towerInfoDic = new Dictionary<TowerType, string>();
             var towerTypes = Enum.GetValues(typeof(TowerType));
+
             foreach (TowerType towerType in towerTypes)
             {
                 if (towerType == TowerType.None) return;
@@ -311,17 +312,13 @@ namespace ManagerControl
         private void TweenInit()
         {
             _toggleTowerBtnImage = _toggleTowerButton.transform.GetChild(0).GetComponent<Image>();
-
             _upgradeSellPanelTween = _towerInfoUI.transform.DOScale(1, 0.15f).From(0).SetAutoKill(false).Pause();
-
             _pauseSequence = DOTween.Sequence().SetAutoKill(false).SetUpdate(true).Pause()
                 .Append(_pausePanelBackground.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack))
                 .Join(_pauseButton.transform.DOScale(0, 0.2f));
-
             _notEnoughCostSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(_notEnoughCostPanel.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBounce))
                 .Append(_notEnoughCostPanel.DOScale(0, 0.2f).SetDelay(0.3f));
-
             _upgradeButtonTween = _upgradeButton.transform.DOScale(1, 0.2f).From(0.7f).SetEase(Ease.OutBack)
                 .SetUpdate(true).SetAutoKill(false);
         }
@@ -329,13 +326,11 @@ namespace ManagerControl
         private void MenuButtonInit()
         {
             _curTimeScale = 1;
-
             _pauseButton.onClick.AddListener(() =>
             {
                 SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
                 Pause();
             });
-
             _centerButton.onClick.AddListener(() =>
             {
                 SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
@@ -344,7 +339,6 @@ namespace ManagerControl
                 CameraManager.transform.DOMove(Vector3.zero, 0.5f).SetEase(Ease.OutCubic);
             });
             _centerButton.gameObject.SetActive(false);
-
             _resumeButton.onClick.AddListener(() =>
             {
                 SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
@@ -362,17 +356,16 @@ namespace ManagerControl
                 SoundManager.Instance.ToggleSfx(!_sfxToggle.isOn);
                 SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
             });
-
             _mainMenuButton.onClick.AddListener(delegate
             {
                 SceneManager.LoadScene("Lobby");
+
                 if (_waveManager.curWave < 1) return;
                 DataManager.UpdateSurvivedWave((byte)(_waveManager.IsStartWave
                     ? _waveManager.curWave - 1
                     : _waveManager.curWave));
                 DataManager.SaveLastSurvivedWave();
             });
-
             _speedButton.onClick.AddListener(() =>
             {
                 _speedButton.transform.DOScale(1, 0.2f).From(0.7f).SetEase(Ease.OutBack).SetUpdate(true);
@@ -418,26 +411,30 @@ namespace ManagerControl
                 case 1:
                     mapManager.connectionProbability = 25;
                     TowerCost = 2000;
+
                     break;
                 case 2:
                     mapManager.connectionProbability = 50;
                     TowerCost = 4000;
+
                     break;
                 case 3:
                     mapManager.connectionProbability = 60;
                     TowerCost = 5000;
+
                     break;
                 case 4:
                     mapManager.connectionProbability = 70;
                     TowerCost = 6000;
+
                     break;
                 default:
                     mapManager.connectionProbability = mapManager.connectionProbability;
+
                     break;
             }
 
             DataManager.SetLevel((byte)index);
-
             await UniTask.Delay(500);
             _gameHUD.DisplayHUD();
             await _towerCardPanel.DOAnchorPosX(0, 0.5f).SetEase(Ease.OutBack);
@@ -452,18 +449,14 @@ namespace ManagerControl
         public async UniTaskVoid InstantiateTower(TowerType towerType, Vector3 placePos, Vector3 towerForward)
         {
             var towerObject = Instantiate(TowerDataPrefabDictionary[towerType].towerPrefab, placePos, Quaternion.identity);
-
             var lostCost = GetBuildCost(towerType);
             _towerCountDictionary[towerType]++;
             TowerCost -= lostCost;
-
             PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, placePos).SetCostText(lostCost, false);
             _towerCostTextDictionary[towerType].text = GetBuildCost(towerType) + "G";
-
             var towerTransform = towerObject.transform;
             towerTransform.GetChild(0).position = towerTransform.position + new Vector3(0, 2, 0);
             towerTransform.GetChild(0).forward = towerForward;
-
             await DOTween.Sequence().Join(towerObject.transform.GetChild(0).DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack))
                 .Append(towerObject.transform.GetChild(0).DOMoveY(placePos.y, 0.5f).SetEase(Ease.InExpo)
                     .OnComplete(() =>
@@ -489,6 +482,7 @@ namespace ManagerControl
         public void UIOff()
         {
             OffUI();
+
             if (!_isShowTowerBtn)
             {
                 _toggleTowerButton.SetActive(true);
@@ -501,7 +495,6 @@ namespace ManagerControl
         public void OffUI()
         {
             if (!_isPanelOpen) return;
-
             _upgradeSellPanelTween.PlayBackwards();
             _startMoveUnit = false;
             _isPanelOpen = false;
@@ -520,6 +513,7 @@ namespace ManagerControl
             _isShowTowerBtn = false;
             _toggleTowerButton.SetActive(true);
             await UniTask.Delay(2000);
+
             if (!_isShowTowerBtn)
             {
                 await _toggleTowerBtnImage.DOFade(0, 1);
@@ -527,10 +521,11 @@ namespace ManagerControl
             }
         }
 
-        public void YouCannotMove()
-        {
-            _gameHUD.CannotMoveHere();
-        }
+        public void YouCannotMove() => _gameHUD.CannotMoveHere();
+
+        public TowerHealth GetTowerHealth() => _gameHUD.towerHealth;
+
+        public Mana GetTowerMana() => _gameHUD.towerMana;
 
         public bool IsEnoughCost(TowerType towerType)
         {
@@ -564,6 +559,7 @@ namespace ManagerControl
             while (!_cts.IsCancellationRequested)
             {
                 await UniTask.Delay(2000, cancellationToken: _cts.Token);
+
                 if (Vector3.Distance(CameraManager.transform.position, Vector3.zero) > 10)
                 {
                     if (_centerButton.gameObject.activeSelf) continue;
@@ -584,17 +580,15 @@ namespace ManagerControl
         private void BuildTower(AttackTower attackTower, TowerData towerData)
         {
             var attackTowerData = (AttackTowerData)towerData;
-
             attackTower.TowerLevelUp();
             attackTower.TowerSetting(attackTowerData.TowerMeshes[attackTower.TowerLevel], attackTowerData.BaseDamage,
                 attackTowerData.AttackRange, attackTowerData.AttackRpm);
-
             _towerManager.AddTower(attackTower);
         }
 
         private void BuildSupportTower()
         {
-            _towerManager.TowerMana.towerMana.ManaRegenValue++;
+            _gameHUD.towerMana.ManaRegenValue++;
         }
 
         private void TowerUpgrade()
@@ -603,12 +597,13 @@ namespace ManagerControl
             var towerType = attackTower.TowerType;
             var towerData = TowerDataPrefabDictionary[towerType].towerData;
             var battleTowerData = (AttackTowerData)towerData;
-
             var upgradeCost = GetUpgradeCost(in towerType);
+
             if (_towerCost < upgradeCost)
             {
                 _notEnoughCostPanel.gameObject.SetActive(true);
                 _notEnoughCostSequence.OnComplete(() => _notEnoughCostPanel.gameObject.SetActive(false)).Restart();
+
                 return;
             }
 
@@ -616,19 +611,14 @@ namespace ManagerControl
             var position = attackTower.transform.position;
             PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, position)
                 .SetCostText(upgradeCost, false);
-
             PoolObjectManager.Get(PoolObjectKey.BuildSmoke, position);
-
             attackTower.TowerLevelUp();
             var towerLevel = attackTower.TowerLevel;
-
             attackTower.TowerSetting(battleTowerData.TowerMeshes[towerLevel],
-                battleTowerData.BaseDamage*(towerLevel + 1),
+                battleTowerData.BaseDamage * (towerLevel + 1),
                 battleTowerData.AttackRange, battleTowerData.AttackRpm);
             _upgradeButton.SetActive(!towerLevel.Equals(4));
-
             _towerRangeIndicator.SetIndicator(position, attackTower.TowerRange);
-
             _sellTowerCost = GetTowerSellCost(towerType);
             _towerInfoUI.SetTowerInfo(attackTower, towerData.IsUnitTower, towerLevel, GetUpgradeCost(in towerType),
                 _sellTowerCost);
@@ -644,16 +634,12 @@ namespace ManagerControl
             _upgradeSellPanelTween.Restart();
 
             if (clickedTower.Equals(_curSelectedTower)) return;
-
             if (_curSelectedTower) _curSelectedTower.DeActiveIndicator();
             if (_curSummonTower) _curSummonTower.DeActiveIndicator();
-
             var isUnitTower = TowerDataPrefabDictionary[clickedTower.TowerType].towerData.IsUnitTower;
             if (isUnitTower) _curSummonTower = clickedTower.GetComponent<SummonTower>();
-
             _curSelectedTower = clickedTower;
             _curSelectedTower.ActiveIndicator();
-
             var position = clickedTower.transform.position;
 
             if (_curSelectedTower is AttackTower curTower)
@@ -696,22 +682,23 @@ namespace ManagerControl
         private ushort GetBuildCost(in TowerType towerType)
         {
             return (ushort)(TowerDataPrefabDictionary[towerType].towerData.TowerBuildCost +
-                            TowerDataPrefabDictionary[towerType].towerData.ExtraBuildCost*
+                            TowerDataPrefabDictionary[towerType].towerData.ExtraBuildCost *
                             _towerCountDictionary[towerType]);
         }
 
         private ushort GetUpgradeCost(in TowerType towerType)
         {
             var curTower = (AttackTower)_curSelectedTower;
+
             return (ushort)(TowerDataPrefabDictionary[towerType].towerData.TowerUpgradeCost +
-                            TowerDataPrefabDictionary[towerType].towerData.ExtraUpgradeCost*
+                            TowerDataPrefabDictionary[towerType].towerData.ExtraUpgradeCost *
                             curTower.TowerLevel);
         }
 
         private ushort GetTowerSellCost(in TowerType towerType)
         {
             return (ushort)(TowerDataPrefabDictionary[towerType].towerData.TowerBuildCost +
-                            TowerDataPrefabDictionary[towerType].towerData.ExtraBuildCost*
+                            TowerDataPrefabDictionary[towerType].towerData.ExtraBuildCost *
                             (_towerCountDictionary[towerType] - 1));
         }
 
@@ -728,33 +715,31 @@ namespace ManagerControl
         {
             SoundManager.Instance.PlayUISound(_sellTowerCost < 100 ? SoundEnum.LowCost :
                 _sellTowerCost < 250 ? SoundEnum.MediumCost : SoundEnum.HighCost);
-
             var towerType = _curSelectedTower.TowerType;
             _towerCountDictionary[towerType]--;
             _towerCostTextDictionary[towerType].text = GetBuildCost(towerType) + "G";
             var position = _curSelectedTower.transform.position;
             PoolObjectManager.Get(PoolObjectKey.BuildSmoke, position);
-
             TowerCost += _sellTowerCost;
             PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, position)
                 .SetCostText(_sellTowerCost);
             _sellTowerCost = 0;
+
             if (_curSelectedTower is AttackTower curTower) _towerManager.RemoveTower(curTower);
             else
             {
                 // 현재 supporttower 종류가 manaRecovery 밖에 없기 때문에 TryGetComponent(out SupportTower _) 를 
                 // 해도 되지만 여러개가 되면 TryGetComponent(out ManaTower _) 이런식으로 바꿔줘야함 
-                if (_curSelectedTower.TryGetComponent(out SupportTower _)) _towerManager.TowerMana.towerMana.ManaRegenValue--;
+                if (_curSelectedTower.TryGetComponent(out SupportTower _)) _gameHUD.towerMana.ManaRegenValue--;
             }
 
             _curSelectedTower.DisableObject();
-
             OffUI();
         }
 
         private void GameStart()
         {
-            _waveText.text = "0";
+            WaveText.text = "0";
             Time.timeScale = 1;
             CameraManager.GameStartCamZoom();
             SoundManager.Instance.SoundManagerInit();
@@ -771,9 +756,8 @@ namespace ManagerControl
 
         private void SpeedUp()
         {
-            _curTimeScale = (byte)(_curTimeScale%3 + 1);
+            _curTimeScale = (byte)(_curTimeScale % 3 + 1);
             Time.timeScale = _curTimeScale;
-
             _curSpeedText.text = "x" + _curTimeScale;
         }
 

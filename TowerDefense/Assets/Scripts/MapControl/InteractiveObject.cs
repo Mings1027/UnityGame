@@ -11,8 +11,6 @@ namespace MapControl
 {
     public class InteractiveObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
-        [SerializeField] private TowerHp towerHp;
-
         public void OnPointerDown(PointerEventData eventData)
         {
         }
@@ -21,12 +19,12 @@ namespace MapControl
         {
             if (Input.touchCount != 1) return;
             if (Input.GetTouch(0).deltaPosition != Vector2.zero) return;
-
             PoolObjectManager.Get(PoolObjectKey.ObstacleSmoke, transform.position);
             var ran = Random.Range(0, 10);
+
             if (ran < 2)
             {
-                if (towerHp.towerHealth.IsFull)
+                if (UIManager.Instance.GetTowerHealth().IsFull)
                 {
                     EarnCoin();
                 }
@@ -45,18 +43,17 @@ namespace MapControl
 
         private void HealBaseTower()
         {
-            towerHp.towerHealth.CurInteractiveTransform(transform);
-            towerHp.towerHealth.Heal(1);
+            var towerHp = UIManager.Instance.GetTowerHealth();
+            towerHp.CurInteractiveTransform(transform);
+            towerHp.Heal(1);
         }
 
         private void EarnCoin()
         {
             var num = (ushort)(Random.Range(10, 30) * 10);
             PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, transform.position).SetCostText(num);
-
             SoundManager.Instance.PlayUISound(num < 100 ? SoundEnum.LowCost :
                 num < 250 ? SoundEnum.MediumCost : SoundEnum.HighCost);
-
             UIManager.Instance.TowerCost += num;
         }
     }

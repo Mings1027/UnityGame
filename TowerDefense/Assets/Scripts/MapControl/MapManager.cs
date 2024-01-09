@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using CustomEnumControl;
@@ -83,7 +82,7 @@ namespace MapControl
         [SerializeField] private Vector3 colliderSize;
 #endif
 
-        #region Unity Event
+#region Unity Event
 
         private void Awake()
         {
@@ -103,6 +102,7 @@ namespace MapControl
             if (!drawGizmos) return;
             if (_wayPointsHashSet == null) return;
             Gizmos.color = Color.red;
+
             foreach (var way in _wayPointsHashSet)
             {
                 Gizmos.DrawSphere(way, drawSphereRadius);
@@ -110,9 +110,9 @@ namespace MapControl
         }
 #endif
 
-        #endregion
+#endregion
 
-        #region Init
+#region Init
 
         private void ComponentInit()
         {
@@ -143,6 +143,7 @@ namespace MapControl
 #if UNITY_EDITOR
             _customMapQueue = new Queue<string>();
             var splitString = customMap.Split(' ');
+
             foreach (var str in splitString)
             {
                 _customMapQueue.Enqueue(str);
@@ -154,54 +155,13 @@ namespace MapControl
 
             _directionMappingDic = new Dictionary<string, string>
             {
-                {
-                    "0", "P"
-                },
-                {
-                    "1", "P"
-                },
-                {
-                    "2", "P"
-                },
-                {
-                    "3", "P"
-                },
-                {
-                    "01", "S"
-                },
-                {
-                    "02", "L"
-                },
-                {
-                    "03", "R"
-                },
-                {
-                    "12", "R"
-                },
-                {
-                    "13", "L"
-                },
-                {
-                    "23", "S"
-                },
-                {
-                    "012", "SL"
-                },
-                {
-                    "013", "SR"
-                },
-                {
-                    "023", "LR"
-                },
-                {
-                    "123", "LR"
-                },
-                {
-                    "0123", "SLR"
-                },
+                {"0", "P"}, {"1", "P"}, {"2", "P"}, {"3", "P"}, {"01", "S"}, {"02", "L"}, {"03", "R"},
+                {"12", "R"}, {"13", "L"}, {"23", "S"}, {"012", "SL"}, {"013", "SR"}, {"023", "LR"},
+                {"123", "LR"}, {"0123", "SLR"}
             };
 
             _mapDictionary = new Dictionary<string, GameObject>();
+
             for (var i = 0; i < mapPrefabs.Length; i++)
             {
                 var mapName = mapPrefabs[i].name.Split('_')[0];
@@ -214,6 +174,7 @@ namespace MapControl
         private void PlaceStartMap(int index)
         {
             var startMapIndex = SortMapIndex();
+
             for (var i = 0; i < index; i++)
             {
                 _connectionString += startMapIndex[i];
@@ -221,9 +182,7 @@ namespace MapControl
 
             _connectionString = string.Concat(_connectionString.OrderBy(c => c));
 
-            if (_connectionString != null)
-                _newMapObject = Instantiate(_mapDictionary[_directionMappingDic[_connectionString]], mapMesh)
-                    .GetComponent<MapData>();
+            if (_connectionString != null) _newMapObject = Instantiate(_mapDictionary[_directionMappingDic[_connectionString]], mapMesh).GetComponent<MapData>();
             _newMapTransform = _newMapObject.transform;
             SetNewMapForward();
             PlaceObstacle();
@@ -239,6 +198,7 @@ namespace MapControl
             var random = new System.Random();
 
             var charArrayLength = charArray.Length - 1;
+
             for (var i = charArrayLength; i > 0; i--)
             {
                 var j = random.Next(0, i + 1);
@@ -251,6 +211,7 @@ namespace MapControl
         private void InitExpandButtonPosition()
         {
             var connectionLength = _connectionString.Length;
+
             for (var i = 0; i < connectionLength; i++)
             {
                 var indexChar = _connectionString[i];
@@ -259,7 +220,7 @@ namespace MapControl
             }
         }
 
-        #endregion
+#endregion
 
         public void MakeMap(int index)
         {
@@ -305,11 +266,12 @@ namespace MapControl
             // PlaceExpandButtons();
         }
 
-        #region ExpandMap Function
+#region ExpandMap Function
 
         private void DisableExpandButtons()
         {
             var expandBtnCount = _expandButtons.Count;
+
             for (var i = 0; i < expandBtnCount; i++)
             {
                 if (_expandButtons[i].gameObject.activeSelf)
@@ -332,6 +294,7 @@ namespace MapControl
         private void InitConnectionState()
         {
             var neighborMapCount = _neighborMapArray.Length;
+
             for (var i = 0; i < neighborMapCount; i++)
             {
                 _neighborMapArray[i] = null;
@@ -343,9 +306,11 @@ namespace MapControl
         private void CheckNeighborMap()
         {
             var checkDirCount = _checkDirection.Length;
+
             for (var i = 0; i < checkDirCount; i++)
             {
                 var ray = new Ray(_newMapTransform.position, _checkDirection[i]);
+
                 if (Physics.SphereCast(ray, 2, out var hit, mapSize, groundLayer))
                 {
                     if (hit.collider.TryGetComponent(out MapData mapData))
@@ -363,6 +328,7 @@ namespace MapControl
         private void CheckConnectedDirection()
         {
             var neighborMapCount = _neighborMapArray.Length;
+
             for (var i = 0; i < neighborMapCount; i++)
             {
                 if (_isEmptyMapArray[i]) continue;
@@ -371,6 +337,7 @@ namespace MapControl
                 var neighborToNewMapDir = (_newMapTransform.position - neighborPos).normalized;
                 var neighborWayPoints = _neighborMapArray[i].wayPointList;
                 var neighborWayPointCount = neighborWayPoints.Count;
+
                 for (var j = 0; j < neighborWayPointCount; j++)
                 {
                     var dir = (neighborWayPoints[j] - neighborPos).normalized;
@@ -386,12 +353,14 @@ namespace MapControl
             _connectionString = null;
             _emptyMapString = null;
             var nullMapArrayLength = _isEmptyMapArray.Length;
+
             for (var i = 0; i < nullMapArrayLength; i++)
             {
                 if (_isEmptyMapArray[i])
                 {
                     _emptyMapString += i;
                     var ran = Random.Range(0, 101);
+
                     if (ran <= connectionProbability)
                     {
                         _connectionString += i;
@@ -406,9 +375,7 @@ namespace MapControl
                 }
             }
 
-            if (_emptyMapString != null && _connectionString != null &&
-                _connectionString.Length == _emptyMapString.Length
-                && !_connectionString.Contains(_emptyMapString))
+            if (_emptyMapString != null && _connectionString != null && _connectionString.Length == _emptyMapString.Length && !_connectionString.Contains(_emptyMapString))
             {
                 var ranIndex = Random.Range(0, _emptyMapString.Length);
                 _connectionString += _emptyMapString[ranIndex];
@@ -416,7 +383,7 @@ namespace MapControl
             }
 
             // 사방이 막히지 않았는데 하나만 연결된 경우 랜덤으로 하나를 더 이어줌
-            if (_connectionString is { Length: 1 } && _emptyMapString != null)
+            if (_connectionString is {Length: 1} && _emptyMapString != null)
             {
                 var tempString = new StringBuilder(_emptyMapString);
                 _connectionString += tempString[Random.Range(0, tempString.Length)];
@@ -452,8 +419,7 @@ namespace MapControl
             if (_connectionString == null) return;
             _connectionString = string.Concat(_connectionString.OrderBy(c => c));
 
-            _newMapObject = Instantiate(_mapDictionary[_directionMappingDic[_connectionString]],
-                _newMapTransform.position, Quaternion.identity, mapMesh).GetComponent<MapData>();
+            _newMapObject = Instantiate(_mapDictionary[_directionMappingDic[_connectionString]], _newMapTransform.position, Quaternion.identity, mapMesh).GetComponent<MapData>();
 
             _map.Add(_newMapObject.gameObject);
         }
@@ -471,16 +437,14 @@ namespace MapControl
             if (_connectionString.Length != 1) return;
             var t = _newMapObject.transform;
             var forward = t.forward;
-            _portalGateObject = Instantiate(portalGate, t.position + forward * 1.75f,
-                Quaternion.identity, mapMesh);
+            _portalGateObject = Instantiate(portalGate, t.position + forward * 1.75f, Quaternion.identity, mapMesh);
             _portalGateObject.transform.forward = -forward;
         }
 #if UNITY_EDITOR
         private void PlaceCustomMap()
         {
             var curCustomMap = _customMapQueue.Dequeue();
-            _newMapObject = Instantiate(_mapDictionary[curCustomMap], _newMapTransform.position,
-                Quaternion.identity, mapMesh).GetComponent<MapData>();
+            _newMapObject = Instantiate(_mapDictionary[curCustomMap], _newMapTransform.position, Quaternion.identity, mapMesh).GetComponent<MapData>();
 
             _map.Add(_newMapObject.gameObject);
 
@@ -488,11 +452,11 @@ namespace MapControl
             {
                 if (_isEmptyMapArray[i]) continue;
 
-                var neighborToNewMapDir =
-                    (_newMapTransform.position - _neighborMapArray[i].transform.position).normalized;
+                var neighborToNewMapDir = (_newMapTransform.position - _neighborMapArray[i].transform.position).normalized;
                 _newMapTransform.forward = neighborToNewMapDir;
                 _newMapObject.transform.forward = _newMapTransform.forward;
                 _newMapObject.SetWayPoint(mapSize / 2);
+
                 break;
             }
 
@@ -500,8 +464,7 @@ namespace MapControl
             {
                 var t = _newMapObject.transform;
                 var forward = t.forward;
-                _portalGateObject = Instantiate(portalGate, t.position + forward * 1.75f,
-                    Quaternion.identity, mapMesh);
+                _portalGateObject = Instantiate(portalGate, t.position + forward * 1.75f, Quaternion.identity, mapMesh);
                 _portalGateObject.transform.forward = -forward;
             }
         }
@@ -510,12 +473,14 @@ namespace MapControl
         {
             _newMapWayPoints.Clear();
             var mapWayPointCount = _newMapObject.wayPointList.Count;
+
             for (var i = 0; i < mapWayPointCount; i++)
             {
                 _newMapWayPoints.Add(_newMapObject.wayPointList[i]);
             }
 
             var newMapWayPointCount = _newMapWayPoints.Count;
+
             for (var i = 0; i < newMapWayPointCount; i++)
             {
                 _wayPointsHashSet.RemoveWhere(p => p == _newMapWayPoints[i]);
@@ -531,14 +496,17 @@ namespace MapControl
             {
                 var t = _newMapObject.transform;
                 _wayPointsHashSet.Add(t.position + t.forward * 1.75f);
+
                 return;
             }
 
             var newMapWayPointCount = _newMapWayPoints.Count;
+
             for (var i = 0; i < newMapWayPointCount; i++)
             {
                 if (!CanAddWayPoints(_newMapWayPoints[i])) continue;
                 _wayPointsHashSet.Add(_newMapTransform.position + _dirToWayPoint * mapSize * 0.5f);
+
                 if (CheckLimitMap(_newMapWayPoints[i]))
                 {
                     _expandBtnPosHashSet.Add(_newMapTransform.position + _dirToWayPoint * mapSize);
@@ -549,6 +517,7 @@ namespace MapControl
         private void PlaceObstacle()
         {
             var count = Random.Range(0, _newMapObject.placementTile.Count);
+
             for (var i = 0; i < count; i++)
             {
                 var ranIndex = Random.Range(0, _newMapObject.placementTile.Count);
@@ -561,8 +530,7 @@ namespace MapControl
         {
             var pos = center + _diagonalDir[Random.Range(0, _diagonalDir.Length)];
             var ranObstacle = Random.Range(0, obstaclePrefabs.Length);
-            Instantiate(obstaclePrefabs[ranObstacle], pos, Quaternion.Euler(0, Random.Range(0, 360), 0),
-                obstacleMesh);
+            Instantiate(obstaclePrefabs[ranObstacle], pos, Quaternion.Euler(0, Random.Range(0, 360), 0), obstacleMesh);
         }
 
         private void SetMap()
@@ -571,7 +539,7 @@ namespace MapControl
             // CombineObstacleMesh();
             navMeshSurface.BuildNavMesh();
             ramNavMeshSurface.BuildNavMesh();
-            _waveManager.WaveInit(_wayPointsHashSet.ToArray());
+            _waveManager.WaveInit(_wayPointsHashSet.ToArray()).Forget();
         }
 
         //Call When Wave is over
@@ -590,6 +558,7 @@ namespace MapControl
         {
             _meshFilters.Clear();
             var mapCount = _map.Count;
+
             for (var i = 0; i < mapCount; i++)
             {
                 if (_map[i].transform.GetChild(0).TryGetComponent(out MeshFilter m))
@@ -663,19 +632,17 @@ namespace MapControl
         {
             _newMapTransform = _newMapObject.transform;
             _dirToWayPoint = (newWayPoint - _newMapTransform.position).normalized;
+
             if (_dirToWayPoint == Vector3.zero) return false;
             var ray = new Ray(_newMapTransform.position, _dirToWayPoint);
+
             return !Physics.SphereCast(ray, 2, mapSize, groundLayer);
         }
 
         // You can add newMap in maxSize
-        private bool CheckLimitMap(Vector3 newWayPoint)
-        {
-            return newWayPoint.x >= -maxSize && newWayPoint.x <= maxSize &&
-                   newWayPoint.z >= -maxSize && newWayPoint.z <= maxSize;
-        }
+        private bool CheckLimitMap(Vector3 newWayPoint) { return newWayPoint.x >= -maxSize && newWayPoint.x <= maxSize && newWayPoint.z >= -maxSize && newWayPoint.z <= maxSize; }
 
-        #endregion
+#endregion
 
 #if UNITY_EDITOR
         //  When test random map
@@ -684,12 +651,15 @@ namespace MapControl
             while (maxMapCount > _map.Count)
             {
                 var index = 0;
+
                 for (var i = 0; i < _expandButtons.Count; i++)
                 {
                     if (!_expandButtons[i].gameObject.activeSelf) continue;
                     var ran = Random.Range(0, 2);
+
                     if (ran != 1) continue;
                     index = i;
+
                     break;
                 }
 
@@ -715,7 +685,7 @@ namespace MapControl
             for (var i = 0; i < mapPrefabs.Length; i++)
             {
                 var placementTiles = mapPrefabs[i].GetComponentsInChildren<BoxCollider>();
-                
+
                 for (var j = 1; j < placementTiles.Length; j++)
                 {
                     var placementCenter = placementTiles[j].center;

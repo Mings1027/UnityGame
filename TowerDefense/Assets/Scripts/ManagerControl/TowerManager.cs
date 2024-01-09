@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using DataControl;
 using DataControl.TowerDataControl;
+using StatusControl;
 using TowerControl;
 using UnityEngine;
 
@@ -17,86 +18,58 @@ namespace ManagerControl
     public class TowerManager : MonoBehaviour
     {
         private List<AttackTower> _towers;
-        [SerializeField] private TowerMana towerMana;
-        [field: SerializeField] public TowerDataPrefab[] towerDataPrefabs { get; private set; }
+        private Mana _towerMana;
 
-        public TowerMana TowerMana => towerMana;
+        [field: SerializeField] public TowerDataPrefab[] towerDataPrefabs{ get; private set; }
 
-        #region Unity Event
-
-        protected void Awake()
-        {
-            _towers = new List<AttackTower>(50);
-            Init();
-        }
+#region Unity Event
 
         private void Start()
         {
-            Application.targetFrameRate = 60;
+            enabled = false;
         }
 
         private void Update()
         {
             var towerCount = _towers.Count;
+
             for (var i = 0; i < towerCount; i++)
             {
                 _towers[i].TowerUpdate();
             }
         }
 
-        #endregion
-#region Private Method
+#endregion
 
-        private void Init()
-        {
-
-        }
-
-  #endregion
-        #region TowerControl
+#region TowerControl
 
         public void StartTargeting()
         {
             enabled = true;
             Application.targetFrameRate = 60;
-            towerMana.towerMana.StartManaRegen();
-            // ReadyToTarget();
+            _towerMana.StartManaRegen();
         }
 
         public void StopTargeting()
         {
             enabled = false;
             TargetInit();
-            towerMana.towerMana.StopManaRegen();
+            _towerMana.StopManaRegen();
         }
 
-        // private void ReadyToTarget()
-        // {
-        //     var towerCount = _towers.Count;
-        //     for (var i = 0; i < towerCount; i++)
-        //     {
-        //         if (_towers[i].TryGetComponent(out SummonTower unitTower))
-        //         {
-        //             unitTower.ActiveAnim();
-        //         }
-        //     }
-        // }
         private void TargetInit()
         {
             var towerCount = _towers.Count;
+
             for (var i = 0; i < towerCount; i++)
             {
                 _towers[i].TowerTargetInit();
-                // if (_towers[i].TryGetComponent(out SummonTower unitTower))
-                // {
-                //     unitTower.DeActiveAnim();
-                // }
             }
         }
 
-        #endregion
+#endregion
 
-        #region Public Method
+#region Public Method
 
         public void AddTower(AttackTower tower)
         {
@@ -108,6 +81,12 @@ namespace ManagerControl
             _towers.Remove(tower);
         }
 
-        #endregion
+        public void Init()
+        {
+            _towers = new List<AttackTower>(50);
+            _towerMana = UIManager.Instance.GetTowerMana();
+        }
+
+#endregion
     }
 }

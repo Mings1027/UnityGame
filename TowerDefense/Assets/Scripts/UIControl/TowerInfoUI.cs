@@ -39,26 +39,7 @@ namespace UIControl
         [SerializeField] private TextMeshProUGUI costText;
         [SerializeField] private TextMeshProUGUI sellCostText;
 
-        #region Unity Event
-
-        private void Awake()
-        {
-            _prevTowerLevel = -1;
-            _towerType = TowerType.None;
-            _cam = Camera.main;
-            _starImages = new Image[stars.childCount];
-            _statusInfoPanel = transform.GetChild(1);
-            for (var i = 0; i < _starImages.Length; i++)
-            {
-                _starImages[i] = stars.GetChild(i).GetChild(0).GetComponent<Image>();
-            }
-
-            _healthText = healthObj.transform.GetChild(0).GetComponent<TMP_Text>();
-            _rangeText = rangeObj.transform.GetChild(0).GetComponent<TMP_Text>();
-            _rpmText = rpmObj.transform.GetChild(0).GetComponent<TMP_Text>();
-            _respawnText = respawnObj.transform.GetChild(0).GetComponent<TMP_Text>();
-            _damageText = damageImage.transform.GetChild(0).GetComponent<TMP_Text>();
-        }
+#region Unity Event
 
         private void LateUpdate()
         {
@@ -74,7 +55,27 @@ namespace UIControl
             _isTargeting = false;
         }
 
-        #endregion
+#endregion
+
+        public void Init()
+        {
+            _prevTowerLevel = -1;
+            _towerType = TowerType.None;
+            _cam = Camera.main;
+            _starImages = new Image[stars.childCount];
+            _statusInfoPanel = transform.GetChild(1);
+
+            for (var i = 0; i < _starImages.Length; i++)
+            {
+                _starImages[i] = stars.GetChild(i).GetChild(0).GetComponent<Image>();
+            }
+
+            _healthText = healthObj.transform.GetChild(0).GetComponent<TMP_Text>();
+            _rangeText = rangeObj.transform.GetChild(0).GetComponent<TMP_Text>();
+            _rpmText = rpmObj.transform.GetChild(0).GetComponent<TMP_Text>();
+            _respawnText = respawnObj.transform.GetChild(0).GetComponent<TMP_Text>();
+            _damageText = damageImage.transform.GetChild(0).GetComponent<TMP_Text>();
+        }
 
         public void SetInfoUI(Vector3 towerPos)
         {
@@ -90,6 +91,7 @@ namespace UIControl
         public void SetTowerInfo(AttackTower tower, bool isUnitTower, sbyte level, ushort upgradeCost, ushort sellCost)
         {
             if (!_statusInfoPanel.gameObject.activeSelf) _statusInfoPanel.gameObject.SetActive(true);
+
             if (UIManager.Instance.TowerDataPrefabDictionary[tower.TowerType].towerData
                 is AttackTowerData battleTowerData)
             {
@@ -109,8 +111,8 @@ namespace UIControl
             rangeObj.SetActive(!isUnitTower);
             rpmObj.SetActive(!isUnitTower);
             respawnObj.SetActive(isUnitTower);
-
             var towerType = tower.TowerType;
+
             if (!towerType.Equals(_towerType))
             {
                 _towerType = towerType;
@@ -129,6 +131,7 @@ namespace UIControl
         public void SetSupportTowerInfo(SupportTower tower, ushort sellCost)
         {
             var towerType = tower.TowerType;
+
             if (!towerType.Equals(_towerType))
             {
                 _towerType = towerType;
@@ -143,6 +146,7 @@ namespace UIControl
         {
             if (_prevTowerLevel == level) return;
             _prevTowerLevel = level;
+
             for (var i = 0; i < stars.childCount; i++)
             {
                 _starImages[i].enabled = i <= level;

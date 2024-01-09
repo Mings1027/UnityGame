@@ -1,4 +1,5 @@
-using DG.Tweening;
+using System;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace PoolObjectControl
@@ -6,26 +7,20 @@ namespace PoolObjectControl
     public class VfxPoolObject : MonoBehaviour
     {
         private ParticleSystem _particleSystem;
-        private Tween _disableTween;
+        private float _particleLifeTime;
 
         private void Awake()
         {
             _particleSystem = GetComponent<ParticleSystem>();
             var mainModule = _particleSystem.main;
-            _disableTween = DOVirtual
-                .DelayedCall(mainModule.startLifetime.constant + 1, () => gameObject.SetActive(false), false)
-                .SetAutoKill(false).Pause();
+            _particleLifeTime = mainModule.startLifetime.constant + 1;
         }
 
-        private void OnEnable()
+        private async UniTaskVoid OnEnable()
         {
             _particleSystem.Play();
-            _disableTween.Restart();
-        }
-
-        private void OnDestroy()
-        {
-            _disableTween?.Kill();
+            await UniTask.Delay(TimeSpan.FromSeconds(_particleLifeTime));
+            gameObject.SetActive(false);
         }
     }
 }

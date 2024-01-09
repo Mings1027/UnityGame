@@ -3,22 +3,24 @@ using DataControl;
 using DataControl.TowerDataControl;
 using InterfaceControl;
 using ManagerControl;
+using StatusControl;
 using UnityEngine;
 
 namespace TowerControl
 {
     public class LaserTargetingTower : ContinuousDamageTower
     {
-        private float _attackMana;
+        private byte _attackMana;
         private bool _isFlyingMonster;
+        private Mana _towerMana;
         [SerializeField] private LineRenderer beam;
-        [SerializeField] private TowerMana towerMana;
 
         protected override void Init()
         {
             base.Init();
             var manaTowerData = (ManaUsingTowerData)UIManager.Instance.TowerDataPrefabDictionary[TowerType].towerData;
             _attackMana = manaTowerData.attackMana;
+            _towerMana = UIManager.Instance.GetTowerMana();
             firePos = transform.GetChild(2);
         }
 
@@ -31,7 +33,7 @@ namespace TowerControl
         protected override void Detect()
         {
             if (patrolCooldown.IsCoolingDown) return;
-            if (towerMana.towerMana.Current < _attackMana) return;
+            if (_towerMana.Current < _attackMana) return;
             var size = Physics.OverlapSphereNonAlloc(transform.position, TowerRange, targetColliders, targetLayer);
             if (size <= 0)
             {
@@ -70,7 +72,7 @@ namespace TowerControl
 
         protected override void ReadyToAttack()
         {
-            if (!target || !target.enabled || towerMana.towerMana.Current < _attackMana)
+            if (!target || !target.enabled || _towerMana.Current < _attackMana)
             {
                 towerState = TowerState.Detect;
                 beam.enabled = false;
@@ -92,7 +94,7 @@ namespace TowerControl
         {
             Hit();
             SoundManager.Instance.Play3DSound(audioClip, transform.position);
-            towerMana.towerMana.Damage(_attackMana);
+            _towerMana.Damage(_attackMana);
         }
 
         protected override void Hit()

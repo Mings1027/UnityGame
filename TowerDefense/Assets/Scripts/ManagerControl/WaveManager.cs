@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
-using DataControl;
 using DataControl.MonsterDataControl;
 using MonsterControl;
 using PoolObjectControl;
@@ -27,25 +26,23 @@ namespace ManagerControl
     public class WaveManager : MonoBehaviour
     {
         private TowerManager _towerManager;
+        private CancellationTokenSource _cts;
+        private List<MonsterUnit> _monsterList;
+        private Vector3[] _wayPoints;
+
         private bool _startWave;
         private bool _isLastWave;
         private bool _isBossWave;
         private byte _themeIndex;
-
-        private CancellationTokenSource _cts;
-        private List<MonsterUnit> _monsterList;
-        private Vector3[] _wayPoints;
 
         public event Action OnPlaceExpandButtonEvent;
         public event Action OnBossWaveEvent;
         public byte curWave { get; private set; }
         public bool IsStartWave { get; private set; }
 
-        [SerializeField] private TowerHp towerHp;
-
         [SerializeField] private Wave[] monsterData;
 
-        #region Unity Event
+#region Unity Event
 
         private void Awake()
         {
@@ -62,6 +59,7 @@ namespace ManagerControl
         private void Update()
         {
             var enemyCount = _monsterList.Count;
+
             for (var i = enemyCount - 1; i >= 0; i--)
             {
                 _monsterList[i].DistanceToBaseTower();
@@ -71,20 +69,22 @@ namespace ManagerControl
         private void OnDisable()
         {
             _monsterList.Clear();
+
             if (_cts == null) return;
             if (_cts.IsCancellationRequested) return;
             _cts?.Cancel();
             _cts?.Dispose();
         }
 
-        #endregion
+#endregion
 
-        public void WaveInit(Vector3[] wayPoints)
+        public async UniTaskVoid WaveInit(Vector3[] wayPoints)
         {
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
 
             PoolObjectManager.PoolCleaner().Forget();
+
             if (_isBossWave)
             {
                 _isBossWave = false;
@@ -97,7 +97,7 @@ namespace ManagerControl
             _isLastWave = _themeIndex == monsterData.Length - 1 && _isBossWave;
 
             SoundManager.Instance.PlayBGM(_isBossWave ? SoundEnum.BossTheme : SoundEnum.WaveStart);
-
+            await UniTask.Delay(500);
             _wayPoints = wayPoints;
             _startWave = true;
             StartWave();
@@ -108,6 +108,7 @@ namespace ManagerControl
             _towerManager.StartTargeting();
             UIManager.Instance.WaveText.text = curWave.ToString();
             SpawnEnemy(_wayPoints).Forget();
+
             if (_isBossWave)
             {
                 SpawnBoss(_wayPoints[Random.Range(0, _wayPoints.Length)]).Forget();
@@ -125,7 +126,7 @@ namespace ManagerControl
             IsStartWave = false;
         }
 
-        #region Enemy Spawn
+#region Enemy Spawn
 
         private async UniTaskVoid MonsterUpdate()
         {
@@ -133,6 +134,7 @@ namespace ManagerControl
             {
                 await UniTask.Delay(500);
                 var leftEnemyCount = _monsterList.Count;
+
                 for (var i = leftEnemyCount - 1; i >= 0; i--)
                 {
                     _monsterList[i].MonsterUpdate();
@@ -143,14 +145,17 @@ namespace ManagerControl
         private async UniTaskVoid SpawnEnemy(Vector3[] wayPoints)
         {
             var normalMonsterDataLength = monsterData[_themeIndex].normalMonsterData.Length;
+
             for (var i = 0; i < _themeIndex + 1; i++)
             {
                 for (var normalDataIndex = 0; normalDataIndex < normalMonsterDataLength; normalDataIndex++)
                 {
                     await UniTask.Delay(500, cancellationToken: _cts.Token);
                     var normalMonsterData = monsterData[_themeIndex].normalMonsterData[normalDataIndex];
+
                     if (normalMonsterData.StartSpawnWave > curWave) continue;
                     var wayPointCount = wayPoints.Length;
+
                     for (var wayPoint = 0; wayPoint < wayPointCount; wayPoint++)
                     {
                         var ranPoint = wayPoints[wayPoint] + Random.insideUnitSphere * 3;
@@ -209,6 +214,7 @@ namespace ManagerControl
             monsterUnit.OnDisableEvent += () =>
             {
                 DecreaseEnemyCount(monsterUnit, monsterHealth.IsDead);
+
                 if (monsterHealth.IsDead) return;
                 StatusBarUIController.Remove(healthBarTransform, true);
             };
@@ -241,12 +247,13 @@ namespace ManagerControl
             monsterUnit.OnDisableEvent += () =>
             {
                 DecreaseEnemyCount(monsterUnit, monsterHealth.IsDead);
+
                 if (monsterHealth.IsDead) return;
                 StatusBarUIController.Remove(healthBarTransform, true);
             };
         }
 
-        #endregion
+#endregion
 
         private void SpawnTransformMonster(Vector3 pos, TransformMonster transformMonster)
         {
@@ -267,17 +274,20 @@ namespace ManagerControl
             if (!_startWave) return;
             _monsterList.Remove(monsterUnit);
             var uiManager = UIManager.Instance;
-            if (!isDead) towerHp.towerHealth.Damage(monsterUnit.baseTowerDamage);
+            var towerHealth = uiManager.GetTowerHealth();
+            if (!isDead) towerHealth.Damage(monsterUnit.baseTowerDamage);
 
-            if (towerHp.towerHealth.IsDead)
+            if (towerHealth.IsDead)
             {
                 uiManager.GameOver();
+
                 return;
             }
 
             if (_monsterList.Count <= 0)
             {
                 _towerManager.StopTargeting();
+
                 if (_monsterList.Count > 0) return;
 
                 WaveStop();

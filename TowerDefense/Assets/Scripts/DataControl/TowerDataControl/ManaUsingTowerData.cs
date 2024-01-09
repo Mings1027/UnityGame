@@ -6,8 +6,8 @@ namespace DataControl.TowerDataControl
     [CreateAssetMenu(menuName = "Tower Data/Attack Tower Data/Mana Tower Data")]
     public class ManaUsingTowerData : AttackTowerData
     {
-        public float attackMana { get; private set; }
-        [SerializeField] private int initMana;
+        public byte attackMana { get; private set; }
+        [SerializeField] private byte initMana;
 
         public override void InitState()
         {
