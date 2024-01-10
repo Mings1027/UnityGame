@@ -9,11 +9,11 @@ namespace MapControl
 {
     public class ExpandMapButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
-        public event Action<Transform> OnExpandMapEvent;
+        public event Action<Vector3> OnExpandMapEvent;
 
         public void Expand()
         {
-            OnExpandMapEvent?.Invoke(transform);
+            OnExpandMapEvent?.Invoke(transform.position);
         }
 
         private void OnDisable()
@@ -32,7 +32,7 @@ namespace MapControl
             if (UIManager.Instance.enableMoveUnitController) return;
             var position = transform.position;
             PoolObjectManager.Get(PoolObjectKey.ExpandMapSmoke, position);
-            OnExpandMapEvent?.Invoke(transform);
+            OnExpandMapEvent?.Invoke(transform.position);
         }
     }
 }

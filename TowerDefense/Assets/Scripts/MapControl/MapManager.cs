@@ -1,12 +1,15 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using ManagerControl;
 using PoolObjectControl;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 namespace MapControl
@@ -23,10 +26,10 @@ namespace MapControl
         private MapData _newMapObject;
         private GameObject _portalGateObject;
 
-        private string _connectionString;
-        private string _emptyMapString;
+        private string _tileConnectionIndex;
+        private string _emptyTileIndex;
 
-        private Transform _newMapTransform;
+        private Vector3 _newMapPos;
         private Vector3 _dirToWayPoint;
 
         private Vector3[] _checkDirection;
@@ -64,15 +67,16 @@ namespace MapControl
 
         [SerializeField] private LayerMask groundLayer;
 
-        [SerializeField, Range(0, 200)] private byte maxSize;
+        [SerializeField, Range(0, 200)] private byte mapBoundSize;
         [SerializeField] private Transform mapMesh;
         [SerializeField] private Transform obstacleMesh;
 
         public byte connectionProbability { get; set; }
 
 #if UNITY_EDITOR
+        private CancellationTokenSource _cts;
         private Queue<string> _customMapQueue;
-
+        [Header("==============For Test==============")]
         [SerializeField] private bool useCustomMap;
         [SerializeField] private string customMap;
         [SerializeField] private byte maxMapCount;
@@ -80,6 +84,7 @@ namespace MapControl
         [SerializeField] private float drawSphereRadius;
         [SerializeField] private Vector3 colliderCenter;
         [SerializeField] private Vector3 colliderSize;
+        [SerializeField] private bool generateAutoMap;
 #endif
 
 #region Unity Event
@@ -94,12 +99,18 @@ namespace MapControl
         {
             _waveManager.OnBossWaveEvent += bossNavMeshSurface.BuildNavMesh;
             transform.GetChild(2).gameObject.SetActive(false);
+#if UNITY_EDITOR
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
+#endif
         }
 
 #if UNITY_EDITOR
         private void OnDrawGizmos()
         {
             if (!drawGizmos) return;
+            Gizmos.DrawWireCube(transform.position, new Vector3(mapBoundSize * 2, 1, mapBoundSize * 2));
+
             if (_wayPointsHashSet == null) return;
             Gizmos.color = Color.red;
 
@@ -107,6 +118,12 @@ namespace MapControl
             {
                 Gizmos.DrawSphere(way, drawSphereRadius);
             }
+        }
+
+        private void OnDestroy()
+        {
+            _cts?.Cancel();
+            _cts?.Dispose();
         }
 #endif
 
@@ -177,13 +194,13 @@ namespace MapControl
 
             for (var i = 0; i < index; i++)
             {
-                _connectionString += startMapIndex[i];
+                _tileConnectionIndex += startMapIndex[i];
             }
 
-            _connectionString = string.Concat(_connectionString.OrderBy(c => c));
+            _tileConnectionIndex = string.Concat(_tileConnectionIndex.OrderBy(c => c));
 
-            if (_connectionString != null) _newMapObject = Instantiate(_mapDictionary[_directionMappingDic[_connectionString]], mapMesh).GetComponent<MapData>();
-            _newMapTransform = _newMapObject.transform;
+            if (_tileConnectionIndex != null) _newMapObject = Instantiate(_mapDictionary[_directionMappingDic[_tileConnectionIndex]], mapMesh).GetComponent<MapData>();
+            _newMapPos = _newMapObject.transform.position;
             SetNewMapForward();
             PlaceObstacle();
             _map.Add(_newMapObject.gameObject);
@@ -210,11 +227,11 @@ namespace MapControl
 
         private void InitExpandButtonPosition()
         {
-            var connectionLength = _connectionString.Length;
+            var connectionLength = _tileConnectionIndex.Length;
 
             for (var i = 0; i < connectionLength; i++)
             {
-                var indexChar = _connectionString[i];
+                var indexChar = _tileConnectionIndex[i];
                 var index = int.Parse(indexChar.ToString());
                 _expandBtnPosHashSet.Add(_checkDirection[index]);
             }
@@ -233,12 +250,14 @@ namespace MapControl
 
             InitExpandButtonPosition();
             PlaceExpandButtons();
-            // GenerateAutoMap().Forget();
+#if UNITY_EDITOR
+            if (generateAutoMap) GenerateAutoMap().Forget();
+#endif
         }
 
-        private void ExpandMap(Transform newMapPos)
+        private void ExpandMap(Vector3 newMapPos)
         {
-            _newMapTransform = newMapPos;
+            _newMapPos = newMapPos;
             DisableExpandButtons();
 
             InitConnectionState();
@@ -262,8 +281,10 @@ namespace MapControl
             RemoveWayPoints();
             SetWayPoints();
             PlaceObstacle();
+#if UNITY_EDITOR
+            if (generateAutoMap) return;
+#endif
             SetMap();
-            // PlaceExpandButtons();
         }
 
 #region ExpandMap Function
@@ -281,14 +302,6 @@ namespace MapControl
             }
 
             _expandButtons.Clear();
-
-            // var wayPointCount = _wayPointsHashSet.Count;
-            // for (int i = 0; i < wayPointCount; i++)
-            // {
-            //     _wayPointPortals[i].SetActive(false);
-            // }
-            //
-            // _wayPointPortals.Clear();
         }
 
         private void InitConnectionState()
@@ -309,7 +322,7 @@ namespace MapControl
 
             for (var i = 0; i < checkDirCount; i++)
             {
-                var ray = new Ray(_newMapTransform.position, _checkDirection[i]);
+                var ray = new Ray(_newMapPos, _checkDirection[i]);
 
                 if (Physics.SphereCast(ray, 2, out var hit, mapSize, groundLayer))
                 {
@@ -334,7 +347,7 @@ namespace MapControl
                 if (_isEmptyMapArray[i]) continue;
 
                 var neighborPos = _neighborMapArray[i].transform.position;
-                var neighborToNewMapDir = (_newMapTransform.position - neighborPos).normalized;
+                var neighborToNewMapDir = (_newMapPos - neighborPos).normalized;
                 var neighborWayPoints = _neighborMapArray[i].wayPointList;
                 var neighborWayPointCount = neighborWayPoints.Count;
 
@@ -350,91 +363,74 @@ namespace MapControl
 
         private void AddRandomDirection()
         {
-            _connectionString = null;
-            _emptyMapString = null;
-            var nullMapArrayLength = _isEmptyMapArray.Length;
+            _tileConnectionIndex = null;
+            _emptyTileIndex = null;
+            var emptyMapArrayLength = _isEmptyMapArray.Length;
 
-            for (var i = 0; i < nullMapArrayLength; i++)
+            var isConnected = false;
+            var tempProbability = _wayPointsHashSet.Count == 1 ? 100 : connectionProbability;
+
+            for (var i = 0; i < emptyMapArrayLength; i++)
             {
                 if (_isEmptyMapArray[i])
                 {
-                    _emptyMapString += i;
+                    _emptyTileIndex += i;
                     var ran = Random.Range(0, 101);
 
-                    if (ran <= connectionProbability)
+                    if (ran <= tempProbability)
                     {
-                        _connectionString += i;
+                        isConnected = true;
+                        _tileConnectionIndex += i;
                     }
                 }
                 else
                 {
                     if (_isConnectedArray[i])
                     {
-                        _connectionString += i;
+                        _tileConnectionIndex += i;
                     }
                 }
             }
 
-            if (_emptyMapString != null && _connectionString != null && _connectionString.Length == _emptyMapString.Length && !_connectionString.Contains(_emptyMapString))
+            if (_emptyTileIndex == null) return;
+            //사방이 막히지 않았을 때 아래를 실행
+
+            // 하나만 연결된 경우 랜덤으로 길 하나를 뚫어줌
+            if (_tileConnectionIndex is {Length: 1})
             {
-                var ranIndex = Random.Range(0, _emptyMapString.Length);
-                _connectionString += _emptyMapString[ranIndex];
-                _connectionString = new string(_connectionString.Distinct().ToArray());
+                var tempString = new StringBuilder(_emptyTileIndex);
+                _tileConnectionIndex += tempString[Random.Range(0, tempString.Length)];
             }
 
-            // 사방이 막히지 않았는데 하나만 연결된 경우 랜덤으로 하나를 더 이어줌
-            if (_connectionString is {Length: 1} && _emptyMapString != null)
+            //타일이 없는곳에 연결이 한번도 안되었을때 혹은 연결된 인덱스와과 타일이 없는곳의 인덱스 길이 같으면서 정반대일 때 닫힐 수 있으므로 길 하나를 뚫어줌
+            if (!isConnected || _tileConnectionIndex != null && _tileConnectionIndex.Length == _emptyTileIndex.Length && _tileConnectionIndex[0] != _emptyTileIndex[0])
             {
-                var tempString = new StringBuilder(_emptyMapString);
-                _connectionString += tempString[Random.Range(0, tempString.Length)];
+                var ranIndex = Random.Range(0, _emptyTileIndex.Length);
+                _tileConnectionIndex += _emptyTileIndex[ranIndex];
+                _tileConnectionIndex = new string(_tileConnectionIndex?.Distinct().ToArray());
             }
-            // if (_connectionString == null) return;
-            // if (_wayPointsHashSet.Count == 1) // 길이 하나일 때
-            // {
-            //     var contains = _nullMapString != null && _nullMapString.Contains(_connectionString);
-            //     if (contains)
-            //     {
-            //         var tempString = new StringBuilder(_nullMapString);
-            //         _connectionString += tempString[Random.Range(0, tempString.Length)];
-            //     }
-            //     else
-            //     {
-            //         _connectionString += _nullMapString;
-            //         _connectionString = new string(_connectionString.Distinct().ToArray());
-            //     }
-            // }
-            // else
-            // {
-            //     // 사방이 막히지 않았는데 하나만 연결된 경우 랜덤으로 하나를 더 이어줌
-            //     if (_connectionString is { Length: 1 } && _nullMapString != null)
-            //     {
-            //         var tempString = new StringBuilder(_nullMapString);
-            //         _connectionString += tempString[Random.Range(0, tempString.Length)];
-            //     }
-            // }
         }
 
         private void PlaceNewMap()
         {
-            if (_connectionString == null) return;
-            _connectionString = string.Concat(_connectionString.OrderBy(c => c));
+            if (_tileConnectionIndex == null) return;
+            _tileConnectionIndex = string.Concat(_tileConnectionIndex.OrderBy(c => c));
 
-            _newMapObject = Instantiate(_mapDictionary[_directionMappingDic[_connectionString]], _newMapTransform.position, Quaternion.identity, mapMesh).GetComponent<MapData>();
+            _newMapObject = Instantiate(_mapDictionary[_directionMappingDic[_tileConnectionIndex]], _newMapPos, Quaternion.identity, mapMesh).GetComponent<MapData>();
 
             _map.Add(_newMapObject.gameObject);
         }
 
         private void SetNewMapForward()
         {
-            var firstIndex = int.Parse(_connectionString[0].ToString());
-            _newMapTransform.forward = -_checkDirection[firstIndex];
-            _newMapObject.transform.forward = _newMapTransform.forward;
+            var firstIndex = int.Parse(_tileConnectionIndex[0].ToString());
+            _newMapObject.transform.forward = -_checkDirection[firstIndex];
             _newMapObject.SetWayPoint(mapSize / 2);
         }
 
         private void SpawnPortal()
         {
-            if (_connectionString.Length != 1) return;
+            if (_tileConnectionIndex.Length != 1) return;
             var t = _newMapObject.transform;
             var forward = t.forward;
             _portalGateObject = Instantiate(portalGate, t.position + forward * 1.75f, Quaternion.identity, mapMesh);
@@ -444,7 +440,7 @@ namespace MapControl
         private void PlaceCustomMap()
         {
             var curCustomMap = _customMapQueue.Dequeue();
-            _newMapObject = Instantiate(_mapDictionary[curCustomMap], _newMapTransform.position, Quaternion.identity, mapMesh).GetComponent<MapData>();
+            _newMapObject = Instantiate(_mapDictionary[curCustomMap], _newMapPos, Quaternion.identity, mapMesh).GetComponent<MapData>();
 
             _map.Add(_newMapObject.gameObject);
 
@@ -452,9 +448,8 @@ namespace MapControl
             {
                 if (_isEmptyMapArray[i]) continue;
 
-                var neighborToNewMapDir = (_newMapTransform.position - _neighborMapArray[i].transform.position).normalized;
-                _newMapTransform.forward = neighborToNewMapDir;
-                _newMapObject.transform.forward = _newMapTransform.forward;
+                var neighborToNewMapDir = (_newMapPos - _neighborMapArray[i].transform.position).normalized;
+                _newMapObject.transform.forward = neighborToNewMapDir;
                 _newMapObject.SetWayPoint(mapSize / 2);
 
                 break;
@@ -486,7 +481,7 @@ namespace MapControl
                 _wayPointsHashSet.RemoveWhere(p => p == _newMapWayPoints[i]);
             }
 
-            _expandBtnPosHashSet.RemoveWhere(p => p == _newMapTransform.position);
+            _expandBtnPosHashSet.RemoveWhere(p => p == _newMapPos);
         }
 
         private void SetWayPoints()
@@ -505,11 +500,11 @@ namespace MapControl
             for (var i = 0; i < newMapWayPointCount; i++)
             {
                 if (!CanAddWayPoints(_newMapWayPoints[i])) continue;
-                _wayPointsHashSet.Add(_newMapTransform.position + _dirToWayPoint * mapSize * 0.5f);
+                _wayPointsHashSet.Add(_newMapPos + _dirToWayPoint * mapSize * 0.5f);
 
                 if (CheckLimitMap(_newMapWayPoints[i]))
                 {
-                    _expandBtnPosHashSet.Add(_newMapTransform.position + _dirToWayPoint * mapSize);
+                    _expandBtnPosHashSet.Add(_newMapPos + _dirToWayPoint * mapSize);
                 }
             }
         }
@@ -630,17 +625,16 @@ namespace MapControl
         // You can add wayPoints where no ground.
         private bool CanAddWayPoints(Vector3 newWayPoint)
         {
-            _newMapTransform = _newMapObject.transform;
-            _dirToWayPoint = (newWayPoint - _newMapTransform.position).normalized;
+            _dirToWayPoint = (newWayPoint - _newMapPos).normalized;
 
             if (_dirToWayPoint == Vector3.zero) return false;
-            var ray = new Ray(_newMapTransform.position, _dirToWayPoint);
+            var ray = new Ray(_newMapPos, _dirToWayPoint);
 
             return !Physics.SphereCast(ray, 2, mapSize, groundLayer);
         }
 
         // You can add newMap in maxSize
-        private bool CheckLimitMap(Vector3 newWayPoint) { return newWayPoint.x >= -maxSize && newWayPoint.x <= maxSize && newWayPoint.z >= -maxSize && newWayPoint.z <= maxSize; }
+        private bool CheckLimitMap(Vector3 newWayPoint) { return newWayPoint.x >= -mapBoundSize && newWayPoint.x <= mapBoundSize && newWayPoint.z >= -mapBoundSize && newWayPoint.z <= mapBoundSize; }
 
 #endregion
 
@@ -650,21 +644,9 @@ namespace MapControl
         {
             while (maxMapCount > _map.Count)
             {
-                var index = 0;
-
-                for (var i = 0; i < _expandButtons.Count; i++)
-                {
-                    if (!_expandButtons[i].gameObject.activeSelf) continue;
-                    var ran = Random.Range(0, 2);
-
-                    if (ran != 1) continue;
-                    index = i;
-
-                    break;
-                }
-
-                _expandButtons[index].Expand();
                 await UniTask.Yield();
+                var expandPosArray = _expandBtnPosHashSet.ToArray();
+                ExpandMap(expandPosArray[Random.Range(0, expandPosArray.Length)]);
                 PlaceExpandButtons();
             }
         }
