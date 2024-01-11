@@ -55,7 +55,8 @@ namespace MapControl
         private Dictionary<string, GameObject> _mapDictionary;
 
         private HashSet<Vector3> _wayPointsHashSet;
-
+        private byte _connectionProbability;
+        
         [SerializeField] private NavMeshSurface navMeshSurface;
         [SerializeField] private NavMeshSurface bossNavMeshSurface;
         [SerializeField] private NavMeshSurface ramNavMeshSurface;
@@ -71,7 +72,6 @@ namespace MapControl
         [SerializeField] private Transform mapMesh;
         [SerializeField] private Transform obstacleMesh;
 
-        public byte connectionProbability { get; set; }
 
 #if UNITY_EDITOR
         private CancellationTokenSource _cts;
@@ -241,6 +241,14 @@ namespace MapControl
 
         public void MakeMap(int index)
         {
+            _connectionProbability = index switch
+            {
+                1 => 25,
+                2 => 50,
+                3 => 60,
+                4 => 70,
+                _ => _connectionProbability
+            };
             transform.GetChild(2).gameObject.SetActive(true);
             _waveManager.OnPlaceExpandButtonEvent += PlaceExpandButtons;
             _waveManager.enabled = false;
@@ -368,7 +376,7 @@ namespace MapControl
             var emptyMapArrayLength = _isEmptyMapArray.Length;
 
             var isConnected = false;
-            var tempProbability = _wayPointsHashSet.Count == 1 ? 100 : connectionProbability;
+            var tempProbability = _wayPointsHashSet.Count == 1 ? 100 : _connectionProbability;
 
             for (var i = 0; i < emptyMapArrayLength; i++)
             {
@@ -403,7 +411,7 @@ namespace MapControl
             }
 
             //타일이 없는곳에 연결이 한번도 안되었을때 혹은 연결된 인덱스와과 타일이 없는곳의 인덱스 길이 같으면서 정반대일 때 닫힐 수 있으므로 길 하나를 뚫어줌
-            if (!isConnected || _tileConnectionIndex != null && _tileConnectionIndex.Length == _emptyTileIndex.Length && _tileConnectionIndex[0] != _emptyTileIndex[0])
+            if (!isConnected || _tileConnectionIndex != null && _tileConnectionIndex.Length == _emptyTileIndex.Length)
             {
                 var ranIndex = Random.Range(0, _emptyTileIndex.Length);
                 _tileConnectionIndex += _emptyTileIndex[ranIndex];
@@ -647,7 +655,6 @@ namespace MapControl
                 await UniTask.Yield();
                 var expandPosArray = _expandBtnPosHashSet.ToArray();
                 ExpandMap(expandPosArray[Random.Range(0, expandPosArray.Length)]);
-                PlaceExpandButtons();
             }
         }
 

@@ -19,7 +19,7 @@ namespace PoolObjectControl
         private async UniTaskVoid OnEnable()
         {
             _particleSystem.Play();
-            await UniTask.Delay(TimeSpan.FromSeconds(_particleLifeTime));
+            await UniTask.Delay(TimeSpan.FromSeconds(_particleLifeTime), cancellationToken: this.GetCancellationTokenOnDestroy());
             gameObject.SetActive(false);
         }
     }

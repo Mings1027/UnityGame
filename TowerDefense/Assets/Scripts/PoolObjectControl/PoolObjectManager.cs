@@ -278,7 +278,7 @@ namespace PoolObjectControl
                 {
                     Destroy(_inst._monsterPrefabDictionary[monsterKey].Pop());
                     outOfRange = _inst._monsterPrefabDictionary[monsterKey].Count > 0;
-                    await UniTask.Delay(100);
+                    await UniTask.Delay(500);
                 }
             }
         }

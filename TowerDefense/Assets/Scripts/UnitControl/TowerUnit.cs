@@ -36,8 +36,8 @@ namespace UnitControl
         private int _damage;
         private bool _startTargeting;
 
-        private static readonly int IsWalk = Animator.StringToHash("isWalk");
-        private static readonly int IsAttack = Animator.StringToHash("isAttack");
+        private readonly static int IsWalk = Animator.StringToHash("isWalk");
+        private readonly static int IsAttack = Animator.StringToHash("isAttack");
 
         public Transform healthBarTransform { get; private set; }
 
@@ -45,7 +45,6 @@ namespace UnitControl
         [SerializeField, Range(0, 5)] private byte attackTargetCount;
         [SerializeField, Range(0, 7)] private byte atkRange;
         [SerializeField, Range(0, 10)] private byte sightRange;
-        [SerializeField] private float turnSpeed;
 
         #region Unity Event
 

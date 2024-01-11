@@ -142,7 +142,7 @@ namespace ManagerControl
             }
         }
 
-        private async UniTaskVoid SpawnEnemy(Vector3[] wayPoints)
+        private async UniTaskVoid SpawnEnemy(IReadOnlyList<Vector3> wayPoints)
         {
             var normalMonsterDataLength = monsterData[_themeIndex].normalMonsterData.Length;
 
@@ -154,7 +154,7 @@ namespace ManagerControl
                     var normalMonsterData = monsterData[_themeIndex].normalMonsterData[normalDataIndex];
 
                     if (normalMonsterData.StartSpawnWave > curWave) continue;
-                    var wayPointCount = wayPoints.Length;
+                    var wayPointCount = wayPoints.Count;
 
                     for (var wayPoint = 0; wayPoint < wayPointCount; wayPoint++)
                     {

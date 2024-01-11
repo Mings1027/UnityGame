@@ -39,7 +39,6 @@ namespace MonsterControl
         [SerializeField, Range(0, 5)] protected byte attackTargetCount;
         [SerializeField, Range(0, 7)] protected byte atkRange;
         [SerializeField, Range(0, 10)] protected byte sightRange;
-        [SerializeField] protected float turnSpeed;
         [field: SerializeField] public byte baseTowerDamage { get; private set; }
 
 #region Unity Event

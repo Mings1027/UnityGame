@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AI;
@@ -7,6 +8,7 @@ namespace MonsterControl
 {
     public class MonsterStatus : MonoBehaviour
     {
+        private CancellationTokenSource _cts;
         private MonsterUnit _monsterUnit;
         private NavMeshAgent _navMeshAgent;
         private bool _isSlowed;
@@ -15,8 +17,15 @@ namespace MonsterControl
 
         private void Awake()
         {
+            _cts = new CancellationTokenSource();
             _monsterUnit = GetComponent<MonsterUnit>();
             _navMeshAgent = GetComponent<NavMeshAgent>();
+        }
+
+        private void OnDestroy()
+        {
+            _cts?.Cancel();
+            _cts?.Dispose();
         }
 
         public void StatInit(float defaultSpeed, float defaultAtkDelay)
@@ -41,11 +50,10 @@ namespace MonsterControl
 
         private async UniTaskVoid SlowAsync(byte slowCoolTime)
         {
-            await UniTask.Delay(TimeSpan.FromSeconds(slowCoolTime),
-                cancellationToken: this.GetCancellationTokenOnDestroy());
+            await UniTask.Delay(TimeSpan.FromSeconds(slowCoolTime), cancellationToken: this.GetCancellationTokenOnDestroy());
             _navMeshAgent.speed = _defaultSpeed;
             _monsterUnit.SetSpeed(_defaultSpeed, _defaultAtkDelay);
-            await UniTask.Delay(TimeSpan.FromSeconds(slowCoolTime));
+            await UniTask.Delay(TimeSpan.FromSeconds(slowCoolTime), cancellationToken: this.GetCancellationTokenOnDestroy());
             _isSlowed = false;
         }
     }
