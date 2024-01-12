@@ -51,10 +51,10 @@ namespace MapControl
         private void EarnCoin()
         {
             var num = (ushort)(Random.Range(10, 30) * 10);
-            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, transform.position).SetCostText(num);
-            SoundManager.Instance.PlayUISound(num < 100 ? SoundEnum.LowCost :
-                num < 250 ? SoundEnum.MediumCost : SoundEnum.HighCost);
-            UIManager.Instance.TowerCost += num;
+            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, transform.position).SetGoldText(num);
+            SoundManager.Instance.PlayUISound(num < 100 ? SoundEnum.LowGold :
+                num < 250 ? SoundEnum.MediumGold : SoundEnum.HighGold);
+            UIManager.Instance.towerGold += num;
         }
     }
 }

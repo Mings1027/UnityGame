@@ -59,7 +59,7 @@ namespace UIControl
 
                 towerNameText.text = uiManager.towerNameDic[towerType];
                 towerDescriptionText.text = uiManager.towerInfoDic[towerType];
-                var towerDataDic = uiManager.TowerDataPrefabDictionary;
+                var towerDataDic = uiManager.towerDataPrefabDictionary;
                 healthObj.SetActive(towerDataDic[towerType].towerData.IsUnitTower);
                 delayObj.SetActive(!towerDataDic[towerType].towerData.IsUnitTower);
 

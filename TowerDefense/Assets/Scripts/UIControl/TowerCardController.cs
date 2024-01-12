@@ -27,7 +27,7 @@ namespace UIControl
         public void OnBeginDrag(PointerEventData eventData)
         {
             _isDrag = true;
-            UIManager.Instance.CameraManager.enabled = false;
+            UIManager.Instance.cameraManager.enabled = false;
         }
 
         public void OnDrag(PointerEventData eventData)
@@ -57,7 +57,7 @@ namespace UIControl
 
         public void OnEndDrag(PointerEventData eventData)
         {
-            UIManager.Instance.CameraManager.enabled = true;
+            UIManager.Instance.cameraManager.enabled = true;
             _isStartPlacement = false;
             _isDrag = false;
             if (_rectTransform.anchoredPosition.y > -_rectHeight * 0.5f)
@@ -93,9 +93,9 @@ namespace UIControl
                 var towerButton = towerButtons.GetChild(i).GetComponent<TowerButton>();
                 towerButton.buttonIndex = (byte)i;
                 towerButton.OnOpenCardEvent += OpenCard;
-                towerButton.OnCamDisableEvent += () => UIManager.Instance.CameraManager.DisableForPlaceTower();
+                towerButton.OnCamDisableEvent += () => UIManager.Instance.cameraManager.DisableForPlaceTower();
                 towerButton.OnCloseCardEvent += CloseTowerCard;
-                towerButton.OnCamEnableEvent += () => UIManager.Instance.CameraManager.enabled = true;
+                towerButton.OnCamEnableEvent += () => UIManager.Instance.cameraManager.enabled = true;
                 towerButton.OnBeginDragEvent += OnBeginDrag;
                 towerButton.OnStartPlacement += StartPlacement;
                 towerButton.OnDragEvent += OnDrag;
