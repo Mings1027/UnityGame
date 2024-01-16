@@ -22,12 +22,12 @@ namespace UIControl
 
         [SerializeField] private TowerDescriptionCard towerDescriptionCard;
 
-        #region Unity Event
+#region Unity Event
 
         public void OnBeginDrag(PointerEventData eventData)
         {
             _isDrag = true;
-            UIManager.Instance.cameraManager.enabled = false;
+            CameraManager.isControlActive = false;
         }
 
         public void OnDrag(PointerEventData eventData)
@@ -57,7 +57,7 @@ namespace UIControl
 
         public void OnEndDrag(PointerEventData eventData)
         {
-            UIManager.Instance.cameraManager.enabled = true;
+            CameraManager.isControlActive = true;
             _isStartPlacement = false;
             _isDrag = false;
             if (_rectTransform.anchoredPosition.y > -_rectHeight * 0.5f)
@@ -75,12 +75,12 @@ namespace UIControl
             }
         }
 
-        #endregion
+#endregion
 
         public void Init()
         {
             _rectTransform = GetComponent<RectTransform>();
-            _slideTween = _rectTransform.DOAnchorPosY(-250, 0.25f).From().SetAutoKill(false).Pause();
+            _slideTween = _rectTransform.DOAnchorPosY(-250, 0.25f).From().SetAutoKill(false).Pause().SetUpdate(true);
 
             _inputManager = (InputManager)FindAnyObjectByType(typeof(InputManager));
             _towerButtonDic = new Dictionary<int, TowerData>();
@@ -93,9 +93,9 @@ namespace UIControl
                 var towerButton = towerButtons.GetChild(i).GetComponent<TowerButton>();
                 towerButton.buttonIndex = (byte)i;
                 towerButton.OnOpenCardEvent += OpenCard;
-                towerButton.OnCamDisableEvent += () => UIManager.Instance.cameraManager.DisableForPlaceTower();
+                towerButton.OnCamDisableEvent += CameraManager.SetCameraActive;
                 towerButton.OnCloseCardEvent += CloseTowerCard;
-                towerButton.OnCamEnableEvent += () => UIManager.Instance.cameraManager.enabled = true;
+                towerButton.OnCamEnableEvent += () => CameraManager.isControlActive = true;
                 towerButton.OnBeginDragEvent += OnBeginDrag;
                 towerButton.OnStartPlacement += StartPlacement;
                 towerButton.OnDragEvent += OnDrag;
@@ -130,6 +130,12 @@ namespace UIControl
         {
             _slideTween.ChangeStartValue(_rectTransform.anchoredPosition)
                 .ChangeEndValue(Vector2.zero).OnComplete(() => UIManager.Instance.ShowTowerButton()).Restart();
+        }
+
+        public void SlideDown()
+        {
+            _slideTween.ChangeStartValue(_rectTransform.anchoredPosition)
+                .ChangeEndValue(new Vector2(0, -250)).Restart();
         }
     }
 }

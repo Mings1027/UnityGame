@@ -44,7 +44,6 @@ namespace UIControl
                 difficultySelectButtons.GetChild(i).GetComponent<Button>().onClick.AddListener(() =>
                 {
                     SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
-                    SoundManager.Instance.PlayBGM(SoundEnum.WaveEnd);
                     UIManager.Instance.MapSelectButton(index + 1).Forget();
                     _eventSystem.enabled = false;
                     transform.DOScale(0, 0.5f).SetEase(Ease.InBack)
@@ -58,7 +57,7 @@ namespace UIControl
 
             DataManager.Init();
             DataManager.LoadData();
-            var survivedWaves = DataManager.SurvivedWaves.survivedWave;
+            var survivedWaves = DataManager.survivedWaves.survivedWave;
             for (var i = 0; i < difficultySelectButtons.childCount; i++)
             {
                 difficultySelectButtons.GetChild(i).GetChild(3).GetComponent<TMP_Text>().text =
@@ -86,7 +85,7 @@ namespace UIControl
                 _deletePanelTween.OnRewind(() => _eventSystem.enabled = true).PlayBackwards();
 
                 DataManager.LoadData();
-                var survivedWaves = DataManager.SurvivedWaves.survivedWave;
+                var survivedWaves = DataManager.survivedWaves.survivedWave;
                 var difficultySelectButtons = transform.GetChild(0);
                 for (var i = 0; i < difficultySelectButtons.childCount; i++)
                 {

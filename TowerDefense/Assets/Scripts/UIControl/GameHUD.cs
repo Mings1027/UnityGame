@@ -38,7 +38,7 @@ namespace UIControl
 
         public void OnBeginDrag(PointerEventData eventData)
         {
-            UIManager.Instance.cameraManager.enabled = false;
+            CameraManager.isControlActive = false;
         }
 
         public void OnDrag(PointerEventData eventData)
@@ -52,7 +52,7 @@ namespace UIControl
 
         public void OnEndDrag(PointerEventData eventData)
         {
-            UIManager.Instance.cameraManager.enabled = true;
+            CameraManager.isControlActive = true;
 
             if (_rectTransform.anchoredPosition.y > _rectTransform.rect.height * 0.5f)
             {

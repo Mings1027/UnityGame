@@ -48,8 +48,8 @@ namespace GameControl
         private void Start()
         {
             _totalSpentXp = PlayerPrefs.GetInt(StringManager.TotalSpentXp);
-            DataManager.Xp = PlayerPrefs.GetInt(StringManager.Xp);
-            xpText.text = "XP " + DataManager.Xp;
+            DataManager.xp = PlayerPrefs.GetInt(StringManager.Xp);
+            xpText.text = "XP " + DataManager.xp;
             TowerUpgradeButtonInit();
         }
 
@@ -95,10 +95,10 @@ namespace GameControl
                 _deletePanelTween.PlayBackwards();
                 PlayerPrefs.DeleteAll();
             
-                var allXp = _totalSpentXp + DataManager.Xp;
+                var allXp = _totalSpentXp + DataManager.xp;
 
                 PlayerPrefs.SetInt(StringManager.Xp, allXp);
-                DataManager.Xp = allXp;
+                DataManager.xp = allXp;
                 xpText.text = "XP " + allXp;
                 _totalSpentXp = 0;
                 
@@ -153,15 +153,15 @@ namespace GameControl
                 {
                     SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
                     if (towerUpgradeButton.UpgradeCount >= towerMaxLevel ||
-                        DataManager.Xp < (towerUpgradeButton.UpgradeCount + 1) * 25) return;
-                    DataManager.Xp -= (towerUpgradeButton.UpgradeCount + 1) * 25;
+                        DataManager.xp < (towerUpgradeButton.UpgradeCount + 1) * 25) return;
+                    DataManager.xp -= (towerUpgradeButton.UpgradeCount + 1) * 25;
                     _totalSpentXp += (towerUpgradeButton.UpgradeCount + 1) * 25;
                     PlayerPrefs.SetInt(StringManager.TotalSpentXp, _totalSpentXp);
-                    xpText.text = "XP " + DataManager.Xp;
+                    xpText.text = "XP " + DataManager.xp;
                     towerUpgradeButton.UpgradeCount++;
                     towerCostText.text = "XP " + (towerUpgradeButton.UpgradeCount + 1) * 25;
                     levelCountText.text = "Lv " + towerUpgradeButton.UpgradeCount + " / " + towerMaxLevel;
-                    PlayerPrefs.SetInt(StringManager.Xp, DataManager.Xp);
+                    PlayerPrefs.SetInt(StringManager.Xp, DataManager.xp);
                     PlayerPrefs.SetInt(towerData[index].TowerType + StringManager.UpgradeCount,
                         towerUpgradeButton.UpgradeCount);
                     towerData[index].UpgradeData(towerData[index].TowerType);

@@ -75,15 +75,17 @@ namespace ManagerControl
             audioMixer.SetFloat("SFX", SfxOn ? 0 : -80);
         }
 
-        public void SoundManagerInit()
-        {
-            _cam = Camera.main;
-        }
+        public void InitSoundCam() => _cam = Camera.main;
 
         public void PlayBGM(SoundEnum clipName)
         {
             _musicSource.clip = _musicDictionary[clipName];
             _musicSource.Play();
+        }
+
+        public void MuteBGM(bool value)
+        {
+            _musicSource.mute = value;
         }
 
         public void PlayUISound(SoundEnum clipName)

@@ -7,6 +7,7 @@ using Cysharp.Threading.Tasks;
 using DataControl.TowerDataControl;
 using DG.Tweening;
 using GameControl;
+using GoogleMobileAdmob;
 using IndicatorControl;
 using MapControl;
 using PoolObjectControl;
@@ -28,7 +29,6 @@ namespace ManagerControl
     {
 #region Private Variable
 
-        private GoogleAdmobManager _googleAdmobManager;
         private WaveManager _waveManager;
         private TowerManager _towerManager;
         private TowerCardController _towerCardController;
@@ -75,7 +75,9 @@ namespace ManagerControl
         private GameObject _moveUnitButton;
 
         private GameHUD _gameHUD;
-        private Transform _goldPanel;
+
+        private RewardPanelController _rewardPanel;
+
         // private Transform _goldYesOrNoPanel;
         private TextMeshProUGUI _goldText;
         private Button _centerButton;
@@ -98,6 +100,7 @@ namespace ManagerControl
         private Image _pausePanelBlockImage;
 
         private MoveUnitController _moveUnitController;
+        private CameraManager _cameraManager;
 
 #endregion
 
@@ -115,7 +118,6 @@ namespace ManagerControl
             }
         }
 
-        public CameraManager cameraManager { get; private set; }
         public TextMeshProUGUI waveText { get; private set; }
         public Dictionary<TowerType, string> towerNameDic { get; private set; }
         public Dictionary<TowerType, string> towerInfoDic { get; private set; }
@@ -140,7 +142,7 @@ namespace ManagerControl
         private void Start()
         {
             Application.targetFrameRate = 60;
-            cameraManager = _cam.GetComponentInParent<CameraManager>();
+            _cameraManager = _cam.GetComponentInParent<CameraManager>();
             _gameOverPanel.SetActive(false);
             _gameEndPanel.SetActive(false);
             GameStart();
@@ -189,7 +191,6 @@ namespace ManagerControl
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
 
-            _googleAdmobManager = (GoogleAdmobManager)FindAnyObjectByType(typeof(GoogleAdmobManager));
             _waveManager = (WaveManager)FindAnyObjectByType(typeof(WaveManager));
             _towerManager = (TowerManager)FindAnyObjectByType(typeof(TowerManager));
             _towerRangeIndicator = (TowerRangeIndicator)FindAnyObjectByType(typeof(TowerRangeIndicator));
@@ -202,31 +203,15 @@ namespace ManagerControl
             _moveUnitButton = followTowerInfoUI.Find("Move Unit Button").gameObject;
 
             _gameHUD = FindAnyObjectByType<GameHUD>();
-            var goldButton = _gameHUD.transform.Find("Gold Background").GetComponent<Button>();
-            goldButton.onClick.AddListener(OpenGoldPanel);
-            _goldText = goldButton.transform.Find("Gold Text").GetComponent<TextMeshProUGUI>();
+            var goldButton = _gameHUD.transform.Find("Gold Button");
+            _goldText = goldButton.Find("Gold Text").GetComponent<TextMeshProUGUI>();
             var waveBackground = _gameHUD.transform.Find("Wave Background");
             waveText = waveBackground.Find("Wave Text").GetComponent<TextMeshProUGUI>();
             _centerButton = _gameHUD.transform.Find("Center Button").GetComponent<Button>();
             _speedButton = _gameHUD.transform.Find("Speed Button").GetComponent<Button>();
             _pauseButton = _gameHUD.transform.Find("Pause Button").GetComponent<Button>();
 
-            _goldPanel = uiPanel.Find("Gold Panel Parent");
-            _goldPanel.GetChild(0).Find("Close Button").GetComponent<Button>().onClick.AddListener(CloseGoldPanel);
-            var goldButtons = _goldPanel.GetChild(0).Find("Gold Buttons");
-            var goldButtonCount = goldButtons.childCount;
-            for (var i = 0; i < goldButtonCount; i++)
-            {
-                goldButtons.GetChild(i).GetComponent<Button>().onClick.AddListener(OpenCheckRewardPanel);
-            }
-
-            _goldPanel.localScale = Vector3.zero;
-            // _goldYesOrNoPanel = _goldPanel.Find("Watch Ad For Rewards");
-            // _goldYesOrNoPanel.localScale = Vector3.zero;
-            // _goldYesOrNoPanel.GetChild(0).Find("Purchase Confirm Button").GetComponent<Button>().onClick
-            //     .AddListener(PurchaseConfirmButton);
-            // _goldYesOrNoPanel.GetChild(0).Find("Purchase Cancel Button").GetComponent<Button>().onClick
-            //     .AddListener(PurchaseCancelButton);
+            _rewardPanel = FindAnyObjectByType<RewardPanelController>();
 
             _toggleTowerButton = uiPanel.Find("Toggle Tower Button").gameObject;
             _towerDescriptionCard = FindAnyObjectByType<TowerDescriptionCard>();
@@ -355,7 +340,7 @@ namespace ManagerControl
                 SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
                 _centerButton.transform.DOScale(0, 0.2f).From(1).SetEase(Ease.InBack).SetUpdate(true)
                     .OnComplete(() => _centerButton.gameObject.SetActive(false));
-                cameraManager.transform.DOMove(Vector3.zero, 0.5f).SetEase(Ease.OutCubic);
+                _cameraManager.transform.DOMove(Vector3.zero, 0.5f).SetEase(Ease.OutCubic);
             });
             _centerButton.gameObject.SetActive(false);
 
@@ -392,6 +377,7 @@ namespace ManagerControl
             _mainMenuButton.onClick.AddListener(delegate
             {
                 SceneManager.LoadScene("Lobby");
+                SoundManager.Instance.PlayBGM(SoundEnum.GameStart);
 
                 if (_waveManager.curWave < 1) return;
                 DataManager.UpdateSurvivedWave((byte)(_waveManager.IsStartWave
@@ -443,10 +429,13 @@ namespace ManagerControl
             };
 
             DataManager.SetLevel((byte)index);
+            AdmobManager.Instance.LoadRewardedAd();
+            SoundManager.Instance.MuteBGM(false);
+            SoundManager.Instance.PlayBGM(SoundEnum.WaveEnd);
             await UniTask.Delay(500);
             _gameHUD.DisplayHUD();
             await _towerCardPanel.DOAnchorPosX(0, 0.5f).SetEase(Ease.OutBack);
-            cameraManager.enabled = true;
+            CameraManager.isControlActive = true;
             _toggleTowerButton.GetComponent<TutorialController>().TutorialButton();
             Input.multiTouchEnabled = true;
         }
@@ -551,6 +540,7 @@ namespace ManagerControl
 
         public void GameEnd()
         {
+            _towerCardController.SlideDown();
             _pausePanelBlockImage.raycastTarget = false;
             _resumeButton.interactable = false;
             _gameEndPanel.SetActive(true);
@@ -569,7 +559,7 @@ namespace ManagerControl
             {
                 await UniTask.Delay(2000, cancellationToken: _cts.Token);
 
-                if (Vector3.Distance(cameraManager.transform.position, Vector3.zero) > 10)
+                if (Vector3.Distance(_cameraManager.transform.position, Vector3.zero) > 10)
                 {
                     if (_centerButton.gameObject.activeSelf) continue;
                     _centerButton.gameObject.SetActive(true);
@@ -746,12 +736,13 @@ namespace ManagerControl
         {
             waveText.text = "0";
             Time.timeScale = 1;
-            cameraManager.GameStartCamZoom();
-            SoundManager.Instance.SoundManagerInit();
+            _cameraManager.GameStartCamZoom();
+            SoundManager.Instance.InitSoundCam();
         }
 
         public void GameOver()
         {
+            _towerCardController.SlideDown();
             _pausePanelBlockImage.raycastTarget = false;
             _resumeButton.interactable = false;
             _gameOverPanel.SetActive(true);
@@ -786,42 +777,10 @@ namespace ManagerControl
 
 #region Ad Method
 
-        private void OpenGoldPanel()
+        public void EarnedTowerGold(int gold)
         {
-            SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
-            Input.multiTouchEnabled = false;
-            cameraManager.enabled = false;
-            Time.timeScale = 0.5f;
-            _goldPanel.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack).SetUpdate(true);
+            towerGold += gold;
         }
-
-        private void CloseGoldPanel()
-        {
-            SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
-            Input.multiTouchEnabled = true;
-            cameraManager.enabled = true;
-            Time.timeScale = _curTimeScale;
-            _goldPanel.DOScale(0, 0.25f).From(1).SetEase(Ease.InBack).SetUpdate(true);
-        }
-
-        private void OpenCheckRewardPanel()
-        {
-            SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
-            // _goldYesOrNoPanel.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack).SetUpdate(true);
-        }
-
-        // private void PurchaseConfirmButton()
-        // {
-        //     SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
-        //     _goldYesOrNoPanel.DOScale(0, 0.25f).From(1).SetEase(Ease.InBack).SetUpdate(true);
-        //     _googleAdmobManager.ShowRewardedAd();
-        // }
-        //
-        // private void PurchaseCancelButton()
-        // {
-        //     SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
-        //     _goldYesOrNoPanel.DOScale(0, 0.25f).From(1).SetEase(Ease.InBack).SetUpdate(true);
-        // }
 
 #endregion
     }
