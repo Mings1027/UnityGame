@@ -13,9 +13,8 @@ namespace ManagerControl
 
     public abstract class DataManager
     {
-        public static int Xp { get; set; }
-        public static SurvivedWave SurvivedWaves { get; private set; }
-        // private static bool IsGameOver { get; set; }
+        public static int xp { get; set; }
+        public static SurvivedWave survivedWaves { get; private set; }
         private static string _path;
         private static byte _difficultyLevel;
         private static byte _lastSurvivedWave;
@@ -24,14 +23,13 @@ namespace ManagerControl
 
         public static void Init()
         {
-            // IsGameOver = false;
             _path = Application.persistentDataPath + Filename;
             _difficultyLevel = 0;
 
-            SurvivedWaves = new SurvivedWave();
-            for (var i = 0; i < SurvivedWaves.survivedWave.Length; i++)
+            survivedWaves = new SurvivedWave();
+            for (var i = 0; i < survivedWaves.survivedWave.Length; i++)
             {
-                SurvivedWaves.survivedWave[i] = 0;
+                survivedWaves.survivedWave[i] = 0;
             }
 
             LoadData();
@@ -40,12 +38,12 @@ namespace ManagerControl
         public static void SetLevel(byte index)
         {
             _difficultyLevel = index;
-            _lastSurvivedWave = SurvivedWaves.survivedWave[_difficultyLevel - 1];
+            _lastSurvivedWave = survivedWaves.survivedWave[_difficultyLevel - 1];
         }
 
         private static void SaveData()
         {
-            var data = JsonUtility.ToJson(SurvivedWaves);
+            var data = JsonUtility.ToJson(survivedWaves);
             File.WriteAllText(_path, data);
         }
 
@@ -57,35 +55,33 @@ namespace ManagerControl
             }
 
             var data = File.ReadAllText(_path);
-            SurvivedWaves = JsonUtility.FromJson<SurvivedWave>(data);
+            survivedWaves = JsonUtility.FromJson<SurvivedWave>(data);
         }
 
         public static void SaveLastSurvivedWave()
         {
-            // if (IsGameOver) return;
-            // IsGameOver = true;
-            if (_lastSurvivedWave < SurvivedWaves.survivedWave[_difficultyLevel - 1])
+            if (_lastSurvivedWave < survivedWaves.survivedWave[_difficultyLevel - 1])
             {
                 SaveData();
             }
 
             var prevXp = PlayerPrefs.GetInt(StringManager.Xp);
-            var xp = SurvivedWaves.survivedWave[_difficultyLevel - 1] *
-                (SurvivedWaves.survivedWave[_difficultyLevel - 1] + 1) * _difficultyLevel / 2;
-            PlayerPrefs.SetInt(StringManager.Xp, prevXp + xp);
-            Xp = PlayerPrefs.GetInt(StringManager.Xp);
+            var earnedXp = survivedWaves.survivedWave[_difficultyLevel - 1] *
+                (survivedWaves.survivedWave[_difficultyLevel - 1] + 1) * _difficultyLevel / 2;
+            PlayerPrefs.SetInt(StringManager.Xp, prevXp + earnedXp);
+            xp = PlayerPrefs.GetInt(StringManager.Xp);
         }
 
         public static void UpdateSurvivedWave(byte wave)
         {
-            SurvivedWaves.survivedWave[_difficultyLevel - 1] = wave;
+            survivedWaves.survivedWave[_difficultyLevel - 1] = wave;
         }
 
         public static void WaveDataInit()
         {
-            for (var i = 0; i < SurvivedWaves.survivedWave.Length; i++)
+            for (var i = 0; i < survivedWaves.survivedWave.Length; i++)
             {
-                SurvivedWaves.survivedWave[i] = 0;
+                survivedWaves.survivedWave[i] = 0;
             }
 
             SaveData();

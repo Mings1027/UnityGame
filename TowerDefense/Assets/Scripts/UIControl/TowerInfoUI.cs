@@ -92,7 +92,7 @@ namespace UIControl
         {
             if (!_statusInfoPanel.gameObject.activeSelf) _statusInfoPanel.gameObject.SetActive(true);
 
-            if (UIManager.Instance.TowerDataPrefabDictionary[tower.TowerType].towerData
+            if (UIManager.Instance.towerDataPrefabDictionary[tower.TowerType].towerData
                 is AttackTowerData battleTowerData)
             {
                 if (isUnitTower)

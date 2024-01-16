@@ -13,15 +13,17 @@ namespace ManagerControl
 
         private Touch _firstTouch;
 
-        private bool _startSmoothStop;
         private float _decreaseSpeed;
         private float _modifiedMoveSpeed;
         private Vector3 _curPos, _newPos;
         private Vector2 _t1T2Vec;
         private Vector2 _firstTouchPos, _secondTouchPos;
-
+        
         public event Action OnResizeUIEvent;
 
+        private static bool _startSmoothStop;
+        public static bool isControlActive { get; set; }
+        
         [SerializeField, Range(1, 3)] private float moveSpeed;
         [SerializeField, Range(1, 3)] private float zoomSpeed;
 
@@ -38,27 +40,14 @@ namespace ManagerControl
 
         [SerializeField] private Vector2 uiSizeMinMax;
 
-// #if UNITY_EDITOR
-//         [Header("On Validate"), SerializeField]
-//         private float cameraPosition;
-// #endif
+#region Unity Method
+
         private void Awake()
         {
             _cam = Camera.main;
             _snapRotateTween = transform.DORotate(SnappedVector(), 0.5f).SetEase(Ease.OutCubic)
                 .SetAutoKill(false).Pause();
         }
-
-        // [Conditional("UNITY_EDITOR")]
-        // private void OnValidate()
-        // {
-        //     var cam = transform.GetChild(0);
-        //     var camPos = cam.transform.localPosition;
-        //     camPos.x = 0;
-        //     camPos.y = cameraPosition;
-        //     camPos.z = -cameraPosition;
-        //     cam.transform.localPosition = camPos;
-        // }
 
         private void OnEnable()
         {
@@ -70,11 +59,11 @@ namespace ManagerControl
         {
             _camState = CamState.Idle;
             transform.rotation = Quaternion.Euler(0, 45, 0);
-            enabled = false;
         }
 
         private void Update()
         {
+            if (!isControlActive) return;
             switch (_camState)
             {
                 case CamState.Idle:
@@ -99,6 +88,10 @@ namespace ManagerControl
         {
             Input.multiTouchEnabled = false;
         }
+
+#endregion
+
+#region Camera Control
 
         private void Idle()
         {
@@ -339,6 +332,8 @@ namespace ManagerControl
             return new Vector3(0.0f, endValue, 0.0f);
         }
 
+#endregion
+
         public void GameStartCamZoom()
         {
             transform.rotation = Quaternion.Euler(0, 45, 0);
@@ -356,9 +351,9 @@ namespace ManagerControl
             statusBar.localScale = newScale;
         }
 
-        public void DisableForPlaceTower()
+        public static void SetCameraActive()
         {
-            enabled = false;
+            isControlActive = false;
             _startSmoothStop = false;
         }
     }

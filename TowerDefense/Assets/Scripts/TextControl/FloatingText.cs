@@ -39,7 +39,7 @@ namespace TextControl
             _scaleAlphaSequence.OnComplete(() => gameObject.SetActive(false)).Restart();
         }
 
-        public void SetCostText(ushort number, bool isPlusValue = true)
+        public void SetGoldText(ushort number, bool isPlusValue = true)
         {
             EnableObject();
             _text.text = isPlusValue

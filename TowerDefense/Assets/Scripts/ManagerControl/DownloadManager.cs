@@ -7,7 +7,6 @@ using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
-using UnityEngine.Profiling;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -82,7 +81,7 @@ namespace ManagerControl
             CheckUpdateFiles().Forget();
         }
 
-        #region CheckDown
+#region CheckDown
 
         private async UniTaskVoid CheckUpdateFiles()
         {
@@ -144,9 +143,9 @@ namespace ManagerControl
             return size;
         }
 
-        #endregion
+#endregion
 
-        #region DownLoad
+#region DownLoad
 
         private void DownLoadButton()
         {
@@ -180,7 +179,7 @@ namespace ManagerControl
 
             await CheckDownLoad();
         }
-        
+
         private async UniTaskVoid DownLoadLabel(string label)
         {
             _patchMap.Add(label, 0);
@@ -218,7 +217,7 @@ namespace ManagerControl
             }
         }
 
-        #endregion
+#endregion
 
         private async UniTaskVoid StartGame()
         {

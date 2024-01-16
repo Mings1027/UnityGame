@@ -128,7 +128,7 @@ namespace ManagerControl
             _startPlacement = true;
             UIManager.Instance.OffUI();
             _meshScaleTween.Restart();
-            if (!UIManager.Instance.IsEnoughCost(towerType))
+            if (!UIManager.Instance.IsEnoughGold(towerType))
             {
                 _startPlacement = false;
                 return;
