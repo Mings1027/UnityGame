@@ -55,7 +55,7 @@ namespace UIControl
             if (!towerType.Equals(_towerType))
             {
                 _towerType = towerType;
-                var uiManager = UIManager.Instance;
+                var uiManager = UIManager.instance;
 
                 towerNameText.text = uiManager.towerNameDic[towerType];
                 towerDescriptionText.text = uiManager.towerInfoDic[towerType];
@@ -102,7 +102,7 @@ namespace UIControl
 
         public void LocaleCardInfo()
         {
-            var uiManager = UIManager.Instance;
+            var uiManager = UIManager.instance;
             if (_towerType == TowerType.None) return;
             towerNameText.text = uiManager.towerNameDic[_towerType];
             towerDescriptionText.text = uiManager.towerInfoDic[_towerType];

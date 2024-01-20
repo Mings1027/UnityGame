@@ -63,7 +63,7 @@ namespace ProjectileControl
         {
             var mainModule = PoolObjectManager.Get<ParticleSystem>(hitPoolObjectKey, transform.position).main;
             mainModule.startColor = towerData.ProjectileColor[effectIndex];
-            SoundManager.Instance.Play3DSound(audioClip, transform.position);
+            SoundManager.Play3DSound(audioClip, transform.position);
             if (_targetEndPos == Vector3.zero) return;
             var pos = transform.position;
 

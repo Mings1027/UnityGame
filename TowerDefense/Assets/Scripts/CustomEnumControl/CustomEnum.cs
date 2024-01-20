@@ -19,9 +19,9 @@ namespace CustomEnumControl
         WaveEnd,
         BossTheme,
         ButtonSound,
-        LowGold,
-        MediumGold,
-        HighGold
+        LowCost,
+        MediumCost,
+        HighCost
     }
 
     public enum TowerState

@@ -215,7 +215,7 @@ namespace UnitControl
 
             if (_atkCooldown.IsCoolingDown) return;
 
-            SoundManager.Instance.Play3DSound(audioClip, transform.position);
+            SoundManager.Play3DSound(audioClip, transform.position);
             _anim.SetTrigger(IsAttack);
             TryDamage();
 

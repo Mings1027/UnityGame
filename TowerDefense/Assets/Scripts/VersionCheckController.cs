@@ -1,21 +1,24 @@
 using System;
+using CustomEnumControl;
 using Cysharp.Threading.Tasks;
+using ManagerControl;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class VersionCheckController : MonoBehaviour
 {
-    private const string BundleID = "com.DefenseCompany.RogueDefense";
-    private float prevVersion, curVersion;
-
+    // private const string BundleID = "com.DefenseCompany.RogueDefense";
+    private int _appStoreVersion; //현재 스토어에 올라가있는 버전
+    private int _curAppVersion;
     [SerializeField] private GameObject updateVersionPanel;
     [SerializeField] private Button appStoreButton;
     [SerializeField] private GameObject buttons;
 
     private void Start()
     {
-        curVersion = float.Parse(Application.version);
+        updateVersionPanel.SetActive(false);
+        _curAppVersion = int.Parse(Application.version.Replace(".", ""));
         appStoreButton.onClick.AddListener(OpenAppStore);
         CheckVersion().Forget();
     }
@@ -23,8 +26,7 @@ public class VersionCheckController : MonoBehaviour
     private async UniTaskVoid CheckVersion()
     {
         await CheckAppStoreVersion();
-
-        if (prevVersion < 1.0f)
+        if (_curAppVersion < _appStoreVersion)
         {
             updateVersionPanel.SetActive(true);
             buttons.SetActive(false);
@@ -39,14 +41,9 @@ public class VersionCheckController : MonoBehaviour
     {
         try
         {
-            var defaultUri = new UriBuilder("https://itunes.apple.com/lookup?bundleId=");
-            defaultUri.Query += BundleID;
+            var defaultUri = new UriBuilder("https://mings1027.github.io/appVersion.html");
             var jsonText = await GetJsonText(defaultUri.Uri.ToString());
-            var versionIndex = jsonText.IndexOf("version", StringComparison.Ordinal);
-            var quoteIndex = jsonText.IndexOf(",", versionIndex + "version".Length, StringComparison.Ordinal);
-            var versionValue = jsonText.Substring(versionIndex + "version".Length + 3,
-                quoteIndex - versionIndex - "version".Length - 4);
-            prevVersion = float.Parse(versionValue);
+            _appStoreVersion = int.Parse(jsonText.Replace(".", ""));
         }
         catch (Exception e)
         {
@@ -64,10 +61,8 @@ public class VersionCheckController : MonoBehaviour
             {
                 throw new Exception(www.error);
             }
-            else
-            {
-                return www.downloadHandler.text;
-            }
+
+            return www.downloadHandler.text;
         }
     }
 

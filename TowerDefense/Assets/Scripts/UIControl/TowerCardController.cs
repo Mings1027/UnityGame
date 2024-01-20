@@ -71,7 +71,7 @@ namespace UIControl
                 //down
                 _slideTween.ChangeStartValue(_rectTransform.anchoredPosition)
                     .ChangeEndValue(new Vector2(0, -250))
-                    .OnComplete(() => { UIManager.Instance.SlideDown().Forget(); }).Restart();
+                    .OnComplete(() => { UIManager.instance.SlideDown().Forget(); }).Restart();
             }
         }
 
@@ -106,7 +106,7 @@ namespace UIControl
         private void OpenCard(int index, Transform buttonPos)
         {
             if (_isDrag) return;
-            SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
+            SoundManager.PlayUISound(SoundEnum.ButtonSound);
             towerDescriptionCard.OpenTowerCard(_towerButtonDic[index].TowerType, buttonPos);
         }
 
@@ -129,7 +129,7 @@ namespace UIControl
         public void SlideUp()
         {
             _slideTween.ChangeStartValue(_rectTransform.anchoredPosition)
-                .ChangeEndValue(Vector2.zero).OnComplete(() => UIManager.Instance.ShowTowerButton()).Restart();
+                .ChangeEndValue(Vector2.zero).OnComplete(() => UIManager.instance.ShowTowerButton()).Restart();
         }
 
         public void SlideDown()

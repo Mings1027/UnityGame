@@ -7,6 +7,7 @@ using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.Profiling;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -39,17 +40,17 @@ namespace ManagerControl
             _patchMap = new Dictionary<string, long>();
             startGameButton.onClick.AddListener(() =>
             {
-                SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 StartGameButton();
             });
             downLoadButton.onClick.AddListener(() =>
             {
-                SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 DownLoadButton();
             });
             cancelButton.onClick.AddListener(() =>
             {
-                SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 buttons.SetActive(true);
                 blockImage.enabled = false;
                 _downloadPanelTween.PlayBackwards();
@@ -62,7 +63,6 @@ namespace ManagerControl
             blockImage.enabled = false;
             downSlider.gameObject.SetActive(false);
             InitAddressable().Forget();
-            SoundManager.Instance.PlayBGM(SoundEnum.GameStart);
         }
 
         private void OnDestroy()
@@ -81,7 +81,7 @@ namespace ManagerControl
             CheckUpdateFiles().Forget();
         }
 
-#region CheckDown
+        #region CheckDown
 
         private async UniTaskVoid CheckUpdateFiles()
         {
@@ -143,9 +143,9 @@ namespace ManagerControl
             return size;
         }
 
-#endregion
+        #endregion
 
-#region DownLoad
+        #region DownLoad
 
         private void DownLoadButton()
         {
@@ -179,7 +179,7 @@ namespace ManagerControl
 
             await CheckDownLoad();
         }
-
+        
         private async UniTaskVoid DownLoadLabel(string label)
         {
             _patchMap.Add(label, 0);
@@ -217,7 +217,7 @@ namespace ManagerControl
             }
         }
 
-#endregion
+        #endregion
 
         private async UniTaskVoid StartGame()
         {

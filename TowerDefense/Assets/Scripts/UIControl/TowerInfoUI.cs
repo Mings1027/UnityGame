@@ -92,7 +92,7 @@ namespace UIControl
         {
             if (!_statusInfoPanel.gameObject.activeSelf) _statusInfoPanel.gameObject.SetActive(true);
 
-            if (UIManager.Instance.towerDataPrefabDictionary[tower.TowerType].towerData
+            if (UIManager.instance.towerDataPrefabDictionary[tower.TowerType].towerData
                 is AttackTowerData battleTowerData)
             {
                 if (isUnitTower)
@@ -116,7 +116,7 @@ namespace UIControl
             if (!towerType.Equals(_towerType))
             {
                 _towerType = towerType;
-                var uiManager = UIManager.Instance;
+                var uiManager = UIManager.instance;
                 towerNameText.text = uiManager.towerNameDic[towerType];
                 damageImage.sprite = uiManager.GetTowerType(towerType);
             }
@@ -135,7 +135,7 @@ namespace UIControl
             if (!towerType.Equals(_towerType))
             {
                 _towerType = towerType;
-                var uiManager = UIManager.Instance;
+                var uiManager = UIManager.instance;
                 towerNameText.text = uiManager.towerNameDic[towerType];
             }
 

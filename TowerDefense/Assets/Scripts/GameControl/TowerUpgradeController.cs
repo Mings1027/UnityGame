@@ -62,7 +62,7 @@ namespace GameControl
         private void UpgradePanel()
         {
             upgradeButton.gameObject.SetActive(false);
-            SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
+            SoundManager.PlayUISound(SoundEnum.ButtonSound);
             blockImage.enabled = true;
             _upgradePanelTween.Restart();
         }
@@ -76,7 +76,7 @@ namespace GameControl
             });
             closeButton.onClick.AddListener(() =>
             {
-                SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 blockImage.enabled = false;
                 upgradeButton.gameObject.SetActive(true);
                 _upgradePanelTween.PlayBackwards();
@@ -84,13 +84,13 @@ namespace GameControl
             });
             dataDeleteButton.onClick.AddListener(() =>
             {
-                SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 deletePanelBlockImage.enabled = true;
                 _deletePanelTween.Restart();
             });
             yesButton.onClick.AddListener(() =>
             {
-                SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 deletePanelBlockImage.enabled = false;
                 _deletePanelTween.PlayBackwards();
                 PlayerPrefs.DeleteAll();
@@ -118,7 +118,7 @@ namespace GameControl
             });
             noButton.onClick.AddListener(() =>
             {
-                SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 deletePanelBlockImage.enabled = false;
                 _deletePanelTween.PlayBackwards();
             });
@@ -151,7 +151,7 @@ namespace GameControl
                 var index = i;
                 towerButton.onClick.AddListener(() =>
                 {
-                    SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
+                    SoundManager.PlayUISound(SoundEnum.ButtonSound);
                     if (towerUpgradeButton.UpgradeCount >= towerMaxLevel ||
                         DataManager.xp < (towerUpgradeButton.UpgradeCount + 1) * 25) return;
                     DataManager.xp -= (towerUpgradeButton.UpgradeCount + 1) * 25;

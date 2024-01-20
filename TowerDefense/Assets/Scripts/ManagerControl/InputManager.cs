@@ -126,9 +126,9 @@ namespace ManagerControl
         public void StartPlacement(TowerType towerType, bool isUnitTower)
         {
             _startPlacement = true;
-            UIManager.Instance.OffUI();
+            UIManager.instance.OffUI();
             _meshScaleTween.Restart();
-            if (!UIManager.Instance.IsEnoughGold(towerType))
+            if (!UIManager.instance.IsEnoughCost(towerType))
             {
                 _startPlacement = false;
                 return;
@@ -223,7 +223,7 @@ namespace ManagerControl
 
             if (!foundGround) towerForward = _checkDir[Random.Range(0, 4)];
 
-            UIManager.Instance.InstantiateTower(_selectedTowerType, _worldGridPos, towerForward).Forget();
+            UIManager.instance.InstantiateTower(_selectedTowerType, _worldGridPos, towerForward).Forget();
         }
     }
 }

@@ -5,8 +5,7 @@ using Utilities;
 
 namespace ManagerControl
 {
-    [Serializable]
-    public class SurvivedWave
+    [Serializable] public class SurvivedWave
     {
         public byte[] survivedWave = { 0, 0, 0, 0 };
     }
@@ -14,7 +13,11 @@ namespace ManagerControl
     public abstract class DataManager
     {
         public static int xp { get; set; }
+        public static int diamond { get; set; }
+
         public static SurvivedWave survivedWaves { get; private set; }
+
+        // private static bool IsGameOver { get; set; }
         private static string _path;
         private static byte _difficultyLevel;
         private static byte _lastSurvivedWave;
@@ -23,6 +26,7 @@ namespace ManagerControl
 
         public static void Init()
         {
+            // IsGameOver = false;
             _path = Application.persistentDataPath + Filename;
             _difficultyLevel = 0;
 
@@ -60,6 +64,8 @@ namespace ManagerControl
 
         public static void SaveLastSurvivedWave()
         {
+            // if (IsGameOver) return;
+            // IsGameOver = true;
             if (_lastSurvivedWave < survivedWaves.survivedWave[_difficultyLevel - 1])
             {
                 SaveData();

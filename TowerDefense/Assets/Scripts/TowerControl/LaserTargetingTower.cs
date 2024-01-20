@@ -18,9 +18,9 @@ namespace TowerControl
         protected override void Init()
         {
             base.Init();
-            var manaTowerData = (ManaUsingTowerData)UIManager.Instance.towerDataPrefabDictionary[TowerType].towerData;
+            var manaTowerData = (ManaUsingTowerData)UIManager.instance.towerDataPrefabDictionary[TowerType].towerData;
             _attackMana = manaTowerData.attackMana;
-            _towerMana = UIManager.Instance.GetTowerMana();
+            _towerMana = UIManager.instance.GetTowerMana();
             firePos = transform.GetChild(2);
         }
 
@@ -93,7 +93,7 @@ namespace TowerControl
         protected override void Attack()
         {
             Hit();
-            SoundManager.Instance.Play3DSound(audioClip, transform.position);
+            SoundManager.Play3DSound(audioClip, transform.position);
             _towerMana.Damage(_attackMana);
         }
 

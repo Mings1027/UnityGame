@@ -1,6 +1,5 @@
 using CustomEnumControl;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace DataControl.TowerDataControl
 {
@@ -12,18 +11,18 @@ namespace DataControl.TowerDataControl
         public TowerType TowerType => towerType;
         [SerializeField] private TowerType towerType;
 
-        public ushort TowerBuildGold => towerBuildGold;
-        public byte ExtraBuildGold => extraBuildGold;
-        public ushort TowerUpgradeGold => towerUpgradeGold;
-        public byte ExtraUpgradeGold => extraUpgradeGold;
+        public ushort TowerBuildCost => towerBuildCost;
+        public byte ExtraBuildCost => extraBuildCost;
+        public ushort TowerUpgradeCost => towerUpgradeCost;
+        public byte ExtraUpgradeCost => extraUpgradeCost;
 
         [SerializeField] private bool isUnitTower;
         [SerializeField] private bool isMagicTower;
 
-        [FormerlySerializedAs("towerBuildCost")] [SerializeField, Range(0, 1000)] private ushort towerBuildGold;
-        [FormerlySerializedAs("extraBuildCost")] [SerializeField, Range(0, 255)] private byte extraBuildGold;
-        [FormerlySerializedAs("towerUpgradeCost")] [SerializeField, Range(0, 1000)] private ushort towerUpgradeGold;
-        [FormerlySerializedAs("extraUpgradeCost")] [SerializeField, Range(0, 255)] private byte extraUpgradeGold;
+        [SerializeField, Range(0, 1000)] private ushort towerBuildCost;
+        [SerializeField, Range(0, 255)] private byte extraBuildCost;
+        [SerializeField, Range(0, 1000)] private ushort towerUpgradeCost;
+        [SerializeField, Range(0, 255)] private byte extraUpgradeCost;
 
         public virtual void InitState()
         {

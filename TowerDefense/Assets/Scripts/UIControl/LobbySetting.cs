@@ -26,22 +26,22 @@ namespace UIControl
             settingButton.onClick.AddListener(() =>
             {
                 settingButton.transform.DOScale(1, 0.25f).From(0.5f).SetEase(Ease.OutBack);
-                SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 SettingPanel();
             });
-            bgmToggle.isOn = !SoundManager.Instance.BGMOn;
+            bgmToggle.isOn = !SoundManager.bgmOn;
             bgmToggle.onValueChanged.AddListener(delegate
             {
                 bgmToggle.transform.DOScale(1, 0.25f).From(0.5f).SetEase(Ease.OutBack);
-                SoundManager.Instance.ToggleBGM(!bgmToggle.isOn);
-                SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
+                SoundManager.ToggleBGM(!bgmToggle.isOn);
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
             });
-            sfxToggle.isOn = !SoundManager.Instance.SfxOn;
+            sfxToggle.isOn = !SoundManager.sfxOn;
             sfxToggle.onValueChanged.AddListener(delegate
             {
                 sfxToggle.transform.DOScale(1, 0.25f).From(0.5f).SetEase(Ease.OutBack);
-                SoundManager.Instance.ToggleSfx(!sfxToggle.isOn);
-                SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
+                SoundManager.ToggleSfx(!sfxToggle.isOn);
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
             });
         }
 

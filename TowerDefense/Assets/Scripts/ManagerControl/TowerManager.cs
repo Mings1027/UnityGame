@@ -84,7 +84,7 @@ namespace ManagerControl
         public void Init()
         {
             _towers = new List<AttackTower>(50);
-            _towerMana = UIManager.Instance.GetTowerMana();
+            _towerMana = UIManager.instance.GetTowerMana();
         }
 
 #endregion

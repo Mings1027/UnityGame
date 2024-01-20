@@ -52,7 +52,7 @@ namespace TowerControl
             effectIndex = -1;
             _targetColliders = new Collider[targetColliderCount];
             patrolCooldown.cooldownTime = 0.5f;
-            var towerData = (TargetingTowerData)UIManager.Instance.towerDataPrefabDictionary[TowerType].towerData;
+            var towerData = (TargetingTowerData)UIManager.instance.towerDataPrefabDictionary[TowerType].towerData;
             projectileKey = towerData.PoolObjectKey;
         }
 
@@ -126,7 +126,7 @@ namespace TowerControl
         protected virtual void Attack()
         {
             atkSequence.Restart();
-            SoundManager.Instance.Play3DSound(audioClip, transform.position);
+            SoundManager.Play3DSound(audioClip, transform.position);
             var projectile = PoolObjectManager.Get<Projectile>(projectileKey, firePos.position);
             projectile.ColorInit(effectIndex);
             projectile.Init(Damage, target);

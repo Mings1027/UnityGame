@@ -80,7 +80,7 @@ namespace TowerControl
             var count = _units.Count;
             for (var i = count - 1; i >= 0; i--)
             {
-                var unitData = (SummoningTowerData)UIManager.Instance.towerDataPrefabDictionary[TowerType].towerData;
+                var unitData = (SummoningTowerData)UIManager.instance.towerDataPrefabDictionary[TowerType].towerData;
                 _units[i].UnitUpgrade(damage, unitData.UnitHealth * (1 + TowerLevel), delay);
             }
         }
@@ -151,7 +151,7 @@ namespace TowerControl
             _reSpawnBarTransform = transform.GetChild(1);
             _units = new List<TowerUnit>(unitCount);
 
-            var unitTowerData = (SummoningTowerData)UIManager.Instance.towerDataPrefabDictionary[TowerType].towerData;
+            var unitTowerData = (SummoningTowerData)UIManager.instance.towerDataPrefabDictionary[TowerType].towerData;
             UnitHealth = unitTowerData.UnitHealth;
             UnitReSpawnTime = unitTowerData.UnitReSpawnTime;
         }

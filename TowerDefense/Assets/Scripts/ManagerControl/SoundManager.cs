@@ -1,53 +1,61 @@
 using System;
 using System.Collections.Generic;
 using CustomEnumControl;
-using GameControl;
 using UnityEngine;
 using UnityEngine.Audio;
 
 namespace ManagerControl
 {
-    public class SoundManager : Singleton<SoundManager>
+    public class SoundManager : MonoBehaviour
     {
         [Serializable]
-        public class EffectSound
+        private class EffectSound
         {
             public SoundEnum effectName;
             public AudioClip effectSource;
         }
 
         [Serializable]
-        public class MusicSound
+        private class MusicSound
         {
             public SoundEnum musicName;
             public AudioClip musicClip;
         }
 
-        private Camera _cam;
+        private static Camera _cam;
 
         private const string BGMKey = "BGM";
         private const string SfxKey = "SFX";
 
-        private float _bgmVolume;
-        private float _inverseMaxMinusMin;
+        private static float _bgmVolume;
+        private static float _inverseMaxMinusMin;
 
-        private Dictionary<SoundEnum, AudioClip> _musicDictionary;
-        private Dictionary<SoundEnum, AudioClip> _effectDictionary;
+        private static Dictionary<SoundEnum, AudioClip> _musicDictionary;
+        private static Dictionary<SoundEnum, AudioClip> _effectDictionary;
 
-        private AudioSource _musicSource, _effectSource;
+        private static AudioSource _musicSource, _effectSource;
+        private static AudioMixer _audioMixer;
+        private static byte _maxDis;
 
         [SerializeField] private MusicSound[] musicSounds;
         [SerializeField] private EffectSound[] effectSounds;
 
         [SerializeField] private AudioMixer audioMixer;
-        [SerializeField] private byte minDistance, maxDistance;
+        [SerializeField, Range(0, 255)] private byte minDistance, maxDistance;
 
-        public bool BGMOn { get; private set; }
-        public bool SfxOn { get; private set; }
+        public static bool bgmOn { get; private set; }
+        public static bool sfxOn { get; private set; }
 
-        protected override void Awake()
+        private void OnValidate()
         {
-            base.Awake();
+            if (minDistance > maxDistance) minDistance = maxDistance;
+            if (maxDistance < minDistance) maxDistance = minDistance;
+            _maxDis = maxDistance;
+        }
+
+        private void Awake()
+        {
+            _audioMixer = audioMixer;
             _inverseMaxMinusMin = 1.0f / (maxDistance - minDistance);
             _musicSource = transform.Find("Music Source").GetComponent<AudioSource>();
             _effectSource = transform.Find("Effect Source").GetComponent<AudioSource>();
@@ -65,56 +73,56 @@ namespace ManagerControl
             }
 
             _bgmVolume = -5;
-            BGMOn = PlayerPrefs.GetInt(BGMKey, 1) == 1;
-            SfxOn = PlayerPrefs.GetInt(SfxKey, 1) == 1;
+            bgmOn = PlayerPrefs.GetInt(BGMKey, 1) == 1;
+            sfxOn = PlayerPrefs.GetInt(SfxKey, 1) == 1;
         }
 
         private void Start()
         {
-            audioMixer.SetFloat("BGM", BGMOn ? _bgmVolume : -80);
-            audioMixer.SetFloat("SFX", SfxOn ? 0 : -80);
+            audioMixer.SetFloat("BGM", bgmOn ? _bgmVolume : -80);
+            audioMixer.SetFloat("SFX", sfxOn ? 0 : -80);
         }
 
-        public void InitSoundCam() => _cam = Camera.main;
+        public static void MuteBGM(bool value) => _musicSource.mute = value;
 
-        public void PlayBGM(SoundEnum clipName)
+        public static void PlayBGM(SoundEnum clipName)
         {
             _musicSource.clip = _musicDictionary[clipName];
             _musicSource.Play();
         }
 
-        public void MuteBGM(bool value)
-        {
-            _musicSource.mute = value;
-        }
-
-        public void PlayUISound(SoundEnum clipName)
+        public static void PlayUISound(SoundEnum clipName)
         {
             _effectSource.clip = _effectDictionary[clipName];
             _effectSource.Play();
         }
 
-        public void Play3DSound(AudioClip audioClip, Vector3 position)
+        public static void Play3DSound(AudioClip audioClip, Vector3 position)
         {
             var distance = Vector3.Distance(_cam.transform.position, position);
-            if (distance > maxDistance) return;
-            var soundScale = Mathf.Clamp01((maxDistance - distance) * _inverseMaxMinusMin);
+            if (distance > _maxDis) return;
+            var soundScale = Mathf.Clamp01((_maxDis - distance) * _inverseMaxMinusMin);
             soundScale *= 0.5f;
             _effectSource.PlayOneShot(audioClip, soundScale);
         }
 
-        public void ToggleBGM(bool active)
+        public static void ToggleBGM(bool active)
         {
-            BGMOn = active;
-            audioMixer.SetFloat("BGM", BGMOn ? _bgmVolume : -80);
-            PlayerPrefs.SetInt(BGMKey, BGMOn ? 1 : 0);
+            bgmOn = active;
+            _audioMixer.SetFloat("BGM", bgmOn ? _bgmVolume : -80);
+            PlayerPrefs.SetInt(BGMKey, bgmOn ? 1 : 0);
         }
 
-        public void ToggleSfx(bool active)
+        public static void ToggleSfx(bool active)
         {
-            SfxOn = active;
-            audioMixer.SetFloat("SFX", SfxOn ? 0 : -80);
-            PlayerPrefs.SetInt(SfxKey, SfxOn ? 1 : 0);
+            sfxOn = active;
+            _audioMixer.SetFloat("SFX", sfxOn ? 0 : -80);
+            PlayerPrefs.SetInt(SfxKey, sfxOn ? 1 : 0);
+        }
+
+        public void SetCamera(Camera cam)
+        {
+            _cam = cam;
         }
     }
 }

@@ -29,7 +29,7 @@ namespace TowerControl
         protected override void Attack()
         {
             atkSequence.Restart();
-            SoundManager.Instance.Play3DSound(audioClip, transform.position);
+            SoundManager.Play3DSound(audioClip, transform.position);
             var projectile = PoolObjectManager.Get<WizardProjectile>(projectileKey, firePos.position);
             projectile.ColorInit(effectIndex);
             projectile.Init(Damage, target);

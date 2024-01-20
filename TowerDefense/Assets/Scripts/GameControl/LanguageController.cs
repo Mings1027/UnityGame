@@ -31,7 +31,7 @@ namespace GameControl
                     .AddListener(() =>
                     {
                         languageButton.transform.DOScale(1, 0.25f).From(0.7f).SetEase(Ease.OutBack).SetUpdate(true);
-                        SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
+                        SoundManager.PlayUISound(SoundEnum.ButtonSound);
                         LocaleManager.ChangeLocale(index);
                     });
             }
@@ -39,7 +39,7 @@ namespace GameControl
             openLanguagePanelButton.onClick.AddListener(() =>
             {
                 openLanguagePanelButton.transform.DOScale(1, 0.25f).From(0.5f).SetEase(Ease.OutBack).SetUpdate(true);
-                SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 languagePanelBlockImage.enabled = true;
                 _changeLanguageTween.Restart();
             });

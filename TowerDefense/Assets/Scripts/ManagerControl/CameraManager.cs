@@ -47,6 +47,7 @@ namespace ManagerControl
             _cam = Camera.main;
             _snapRotateTween = transform.DORotate(SnappedVector(), 0.5f).SetEase(Ease.OutCubic)
                 .SetAutoKill(false).Pause();
+            FindAnyObjectByType<SoundManager>().SetCamera(_cam);
         }
 
         private void OnEnable()

@@ -5,6 +5,7 @@ namespace Utilities
 {
     public static class StringManager
     {
+        public const string Diamond = "Diamond";
         public const string Xp = "XP";
         public const string UpgradeCount = "UpgradeCount";
         public const string TotalSpentXp = "TotalSpentXp";

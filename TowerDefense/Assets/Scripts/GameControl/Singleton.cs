@@ -8,7 +8,7 @@ namespace GameControl
         private static bool _applicationQuit;
         private static T _instance;
 
-        public static T Instance
+        public static T instance
         {
             get
             {

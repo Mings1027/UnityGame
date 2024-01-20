@@ -43,8 +43,8 @@ namespace UIControl
                 var index = i;
                 difficultySelectButtons.GetChild(i).GetComponent<Button>().onClick.AddListener(() =>
                 {
-                    SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
-                    UIManager.Instance.MapSelectButton(index + 1).Forget();
+                    SoundManager.PlayUISound(SoundEnum.ButtonSound);
+                    UIManager.instance.MapSelectButton(index + 1).Forget();
                     _eventSystem.enabled = false;
                     transform.DOScale(0, 0.5f).SetEase(Ease.InBack)
                         .OnComplete(() =>
@@ -72,14 +72,14 @@ namespace UIControl
             dataDeleteButton.onClick.AddListener(() =>
             {
                 blockImage.enabled = true;
-                SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 _eventSystem.enabled = false;
                 _deletePanelTween.OnComplete(() => _eventSystem.enabled = true).Restart();
             });
             yesButton.onClick.AddListener(() =>
             {
                 blockImage.enabled = false;
-                SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 _eventSystem.enabled = false;
                 DataManager.WaveDataInit();
                 _deletePanelTween.OnRewind(() => _eventSystem.enabled = true).PlayBackwards();
@@ -96,7 +96,7 @@ namespace UIControl
             noButton.onClick.AddListener(() =>
             {
                 blockImage.enabled = false;
-                SoundManager.Instance.PlayUISound(SoundEnum.ButtonSound);
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 _eventSystem.enabled = false;
                 _deletePanelTween.OnRewind(() => _eventSystem.enabled = true).PlayBackwards();
             });

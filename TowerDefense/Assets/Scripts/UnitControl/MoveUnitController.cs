@@ -25,7 +25,7 @@ namespace UnitControl
 
         private void Start()
         {
-            _uiManager = UIManager.Instance;
+            _uiManager = UIManager.instance;
             _camArm = _cam.transform.parent;
             enabled = false;
         }

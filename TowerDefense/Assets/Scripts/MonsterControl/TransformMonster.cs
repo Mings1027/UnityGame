@@ -5,10 +5,7 @@ namespace MonsterControl
 {
     public class TransformMonster : MonoBehaviour
     {
-        public byte SpawnCount => spawnCount;
-        public NormalMonsterData TransformMonsterData => transformMonsterData;
-
-        [SerializeField] private NormalMonsterData transformMonsterData;
-        [SerializeField] private byte spawnCount;
+        [field: SerializeField] public NormalMonsterData transformMonsterData { get; set; }
+        [field: SerializeField] public byte spawnCount { get; set; }
     }
 }
