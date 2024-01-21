@@ -74,9 +74,7 @@ namespace ManagerControl
             var loginArgs = new AppleAuthLoginArgs(LoginOptions.None);
             Debug.Log("#  로그인 버튼 클릭  #");
 
-            this._appleAuthManager.LoginWithAppleId(
-                loginArgs,
-                credential =>
+            _appleAuthManager.LoginWithAppleId(loginArgs, credential =>
                 {
                     Debug.Log("#  로그인 성공  #");
                     Debug.Log("# userID: #");
@@ -101,6 +99,7 @@ namespace ManagerControl
                             Debug.Log("Apple 로그인 성공");
                             appleLoginButton.gameObject.SetActive(false);
                             buttons.SetActive(true);
+                            SetFreeDiaTable(identityToken);
                         }
                         else Debug.LogError("Apple 로그인 실패");
                     }
@@ -138,5 +137,24 @@ namespace ManagerControl
         }
 
 #endif
+
+        private void SetFreeDiaTable(string id)
+        {
+            Debug.Log("=================================================================");
+            var bro = Backend.GameData.GetMyData("FreeDiaTable", new Where(), 1);
+            if (!bro.IsSuccess()) return;
+
+            if (bro.GetReturnValuetoJSON()["rows"].Count <= 0)
+            {
+                Debug.Log(bro);
+                return;
+            }
+
+            for (int i = 0; i < bro.Rows().Count; i++)
+            {
+                var inDate = bro.FlattenRows()[0]["inDate"].ToString();
+                Debug.Log(inDate);
+            }
+        }
     }
 }

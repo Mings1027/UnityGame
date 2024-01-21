@@ -13,15 +13,11 @@ namespace GameControl
             get
             {
                 if (_applicationQuit) return null;
-                if (!_instance)
-                {
-                    _instance = (T)FindAnyObjectByType(typeof(T));
-                    if (!_instance)
-                    {
-                        var obj = new GameObject(typeof(T).ToString());
-                        _instance = obj.AddComponent<T>();
-                    }
-                }
+                if (_instance) return _instance;
+                _instance = (T)FindAnyObjectByType(typeof(T));
+                if (_instance) return _instance;
+                var obj = new GameObject(typeof(T).ToString());
+                _instance = obj.AddComponent<T>();
 
                 return _instance;
             }
