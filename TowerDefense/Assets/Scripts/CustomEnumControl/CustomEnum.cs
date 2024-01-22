@@ -12,6 +12,14 @@ namespace CustomEnumControl
         None
     }
 
+    public enum ItemType
+    {
+        None,
+        NuclearBomb,
+        MoneyBag,
+        TowerHeart
+    }
+
     public enum SoundEnum
     {
         GameStart,
@@ -27,7 +35,7 @@ namespace CustomEnumControl
     public enum TowerState
     {
         Detect,
-        
+
         Attack
     }
 
@@ -103,13 +111,13 @@ namespace CustomEnumControl
         Spider,
         Mummy,
         Lich,
-        
+
         Witch,
         Bat,
         Vampire,
         JackOLantern,
         Werewolf,
-        
+
         Santa,
         Reindeer,
         SnowMan,

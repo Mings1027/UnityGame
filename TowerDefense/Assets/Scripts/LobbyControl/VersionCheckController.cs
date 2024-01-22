@@ -1,74 +1,66 @@
 using System;
-using CustomEnumControl;
 using Cysharp.Threading.Tasks;
-using ManagerControl;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 
-public class VersionCheckController : MonoBehaviour
+namespace LobbyControl
 {
-    // private const string BundleID = "com.DefenseCompany.RogueDefense";
-    private int _appStoreVersion; //현재 스토어에 올라가있는 버전
-    private int _curAppVersion;
-    [SerializeField] private GameObject updateVersionPanel;
-    [SerializeField] private Button appStoreButton;
-    [SerializeField] private GameObject buttons;
-
-    private void Start()
+    public class VersionCheckController : MonoBehaviour
     {
-        updateVersionPanel.SetActive(false);
-        _curAppVersion = int.Parse(Application.version.Replace(".", ""));
-        appStoreButton.onClick.AddListener(OpenAppStore);
-        CheckVersion().Forget();
-    }
+        // private const string BundleID = "com.DefenseCompany.RogueDefense";
+        private int _appStoreVersion; //현재 스토어에 올라가있는 버전
+        private int _curAppVersion;
+        [SerializeField] private GameObject updateVersionPanel;
+        [SerializeField] private Button appStoreButton;
 
-    private async UniTaskVoid CheckVersion()
-    {
-        await CheckAppStoreVersion();
-        if (_curAppVersion < _appStoreVersion)
-        {
-            updateVersionPanel.SetActive(true);
-            buttons.SetActive(false);
-        }
-        else
+        private void Start()
         {
             updateVersionPanel.SetActive(false);
+            _curAppVersion = int.Parse(Application.version.Replace(".", ""));
+            appStoreButton.onClick.AddListener(OpenAppStore);
+            CheckVersion().Forget();
         }
-    }
 
-    private async UniTask CheckAppStoreVersion()
-    {
-        try
+        private async UniTaskVoid CheckVersion()
         {
-            var defaultUri = new UriBuilder("https://mings1027.github.io/appVersion.html");
-            var jsonText = await GetJsonText(defaultUri.Uri.ToString());
-            _appStoreVersion = int.Parse(jsonText.Replace(".", ""));
+            await CheckAppStoreVersion();
+            updateVersionPanel.SetActive(_curAppVersion < _appStoreVersion);
         }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            throw;
-        }
-    }
 
-    private async UniTask<string> GetJsonText(string url)
-    {
-        using var www = UnityWebRequest.Get(url);
+        private async UniTask CheckAppStoreVersion()
         {
-            await www.SendWebRequest();
-            if (www.result is UnityWebRequest.Result.ConnectionError or UnityWebRequest.Result.ProtocolError)
+            try
             {
-                throw new Exception(www.error);
+                var defaultUri = new UriBuilder("https://mings1027.github.io/appVersion.html");
+                var jsonText = await GetJsonText(defaultUri.Uri.ToString());
+                _appStoreVersion = int.Parse(jsonText.Replace(".", ""));
             }
-
-            return www.downloadHandler.text;
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
         }
-    }
 
-    private void OpenAppStore()
-    {
-        Application.OpenURL("itms-apps://itunes.apple.com/app/id6472429843?uo=4");
-        Application.Quit();
+        private async UniTask<string> GetJsonText(string url)
+        {
+            using var www = UnityWebRequest.Get(url);
+            {
+                await www.SendWebRequest();
+                if (www.result is UnityWebRequest.Result.ConnectionError or UnityWebRequest.Result.ProtocolError)
+                {
+                    throw new Exception(www.error);
+                }
+
+                return www.downloadHandler.text;
+            }
+        }
+
+        private void OpenAppStore()
+        {
+            Application.OpenURL("itms-apps://itunes.apple.com/app/id6472429843?uo=4");
+            Application.Quit();
+        }
     }
 }

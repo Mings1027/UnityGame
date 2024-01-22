@@ -115,7 +115,7 @@ namespace ManagerControl
 
         public void TryPlaceTower()
         {
-            if (_canPlace && !TowerButton.IsOnButton)
+            if (_canPlace && !TowerButton.isOnButton)
             {
                 PlaceTower();
             }

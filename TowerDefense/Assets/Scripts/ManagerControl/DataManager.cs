@@ -13,7 +13,7 @@ namespace ManagerControl
     public abstract class DataManager
     {
         public static int xp { get; set; }
-        public static int diamond { get; set; }
+        // public static int diamond { get; set; }
 
         public static SurvivedWave survivedWaves { get; private set; }
 

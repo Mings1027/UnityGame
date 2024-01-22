@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace GameControl
+namespace LobbyControl
 {
     public class TowerUpgradeButton : MonoBehaviour
     {

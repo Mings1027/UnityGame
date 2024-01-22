@@ -19,17 +19,14 @@ namespace ManagerControl
         private Tween _downloadPanelTween;
         private Dictionary<string, long> _patchMap;
 
-        [Header("UI")] [SerializeField] private Button startGameButton;
         [SerializeField] private GameObject downLoadPanel;
         [SerializeField] private Image blockImage;
         [SerializeField] private TMP_Text sizeInfoText;
+        [SerializeField] private Button startButton;
         [SerializeField] private Button downLoadButton;
         [SerializeField] private Button cancelButton;
         [SerializeField] private TMP_Text downValueText;
         [SerializeField] private Slider downSlider;
-
-        [Header("---Setting---")] [SerializeField]
-        private GameObject buttons;
 
         [Header("Label")] [SerializeField] private AssetLabelReference[] assetLabels;
 
@@ -38,10 +35,12 @@ namespace ManagerControl
             _downloadPanelTween = downLoadPanel.transform.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack)
                 .SetAutoKill(false).Pause();
             _patchMap = new Dictionary<string, long>();
-            startGameButton.onClick.AddListener(() =>
+            startButton.gameObject.SetActive(false);
+            startButton.onClick.AddListener(() =>
             {
-                SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                StartGameButton();
+                _downloadPanelTween.Restart();
+                blockImage.enabled = true;
+                startButton.gameObject.SetActive(false);
             });
             downLoadButton.onClick.AddListener(() =>
             {
@@ -51,8 +50,8 @@ namespace ManagerControl
             cancelButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                buttons.SetActive(true);
                 blockImage.enabled = false;
+                startButton.gameObject.SetActive(true);
                 _downloadPanelTween.PlayBackwards();
             });
         }
@@ -75,16 +74,11 @@ namespace ManagerControl
             await Addressables.InitializeAsync();
         }
 
-        private void StartGameButton()
-        {
-            buttons.SetActive(false);
-            CheckUpdateFiles().Forget();
-        }
+#region CheckDown
 
-        #region CheckDown
-
-        private async UniTaskVoid CheckUpdateFiles()
+        public async UniTaskVoid CheckUpdateFiles()
         {
+            Debug.Log("check Update files");
             var labels = new List<string>();
             for (var i = 0; i < assetLabels.Length; i++)
             {
@@ -102,19 +96,20 @@ namespace ManagerControl
 
             if (_patchSize > decimal.Zero) // 다운로드 할 것이 있음
             {
-                // downLoadPanel.SetActive(true);
+                Debug.Log("다운로드 받아야함");
                 blockImage.enabled = true;
                 _downloadPanelTween.Restart();
                 sizeInfoText.text = GetFilSize(_patchSize);
             }
             else // 다운로드 할 것이 없음
             {
+                Debug.Log("다운할거 없음");
                 sizeInfoText.enabled = false;
                 downValueText.text = " 100 % ";
                 downSlider.value = 1;
                 downSlider.gameObject.SetActive(true);
                 await UniTask.Delay(500);
-                StartGame().Forget();
+                StartGame();
                 // 게임 시작되는 부분
             }
         }
@@ -143,9 +138,9 @@ namespace ManagerControl
             return size;
         }
 
-        #endregion
+#endregion
 
-        #region DownLoad
+#region DownLoad
 
         private void DownLoadButton()
         {
@@ -155,6 +150,14 @@ namespace ManagerControl
             cancelButton.gameObject.SetActive(false);
             downSlider.gameObject.SetActive(true);
             PatchFiles().Forget();
+        }
+
+        private void CancelButton()
+        {
+            _downloadPanelTween.PlayBackwards();
+            blockImage.enabled = false;
+            downLoadButton.gameObject.SetActive(false);
+            cancelButton.gameObject.SetActive(false);
         }
 
         private async UniTask PatchFiles()
@@ -179,7 +182,7 @@ namespace ManagerControl
 
             await CheckDownLoad();
         }
-        
+
         private async UniTaskVoid DownLoadLabel(string label)
         {
             _patchMap.Add(label, 0);
@@ -208,7 +211,7 @@ namespace ManagerControl
 
                 if (Math.Abs(total - _patchSize) < 0.01f)
                 {
-                    StartGame().Forget();
+                    StartGame();
                     break;
                 }
 
@@ -217,15 +220,11 @@ namespace ManagerControl
             }
         }
 
-        #endregion
+#endregion
 
-        private async UniTaskVoid StartGame()
+        private void StartGame()
         {
-            var asyncOperation = SceneManager.LoadSceneAsync("MainGameScene");
-            while (!asyncOperation.isDone)
-            {
-                await UniTask.Yield();
-            }
+            SceneManager.LoadSceneAsync("Lobby");
         }
     }
 }

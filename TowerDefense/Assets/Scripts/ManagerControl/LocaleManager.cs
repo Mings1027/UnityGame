@@ -8,9 +8,11 @@ namespace ManagerControl
     public abstract class LocaleManager
     {
         private static bool _isChanging;
-        
+
         public const string TowerCardTable = "TowerCard Table";
+        public const string ItemTable = "Item Table";
         public const string CardKey = "Card-";
+        public const string ItemKey = "Item-";
 
         public static void ChangeLocale(int index)
         {
@@ -24,7 +26,7 @@ namespace ManagerControl
             _isChanging = true;
 
             await LocalizationSettings.InitializationOperation;
-           
+
             LocalizationSettings.SelectedLocale = LocalizationSettings.AvailableLocales.Locales[index];
 
             _isChanging = false;
@@ -43,11 +45,10 @@ namespace ManagerControl
             }
         }
 
-        public static string GetLocalizedString(string inputString)
+        public static string GetLocalizedString(string tableName, string inputString)
         {
-            return LocalizationSettings.StringDatabase.GetLocalizedString(TowerCardTable, inputString,
+            return LocalizationSettings.StringDatabase.GetLocalizedString(tableName, inputString,
                 LocalizationSettings.SelectedLocale);
         }
-        
     }
 }

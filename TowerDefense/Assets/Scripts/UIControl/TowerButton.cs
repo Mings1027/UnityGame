@@ -1,4 +1,5 @@
 using System;
+using CustomEnumControl;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -10,14 +11,16 @@ namespace UIControl
     {
         private Tween _scaleTween;
         public event Action OnCamDisableEvent, OnCamEnableEvent;
-        public event Action<int, Transform> OnOpenCardEvent;
+        public event Action<TowerType, Transform> OnOpenCardEvent;
         public event Action OnCloseCardEvent;
         public event Action<PointerEventData> OnBeginDragEvent;
-        public event Action<int> OnStartPlacement;
+        public event Action<TowerType> OnStartPlacement;
         public event Action<PointerEventData> OnDragEvent;
         public event Action<PointerEventData> OnEndDragEvent;
-        public static bool IsOnButton { get; private set; }
-        public byte buttonIndex { get; set; }
+        public static bool isOnButton { get; private set; }
+        // public byte buttonIndex { get; set; }
+        
+        [SerializeField] private TowerType towerType;
 
         private void Awake()
         {
@@ -27,27 +30,27 @@ namespace UIControl
         public void OnPointerDown(PointerEventData eventData)
         {
             _scaleTween.Restart();
-            IsOnButton = true;
+            isOnButton = true;
             OnCamDisableEvent?.Invoke();
         }
 
         public void OnPointerUp(PointerEventData eventData)
         {
             _scaleTween.PlayBackwards();
-            OnOpenCardEvent?.Invoke(buttonIndex, transform);
+            OnOpenCardEvent?.Invoke(towerType, transform);
             OnCamEnableEvent?.Invoke();
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
             _scaleTween.PlayBackwards();
-            IsOnButton = false;
+            isOnButton = false;
         }
 
         public void OnBeginDrag(PointerEventData eventData)
         {
             OnBeginDragEvent?.Invoke(eventData);
-            OnStartPlacement?.Invoke(buttonIndex);
+            OnStartPlacement?.Invoke(towerType);
             OnCloseCardEvent?.Invoke();
         }
 

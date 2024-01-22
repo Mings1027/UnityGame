@@ -92,7 +92,7 @@ namespace UIControl
         {
             if (!_statusInfoPanel.gameObject.activeSelf) _statusInfoPanel.gameObject.SetActive(true);
 
-            if (UIManager.instance.towerDataPrefabDictionary[tower.TowerType].towerData
+            if (UIManager.instance.towerDataPrefabDictionary[tower.towerType].towerData
                 is AttackTowerData battleTowerData)
             {
                 if (isUnitTower)
@@ -111,7 +111,7 @@ namespace UIControl
             rangeObj.SetActive(!isUnitTower);
             rpmObj.SetActive(!isUnitTower);
             respawnObj.SetActive(isUnitTower);
-            var towerType = tower.TowerType;
+            var towerType = tower.towerType;
 
             if (!towerType.Equals(_towerType))
             {
@@ -130,7 +130,7 @@ namespace UIControl
 
         public void SetSupportTowerInfo(SupportTower tower, ushort sellCost)
         {
-            var towerType = tower.TowerType;
+            var towerType = tower.towerType;
 
             if (!towerType.Equals(_towerType))
             {

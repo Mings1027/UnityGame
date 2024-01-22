@@ -6,7 +6,10 @@ using AppleAuth.Extensions;
 using AppleAuth.Interfaces;
 using AppleAuth.Native;
 using BackEnd;
+using BackendControl;
+using LobbyControl;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace ManagerControl
@@ -14,18 +17,13 @@ namespace ManagerControl
     public class LoginManager : MonoBehaviour
     {
 #if UNITY_IPHONE
-        private const string AppleUserIdKey = "AppleUserId";
+        // private const string AppleUserIdKey = "AppleUserId";
         private IAppleAuthManager _appleAuthManager;
         [SerializeField] private Button appleLoginButton;
 #endif
 
-        [SerializeField] private GameObject buttons;
-
         private void Start()
         {
-#if !UNITY_EDITOR
-            buttons.SetActive(false);
-#endif
 #if UNITY_IPHONE
             appleLoginButton.gameObject.SetActive(true);
             AppleInit();
@@ -64,8 +62,7 @@ namespace ManagerControl
             {
                 Debug.Log("#  로그인 세션 삭제  #");
                 Debug.Log("Received revoked callback " + result);
-                // this.SetupLoginMenuForSignInWithApple();
-                PlayerPrefs.DeleteKey(AppleUserIdKey);
+                // PlayerPrefs.DeleteKey(AppleUserIdKey);
             });
         }
 
@@ -82,24 +79,22 @@ namespace ManagerControl
                     var appleIdCredential = credential as IAppleIDCredential;
                     var passwordCredential = credential as IPasswordCredential;
 
-                    if (appleIdCredential.State != null)
-                        Debug.Log("# State: #");
-                    Debug.Log(appleIdCredential.State);
-
                     if (appleIdCredential.IdentityToken != null)
                     {
                         var identityToken = Encoding.UTF8.GetString(appleIdCredential.IdentityToken, 0,
                             appleIdCredential.IdentityToken.Length);
-                        Debug.Log("# identityToken:  #");
-                        Debug.Log(identityToken);
-
+                        // Debug.Log($"# identityToken:  {identityToken}#");
+                        // Debug.Log(passwordCredential != null
+                        //     ? $"password : {passwordCredential.Password}"
+                        //     : "passwordcredential is null");
                         var bro = Backend.BMember.AuthorizeFederation(identityToken, FederationType.Apple);
+
                         if (bro.IsSuccess())
                         {
                             Debug.Log("Apple 로그인 성공");
                             appleLoginButton.gameObject.SetActive(false);
-                            buttons.SetActive(true);
-                            SetFreeDiaTable(identityToken);
+                            FindAnyObjectByType<DownloadManager>().CheckUpdateFiles().Forget();
+                            FindAnyObjectByType<BackendManager>().BackendInit();
                         }
                         else Debug.LogError("Apple 로그인 실패");
                     }
@@ -137,24 +132,5 @@ namespace ManagerControl
         }
 
 #endif
-
-        private void SetFreeDiaTable(string id)
-        {
-            Debug.Log("=================================================================");
-            var bro = Backend.GameData.GetMyData("FreeDiaTable", new Where(), 1);
-            if (!bro.IsSuccess()) return;
-
-            if (bro.GetReturnValuetoJSON()["rows"].Count <= 0)
-            {
-                Debug.Log(bro);
-                return;
-            }
-
-            for (int i = 0; i < bro.Rows().Count; i++)
-            {
-                var inDate = bro.FlattenRows()[0]["inDate"].ToString();
-                Debug.Log(inDate);
-            }
-        }
     }
 }

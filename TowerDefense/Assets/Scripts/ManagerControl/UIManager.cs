@@ -133,7 +133,7 @@ namespace ManagerControl
             LocaleDictionaryInit();
             TweenInit();
             MenuButtonInit();
-            LocalizationSettings.SelectedLocaleChanged += ChangeLocaleDictionary;
+            LocalizationSettings.SelectedLocaleChanged += ChangeLocaleTowerDictionary;
         }
 
         private void Start()
@@ -226,7 +226,8 @@ namespace ManagerControl
 
             for (var i = 0; i < _towerManager.towerDataPrefabs.Length; i++)
             {
-                _towerCardController.SetDictionary(i, _towerManager.towerDataPrefabs[i].towerData);
+                _towerCardController.SetDictionary(_towerManager.towerDataPrefabs[i].towerData.TowerType,
+                    _towerManager.towerDataPrefabs[i].towerData);
             }
 
             var towerButtons = _towerCardController.GetComponentsInChildren<TowerButton>();
@@ -246,11 +247,7 @@ namespace ManagerControl
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
 
-                if (_clickSellBtn)
-                {
-                    // _sellButtonImage.sprite = sellSprite;
-                    _clickSellBtn = false;
-                }
+                if (_clickSellBtn) ResetSprite();
 
                 TowerUpgrade();
                 _upgradeButtonTween.Restart();
@@ -289,7 +286,8 @@ namespace ManagerControl
                 _towerCountDictionary.Add(t.TowerType, 0);
                 var towerType = towerDataPrefabs[i].towerData.TowerType;
                 _towerCostTextDictionary.Add(towerType, _towerCostTexts[i]);
-                _towerCostTextDictionary[towerType].text = towerDataPrefabDictionary[towerType].towerData.TowerBuildCost + "G";
+                _towerCostTextDictionary[towerType].text =
+                    towerDataPrefabDictionary[towerType].towerData.TowerBuildCost + "G";
             }
         }
 
@@ -302,18 +300,26 @@ namespace ManagerControl
             foreach (TowerType towerType in towerTypes)
             {
                 if (towerType == TowerType.None) return;
-                towerNameDic.Add(towerType, LocaleManager.GetLocalizedString(towerType.ToString()));
-                towerInfoDic.Add(towerType, LocaleManager.GetLocalizedString(LocaleManager.CardKey + towerType));
+                towerNameDic.Add(towerType,
+                    LocaleManager.GetLocalizedString(LocaleManager.TowerCardTable, towerType.ToString()));
+                towerInfoDic.Add(towerType,
+                    LocaleManager.GetLocalizedString(LocaleManager.TowerCardTable, LocaleManager.CardKey + towerType));
             }
         }
 
         private void TweenInit()
         {
             _toggleTowerBtnImage = _toggleTowerButton.transform.GetChild(0).GetComponent<Image>();
-            _upgradeSellPanelTween = _towerInfoUI.transform.DOScale(1, 0.15f).From(0).SetAutoKill(false).Pause();
-            _pauseSequence = DOTween.Sequence().SetAutoKill(false).SetUpdate(true).Pause().Append(_pausePanelBackground.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack)).Join(_pauseButton.transform.DOScale(0, 0.2f));
-            _notEnoughCostSequence = DOTween.Sequence().SetAutoKill(false).Pause().Append(_notEnoughCostPanel.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBounce)).Append(_notEnoughCostPanel.DOScale(0, 0.2f).SetDelay(0.3f));
-            _upgradeButtonTween = _upgradeButton.transform.DOScale(1, 0.2f).From(0.7f).SetEase(Ease.OutBack).SetUpdate(true).SetAutoKill(false);
+            _upgradeSellPanelTween = _towerInfoUI.transform.DOScale(1, 0.15f).From(0).SetAutoKill(false)
+                .Pause();
+            _pauseSequence = DOTween.Sequence().SetAutoKill(false).SetUpdate(true).Pause()
+                .Append(_pausePanelBackground.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack))
+                .Join(_pauseButton.transform.DOScale(0, 0.2f));
+            _notEnoughCostSequence = DOTween.Sequence().SetAutoKill(false).Pause()
+                .Append(_notEnoughCostPanel.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBounce))
+                .Append(_notEnoughCostPanel.DOScale(0, 0.2f).SetDelay(0.3f));
+            _upgradeButtonTween = _upgradeButton.transform.DOScale(1, 0.2f).From(0.7f).SetEase(Ease.OutBack)
+                .SetUpdate(true).SetAutoKill(false);
         }
 
         private void MenuButtonInit()
@@ -327,7 +333,8 @@ namespace ManagerControl
             _centerButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                _centerButton.transform.DOScale(0, 0.2f).From(1).SetEase(Ease.InBack).SetUpdate(true).OnComplete(() => _centerButton.gameObject.SetActive(false));
+                _centerButton.transform.DOScale(0, 0.2f).From(1).SetEase(Ease.InBack).SetUpdate(true)
+                    .OnComplete(() => _centerButton.gameObject.SetActive(false));
                 cameraManager.transform.DOMove(Vector3.zero, 0.5f).SetEase(Ease.OutCubic);
             });
             _centerButton.gameObject.SetActive(false);
@@ -353,7 +360,9 @@ namespace ManagerControl
                 SceneManager.LoadScene("Lobby");
 
                 if (_waveManager.curWave < 1) return;
-                DataManager.UpdateSurvivedWave((byte)(_waveManager.isStartWave ? _waveManager.curWave - 1 : _waveManager.curWave));
+                DataManager.UpdateSurvivedWave((byte)(_waveManager.isStartWave
+                    ? _waveManager.curWave - 1
+                    : _waveManager.curWave));
                 DataManager.SaveLastSurvivedWave();
             });
             _speedButton.onClick.AddListener(() =>
@@ -365,16 +374,18 @@ namespace ManagerControl
             _curSpeedText = _speedButton.GetComponentInChildren<TMP_Text>();
         }
 
-        private void ChangeLocaleDictionary(Locale locale)
+        private void ChangeLocaleTowerDictionary(Locale locale)
         {
             foreach (var towerType in towerNameDic.Keys.ToList())
             {
-                towerNameDic[towerType] = LocaleManager.GetLocalizedString(towerType.ToString());
+                towerNameDic[towerType] =
+                    LocaleManager.GetLocalizedString(LocaleManager.TowerCardTable, towerType.ToString());
             }
 
             foreach (var towerType in towerInfoDic.Keys.ToList())
             {
-                towerInfoDic[towerType] = LocaleManager.GetLocalizedString(LocaleManager.CardKey + towerType);
+                towerInfoDic[towerType] =
+                    LocaleManager.GetLocalizedString(LocaleManager.TowerCardTable, LocaleManager.CardKey + towerType);
             }
 
             if (_towerInfoUI != null) _towerInfoUI.LocaleTowerName();
@@ -419,7 +430,8 @@ namespace ManagerControl
 
         public async UniTaskVoid InstantiateTower(TowerType towerType, Vector3 placePos, Vector3 towerForward)
         {
-            var towerObject = Instantiate(towerDataPrefabDictionary[towerType].towerPrefab, placePos, Quaternion.identity);
+            var towerObject = Instantiate(towerDataPrefabDictionary[towerType].towerPrefab, placePos,
+                Quaternion.identity);
             var lostCost = GetBuildCost(towerType);
             _towerCountDictionary[towerType]++;
             towerCost -= lostCost;
@@ -428,11 +440,13 @@ namespace ManagerControl
             var towerTransform = towerObject.transform;
             towerTransform.GetChild(0).position = towerTransform.position + new Vector3(0, 2, 0);
             towerTransform.GetChild(0).forward = towerForward;
-            await DOTween.Sequence().Join(towerObject.transform.GetChild(0).DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack)).Append(towerObject.transform.GetChild(0).DOMoveY(placePos.y, 0.5f).SetEase(Ease.InExpo).OnComplete(() =>
-            {
-                PoolObjectManager.Get(PoolObjectKey.BuildSmoke, placePos);
-                _cam.transform.DOShakePosition(0.05f);
-            }));
+            await DOTween.Sequence()
+                .Join(towerObject.transform.GetChild(0).DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack)).Append(
+                    towerObject.transform.GetChild(0).DOMoveY(placePos.y, 0.5f).SetEase(Ease.InExpo).OnComplete(() =>
+                    {
+                        PoolObjectManager.Get(PoolObjectKey.BuildSmoke, placePos);
+                        _cam.transform.DOShakePosition(0.05f);
+                    }));
 
             if (towerObject.TryGetComponent(out AttackTower attackTower))
             {
@@ -550,16 +564,20 @@ namespace ManagerControl
         {
             var attackTowerData = (AttackTowerData)towerData;
             attackTower.TowerLevelUp();
-            attackTower.TowerSetting(attackTowerData.TowerMeshes[attackTower.TowerLevel], attackTowerData.BaseDamage, attackTowerData.AttackRange, attackTowerData.AttackRpm);
+            attackTower.TowerSetting(attackTowerData.TowerMeshes[attackTower.TowerLevel], attackTowerData.BaseDamage,
+                attackTowerData.AttackRange, attackTowerData.AttackRpm);
             _towerManager.AddTower(attackTower);
         }
 
-        private void BuildSupportTower() { _gameHUD.towerMana.ManaRegenValue++; }
+        private void BuildSupportTower()
+        {
+            _gameHUD.towerMana.ManaRegenValue++;
+        }
 
         private void TowerUpgrade()
         {
             var attackTower = (AttackTower)_curSelectedTower;
-            var towerType = attackTower.TowerType;
+            var towerType = attackTower.towerType;
             var towerData = towerDataPrefabDictionary[towerType].towerData;
             var battleTowerData = (AttackTowerData)towerData;
             var upgradeCost = GetUpgradeCost(in towerType);
@@ -578,11 +596,13 @@ namespace ManagerControl
             PoolObjectManager.Get(PoolObjectKey.BuildSmoke, position);
             attackTower.TowerLevelUp();
             var towerLevel = attackTower.TowerLevel;
-            attackTower.TowerSetting(battleTowerData.TowerMeshes[towerLevel], battleTowerData.BaseDamage * (towerLevel + 1), battleTowerData.AttackRange, battleTowerData.AttackRpm);
+            attackTower.TowerSetting(battleTowerData.TowerMeshes[towerLevel],
+                battleTowerData.BaseDamage * (towerLevel + 1), battleTowerData.AttackRange, battleTowerData.AttackRpm);
             _upgradeButton.SetActive(!towerLevel.Equals(4));
             _towerRangeIndicator.SetIndicator(position, attackTower.TowerRange);
             _sellTowerCost = GetTowerSellCost(towerType);
-            _towerInfoUI.SetTowerInfo(attackTower, towerData.IsUnitTower, towerLevel, GetUpgradeCost(in towerType), _sellTowerCost);
+            _towerInfoUI.SetTowerInfo(attackTower, towerData.IsUnitTower, towerLevel, GetUpgradeCost(in towerType),
+                _sellTowerCost);
         }
 
         private void ClickTower(Tower clickedTower)
@@ -597,7 +617,7 @@ namespace ManagerControl
             if (clickedTower.Equals(_curSelectedTower)) return;
             if (_curSelectedTower) _curSelectedTower.DeActiveIndicator();
             if (_curSummonTower) _curSummonTower.DeActiveIndicator();
-            var isUnitTower = towerDataPrefabDictionary[clickedTower.TowerType].towerData.IsUnitTower;
+            var isUnitTower = towerDataPrefabDictionary[clickedTower.towerType].towerData.IsUnitTower;
             if (isUnitTower) _curSummonTower = clickedTower.GetComponent<SummonTower>();
             _curSelectedTower = clickedTower;
             _curSelectedTower.ActiveIndicator();
@@ -621,12 +641,13 @@ namespace ManagerControl
             _moveUnitButton.SetActive(isUnitTower);
             _upgradeButton.SetActive(!attackTower.TowerLevel.Equals(4));
             _towerRangeIndicator.SetIndicator(position, attackTower.TowerRange);
-            var towerType = _curSelectedTower.TowerType;
+            var towerType = _curSelectedTower.towerType;
             var curTower = (AttackTower)_curSelectedTower;
             var towerLevel = curTower.TowerLevel;
             var curTowerData = towerDataPrefabDictionary[towerType].towerData;
             _sellTowerCost = GetTowerSellCost(towerType);
-            _towerInfoUI.SetTowerInfo(curTower, curTowerData.IsUnitTower, towerLevel, GetUpgradeCost(in towerType), _sellTowerCost);
+            _towerInfoUI.SetTowerInfo(curTower, curTowerData.IsUnitTower, towerLevel, GetUpgradeCost(in towerType),
+                _sellTowerCost);
         }
 
         private void UpdateSupportTowerInfo(Tower clickedTower)
@@ -635,20 +656,31 @@ namespace ManagerControl
             _moveUnitButton.SetActive(false);
             _towerInfoUI.SetSupportInfoUI();
             var supportTower = (SupportTower)_curSelectedTower;
-            _sellTowerCost = GetTowerSellCost(clickedTower.TowerType);
+            _sellTowerCost = GetTowerSellCost(clickedTower.towerType);
             _towerInfoUI.SetSupportTowerInfo(supportTower, _sellTowerCost);
         }
 
-        private ushort GetBuildCost(in TowerType towerType) { return (ushort)(towerDataPrefabDictionary[towerType].towerData.TowerBuildCost + towerDataPrefabDictionary[towerType].towerData.ExtraBuildCost * _towerCountDictionary[towerType]); }
+        private ushort GetBuildCost(in TowerType towerType)
+        {
+            return (ushort)(towerDataPrefabDictionary[towerType].towerData.TowerBuildCost +
+                            towerDataPrefabDictionary[towerType].towerData.ExtraBuildCost *
+                            _towerCountDictionary[towerType]);
+        }
 
         private ushort GetUpgradeCost(in TowerType towerType)
         {
             var curTower = (AttackTower)_curSelectedTower;
 
-            return (ushort)(towerDataPrefabDictionary[towerType].towerData.TowerUpgradeCost + towerDataPrefabDictionary[towerType].towerData.ExtraUpgradeCost * curTower.TowerLevel);
+            return (ushort)(towerDataPrefabDictionary[towerType].towerData.TowerUpgradeCost +
+                            towerDataPrefabDictionary[towerType].towerData.ExtraUpgradeCost * curTower.TowerLevel);
         }
 
-        private ushort GetTowerSellCost(in TowerType towerType) { return (ushort)(towerDataPrefabDictionary[towerType].towerData.TowerBuildCost + towerDataPrefabDictionary[towerType].towerData.ExtraBuildCost * (_towerCountDictionary[towerType] - 1)); }
+        private ushort GetTowerSellCost(in TowerType towerType)
+        {
+            return (ushort)(towerDataPrefabDictionary[towerType].towerData.TowerBuildCost +
+                            towerDataPrefabDictionary[towerType].towerData.ExtraBuildCost *
+                            (_towerCountDictionary[towerType] - 1));
+        }
 
         private void MoveUnitButton()
         {
@@ -661,8 +693,9 @@ namespace ManagerControl
 
         private void SellTower()
         {
-            SoundManager.PlayUISound(_sellTowerCost < 100 ? SoundEnum.LowCost : _sellTowerCost < 250 ? SoundEnum.MediumCost : SoundEnum.HighCost);
-            var towerType = _curSelectedTower.TowerType;
+            SoundManager.PlayUISound(_sellTowerCost < 100 ? SoundEnum.LowCost :
+                _sellTowerCost < 250 ? SoundEnum.MediumCost : SoundEnum.HighCost);
+            var towerType = _curSelectedTower.towerType;
             _towerCountDictionary[towerType]--;
             _towerCostTextDictionary[towerType].text = GetBuildCost(towerType) + "G";
             var position = _curSelectedTower.transform.position;

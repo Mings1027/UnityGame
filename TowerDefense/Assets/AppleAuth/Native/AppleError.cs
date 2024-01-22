@@ -32,10 +32,5 @@ namespace AppleAuth.Native
             
             SerializationTools.FixSerializationForArray(ref this._localizedRecoveryOptions);
         }
-
-        public override string ToString()
-        {
-            return $"Domain={_domain} Code={_code} Description={_localizedDescription}";
-        }
     }
 }

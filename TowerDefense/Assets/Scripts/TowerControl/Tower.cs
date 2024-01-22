@@ -11,13 +11,12 @@ namespace TowerControl
     public abstract class Tower : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         private Outlinable _outlinable;
-        
-        public TowerType TowerType => towerType;
+
         public event Action<Tower> OnClickTowerAction;
 
-        [SerializeField] private TowerType towerType;
+        [field: SerializeField] public TowerType towerType { get; private set; }
 
-        #region Unity Event
+#region Unity Event
 
         protected virtual void Awake()
         {
@@ -40,18 +39,20 @@ namespace TowerControl
             OnClickTowerAction?.Invoke(this);
         }
 
-        #endregion
+#endregion
 
-        #region Public Function
+#region Public Function
 
         public virtual void ActiveIndicator()
         {
             _outlinable.enabled = true;
         }
+
         public virtual void DeActiveIndicator()
         {
             _outlinable.enabled = false;
         }
+
         public virtual void DisableObject()
         {
             var g = gameObject;
@@ -59,6 +60,6 @@ namespace TowerControl
             Destroy(g);
         }
 
-        #endregion
+#endregion
     }
 }

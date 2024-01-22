@@ -1,7 +1,6 @@
-using System;
 using UnityEngine;
 
-namespace GameControl
+namespace LobbyControl
 {
     public class LobbyCamController : MonoBehaviour
     {

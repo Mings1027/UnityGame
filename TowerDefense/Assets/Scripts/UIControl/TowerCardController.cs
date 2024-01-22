@@ -16,7 +16,7 @@ namespace UIControl
         private Tweener _slideTween;
         private InputManager _inputManager;
 
-        private Dictionary<int, TowerData> _towerButtonDic;
+        private Dictionary<TowerType, TowerData> _towerButtonDic;
 
         private float _rectHeight;
 
@@ -83,7 +83,7 @@ namespace UIControl
             _slideTween = _rectTransform.DOAnchorPosY(-250, 0.25f).From().SetAutoKill(false).Pause().SetUpdate(true);
 
             _inputManager = (InputManager)FindAnyObjectByType(typeof(InputManager));
-            _towerButtonDic = new Dictionary<int, TowerData>();
+            _towerButtonDic = new Dictionary<TowerType, TowerData>();
 
             _rectHeight = _rectTransform.rect.height;
 
@@ -91,7 +91,7 @@ namespace UIControl
             for (var i = 0; i < towerButtons.childCount; i++)
             {
                 var towerButton = towerButtons.GetChild(i).GetComponent<TowerButton>();
-                towerButton.buttonIndex = (byte)i;
+                // towerButton.buttonIndex = (byte)i;
                 towerButton.OnOpenCardEvent += OpenCard;
                 towerButton.OnCamDisableEvent += CameraManager.SetCameraActive;
                 towerButton.OnCloseCardEvent += CloseTowerCard;
@@ -103,17 +103,17 @@ namespace UIControl
             }
         }
 
-        private void OpenCard(int index, Transform buttonPos)
+        private void OpenCard(TowerType towerType, Transform buttonPos)
         {
             if (_isDrag) return;
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            towerDescriptionCard.OpenTowerCard(_towerButtonDic[index].TowerType, buttonPos);
+            towerDescriptionCard.OpenTowerCard(_towerButtonDic[towerType].TowerType, buttonPos);
         }
 
-        private void StartPlacement(int index)
+        private void StartPlacement(TowerType towerType)
         {
             _inputManager.enabled = true;
-            _inputManager.StartPlacement(_towerButtonDic[index].TowerType, _towerButtonDic[index].IsUnitTower);
+            _inputManager.StartPlacement(_towerButtonDic[towerType].TowerType, _towerButtonDic[towerType].IsUnitTower);
         }
 
         private void CloseTowerCard()
@@ -124,7 +124,7 @@ namespace UIControl
             }
         }
 
-        public void SetDictionary(int index, TowerData towerData) => _towerButtonDic.Add(index, towerData);
+        public void SetDictionary(TowerType towerType, TowerData towerData) => _towerButtonDic.Add(towerType, towerData);
 
         public void SlideUp()
         {

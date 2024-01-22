@@ -4,10 +4,11 @@ using DG.Tweening;
 using ManagerControl;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Utilities;
 
-namespace GameControl
+namespace LobbyControl
 {
     public class TowerUpgradeController : MonoBehaviour
     {
@@ -17,6 +18,7 @@ namespace GameControl
 
         [SerializeField] private TMP_Text xpText;
         [SerializeField] private Image blockImage;
+        [SerializeField] private Button startGameButton;
         [SerializeField] private Button upgradeButton;
         [SerializeField] private Button closeButton;
         [SerializeField] private Button dataDeleteButton;
@@ -69,6 +71,7 @@ namespace GameControl
 
         private void ButtonInit()
         {
+            startGameButton.onClick.AddListener(()=>SceneManager.LoadScene("MainGameScene"));
             upgradeButton.onClick.AddListener(() =>
             {
                 UpgradePanel();

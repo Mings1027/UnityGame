@@ -4,7 +4,7 @@ using ManagerControl;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace UIControl
+namespace LobbyControl
 {
     public class LobbySetting : MonoBehaviour
     {

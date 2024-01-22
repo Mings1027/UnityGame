@@ -1,22 +1,46 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
+using System.Threading.Tasks;
 using BackEnd;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class BackendManager : MonoBehaviour
+namespace BackendControl
 {
-    private void Start()
+    public class BackendManager : MonoBehaviour
     {
-        var be = Backend.Initialize(true);
+        // [SerializeField] private InputField idInputField;
+        // [SerializeField] private InputField passwordInputField;
 
-        if (be.IsSuccess())
+        private void Awake()
         {
-            Debug.Log("초기화 성공 : " + be);
+            var bro = Backend.Initialize(true);
+
+            if (bro.IsSuccess())
+            {
+                Debug.Log("초기화 성공 : " + bro);
+            }
+            else
+            {
+                Debug.LogError("초기화 실패 : " + bro);
+            }
         }
-        else
+
+        public async void BackendInit()
         {
-            Debug.LogError("초기화 실패 : "+ be);
+            await Task.Run(() =>
+            {
+                var bro = Backend.BMember.GetUserInfo();
+                if (bro.IsSuccess())
+                {
+                    Debug.Log("유저정보를 찾음");
+                    var id = bro.GetReturnValuetoJSON()["row"]["gamerId"].ToString();
+                    var inDate = bro.GetReturnValuetoJSON()["row"]["inDate"].ToString();
+                    BackendGameData.instance.GameDataInsert();
+                }
+
+                Debug.Log("테스트를 종료합니다");
+            });
         }
     }
 }
