@@ -2,6 +2,8 @@ using System;
 using System.Threading.Tasks;
 using BackEnd;
 using Cysharp.Threading.Tasks;
+using LobbyControl;
+using ManagerControl;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,9 +11,6 @@ namespace BackendControl
 {
     public class BackendManager : MonoBehaviour
     {
-        // [SerializeField] private InputField idInputField;
-        // [SerializeField] private InputField passwordInputField;
-
         private void Awake()
         {
             var bro = Backend.Initialize(true);
@@ -30,16 +29,16 @@ namespace BackendControl
         {
             await Task.Run(() =>
             {
-                var bro = Backend.BMember.GetUserInfo();
-                if (bro.IsSuccess())
+                BackendGameData.instance.GameDataGet();
+                if (BackendGameData.userData == null)
                 {
-                    Debug.Log("유저정보를 찾음");
-                    var id = bro.GetReturnValuetoJSON()["row"]["gamerId"].ToString();
-                    var inDate = bro.GetReturnValuetoJSON()["row"]["inDate"].ToString();
                     BackendGameData.instance.GameDataInsert();
                 }
 
+                BackendGameData.instance.GameDataUpdate();
+
                 Debug.Log("테스트를 종료합니다");
+                FindAnyObjectByType<DownloadManager>().CheckUpdateFiles().Forget();
             });
         }
     }

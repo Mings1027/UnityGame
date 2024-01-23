@@ -19,7 +19,7 @@ namespace StatusControl
             healthText.text = Current + " / " + Initial;
         }
 
-        public override void Damage(float amount)
+        public override void Damage(int amount)
         {
             base.Damage(amount);
             healthText.text = Current + " / " + Initial;

@@ -70,7 +70,7 @@ namespace ProjectileControl
             var size = Physics.OverlapSphereNonAlloc(pos, atkRange, _targetColliders, _monsterLayer);
 
             if (size <= 0) return;
-            var dividedDamage = 1.0f / size * damage;
+            var dividedDamage = (int)(1.0f / size * damage);
             for (var i = 0; i < size; i++)
             {
                 var t = _targetColliders[i];

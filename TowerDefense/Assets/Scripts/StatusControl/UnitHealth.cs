@@ -5,7 +5,7 @@ namespace StatusControl
 {
     public class UnitHealth : Health
     {
-        public override void Damage(float amount)
+        public override void Damage(int amount)
         {
             base.Damage(amount);
 

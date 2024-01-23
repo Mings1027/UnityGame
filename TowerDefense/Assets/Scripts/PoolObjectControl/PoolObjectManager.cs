@@ -10,6 +10,9 @@ namespace PoolObjectControl
     [Serializable]
     public class Pool : IComparable<Pool>
     {
+#if UNITY_EDITOR
+        public string poolObjectName;
+#endif
         public PoolObjectKey poolObjectKey;
         public GameObject prefab;
         public byte initSize;
@@ -23,6 +26,9 @@ namespace PoolObjectControl
     [Serializable]
     public class UIPool : IComparable<UIPool>
     {
+#if UNITY_EDITOR
+        public string poolObjectName;
+#endif
         public UIPoolObjectKey uiPoolObjectKey;
         public GameObject uiPrefab;
         public byte initSize;
@@ -36,6 +42,9 @@ namespace PoolObjectControl
     [Serializable]
     public class MonsterPool : IComparable<MonsterPool>
     {
+#if UNITY_EDITOR
+        public string poolObjectName;
+#endif
         public MonsterPoolObjectKey monsterPoolObjKey;
         public GameObject monsterPrefab;
         public byte initSize;
@@ -88,16 +97,25 @@ namespace PoolObjectControl
         {
             foreach (var t in pools)
             {
+#if UNITY_EDITOR
+                t.poolObjectName = t.poolObjectKey.ToString();
+#endif
                 t.prefab.GetComponent<PoolObject>().PoolObjKey = t.poolObjectKey;
             }
 
             foreach (var t in uiPools)
             {
+#if UNITY_EDITOR
+                t.poolObjectName = t.uiPoolObjectKey.ToString();
+#endif
                 t.uiPrefab.GetComponent<UIPoolObject>().UIPoolObjKey = t.uiPoolObjectKey;
             }
 
             foreach (var t in monsterPools)
             {
+#if UNITY_EDITOR
+                t.poolObjectName = t.monsterPoolObjKey.ToString();
+#endif
                 t.monsterPrefab.GetComponent<MonsterPoolObject>().MonsterPoolObjKey =
                     t.monsterPoolObjKey;
             }

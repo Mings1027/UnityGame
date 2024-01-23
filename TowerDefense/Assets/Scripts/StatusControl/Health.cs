@@ -19,7 +19,7 @@ namespace StatusControl
             OnDeadEvent = null;
         }
 
-        public virtual void Damage(float amount)
+        public virtual void Damage(int amount)
         {
             Current -= amount;
             OnShakeEvent?.Invoke();

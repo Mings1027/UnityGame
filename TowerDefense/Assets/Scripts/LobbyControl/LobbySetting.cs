@@ -10,7 +10,6 @@ namespace LobbyControl
     {
         private bool _isOpen;
         private Sequence _settingPanelSequence;
-        [SerializeField] private Button settingButton;
         [SerializeField] private Toggle bgmToggle;
         [SerializeField] private Toggle sfxToggle;
         [SerializeField] private Transform settingPanel;
@@ -23,9 +22,10 @@ namespace LobbyControl
                 .Join(settingPanel.GetChild(2).DOLocalMoveY(0, 0.5f).From().SetEase(Ease.OutBack))
                 .SetAutoKill(false).Pause();
 
-            settingButton.onClick.AddListener(() =>
+            var button = GetComponent<Button>();
+            button.onClick.AddListener(() =>
             {
-                settingButton.transform.DOScale(1, 0.25f).From(0.5f).SetEase(Ease.OutBack);
+                button.transform.DOScale(1, 0.25f).From(0.5f).SetEase(Ease.OutBack);
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 SettingPanel();
             });

@@ -14,7 +14,7 @@ namespace LobbyControl
     public class DiamondShopController : MonoBehaviour
     {
         private AdmobManager _admobManager;
-        [SerializeField] private TMP_Text diamondText;
+
         [SerializeField] private RectTransform shopPanel;
         [SerializeField] private Image backgroundBlockImage;
         [SerializeField] private Image shopBlockImage;
@@ -23,18 +23,15 @@ namespace LobbyControl
         [SerializeField] private Button freePurchaseButton;
         [SerializeField] private Transform loadingImage;
 
-        private void Awake()
+        [field: SerializeField] public TMP_Text diamondText { get; private set; }
+
+        public void Init()
         {
             _admobManager = FindAnyObjectByType<AdmobManager>();
             diamondButton.onClick.AddListener(OpenGoldPanel);
             closeButton.onClick.AddListener(ClosePanel);
             loadingImage.localScale = Vector3.zero;
-            // DataManager.diamond = diamond;
-            // diamondText.text = diamond.ToString();
-        }
 
-        private void Start()
-        {
             shopPanel.anchoredPosition = new Vector2(0, Screen.height);
             backgroundBlockImage.enabled = false;
             freePurchaseButton.onClick.AddListener(() =>
@@ -44,8 +41,6 @@ namespace LobbyControl
             });
             SoundManager.PlayBGM(SoundEnum.GameStart);
             _admobManager.OnAdCloseEvent += () => { freePurchaseButton.interactable = true; };
-
-            diamondText.text = SetDiamonds();
         }
 
         private async UniTaskVoid ShowRewardedAd()
@@ -74,13 +69,6 @@ namespace LobbyControl
             backgroundBlockImage.enabled = false;
             shopBlockImage.enabled = true;
             shopPanel.DOAnchorPosY(Screen.height, 0.5f).SetEase(Ease.InBack);
-        }
-
-        public string SetDiamonds()
-        {
-            var bro = Backend.TBC.GetTBC().GetReturnValuetoJSON();
-            var amountTbc = int.Parse(bro["amountTBC"].ToString());
-            return amountTbc.ToString();
         }
     }
 }

@@ -101,6 +101,7 @@ namespace ManagerControl
         {
             var distance = Vector3.Distance(_cam.transform.position, position);
             if (distance > _maxDis) return;
+            Debug.Log($"sound : {audioClip}");
             var soundScale = Mathf.Clamp01((_maxDis - distance) * _inverseMaxMinusMin);
             soundScale *= 0.5f;
             _effectSource.PlayOneShot(audioClip, soundScale);

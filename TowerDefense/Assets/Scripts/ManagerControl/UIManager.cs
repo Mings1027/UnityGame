@@ -36,11 +36,11 @@ namespace ManagerControl
         private Camera _cam;
 
         private Dictionary<TowerType, ushort> _towerCountDictionary;
-        private Dictionary<TowerType, TMP_Text> _towerCostTextDictionary;
+        private Dictionary<TowerType, TMP_Text> _towerGoldTextDictionary;
 
         private Tween _upgradeSellPanelTween;
         private Sequence _pauseSequence;
-        private Sequence _notEnoughCostSequence;
+        private Sequence _notEnoughGoldSequence;
         private Sequence _cantMoveImageSequence;
         private Sequence _camZoomSequence;
         private Tween _upgradeButtonTween;
@@ -50,15 +50,15 @@ namespace ManagerControl
 
         private Image _toggleTowerBtnImage;
 
-        private TMP_Text[] _towerCostTexts;
+        private TMP_Text[] _towerGoldTexts;
         private TMP_Text _curSpeedText;
 
         private TowerRangeIndicator _towerRangeIndicator;
 
         private Image _sellButtonImage;
 
-        private ushort _sellTowerCost;
-        private int _towerCost;
+        private ushort _sellTowerGold;
+        private int _towerGold;
         private byte _curTimeScale;
         private bool _isShowTowerBtn;
 
@@ -83,7 +83,7 @@ namespace ManagerControl
         private TowerDescriptionCard _towerDescriptionCard;
 
         private RectTransform _towerCardPanel;
-        private Transform _notEnoughCostPanel;
+        private Transform _notEnoughGoldPanel;
 
         private Transform _pausePanelBackground;
         private Button _resumeButton;
@@ -102,13 +102,13 @@ namespace ManagerControl
 
         public Dictionary<TowerType, TowerDataPrefab> towerDataPrefabDictionary { get; private set; }
 
-        public int towerCost
+        public int  towerGold
         {
-            get => _towerCost;
+            get => _towerGold;
             set
             {
-                _towerCost = value;
-                _goldText.text = _towerCost.ToString();
+                _towerGold = value;
+                _goldText.text = _towerGold.ToString();
             }
         }
 
@@ -153,7 +153,7 @@ namespace ManagerControl
         private void OnDisable()
         {
             _upgradeSellPanelTween?.Kill();
-            _notEnoughCostSequence?.Kill();
+            _notEnoughGoldSequence?.Kill();
             _pauseSequence?.Kill();
             _cantMoveImageSequence?.Kill();
             _camZoomSequence?.Kill();
@@ -206,7 +206,7 @@ namespace ManagerControl
             _toggleTowerButton = uiPanel.Find("Toggle Tower Button").gameObject;
             _towerDescriptionCard = FindAnyObjectByType<TowerDescriptionCard>();
             _towerCardPanel = uiPanel.Find("Tower Card Panel").GetComponent<RectTransform>();
-            _notEnoughCostPanel = uiPanel.Find("Not Enough Gold Message").GetComponent<RectTransform>();
+            _notEnoughGoldPanel = uiPanel.Find("Not Enough Gold Message").GetComponent<RectTransform>();
             _pausePanelBackground = uiPanel.Find("Pause Panel Background");
             _resumeButton = _pausePanelBackground.Find("Resume Button").GetComponent<Button>();
             var pausePanel = _pausePanelBackground.Find("Pause Panel");
@@ -231,11 +231,11 @@ namespace ManagerControl
             }
 
             var towerButtons = _towerCardController.GetComponentsInChildren<TowerButton>();
-            _towerCostTexts = new TMP_Text[towerButtons.Length];
+            _towerGoldTexts = new TMP_Text[towerButtons.Length];
 
             for (var i = 0; i < towerButtons.Length; i++)
             {
-                _towerCostTexts[i] = towerButtons[i].GetComponentInChildren<TMP_Text>();
+                _towerGoldTexts[i] = towerButtons[i].GetComponentInChildren<TMP_Text>();
             }
 
             _toggleTowerButton.GetComponent<Button>().onClick.AddListener(() =>
@@ -275,7 +275,7 @@ namespace ManagerControl
         {
             towerDataPrefabDictionary = new Dictionary<TowerType, TowerDataPrefab>();
             _towerCountDictionary = new Dictionary<TowerType, ushort>();
-            _towerCostTextDictionary = new Dictionary<TowerType, TMP_Text>();
+            _towerGoldTextDictionary = new Dictionary<TowerType, TMP_Text>();
             var towerDataPrefabs = _towerManager.towerDataPrefabs;
 
             for (var i = 0; i < towerDataPrefabs.Length; i++)
@@ -285,8 +285,8 @@ namespace ManagerControl
                 t.InitState();
                 _towerCountDictionary.Add(t.TowerType, 0);
                 var towerType = towerDataPrefabs[i].towerData.TowerType;
-                _towerCostTextDictionary.Add(towerType, _towerCostTexts[i]);
-                _towerCostTextDictionary[towerType].text =
+                _towerGoldTextDictionary.Add(towerType, _towerGoldTexts[i]);
+                _towerGoldTextDictionary[towerType].text =
                     towerDataPrefabDictionary[towerType].towerData.TowerBuildCost + "G";
             }
         }
@@ -315,9 +315,9 @@ namespace ManagerControl
             _pauseSequence = DOTween.Sequence().SetAutoKill(false).SetUpdate(true).Pause()
                 .Append(_pausePanelBackground.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack))
                 .Join(_pauseButton.transform.DOScale(0, 0.2f));
-            _notEnoughCostSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(_notEnoughCostPanel.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBounce))
-                .Append(_notEnoughCostPanel.DOScale(0, 0.2f).SetDelay(0.3f));
+            _notEnoughGoldSequence = DOTween.Sequence().SetAutoKill(false).Pause()
+                .Append(_notEnoughGoldPanel.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBounce))
+                .Append(_notEnoughGoldPanel.DOScale(0, 0.2f).SetDelay(0.3f));
             _upgradeButtonTween = _upgradeButton.transform.DOScale(1, 0.2f).From(0.7f).SetEase(Ease.OutBack)
                 .SetUpdate(true).SetAutoKill(false);
         }
@@ -407,13 +407,13 @@ namespace ManagerControl
             var mapManager = (MapManager)FindAnyObjectByType(typeof(MapManager));
             mapManager.MakeMap(index);
 
-            towerCost = index switch
+            towerGold = index switch
             {
                 1 => 2000,
                 2 => 4000,
                 3 => 5000,
                 4 => 6000,
-                _ => towerCost
+                _ => towerGold
             };
 
             DataManager.SetLevel((byte)index);
@@ -432,11 +432,11 @@ namespace ManagerControl
         {
             var towerObject = Instantiate(towerDataPrefabDictionary[towerType].towerPrefab, placePos,
                 Quaternion.identity);
-            var lostCost = GetBuildCost(towerType);
+            var lostGold = GetBuildGold(towerType);
             _towerCountDictionary[towerType]++;
-            towerCost -= lostCost;
-            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, placePos).SetCostText(lostCost, false);
-            _towerCostTextDictionary[towerType].text = GetBuildCost(towerType) + "G";
+            towerGold -= lostGold;
+            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, placePos).SetGoldText(lostGold, false);
+            _towerGoldTextDictionary[towerType].text = GetBuildGold(towerType) + "G";
             var towerTransform = towerObject.transform;
             towerTransform.GetChild(0).position = towerTransform.position + new Vector3(0, 2, 0);
             towerTransform.GetChild(0).forward = towerForward;
@@ -510,15 +510,15 @@ namespace ManagerControl
 
         public Mana GetTowerMana() => _gameHUD.towerMana;
 
-        public bool IsEnoughCost(TowerType towerType)
+        public bool IsEnoughGold(TowerType towerType)
         {
-            if (_towerCost >= GetBuildCost(towerType))
+            if (_towerGold >= GetBuildGold(towerType))
             {
                 return true;
             }
 
-            _notEnoughCostPanel.gameObject.SetActive(true);
-            _notEnoughCostSequence.OnComplete(() => _notEnoughCostPanel.gameObject.SetActive(false)).Restart();
+            _notEnoughGoldPanel.gameObject.SetActive(true);
+            _notEnoughGoldSequence.OnComplete(() => _notEnoughGoldPanel.gameObject.SetActive(false)).Restart();
 
             return false;
         }
@@ -580,19 +580,19 @@ namespace ManagerControl
             var towerType = attackTower.towerType;
             var towerData = towerDataPrefabDictionary[towerType].towerData;
             var battleTowerData = (AttackTowerData)towerData;
-            var upgradeCost = GetUpgradeCost(in towerType);
+            var upgradeGold = GetUpgradeGold(in towerType);
 
-            if (_towerCost < upgradeCost)
+            if (_towerGold < upgradeGold)
             {
-                _notEnoughCostPanel.gameObject.SetActive(true);
-                _notEnoughCostSequence.OnComplete(() => _notEnoughCostPanel.gameObject.SetActive(false)).Restart();
+                _notEnoughGoldPanel.gameObject.SetActive(true);
+                _notEnoughGoldSequence.OnComplete(() => _notEnoughGoldPanel.gameObject.SetActive(false)).Restart();
 
                 return;
             }
 
-            towerCost -= upgradeCost;
+            towerGold -= upgradeGold;
             var position = attackTower.transform.position;
-            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, position).SetCostText(upgradeCost, false);
+            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, position).SetGoldText(upgradeGold, false);
             PoolObjectManager.Get(PoolObjectKey.BuildSmoke, position);
             attackTower.TowerLevelUp();
             var towerLevel = attackTower.TowerLevel;
@@ -600,9 +600,9 @@ namespace ManagerControl
                 battleTowerData.BaseDamage * (towerLevel + 1), battleTowerData.AttackRange, battleTowerData.AttackRpm);
             _upgradeButton.SetActive(!towerLevel.Equals(4));
             _towerRangeIndicator.SetIndicator(position, attackTower.TowerRange);
-            _sellTowerCost = GetTowerSellCost(towerType);
-            _towerInfoUI.SetTowerInfo(attackTower, towerData.IsUnitTower, towerLevel, GetUpgradeCost(in towerType),
-                _sellTowerCost);
+            _sellTowerGold = GetTowerSellGold(towerType);
+            _towerInfoUI.SetTowerInfo(attackTower, towerData.IsUnitTower, towerLevel, GetUpgradeGold(in towerType),
+                _sellTowerGold);
         }
 
         private void ClickTower(Tower clickedTower)
@@ -645,9 +645,9 @@ namespace ManagerControl
             var curTower = (AttackTower)_curSelectedTower;
             var towerLevel = curTower.TowerLevel;
             var curTowerData = towerDataPrefabDictionary[towerType].towerData;
-            _sellTowerCost = GetTowerSellCost(towerType);
-            _towerInfoUI.SetTowerInfo(curTower, curTowerData.IsUnitTower, towerLevel, GetUpgradeCost(in towerType),
-                _sellTowerCost);
+            _sellTowerGold = GetTowerSellGold(towerType);
+            _towerInfoUI.SetTowerInfo(curTower, curTowerData.IsUnitTower, towerLevel, GetUpgradeGold(in towerType),
+                _sellTowerGold);
         }
 
         private void UpdateSupportTowerInfo(Tower clickedTower)
@@ -656,18 +656,18 @@ namespace ManagerControl
             _moveUnitButton.SetActive(false);
             _towerInfoUI.SetSupportInfoUI();
             var supportTower = (SupportTower)_curSelectedTower;
-            _sellTowerCost = GetTowerSellCost(clickedTower.towerType);
-            _towerInfoUI.SetSupportTowerInfo(supportTower, _sellTowerCost);
+            _sellTowerGold = GetTowerSellGold(clickedTower.towerType);
+            _towerInfoUI.SetSupportTowerInfo(supportTower, _sellTowerGold);
         }
 
-        private ushort GetBuildCost(in TowerType towerType)
+        private ushort GetBuildGold(in TowerType towerType)
         {
             return (ushort)(towerDataPrefabDictionary[towerType].towerData.TowerBuildCost +
                             towerDataPrefabDictionary[towerType].towerData.ExtraBuildCost *
                             _towerCountDictionary[towerType]);
         }
 
-        private ushort GetUpgradeCost(in TowerType towerType)
+        private ushort GetUpgradeGold(in TowerType towerType)
         {
             var curTower = (AttackTower)_curSelectedTower;
 
@@ -675,7 +675,7 @@ namespace ManagerControl
                             towerDataPrefabDictionary[towerType].towerData.ExtraUpgradeCost * curTower.TowerLevel);
         }
 
-        private ushort GetTowerSellCost(in TowerType towerType)
+        private ushort GetTowerSellGold(in TowerType towerType)
         {
             return (ushort)(towerDataPrefabDictionary[towerType].towerData.TowerBuildCost +
                             towerDataPrefabDictionary[towerType].towerData.ExtraBuildCost *
@@ -693,16 +693,16 @@ namespace ManagerControl
 
         private void SellTower()
         {
-            SoundManager.PlayUISound(_sellTowerCost < 100 ? SoundEnum.LowCost :
-                _sellTowerCost < 250 ? SoundEnum.MediumCost : SoundEnum.HighCost);
+            SoundManager.PlayUISound(_sellTowerGold < 100 ? SoundEnum.LowCost :
+                _sellTowerGold < 250 ? SoundEnum.MediumCost : SoundEnum.HighCost);
             var towerType = _curSelectedTower.towerType;
             _towerCountDictionary[towerType]--;
-            _towerCostTextDictionary[towerType].text = GetBuildCost(towerType) + "G";
+            _towerGoldTextDictionary[towerType].text = GetBuildGold(towerType) + "G";
             var position = _curSelectedTower.transform.position;
             PoolObjectManager.Get(PoolObjectKey.BuildSmoke, position);
-            towerCost += _sellTowerCost;
-            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, position).SetCostText(_sellTowerCost);
-            _sellTowerCost = 0;
+            towerGold += _sellTowerGold;
+            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, position).SetGoldText(_sellTowerGold);
+            _sellTowerGold = 0;
 
             if (_curSelectedTower is AttackTower curTower) _towerManager.RemoveTower(curTower);
             else

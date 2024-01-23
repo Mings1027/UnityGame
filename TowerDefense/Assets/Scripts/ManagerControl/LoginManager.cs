@@ -93,7 +93,6 @@ namespace ManagerControl
                         {
                             Debug.Log("Apple 로그인 성공");
                             appleLoginButton.gameObject.SetActive(false);
-                            FindAnyObjectByType<DownloadManager>().CheckUpdateFiles().Forget();
                             FindAnyObjectByType<BackendManager>().BackendInit();
                         }
                         else Debug.LogError("Apple 로그인 실패");

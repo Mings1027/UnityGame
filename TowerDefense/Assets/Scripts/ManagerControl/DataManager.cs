@@ -13,11 +13,9 @@ namespace ManagerControl
     public abstract class DataManager
     {
         public static int xp { get; set; }
-        // public static int diamond { get; set; }
 
         public static SurvivedWave survivedWaves { get; private set; }
 
-        // private static bool IsGameOver { get; set; }
         private static string _path;
         private static byte _difficultyLevel;
         private static byte _lastSurvivedWave;
@@ -26,7 +24,6 @@ namespace ManagerControl
 
         public static void Init()
         {
-            // IsGameOver = false;
             _path = Application.persistentDataPath + Filename;
             _difficultyLevel = 0;
 

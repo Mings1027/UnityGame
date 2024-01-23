@@ -4,6 +4,7 @@ using System.Threading;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DataControl.MonsterDataControl;
+using InterfaceControl;
 using MonsterControl;
 using PoolObjectControl;
 using StatusControl;
@@ -207,8 +208,8 @@ namespace ManagerControl
                 var coin = normalMonsterData.StartSpawnWave;
                 PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText,
                         monsterUnit.transform.position + Random.insideUnitSphere)
-                    .SetCostText(coin);
-                UIManager.instance.towerCost += coin;
+                    .SetGoldText(coin);
+                UIManager.instance.towerGold += coin;
 
                 if (monsterUnit.TryGetComponent(out TransformMonster transformMonster))
                 {
@@ -252,8 +253,8 @@ namespace ManagerControl
                 var coin = bossMonsterData.DroppedGold;
                 PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText,
                         monsterUnit.transform.position + Random.insideUnitSphere)
-                    .SetCostText(coin);
-                UIManager.instance.towerCost += coin;
+                    .SetGoldText(coin);
+                UIManager.instance.towerGold += coin;
                 StatusBarUIController.Remove(healthBarTransform);
             };
             monsterUnit.OnDisableEvent += () =>
@@ -312,6 +313,17 @@ namespace ManagerControl
                 else
                 {
                     OnPlaceExpandButtonEvent?.Invoke();
+                }
+            }
+        }
+
+        public void AllKill()
+        {
+            for (int i = 0; i < _monsterList.Count; i++)
+            {
+                if (_monsterList[i].TryGetComponent(out IDamageable damageable))
+                {
+                    damageable.Damage(int.MaxValue);
                 }
             }
         }

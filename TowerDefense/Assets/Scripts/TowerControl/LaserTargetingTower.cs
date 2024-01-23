@@ -100,7 +100,7 @@ namespace TowerControl
         protected override void Hit()
         {
             if (!target.TryGetComponent(out IDamageable damageable) || !target.enabled) return;
-            damageable.Damage(_isFlyingMonster ? Damage : Damage * 0.5f);
+            damageable.Damage((int)(_isFlyingMonster ? Damage : Damage * 0.5f));
         }
     }
 }

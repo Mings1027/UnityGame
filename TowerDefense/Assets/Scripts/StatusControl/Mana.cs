@@ -26,7 +26,7 @@ namespace StatusControl
             manaText.text = Current + " / " + Initial;
         }
 
-        public void Damage(float amount)
+        public void Damage(int amount)
         {
             Current -= amount;
             manaText.text = Current + " / " + Initial;

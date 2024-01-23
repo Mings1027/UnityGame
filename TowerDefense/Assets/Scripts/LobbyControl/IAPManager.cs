@@ -1,6 +1,11 @@
+using System.Collections.Generic;
 using BackEnd;
+using CustomEnumControl;
 using DG.Tweening;
+using TMPro;
 using UnityEngine;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 using UnityEngine.Purchasing;
 using UnityEngine.UI;
 
@@ -8,6 +13,7 @@ namespace LobbyControl
 {
     public class IAPManager : MonoBehaviour, IStoreListener
     {
+        private ItemShopController _itemShopController;
         private Sequence _loadingTween;
         private const string Diamonds500 = "diamonds500";
         private const string Diamonds2000 = "diamonds2000";
@@ -15,13 +21,13 @@ namespace LobbyControl
         private const string Diamonds12000 = "diamonds12000";
         private const string Diamonds50000 = "diamonds50000";
         private IStoreController _storeController;
-        private DiamondShopController _diamondShopController;
         [SerializeField] private Image blockImage;
         [SerializeField] private Image loadingImage;
+        [SerializeField] private Transform contents;
 
         private void Start()
         {
-            _diamondShopController = FindAnyObjectByType<DiamondShopController>();
+            _itemShopController = FindAnyObjectByType<ItemShopController>();
             blockImage.enabled = false;
             loadingImage.enabled = false;
             _loadingTween = DOTween.Sequence().SetAutoKill(false).Pause()
@@ -30,6 +36,8 @@ namespace LobbyControl
                     .SetLoops(30));
 
             InitIAP();
+            InitDiamondButton();
+            LocalizationSettings.SelectedLocaleChanged += LocalizeItemPrice;
         }
 
         private void InitIAP()
@@ -44,13 +52,45 @@ namespace LobbyControl
             UnityPurchasing.Initialize(this, builder);
         }
 
+        private void InitDiamondButton()
+        {
+            for (int i = 0; i < contents.childCount; i++)
+            {
+                var diamondItemParent = contents.GetChild(i);
+                if (diamondItemParent.TryGetComponent(out DiamondItem diamondItem))
+                {
+                    diamondItem.transform.GetChild(2).GetComponent<Button>().onClick.AddListener(() =>
+                    {
+                        Purchase(diamondItem.productId);
+                    });
+                }
+            }
+        }
+
+        private void LocalizeItemPrice(Locale locale)
+        {
+            for (int i = 0; i < contents.childCount; i++)
+            {
+                var diamondItemParent = contents.GetChild(i);
+                if (diamondItemParent.TryGetComponent(out DiamondItem diamondItem))
+                {
+                    if (diamondItem.transform.GetChild(2).GetChild(0).TryGetComponent(out TMP_Text priceText))
+                    {
+                        Debug.Log("localize price");
+                        var metaData = _storeController.products.WithID(diamondItem.productId).metadata;
+                        priceText.text = $"{metaData.localizedPrice} {metaData.isoCurrencyCode}";
+                    }
+                }
+            }
+        }
+
         // 초기화 시 자동 호출
-        // [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         public void OnInitialized(IStoreController controller, IExtensionProvider extensions)
         {
             _storeController = controller;
+            LocalizeItemPrice(LocalizationSettings.SelectedLocale);
 
-            print("initinitinitinitinitinitinitinitinitinitinitinitinitinitinit");
+            Debug.Log("initinitinitinitinitinitinitinitinitinitinitinitinitinitinit");
         }
 
         //구매 버튼에 연결
@@ -93,7 +133,7 @@ namespace LobbyControl
         public PurchaseProcessingResult ProcessPurchase(PurchaseEventArgs purchaseEvent)
         {
             var product = purchaseEvent.purchasedProduct;
-            Debug.Log("구매 설공 : " + product.definition.id);
+            Debug.Log("구매 성공 : " + product.definition.id);
 
 #if UNITY_IPHONE
             ProcessApplePurchase(purchaseEvent);
@@ -107,31 +147,28 @@ namespace LobbyControl
 #if UNITY_IPHONE
         private void ProcessApplePurchase(PurchaseEventArgs args)
         {
-            var validation = Backend.Receipt.IsValidateApplePurchase(args.purchasedProduct.receipt, "구매한 유료다이아");
-            if (validation.IsSuccess())
+            // var validation = Backend.Receipt.IsValidateApplePurchase(args.purchasedProduct.receipt, "구매한 유료다이아");
+            // if (validation.IsSuccess())
+            // {
+            Debug.Log("purchase success");
+            var chargeTbc = Backend.TBC.ChargeTBC(args.purchasedProduct.definition.id,
+                args.purchasedProduct.receipt, "다이아 충전");
+            if (chargeTbc.IsSuccess())
             {
-                Debug.Log("purchase success");
-                var chargeTbc = Backend.TBC.ChargeTBC(args.purchasedProduct.definition.id,
-                    args.purchasedProduct.receipt, "다이아 충전");
-                if (chargeTbc.IsSuccess())
-                {
-                    Debug.Log("충전 성공");
-
-                    var bro = Backend.TBC.GetTBC().GetReturnValuetoJSON();
-                    var amountTbc = int.Parse(bro["amountTBC"].ToString());
-                    Debug.Log($"남은 tbc : {amountTbc}");
-                }
-                else
-                {
-                    Debug.Log("충전 실패");
-                    var code = chargeTbc.GetErrorCode();
-                    print(code);
-                }
+                Debug.Log("충전 성공");
+                _itemShopController.SetDiamondText();
             }
             else
             {
-                Debug.Log($"ProcessPurchase: FAIL. Unrecognized product : {args.purchasedProduct.definition.id}");
+                Debug.Log("충전 실패");
+                var code = chargeTbc.GetErrorCode();
+                print(code);
             }
+            // }
+            // else
+            // {
+            //     Debug.Log($"ProcessPurchase: FAIL. Unrecognized product : {args.purchasedProduct.definition.id}");
+            // }
         }
 #endif
     }

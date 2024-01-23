@@ -20,6 +20,12 @@ namespace CustomEnumControl
         TowerHeart
     }
 
+    public enum Currency
+    {
+        Korea,
+        Usa,
+        Japan
+    }
     public enum SoundEnum
     {
         GameStart,
@@ -83,7 +89,9 @@ namespace CustomEnumControl
         BallistaHitParticle,
         CanonHitParticle,
         WizardHitParticle,
-        WayPointPortal
+        WayPointPortal,
+        HealImage,
+        MoneyImage,
     }
 
     public enum UIPoolObjectKey

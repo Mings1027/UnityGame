@@ -7,7 +7,6 @@ using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
-using UnityEngine.Profiling;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -41,19 +40,11 @@ namespace ManagerControl
                 _downloadPanelTween.Restart();
                 blockImage.enabled = true;
                 startButton.gameObject.SetActive(false);
+                downLoadButton.gameObject.SetActive(true);
+                cancelButton.gameObject.SetActive(true);
             });
-            downLoadButton.onClick.AddListener(() =>
-            {
-                SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                DownLoadButton();
-            });
-            cancelButton.onClick.AddListener(() =>
-            {
-                SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                blockImage.enabled = false;
-                startButton.gameObject.SetActive(true);
-                _downloadPanelTween.PlayBackwards();
-            });
+            downLoadButton.onClick.AddListener(DownLoadButton);
+            cancelButton.onClick.AddListener(CancelButton);
         }
 
         private void Start()
@@ -144,6 +135,7 @@ namespace ManagerControl
 
         private void DownLoadButton()
         {
+            SoundManager.PlayUISound(SoundEnum.ButtonSound);
             _downloadPanelTween.PlayBackwards();
             blockImage.enabled = false;
             downLoadButton.gameObject.SetActive(false);
@@ -154,10 +146,12 @@ namespace ManagerControl
 
         private void CancelButton()
         {
-            _downloadPanelTween.PlayBackwards();
+            SoundManager.PlayUISound(SoundEnum.ButtonSound);
             blockImage.enabled = false;
+            startButton.gameObject.SetActive(true);
             downLoadButton.gameObject.SetActive(false);
             cancelButton.gameObject.SetActive(false);
+            _downloadPanelTween.PlayBackwards();
         }
 
         private async UniTask PatchFiles()
