@@ -115,16 +115,11 @@ MonoBehaviour:
     prefab: {fileID: 2112424260782393023, guid: e965cd3184a274e7280bee72b91f4ffe,
       type: 3}
     initSize: 10
-  - poolObjectName: HealImage
-    poolObjectKey: 16
-    prefab: {fileID: 1632930496189976633, guid: 1e3af0f135f5546a0a798dbccad4345a,
+  - poolObjectName: NuclearBomb
+    poolObjectKey: 15
+    prefab: {fileID: 1717042148896139734, guid: bdc9c7e7942fa4f388f6fb9c9e4babb8,
       type: 3}
-    initSize: 0
-  - poolObjectName: MoneyImage
-    poolObjectKey: 17
-    prefab: {fileID: 3556320781328928323, guid: d412c08166c7d47a2b9e65688e591a90,
-      type: 3}
-    initSize: 0
+    initSize: 10
   uiPools:
   - poolObjectName: UnitHealthBar
     uiPoolObjectKey: 0
@@ -154,6 +149,16 @@ MonoBehaviour:
   - poolObjectName: HealText
     uiPoolObjectKey: 5
     uiPrefab: {fileID: 9182856262504314111, guid: 924904012ccb54549a23c66bbd92bc13,
+      type: 3}
+    initSize: 2
+  - poolObjectName: MoneyText
+    uiPoolObjectKey: 7
+    uiPrefab: {fileID: 9182856262504314111, guid: 860b20ead91754c5695b1c70acb1167d,
+      type: 3}
+    initSize: 2
+  - poolObjectName: TowerHealText
+    uiPoolObjectKey: 8
+    uiPrefab: {fileID: 9182856262504314111, guid: 445ea3edb2f6445e7b846d2cab32a1bd,
       type: 3}
     initSize: 2
   monsterPools:

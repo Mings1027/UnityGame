@@ -1,6 +1,7 @@
 using BackEnd;
 using GameControl;
 using UnityEngine;
+using Utilities;
 
 namespace BackendControl
 {
@@ -11,13 +12,13 @@ namespace BackendControl
 
         public void CustomSignUp(string id, string pw)
         {
-            Debug.Log("회원가입을 요청합니다.");
+            CustomLog.Log("회원가입을 요청합니다.");
 
             var bro = Backend.BMember.CustomSignUp(id, pw);
 
             if (bro.IsSuccess())
             {
-                Debug.Log("회원가입에 성공했습니다. : " + bro);
+                CustomLog.Log("회원가입에 성공했습니다. : " + bro);
             }
             else
             {
@@ -27,13 +28,13 @@ namespace BackendControl
 
         public void CustomLogin(string id, string pw)
         {
-            Debug.Log("로그인을 요청합니다.");
+            CustomLog.Log("로그인을 요청합니다.");
 
             var bro = Backend.BMember.CustomLogin(id, pw);
 
             if (bro.IsSuccess())
             {
-                Debug.Log("로그인이 성공했습니다. : " + bro);
+                CustomLog.Log("로그인이 성공했습니다. : " + bro);
             }
             else
             {
@@ -43,13 +44,13 @@ namespace BackendControl
 
         public void UpdateNickname(string nickname)
         {
-            Debug.Log("닉네임 변경을 요청합니다.");
+            CustomLog.Log("닉네임 변경을 요청합니다.");
 
             var bro = Backend.BMember.UpdateNickname(nickname);
 
             if (bro.IsSuccess())
             {
-                Debug.Log("닉네임 변경에 성공했습니다 : " + bro);
+                CustomLog.Log("닉네임 변경에 성공했습니다 : " + bro);
             }
             else
             {

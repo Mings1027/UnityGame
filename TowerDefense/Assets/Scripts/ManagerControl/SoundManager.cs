@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using CustomEnumControl;
 using UnityEngine;
 using UnityEngine.Audio;
+using Utilities;
 
 namespace ManagerControl
 {
@@ -75,6 +76,7 @@ namespace ManagerControl
             _bgmVolume = -5;
             bgmOn = PlayerPrefs.GetInt(BGMKey, 1) == 1;
             sfxOn = PlayerPrefs.GetInt(SfxKey, 1) == 1;
+            _maxDis = maxDistance;
         }
 
         private void Start()
@@ -101,7 +103,6 @@ namespace ManagerControl
         {
             var distance = Vector3.Distance(_cam.transform.position, position);
             if (distance > _maxDis) return;
-            Debug.Log($"sound : {audioClip}");
             var soundScale = Mathf.Clamp01((_maxDis - distance) * _inverseMaxMinusMin);
             soundScale *= 0.5f;
             _effectSource.PlayOneShot(audioClip, soundScale);

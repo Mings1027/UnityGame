@@ -1,3 +1,5 @@
+using System;
+using BackendControl;
 using CustomEnumControl;
 using DataControl.TowerDataControl;
 using DG.Tweening;
@@ -61,6 +63,17 @@ namespace LobbyControl
             _deletePanelTween?.Kill();
         }
 
+        private void OnApplicationFocus(bool hasFocus)
+        {
+            if (hasFocus)
+            {
+            }
+            else
+            {
+                BackendGameData.instance.GameDataUpdate();
+            }
+        }
+
         private void UpgradePanel()
         {
             upgradeButton.gameObject.SetActive(false);
@@ -71,7 +84,11 @@ namespace LobbyControl
 
         private void ButtonInit()
         {
-            startGameButton.onClick.AddListener(()=>SceneManager.LoadScene("MainGameScene"));
+            startGameButton.onClick.AddListener(() =>
+            {
+                BackendGameData.instance.GameDataUpdate();
+                SceneManager.LoadScene("MainGameScene");
+            });
             upgradeButton.onClick.AddListener(() =>
             {
                 UpgradePanel();
@@ -97,14 +114,14 @@ namespace LobbyControl
                 deletePanelBlockImage.enabled = false;
                 _deletePanelTween.PlayBackwards();
                 PlayerPrefs.DeleteAll();
-            
+
                 var allXp = _totalSpentXp + DataManager.xp;
 
                 PlayerPrefs.SetInt(StringManager.Xp, allXp);
                 DataManager.xp = allXp;
                 xpText.text = "XP " + allXp;
                 _totalSpentXp = 0;
-                
+
                 for (var i = 0; i < towerButtons.childCount; i++)
                 {
                     var levelCountText = towerButtons.GetChild(i).GetChild(0).GetComponent<TMP_Text>();

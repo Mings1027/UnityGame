@@ -1,6 +1,7 @@
 using CustomEnumControl;
 using ManagerControl;
 using PoolObjectControl;
+using TextControl;
 using UIControl;
 using UnityEngine;
 
@@ -8,10 +9,15 @@ namespace ItemControl
 {
     public class TowerHeartItem : ItemButton
     {
+        protected override void Awake()
+        {
+            base.Awake();
+            itemType = ItemType.TowerHeart;
+        }
+
         public override void Spawn()
         {
-            var pos = Camera.main.ScreenToWorldPoint(Input.touches[0].position);
-            PoolObjectManager.Get(PoolObjectKey.HealImage, pos);
+            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.TowerHealText, CameraManager.camPos).SetHpText(5);
             UIManager.instance.GetTowerHealth().Heal(5);
         }
     }

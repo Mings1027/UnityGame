@@ -89,9 +89,7 @@ namespace CustomEnumControl
         BallistaHitParticle,
         CanonHitParticle,
         WizardHitParticle,
-        WayPointPortal,
-        HealImage,
-        MoneyImage,
+        NuclearBomb,
     }
 
     public enum UIPoolObjectKey
@@ -103,6 +101,8 @@ namespace CustomEnumControl
         FloatingText,
         HealText,
         DamageText,
+        MoneyText,
+        TowerHealText,
     }
 
     public enum MonsterPoolObjectKey

@@ -16,13 +16,14 @@ namespace ManagerControl
         private float _decreaseSpeed;
         private float _modifiedMoveSpeed;
         private Vector3 _curPos, _newPos;
-        private Vector2 _t1T2Vec;
+        private Vector2 _firstToSecondVec;
         private Vector2 _firstTouchPos, _secondTouchPos;
         
         public event Action OnResizeUIEvent;
 
         private static bool _startSmoothStop;
         public static bool isControlActive { get; set; }
+        public static Vector3 camPos { get; private set; }
         
         [SerializeField, Range(1, 3)] private float moveSpeed;
         [SerializeField, Range(1, 3)] private float zoomSpeed;
@@ -64,6 +65,7 @@ namespace ManagerControl
 
         private void Update()
         {
+            camPos = transform.position;
             if (!isControlActive) return;
             switch (_camState)
             {
@@ -163,7 +165,7 @@ namespace ManagerControl
                 if (touch.phase == TouchPhase.Began)
                 {
                     _secondTouchPos = touch.position;
-                    _t1T2Vec = (_secondTouchPos - _firstTouchPos).normalized;
+                    _firstToSecondVec = (_secondTouchPos - _firstTouchPos).normalized;
                     _camState = CamState.CheckZoomRotate;
                 }
             }
@@ -211,8 +213,8 @@ namespace ManagerControl
 
                 if (touch1.phase == TouchPhase.Moved || touch2.phase == TouchPhase.Moved)
                 {
-                    var t1Angle = Vector2.Angle(_t1T2Vec, touch1.position - _firstTouchPos);
-                    var t2Angle = Vector2.Angle(-_t1T2Vec, touch2.position - _secondTouchPos);
+                    var t1Angle = Vector2.Angle(_firstToSecondVec, touch1.position - _firstTouchPos);
+                    var t2Angle = Vector2.Angle(-_firstToSecondVec, touch2.position - _secondTouchPos);
                     if (Vector2.Distance(_firstTouchPos, touch1.position) > 50 ||
                         Vector2.Distance(_secondTouchPos, touch2.position) > 50)
                     {

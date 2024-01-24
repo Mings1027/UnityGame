@@ -4,6 +4,7 @@ using System.Text;
 using BackEnd;
 using CustomEnumControl;
 using UnityEngine;
+using Utilities;
 
 namespace BackendControl
 {
@@ -13,7 +14,7 @@ namespace BackendControl
 
         public readonly Dictionary<string, int> itemInventory = new();
 
-        // 데이터를 디버깅하기 위한 함수입니다.(Debug.Log(UserData);)
+        // 데이터를 디버깅하기 위한 함수입니다.
         public override string ToString()
         {
             var result = new StringBuilder();
@@ -39,7 +40,7 @@ namespace BackendControl
         public void GameDataInsert()
         {
             userData ??= new UserData();
-            Debug.Log("데이터를 초기화 합니다.");
+            CustomLog.Log("데이터를 초기화 합니다.");
             userData.diamonds = 0;
             var itemTypes = Enum.GetValues(typeof(ItemType));
             foreach (ItemType itemType in itemTypes)
@@ -53,11 +54,11 @@ namespace BackendControl
                 { "diamonds", userData.diamonds },
                 { "itemInventory", userData.itemInventory }
             };
-            Debug.Log("게임정보 데이터 삽입을 요청합니다.");
+            CustomLog.Log("게임정보 데이터 삽입을 요청합니다.");
             var bro = Backend.GameData.Insert("USER_DATA", param);
             if (bro.IsSuccess())
             {
-                Debug.Log("게임정보 데이터 삽입에 성공했습니다. :" + bro);
+                CustomLog.Log("게임정보 데이터 삽입에 성공했습니다. :" + bro);
                 _gameDataRowInDate = bro.GetInDate();
             }
             else
@@ -68,11 +69,11 @@ namespace BackendControl
 
         public void GameDataGet()
         {
-            Debug.Log("게임 정보 조회 함수를 호출합니다.");
+            CustomLog.Log("게임 정보 조회 함수를 호출합니다.");
             var bro = Backend.GameData.GetMyData("USER_DATA", new Where());
             if (bro.IsSuccess())
             {
-                Debug.Log("게임 정보 조회에 성공했습니다. : " + bro);
+                CustomLog.Log("게임 정보 조회에 성공했습니다. : " + bro);
 
                 var gameDataJson = bro.FlattenRows(); // Json으로 리턴된 데이터를 받아옵니다.  
 
@@ -96,7 +97,7 @@ namespace BackendControl
                             int.Parse(gameDataJson[0]["itemInventory"][itemKey].ToString()));
                     }
 
-                    Debug.Log(userData.ToString());
+                    CustomLog.Log(userData.ToString());
                 }
             }
             else
@@ -128,20 +129,20 @@ namespace BackendControl
 
             if (string.IsNullOrEmpty(_gameDataRowInDate))
             {
-                Debug.Log("내 제일 최신 게임정보 데이터 수정을 요청합니다.");
+                CustomLog.Log("내 제일 최신 게임정보 데이터 수정을 요청합니다.");
 
                 bro = Backend.GameData.Update("USER_DATA", new Where(), param);
             }
             else
             {
-                Debug.Log($"{_gameDataRowInDate}의 게임정보 데이터 수정을 요청합니다.");
+                CustomLog.Log($"{_gameDataRowInDate}의 게임정보 데이터 수정을 요청합니다.");
 
                 bro = Backend.GameData.UpdateV2("USER_DATA", _gameDataRowInDate, Backend.UserInDate, param);
             }
 
             if (bro.IsSuccess())
             {
-                Debug.Log("게임정보 데이터 수정에 성공했습니다. : " + bro);
+                CustomLog.Log("게임정보 데이터 수정에 성공했습니다. : " + bro);
             }
             else
             {

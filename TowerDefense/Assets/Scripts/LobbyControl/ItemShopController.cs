@@ -11,6 +11,7 @@ using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
+using Utilities;
 
 namespace LobbyControl
 {
@@ -47,6 +48,7 @@ namespace LobbyControl
         [SerializeField] private Transform itemParent;
         [SerializeField] private TMP_Text explainText;
         [SerializeField] private Transform notEnoughDiaText;
+        [SerializeField] private Image selectObj;
 
         private void Awake()
         {
@@ -54,6 +56,7 @@ namespace LobbyControl
             _itemCountDic = new Dictionary<ItemType, TMP_Text>();
             backgroundBlockImage.enabled = false;
             shopPanel.localScale = Vector3.zero;
+            selectObj.enabled = false;
             itemShopButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
@@ -64,6 +67,7 @@ namespace LobbyControl
             closeButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
+                // selectObj.enabled = false;
                 backgroundBlockImage.enabled = false;
                 shopBlockImage.enabled = true;
                 shopPanel.DOScale(0, 0.25f).From(1).SetEase(Ease.InBack);
@@ -85,8 +89,8 @@ namespace LobbyControl
         {
             _diamondShopController = FindAnyObjectByType<DiamondShopController>();
             _diamondShopController.Init();
-            Debug.Log($"플레이어 데이터: {BackendGameData.userData}");
-            Debug.Log($"플레이어 아이템 딕: {BackendGameData.userData.itemInventory}");
+            CustomLog.Log($"플레이어 데이터: {BackendGameData.userData}");
+            CustomLog.Log($"플레이어 아이템 딕: {BackendGameData.userData.itemInventory}");
             var itemInventory = BackendGameData.userData.itemInventory;
             for (var i = 0; i < itemParent.childCount; i++)
             {
@@ -102,10 +106,10 @@ namespace LobbyControl
                 _itemInfoDic.Add(item.itemType, new ItemInfo(
                     LocaleManager.GetLocalizedString(LocaleManager.ItemTable, LocaleManager.ItemKey + item.itemType),
                     int.Parse(itemTbc)));
-                Debug.Log($"아이템 타입 : {item.itemType}   가격 : {itemTbc}");
+                CustomLog.Log($"아이템 타입 : {item.itemType}   가격 : {itemTbc}");
             }
 
-            Debug.Log("아이템 초기화");
+            CustomLog.Log("아이템 초기화");
             diamondText.text = _diamondShopController.diamondText.text;
             buyButton.onClick.AddListener(() =>
             {
@@ -115,16 +119,19 @@ namespace LobbyControl
             SetDiamondText();
         }
 
-        private void SetCurItem(ItemType itemType, string productID)
+        private void SetCurItem(ItemType itemType, string productID, Vector2 anchoredPos)
         {
             _curItemType = itemType;
             _curProductID = productID;
+            if (!selectObj.enabled) selectObj.enabled = true;
+            selectObj.rectTransform.anchoredPosition = anchoredPos;
             explainText.text = _itemInfoDic[itemType].itemExplain;
-            Debug.Log($"아이템 설명 : {_itemInfoDic[itemType].itemExplain}");
+            CustomLog.Log($"아이템 설명 : {_itemInfoDic[itemType].itemExplain}");
         }
 
         private void BuyItem()
         {
+            if (_curItemType == ItemType.None) return;
             if (_itemInfoDic[_curItemType].itemTbc < _curTbc)
             {
                 buyButton.interactable = false;
@@ -134,10 +141,9 @@ namespace LobbyControl
                     SetDiamondText();
 
                     var itemCount = BackendGameData.userData.itemInventory[_curItemType.ToString()] += 1;
-                    Debug.Log($"itemCount : {itemCount}");
+                    CustomLog.Log($"itemCount : {itemCount}");
                     _itemCountDic[_curItemType].text = itemCount.ToString();
-                    Debug.Log(_itemCountDic[_curItemType].name);
-                    BackendGameData.instance.GameDataUpdate();
+                    CustomLog.Log(_itemCountDic[_curItemType].name);
                     buyButton.interactable = true;
                 }
             }
@@ -152,7 +158,7 @@ namespace LobbyControl
             var bro = Backend.TBC.GetTBC();
             if (bro.IsSuccess())
             {
-                Debug.Log("tbc 찾음");
+                CustomLog.Log("tbc 찾음");
                 var amountTbc = int.Parse(bro.GetReturnValuetoJSON()["amountTBC"].ToString());
                 diamondText.text = amountTbc.ToString();
                 _diamondShopController.diamondText.text = amountTbc.ToString();
@@ -160,7 +166,7 @@ namespace LobbyControl
             }
             else
             {
-                Debug.Log("tbc 못찾음");
+                CustomLog.Log("tbc 못찾음");
             }
         }
 

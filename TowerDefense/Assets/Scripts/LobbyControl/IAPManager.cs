@@ -1,18 +1,20 @@
 using System.Collections.Generic;
 using BackEnd;
-using CustomEnumControl;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 using UnityEngine.Purchasing;
+using UnityEngine.Purchasing.Extension;
 using UnityEngine.UI;
+using Utilities;
 
 namespace LobbyControl
 {
-    public class IAPManager : MonoBehaviour, IStoreListener
+    public class IAPManager : MonoBehaviour, IDetailedStoreListener
     {
+        private Dictionary<string, TMP_Text> _priceDic;
         private ItemShopController _itemShopController;
         private Sequence _loadingTween;
         private const string Diamonds500 = "diamonds500";
@@ -27,6 +29,7 @@ namespace LobbyControl
 
         private void Start()
         {
+            _priceDic = new Dictionary<string, TMP_Text>();
             _itemShopController = FindAnyObjectByType<ItemShopController>();
             blockImage.enabled = false;
             loadingImage.enabled = false;
@@ -69,18 +72,12 @@ namespace LobbyControl
 
         private void LocalizeItemPrice(Locale locale)
         {
-            for (int i = 0; i < contents.childCount; i++)
+            foreach (var productId in _priceDic.Keys)
             {
-                var diamondItemParent = contents.GetChild(i);
-                if (diamondItemParent.TryGetComponent(out DiamondItem diamondItem))
-                {
-                    if (diamondItem.transform.GetChild(2).GetChild(0).TryGetComponent(out TMP_Text priceText))
-                    {
-                        Debug.Log("localize price");
-                        var metaData = _storeController.products.WithID(diamondItem.productId).metadata;
-                        priceText.text = $"{metaData.localizedPrice} {metaData.isoCurrencyCode}";
-                    }
-                }
+                var metaData = _storeController.products.WithID(productId).metadata;
+                CustomLog.Log(
+                    $"storeController : {_storeController}   productId : {productId}  metaData.localizedPrice : {metaData.localizedPrice}  metaData.isoCurrencyCode : {metaData.isoCurrencyCode}");
+                _priceDic[productId].text = $"{metaData.localizedPrice} {metaData.isoCurrencyCode}";
             }
         }
 
@@ -88,9 +85,18 @@ namespace LobbyControl
         public void OnInitialized(IStoreController controller, IExtensionProvider extensions)
         {
             _storeController = controller;
+            for (int i = 0; i < contents.childCount; i++)
+            {
+                if (contents.GetChild(i).TryGetComponent(out DiamondItem diamondItem))
+                {
+                    _priceDic.Add(diamondItem.productId,
+                        diamondItem.transform.Find("Purchase Button").GetChild(0).GetComponent<TMP_Text>());
+                }
+            }
+
             LocalizeItemPrice(LocalizationSettings.SelectedLocale);
 
-            Debug.Log("initinitinitinitinitinitinitinitinitinitinitinitinitinitinit");
+            CustomLog.Log("initinitinitinitinitinitinitinitinitinitinitinitinitinitinit");
         }
 
         //구매 버튼에 연결
@@ -108,7 +114,7 @@ namespace LobbyControl
 
         public void OnInitializeFailed(InitializationFailureReason error)
         {
-            Debug.Log("초기화 실패 : " + error);
+            CustomLog.Log("초기화 실패 : " + error);
             _loadingTween.Pause();
             loadingImage.enabled = false;
             blockImage.enabled = false;
@@ -116,7 +122,7 @@ namespace LobbyControl
 
         public void OnInitializeFailed(InitializationFailureReason error, string message)
         {
-            Debug.Log("초기화 실패 : " + error + message);
+            CustomLog.Log("초기화 실패 : " + error + message);
             _loadingTween.Pause();
             loadingImage.enabled = false;
             blockImage.enabled = false;
@@ -124,7 +130,15 @@ namespace LobbyControl
 
         public void OnPurchaseFailed(Product product, PurchaseFailureReason failureReason)
         {
-            Debug.Log("구매 실패 : " + failureReason);
+            CustomLog.Log("구매 실패 : " + failureReason);
+            _loadingTween.Pause();
+            loadingImage.enabled = false;
+            blockImage.enabled = false;
+        }
+
+        public void OnPurchaseFailed(Product product, PurchaseFailureDescription failureDescription)
+        {
+            CustomLog.Log("구매 실패 : " + product.definition.id + "이유 : " + failureDescription.message);
             _loadingTween.Pause();
             loadingImage.enabled = false;
             blockImage.enabled = false;
@@ -133,7 +147,7 @@ namespace LobbyControl
         public PurchaseProcessingResult ProcessPurchase(PurchaseEventArgs purchaseEvent)
         {
             var product = purchaseEvent.purchasedProduct;
-            Debug.Log("구매 성공 : " + product.definition.id);
+            CustomLog.Log("구매 성공 : " + product.definition.id);
 
 #if UNITY_IPHONE
             ProcessApplePurchase(purchaseEvent);
@@ -147,28 +161,20 @@ namespace LobbyControl
 #if UNITY_IPHONE
         private void ProcessApplePurchase(PurchaseEventArgs args)
         {
-            // var validation = Backend.Receipt.IsValidateApplePurchase(args.purchasedProduct.receipt, "구매한 유료다이아");
-            // if (validation.IsSuccess())
-            // {
-            Debug.Log("purchase success");
+            CustomLog.Log("purchase success");
             var chargeTbc = Backend.TBC.ChargeTBC(args.purchasedProduct.definition.id,
                 args.purchasedProduct.receipt, "다이아 충전");
             if (chargeTbc.IsSuccess())
             {
-                Debug.Log("충전 성공");
+                CustomLog.Log("충전 성공");
                 _itemShopController.SetDiamondText();
             }
             else
             {
-                Debug.Log("충전 실패");
+                CustomLog.Log("충전 실패");
                 var code = chargeTbc.GetErrorCode();
                 print(code);
             }
-            // }
-            // else
-            // {
-            //     Debug.Log($"ProcessPurchase: FAIL. Unrecognized product : {args.purchasedProduct.definition.id}");
-            // }
         }
 #endif
     }

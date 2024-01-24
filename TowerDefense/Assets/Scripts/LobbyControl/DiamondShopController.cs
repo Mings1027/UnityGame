@@ -56,7 +56,6 @@ namespace LobbyControl
         private void OpenGoldPanel()
         {
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            CameraManager.isControlActive = false;
             backgroundBlockImage.enabled = true;
             shopBlockImage.enabled = false;
             shopPanel.DOAnchorPosY(0, 0.5f).SetEase(Ease.OutBack);
@@ -65,7 +64,6 @@ namespace LobbyControl
         private void ClosePanel()
         {
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            CameraManager.isControlActive = true;
             backgroundBlockImage.enabled = false;
             shopBlockImage.enabled = true;
             shopPanel.DOAnchorPosY(Screen.height, 0.5f).SetEase(Ease.InBack);

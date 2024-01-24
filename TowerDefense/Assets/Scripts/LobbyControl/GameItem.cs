@@ -10,17 +10,18 @@ namespace LobbyControl
     {
         private string _productID;
         private Button _button;
-        public event Action<ItemType, string> OnCurItemEvent;
+        public event Action<ItemType, string, Vector2> OnCurItemEvent;
 
         [field: SerializeField] public ItemType itemType { get; private set; }
 
         private void Awake()
         {
             _button = GetComponent<Button>();
+            var rectTransform = GetComponent<RectTransform>();
             _button.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                OnCurItemEvent?.Invoke(itemType, _productID);
+                OnCurItemEvent?.Invoke(itemType, _productID, rectTransform.anchoredPosition);
             });
         }
 

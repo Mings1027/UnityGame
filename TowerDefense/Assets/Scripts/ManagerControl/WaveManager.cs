@@ -5,6 +5,7 @@ using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DataControl.MonsterDataControl;
 using InterfaceControl;
+using ItemControl;
 using MonsterControl;
 using PoolObjectControl;
 using StatusControl;
@@ -38,7 +39,7 @@ namespace ManagerControl
 
         public event Action OnPlaceExpandButtonEvent;
         public event Action OnBossWaveEvent;
-        public byte curWave { get; private set; }
+        public static byte curWave { get; private set; }
         public bool isStartWave { get; private set; }
 
         [SerializeField] private Wave[] monsterData;
@@ -83,7 +84,7 @@ namespace ManagerControl
         {
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
-
+            UIManager.instance.itemBagController.gameObject.SetActive(true);
             PoolObjectManager.PoolCleaner().Forget();
 
             if (_isBossWave)
@@ -293,7 +294,6 @@ namespace ManagerControl
             if (towerHealth.IsDead)
             {
                 uiManager.GameOver();
-
                 return;
             }
 
@@ -305,6 +305,7 @@ namespace ManagerControl
 
                 WaveStop();
                 SoundManager.PlayBGM(SoundEnum.WaveEnd);
+                UIManager.instance.itemBagController.gameObject.SetActive(false);
 
                 if (_isLastWave)
                 {
@@ -319,7 +320,7 @@ namespace ManagerControl
 
         public void AllKill()
         {
-            for (int i = 0; i < _monsterList.Count; i++)
+            for (var i = 0; i < _monsterList.Count; i++)
             {
                 if (_monsterList[i].TryGetComponent(out IDamageable damageable))
                 {

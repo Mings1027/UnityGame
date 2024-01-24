@@ -6,6 +6,7 @@ using LobbyControl;
 using ManagerControl;
 using UnityEngine;
 using UnityEngine.UI;
+using Utilities;
 
 namespace BackendControl
 {
@@ -17,7 +18,7 @@ namespace BackendControl
 
             if (bro.IsSuccess())
             {
-                Debug.Log("초기화 성공 : " + bro);
+                CustomLog.Log("초기화 성공 : " + bro);
             }
             else
             {
@@ -37,7 +38,7 @@ namespace BackendControl
 
                 BackendGameData.instance.GameDataUpdate();
 
-                Debug.Log("테스트를 종료합니다");
+                CustomLog.Log("테스트를 종료합니다");
                 FindAnyObjectByType<DownloadManager>().CheckUpdateFiles().Forget();
             });
         }

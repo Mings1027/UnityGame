@@ -8,6 +8,7 @@ using DataControl.TowerDataControl;
 using DG.Tweening;
 using GameControl;
 using IndicatorControl;
+using ItemControl;
 using MapControl;
 using PoolObjectControl;
 using StatusControl;
@@ -31,6 +32,7 @@ namespace ManagerControl
         private WaveManager _waveManager;
         private TowerManager _towerManager;
         private TowerCardController _towerCardController;
+        public ItemBagController itemBagController { get; private set; }
 
         private CancellationTokenSource _cts;
         private Camera _cam;
@@ -102,7 +104,7 @@ namespace ManagerControl
 
         public Dictionary<TowerType, TowerDataPrefab> towerDataPrefabDictionary { get; private set; }
 
-        public int  towerGold
+        public int towerGold
         {
             get => _towerGold;
             set
@@ -170,6 +172,7 @@ namespace ManagerControl
             }
             else
             {
+                itemBagController.UpdateInventory();
                 Pause();
             }
         }
@@ -185,9 +188,10 @@ namespace ManagerControl
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
 
-            _waveManager = (WaveManager)FindAnyObjectByType(typeof(WaveManager));
-            _towerManager = (TowerManager)FindAnyObjectByType(typeof(TowerManager));
-            _towerRangeIndicator = (TowerRangeIndicator)FindAnyObjectByType(typeof(TowerRangeIndicator));
+            _waveManager = FindAnyObjectByType<WaveManager>();
+            _towerManager = FindAnyObjectByType<TowerManager>();
+            _towerRangeIndicator = FindAnyObjectByType<TowerRangeIndicator>();
+            itemBagController = FindAnyObjectByType<ItemBagController>();
 
             var uiPanel = transform.Find("UI Panel");
             _towerInfoUI = FindAnyObjectByType<TowerInfoUI>();
@@ -355,14 +359,15 @@ namespace ManagerControl
                 SoundManager.ToggleSfx(!_sfxToggle.isOn);
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
             });
-            _mainMenuButton.onClick.AddListener(delegate
+            _mainMenuButton.onClick.AddListener(() =>
             {
+                itemBagController.UpdateInventory();
                 SceneManager.LoadScene("Lobby");
 
-                if (_waveManager.curWave < 1) return;
+                if (WaveManager.curWave < 1) return;
                 DataManager.UpdateSurvivedWave((byte)(_waveManager.isStartWave
-                    ? _waveManager.curWave - 1
-                    : _waveManager.curWave));
+                    ? WaveManager.curWave - 1
+                    : WaveManager.curWave));
                 DataManager.SaveLastSurvivedWave();
             });
             _speedButton.onClick.AddListener(() =>
@@ -423,6 +428,7 @@ namespace ManagerControl
             cameraManager.enabled = true;
             _toggleTowerButton.GetComponent<TutorialController>().TutorialButton();
             Input.multiTouchEnabled = true;
+            CameraManager.isControlActive = true;
         }
 
         public Sprite GetTowerType(TowerType t) =>
@@ -536,6 +542,10 @@ namespace ManagerControl
 #endregion
 
 #region Private Method
+
+        private async UniTaskVoid MainMenuButton()
+        {
+        }
 
         private async UniTaskVoid CheckCamPos()
         {

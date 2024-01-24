@@ -69,7 +69,6 @@ namespace ManagerControl
 
         public async UniTaskVoid CheckUpdateFiles()
         {
-            Debug.Log("check Update files");
             var labels = new List<string>();
             for (var i = 0; i < assetLabels.Length; i++)
             {
@@ -87,14 +86,12 @@ namespace ManagerControl
 
             if (_patchSize > decimal.Zero) // 다운로드 할 것이 있음
             {
-                Debug.Log("다운로드 받아야함");
                 blockImage.enabled = true;
                 _downloadPanelTween.Restart();
                 sizeInfoText.text = GetFilSize(_patchSize);
             }
             else // 다운로드 할 것이 없음
             {
-                Debug.Log("다운할거 없음");
                 sizeInfoText.enabled = false;
                 downValueText.text = " 100 % ";
                 downSlider.value = 1;
