@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace LobbyControl
@@ -6,9 +7,11 @@ namespace LobbyControl
     {
         [SerializeField] private float rotateSpeed;
 
-        private void Awake()
+        private void Start()
         {
             Input.multiTouchEnabled = false;
+            Time.timeScale = 1;
+            Application.targetFrameRate = 60;
         }
 
         private void LateUpdate()

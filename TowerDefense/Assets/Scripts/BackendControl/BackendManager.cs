@@ -1,11 +1,7 @@
-using System;
-using System.Threading.Tasks;
 using BackEnd;
 using Cysharp.Threading.Tasks;
-using LobbyControl;
 using ManagerControl;
 using UnityEngine;
-using UnityEngine.UI;
 using Utilities;
 
 namespace BackendControl
@@ -22,13 +18,13 @@ namespace BackendControl
             }
             else
             {
-                Debug.LogError("초기화 실패 : " + bro);
+                CustomLog.LogError("초기화 실패 : " + bro);
             }
         }
 
-        public async void BackendInit()
+        public async UniTaskVoid BackendInit()
         {
-            await Task.Run(() =>
+            await UniTask.RunOnThreadPool(() =>
             {
                 BackendGameData.instance.GameDataGet();
                 if (BackendGameData.userData == null)

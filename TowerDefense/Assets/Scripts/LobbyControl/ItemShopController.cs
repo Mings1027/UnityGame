@@ -88,7 +88,6 @@ namespace LobbyControl
         private void ItemInit()
         {
             _diamondShopController = FindAnyObjectByType<DiamondShopController>();
-            _diamondShopController.Init();
             CustomLog.Log($"플레이어 데이터: {BackendGameData.userData}");
             CustomLog.Log($"플레이어 아이템 딕: {BackendGameData.userData.itemInventory}");
             var itemInventory = BackendGameData.userData.itemInventory;

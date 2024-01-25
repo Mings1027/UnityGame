@@ -63,7 +63,7 @@ namespace BackendControl
             }
             else
             {
-                Debug.LogError("게임정보 데이터 삽입에 실패했습니다. : " + bro);
+                CustomLog.LogError("게임정보 데이터 삽입에 실패했습니다. : " + bro);
             }
         }
 
@@ -80,7 +80,7 @@ namespace BackendControl
                 // 받아온 데이터의 갯수가 0이라면 데이터가 존재하지 않는 것입니다.  
                 if (gameDataJson.Count <= 0)
                 {
-                    Debug.LogWarning("데이터가 존재하지 않습니다.");
+                    CustomLog.LogWarning("데이터가 존재하지 않습니다.");
                 }
                 else
                 {
@@ -102,7 +102,7 @@ namespace BackendControl
             }
             else
             {
-                Debug.LogError("게임 정보 조회에 실패했습니다. : " + bro);
+                CustomLog.LogError("게임 정보 조회에 실패했습니다. : " + bro);
             }
         }
 
@@ -115,7 +115,7 @@ namespace BackendControl
         {
             if (userData == null)
             {
-                Debug.LogError("서버에서 다운받거나 새로 삽입한 데이터가 존재하지 않습니다. Insert 혹은 Get을 통해 데이터를 생성해주세요.");
+                CustomLog.LogError("서버에서 다운받거나 새로 삽입한 데이터가 존재하지 않습니다. Insert 혹은 Get을 통해 데이터를 생성해주세요.");
                 return;
             }
 
@@ -146,8 +146,22 @@ namespace BackendControl
             }
             else
             {
-                Debug.LogError("게임정보 데이터 수정에 실패했습니다. : " + bro);
+                CustomLog.LogError("게임정보 데이터 수정에 실패했습니다. : " + bro);
             }
+        }
+
+        public int GetUserTbc()
+        {
+            var tbc = Backend.TBC.GetTBC();
+            var amountTbcAndDiamonds = 0;
+            if (tbc.IsSuccess())
+            {
+                amountTbcAndDiamonds = int.Parse(tbc.GetReturnValuetoJSON()["amountTBC"].ToString());
+            }
+
+            var diamonds = userData.diamonds;
+            amountTbcAndDiamonds += diamonds;
+            return amountTbcAndDiamonds;
         }
     }
 }

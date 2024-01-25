@@ -14,7 +14,6 @@ namespace ManagerControl
         protected void Awake()
         {
             _gameObjects = new List<GameObject>();
-            Screen.sleepTimeout = SleepTimeout.NeverSleep;
         }
 
         protected void Start()

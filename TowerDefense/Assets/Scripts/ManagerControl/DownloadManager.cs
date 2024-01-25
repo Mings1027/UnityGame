@@ -92,12 +92,11 @@ namespace ManagerControl
             }
             else // 다운로드 할 것이 없음
             {
-                sizeInfoText.enabled = false;
-                downValueText.text = " 100 % ";
-                downSlider.value = 1;
+                // sizeInfoText.enabled = false;
+                // downValueText.text = " 100 % ";
+                // downSlider.value = 1;
                 downSlider.gameObject.SetActive(true);
-                await UniTask.Delay(500);
-                StartGame();
+                ProgressBarTo100().Forget();
                 // 게임 시작되는 부분
             }
         }
@@ -202,7 +201,7 @@ namespace ManagerControl
 
                 if (Math.Abs(total - _patchSize) < 0.01f)
                 {
-                    StartGame();
+                    SceneManager.LoadSceneAsync("Lobby");
                     break;
                 }
 
@@ -213,9 +212,10 @@ namespace ManagerControl
 
 #endregion
 
-        private void StartGame()
+        private async UniTaskVoid ProgressBarTo100()
         {
-            SceneManager.LoadSceneAsync("Lobby");
+            var lobbyScene = SceneManager.LoadSceneAsync("Lobby");
+            downSlider.DOValue(1, 10);
         }
     }
 }

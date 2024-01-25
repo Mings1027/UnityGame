@@ -13,8 +13,6 @@ namespace LobbyControl
 {
     public class DiamondShopController : MonoBehaviour
     {
-        private AdmobManager _admobManager;
-
         [SerializeField] private RectTransform shopPanel;
         [SerializeField] private Image backgroundBlockImage;
         [SerializeField] private Image shopBlockImage;
@@ -25,9 +23,8 @@ namespace LobbyControl
 
         [field: SerializeField] public TMP_Text diamondText { get; private set; }
 
-        public void Init()
+        private void Start()
         {
-            _admobManager = FindAnyObjectByType<AdmobManager>();
             diamondButton.onClick.AddListener(OpenGoldPanel);
             closeButton.onClick.AddListener(ClosePanel);
             loadingImage.localScale = Vector3.zero;
@@ -36,11 +33,9 @@ namespace LobbyControl
             backgroundBlockImage.enabled = false;
             freePurchaseButton.onClick.AddListener(() =>
             {
-                freePurchaseButton.interactable = false;
                 ShowRewardedAd().Forget();
             });
             SoundManager.PlayBGM(SoundEnum.GameStart);
-            _admobManager.OnAdCloseEvent += () => { freePurchaseButton.interactable = true; };
         }
 
         private async UniTaskVoid ShowRewardedAd()
@@ -50,7 +45,6 @@ namespace LobbyControl
             loadingImage.DOLocalRotate(new Vector3(0, 0, -360), 1, RotateMode.FastBeyond360).SetLoops(2);
             await UniTask.Delay(Random.Range(5, 8) * 100);
             loadingImage.localScale = Vector3.zero;
-            _admobManager.ShowRewardedAd();
         }
 
         private void OpenGoldPanel()

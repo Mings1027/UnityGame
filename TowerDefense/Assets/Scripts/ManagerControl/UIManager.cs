@@ -141,6 +141,7 @@ namespace ManagerControl
         private void Start()
         {
             Application.targetFrameRate = 60;
+            Screen.sleepTimeout = SleepTimeout.NeverSleep;
             cameraManager = _cam.GetComponentInParent<CameraManager>();
             _gameOverPanel.SetActive(false);
             _gameEndPanel.SetActive(false);

@@ -33,12 +33,12 @@ namespace UIControl
                     _isInventoryOpen = false;
                     selectIcon.gameObject.SetActive(false);
                     _curItemType = ItemType.None;
-                    itemParent.DOScaleY(1, 0.25f).From(0).SetEase(Ease.OutBack);
+                    itemParent.DOScaleY(0, 0.25f).From(1).SetEase(Ease.InBack);
                 }
                 else
                 {
                     _isInventoryOpen = true;
-                    itemParent.DOScaleY(0, 0.25f).From(1).SetEase(Ease.InBack);
+                    itemParent.DOScaleY(1, 0.25f).From(0).SetEase(Ease.OutBack);
                 }
             });
             _itemDic = new Dictionary<ItemType, ItemButton>();
@@ -54,36 +54,20 @@ namespace UIControl
                 itemButton.SetRemainingText(itemInventory[itemButton.itemType.ToString()]);
 
                 _itemCountDic.Add(itemButton.itemType, itemInventory[itemButton.itemType.ToString()]);
-                // itemCount += itemInventory[itemButton.itemType.ToString()];
             }
 
             gameObject.SetActive(false);
-            // gameObject.SetActive(itemCount > 0);
-            CustomLog.Log("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-            foreach (var itemDicKey in _itemDic.Keys)
-            {
-                CustomLog.Log(itemDicKey);
-            }
-
-            foreach (var itemCountKey in _itemCountDic.Keys)
-            {
-                CustomLog.Log(itemCountKey);
-            }
         }
 
         private void SetCurItem(ItemType itemType, Vector2 anchoredPos)
         {
-            CustomLog.Log($"아이템 누름 : {itemType}");
             if (!selectIcon.gameObject.activeSelf) selectIcon.gameObject.SetActive(true);
             selectIcon.rectTransform.anchoredPosition = anchoredPos;
-            CustomLog.Log($"selectIcon anchoredPos : {selectIcon.rectTransform.anchoredPosition}");
-            CustomLog.Log($"curItem pos : {anchoredPos}");
             _curItemType = itemType;
         }
 
         private void UseItem()
         {
-            CustomLog.Log("아이템사용");
             _itemDic[_curItemType].Spawn();
             _itemDic[_curItemType].DecreaseItemCount();
             selectIcon.gameObject.SetActive(false);
@@ -98,7 +82,6 @@ namespace UIControl
             {
                 if (itemType == ItemType.None) continue;
                 BackendGameData.userData.itemInventory[itemType.ToString()] = _itemCountDic[itemType];
-                CustomLog.Log(BackendGameData.userData.itemInventory[itemType.ToString()]);
             }
 
             BackendGameData.instance.GameDataUpdate();
