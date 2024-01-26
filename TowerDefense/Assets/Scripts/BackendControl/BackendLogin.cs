@@ -50,12 +50,28 @@ namespace BackendControl
 
             if (bro.IsSuccess())
             {
-                CustomLog.Log("닉네임 변경에 성공했습니다 : " + bro);
+                Debug.Log("닉네임 변경에 성공했습니다 : " + bro);
             }
             else
             {
                 Debug.LogError("닉네임 변경에 실패했습니다 : " + bro);
             }
+        }
+
+        public string GetUserNickName()
+        {
+            var bro = Backend.BMember.GetUserInfo();
+            string nickName;
+            if (bro.IsSuccess())
+            {
+                nickName = bro.GetReturnValuetoJSON()["row"]["nickname"].ToJson();
+            }
+            else
+            {
+                nickName = bro.GetReturnValuetoJSON()["row"]["gamerId"].ToString()[..7];
+            }
+
+            return nickName;
         }
     }
 }

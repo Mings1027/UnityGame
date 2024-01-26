@@ -32,7 +32,9 @@ namespace BackendControl
                     BackendGameData.instance.GameDataInsert();
                 }
 
-                BackendGameData.instance.GameDataUpdate();
+                BackendLogin.instance.UpdateNickname("원하는 이름");
+                // BackendRank.instance.RankInsert(100);
+                BackendRank.instance.RankGet();
 
                 CustomLog.Log("테스트를 종료합니다");
                 FindAnyObjectByType<DownloadManager>().CheckUpdateFiles().Forget();

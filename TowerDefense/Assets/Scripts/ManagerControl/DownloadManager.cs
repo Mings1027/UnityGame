@@ -96,7 +96,7 @@ namespace ManagerControl
                 // downValueText.text = " 100 % ";
                 // downSlider.value = 1;
                 downSlider.gameObject.SetActive(true);
-                ProgressBarTo100().Forget();
+                ProgressBarTo100();
                 // 게임 시작되는 부분
             }
         }
@@ -212,10 +212,11 @@ namespace ManagerControl
 
 #endregion
 
-        private async UniTaskVoid ProgressBarTo100()
+        private void ProgressBarTo100()
         {
+            downValueText.text = "100 %";
+            downSlider.value = 1;
             var lobbyScene = SceneManager.LoadSceneAsync("Lobby");
-            downSlider.DOValue(1, 10);
         }
     }
 }

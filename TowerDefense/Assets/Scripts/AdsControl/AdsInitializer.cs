@@ -1,24 +1,25 @@
 using UnityEngine;
 using UnityEngine.Advertisements;
+using UnityEngine.Serialization;
 
 namespace AdsControl
 {
     public class AdsInitializer : MonoBehaviour, IUnityAdsInitializationListener
     {
-        [SerializeField] string _androidGameId;
-        [SerializeField] string _iOSGameId;
-        [SerializeField] bool _testMode = true;
+        [SerializeField] private string androidGameId;
+        [SerializeField] private string iOSGameId;
+        [SerializeField] private bool testMode = true;
         private string _gameId;
- 
-        void Awake()
+
+        private void Awake()
         {
             InitializeAds();
         }
- 
+
         public void InitializeAds()
         {
 #if UNITY_IOS
-            _gameId = _iOSGameId;
+            _gameId = iOSGameId;
 #elif UNITY_ANDROID
             _gameId = _androidGameId;
 #elif UNITY_EDITOR
@@ -26,16 +27,15 @@ namespace AdsControl
 #endif
             if (!Advertisement.isInitialized && Advertisement.isSupported)
             {
-                Advertisement.Initialize(_gameId, _testMode, this);
+                Advertisement.Initialize(_gameId, testMode, this);
             }
         }
 
- 
         public void OnInitializationComplete()
         {
             Debug.Log("Unity Ads initialization complete.");
         }
- 
+
         public void OnInitializationFailed(UnityAdsInitializationError error, string message)
         {
             Debug.Log($"Unity Ads Initialization Failed: {error.ToString()} - {message}");

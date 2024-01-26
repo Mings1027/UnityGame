@@ -11,7 +11,7 @@ namespace BackendControl
     public class UserData
     {
         public int diamonds;
-
+        public int score;
         public readonly Dictionary<string, int> itemInventory = new();
 
         // 데이터를 디버깅하기 위한 함수입니다.
@@ -19,6 +19,8 @@ namespace BackendControl
         {
             var result = new StringBuilder();
             result.AppendLine($"diamonds : {diamonds}");
+            result.AppendLine($"score : {score}");
+
             foreach (var itemKey in itemInventory.Keys)
             {
                 result.AppendLine($"$ {itemKey} : {itemInventory[itemKey]} 개");
@@ -42,6 +44,9 @@ namespace BackendControl
             userData ??= new UserData();
             CustomLog.Log("데이터를 초기화 합니다.");
             userData.diamonds = 0;
+
+            userData.score = 0;
+
             var itemTypes = Enum.GetValues(typeof(ItemType));
             foreach (ItemType itemType in itemTypes)
             {
@@ -52,6 +57,7 @@ namespace BackendControl
             var param = new Param
             {
                 { "diamonds", userData.diamonds },
+                { "score", userData.score },
                 { "itemInventory", userData.itemInventory }
             };
             CustomLog.Log("게임정보 데이터 삽입을 요청합니다.");
@@ -148,20 +154,6 @@ namespace BackendControl
             {
                 CustomLog.LogError("게임정보 데이터 수정에 실패했습니다. : " + bro);
             }
-        }
-
-        public int GetUserTbc()
-        {
-            var tbc = Backend.TBC.GetTBC();
-            var amountTbcAndDiamonds = 0;
-            if (tbc.IsSuccess())
-            {
-                amountTbcAndDiamonds = int.Parse(tbc.GetReturnValuetoJSON()["amountTBC"].ToString());
-            }
-
-            var diamonds = userData.diamonds;
-            amountTbcAndDiamonds += diamonds;
-            return amountTbcAndDiamonds;
         }
     }
 }
