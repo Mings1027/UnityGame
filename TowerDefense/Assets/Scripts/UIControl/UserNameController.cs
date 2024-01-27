@@ -11,73 +11,59 @@ namespace UIControl
     {
         private string _curNickName;
         private bool _isOpenUserName;
-        private Button _userButton;
-        private TMP_Text _userNameText;
-        [SerializeField] private Button userNameButton;
-        [SerializeField] private TMP_InputField nameInputField;
+        private Button _userIconButton;
+        [SerializeField] private Image blockImage;
+        [SerializeField] private TMP_InputField userNameField;
 
         private void Awake()
         {
-            _userNameText = userNameButton.GetComponentInChildren<TMP_Text>();
-            nameInputField.gameObject.SetActive(false);
-
-            _userButton = GetComponent<Button>();
-            _userButton.onClick.AddListener(() =>
-            {
-                SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                OnOffUserName();
-            });
-            _userNameText.text = BackendLogin.instance.GetUserNickName();
-            userNameButton.onClick.AddListener(() =>
-            {
-                nameInputField.gameObject.SetActive(true);
-            });
-            nameInputField.onSelect.AddListener(delegate
-            {
-                Debug.Log("onselect");
-                GetCurNickName();
-            });
-            nameInputField.onSubmit.AddListener(delegate
-            {
-                Debug.Log("onsubmit");
-                CompleteNickName();
-            });
-            nameInputField.onDeselect.AddListener(delegate
-            {
-                Debug.Log("ondeselect");
-                _userNameText.text = _curNickName;
-            });
-        }
-
-        private void GetCurNickName()
-        {
-            Debug.Log("select");
-            _curNickName = _userNameText.text;
-        }
-
-        private void CompleteNickName()
-        {
-            if (nameInputField.text.Length > 0)
-            {
-                BackendLogin.instance.UpdateNickname(nameInputField.text);
-            }
-            else
-            {
-                _userNameText.text = _curNickName;
-            }
+            _userIconButton = GetComponent<Button>();
+            _userIconButton.onClick.AddListener(OnOffUserName);
+            blockImage.enabled = false;
+            userNameField.text = BackendLogin.instance.GetUserNickName();
+            userNameField.gameObject.SetActive(false);
+            userNameField.onSelect.AddListener(GetCurNickName);
+            userNameField.onDeselect.AddListener(GoBackPrevNickName);
+            userNameField.onSubmit.AddListener(SubmitNickName);
         }
 
         private void OnOffUserName()
         {
+            SoundManager.PlayUISound(SoundEnum.ButtonSound);
             if (_isOpenUserName)
             {
                 _isOpenUserName = false;
-                userNameButton.gameObject.SetActive(false);
+                userNameField.gameObject.SetActive(false);
             }
             else
             {
                 _isOpenUserName = true;
-                userNameButton.gameObject.SetActive(true);
+                userNameField.gameObject.SetActive(true);
+            }
+        }
+
+        private void GetCurNickName(string arg0)
+        {
+            blockImage.enabled = true;
+            _curNickName = userNameField.text;
+        }
+
+        private void GoBackPrevNickName(string arg0)
+        {
+            blockImage.enabled = false;
+            userNameField.text = _curNickName;
+        }
+
+        private void SubmitNickName(string arg0)
+        {
+            blockImage.enabled = false;
+            if (userNameField.text.Length > 0)
+            {
+                BackendLogin.instance.UpdateNickname(userNameField.text);
+            }
+            else
+            {
+                Debug.Log("바꿀 닉네임을 적어주세요");
             }
         }
     }

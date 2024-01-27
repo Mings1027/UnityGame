@@ -42,20 +42,20 @@ namespace BackendControl
             }
         }
 
-        public void UpdateNickname(string nickname)
+        public bool UpdateNickname(string nickname)
         {
-            CustomLog.Log("닉네임 변경을 요청합니다.");
+            Debug.Log("닉네임 변경을 요청합니다.");
 
             var bro = Backend.BMember.UpdateNickname(nickname);
 
             if (bro.IsSuccess())
             {
                 Debug.Log("닉네임 변경에 성공했습니다 : " + bro);
+                return true;
             }
-            else
-            {
-                Debug.LogError("닉네임 변경에 실패했습니다 : " + bro);
-            }
+
+            Debug.LogError("닉네임 변경에 실패했습니다 : " + bro);
+            return false;
         }
 
         public string GetUserNickName()
@@ -64,7 +64,7 @@ namespace BackendControl
             string nickName;
             if (bro.IsSuccess())
             {
-                nickName = bro.GetReturnValuetoJSON()["row"]["nickname"].ToJson();
+                nickName = bro.GetReturnValuetoJSON()["row"]["nickname"].ToString();
             }
             else
             {

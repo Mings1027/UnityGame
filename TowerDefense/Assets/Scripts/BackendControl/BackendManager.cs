@@ -32,7 +32,7 @@ namespace BackendControl
                     BackendGameData.instance.GameDataInsert();
                 }
 
-                BackendLogin.instance.UpdateNickname("원하는 이름");
+                // BackendLogin.instance.UpdateNickname("원하는 이름");
                 // BackendRank.instance.RankInsert(100);
                 BackendRank.instance.RankGet();
 

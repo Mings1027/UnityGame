@@ -1,4 +1,5 @@
 using System;
+using ManagerControl;
 using UnityEngine;
 using UnityEngine.Advertisements;
 using UnityEngine.Serialization;
@@ -64,6 +65,7 @@ namespace AdsControl
             {
                 Debug.Log("Unity Ads Rewarded Ad Completed");
                 // Grant a reward.
+                SoundManager.MuteBGM(false);
                 LoadAd();
             }
         }
