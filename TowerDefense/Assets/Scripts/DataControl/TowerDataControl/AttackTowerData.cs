@@ -1,48 +1,34 @@
+using BackendControl;
 using CustomEnumControl;
 using UnityEngine;
-using Utilities;
 
 namespace DataControl.TowerDataControl
 {
     public abstract class AttackTowerData : TowerData
     {
-        public MeshFilter[] TowerMeshes => towerMeshes;
-        public ushort BaseDamage { get; private set; }
-        public byte AttackRange { get; protected set; }
-        public ushort AttackRpm { get; private set; }
-
-        protected byte InitRange => initRange;
-
-        [SerializeField] private MeshFilter[] towerMeshes;
+        public ushort curDamage { get; private set; }
+        public byte curRange { get; private set; }
+        public ushort curRpm { get; private set; }
+        [field: SerializeField] public MeshFilter[] towerMeshes { get; private set; }
         [SerializeField] private ushort initDamage;
         [SerializeField] private byte initRange;
         [SerializeField] private ushort initRpm;
 
         public override void InitState()
         {
-            var damage = PlayerPrefs.GetInt(StringManager.DamageDic[TowerType]);
-            if (damage <= 0)
-            {
-                PlayerPrefs.SetInt(StringManager.DamageDic[TowerType], initDamage);
-                BaseDamage = initDamage;
-            }
-            else
-            {
-                BaseDamage = (ushort)damage;
-            }
-
-            AttackRpm = initRpm;
+            var towerLevel = BackendGameData.userData.towerLevelTable[towerType.ToString()] + 1;
+            curDamage = (ushort)(towerLevel * initDamage);
+            curRange = (byte)(towerLevel * initRange);
+            curRpm = (ushort)(towerLevel * initRpm);
         }
 
         public virtual void UpgradeData(TowerType type)
         {
-            var baseDamage = PlayerPrefs.GetInt(StringManager.DamageDic[type]);
-            BaseDamage = (ushort)(baseDamage + 5);
-            PlayerPrefs.SetInt(StringManager.DamageDic[type], BaseDamage);
-
-            var attackRange = PlayerPrefs.GetInt(StringManager.RangeDic[type]);
-            AttackRange = (byte)(attackRange + 1);
-            PlayerPrefs.SetInt(StringManager.RangeDic[type], AttackRange);
+            var towerLevel = BackendGameData.userData.towerLevelTable[type.ToString()] += 1;
+            towerLevel += 1;
+            curDamage = (ushort)(towerLevel * initDamage);
+            curRange = (byte)(towerLevel * initRange);
+            curRpm = (ushort)(towerLevel * initRpm);
         }
     }
 }

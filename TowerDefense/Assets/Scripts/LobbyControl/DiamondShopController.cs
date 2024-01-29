@@ -1,3 +1,4 @@
+using AdsControl;
 using BackEnd;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
@@ -13,6 +14,7 @@ namespace LobbyControl
 {
     public class DiamondShopController : MonoBehaviour
     {
+        private AdmobManager _rewardedAds;
         [SerializeField] private RectTransform shopPanel;
         [SerializeField] private Image backgroundBlockImage;
         [SerializeField] private Image shopBlockImage;
@@ -25,6 +27,7 @@ namespace LobbyControl
 
         private void Start()
         {
+            _rewardedAds = FindAnyObjectByType<AdmobManager>();
             diamondButton.onClick.AddListener(OpenGoldPanel);
             closeButton.onClick.AddListener(ClosePanel);
             loadingImage.localScale = Vector3.zero;
@@ -45,6 +48,7 @@ namespace LobbyControl
             loadingImage.DOLocalRotate(new Vector3(0, 0, -360), 1, RotateMode.FastBeyond360).SetLoops(2);
             await UniTask.Delay(Random.Range(5, 8) * 100);
             loadingImage.localScale = Vector3.zero;
+            _rewardedAds.ShowRewardedAd();
         }
 
         private void OpenGoldPanel()

@@ -19,7 +19,7 @@ namespace TowerControl
         {
             base.Init();
             var manaTowerData = (ManaUsingTowerData)UIManager.instance.towerDataPrefabDictionary[towerType].towerData;
-            _attackMana = manaTowerData.attackMana;
+            _attackMana = manaTowerData.initMana;
             _towerMana = UIManager.instance.GetTowerMana();
             firePos = transform.GetChild(2);
         }

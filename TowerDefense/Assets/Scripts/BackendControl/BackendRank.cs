@@ -4,6 +4,13 @@ using UnityEngine;
 
 namespace BackendControl
 {
+    public struct UserRankInfo
+    {
+        public string rank;
+        public string nickName;
+        public string score;
+    }
+
     public class BackendRank
     {
         private static BackendRank _instance;
@@ -12,7 +19,8 @@ namespace BackendControl
         public void RankInsert(int score)
         {
             // [변경 필요] '복사한 UUID 값'을 '뒤끝 콘솔 > 랭킹 관리'에서 생성한 랭킹의 UUID값으로 변경해주세요.  
-            const string rankUuid = "d1f25cc0-bbf4-11ee-8df0-118b3eecd33b"; // 예시 : "4088f640-693e-11ed-ad29-ad8f0c3d4c70"
+            const string
+                rankUuid = "d1f25cc0-bbf4-11ee-8df0-118b3eecd33b"; // 예시 : "4088f640-693e-11ed-ad29-ad8f0c3d4c70"
             const string tableName = "USER_DATA";
             string rowInDate;
 
@@ -67,7 +75,7 @@ namespace BackendControl
             Debug.Log("랭킹 삽입에 성공했습니다. : " + rankBro);
         }
 
-        public void RankGet()
+        public UserRankInfo[] RankGet()
         {
             const string rankUuid = "d1f25cc0-bbf4-11ee-8df0-118b3eecd33b";
             var bro = Backend.URank.User.GetRankList(rankUuid);
@@ -75,25 +83,32 @@ namespace BackendControl
             if (!bro.IsSuccess())
             {
                 Debug.LogError("랭킹 조회중 오류가 발생했습니다. : " + bro);
-                return;
+                return null;
             }
 
             Debug.Log("랭킹 조회에 성공했습니다. : " + bro);
 
             Debug.Log("총 랭킹 등록 유저 수 : " + bro.GetFlattenJSON()["totalCount"]);
 
+            var userRankInfo = new UserRankInfo[bro.FlattenRows().Count];
+            var index = 0;
             foreach (LitJson.JsonData jsonData in bro.FlattenRows())
             {
-                var info = new StringBuilder();
-
-                info.AppendLine("순위 : " + jsonData["rank"]);
-                info.AppendLine("닉네임 : " + jsonData["nickname"]);
-                info.AppendLine("점수 : " + jsonData["score"]);
-                info.AppendLine("gamerInDate : " + jsonData["gamerInDate"]);
-                info.AppendLine("정렬번호 : " + jsonData["index"]);
-                info.AppendLine();
-                Debug.Log(info);
+                userRankInfo[index].rank = jsonData["rank"].ToString();
+                userRankInfo[index].nickName = jsonData["nickname"].ToString();
+                userRankInfo[index].score = jsonData["score"].ToString();
+                index += 1;
+                // var info = new StringBuilder();
+                // info.AppendLine("순위 : " + jsonData["rank"]);
+                // info.AppendLine("닉네임 : " + jsonData["nickname"]);
+                // info.AppendLine("점수 : " + jsonData["score"]);
+                // info.AppendLine("gamerInDate : " + jsonData["gamerInDate"]);
+                // info.AppendLine("정렬번호 : " + jsonData["index"]);
+                // info.AppendLine();
+                // Debug.Log(info);
             }
+
+            return userRankInfo;
         }
     }
 }

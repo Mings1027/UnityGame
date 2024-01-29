@@ -56,7 +56,7 @@ namespace MapControl
 
         private HashSet<Vector3> _wayPointsHashSet;
         private byte _connectionProbability;
-        
+
         [SerializeField] private NavMeshSurface navMeshSurface;
         [SerializeField] private NavMeshSurface bossNavMeshSurface;
         [SerializeField] private NavMeshSurface ramNavMeshSurface;
@@ -72,12 +72,13 @@ namespace MapControl
         [SerializeField] private Transform mapMesh;
         [SerializeField] private Transform obstacleMesh;
 
-
 #if UNITY_EDITOR
         private CancellationTokenSource _cts;
         private Queue<string> _customMapQueue;
+
         [Header("==============For Test==============")]
         [SerializeField] private bool useCustomMap;
+
         [SerializeField] private string customMap;
         [SerializeField] private byte maxMapCount;
         [SerializeField] private bool drawGizmos;
@@ -172,9 +173,9 @@ namespace MapControl
 
             _directionMappingDic = new Dictionary<string, string>
             {
-                {"0", "P"}, {"1", "P"}, {"2", "P"}, {"3", "P"}, {"01", "S"}, {"02", "L"}, {"03", "R"},
-                {"12", "R"}, {"13", "L"}, {"23", "S"}, {"012", "SL"}, {"013", "SR"}, {"023", "LR"},
-                {"123", "LR"}, {"0123", "SLR"}
+                { "0", "P" }, { "1", "P" }, { "2", "P" }, { "3", "P" }, { "01", "S" }, { "02", "L" }, { "03", "R" },
+                { "12", "R" }, { "13", "L" }, { "23", "S" }, { "012", "SL" }, { "013", "SR" }, { "023", "LR" },
+                { "123", "LR" }, { "0123", "SLR" }
             };
 
             _mapDictionary = new Dictionary<string, GameObject>();
@@ -188,18 +189,20 @@ namespace MapControl
             _wayPointsHashSet = new HashSet<Vector3>();
         }
 
-        private void PlaceStartMap(int index)
+        private void PlaceStartMap(byte difficulty)
         {
             var startMapIndex = SortMapIndex();
 
-            for (var i = 0; i < index; i++)
+            for (var i = 0; i < difficulty; i++)
             {
                 _tileConnectionIndex += startMapIndex[i];
             }
 
             _tileConnectionIndex = string.Concat(_tileConnectionIndex.OrderBy(c => c));
 
-            if (_tileConnectionIndex != null) _newMapObject = Instantiate(_mapDictionary[_directionMappingDic[_tileConnectionIndex]], mapMesh).GetComponent<MapData>();
+            if (_tileConnectionIndex != null)
+                _newMapObject = Instantiate(_mapDictionary[_directionMappingDic[_tileConnectionIndex]], mapMesh)
+                    .GetComponent<MapData>();
             _newMapPos = _newMapObject.transform.position;
             SetNewMapForward();
             PlaceObstacle();
@@ -239,20 +242,21 @@ namespace MapControl
 
 #endregion
 
-        public void MakeMap(int index)
+        public void MakeMap(byte difficultyLevel)
         {
-            _connectionProbability = index switch
+            _connectionProbability = difficultyLevel switch
             {
-                1 => 25,
-                2 => 50,
-                3 => 60,
-                4 => 70,
+                0 => 25,
+                1 => 50,
+                2 => 60,
+                3 => 70,
                 _ => _connectionProbability
             };
+
             transform.GetChild(2).gameObject.SetActive(true);
             _waveManager.OnPlaceExpandButtonEvent += PlaceExpandButtons;
             _waveManager.enabled = false;
-            PlaceStartMap(index);
+            PlaceStartMap((byte)(difficultyLevel + 1));
             CombineMesh();
             // CombineObstacleMesh();
 
@@ -404,7 +408,7 @@ namespace MapControl
             //사방이 막히지 않았을 때 아래를 실행
 
             // 하나만 연결된 경우 랜덤으로 길 하나를 뚫어줌
-            if (_tileConnectionIndex is {Length: 1})
+            if (_tileConnectionIndex is { Length: 1 })
             {
                 var tempString = new StringBuilder(_emptyTileIndex);
                 _tileConnectionIndex += tempString[Random.Range(0, tempString.Length)];
@@ -424,7 +428,8 @@ namespace MapControl
             if (_tileConnectionIndex == null) return;
             _tileConnectionIndex = string.Concat(_tileConnectionIndex.OrderBy(c => c));
 
-            _newMapObject = Instantiate(_mapDictionary[_directionMappingDic[_tileConnectionIndex]], _newMapPos, Quaternion.identity, mapMesh).GetComponent<MapData>();
+            _newMapObject = Instantiate(_mapDictionary[_directionMappingDic[_tileConnectionIndex]], _newMapPos,
+                Quaternion.identity, mapMesh).GetComponent<MapData>();
 
             _map.Add(_newMapObject.gameObject);
         }
@@ -448,7 +453,8 @@ namespace MapControl
         private void PlaceCustomMap()
         {
             var curCustomMap = _customMapQueue.Dequeue();
-            _newMapObject = Instantiate(_mapDictionary[curCustomMap], _newMapPos, Quaternion.identity, mapMesh).GetComponent<MapData>();
+            _newMapObject = Instantiate(_mapDictionary[curCustomMap], _newMapPos, Quaternion.identity, mapMesh)
+                .GetComponent<MapData>();
 
             _map.Add(_newMapObject.gameObject);
 
@@ -642,7 +648,11 @@ namespace MapControl
         }
 
         // You can add newMap in maxSize
-        private bool CheckLimitMap(Vector3 newWayPoint) { return newWayPoint.x >= -mapBoundSize && newWayPoint.x <= mapBoundSize && newWayPoint.z >= -mapBoundSize && newWayPoint.z <= mapBoundSize; }
+        private bool CheckLimitMap(Vector3 newWayPoint)
+        {
+            return newWayPoint.x >= -mapBoundSize && newWayPoint.x <= mapBoundSize && newWayPoint.z >= -mapBoundSize &&
+                   newWayPoint.z <= mapBoundSize;
+        }
 
 #endregion
 

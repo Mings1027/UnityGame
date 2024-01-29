@@ -60,24 +60,24 @@ namespace UIControl
                 towerNameText.text = uiManager.towerNameDic[towerType];
                 towerDescriptionText.text = uiManager.towerInfoDic[towerType];
                 var towerDataDic = uiManager.towerDataPrefabDictionary;
-                healthObj.SetActive(towerDataDic[towerType].towerData.IsUnitTower);
-                delayObj.SetActive(!towerDataDic[towerType].towerData.IsUnitTower);
+                healthObj.SetActive(towerDataDic[towerType].towerData.isUnitTower);
+                delayObj.SetActive(!towerDataDic[towerType].towerData.isUnitTower);
 
                 if (towerDataDic[towerType].towerData is AttackTowerData battleTowerData)
                 {
                     towerStatusPanel.SetActive(true);
-                    if (battleTowerData.IsUnitTower)
+                    if (battleTowerData.isUnitTower)
                     {
                         var unitTowerData = (SummoningTowerData)battleTowerData;
-                        _healthText.text = unitTowerData.UnitHealth.ToString();
+                        _healthText.text = unitTowerData.initUnitHealth.ToString();
                     }
                     else
                     {
-                        _delayText.text = battleTowerData.AttackRpm.ToString();
+                        _delayText.text = battleTowerData.curRpm.ToString();
                     }
 
                     damageImage.sprite = uiManager.GetTowerType(_towerType);
-                    _damageText.text = battleTowerData.BaseDamage.ToString();
+                    _damageText.text = battleTowerData.curDamage.ToString();
                 }
                 else
                 {

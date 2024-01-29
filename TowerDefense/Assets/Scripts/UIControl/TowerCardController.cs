@@ -107,13 +107,13 @@ namespace UIControl
         {
             if (_isDrag) return;
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            towerDescriptionCard.OpenTowerCard(_towerButtonDic[towerType].TowerType, buttonPos);
+            towerDescriptionCard.OpenTowerCard(_towerButtonDic[towerType].towerType, buttonPos);
         }
 
         private void StartPlacement(TowerType towerType)
         {
             _inputManager.enabled = true;
-            _inputManager.StartPlacement(_towerButtonDic[towerType].TowerType, _towerButtonDic[towerType].IsUnitTower);
+            _inputManager.StartPlacement(_towerButtonDic[towerType].towerType, _towerButtonDic[towerType].isUnitTower);
         }
 
         private void CloseTowerCard()
@@ -124,7 +124,11 @@ namespace UIControl
             }
         }
 
-        public void SetDictionary(TowerType towerType, TowerData towerData) => _towerButtonDic.Add(towerType, towerData);
+        public void SetDictionary(TowerType towerType, TowerData towerData)
+        {
+            
+            _towerButtonDic.Add(towerType, towerData);
+        }
 
         public void SlideUp()
         {

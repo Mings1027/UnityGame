@@ -1,5 +1,13 @@
 namespace CustomEnumControl
 {
+    public enum Difficulty
+    {
+        Single = 0,
+        Double = 1,
+        Triple = 2,
+        Quadruple = 3
+    }
+
     public enum TowerType
     {
         Assassin,
@@ -26,6 +34,7 @@ namespace CustomEnumControl
         Usa,
         Japan
     }
+
     public enum SoundEnum
     {
         GameStart,

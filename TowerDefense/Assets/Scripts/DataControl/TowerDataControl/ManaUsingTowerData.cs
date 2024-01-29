@@ -1,30 +1,11 @@
+using BackendControl;
 using UnityEngine;
-using Utilities;
 
 namespace DataControl.TowerDataControl
 {
     [CreateAssetMenu(menuName = "Tower Data/Attack Tower Data/Mana Tower Data")]
     public class ManaUsingTowerData : AttackTowerData
     {
-        public byte attackMana { get; private set; }
-        [SerializeField] private byte initMana;
-
-        public override void InitState()
-        {
-            base.InitState();
-
-            var attackRange = PlayerPrefs.GetInt(StringManager.RangeDic[TowerType]);
-            if (attackRange <= 0)
-            {
-                PlayerPrefs.SetInt(StringManager.RangeDic[TowerType], InitRange);
-                AttackRange = InitRange;
-            }
-            else
-            {
-                AttackRange = (byte)attackRange;
-            }
-
-            attackMana = initMana;
-        }
+        [field: SerializeField] public byte initMana { get; private set; }
     }
 }

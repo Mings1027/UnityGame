@@ -91,7 +91,7 @@ namespace ManagerControl
                         {
                             CustomLog.Log("Apple 로그인 성공");
                             appleLoginButton.gameObject.SetActive(false);
-                            FindAnyObjectByType<BackendManager>().BackendInit();
+                            FindAnyObjectByType<BackendManager>().BackendInit().Forget();
                         }
                         else CustomLog.LogError("Apple 로그인 실패");
                     }

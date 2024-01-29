@@ -51,9 +51,9 @@ namespace LobbyControl
 
         private void Start()
         {
-            _totalSpentXp = PlayerPrefs.GetInt(StringManager.TotalSpentXp);
-            DataManager.xp = PlayerPrefs.GetInt(StringManager.Xp);
-            xpText.text = "XP " + DataManager.xp;
+            _totalSpentXp = BackendGameData.userData.totalSpentXp;
+            // DataManager.xp = PlayerPrefs.GetInt(StringManager.Xp);
+            xpText.text = "XP " + BackendGameData.userData.xp;
             TowerUpgradeButtonInit();
         }
 
@@ -61,17 +61,6 @@ namespace LobbyControl
         {
             _upgradePanelTween?.Kill();
             _deletePanelTween?.Kill();
-        }
-
-        private void OnApplicationFocus(bool hasFocus)
-        {
-            if (hasFocus)
-            {
-            }
-            else
-            {
-                BackendGameData.instance.GameDataUpdate();
-            }
         }
 
         private void UpgradePanel()
@@ -86,7 +75,7 @@ namespace LobbyControl
         {
             startGameButton.onClick.AddListener(() =>
             {
-                BackendGameData.instance.GameDataUpdate();
+                // BackendGameData.instance.GameDataUpdate();
                 SceneManager.LoadScene("MainGameScene");
             });
             upgradeButton.onClick.AddListener(() =>
@@ -101,6 +90,7 @@ namespace LobbyControl
                 upgradeButton.gameObject.SetActive(true);
                 _upgradePanelTween.PlayBackwards();
                 buttons.SetActive(true);
+                BackendGameData.instance.GameDataUpdate();
             });
             dataDeleteButton.onClick.AddListener(() =>
             {
@@ -113,12 +103,10 @@ namespace LobbyControl
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 deletePanelBlockImage.enabled = false;
                 _deletePanelTween.PlayBackwards();
-                PlayerPrefs.DeleteAll();
 
-                var allXp = _totalSpentXp + DataManager.xp;
+                var allXp = _totalSpentXp + BackendGameData.userData.xp;
 
-                PlayerPrefs.SetInt(StringManager.Xp, allXp);
-                DataManager.xp = allXp;
+                BackendGameData.userData.xp = allXp;
                 xpText.text = "XP " + allXp;
                 _totalSpentXp = 0;
 
@@ -154,7 +142,7 @@ namespace LobbyControl
                 var towerUpgradeButton = towerButtonParent.GetChild(2).GetComponent<TowerUpgradeButton>();
                 var towerButton = towerUpgradeButton.GetComponent<Button>();
                 towerUpgradeButton.UpgradeCount =
-                    (byte)PlayerPrefs.GetInt(towerData[i].TowerType + StringManager.UpgradeCount);
+                    (byte)BackendGameData.userData.towerLevelTable[towerData[i].towerType.ToString()];
 
                 if (towerUpgradeButton.UpgradeCount < towerMaxLevel)
                 {
@@ -173,18 +161,17 @@ namespace LobbyControl
                 {
                     SoundManager.PlayUISound(SoundEnum.ButtonSound);
                     if (towerUpgradeButton.UpgradeCount >= towerMaxLevel ||
-                        DataManager.xp < (towerUpgradeButton.UpgradeCount + 1) * 25) return;
-                    DataManager.xp -= (towerUpgradeButton.UpgradeCount + 1) * 25;
+                        BackendGameData.userData.xp < (towerUpgradeButton.UpgradeCount + 1) * 25) return;
+                    BackendGameData.userData.xp -= (towerUpgradeButton.UpgradeCount + 1) * 25;
                     _totalSpentXp += (towerUpgradeButton.UpgradeCount + 1) * 25;
-                    PlayerPrefs.SetInt(StringManager.TotalSpentXp, _totalSpentXp);
-                    xpText.text = "XP " + DataManager.xp;
+                    BackendGameData.userData.totalSpentXp = _totalSpentXp;
+                    xpText.text = "XP " + BackendGameData.userData.xp;
                     towerUpgradeButton.UpgradeCount++;
                     towerCostText.text = "XP " + (towerUpgradeButton.UpgradeCount + 1) * 25;
                     levelCountText.text = "Lv " + towerUpgradeButton.UpgradeCount + " / " + towerMaxLevel;
-                    PlayerPrefs.SetInt(StringManager.Xp, DataManager.xp);
-                    PlayerPrefs.SetInt(towerData[index].TowerType + StringManager.UpgradeCount,
-                        towerUpgradeButton.UpgradeCount);
-                    towerData[index].UpgradeData(towerData[index].TowerType);
+                    BackendGameData.userData.towerLevelTable[towerData[index].towerType.ToString()] =
+                        towerUpgradeButton.UpgradeCount;
+                    towerData[index].UpgradeData(towerData[index].towerType);
 
                     if (towerUpgradeButton.UpgradeCount >= towerMaxLevel)
                     {
@@ -193,21 +180,6 @@ namespace LobbyControl
                     }
                 });
             }
-        }
-
-        private void GetTowerUpgradeLevel()
-        {
-            // var allXp = 0;
-            // for (int i = 0; i < towerButtons.childCount; i++)
-            // {
-            //     var towerBtnParent = towerButtons.GetChild(i);
-            //     var towerUpgradeBtn = towerBtnParent.GetChild(2).GetComponent<TowerUpgradeButton>();
-            //     var towerLevel = towerUpgradeBtn.UpgradeCount;
-            //     for (int j = 0; j <= towerLevel; j++)
-            //     {
-            //         allXp += j * 25;
-            //     }
-            // }
         }
     }
 }

@@ -100,7 +100,7 @@ namespace LobbyControl
         }
 
         //구매 버튼에 연결
-        public void Purchase(string productId)
+        private void Purchase(string productId)
         {
             _storeController.InitiatePurchase(productId);
             blockImage.enabled = true;

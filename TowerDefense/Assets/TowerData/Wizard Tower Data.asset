@@ -12,14 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 460b90e61958b426781315c336aeabed, type: 3}
   m_Name: Wizard Tower Data
   m_EditorClassIdentifier: 
-  towerType: 3
-  isUnitTower: 0
-  isMagicTower: 1
-  towerBuildCost: 200
-  extraBuildCost: 75
-  towerUpgradeCost: 50
-  extraUpgradeCost: 20
-  towerMeshes:
+  <towerType>k__BackingField: 3
+  <isUnitTower>k__BackingField: 0
+  <isMagicTower>k__BackingField: 1
+  <towerBuildCost>k__BackingField: 200
+  <extraBuildCost>k__BackingField: 75
+  <towerUpgradeCost>k__BackingField: 50
+  <extraUpgradeCost>k__BackingField: 20
+  <towerMeshes>k__BackingField:
   - {fileID: -6400281290468069383, guid: 3e36d627174953540a043d7111c23248, type: 3}
   - {fileID: -6400281290468069383, guid: 39b9595078c532a47883ec09301622c7, type: 3}
   - {fileID: -6400281290468069383, guid: 09ecbe8cf1b084942a9a2623090665be, type: 3}
@@ -28,13 +28,13 @@ MonoBehaviour:
   initDamage: 50
   initRange: 7
   initRpm: 15
-  poolObjectKey: 6
-  projectileColor:
+  <poolObjectKey>k__BackingField: 6
+  <projectileColor>k__BackingField:
   - m_Mode: 3
     m_GradientMin:
       serializedVersion: 2
-      key0: {r: 0.12922749, g: 0.72855973, b: 0.8301887, a: 1}
-      key1: {r: 0.048949808, g: 0.9433962, b: 0.8734705, a: 0.5882353}
+      key0: {r: 0, g: 1, b: 0.95960426, a: 1}
+      key1: {r: 0, g: 0, b: 0, a: 0.5019608}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
@@ -62,8 +62,8 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     m_GradientMax:
       serializedVersion: 2
-      key0: {r: 0, g: 0.9716981, b: 0.68646306, a: 1}
-      key1: {r: 0, g: 1, b: 0.8145139, a: 0.5882353}
+      key0: {r: 0, g: 0.68485904, b: 1, a: 1}
+      key1: {r: 0, g: 0, b: 0, a: 0.5019608}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
@@ -72,7 +72,7 @@ MonoBehaviour:
       key7: {r: 0, g: 0, b: 0, a: 0}
       ctime0: 0
       ctime1: 65535
-      ctime2: 65535
+      ctime2: 0
       ctime3: 0
       ctime4: 0
       ctime5: 0
@@ -89,13 +89,13 @@ MonoBehaviour:
       m_Mode: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    m_ColorMin: {r: 0.16456035, g: 0.68877894, b: 0.8113208, a: 1}
-    m_ColorMax: {r: 0.2691349, g: 0.4737325, b: 0.9056604, a: 1}
+    m_ColorMin: {r: 0, g: 0, b: 0, a: 0}
+    m_ColorMax: {r: 0, g: 0, b: 0, a: 0}
   - m_Mode: 3
     m_GradientMin:
       serializedVersion: 2
-      key0: {r: 0.10568706, g: 0.5210601, b: 0.8962264, a: 1}
-      key1: {r: 0.10346207, g: 0.6705221, b: 0.8773585, a: 0.78431374}
+      key0: {r: 0, g: 0.7010541, b: 1, a: 1}
+      key1: {r: 0, g: 0, b: 0, a: 0.5019608}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
@@ -123,8 +123,8 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     m_GradientMax:
       serializedVersion: 2
-      key0: {r: 0.65063685, g: 0.057404764, b: 0.8113208, a: 1}
-      key1: {r: 0.637169, g: 0.11053756, b: 0.8679245, a: 0.78431374}
+      key0: {r: 0.25207186, g: 0, b: 1, a: 1}
+      key1: {r: 0, g: 0, b: 0, a: 0.5019608}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
@@ -150,13 +150,13 @@ MonoBehaviour:
       m_Mode: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    m_ColorMin: {r: 0.14404595, g: 0.3107493, b: 0.7830189, a: 1}
-    m_ColorMax: {r: 0.5763606, g: 0.1735938, b: 0.7830189, a: 1}
+    m_ColorMin: {r: 0, g: 0, b: 0, a: 0}
+    m_ColorMax: {r: 0, g: 0, b: 0, a: 0}
   - m_Mode: 3
     m_GradientMin:
       serializedVersion: 2
-      key0: {r: 0.70530367, g: 0.09416164, b: 0.8679245, a: 1}
-      key1: {r: 0.67055845, g: 0.07609467, b: 0.8490566, a: 0.78431374}
+      key0: {r: 0.486094, g: 0, b: 1, a: 1}
+      key1: {r: 0, g: 0, b: 0, a: 0.5019608}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
@@ -184,8 +184,8 @@ MonoBehaviour:
       m_NumAlphaKeys: 2
     m_GradientMax:
       serializedVersion: 2
-      key0: {r: 0.8679245, g: 0.09416164, b: 0.8369763, a: 1}
-      key1: {r: 0.8679245, g: 0.08597365, b: 0.7556987, a: 0.78431374}
+      key0: {r: 0.7638054, g: 0, b: 1, a: 1}
+      key1: {r: 0, g: 0, b: 0, a: 0.5019608}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
@@ -211,5 +211,5 @@ MonoBehaviour:
       m_Mode: 0
       m_NumColorKeys: 2
       m_NumAlphaKeys: 2
-    m_ColorMin: {r: 0.66464174, g: 0.19624424, b: 0.9245283, a: 1}
-    m_ColorMax: {r: 0.85343087, g: 0.17412782, b: 0.8584906, a: 1}
+    m_ColorMin: {r: 0, g: 0, b: 0, a: 0}
+    m_ColorMax: {r: 0, g: 0, b: 0, a: 0}

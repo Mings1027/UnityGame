@@ -1,3 +1,5 @@
+using System;
+using BackendControl;
 using CustomEnumControl;
 using DG.Tweening;
 using ManagerControl;
@@ -21,8 +23,8 @@ namespace UIControl
 
         private void Awake()
         {
-            _deletePanelTween = deleteWaveDataPanel.GetChild(1).DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack).SetAutoKill(false)
-                .Pause();
+            _deletePanelTween = deleteWaveDataPanel.GetChild(1).DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack)
+                .SetAutoKill(false).Pause();
         }
 
         private void OnDestroy()
@@ -38,28 +40,34 @@ namespace UIControl
 
             transform.DOScale(1, 0.5f).From(0.7f).SetEase(Ease.OutBack).OnComplete(() => _eventSystem.enabled = true);
             var difficultySelectButtons = transform.GetChild(0);
+            Debug.Log("==============================================================");
             for (var i = 0; i < difficultySelectButtons.childCount; i++)
             {
-                var index = i;
+                var index = (byte)i;
                 difficultySelectButtons.GetChild(i).GetComponent<Button>().onClick.AddListener(() =>
                 {
                     SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                    UIManager.instance.MapSelectButton(index + 1).Forget();
+                    UIManager.instance.MapSelectButton(index).Forget();
                     _eventSystem.enabled = false;
-                    transform.DOScale(0, 0.5f).SetEase(Ease.InBack)
-                        .OnComplete(() =>
-                        {
-                            _eventSystem.enabled = true;
-                            Destroy(gameObject);
-                        });
+                    transform.DOScale(0, 0.5f).SetEase(Ease.InBack).OnComplete(() =>
+                    {
+                        _eventSystem.enabled = true;
+                        Destroy(gameObject);
+                    });
                 });
+                Debug.Log(index);
             }
 
-            DataManager.Init();
-            DataManager.LoadData();
-            var survivedWaves = DataManager.survivedWaves.survivedWave;
+            var survivedWaves = BackendGameData.userData.survivedWaveList;
+            Debug.Log($"wave length : {survivedWaves.Count}");
+            for (int i = 0; i < survivedWaves.Count; i++)
+            {
+                Debug.Log($"survivedwaves : {survivedWaves[i]}");
+            }
+
             for (var i = 0; i < difficultySelectButtons.childCount; i++)
             {
+                Debug.Log($"text : {survivedWaves[i]}");
                 difficultySelectButtons.GetChild(i).GetChild(3).GetComponent<TMP_Text>().text =
                     survivedWaves[i].ToString();
             }
@@ -81,11 +89,11 @@ namespace UIControl
                 blockImage.enabled = false;
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 _eventSystem.enabled = false;
-                DataManager.WaveDataInit();
+                // DataManager.WaveDataInit();
                 _deletePanelTween.OnRewind(() => _eventSystem.enabled = true).PlayBackwards();
 
-                DataManager.LoadData();
-                var survivedWaves = DataManager.survivedWaves.survivedWave;
+                // DataManager.LoadData();
+                var survivedWaves = BackendGameData.userData.survivedWaveList;
                 var difficultySelectButtons = transform.GetChild(0);
                 for (var i = 0; i < difficultySelectButtons.childCount; i++)
                 {

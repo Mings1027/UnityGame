@@ -5,24 +5,19 @@ namespace DataControl.TowerDataControl
 {
     public abstract class TowerData : ScriptableObject
     {
-        public bool IsUnitTower => isUnitTower;
-        public bool IsMagicTower => isMagicTower;
+        [field: SerializeField] public TowerType towerType { get; private set; }
+        [field: SerializeField] public bool isUnitTower { get; private set; }
+        [field: SerializeField] public bool isMagicTower { get; private set; }
 
-        public TowerType TowerType => towerType;
-        [SerializeField] private TowerType towerType;
+        [field: SerializeField, Range(0, 1000)]
+        public ushort towerBuildCost { get; private set; }
 
-        public ushort TowerBuildCost => towerBuildCost;
-        public byte ExtraBuildCost => extraBuildCost;
-        public ushort TowerUpgradeCost => towerUpgradeCost;
-        public byte ExtraUpgradeCost => extraUpgradeCost;
+        [field: SerializeField, Range(0, 255)] public byte extraBuildCost { get; private set; }
 
-        [SerializeField] private bool isUnitTower;
-        [SerializeField] private bool isMagicTower;
+        [field: SerializeField, Range(0, 1000)]
+        public ushort towerUpgradeCost { get; private set; }
 
-        [SerializeField, Range(0, 1000)] private ushort towerBuildCost;
-        [SerializeField, Range(0, 255)] private byte extraBuildCost;
-        [SerializeField, Range(0, 1000)] private ushort towerUpgradeCost;
-        [SerializeField, Range(0, 255)] private byte extraUpgradeCost;
+        [field: SerializeField, Range(0, 255)] public byte extraUpgradeCost { get; private set; }
 
         public virtual void InitState()
         {

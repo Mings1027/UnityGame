@@ -62,7 +62,7 @@ namespace ProjectileControl
         protected override void Hit(Collider col)
         {
             var mainModule = PoolObjectManager.Get<ParticleSystem>(hitPoolObjectKey, transform.position).main;
-            mainModule.startColor = towerData.ProjectileColor[effectIndex];
+            mainModule.startColor = towerData.projectileColor[effectIndex];
             SoundManager.Play3DSound(audioClip, transform.position);
             if (_targetEndPos == Vector3.zero) return;
             var pos = transform.position;

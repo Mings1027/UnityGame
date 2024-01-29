@@ -83,8 +83,6 @@ namespace UIControl
                 if (itemType == ItemType.None) continue;
                 BackendGameData.userData.itemInventory[itemType.ToString()] = _itemCountDic[itemType];
             }
-
-            BackendGameData.instance.GameDataUpdate();
         }
     }
 }

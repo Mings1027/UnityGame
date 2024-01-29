@@ -21,7 +21,7 @@ namespace ProjectileControl
         protected override void Hit(Collider t)
         {
             var mainModule = PoolObjectManager.Get<ParticleSystem>(hitPoolObjectKey, transform.position).main;
-            mainModule.startColor = towerData.ProjectileColor[effectIndex];
+            mainModule.startColor = towerData.projectileColor[effectIndex];
             target.TryGetComponent(out MonsterStatus enemyStatus);
             enemyStatus.SlowEffect(_decreaseSpeed, _slowCoolTime);
             base.Hit(t);

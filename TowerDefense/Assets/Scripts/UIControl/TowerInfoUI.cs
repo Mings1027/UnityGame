@@ -103,7 +103,7 @@ namespace UIControl
                 }
                 else
                 {
-                    _rpmText.text = battleTowerData.AttackRpm.ToString();
+                    _rpmText.text = battleTowerData.curRpm.ToString();
                 }
             }
 

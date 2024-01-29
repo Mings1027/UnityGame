@@ -53,7 +53,7 @@ namespace TowerControl
             _targetColliders = new Collider[targetColliderCount];
             patrolCooldown.cooldownTime = 0.5f;
             var towerData = (TargetingTowerData)UIManager.instance.towerDataPrefabDictionary[towerType].towerData;
-            projectileKey = towerData.PoolObjectKey;
+            projectileKey = towerData.poolObjectKey;
         }
 
         public override void TowerTargetInit()

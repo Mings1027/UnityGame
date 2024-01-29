@@ -96,7 +96,7 @@ namespace ProjectileControl
         {
             effectIndex = vfxIndex;
             var trailColor = _trailParticle.colorOverLifetime;
-            trailColor.color = towerData.ProjectileColor[vfxIndex];
+            trailColor.color = towerData.projectileColor[vfxIndex];
         }
 
         protected virtual void Hit(Collider t)
