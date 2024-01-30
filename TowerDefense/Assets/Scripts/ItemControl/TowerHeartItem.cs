@@ -18,7 +18,7 @@ namespace ItemControl
         public override void Spawn()
         {
             PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.TowerHealText, CameraManager.camPos).SetHpText(5);
-            UIManager.instance.GetTowerHealth().Heal(5);
+            UIManager.instance.TowerHeal();
         }
     }
 }

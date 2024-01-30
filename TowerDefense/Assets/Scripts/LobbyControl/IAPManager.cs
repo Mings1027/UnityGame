@@ -15,7 +15,7 @@ namespace LobbyControl
     public class IAPManager : MonoBehaviour, IDetailedStoreListener
     {
         private Dictionary<string, TMP_Text> _priceDic;
-        private ItemShopController _itemShopController;
+        private CurrencyController _currencyController;
         private Sequence _loadingTween;
         private const string Diamonds500 = "diamonds500";
         private const string Diamonds2000 = "diamonds2000";
@@ -30,7 +30,7 @@ namespace LobbyControl
         private void Start()
         {
             _priceDic = new Dictionary<string, TMP_Text>();
-            _itemShopController = FindAnyObjectByType<ItemShopController>();
+            _currencyController = FindAnyObjectByType<CurrencyController>();
             blockImage.enabled = false;
             loadingImage.enabled = false;
             _loadingTween = DOTween.Sequence().SetAutoKill(false).Pause()
@@ -167,13 +167,12 @@ namespace LobbyControl
             if (chargeTbc.IsSuccess())
             {
                 CustomLog.Log("충전 성공");
-                _itemShopController.SetDiamondText();
+                _currencyController.diamondCurrency.SetText();
             }
             else
             {
                 CustomLog.Log("충전 실패");
-                var code = chargeTbc.GetErrorCode();
-                print(code);
+                CustomLog.Log(chargeTbc.GetErrorCode());
             }
         }
 #endif

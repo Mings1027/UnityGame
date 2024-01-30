@@ -36,8 +36,8 @@ namespace UIControl
         [SerializeField] private Transform stars;
 
         [SerializeField] private TextMeshProUGUI towerNameText;
-        [SerializeField] private TextMeshProUGUI costText;
-        [SerializeField] private TextMeshProUGUI sellCostText;
+        [SerializeField] private TextMeshProUGUI goldText;
+        [SerializeField] private TextMeshProUGUI sellGoldText;
 
 #region Unity Event
 
@@ -122,10 +122,10 @@ namespace UIControl
             }
 
             DisplayStarsForTowerLevel(level);
-            costText.text = upgradeCost + "G";
+            goldText.text = upgradeCost + "G";
             _damageText.text = tower.Damage.ToString();
             _rangeText.text = tower.TowerRange.ToString();
-            sellCostText.text = sellCost + "G";
+            sellGoldText.text = sellCost + "G";
         }
 
         public void SetSupportTowerInfo(SupportTower tower, ushort sellCost)
@@ -139,7 +139,7 @@ namespace UIControl
                 towerNameText.text = uiManager.towerNameDic[towerType];
             }
 
-            sellCostText.text = sellCost + "G";
+            sellGoldText.text = sellCost + "G";
         }
 
         private void DisplayStarsForTowerLevel(sbyte level)

@@ -90,7 +90,6 @@ namespace LobbyControl
                 upgradeButton.gameObject.SetActive(true);
                 _upgradePanelTween.PlayBackwards();
                 buttons.SetActive(true);
-                BackendGameData.instance.GameDataUpdate();
             });
             dataDeleteButton.onClick.AddListener(() =>
             {

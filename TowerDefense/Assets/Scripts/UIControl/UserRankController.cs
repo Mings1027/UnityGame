@@ -11,10 +11,11 @@ namespace UIControl
 {
     public class UserRankController : MonoBehaviour
     {
-        private bool _isOpenRankPanel;
-        private RectTransform _rankPanel;
         private UserRankInfo[] _userRankInfos;
 
+        [SerializeField] private GameObject buttons;
+        [SerializeField] private Image blockImage;
+        [SerializeField] private RectTransform rankPanel;
         [SerializeField] private Button rankButton;
         [SerializeField] private Button closeButton;
         [SerializeField] private RectTransform content;
@@ -22,10 +23,10 @@ namespace UIControl
 
         private void Awake()
         {
-            _rankPanel = GetComponent<RectTransform>();
+            blockImage.enabled = false;
             rankButton.onClick.AddListener(OpenRankPanel);
             closeButton.onClick.AddListener(CloseRankPanel);
-            _rankPanel.localScale = Vector3.zero;
+            rankPanel.localScale = Vector3.zero;
         }
 
         private void Start()
@@ -35,16 +36,18 @@ namespace UIControl
 
         private void OpenRankPanel()
         {
-            _isOpenRankPanel = true;
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            _rankPanel.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack);
+            blockImage.enabled = true;
+            rankPanel.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack);
+            buttons.SetActive(false);
         }
 
         private void CloseRankPanel()
         {
-            _isOpenRankPanel = false;
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            _rankPanel.DOScale(0, 0.25f).From(1).SetEase(Ease.InBack);
+            blockImage.enabled = false;
+            rankPanel.DOScale(0, 0.25f).From(1).SetEase(Ease.InBack);
+            buttons.SetActive(true);
         }
 
         private void SetRanking()

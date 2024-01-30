@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using BackEnd;
@@ -21,56 +20,75 @@ namespace LobbyControl
         {
             public string itemExplain;
             public readonly int itemTbc;
+            public readonly TMP_Text itemCountText;
 
-            public ItemInfo(string itemExplain, int itemTbc)
+            public ItemInfo(string itemExplain, int itemTbc, TMP_Text itemCountText)
             {
                 this.itemExplain = itemExplain;
                 this.itemTbc = itemTbc;
+                this.itemCountText = itemCountText;
             }
         }
 
-        private int _curTbc;
         private ItemInfo _itemInfo;
         private Sequence _notEnoughDiaSequence;
         private ItemType _curItemType;
         private string _curProductID;
-        private DiamondShopController _diamondShopController;
-        private Dictionary<ItemType, ItemInfo> _itemInfoDic;
-        private Dictionary<ItemType, TMP_Text> _itemCountDic;
+        private Dictionary<ItemType, ItemInfo> _itemInfoTable;
+        private CurrencyController _currencyController;
 
+        [SerializeField] private GameObject buttons;
+        [SerializeField] private RectTransform inGameMoney;
         [SerializeField] private Button itemShopButton;
         [SerializeField] private Button closeButton;
-        [SerializeField] private TMP_Text diamondText;
-        [SerializeField] private Button buyButton;
+
+        [SerializeField] private Button purchaseButton;
+
         [SerializeField] private Image backgroundBlockImage;
         [SerializeField] private Image shopBlockImage;
         [SerializeField] private Transform shopPanel;
+        [SerializeField] private Image explainBlockImage;
+        [SerializeField] private Button closeExplainPanelButton;
+        [SerializeField] private Transform explainPanel;
         [SerializeField] private Transform itemParent;
+        [SerializeField] private Image explainImage;
         [SerializeField] private TMP_Text explainText;
-        [SerializeField] private Transform notEnoughDiaText;
-        [SerializeField] private Image selectObj;
+        [SerializeField] private Transform needMoreDiaText;
 
         private void Awake()
         {
-            _itemInfoDic = new Dictionary<ItemType, ItemInfo>();
-            _itemCountDic = new Dictionary<ItemType, TMP_Text>();
+            _currencyController = FindAnyObjectByType<CurrencyController>();
+            _itemInfoTable = new Dictionary<ItemType, ItemInfo>();
             backgroundBlockImage.enabled = false;
             shopPanel.localScale = Vector3.zero;
-            selectObj.enabled = false;
+            explainBlockImage.enabled = false;
+            explainPanel.localScale = Vector3.zero;
             itemShopButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 backgroundBlockImage.enabled = true;
                 shopBlockImage.enabled = false;
                 shopPanel.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack);
+                buttons.SetActive(false);
+                inGameMoney.SetParent(transform);
+                _currencyController.Off();
             });
             closeButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                // selectObj.enabled = false;
                 backgroundBlockImage.enabled = false;
                 shopBlockImage.enabled = true;
                 shopPanel.DOScale(0, 0.25f).From(1).SetEase(Ease.InBack);
+                buttons.SetActive(true);
+                inGameMoney.SetParent(buttons.transform);
+                _currencyController.On();
+            });
+
+            closeExplainPanelButton.onClick.AddListener(() =>
+            {
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
+                explainBlockImage.enabled = false;
+                explainPanel.DOScale(0, 0.25f).From(1).SetEase(Ease.InBack);
             });
 
             LocalizationSettings.SelectedLocaleChanged += ChangeLocaleItemDic;
@@ -80,70 +98,75 @@ namespace LobbyControl
         {
             ItemInit();
             _notEnoughDiaSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(notEnoughDiaText.DOScaleX(1, 0.25f).From(0).SetEase(Ease.OutBack))
-                .Append(notEnoughDiaText.DOScaleX(0, 0.25f).From(1).SetEase(Ease.InBack).SetDelay(1));
-            notEnoughDiaText.DOScaleX(0, 0);
+                .Append(needMoreDiaText.DOScaleX(1, 0.25f).From(0).SetEase(Ease.OutBack))
+                .Append(needMoreDiaText.DOScaleX(0, 0.25f).From(1).SetEase(Ease.InBack).SetDelay(1));
+            needMoreDiaText.DOScaleX(0, 0);
         }
 
         private void ItemInit()
         {
-            _diamondShopController = FindAnyObjectByType<DiamondShopController>();
             CustomLog.Log($"플레이어 데이터: {BackendGameData.userData}");
-            CustomLog.Log($"플레이어 아이템 딕: {BackendGameData.userData.itemInventory}");
+            CustomLog.Log($"플레이어 아이템 테이블: {BackendGameData.userData.itemInventory}");
             var itemInventory = BackendGameData.userData.itemInventory;
+            var productList = Backend.TBC.GetProductList().Rows();
             for (var i = 0; i < itemParent.childCount; i++)
             {
-                var uuid = Backend.TBC.GetProductList().Rows()[i]["uuid"]["S"].ToString();
-                var itemTbc = Backend.TBC.GetProductList().Rows()[i]["TBC"]["N"].ToString();
+                var productId = productList[i]["uuid"]["S"].ToString();
+                var itemTbc = productList[i]["TBC"]["N"].ToString();
                 var item = itemParent.GetChild(i).GetComponent<GameItem>();
-                item.ItemInit(uuid);
+                item.ItemInit(productId);
                 item.OnCurItemEvent += SetCurItem;
+                item.OnOpenExplainPanelEvent += OpenExplainPanel;
 
-                _itemCountDic.Add(item.itemType, item.transform.GetChild(2).GetComponent<TMP_Text>());
-                _itemCountDic[item.itemType].text = itemInventory[item.itemType.ToString()].ToString();
+                _itemInfoTable.Add(item.itemType, new ItemInfo(
+                    LocaleManager.GetLocalizedString(LocaleManager.ItemTable,
+                        LocaleManager.ItemKey + item.itemType),
+                    int.Parse(itemTbc),
+                    item.transform.GetChild(2).GetComponent<TMP_Text>()));
 
-                _itemInfoDic.Add(item.itemType, new ItemInfo(
-                    LocaleManager.GetLocalizedString(LocaleManager.ItemTable, LocaleManager.ItemKey + item.itemType),
-                    int.Parse(itemTbc)));
+                _itemInfoTable[item.itemType].itemCountText.text = itemInventory[item.itemType.ToString()].ToString();
                 CustomLog.Log($"아이템 타입 : {item.itemType}   가격 : {itemTbc}");
             }
 
             CustomLog.Log("아이템 초기화");
-            diamondText.text = _diamondShopController.diamondText.text;
-            buyButton.onClick.AddListener(() =>
+            purchaseButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                BuyItem();
+                PurchaseItem();
             });
-            SetDiamondText();
+            _currencyController.diamondCurrency.SetText();
+            _currencyController.emeraldCurrency.SetText();
         }
 
-        private void SetCurItem(ItemType itemType, string productID, Vector2 anchoredPos)
+        private void SetCurItem(ItemType itemType, string productID)
         {
             _curItemType = itemType;
             _curProductID = productID;
-            if (!selectObj.enabled) selectObj.enabled = true;
-            selectObj.rectTransform.anchoredPosition = anchoredPos;
-            explainText.text = _itemInfoDic[itemType].itemExplain;
-            CustomLog.Log($"아이템 설명 : {_itemInfoDic[itemType].itemExplain}");
+            explainText.text = _itemInfoTable[itemType].itemExplain;
+            CustomLog.Log($"아이템 설명 : {_itemInfoTable[itemType].itemExplain}");
         }
 
-        private void BuyItem()
+        private void OpenExplainPanel(Sprite sprite)
+        {
+            SoundManager.PlayUISound(SoundEnum.ButtonSound);
+            explainImage.sprite = sprite;
+            explainPanel.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack);
+        }
+
+        private void PurchaseItem()
         {
             if (_curItemType == ItemType.None) return;
-            if (_itemInfoDic[_curItemType].itemTbc < _curTbc)
+            if (_itemInfoTable[_curItemType].itemTbc < BackendGameData.curTbc)
             {
-                buyButton.interactable = false;
+                purchaseButton.interactable = false;
                 var useTbc = Backend.TBC.UseTBC(_curProductID, $"{_curItemType} 구매");
                 if (useTbc.IsSuccess())
                 {
-                    SetDiamondText();
+                    _currencyController.diamondCurrency.SetText();
 
                     var itemCount = BackendGameData.userData.itemInventory[_curItemType.ToString()] += 1;
-                    CustomLog.Log($"itemCount : {itemCount}");
-                    _itemCountDic[_curItemType].text = itemCount.ToString();
-                    CustomLog.Log(_itemCountDic[_curItemType].name);
-                    buyButton.interactable = true;
+                    _itemInfoTable[_curItemType].itemCountText.text = itemCount.ToString();
+                    purchaseButton.interactable = true;
                 }
             }
             else
@@ -152,28 +175,11 @@ namespace LobbyControl
             }
         }
 
-        public void SetDiamondText()
-        {
-            var bro = Backend.TBC.GetTBC();
-            if (bro.IsSuccess())
-            {
-                CustomLog.Log("tbc 찾음");
-                var amountTbc = int.Parse(bro.GetReturnValuetoJSON()["amountTBC"].ToString());
-                diamondText.text = amountTbc.ToString();
-                _diamondShopController.diamondText.text = amountTbc.ToString();
-                _curTbc = amountTbc;
-            }
-            else
-            {
-                CustomLog.Log("tbc 못찾음");
-            }
-        }
-
         private void ChangeLocaleItemDic(Locale locale)
         {
-            foreach (var itemName in _itemInfoDic.Keys.ToList())
+            foreach (var itemName in _itemInfoTable.Keys.ToList())
             {
-                _itemInfoDic[itemName].itemExplain =
+                _itemInfoTable[itemName].itemExplain =
                     LocaleManager.GetLocalizedString(LocaleManager.ItemTable, LocaleManager.ItemKey + itemName);
             }
 

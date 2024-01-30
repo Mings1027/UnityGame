@@ -216,7 +216,7 @@ namespace ManagerControl
         {
             downValueText.text = "100 %";
             downSlider.value = 1;
-            var lobbyScene = SceneManager.LoadSceneAsync("Lobby");
+            SceneManager.LoadSceneAsync("Lobby");
         }
     }
 }

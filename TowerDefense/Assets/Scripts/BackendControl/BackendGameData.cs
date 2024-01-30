@@ -3,15 +3,13 @@ using System.Collections.Generic;
 using System.Text;
 using BackEnd;
 using CustomEnumControl;
-using ManagerControl;
 using UnityEngine;
-using Utilities;
 
 namespace BackendControl
 {
     public class UserData
     {
-        public int diamonds;
+        public int emerald;
         public int xp;
         public int totalSpentXp;
         public int score;
@@ -24,7 +22,7 @@ namespace BackendControl
         public override string ToString()
         {
             var result = new StringBuilder();
-            result.AppendLine($"다이아 : {diamonds}");
+            result.AppendLine($"에메랄드 : {emerald}");
             result.AppendLine($"xp : {xp}");
             result.AppendLine($"totalSpentXp : {totalSpentXp}");
             result.AppendLine($"점수 : {score}");
@@ -52,8 +50,10 @@ namespace BackendControl
         private static BackendGameData _instance;
         public static BackendGameData instance => _instance ??= new BackendGameData();
 
+        public const string UserDataTable = "USER_DATA";
         public static UserData userData { get; private set; }
         public static byte scoreMultiplier { get; set; }
+        public static int curTbc { get; set; }
         private string _gameDataRowInDate = string.Empty;
         private byte _difficultyLevel;
         private byte _lastSurvivedWave;
@@ -100,7 +100,7 @@ namespace BackendControl
         {
             userData ??= new UserData();
             Debug.Log("데이터를 초기화 합니다.");
-            userData.diamonds = 0;
+            userData.emerald = 0;
             userData.xp = 0;
             userData.totalSpentXp = 0;
             userData.score = 0;
@@ -127,7 +127,7 @@ namespace BackendControl
 
             var param = new Param
             {
-                { "diamonds", userData.diamonds },
+                { "emerald", userData.emerald },
                 { "xp", userData.xp },
                 { "totalSpentXp", userData.totalSpentXp },
                 { "score", userData.score },
@@ -136,7 +136,7 @@ namespace BackendControl
                 { "towerLevelTable", userData.towerLevelTable },
             };
             Debug.Log("게임정보 데이터 삽입을 요청합니다.");
-            var bro = Backend.GameData.Insert("USER_DATA", param);
+            var bro = Backend.GameData.Insert(UserDataTable, param);
             if (bro.IsSuccess())
             {
                 Debug.Log("게임정보 데이터 삽입에 성공했습니다. :" + bro);
@@ -151,7 +151,7 @@ namespace BackendControl
         public void GameDataGet()
         {
             Debug.Log("게임 정보 조회 함수를 호출합니다.");
-            var bro = Backend.GameData.GetMyData("USER_DATA", new Where());
+            var bro = Backend.GameData.GetMyData(UserDataTable, new Where());
             if (bro.IsSuccess())
             {
                 Debug.Log("게임 정보 조회에 성공했습니다. : " + bro);
@@ -170,7 +170,7 @@ namespace BackendControl
 
                     userData = new UserData
                     {
-                        diamonds = int.Parse(gameDataJson[0]["diamonds"].ToString()),
+                        emerald = int.Parse(gameDataJson[0]["emerald"].ToString()),
                         xp = int.Parse(gameDataJson[0]["xp"].ToString()),
                         score = int.Parse(gameDataJson[0]["score"].ToString())
                     };
@@ -219,7 +219,7 @@ namespace BackendControl
 
             var param = new Param
             {
-                { "diamonds", userData.diamonds },
+                { "emerald", userData.emerald },
                 { "xp", userData.xp },
                 { "totalSpentXp", userData.totalSpentXp },
                 { "score", userData.score },
@@ -234,13 +234,13 @@ namespace BackendControl
             {
                 Debug.Log("내 제일 최신 게임정보 데이터 수정을 요청합니다.");
 
-                bro = Backend.GameData.Update("USER_DATA", new Where(), param);
+                bro = Backend.GameData.Update(UserDataTable, new Where(), param);
             }
             else
             {
                 Debug.Log($"{_gameDataRowInDate}의 게임정보 데이터 수정을 요청합니다.");
 
-                bro = Backend.GameData.UpdateV2("USER_DATA", _gameDataRowInDate, Backend.UserInDate, param);
+                bro = Backend.GameData.UpdateV2(UserDataTable, _gameDataRowInDate, Backend.UserInDate, param);
             }
 
             if (bro.IsSuccess())

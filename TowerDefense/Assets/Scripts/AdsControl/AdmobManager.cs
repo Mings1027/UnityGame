@@ -1,6 +1,7 @@
 using System;
 using BackendControl;
 using GoogleMobileAds.Api;
+using LobbyControl;
 using ManagerControl;
 using UnityEngine;
 
@@ -8,8 +9,14 @@ namespace AdsControl
 {
     public class AdmobManager : MonoBehaviour
     {
+        private CurrencyController _currencyController;
         [SerializeField] private bool isTestMode;
         public event Action OnAdCloseEvent;
+
+        private void Awake()
+        {
+            _currencyController = FindAnyObjectByType<CurrencyController>();
+        }
 
         private void Start()
         {
@@ -21,6 +28,18 @@ namespace AdsControl
         private void OnDisable()
         {
             OnAdCloseEvent = null;
+        }
+
+        private void OnApplicationFocus(bool hasFocus)
+        {
+            if (hasFocus)
+            {
+                
+            }
+            else
+            {
+                BackendGameData.instance.GameDataUpdate();
+            }
         }
 
 #region Rewarded
@@ -66,8 +85,9 @@ namespace AdsControl
                 _rewardedAd.Show(_ =>
                 {
                     print("Give reward to player~~~~~~~~~~~~~~");
-                    BackendGameData.userData.diamonds += 100;
+                    BackendGameData.userData.emerald += 50;
                     BackendGameData.instance.GameDataUpdate();
+                    _currencyController.emeraldCurrency.SetText();
                 });
             }
             else

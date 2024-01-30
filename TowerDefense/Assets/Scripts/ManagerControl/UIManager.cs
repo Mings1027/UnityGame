@@ -47,6 +47,8 @@ namespace ManagerControl
         private Sequence _cantMoveImageSequence;
         private Sequence _camZoomSequence;
         private Tween _upgradeButtonTween;
+        private Tween _towerGoldTween;
+        private Tween _towerHealTween;
 
         private Tower _curSelectedTower;
         private SummonTower _curSummonTower;
@@ -78,6 +80,7 @@ namespace ManagerControl
         private GameObject _moveUnitButton;
 
         private GameHUD _gameHUD;
+        private RectTransform _towerHealthRect;
         private TextMeshProUGUI _goldText;
         private Button _centerButton;
         private Button _speedButton;
@@ -113,6 +116,7 @@ namespace ManagerControl
             {
                 _towerGold = value;
                 _goldText.text = _towerGold.ToString();
+                _towerGoldTween.Restart();
             }
         }
 
@@ -152,6 +156,8 @@ namespace ManagerControl
             SoundManager.PlayBGM(SoundEnum.WaveEnd);
             _towerInfoUI.Init();
             _gameHUD.Init();
+            _towerHealthRect = _gameHUD.towerHealth.GetComponent<RectTransform>();
+            _towerHealTween = _towerHealthRect.DOScale(1.2f, 0.25f).From(1).SetLoops(2).SetAutoKill(false).Pause();
             _towerManager.Init();
         }
 
@@ -163,6 +169,8 @@ namespace ManagerControl
             _cantMoveImageSequence?.Kill();
             _camZoomSequence?.Kill();
             _upgradeButtonTween?.Kill();
+            _towerGoldTween?.Kill();
+            _towerHealTween?.Kill();
             _cts?.Cancel();
             _cts?.Dispose();
         }
@@ -337,6 +345,7 @@ namespace ManagerControl
                 .Append(_notEnoughGoldPanel.DOScale(0, 0.2f).SetDelay(0.3f));
             _upgradeButtonTween = _upgradeButton.transform.DOScale(1, 0.2f).From(0.7f).SetEase(Ease.OutBack)
                 .SetUpdate(true).SetAutoKill(false);
+            _towerGoldTween = _goldText.DOScale(1, 0.25f).From(0.8f).SetEase(Ease.InBack).SetAutoKill(false).Pause();
         }
 
         private void MenuButtonInit()
@@ -540,6 +549,12 @@ namespace ManagerControl
         public void YouCannotMove() => _gameHUD.CannotMoveHere();
 
         public TowerHealth GetTowerHealth() => _gameHUD.towerHealth;
+
+        public void TowerHeal()
+        {
+            _towerHealTween.Restart();
+            _gameHUD.towerHealth.Heal(5);
+        }
 
         public Mana GetTowerMana() => _gameHUD.towerMana;
 

@@ -4,6 +4,7 @@ using BackendControl;
 using CustomEnumControl;
 using DG.Tweening;
 using ItemControl;
+using ManagerControl;
 using UnityEngine;
 using UnityEngine.UI;
 using Utilities;
@@ -12,6 +13,7 @@ namespace UIControl
 {
     public class ItemBagController : MonoBehaviour
     {
+        private Tween _inventoryTween;
         private Dictionary<ItemType, ItemButton> _itemDic;
         private Dictionary<ItemType, int> _itemCountDic;
         private ItemType _curItemType;
@@ -22,23 +24,27 @@ namespace UIControl
 
         private void Start()
         {
+            _inventoryTween = itemParent.DOAnchorPosX(0, 0.25f).From(new Vector2(-300, 0)).SetEase(Ease.OutBack)
+                .SetAutoKill(false).Pause();
             _button = GetComponent<Button>();
             selectIcon.GetComponent<Button>().onClick.AddListener(UseItem);
             selectIcon.gameObject.SetActive(false);
-            itemParent.DOScaleY(0, 0);
             _button.onClick.AddListener(() =>
             {
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 if (_isInventoryOpen)
                 {
+                    Debug.Log("배낭 닫기");
                     _isInventoryOpen = false;
                     selectIcon.gameObject.SetActive(false);
                     _curItemType = ItemType.None;
-                    itemParent.DOScaleY(0, 0.25f).From(1).SetEase(Ease.InBack);
+                    _inventoryTween.PlayBackwards();
                 }
                 else
                 {
+                    Debug.Log("배낭 열기");
                     _isInventoryOpen = true;
-                    itemParent.DOScaleY(1, 0.25f).From(0).SetEase(Ease.OutBack);
+                    _inventoryTween.Restart();
                 }
             });
             _itemDic = new Dictionary<ItemType, ItemButton>();
@@ -57,6 +63,11 @@ namespace UIControl
             }
 
             gameObject.SetActive(false);
+        }
+
+        private void OnDestroy()
+        {
+            _inventoryTween?.Kill();
         }
 
         private void SetCurItem(ItemType itemType, Vector2 anchoredPos)

@@ -16,11 +16,10 @@ namespace LobbyControl
 
         private void Start()
         {
-            _settingPanelSequence = DOTween.Sequence()
+            _settingPanelSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(settingPanel.GetChild(0).DOLocalMoveY(0, 0.5f).From().SetEase(Ease.OutBack))
                 .Join(settingPanel.GetChild(1).DOLocalMoveY(0, 0.5f).From().SetEase(Ease.OutBack))
-                .Join(settingPanel.GetChild(2).DOLocalMoveY(0, 0.5f).From().SetEase(Ease.OutBack))
-                .SetAutoKill(false).Pause();
+                .Join(settingPanel.GetChild(2).DOLocalMoveY(0, 0.5f).From().SetEase(Ease.OutBack));
 
             var button = GetComponent<Button>();
             button.onClick.AddListener(() =>
