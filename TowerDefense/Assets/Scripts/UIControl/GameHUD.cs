@@ -79,17 +79,19 @@ namespace UIControl
             _destinationHudPosY = _rectTransform.anchoredPosition.y;
             _hudSlideTween = GetComponent<RectTransform>().DOAnchorPosY(200, 0.3f).From()
                 .SetAutoKill(false).Pause().SetUpdate(true);
+
             var health = healthBar.GetComponent<TowerHealth>();
             health.Init(playerHealth);
             healthBar.Init(health);
             towerHealth = health;
+
             var mana = manaBar.GetComponent<Mana>();
             mana.Init(playerMana);
             manaBar.Init(mana);
             towerMana = mana;
+
             _cantMoveImageSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(cantMoveImage.transform.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBounce)
-                    .SetLoops(2, LoopType.Yoyo))
+                .Append(cantMoveImage.transform.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBounce))
                 .Join(cantMoveImage.DOFade(0, 0.5f).From(1));
         }
 
@@ -107,6 +109,8 @@ namespace UIControl
                 .ChangeEndValue(new Vector2(0, _destinationHudPosY))
                 .OnComplete(() => _isHUDVisible = true).Restart();
         }
+        
+        
 
 #endregion
     }

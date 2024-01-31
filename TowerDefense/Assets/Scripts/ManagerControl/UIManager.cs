@@ -9,7 +9,6 @@ using DataControl.TowerDataControl;
 using DG.Tweening;
 using GameControl;
 using IndicatorControl;
-using ItemControl;
 using MapControl;
 using PoolObjectControl;
 using StatusControl;
@@ -47,8 +46,8 @@ namespace ManagerControl
         private Sequence _cantMoveImageSequence;
         private Sequence _camZoomSequence;
         private Tween _upgradeButtonTween;
-        private Tween _towerGoldTween;
-        private Tween _towerHealTween;
+        private Sequence _towerGoldTween;
+        private Sequence _towerHealTween;
 
         private Tower _curSelectedTower;
         private SummonTower _curSummonTower;
@@ -136,6 +135,12 @@ namespace ManagerControl
         {
             base.Awake();
             Init();
+            _towerInfoUI.Init();
+            _gameHUD.Init();
+            _towerManager.Init();
+
+            _towerHealthRect = _gameHUD.towerHealth.GetComponent<RectTransform>();
+
             TowerButtonInit();
             TowerInit();
             LocaleDictionaryInit();
@@ -146,7 +151,6 @@ namespace ManagerControl
 
         private void Start()
         {
-            Application.targetFrameRate = 60;
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
             cameraManager = _cam.GetComponentInParent<CameraManager>();
             _gameOverPanel.SetActive(false);
@@ -154,11 +158,6 @@ namespace ManagerControl
             GameStart();
             CheckCamPos().Forget();
             SoundManager.PlayBGM(SoundEnum.WaveEnd);
-            _towerInfoUI.Init();
-            _gameHUD.Init();
-            _towerHealthRect = _gameHUD.towerHealth.GetComponent<RectTransform>();
-            _towerHealTween = _towerHealthRect.DOScale(1.2f, 0.25f).From(1).SetLoops(2).SetAutoKill(false).Pause();
-            _towerManager.Init();
         }
 
         private void OnDisable()
@@ -219,6 +218,7 @@ namespace ManagerControl
             _upgradeButton = followTowerInfoUI.Find("Upgrade Button").gameObject;
             _sellTowerButton = followTowerInfoUI.Find("Sell Tower Button").gameObject;
             _moveUnitButton = followTowerInfoUI.Find("Move Unit Button").gameObject;
+
             _gameHUD = FindAnyObjectByType<GameHUD>();
             var goldBackground = _gameHUD.transform.Find("Gold Background");
             _goldText = goldBackground.Find("Gold Text").GetComponent<TextMeshProUGUI>();
@@ -228,6 +228,7 @@ namespace ManagerControl
             _speedButton = _gameHUD.transform.Find("Speed Button").GetComponent<Button>();
             _pauseButton = _gameHUD.transform.Find("Pause Button").GetComponent<Button>();
             _toggleTowerButton = uiPanel.Find("Toggle Tower Button").gameObject;
+
             _towerDescriptionCard = FindAnyObjectByType<TowerDescriptionCard>();
             _towerCardPanel = uiPanel.Find("Tower Card Panel").GetComponent<RectTransform>();
             _notEnoughGoldPanel = uiPanel.Find("Not Enough Gold Message").GetComponent<RectTransform>();
@@ -345,7 +346,12 @@ namespace ManagerControl
                 .Append(_notEnoughGoldPanel.DOScale(0, 0.2f).SetDelay(0.3f));
             _upgradeButtonTween = _upgradeButton.transform.DOScale(1, 0.2f).From(0.7f).SetEase(Ease.OutBack)
                 .SetUpdate(true).SetAutoKill(false);
-            _towerGoldTween = _goldText.DOScale(1, 0.25f).From(0.8f).SetEase(Ease.InBack).SetAutoKill(false).Pause();
+            _towerGoldTween = DOTween.Sequence().SetAutoKill(false).Pause()
+                .Append(_goldText.DOScale(1.2f, 0.125f))
+                .Append(_goldText.DOScale(1, 0.125f));
+            _towerHealTween = DOTween.Sequence().SetAutoKill(false).Pause()
+                .Append(_towerHealthRect.DOScale(1.2f, 0.125f))
+                .Append(_towerHealthRect.DOScale(1, 0.125f));
         }
 
         private void MenuButtonInit()

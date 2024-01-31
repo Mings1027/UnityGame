@@ -1,5 +1,6 @@
 using System;
 using CustomEnumControl;
+using ManagerControl;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,8 +13,11 @@ namespace ItemControl
         private int _remainingCount;
         private Button _button;
 
-        public ItemType itemType { get; protected set; }
+        protected CameraManager cameraManager;
+
         public event Action<ItemType, Vector2> OnSetCurItemEvent;
+
+        public ItemType itemType { get; protected set; }
 
         protected virtual void Awake()
         {
@@ -21,6 +25,11 @@ namespace ItemControl
             _button = GetComponent<Button>();
             var rectTransform = GetComponent<RectTransform>();
             _button.onClick.AddListener(() => { OnSetCurItemEvent?.Invoke(itemType, rectTransform.anchoredPosition); });
+        }
+
+        private void Start()
+        {
+            cameraManager = Camera.main.transform.GetComponentInParent<CameraManager>();
         }
 
         public abstract void Spawn();

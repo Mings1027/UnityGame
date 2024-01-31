@@ -1,5 +1,7 @@
 <linker>
   <assembly fullname="Assembly-CSharp, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="CurrencyControl.DiamondCurrency" preserve="all" />
+    <type fullname="CurrencyControl.EmeraldCurrency" preserve="all" />
     <type fullname="DataControl.MonsterDataControl.BossMonsterData" preserve="all" />
     <type fullname="DataControl.MonsterDataControl.NormalMonsterData" preserve="all" />
     <type fullname="DataControl.TowerDataControl.ManaUsingTowerData" preserve="all" />
@@ -7,9 +9,19 @@
     <type fullname="DataControl.TowerDataControl.SupportTowerData" preserve="all" />
     <type fullname="DataControl.TowerDataControl.TargetingTowerData" preserve="all" />
     <type fullname="GameControl.LanguageController" preserve="all" />
+    <type fullname="IAPControl.IAPManager" preserve="all" />
+    <type fullname="ItemControl.GameItem" preserve="all" />
     <type fullname="ItemControl.MoneyBagItem" preserve="all" />
     <type fullname="ItemControl.NuclearBombItem" preserve="all" />
     <type fullname="ItemControl.TowerHeartItem" preserve="all" />
+    <type fullname="LobbyControl.DiamondItem" preserve="all" />
+    <type fullname="LobbyUIControl.DiamondShopController" preserve="all" />
+    <type fullname="LobbyUIControl.ExchangeController" preserve="all" />
+    <type fullname="LobbyUIControl.ItemShopController" preserve="all" />
+    <type fullname="LobbyUIControl.LobbySetting" preserve="all" />
+    <type fullname="LobbyUIControl.LobbyUI" preserve="all" />
+    <type fullname="LobbyUIControl.TowerUpgradeButton" preserve="all" />
+    <type fullname="LobbyUIControl.TowerUpgradeController" preserve="all" />
     <type fullname="ManagerControl.CameraManager" preserve="all" />
     <type fullname="ManagerControl.InputManager" preserve="all" />
     <type fullname="ManagerControl.TowerManager" preserve="all" />
@@ -57,6 +69,8 @@
     <type fullname="UIControl.TowerInfoUI" preserve="all" />
     <type fullname="UIControl.TutorialController" preserve="all" />
     <type fullname="UIControl.UIOffController" preserve="all" />
+    <type fullname="UIControl.UserNameController" preserve="all" />
+    <type fullname="UIControl.UserRankController" preserve="all" />
     <type fullname="UnitControl.MoveTowerUnit" preserve="all" />
     <type fullname="UnitControl.MoveUnitController" preserve="all" />
     <type fullname="UnitControl.TowerUnit" preserve="all" />
@@ -114,12 +128,18 @@
   <assembly fullname="Unity.TextMeshPro, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
     <type fullname="TMPro.TextMeshProUGUI" preserve="all" />
     <type fullname="TMPro.TMP_FontAsset" preserve="all" />
+    <type fullname="TMPro.TMP_InputField" preserve="all" />
     <type fullname="TMPro.FaceInfo_Legacy" preserve="nothing" serialized="true" />
     <type fullname="TMPro.FontAssetCreationSettings" preserve="nothing" serialized="true" />
     <type fullname="TMPro.KerningTable" preserve="nothing" serialized="true" />
     <type fullname="TMPro.TMP_Character" preserve="nothing" serialized="true" />
     <type fullname="TMPro.TMP_FontFeatureTable" preserve="nothing" serialized="true" />
     <type fullname="TMPro.TMP_FontWeightPair" preserve="nothing" serialized="true" />
+    <type fullname="TMPro.TMP_InputField/OnChangeEvent" preserve="nothing" serialized="true" />
+    <type fullname="TMPro.TMP_InputField/SelectionEvent" preserve="nothing" serialized="true" />
+    <type fullname="TMPro.TMP_InputField/SubmitEvent" preserve="nothing" serialized="true" />
+    <type fullname="TMPro.TMP_InputField/TextSelectionEvent" preserve="nothing" serialized="true" />
+    <type fullname="TMPro.TMP_InputField/TouchScreenKeyboardEvent" preserve="nothing" serialized="true" />
     <type fullname="TMPro.VertexGradient" preserve="nothing" serialized="true" />
   </assembly>
   <assembly fullname="UnityEditor.CoreModule, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
@@ -186,6 +206,8 @@
     <type fullname="UnityEngine.UI.GridLayoutGroup" preserve="all" />
     <type fullname="UnityEngine.UI.HorizontalLayoutGroup" preserve="all" />
     <type fullname="UnityEngine.UI.Image" preserve="all" />
+    <type fullname="UnityEngine.UI.Mask" preserve="all" />
+    <type fullname="UnityEngine.UI.ScrollRect" preserve="all" />
     <type fullname="UnityEngine.UI.Slider" preserve="all" />
     <type fullname="UnityEngine.UI.Toggle" preserve="all" />
     <type fullname="UnityEngine.UI.VerticalLayoutGroup" preserve="all" />
@@ -194,6 +216,7 @@
     <type fullname="UnityEngine.UI.ColorBlock" preserve="nothing" serialized="true" />
     <type fullname="UnityEngine.UI.MaskableGraphic/CullStateChangedEvent" preserve="nothing" serialized="true" />
     <type fullname="UnityEngine.UI.Navigation" preserve="nothing" serialized="true" />
+    <type fullname="UnityEngine.UI.ScrollRect/ScrollRectEvent" preserve="nothing" serialized="true" />
     <type fullname="UnityEngine.UI.Slider/SliderEvent" preserve="nothing" serialized="true" />
     <type fullname="UnityEngine.UI.SpriteState" preserve="nothing" serialized="true" />
     <type fullname="UnityEngine.UI.Toggle/ToggleEvent" preserve="nothing" serialized="true" />

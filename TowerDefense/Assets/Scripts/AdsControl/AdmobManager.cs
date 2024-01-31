@@ -1,7 +1,9 @@
 using System;
 using BackendControl;
+using CurrencyControl;
 using GoogleMobileAds.Api;
 using LobbyControl;
+using LobbyUIControl;
 using ManagerControl;
 using UnityEngine;
 
@@ -9,13 +11,13 @@ namespace AdsControl
 {
     public class AdmobManager : MonoBehaviour
     {
-        private CurrencyController _currencyController;
+        private LobbyUI _lobbyUI;
         [SerializeField] private bool isTestMode;
         public event Action OnAdCloseEvent;
 
         private void Awake()
         {
-            _currencyController = FindAnyObjectByType<CurrencyController>();
+            _lobbyUI = FindAnyObjectByType<LobbyUI>();
         }
 
         private void Start()
@@ -87,7 +89,7 @@ namespace AdsControl
                     print("Give reward to player~~~~~~~~~~~~~~");
                     BackendGameData.userData.emerald += 50;
                     BackendGameData.instance.GameDataUpdate();
-                    _currencyController.emeraldCurrency.SetText();
+                    _lobbyUI.emeraldCurrency.SetText();
                 });
             }
             else

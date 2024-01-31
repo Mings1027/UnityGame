@@ -15,7 +15,6 @@ namespace ManagerControl
     public class LoginManager : MonoBehaviour
     {
 #if UNITY_IPHONE
-        // private const string AppleUserIdKey = "AppleUserId";
         private IAppleAuthManager _appleAuthManager;
         [SerializeField] private Button appleLoginButton;
 #endif
@@ -60,7 +59,6 @@ namespace ManagerControl
             {
                 CustomLog.Log("#  로그인 세션 삭제  #");
                 CustomLog.Log("Received revoked callback " + result);
-                // PlayerPrefs.DeleteKey(AppleUserIdKey);
             });
         }
 
@@ -81,10 +79,7 @@ namespace ManagerControl
                     {
                         var identityToken = Encoding.UTF8.GetString(appleIdCredential.IdentityToken, 0,
                             appleIdCredential.IdentityToken.Length);
-                        // CustomLog.Log($"# identityToken:  {identityToken}#");
-                        // CustomLog.Log(passwordCredential != null
-                        //     ? $"password : {passwordCredential.Password}"
-                        //     : "passwordcredential is null");
+
                         var bro = Backend.BMember.AuthorizeFederation(identityToken, FederationType.Apple);
 
                         if (bro.IsSuccess())

@@ -46,7 +46,6 @@ namespace ManagerControl
         public void StartTargeting()
         {
             enabled = true;
-            Application.targetFrameRate = 60;
             _towerMana.StartManaRegen();
         }
 

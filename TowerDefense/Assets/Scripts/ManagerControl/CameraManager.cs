@@ -18,13 +18,13 @@ namespace ManagerControl
         private Vector3 _curPos, _newPos;
         private Vector2 _firstToSecondVec;
         private Vector2 _firstTouchPos, _secondTouchPos;
-        
+
         public event Action OnResizeUIEvent;
 
         private static bool _startSmoothStop;
         public static bool isControlActive { get; set; }
-        public static Vector3 camPos { get; private set; }
-        
+        public Vector3 camPos { get; private set; }
+
         [SerializeField, Range(1, 3)] private float moveSpeed;
         [SerializeField, Range(1, 3)] private float zoomSpeed;
 
@@ -358,6 +358,11 @@ namespace ManagerControl
         {
             isControlActive = false;
             _startSmoothStop = false;
+        }
+
+        public void ShakeCamera(float duration)
+        {
+            _cam.DOShakePosition(duration * 0.2f);
         }
     }
 }

@@ -2,6 +2,7 @@ using System;
 using BackendControl;
 using CustomEnumControl;
 using DG.Tweening;
+using LobbyUIControl;
 using ManagerControl;
 using TMPro;
 using UnityEngine;
@@ -12,8 +13,9 @@ namespace UIControl
     public class UserRankController : MonoBehaviour
     {
         private UserRankInfo[] _userRankInfos;
+        private LobbyUI _lobbyUI;
+        private Tween _panelTween;
 
-        [SerializeField] private GameObject buttons;
         [SerializeField] private Image blockImage;
         [SerializeField] private RectTransform rankPanel;
         [SerializeField] private Button rankButton;
@@ -23,10 +25,11 @@ namespace UIControl
 
         private void Awake()
         {
+            _lobbyUI = FindAnyObjectByType<LobbyUI>();
+            _panelTween = rankPanel.DOScaleX(1, 0.25f).From(0).SetEase(Ease.OutBack).SetAutoKill(false).Pause();
             blockImage.enabled = false;
             rankButton.onClick.AddListener(OpenRankPanel);
             closeButton.onClick.AddListener(CloseRankPanel);
-            rankPanel.localScale = Vector3.zero;
         }
 
         private void Start()
@@ -34,20 +37,25 @@ namespace UIControl
             SetRanking();
         }
 
+        private void OnDisable()
+        {
+            _panelTween?.Kill();
+        }
+
         private void OpenRankPanel()
         {
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
             blockImage.enabled = true;
-            rankPanel.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack);
-            buttons.SetActive(false);
+            _panelTween.Restart();
+            _lobbyUI.SetActiveButtons(false, false);
         }
 
         private void CloseRankPanel()
         {
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
             blockImage.enabled = false;
-            rankPanel.DOScale(0, 0.25f).From(1).SetEase(Ease.InBack);
-            buttons.SetActive(true);
+            _panelTween.PlayBackwards();
+            _lobbyUI.SetActiveButtons(true, false);
         }
 
         private void SetRanking()

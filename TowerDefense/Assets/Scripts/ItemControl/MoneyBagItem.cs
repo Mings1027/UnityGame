@@ -17,7 +17,7 @@ namespace ItemControl
 
         public override void Spawn()
         {
-            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.MoneyText, CameraManager.camPos).SetGoldText(500);
+            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.MoneyText, cameraManager.camPos).SetGoldText(500);
             SoundManager.PlayUISound(SoundEnum.HighCost);
             UIManager.instance.towerGold += 500;
         }

@@ -11,9 +11,10 @@ namespace ItemControl
 {
     public class NuclearBombItem : ItemButton
     {
+        private Action _onAllKillMonsterEvent;
+
         [SerializeField] private AudioClip explosionAudio;
 
-        private Action _onAllKillMonsterEvent;
         protected override void Awake()
         {
             base.Awake();
@@ -33,9 +34,10 @@ namespace ItemControl
         private async UniTaskVoid Explosion()
         {
             var count = WaveManager.curWave;
+            cameraManager.ShakeCamera(count);
             for (var i = 0; i < count; i++)
             {
-                var ranPos = CameraManager.camPos + Random.insideUnitSphere * 50;
+                var ranPos = cameraManager.camPos + Random.insideUnitSphere * 50;
                 NavMesh.SamplePosition(ranPos, out var hit, 100, NavMesh.AllAreas);
                 PoolObjectManager.Get(PoolObjectKey.NuclearBomb, hit.position);
                 SoundManager.Play3DSound(explosionAudio, ranPos);

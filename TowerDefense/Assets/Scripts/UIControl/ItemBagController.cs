@@ -70,15 +70,19 @@ namespace UIControl
             _inventoryTween?.Kill();
         }
 
-        private void SetCurItem(ItemType itemType, Vector2 anchoredPos)
+        private void SetCurItem(ItemType curItemType, Vector2 anchoredPos)
         {
-            if (!selectIcon.gameObject.activeSelf) selectIcon.gameObject.SetActive(true);
+            SoundManager.PlayUISound(SoundEnum.ButtonSound);
+            if (_itemCountDic[curItemType] <= 0) return;
+            selectIcon.gameObject.SetActive(true);
             selectIcon.rectTransform.anchoredPosition = anchoredPos;
-            _curItemType = itemType;
+            _curItemType = curItemType;
         }
 
         private void UseItem()
         {
+            SoundManager.PlayUISound(SoundEnum.ButtonSound);
+            if (_itemCountDic[_curItemType] <= 0) return;
             _itemDic[_curItemType].Spawn();
             _itemDic[_curItemType].DecreaseItemCount();
             selectIcon.gameObject.SetActive(false);

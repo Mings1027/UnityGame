@@ -1,3 +1,4 @@
+using System;
 using BackendControl;
 using CustomEnumControl;
 using DG.Tweening;
@@ -13,19 +14,25 @@ namespace UIControl
         private string _curNickName;
         private bool _isOpenUserName;
         private Button _userIconButton;
-        // [SerializeField] private Image blockImage;
+        private Tween _inputFieldTween;
+        
         [SerializeField] private TMP_InputField userNameField;
 
         private void Awake()
         {
             _userIconButton = GetComponent<Button>();
             _userIconButton.onClick.AddListener(OnOffUserName);
-            // blockImage.enabled = false;
-            userNameField.transform.localScale = new Vector3(0, 1, 1);
+            _inputFieldTween = userNameField.transform.DOScaleX(1, 0.25f).From(0).SetEase(Ease.OutBack)
+                .SetAutoKill(false).Pause();
             userNameField.text = BackendLogin.instance.GetUserNickName();
             userNameField.onSelect.AddListener(GetCurNickName);
             userNameField.onDeselect.AddListener(GoBackPrevNickName);
             userNameField.onSubmit.AddListener(SubmitNickName);
+        }
+
+        private void OnDisable()
+        {
+            _inputFieldTween?.Kill();
         }
 
         private void OnOffUserName()
@@ -34,30 +41,27 @@ namespace UIControl
             if (_isOpenUserName)
             {
                 _isOpenUserName = false;
-                userNameField.transform.DOScaleX(0, 0.25f).From(1);
+                _inputFieldTween.PlayBackwards();
             }
             else
             {
                 _isOpenUserName = true;
-                userNameField.transform.DOScaleX(1, 0.25f).From(0);
+                _inputFieldTween.Restart();
             }
         }
 
         private void GetCurNickName(string arg0)
         {
-            // blockImage.enabled = true;
             _curNickName = userNameField.text;
         }
 
         private void GoBackPrevNickName(string arg0)
         {
-            // blockImage.enabled = false;
             userNameField.text = _curNickName;
         }
 
         private void SubmitNickName(string arg0)
         {
-            // blockImage.enabled = false;
             if (userNameField.text.Length > 0)
             {
                 BackendLogin.instance.UpdateNickname(userNameField.text);

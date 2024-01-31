@@ -34,6 +34,8 @@ namespace BackendControl
                         Backend.BMember.GetUserInfo().GetReturnValuetoJSON()["row"]["gamerId"].ToString()[..7]);
                 }
 
+                BackendChart.instance.ChartGet();
+
                 // BackendLogin.instance.UpdateNickname("원하는 이름");
                 // BackendRank.instance.RankInsert(100);
                 // BackendRank.instance.RankGet();

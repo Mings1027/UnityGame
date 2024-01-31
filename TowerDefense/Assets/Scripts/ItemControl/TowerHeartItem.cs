@@ -2,8 +2,6 @@ using CustomEnumControl;
 using ManagerControl;
 using PoolObjectControl;
 using TextControl;
-using UIControl;
-using UnityEngine;
 
 namespace ItemControl
 {
@@ -17,7 +15,7 @@ namespace ItemControl
 
         public override void Spawn()
         {
-            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.TowerHealText, CameraManager.camPos).SetHpText(5);
+            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.TowerHealText, cameraManager.camPos).SetHpText(5);
             UIManager.instance.TowerHeal();
         }
     }
