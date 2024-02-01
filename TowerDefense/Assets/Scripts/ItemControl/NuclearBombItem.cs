@@ -21,8 +21,9 @@ namespace ItemControl
             itemType = ItemType.NuclearBomb;
         }
 
-        private void Start()
+        protected override void Start()
         {
+            base.Start();
             _onAllKillMonsterEvent += () => FindAnyObjectByType<WaveManager>().AllKill();
         }
 
@@ -34,7 +35,7 @@ namespace ItemControl
         private async UniTaskVoid Explosion()
         {
             var count = WaveManager.curWave;
-            cameraManager.ShakeCamera(count);
+            cameraManager.ShakeCamera();
             for (var i = 0; i < count; i++)
             {
                 var ranPos = cameraManager.camPos + Random.insideUnitSphere * 50;

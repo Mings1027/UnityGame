@@ -1,24 +1,22 @@
 using System;
 using BackendControl;
 using CurrencyControl;
+using Cysharp.Threading.Tasks;
 using GoogleMobileAds.Api;
 using LobbyControl;
 using LobbyUIControl;
 using ManagerControl;
 using UnityEngine;
+using Utilities;
 
 namespace AdsControl
 {
     public class AdmobManager : MonoBehaviour
     {
         private LobbyUI _lobbyUI;
+        
         [SerializeField] private bool isTestMode;
         public event Action OnAdCloseEvent;
-
-        private void Awake()
-        {
-            _lobbyUI = FindAnyObjectByType<LobbyUI>();
-        }
 
         private void Start()
         {
@@ -36,7 +34,6 @@ namespace AdsControl
         {
             if (hasFocus)
             {
-                
             }
             else
             {
@@ -54,6 +51,7 @@ namespace AdsControl
 #elif UNITY_ANDROID
         private static string RewardedId = "";
 #endif
+        public void BindLobbyUI(LobbyUI lobbyUI) => _lobbyUI = lobbyUI;
 
         public void LoadRewardedAd()
         {
@@ -70,11 +68,11 @@ namespace AdsControl
             {
                 if (error != null || ad == null)
                 {
-                    print("Rewarded failed to load" + error);
+                    CustomLog.Log("Rewarded failed to load" + error);
                     return;
                 }
 
-                print("Rewarded ad loaded !!!!!!!!!!");
+                CustomLog.Log("Rewarded ad loaded !!!!!!!!!!");
                 _rewardedAd = ad;
                 RewardedAdEvents(_rewardedAd);
             });
@@ -84,17 +82,11 @@ namespace AdsControl
         {
             if (_rewardedAd != null && _rewardedAd.CanShowAd())
             {
-                _rewardedAd.Show(_ =>
-                {
-                    print("Give reward to player~~~~~~~~~~~~~~");
-                    BackendGameData.userData.emerald += 50;
-                    BackendGameData.instance.GameDataUpdate();
-                    _lobbyUI.emeraldCurrency.SetText();
-                });
+                _rewardedAd.Show(_ => { RewardedAdRewardAsync().Forget(); });
             }
             else
             {
-                print("Rewarded ad not ready");
+                CustomLog.Log("Rewarded ad not ready");
             }
         }
 
@@ -124,6 +116,14 @@ namespace AdsControl
             {
                 Debug.LogError("Rewarded ad failed to open full screen content with error : " + error);
             };
+        }
+
+        private async UniTaskVoid RewardedAdRewardAsync()
+        {
+            await UniTask.Delay(1000);
+            BackendGameData.userData.emerald += 50;
+            BackendGameData.instance.GameDataUpdate();
+            _lobbyUI.emeraldCurrency.SetText();
         }
 
 #endregion

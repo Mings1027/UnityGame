@@ -81,7 +81,7 @@ namespace ManagerControl
                             appleIdCredential.IdentityToken.Length);
 
                         var bro = Backend.BMember.AuthorizeFederation(identityToken, FederationType.Apple);
-
+                        appleLoginButton.interactable = false;
                         if (bro.IsSuccess())
                         {
                             CustomLog.Log("Apple 로그인 성공");
@@ -89,6 +89,8 @@ namespace ManagerControl
                             FindAnyObjectByType<BackendManager>().BackendInit().Forget();
                         }
                         else CustomLog.LogError("Apple 로그인 실패");
+
+                        appleLoginButton.interactable = true;
                     }
 
                     if (appleIdCredential.AuthorizationCode == null) return;

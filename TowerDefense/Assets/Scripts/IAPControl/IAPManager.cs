@@ -19,7 +19,7 @@ namespace IAPControl
     {
         private Dictionary<string, TMP_Text> _priceDic;
         private LobbyUI _lobbyUI;
-        private Sequence _loadingTween;
+        private Sequence _loadingSequence;
         private const string Diamonds500 = "diamonds500";
         private const string Diamonds2000 = "diamonds2000";
         private const string Diamonds5000 = "diamonds5000";
@@ -36,7 +36,7 @@ namespace IAPControl
             _lobbyUI = FindAnyObjectByType<LobbyUI>();
             blockImage.enabled = false;
             loadingImage.enabled = false;
-            _loadingTween = DOTween.Sequence().SetAutoKill(false).Pause()
+            _loadingSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(loadingImage.transform.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack).SetUpdate(true))
                 .Join(loadingImage.transform.DOLocalRotate(new Vector3(0, 0, -360), 1, RotateMode.FastBeyond360)
                     .SetLoops(30));
@@ -78,7 +78,7 @@ namespace IAPControl
             foreach (var productId in _priceDic.Keys)
             {
                 var metaData = _storeController.products.WithID(productId).metadata;
-                CustomLog.Log(
+                Debug.Log(
                     $"storeController : {_storeController}   productId : {productId}  metaData.localizedPrice : {metaData.localizedPrice}  metaData.isoCurrencyCode : {metaData.isoCurrencyCode}");
                 _priceDic[productId].text = $"{metaData.localizedPrice} {metaData.isoCurrencyCode}";
             }
@@ -108,7 +108,7 @@ namespace IAPControl
             _storeController.InitiatePurchase(productId);
             blockImage.enabled = true;
             loadingImage.enabled = true;
-            _loadingTween.OnComplete(() =>
+            _loadingSequence.OnComplete(() =>
             {
                 blockImage.enabled = false;
                 loadingImage.enabled = false;
@@ -118,7 +118,7 @@ namespace IAPControl
         public void OnInitializeFailed(InitializationFailureReason error)
         {
             CustomLog.Log("초기화 실패 : " + error);
-            _loadingTween.Pause();
+            _loadingSequence.Pause();
             loadingImage.enabled = false;
             blockImage.enabled = false;
         }
@@ -126,7 +126,7 @@ namespace IAPControl
         public void OnInitializeFailed(InitializationFailureReason error, string message)
         {
             CustomLog.Log("초기화 실패 : " + error + message);
-            _loadingTween.Pause();
+            _loadingSequence.Pause();
             loadingImage.enabled = false;
             blockImage.enabled = false;
         }
@@ -134,7 +134,7 @@ namespace IAPControl
         public void OnPurchaseFailed(Product product, PurchaseFailureReason failureReason)
         {
             CustomLog.Log("구매 실패 : " + failureReason);
-            _loadingTween.Pause();
+            _loadingSequence.Pause();
             loadingImage.enabled = false;
             blockImage.enabled = false;
         }
@@ -142,7 +142,7 @@ namespace IAPControl
         public void OnPurchaseFailed(Product product, PurchaseFailureDescription failureDescription)
         {
             CustomLog.Log("구매 실패 : " + product.definition.id + "이유 : " + failureDescription.message);
-            _loadingTween.Pause();
+            _loadingSequence.Pause();
             loadingImage.enabled = false;
             blockImage.enabled = false;
         }
@@ -155,7 +155,7 @@ namespace IAPControl
 #if UNITY_IPHONE
             ProcessApplePurchase(purchaseEvent);
 #endif
-            _loadingTween.Pause();
+            _loadingSequence.Pause();
             loadingImage.enabled = false;
             blockImage.enabled = false;
 
@@ -170,7 +170,7 @@ namespace IAPControl
             if (chargeTbc.IsSuccess())
             {
                 CustomLog.Log("충전 성공");
-                _lobbyUI.diamondCurrency.SetText();
+                _lobbyUI.diamondCurrency.TextInit();
             }
             else
             {

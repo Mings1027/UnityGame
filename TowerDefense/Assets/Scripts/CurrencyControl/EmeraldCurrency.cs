@@ -1,3 +1,4 @@
+using System;
 using BackendControl;
 using TMPro;
 using UnityEngine;
@@ -9,7 +10,6 @@ namespace CurrencyControl
     {
         private Button _currencyButton;
         private TMP_Text _amountText;
-        private Image _plusImage;
 
         [SerializeField] private TMP_Text emeraldAmountText;
 
@@ -17,7 +17,11 @@ namespace CurrencyControl
         {
             _currencyButton = GetComponent<Button>();
             _amountText = transform.GetChild(1).GetComponent<TMP_Text>();
-            _plusImage = transform.GetChild(2).GetComponent<Image>();
+        }
+
+        private void Start()
+        {
+            SetText();
         }
 
         public void SetText()
@@ -29,13 +33,11 @@ namespace CurrencyControl
         public void On()
         {
             _currencyButton.interactable = true;
-            _plusImage.enabled = true;
         }
 
         public void Off()
         {
             _currencyButton.interactable = false;
-            _plusImage.enabled = false;
         }
     }
 }

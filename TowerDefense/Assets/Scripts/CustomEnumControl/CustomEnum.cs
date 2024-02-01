@@ -28,6 +28,12 @@ namespace CustomEnumControl
         TowerHeart
     }
 
+    public enum PriceType
+    {
+        Diamond,
+        Emerald
+    }
+
     public enum Currency
     {
         Korea,

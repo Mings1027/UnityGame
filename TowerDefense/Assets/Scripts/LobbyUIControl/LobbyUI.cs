@@ -1,4 +1,5 @@
 using System;
+using AdsControl;
 using CurrencyControl;
 using DG.Tweening;
 using TMPro;
@@ -23,6 +24,8 @@ namespace LobbyUIControl
 
         private void Awake()
         {
+            Screen.sleepTimeout = SleepTimeout.NeverSleep;
+
             diamondNotifySequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(diaNotifyRect.DOAnchorPosX(-100, 0.25f).From(new Vector2(600, -50)))
                 .Append(diaNotifyRect.DOAnchorPosY(200, 0.25f).SetDelay(2));
@@ -33,6 +36,7 @@ namespace LobbyUIControl
 
         private void Start()
         {
+            FindAnyObjectByType<AdmobManager>().BindLobbyUI(this);
             inGameMoneyObj.SetActive(false);
         }
 

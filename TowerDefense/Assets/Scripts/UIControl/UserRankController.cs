@@ -12,7 +12,6 @@ namespace UIControl
 {
     public class UserRankController : MonoBehaviour
     {
-        private UserRankInfo[] _userRankInfos;
         private LobbyUI _lobbyUI;
         private Tween _panelTween;
 
@@ -58,15 +57,24 @@ namespace UIControl
             _lobbyUI.SetActiveButtons(true, false);
         }
 
-        private void SetRanking()
+        public void SetRanking()
         {
-            _userRankInfos = BackendRank.instance.RankGet();
-            for (var i = 0; i < _userRankInfos.Length; i++)
+            BackendRank.instance.RankGet();
+            if (content.childCount > 0)
+            {
+                for (int i = 0; i < content.childCount; i++)
+                {
+                    Destroy(content.GetChild(i).gameObject);
+                }
+            }
+
+            var userRankInfos = BackendRank.userRankInfos;
+            for (var i = 0; i < userRankInfos.Length; i++)
             {
                 var item = Instantiate(userRankItem, content).transform;
-                item.GetChild(0).GetChild(0).GetComponent<TMP_Text>().text = _userRankInfos[i].rank;
-                item.GetChild(1).GetChild(0).GetComponent<TMP_Text>().text = _userRankInfos[i].nickName;
-                item.GetChild(2).GetChild(0).GetComponent<TMP_Text>().text = _userRankInfos[i].score;
+                item.GetChild(0).GetChild(0).GetComponent<TMP_Text>().text = userRankInfos[i].rank;
+                item.GetChild(1).GetChild(0).GetComponent<TMP_Text>().text = userRankInfos[i].nickName;
+                item.GetChild(2).GetChild(0).GetComponent<TMP_Text>().text = userRankInfos[i].score;
             }
         }
     }

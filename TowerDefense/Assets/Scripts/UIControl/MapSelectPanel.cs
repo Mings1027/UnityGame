@@ -7,6 +7,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Utilities;
 
 namespace UIControl
 {
@@ -40,7 +41,7 @@ namespace UIControl
 
             transform.DOScale(1, 0.5f).From(0.7f).SetEase(Ease.OutBack).OnComplete(() => _eventSystem.enabled = true);
             var difficultySelectButtons = transform.GetChild(0);
-            Debug.Log("==============================================================");
+            CustomLog.Log("==============================================================");
             for (var i = 0; i < difficultySelectButtons.childCount; i++)
             {
                 var index = (byte)i;
@@ -55,19 +56,19 @@ namespace UIControl
                         Destroy(gameObject);
                     });
                 });
-                Debug.Log(index);
+                CustomLog.Log(index);
             }
 
             var survivedWaves = BackendGameData.userData.survivedWaveList;
-            Debug.Log($"wave length : {survivedWaves.Count}");
+            CustomLog.Log($"wave length : {survivedWaves.Count}");
             for (int i = 0; i < survivedWaves.Count; i++)
             {
-                Debug.Log($"survivedwaves : {survivedWaves[i]}");
+                CustomLog.Log($"survivedwaves : {survivedWaves[i]}");
             }
 
             for (var i = 0; i < difficultySelectButtons.childCount; i++)
             {
-                Debug.Log($"text : {survivedWaves[i]}");
+                CustomLog.Log($"text : {survivedWaves[i]}");
                 difficultySelectButtons.GetChild(i).GetChild(3).GetComponent<TMP_Text>().text =
                     survivedWaves[i].ToString();
             }

@@ -22,6 +22,7 @@ using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Utilities;
 
 namespace ManagerControl
 {
@@ -251,7 +252,7 @@ namespace ManagerControl
 
             for (var i = 0; i < _towerManager.towerDataPrefabs.Length; i++)
             {
-                Debug.Log($"{_towerManager.towerDataPrefabs[i].towerData.towerType}  ");
+                CustomLog.Log($"{_towerManager.towerDataPrefabs[i].towerData.towerType}  ");
                 _towerCardController.SetDictionary(_towerManager.towerDataPrefabs[i].towerData.towerType,
                     _towerManager.towerDataPrefabs[i].towerData);
             }

@@ -27,9 +27,9 @@ namespace ItemControl
             _button.onClick.AddListener(() => { OnSetCurItemEvent?.Invoke(itemType, rectTransform.anchoredPosition); });
         }
 
-        private void Start()
+        protected virtual void Start()
         {
-            cameraManager = Camera.main.transform.GetComponentInParent<CameraManager>();
+            cameraManager = FindAnyObjectByType<CameraManager>();
         }
 
         public abstract void Spawn();

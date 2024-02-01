@@ -15,6 +15,7 @@ namespace BackendControl
     {
         private static BackendRank _instance;
         public static BackendRank instance => _instance ??= new BackendRank();
+        public static UserRankInfo[] userRankInfos;
 
         public void RankInsert(int score)
         {
@@ -75,7 +76,7 @@ namespace BackendControl
             Debug.Log("랭킹 삽입에 성공했습니다. : " + rankBro);
         }
 
-        public UserRankInfo[] RankGet()
+        public void RankGet()
         {
             const string rankUuid = "d1f25cc0-bbf4-11ee-8df0-118b3eecd33b";
             var bro = Backend.URank.User.GetRankList(rankUuid);
@@ -83,20 +84,20 @@ namespace BackendControl
             if (!bro.IsSuccess())
             {
                 Debug.LogError("랭킹 조회중 오류가 발생했습니다. : " + bro);
-                return null;
+                return;
             }
 
             Debug.Log("랭킹 조회에 성공했습니다. : " + bro);
 
             Debug.Log("총 랭킹 등록 유저 수 : " + bro.GetFlattenJSON()["totalCount"]);
 
-            var userRankInfo = new UserRankInfo[bro.FlattenRows().Count];
+            userRankInfos = new UserRankInfo[bro.FlattenRows().Count];
             var index = 0;
             foreach (LitJson.JsonData jsonData in bro.FlattenRows())
             {
-                userRankInfo[index].rank = jsonData["rank"].ToString();
-                userRankInfo[index].nickName = jsonData["nickname"].ToString();
-                userRankInfo[index].score = jsonData["score"].ToString();
+                userRankInfos[index].rank = jsonData["rank"].ToString();
+                userRankInfos[index].nickName = jsonData["nickname"].ToString();
+                userRankInfos[index].score = jsonData["score"].ToString();
                 index += 1;
                 // var info = new StringBuilder();
                 // info.AppendLine("순위 : " + jsonData["rank"]);
@@ -107,8 +108,6 @@ namespace BackendControl
                 // info.AppendLine();
                 // Debug.Log(info);
             }
-
-            return userRankInfo;
         }
     }
 }

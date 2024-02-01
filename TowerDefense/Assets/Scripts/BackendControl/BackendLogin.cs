@@ -21,7 +21,7 @@ namespace BackendControl
             }
             else
             {
-                Debug.LogError("회원가입에 실패했습니다. : " + bro);
+                CustomLog.LogError("회원가입에 실패했습니다. : " + bro);
             }
         }
 
@@ -37,24 +37,25 @@ namespace BackendControl
             }
             else
             {
-                Debug.LogError("로그인이 실패했습니다. : " + bro);
+                CustomLog.LogError("로그인이 실패했습니다. : " + bro);
             }
         }
 
-        public void UpdateNickname(string nickname)
+        public bool UpdateNickname(string nickname)
         {
-            Debug.Log("닉네임 변경을 요청합니다.");
+            CustomLog.Log("닉네임 변경을 요청합니다.");
 
             var bro = Backend.BMember.UpdateNickname(nickname);
 
             if (bro.IsSuccess())
             {
-                Debug.Log("닉네임 변경에 성공했습니다 : " + bro);
-                
-                return;
+                CustomLog.Log("닉네임 변경에 성공했습니다 : " + bro);
+
+                return true;
             }
 
-            Debug.LogError("닉네임 변경에 실패했습니다 : " + bro);
+            CustomLog.LogError("닉네임 변경에 실패했습니다 : " + bro);
+            return false;
         }
 
         public string GetUserNickName()
@@ -63,12 +64,12 @@ namespace BackendControl
             string nickName;
             if (bro.IsSuccess())
             {
-                Debug.Log("닉네임 찾음");
+                CustomLog.Log("닉네임 찾음");
                 nickName = bro.GetReturnValuetoJSON()["row"]["nickname"].ToString();
             }
             else
             {
-                Debug.Log("닉네임 못찾음");
+                CustomLog.Log("닉네임 못찾음");
                 nickName = bro.GetReturnValuetoJSON()["row"]["gamerId"].ToString()[..7];
             }
 

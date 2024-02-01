@@ -40,7 +40,7 @@ namespace LobbyUIControl
             {
                 sfxToggle.transform.DOScale(1, 0.25f).From(0.5f).SetEase(Ease.OutBack);
                 SoundManager.ToggleSfx(!sfxToggle.isOn);
-                SoundManager.PlayUISound(SoundEnum.ButtonSound);
+                if(!sfxToggle.isOn) SoundManager.PlayUISound(SoundEnum.ButtonSound);
             });
         }
 

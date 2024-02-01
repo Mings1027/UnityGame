@@ -9,6 +9,7 @@ namespace ManagerControl
     {
         private Camera _cam;
         private Tweener _snapRotateTween;
+        private Tween _shakeTween;
         private CamState _camState;
 
         private Touch _firstTouch;
@@ -47,6 +48,8 @@ namespace ManagerControl
         {
             _cam = Camera.main;
             _snapRotateTween = transform.DORotate(SnappedVector(), 0.5f).SetEase(Ease.OutCubic)
+                .SetAutoKill(false).Pause();
+            _shakeTween = transform.DOShakePosition(0.5f, 1, 50, 90, false, true, ShakeRandomnessMode.Harmonic)
                 .SetAutoKill(false).Pause();
             FindAnyObjectByType<SoundManager>().SetCamera(_cam);
         }
@@ -90,6 +93,12 @@ namespace ManagerControl
         private void OnDisable()
         {
             Input.multiTouchEnabled = false;
+        }
+
+        private void OnDestroy()
+        {
+            _snapRotateTween?.Kill();
+            _shakeTween?.Kill();
         }
 
 #endregion
@@ -360,9 +369,10 @@ namespace ManagerControl
             _startSmoothStop = false;
         }
 
-        public void ShakeCamera(float duration)
+        public void ShakeCamera()
         {
-            _cam.DOShakePosition(duration * 0.2f);
+            var prevPos = transform.position;
+            _shakeTween.OnComplete(() => { transform.position = prevPos; }).Restart();
         }
     }
 }

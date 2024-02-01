@@ -1,13 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using BackEnd;
 using BackendControl;
-using CurrencyControl;
 using CustomEnumControl;
 using DG.Tweening;
 using ItemControl;
-using LobbyControl;
 using ManagerControl;
 using TMPro;
 using UnityEngine;
@@ -39,13 +35,11 @@ namespace LobbyUIControl
 
         private Dictionary<ItemType, ItemInfo> _itemInfoTable;
         private int _curQuantity;
-        private int _curPrice;
+        private int _curEmeraldPrice;
 
         [SerializeField] private Button itemShopButton;
         [SerializeField] private Button closeButton;
-
         [SerializeField] private Button purchaseButton;
-
         [SerializeField] private Image backgroundBlockImage;
         [SerializeField] private Image shopBlockImage;
         [SerializeField] private Transform shopPanel;
@@ -55,7 +49,7 @@ namespace LobbyUIControl
         [SerializeField] private Transform explainPanel;
         [SerializeField] private Image explainImage;
         [SerializeField] private TMP_Text explainText;
-        [SerializeField] private TMP_Text priceText;
+        [SerializeField] private TMP_Text emeraldPriceText;
         [SerializeField] private Button increaseButton;
         [SerializeField] private Button decreaseButton;
         [SerializeField] private TMP_Text quantityText;
@@ -136,8 +130,6 @@ namespace LobbyUIControl
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 PurchaseItem();
             });
-            _lobbyUI.diamondCurrency.SetText();
-            _lobbyUI.emeraldCurrency.SetText();
         }
 
         private void OpenExplainPanel(ItemType itemType, Sprite sprite)
@@ -151,9 +143,9 @@ namespace LobbyUIControl
             explainImage.sprite = sprite;
             explainBlockImage.enabled = true;
             explainPanel.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack);
-            _curPrice = BackendChart.ItemTable[_curItemType.ToString()];
+            _curEmeraldPrice = BackendChart.ItemTable[_curItemType.ToString()];
             _curQuantity = 1;
-            priceText.text = _curPrice.ToString();
+            emeraldPriceText.text = _curEmeraldPrice.ToString();
             quantityText.text = _curQuantity.ToString();
         }
 
@@ -165,23 +157,19 @@ namespace LobbyUIControl
 
         private void PurchaseItem()
         {
-            if (_curItemType == ItemType.None) return;
-            Debug.Log($"curPrice : {_curPrice}   user emerald : {BackendGameData.userData.emerald}");
-            if (_curPrice < BackendGameData.userData.emerald)
+            if (_curItemType == ItemType.None || _curQuantity <= 0) return;
+            if (_curEmeraldPrice < BackendGameData.userData.emerald)
             {
-                BackendGameData.userData.emerald -= _curPrice;
-                BackendGameLog.instance.GameLogInsert(_curItemType.ToString(), _curQuantity, _curPrice);
-                _lobbyUI.diamondCurrency.SetText();
+                BackendGameData.userData.emerald -= _curEmeraldPrice;
+                _lobbyUI.emeraldCurrency.SetText();
 
-                var itemCount = BackendGameData.userData.itemInventory[_curItemType.ToString()] += 1;
+                var itemCount = BackendGameData.userData.itemInventory[_curItemType.ToString()] += _curQuantity;
                 _itemInfoTable[_curItemType].itemCountText.text = itemCount.ToString();
 
                 CloseExplainPanel();
-                Debug.Log($"아이템 구매함 user emerald : {BackendGameData.userData.emerald} ");
             }
             else
             {
-                Debug.Log("아이템 구매못함");
                 _lobbyUI.emeraldNotifySequence.Restart();
             }
         }
@@ -201,8 +189,8 @@ namespace LobbyUIControl
         {
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
             _curQuantity++;
-            _curPrice = BackendChart.ItemTable[_curItemType.ToString()] * _curQuantity;
-            priceText.text = _curPrice.ToString();
+            _curEmeraldPrice = BackendChart.ItemTable[_curItemType.ToString()] * _curQuantity;
+            emeraldPriceText.text = _curEmeraldPrice.ToString();
             quantityText.text = _curQuantity.ToString();
         }
 
@@ -211,8 +199,8 @@ namespace LobbyUIControl
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
             if (_curQuantity <= 0) return;
             _curQuantity--;
-            _curPrice = BackendChart.ItemTable[_curItemType.ToString()] * _curQuantity;
-            priceText.text = _curPrice.ToString();
+            _curEmeraldPrice = BackendChart.ItemTable[_curItemType.ToString()] * _curQuantity;
+            emeraldPriceText.text = _curEmeraldPrice.ToString();
             quantityText.text = _curQuantity.ToString();
         }
     }
