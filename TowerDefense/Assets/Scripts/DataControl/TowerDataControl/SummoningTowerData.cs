@@ -17,9 +17,9 @@ namespace DataControl.TowerDataControl
             curUnitHealth = (BackendGameData.userData.towerLevelTable[towerType.ToString()] + 1) * initUnitHealth;
         }
 
-        public override void UpgradeData(TowerType type)
+        public override void UpgradeData(int towerLv)
         {
-            base.UpgradeData(type);
+            base.UpgradeData(towerLv);
             curUnitHealth = (BackendGameData.userData.towerLevelTable[towerType.ToString()] + 1) * initUnitHealth;
         }
     }

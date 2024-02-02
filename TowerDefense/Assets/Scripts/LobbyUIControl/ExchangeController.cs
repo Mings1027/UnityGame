@@ -81,16 +81,15 @@ namespace LobbyUIControl
             }
         }
 
-        private async UniTaskVoid TbcAsync(int count)
+        private void TbcAsync(int count)
         {
-            Debug.Log($"반복횟수 : {count}");
             loadingBlockImage.enabled = true;
             loadingImage.enabled = true;
             _loadingSequence.Restart();
 
             UniTask.RunOnThreadPool(() =>
             {
-                for (int i = 0; i < count; i++)
+                for (var i = 0; i < count; i++)
                 {
                     Backend.TBC.UseTBC("18c396e0-bf34-11ee-86ea-2f0a13d84ab2", "에메랄드 교환");
                 }

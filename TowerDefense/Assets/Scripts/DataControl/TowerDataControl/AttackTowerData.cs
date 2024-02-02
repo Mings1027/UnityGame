@@ -22,13 +22,13 @@ namespace DataControl.TowerDataControl
             curRpm = (ushort)(towerLevel * initRpm);
         }
 
-        public virtual void UpgradeData(TowerType type)
+        public virtual void UpgradeData(int towerLv)
         {
-            var towerLevel = BackendGameData.userData.towerLevelTable[type.ToString()] += 1;
-            towerLevel += 1;
-            curDamage = (ushort)(towerLevel * initDamage);
-            curRange = (byte)(towerLevel * initRange);
-            curRpm = (ushort)(towerLevel * initRpm);
+            curDamage = (ushort)(towerLv * initDamage);
+            curRange = (byte)(towerLv * initRange);
+            curRpm = (ushort)(towerLv * initRpm);
+            Debug.Log($"tower lv : {towerLv}");
+            Debug.Log($"damage : {curDamage}  range :{curRange}  rpm :{curRpm}");
         }
     }
 }

@@ -13,7 +13,7 @@ namespace UIControl
 {
     public class ItemBagController : MonoBehaviour
     {
-        private Tween _inventoryTween;
+        private Sequence _inventoryTween;
         private Dictionary<ItemType, ItemButton> _itemDic;
         private Dictionary<ItemType, int> _itemCountDic;
         private ItemType _curItemType;
@@ -24,8 +24,11 @@ namespace UIControl
 
         private void Start()
         {
-            _inventoryTween = itemParent.DOAnchorPosX(0, 0.25f).From(new Vector2(-300, 0)).SetEase(Ease.OutBack)
-                .SetAutoKill(false).Pause();
+            _inventoryTween = DOTween.Sequence().SetAutoKill(false).Pause()
+                .Append(itemParent.GetChild(0).DOLocalMoveY(0, 0.5f).From().SetEase(Ease.OutBack))
+                .Join(itemParent.GetChild(1).DOLocalMoveY(0, 0.5f).From().SetEase(Ease.OutBack))
+                .Join(itemParent.GetChild(2).DOLocalMoveY(0, 0.5f).From().SetEase(Ease.OutBack));
+            
             _button = GetComponent<Button>();
             selectIcon.GetComponent<Button>().onClick.AddListener(UseItem);
             selectIcon.gameObject.SetActive(false);
@@ -37,8 +40,8 @@ namespace UIControl
                     Debug.Log("배낭 닫기");
                     _isInventoryOpen = false;
                     selectIcon.gameObject.SetActive(false);
-                    _curItemType = ItemType.None;
                     _inventoryTween.PlayBackwards();
+                    _curItemType = ItemType.None;
                 }
                 else
                 {
@@ -63,6 +66,7 @@ namespace UIControl
             }
 
             gameObject.SetActive(false);
+            itemParent.gameObject.SetActive(false);
         }
 
         private void OnDestroy()
@@ -98,6 +102,12 @@ namespace UIControl
                 if (itemType == ItemType.None) continue;
                 BackendGameData.userData.itemInventory[itemType.ToString()] = _itemCountDic[itemType];
             }
+        }
+
+        public void SetActiveItemBag(bool active)
+        {
+            gameObject.SetActive(active);
+            itemParent.gameObject.SetActive(active);
         }
     }
 }

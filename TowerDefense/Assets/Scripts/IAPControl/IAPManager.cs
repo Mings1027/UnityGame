@@ -78,7 +78,7 @@ namespace IAPControl
             foreach (var productId in _priceDic.Keys)
             {
                 var metaData = _storeController.products.WithID(productId).metadata;
-                Debug.Log(
+                CustomLog.Log(
                     $"storeController : {_storeController}   productId : {productId}  metaData.localizedPrice : {metaData.localizedPrice}  metaData.isoCurrencyCode : {metaData.isoCurrencyCode}");
                 _priceDic[productId].text = $"{metaData.localizedPrice} {metaData.isoCurrencyCode}";
             }

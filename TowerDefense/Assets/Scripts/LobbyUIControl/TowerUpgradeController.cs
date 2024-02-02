@@ -1,11 +1,15 @@
+using System.Linq;
 using BackendControl;
 using CustomEnumControl;
+using Cysharp.Threading.Tasks;
 using DataControl.TowerDataControl;
 using DG.Tweening;
 using ManagerControl;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace LobbyUIControl
@@ -15,14 +19,13 @@ namespace LobbyUIControl
         private LobbyUI _lobbyUI;
         private Tween _upgradePanelTween;
         private Tween _deletePanelTween;
-        private int _totalSpentXp;
 
         [SerializeField] private TMP_Text xpText;
         [SerializeField] private Image blockImage;
         [SerializeField] private Button startGameButton;
         [SerializeField] private Button upgradeButton;
         [SerializeField] private Button closeButton;
-        [SerializeField] private Button dataDeleteButton;
+        [SerializeField] private Button initLevelButton;
         [SerializeField] private Button yesButton;
         [SerializeField] private Button noButton;
         [SerializeField] private Transform upgradePanel;
@@ -32,7 +35,7 @@ namespace LobbyUIControl
 
         [SerializeField] private Transform towerButtons;
         [SerializeField] private AttackTowerData[] towerData;
-        [SerializeField] private byte towerMaxLevel;
+        private const byte TowerMaxLevel = 20;
 
         private void Awake()
         {
@@ -49,7 +52,6 @@ namespace LobbyUIControl
 
         private void Start()
         {
-            _totalSpentXp = BackendGameData.userData.totalSpentXp;
             xpText.text = "XP " + BackendGameData.userData.xp;
             TowerUpgradeButtonInit();
         }
@@ -74,7 +76,7 @@ namespace LobbyUIControl
             upgradeButton.onClick.AddListener(() =>
             {
                 UpgradePanel();
-                _lobbyUI.SetActiveButtons(false,false);
+                _lobbyUI.SetActiveButtons(false, false);
             });
             closeButton.onClick.AddListener(() =>
             {
@@ -84,7 +86,7 @@ namespace LobbyUIControl
                 _upgradePanelTween.PlayBackwards();
                 _lobbyUI.SetActiveButtons(true, false);
             });
-            dataDeleteButton.onClick.AddListener(() =>
+            initLevelButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 deletePanelBlockImage.enabled = true;
@@ -93,28 +95,7 @@ namespace LobbyUIControl
             yesButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                deletePanelBlockImage.enabled = false;
-                _deletePanelTween.PlayBackwards();
-
-                var allXp = _totalSpentXp + BackendGameData.userData.xp;
-
-                BackendGameData.userData.xp = allXp;
-                xpText.text = "XP " + allXp;
-                _totalSpentXp = 0;
-
-                for (var i = 0; i < towerButtons.childCount; i++)
-                {
-                    var levelCountText = towerButtons.GetChild(i).GetChild(0).GetComponent<TMP_Text>();
-                    var towerCostText = towerButtons.GetChild(i).GetChild(1).GetComponent<TMP_Text>();
-                    var towerUpgradeButton = towerButtons.GetChild(i).GetChild(2).GetComponent<TowerUpgradeButton>();
-                    var towerButton = towerUpgradeButton.GetComponent<Button>();
-
-                    towerUpgradeButton.upgradeCount = 0;
-                    towerButton.interactable = true;
-                    towerCostText.text = "XP " + (towerUpgradeButton.upgradeCount + 1) * 25;
-                    levelCountText.text = "Lv 0 / " + towerMaxLevel;
-                    towerData[i].InitState();
-                }
+                InitTowerLevel();
             });
             noButton.onClick.AddListener(() =>
             {
@@ -126,6 +107,7 @@ namespace LobbyUIControl
 
         private void TowerUpgradeButtonInit()
         {
+            var towerLevelTable = BackendGameData.userData.towerLevelTable;
             for (var i = 0; i < towerButtons.childCount; i++)
             {
                 var towerButtonParent = towerButtons.GetChild(i);
@@ -133,45 +115,99 @@ namespace LobbyUIControl
                 var towerCostText = towerButtonParent.GetChild(1).GetComponent<TMP_Text>();
                 var towerUpgradeButton = towerButtonParent.GetChild(2).GetComponent<TowerUpgradeButton>();
                 var towerButton = towerUpgradeButton.GetComponent<Button>();
-                towerUpgradeButton.upgradeCount =
-                    (byte)BackendGameData.userData.towerLevelTable[towerData[i].towerType.ToString()];
 
-                if (towerUpgradeButton.upgradeCount < towerMaxLevel)
+                var towerLevel = towerLevelTable[towerUpgradeButton.attackTowerData.towerType.ToString()];
+                if (towerLevel < TowerMaxLevel)
                 {
-                    towerCostText.text = "XP " + (towerUpgradeButton.upgradeCount + 1) * 25;
-                    levelCountText.text = "Lv " + towerUpgradeButton.upgradeCount + " / " + towerMaxLevel;
+                    towerCostText.text = "XP " + (towerLevel + 1) * 25;
+                    levelCountText.text = "Lv " + towerLevel + " / " + TowerMaxLevel;
                 }
                 else
                 {
                     towerCostText.text = "";
-                    levelCountText.text = "Lv " + towerMaxLevel + " / " + towerMaxLevel;
+                    levelCountText.text = "Lv " + TowerMaxLevel + " / " + TowerMaxLevel;
                     towerButton.interactable = false;
                 }
 
-                var index = i;
                 towerButton.onClick.AddListener(() =>
                 {
                     SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                    if (towerUpgradeButton.upgradeCount >= towerMaxLevel ||
-                        BackendGameData.userData.xp < (towerUpgradeButton.upgradeCount + 1) * 25) return;
-                    BackendGameData.userData.xp -= (towerUpgradeButton.upgradeCount + 1) * 25;
-                    _totalSpentXp += (towerUpgradeButton.upgradeCount + 1) * 25;
-                    BackendGameData.userData.totalSpentXp = _totalSpentXp;
-                    xpText.text = "XP " + BackendGameData.userData.xp;
-                    towerUpgradeButton.upgradeCount++;
-                    towerCostText.text = "XP " + (towerUpgradeButton.upgradeCount + 1) * 25;
-                    levelCountText.text = "Lv " + towerUpgradeButton.upgradeCount + " / " + towerMaxLevel;
-                    BackendGameData.userData.towerLevelTable[towerData[index].towerType.ToString()] =
-                        towerUpgradeButton.upgradeCount;
-                    towerData[index].UpgradeData(towerData[index].towerType);
+                    var userData = BackendGameData.userData;
+                    var towerType = towerUpgradeButton.attackTowerData.towerType.ToString();
+                    var prevTowerLv = towerLevelTable[towerType];
 
-                    if (towerUpgradeButton.upgradeCount >= towerMaxLevel)
+                    if (prevTowerLv >= TowerMaxLevel || userData.xp < (prevTowerLv + 1) * 25) return;
+                    userData.xp -= (prevTowerLv + 1) * 25;
+                    xpText.text = "XP " + userData.xp;
+                    userData.towerLevelTable[towerType] += 1;
+
+                    var curTowerLv = userData.towerLevelTable[towerType];
+
+                    towerCostText.text = "XP " + (curTowerLv + 1) * 25;
+                    levelCountText.text = "Lv " + curTowerLv + " / " + TowerMaxLevel;
+                    towerUpgradeButton.attackTowerData.UpgradeData(curTowerLv);
+
+                    if (towerLevel >= TowerMaxLevel)
                     {
                         towerCostText.text = "";
                         towerButton.interactable = false;
                     }
                 });
             }
+        }
+
+        private int GetSpentXp()
+        {
+            var spentXp = BackendGameData.userData.xp;
+            var towerLevelTable = BackendGameData.userData.towerLevelTable;
+            foreach (var key in towerLevelTable.Keys)
+            {
+                var towerLv = towerLevelTable[key];
+                if (towerLv <= 0) continue;
+                for (var i = 0; i < towerLv; i++)
+                {
+                    spentXp += (i + 1) * 25;
+                }
+            }
+
+            return spentXp;
+        }
+
+        private void InitTowerLevel()
+        {
+            deletePanelBlockImage.enabled = false;
+            _deletePanelTween.PlayBackwards();
+
+            if (BackendGameData.userData.xp <= 0) return;
+
+            var xp = BackendGameData.userData.xp = GetSpentXp();
+            xpText.text = "XP " + xp;
+
+            for (var i = 0; i < towerButtons.childCount; i++)
+            {
+                var levelCountText = towerButtons.GetChild(i).GetChild(0).GetComponent<TMP_Text>();
+                var towerCostText = towerButtons.GetChild(i).GetChild(1).GetComponent<TMP_Text>();
+                var towerUpgradeButton = towerButtons.GetChild(i).GetChild(2).GetComponent<TowerUpgradeButton>();
+                var towerButton = towerUpgradeButton.GetComponent<Button>();
+
+                towerButton.interactable = true;
+                towerCostText.text = "XP 25";
+                levelCountText.text = "Lv 0 / " + TowerMaxLevel;
+                towerData[i].InitState();
+            }
+
+            foreach (var key in BackendGameData.userData.towerLevelTable.Keys.ToList())
+            {
+                BackendGameData.userData.towerLevelTable[key] = 0;
+            }
+
+            initLevelButton.interactable = false;
+            UniTask.RunOnThreadPool(() =>
+            {
+                BackendGameData.instance.GameDataUpdate();
+
+                initLevelButton.interactable = true;
+            });
         }
     }
 }

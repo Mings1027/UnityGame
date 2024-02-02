@@ -19,12 +19,12 @@ namespace LobbyUIControl
         private class ItemInfo
         {
             public string itemExplain;
-            public readonly TMP_Text itemCountText;
+            public int itemCount;
 
-            public ItemInfo(string itemExplain, TMP_Text itemCountText)
+            public ItemInfo(string itemExplain, int itemCount)
             {
                 this.itemExplain = itemExplain;
-                this.itemCountText = itemCountText;
+                this.itemCount = itemCount;
             }
         }
 
@@ -45,9 +45,11 @@ namespace LobbyUIControl
         [SerializeField] private Transform shopPanel;
         [SerializeField] private Transform itemParent;
         [SerializeField] private Image explainBlockImage;
+        [SerializeField] private Button explainBlockImageButton;
         [SerializeField] private Button closeExplainPanelButton;
         [SerializeField] private Transform explainPanel;
         [SerializeField] private Image explainImage;
+        [SerializeField] private TMP_Text ownedAmountText;
         [SerializeField] private TMP_Text explainText;
         [SerializeField] private TMP_Text emeraldPriceText;
         [SerializeField] private Button increaseButton;
@@ -84,6 +86,11 @@ namespace LobbyUIControl
             increaseButton.onClick.AddListener(IncreaseQuantity);
             decreaseButton.onClick.AddListener(DecreaseQuantity);
 
+            explainBlockImageButton.onClick.AddListener(() =>
+            {
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
+                CloseExplainPanel();
+            });
             closeExplainPanelButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
@@ -118,9 +125,8 @@ namespace LobbyUIControl
 
                 _itemInfoTable.Add(item.itemType, new ItemInfo(
                     LocaleManager.GetLocalizedString(LocaleManager.ItemTable, LocaleManager.ItemKey + item.itemType),
-                    item.transform.GetChild(2).GetComponent<TMP_Text>()));
+                    itemInventory[item.itemType.ToString()]));
 
-                _itemInfoTable[item.itemType].itemCountText.text = itemInventory[item.itemType.ToString()].ToString();
                 CustomLog.Log($"아이템 타입 : {item.itemType}   가격 : {itemPrice}");
             }
 
@@ -141,6 +147,7 @@ namespace LobbyUIControl
             CustomLog.Log($"아이템 설명 : {_itemInfoTable[itemType].itemExplain}");
 
             explainImage.sprite = sprite;
+            ownedAmountText.text = _itemInfoTable[itemType].itemCount.ToString();
             explainBlockImage.enabled = true;
             explainPanel.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack);
             _curEmeraldPrice = BackendChart.ItemTable[_curItemType.ToString()];
@@ -164,7 +171,7 @@ namespace LobbyUIControl
                 _lobbyUI.emeraldCurrency.SetText();
 
                 var itemCount = BackendGameData.userData.itemInventory[_curItemType.ToString()] += _curQuantity;
-                _itemInfoTable[_curItemType].itemCountText.text = itemCount.ToString();
+                _itemInfoTable[_curItemType].itemCount = itemCount;
 
                 CloseExplainPanel();
             }

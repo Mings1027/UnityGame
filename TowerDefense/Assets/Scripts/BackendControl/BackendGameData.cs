@@ -12,7 +12,6 @@ namespace BackendControl
     {
         public int emerald;
         public int xp;
-        public int totalSpentXp;
         public int score;
 
         public readonly List<string> survivedWaveList = new(4);
@@ -25,8 +24,8 @@ namespace BackendControl
             var result = new StringBuilder();
             result.AppendLine($"에메랄드 : {emerald}");
             result.AppendLine($"xp : {xp}");
-            result.AppendLine($"totalSpentXp : {totalSpentXp}");
             result.AppendLine($"점수 : {score}");
+
             for (var i = 0; i < survivedWaveList.Count; i++)
             {
                 result.AppendLine($"난이도 : {i} , 생존웨이브 : {survivedWaveList[i]}");
@@ -53,8 +52,7 @@ namespace BackendControl
 
         private const string UserDataTable = "USER_DATA";
         private string _gameDataRowInDate = string.Empty;
-        private byte _difficultyLevel;
-        private byte _lastSurvivedWave;
+        private byte _difficultyLevel; // 0 1 2 3
 
         public static UserData userData { get; private set; }
         public static byte scoreMultiplier { get; set; }
@@ -63,20 +61,17 @@ namespace BackendControl
         public void SetLevel(byte difficulty)
         {
             _difficultyLevel = difficulty;
-            _lastSurvivedWave = byte.Parse(userData.survivedWaveList[_difficultyLevel]);
             CustomLog.Log($"선택한 난이도 : {_difficultyLevel}");
-            CustomLog.Log($"마지막 생존 웨이브 : {_lastSurvivedWave}");
         }
 
         public void UpdateSurvivedWave(byte wave)
         {
-            if (_lastSurvivedWave <= byte.Parse(userData.survivedWaveList[_difficultyLevel]))
-            {
-                userData.survivedWaveList[_difficultyLevel] = wave.ToString();
-                CustomLog.Log($"생존웨이브 업데이트 : {userData.survivedWaveList[_difficultyLevel]}");
-                CalculateTotalScore(wave);
-                CalculateXp();
-            }
+            var oldWave = int.Parse(userData.survivedWaveList[_difficultyLevel]);
+            userData.survivedWaveList[_difficultyLevel] = wave.ToString();
+            var newWave = int.Parse(userData.survivedWaveList[_difficultyLevel]);
+            CustomLog.Log($"oldwave : {oldWave}  newwave : {newWave}");
+            CalculateTotalScore(wave);
+            CalculateXp(oldWave, newWave);
         }
 
         private void CalculateTotalScore(byte wave)
@@ -90,12 +85,22 @@ namespace BackendControl
             }
         }
 
-        private void CalculateXp()
+        private void CalculateXp(int oldWave, int newWave)
         {
             var prevXp = userData.xp;
-            var earnedXp = byte.Parse(userData.survivedWaveList[_difficultyLevel]) *
-                byte.Parse(userData.survivedWaveList[_difficultyLevel] + 1) * _difficultyLevel / 2;
-            userData.xp = prevXp + earnedXp;
+            var survivedWave = int.Parse(userData.survivedWaveList[_difficultyLevel]);
+            var earnedXp = survivedWave * (survivedWave + 1) * (_difficultyLevel + 1) / 2;
+            if (newWave > oldWave)
+            {
+                var extraXp = 3 * (newWave - oldWave) * (newWave + oldWave + 1) / 2;
+                userData.xp = prevXp + earnedXp + extraXp;
+                CustomLog.Log($"extraxp : {extraXp}  prevxp : {prevXp}  earnedxp : {earnedXp}");
+            }
+            else
+            {
+                userData.xp = prevXp + earnedXp;
+                CustomLog.Log($"prevxp : {prevXp}  earnedxp : {earnedXp}");
+            }
         }
 
         public void GameDataInsert()
@@ -104,7 +109,6 @@ namespace BackendControl
             CustomLog.Log("데이터를 초기화 합니다.");
             userData.emerald = 0;
             userData.xp = 0;
-            userData.totalSpentXp = 0;
             userData.score = 0;
 
             for (var i = 0; i < 4; i++)
@@ -131,7 +135,6 @@ namespace BackendControl
             {
                 { "emerald", userData.emerald },
                 { "xp", userData.xp },
-                { "totalSpentXp", userData.totalSpentXp },
                 { "score", userData.score },
                 { "survivedWaveList", userData.survivedWaveList },
                 { "itemInventory", userData.itemInventory },
@@ -223,7 +226,6 @@ namespace BackendControl
             {
                 { "emerald", userData.emerald },
                 { "xp", userData.xp },
-                { "totalSpentXp", userData.totalSpentXp },
                 { "score", userData.score },
                 { "survivedWaveList", userData.survivedWaveList },
                 { "itemInventory", userData.itemInventory },

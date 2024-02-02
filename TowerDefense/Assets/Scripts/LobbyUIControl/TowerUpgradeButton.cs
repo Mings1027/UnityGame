@@ -1,3 +1,5 @@
+using CustomEnumControl;
+using DataControl.TowerDataControl;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
@@ -11,8 +13,7 @@ namespace LobbyUIControl
         private TMP_Text _upgradeCountText;
         private Tween _upgradeTween;
 
-        public byte upgradeCount { get; set; }
-
+        [field: SerializeField] public AttackTowerData attackTowerData { get; private set; }
         private void Awake()
         {
             _upgradeTween = transform.DOScale(1, 0.25f).From(0.7f).SetEase(Ease.OutBack).SetAutoKill(false)

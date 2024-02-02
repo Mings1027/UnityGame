@@ -84,7 +84,7 @@ namespace ManagerControl
         {
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
-            UIManager.instance.itemBagController.gameObject.SetActive(true);
+            UIManager.instance.itemBagController.SetActiveItemBag(true);
             PoolObjectManager.PoolCleaner().Forget();
 
             if (_isBossWave)
@@ -305,7 +305,7 @@ namespace ManagerControl
 
                 WaveStop();
                 SoundManager.PlayBGM(SoundEnum.WaveEnd);
-                UIManager.instance.itemBagController.gameObject.SetActive(false);
+                UIManager.instance.itemBagController.SetActiveItemBag(false);
 
                 if (_isLastWave)
                 {

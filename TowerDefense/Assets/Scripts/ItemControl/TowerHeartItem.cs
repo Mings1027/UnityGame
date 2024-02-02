@@ -15,8 +15,10 @@ namespace ItemControl
 
         public override void Spawn()
         {
+            var uiManager = UIManager.instance;
+            if (uiManager.GetTowerHealth().Current >= 10) return;
             PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.TowerHealText, cameraManager.camPos).SetHpText(5);
-            UIManager.instance.TowerHeal();
+            uiManager.TowerHeal();
         }
     }
 }
