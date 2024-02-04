@@ -193,7 +193,7 @@ namespace LobbyUIControl
                 towerButton.interactable = true;
                 towerCostText.text = "XP 25";
                 levelCountText.text = "Lv 0 / " + TowerMaxLevel;
-                towerData[i].InitState();
+                // towerData[i].InitState();
             }
 
             foreach (var key in BackendGameData.userData.towerLevelTable.Keys.ToList())

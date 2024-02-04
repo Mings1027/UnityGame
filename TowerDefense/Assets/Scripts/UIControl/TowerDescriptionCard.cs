@@ -69,7 +69,7 @@ namespace UIControl
                     if (battleTowerData.isUnitTower)
                     {
                         var unitTowerData = (SummoningTowerData)battleTowerData;
-                        _healthText.text = unitTowerData.initUnitHealth.ToString();
+                        _healthText.text = unitTowerData.curUnitHealth.ToString();
                     }
                     else
                     {

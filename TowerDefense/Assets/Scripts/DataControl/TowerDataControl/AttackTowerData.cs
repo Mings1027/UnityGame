@@ -16,19 +16,16 @@ namespace DataControl.TowerDataControl
 
         public override void InitState()
         {
-            var towerLevel = BackendGameData.userData.towerLevelTable[towerType.ToString()] + 1;
-            curDamage = (ushort)(towerLevel * initDamage);
-            curRange = (byte)(towerLevel * initRange);
-            curRpm = (ushort)(towerLevel * initRpm);
+            var towerLevel = BackendGameData.userData.towerLevelTable[towerType.ToString()];
+            curDamage = (ushort)(towerLevel * 5 + initDamage);
+            curRange = (byte)(towerLevel + initRange);
+            curRpm = initRpm;
         }
 
         public virtual void UpgradeData(int towerLv)
         {
-            curDamage = (ushort)(towerLv * initDamage);
-            curRange = (byte)(towerLv * initRange);
-            curRpm = (ushort)(towerLv * initRpm);
-            Debug.Log($"tower lv : {towerLv}");
-            Debug.Log($"damage : {curDamage}  range :{curRange}  rpm :{curRpm}");
+            curDamage = (ushort)(towerLv * 5 + initDamage);
+            curRange = (byte)(towerLv + initRange);
         }
     }
 }
