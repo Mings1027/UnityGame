@@ -21,7 +21,7 @@ namespace UIControl
 
         private TMP_Text _healthText;
         private TMP_Text _rangeText;
-        private TMP_Text _rpmText;
+        private TMP_Text _cooldownText;
         private TMP_Text _respawnText;
         private TMP_Text _damageText;
 
@@ -72,7 +72,7 @@ namespace UIControl
 
             _healthText = healthObj.transform.GetChild(0).GetComponent<TMP_Text>();
             _rangeText = rangeObj.transform.GetChild(0).GetComponent<TMP_Text>();
-            _rpmText = rpmObj.transform.GetChild(0).GetComponent<TMP_Text>();
+            _cooldownText = rpmObj.transform.GetChild(0).GetComponent<TMP_Text>();
             _respawnText = respawnObj.transform.GetChild(0).GetComponent<TMP_Text>();
             _damageText = damageImage.transform.GetChild(0).GetComponent<TMP_Text>();
         }
@@ -103,7 +103,7 @@ namespace UIControl
                 }
                 else
                 {
-                    _rpmText.text = battleTowerData.curRpm.ToString();
+                    _cooldownText.text = battleTowerData.attackCooldown.ToString(CultureInfo.InvariantCulture);
                 }
             }
 

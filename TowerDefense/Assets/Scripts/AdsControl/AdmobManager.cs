@@ -14,12 +14,23 @@ namespace AdsControl
     public class AdmobManager : MonoBehaviour
     {
         private LobbyUI _lobbyUI;
+
+        private string _rewardedId;
         
+        [SerializeField] private string iosRewardedId = "ca-app-pub-6682177183839018/8095151824";
+        [SerializeField] private string androidRewardedId = "ca-app-pub-6682177183839018/1076560711";
+
         [SerializeField] private bool isTestMode;
+
         public event Action OnAdCloseEvent;
 
         private void Start()
         {
+#if UNITY_IPHONE
+            _rewardedId = iosRewardedId;
+#elif UNITY_ANDROID
+            _rewardedId = androidRewardedId;
+#endif
             MobileAds.RaiseAdEventsOnUnityMainThread = true;
             MobileAds.Initialize(null);
             LoadRewardedAd();
@@ -46,11 +57,6 @@ namespace AdsControl
         private RewardedAd _rewardedAd;
         private const string TestRewardedId = "ca-app-pub-3940256099942544/1712485313";
 
-#if UNITY_IPHONE
-        private const string RewardedId = "ca-app-pub-6682177183839018/8095151824";
-#elif UNITY_ANDROID
-        private static string RewardedId = "";
-#endif
         public void BindLobbyUI(LobbyUI lobbyUI) => _lobbyUI = lobbyUI;
 
         public void LoadRewardedAd()
@@ -64,7 +70,7 @@ namespace AdsControl
             var adRequest = new AdRequest();
             adRequest.Keywords.Add("unity-admob-sample");
 
-            RewardedAd.Load(isTestMode ? TestRewardedId : RewardedId, adRequest, (ad, error) =>
+            RewardedAd.Load(isTestMode ? TestRewardedId : _rewardedId, adRequest, (ad, error) =>
             {
                 if (error != null || ad == null)
                 {

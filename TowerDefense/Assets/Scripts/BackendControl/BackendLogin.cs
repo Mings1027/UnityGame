@@ -25,7 +25,7 @@ namespace BackendControl
             }
         }
 
-        public void CustomLogin(string id, string pw)
+        public bool CustomLogin(string id, string pw)
         {
             CustomLog.Log("로그인을 요청합니다.");
 
@@ -34,11 +34,17 @@ namespace BackendControl
             if (bro.IsSuccess())
             {
                 CustomLog.Log("로그인이 성공했습니다. : " + bro);
+                return true;
             }
-            else
-            {
-                CustomLog.LogError("로그인이 실패했습니다. : " + bro);
-            }
+
+            CustomLog.LogError("로그인이 실패했습니다. : " + bro);
+            return false;
+        }
+
+        public bool UpdatePassword(string id, string password)
+        {
+            var bro = Backend.BMember.UpdatePassword(id, password);
+            return bro.IsSuccess();
         }
 
         public bool UpdateNickname(string nickname)

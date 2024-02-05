@@ -32,9 +32,9 @@ namespace TowerControl
             ballista.rotation = Quaternion.Slerp(ballista.rotation, rotGoal, smoothTurnSpeed);
         }
 
-        public override void TowerSetting(MeshFilter towerMesh, int damageData, byte rangeData, ushort rpmData)
+        public override void TowerSetting(MeshFilter towerMesh, int damageData, byte rangeData, float cooldownData)
         {
-            base.TowerSetting(towerMesh, damageData, rangeData, rpmData);
+            base.TowerSetting(towerMesh, damageData, rangeData, cooldownData);
             BallistaInit();
         }
 

@@ -619,7 +619,7 @@ namespace ManagerControl
             var attackTowerData = (AttackTowerData)towerData;
             attackTower.TowerLevelUp();
             attackTower.TowerSetting(attackTowerData.towerMeshes[attackTower.TowerLevel], attackTowerData.curDamage,
-                attackTowerData.curRange, attackTowerData.curRpm);
+                attackTowerData.curRange, attackTowerData.attackCooldown);
             _towerManager.AddTower(attackTower);
         }
 
@@ -651,7 +651,7 @@ namespace ManagerControl
             attackTower.TowerLevelUp();
             var towerLevel = attackTower.TowerLevel;
             attackTower.TowerSetting(battleTowerData.towerMeshes[towerLevel],
-                battleTowerData.curDamage * (towerLevel + 1), battleTowerData.curRange, battleTowerData.curRpm);
+                battleTowerData.curDamage * (towerLevel + 1), battleTowerData.curRange, battleTowerData.attackCooldown);
             _upgradeButton.SetActive(!towerLevel.Equals(4));
             _towerRangeIndicator.SetIndicator(position, attackTower.TowerRange);
             _sellTowerGold = GetTowerSellGold(towerType);

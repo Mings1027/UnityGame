@@ -177,9 +177,9 @@ namespace TowerControl
         }
 
         public override void TowerSetting(MeshFilter towerMesh, int damageData, byte rangeData,
-            ushort rpmData)
+            float cooldownData)
         {
-            base.TowerSetting(towerMesh, damageData, rangeData, rpmData);
+            base.TowerSetting(towerMesh, damageData, rangeData, cooldownData);
 
             if (!_isUnitSpawn)
             {

@@ -1,3 +1,4 @@
+using System.Globalization;
 using CustomEnumControl;
 using DataControl.TowerDataControl;
 using DG.Tweening;
@@ -73,7 +74,7 @@ namespace UIControl
                     }
                     else
                     {
-                        _delayText.text = battleTowerData.curRpm.ToString();
+                        _delayText.text = battleTowerData.attackCooldown.ToString(CultureInfo.InvariantCulture);
                     }
 
                     damageImage.sprite = uiManager.GetTowerType(_towerType);

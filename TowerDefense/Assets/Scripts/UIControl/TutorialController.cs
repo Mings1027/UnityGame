@@ -1,3 +1,4 @@
+using System;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,14 +19,11 @@ namespace UIControl
             var toggleBtn = _rectTransform.GetComponent<Button>();
             toggleBtn.onClick.AddListener(BounceButton);
             toggleBtn.enabled = false;
-            gameObject.SetActive(false);
         }
 
-        public void TutorialButton()
+        private void Start()
         {
-            gameObject.SetActive(true);
-            _rectTransform.GetComponent<Button>().enabled = true;
-            _bounceSequence.SetLoops(-1, LoopType.Yoyo).Restart();
+            gameObject.SetActive(false);
         }
 
         private void BounceButton()
@@ -34,6 +32,13 @@ namespace UIControl
             _bounceSequence.Kill();
             _rectTransform.GetComponent<Button>().onClick.RemoveListener(BounceButton);
             Destroy(GetComponent<TutorialController>());
+        }
+
+        public void TutorialButton()
+        {
+            gameObject.SetActive(true);
+            _rectTransform.GetComponent<Button>().enabled = true;
+            _bounceSequence.SetLoops(-1, LoopType.Yoyo).Restart();
         }
     }
 }

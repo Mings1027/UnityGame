@@ -8,7 +8,7 @@ namespace TowerControl
         private MeshRenderer _meshRenderer;
         private MeshFilter _defaultMesh;
         private MeshFilter _meshFilter;
-        
+
         protected BoxCollider boxCollider;
         protected Cooldown attackCooldown;
         protected Cooldown patrolCooldown;
@@ -52,11 +52,11 @@ namespace TowerControl
         }
 
         public virtual void TowerSetting(MeshFilter towerMesh, int damageData, byte rangeData,
-            ushort rpmData)
+            float cooldownData)
         {
             TowerRange = rangeData;
             Damage = damageData;
-            attackCooldown.cooldownTime = 60 / (float)rpmData;
+            attackCooldown.cooldownTime = cooldownData;
             _meshFilter.sharedMesh = towerMesh.sharedMesh;
 
             ColliderSize();
