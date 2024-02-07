@@ -6,6 +6,7 @@ using DataControl.TowerDataControl;
 using DG.Tweening;
 using ManagerControl;
 using TMPro;
+using UIControl;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -24,14 +25,17 @@ namespace LobbyUIControl
         [SerializeField] private Image blockImage;
         [SerializeField] private Button startGameButton;
         [SerializeField] private Button upgradeButton;
+
         [SerializeField] private Button closeButton;
-        [SerializeField] private Button initLevelButton;
-        [SerializeField] private Button yesButton;
-        [SerializeField] private Button noButton;
+
+        // [SerializeField] private Button initLevelButton;
+        // [SerializeField] private Button yesButton;
+        // [SerializeField] private Button noButton;
         [SerializeField] private Transform upgradePanel;
 
-        [SerializeField] private Image deletePanelBlockImage;
-        [SerializeField] private Transform deletePanel;
+        // [SerializeField] private Image deletePanelBlockImage;
+        // [SerializeField] private Transform deletePanel;
+        [SerializeField] private NotificationPanel notifyInitLevelPanel;
 
         [SerializeField] private Transform towerButtons;
         [SerializeField] private AttackTowerData[] towerData;
@@ -42,11 +46,8 @@ namespace LobbyUIControl
             _lobbyUI = FindAnyObjectByType<LobbyUI>();
             _upgradePanelTween =
                 upgradePanel.DOScaleX(1, 0.25f).From(0).SetEase(Ease.OutBack).SetAutoKill(false).Pause();
-            _deletePanelTween = deletePanel.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack).SetAutoKill(false).Pause()
-                .SetUpdate(true);
             Input.multiTouchEnabled = false;
             blockImage.enabled = false;
-            deletePanelBlockImage.enabled = false;
             ButtonInit();
         }
 
@@ -86,23 +87,29 @@ namespace LobbyUIControl
                 _upgradePanelTween.PlayBackwards();
                 _lobbyUI.SetActiveButtons(true, false);
             });
-            initLevelButton.onClick.AddListener(() =>
-            {
-                SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                deletePanelBlockImage.enabled = true;
-                _deletePanelTween.Restart();
-            });
-            yesButton.onClick.AddListener(() =>
+            notifyInitLevelPanel.OnPopUpButtonEvent += () => SoundManager.PlayUISound(SoundEnum.ButtonSound);
+            notifyInitLevelPanel.OnOkButtonEvent += () =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 InitTowerLevel();
-            });
-            noButton.onClick.AddListener(() =>
-            {
-                SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                deletePanelBlockImage.enabled = false;
-                _deletePanelTween.PlayBackwards();
-            });
+            };
+            notifyInitLevelPanel.OnCancelButtonEvent+=()=> SoundManager.PlayUISound(SoundEnum.ButtonSound);
+            // initLevelButton.onClick.AddListener(() =>
+            // {
+            //     deletePanelBlockImage.enabled = true;
+            //     _deletePanelTween.Restart();
+            // });
+            // yesButton.onClick.AddListener(() =>
+            // {
+            //     SoundManager.PlayUISound(SoundEnum.ButtonSound);
+            //     InitTowerLevel();
+            // });
+            // noButton.onClick.AddListener(() =>
+            // {
+            //     SoundManager.PlayUISound(SoundEnum.ButtonSound);
+            //     deletePanelBlockImage.enabled = false;
+            //     _deletePanelTween.PlayBackwards();
+            // });
         }
 
         private void TowerUpgradeButtonInit()
@@ -175,8 +182,8 @@ namespace LobbyUIControl
 
         private void InitTowerLevel()
         {
-            deletePanelBlockImage.enabled = false;
-            _deletePanelTween.PlayBackwards();
+            // deletePanelBlockImage.enabled = false;
+            // _deletePanelTween.PlayBackwards();
 
             if (BackendGameData.userData.xp <= 0) return;
 
@@ -201,12 +208,12 @@ namespace LobbyUIControl
                 BackendGameData.userData.towerLevelTable[key] = 0;
             }
 
-            initLevelButton.interactable = false;
+            // initLevelButton.interactable = false;
             UniTask.RunOnThreadPool(() =>
             {
                 BackendGameData.instance.GameDataUpdate();
 
-                initLevelButton.interactable = true;
+                // initLevelButton.interactable = true;
             });
         }
     }

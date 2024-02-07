@@ -17,6 +17,7 @@ namespace ManagerControl
         private long _patchSize;
         private Tween _downloadPanelTween;
         private Dictionary<string, long> _patchMap;
+        private bool _isCheckUpdate;
 
         [SerializeField] private GameObject downLoadPanel;
         [SerializeField] private Image blockImage;
@@ -35,14 +36,7 @@ namespace ManagerControl
                 .SetAutoKill(false).Pause();
             _patchMap = new Dictionary<string, long>();
             startButton.gameObject.SetActive(false);
-            startButton.onClick.AddListener(() =>
-            {
-                _downloadPanelTween.Restart();
-                blockImage.enabled = true;
-                startButton.gameObject.SetActive(false);
-                downLoadButton.gameObject.SetActive(true);
-                cancelButton.gameObject.SetActive(true);
-            });
+            startButton.onClick.AddListener(() => { CheckUpdateFiles().Forget(); });
             downLoadButton.onClick.AddListener(DownLoadButton);
             cancelButton.onClick.AddListener(CancelButton);
         }
@@ -67,21 +61,25 @@ namespace ManagerControl
 
 #region CheckDown
 
-        public async UniTaskVoid CheckUpdateFiles()
+        private async UniTaskVoid CheckUpdateFiles()
         {
-            var labels = new List<string>();
-            for (var i = 0; i < assetLabels.Length; i++)
+            if (_isCheckUpdate)
             {
-                labels.Add(assetLabels[i].labelString);
-            }
+                _isCheckUpdate = true;
+                var labels = new List<string>();
+                for (var i = 0; i < assetLabels.Length; i++)
+                {
+                    labels.Add(assetLabels[i].labelString);
+                }
 
-            _patchSize = default;
+                _patchSize = default;
 
-            foreach (var handle in labels.Select(Addressables.GetDownloadSizeAsync))
-            {
-                await handle;
+                foreach (var handle in labels.Select(Addressables.GetDownloadSizeAsync))
+                {
+                    await handle;
 
-                _patchSize += handle.Result;
+                    _patchSize += handle.Result;
+                }
             }
 
             if (_patchSize > decimal.Zero) // 다운로드 할 것이 있음
@@ -89,13 +87,15 @@ namespace ManagerControl
                 blockImage.enabled = true;
                 _downloadPanelTween.Restart();
                 sizeInfoText.text = GetFilSize(_patchSize);
+                blockImage.enabled = true;
+                startButton.gameObject.SetActive(false);
+                downLoadButton.gameObject.SetActive(true);
+                cancelButton.gameObject.SetActive(true);
             }
             else // 다운로드 할 것이 없음
             {
-                // sizeInfoText.enabled = false;
-                // downValueText.text = " 100 % ";
-                // downSlider.value = 1;
                 downSlider.gameObject.SetActive(true);
+                startButton.gameObject.SetActive(false);
                 ProgressBarTo100();
                 // 게임 시작되는 부분
             }
@@ -144,10 +144,10 @@ namespace ManagerControl
         {
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
             blockImage.enabled = false;
+            _downloadPanelTween.PlayBackwards();
             startButton.gameObject.SetActive(true);
             downLoadButton.gameObject.SetActive(false);
             cancelButton.gameObject.SetActive(false);
-            _downloadPanelTween.PlayBackwards();
         }
 
         private async UniTask PatchFiles()

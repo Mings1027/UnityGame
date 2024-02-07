@@ -8,9 +8,7 @@ namespace LobbyUIControl
 
         private void Start()
         {
-            Input.multiTouchEnabled = false;
             Time.timeScale = 1;
-            Application.targetFrameRate = 60;
         }
 
         private void LateUpdate()

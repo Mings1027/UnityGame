@@ -37,7 +37,6 @@ namespace BackendControl
                 BackendChart.instance.ChartGet();
 
                 CustomLog.Log("테스트를 종료합니다");
-                FindAnyObjectByType<DownloadManager>().CheckUpdateFiles().Forget();
             });
         }
     }

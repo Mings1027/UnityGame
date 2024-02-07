@@ -1320,7 +1320,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 41.4
+  m_fontSize: 36.7
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -1894,7 +1894,7 @@ GameObject:
   - component: {fileID: 3407014589665922965}
   - component: {fileID: 8471016806053505556}
   m_Layer: 5
-  m_Name: Image
+  m_Name: Delete Wave Panel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2910,7 +2910,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 34.5
+  m_fontSize: 32.45
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -4175,7 +4175,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 34.5
+  m_fontSize: 36.7
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -5917,8 +5917,9 @@ GameObject:
   m_Component:
   - component: {fileID: 5118653232952011157}
   - component: {fileID: 1704331875585595672}
+  - component: {fileID: 4683866824678857355}
   m_Layer: 5
-  m_Name: Delete Wave Data Panel
+  m_Name: Notify Delete Wave Panel
   m_TagString: UI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5954,6 +5955,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2890253317799795512}
   m_CullTransparentMesh: 1
+--- !u!114 &4683866824678857355
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2890253317799795512}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d47def9f09ebe49d0a11e0597b6c66f9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blockImage: {fileID: 1904331552464765903}
+  panel: {fileID: 1956500892988664737}
+  popUpButton: {fileID: 8407984588858560342}
+  okButton: {fileID: 9075869010625402796}
+  cancelButton: {fileID: 5253917081737585976}
 --- !u!1 &2894034720540197389
 GameObject:
   m_ObjectHideFlags: 0
@@ -6050,7 +6068,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 41.4
+  m_fontSize: 36.7
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -9936,7 +9954,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 34.5
+  m_fontSize: 32.45
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -10396,7 +10414,7 @@ GameObject:
   - component: {fileID: 2950266456789137297}
   - component: {fileID: 9075869010625402796}
   m_Layer: 5
-  m_Name: Yes Button
+  m_Name: Ok Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10918,7 +10936,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 34.5
+  m_fontSize: 32.45
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -15022,7 +15040,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 62.15
+  m_fontSize: 66.05
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -15585,7 +15603,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 41.4
+  m_fontSize: 36.7
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -16253,7 +16271,7 @@ GameObject:
   - component: {fileID: 6919284546528317173}
   - component: {fileID: 5253917081737585976}
   m_Layer: 5
-  m_Name: No Button
+  m_Name: Cancel Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16533,7 +16551,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 34.5
+  m_fontSize: 32.45
   m_fontSizeBase: 36
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -17572,11 +17590,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 349c4fda73ea24f0388d70b4bd97789a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deleteWaveDataPanel: {fileID: 5118653232952011157}
-  blockImage: {fileID: 1904331552464765903}
-  dataDeleteButton: {fileID: 8407984588858560342}
-  yesButton: {fileID: 9075869010625402796}
-  noButton: {fileID: 5253917081737585976}
+  deleteSurviveWavePanel: {fileID: 4683866824678857355}
 --- !u!1 &8135335031055679660
 GameObject:
   m_ObjectHideFlags: 0
@@ -17673,7 +17687,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 41.4
+  m_fontSize: 36.7
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -19775,7 +19789,7 @@ PrefabInstance:
     - target: {fileID: 2432601298867922504, guid: 1352f31f3006b4d1995404552df21535,
         type: 3}
       propertyPath: m_fontSize
-      value: 34.5
+      value: 36.7
       objectReference: {fileID: 0}
     - target: {fileID: 2432601299005391860, guid: 1352f31f3006b4d1995404552df21535,
         type: 3}

@@ -1,4 +1,5 @@
 using BackEnd;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 using Utilities;
 
@@ -39,12 +40,6 @@ namespace BackendControl
 
             CustomLog.LogError("로그인이 실패했습니다. : " + bro);
             return false;
-        }
-
-        public bool UpdatePassword(string id, string password)
-        {
-            var bro = Backend.BMember.UpdatePassword(id, password);
-            return bro.IsSuccess();
         }
 
         public bool UpdateNickname(string nickname)
