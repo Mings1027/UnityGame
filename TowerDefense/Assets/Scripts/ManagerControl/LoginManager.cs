@@ -33,7 +33,8 @@ namespace ManagerControl
 
         private bool _isFederationLogin;
 
-        private Tween _loginPanelTween;
+        private Tween _loginButtonGroupTween;
+
         private CancellationTokenSource _cts;
 
         private BackendManager _backendManager;
@@ -47,7 +48,7 @@ namespace ManagerControl
         [SerializeField] private Image blockImage;
 
         [SerializeField] private CanvasGroup loginButtonsGroup;
-        [SerializeField] private CanvasGroup emailLoginPanelGroup;
+        [SerializeField] private GameObject emailLoginPanelGroupObj;
         [SerializeField] private RectTransform content;
 
         [Header("=======================Email Login=======================")]
@@ -65,38 +66,16 @@ namespace ManagerControl
         [SerializeField] private string myPassword;
         [SerializeField] private string url;
 
-        [SerializeField] private Button startButton;
-        [SerializeField] private Button logOutButton;
+        [SerializeField] private GameObject loginPanelGroupObj;
         [SerializeField] private NoticePanel logOutNotifyPanel;
-
-        private void Awake()
-        {
-            emailLoginPanelGroup.gameObject.SetActive(false);
-            _backendManager = FindAnyObjectByType<BackendManager>();
-            blockImage.enabled = false;
-            timerBackground.enabled = false;
-            timerText.text = "";
-            oneTimeCodeField.interactable = false;
-            Input.multiTouchEnabled = false;
-            Time.timeScale = 1;
-            Application.targetFrameRate = 60;
-        }
 
         private void Start()
         {
-            startButton.gameObject.SetActive(false);
-            logOutButton.gameObject.SetActive(false);
-            notifySendEmailObj.SetActive(false);
+            Init();
             AppleInit();
             GoogleInit();
             InitInputField();
             InitButtons();
-
-            if (idField.text.Contains("@") && idField.text.Contains("."))
-            {
-                sendEmailButton.interactable = true;
-                sendEmailBtnText.color = Color.red;
-            }
         }
 
         private void Update()
@@ -106,20 +85,50 @@ namespace ManagerControl
 #endif
         }
 
+        private void OnDisable()
+        {
+            _loginButtonGroupTween?.Kill();
+        }
+
+        private void Init()
+        {
+            _loginButtonGroupTween = loginButtonsGroup.DOFade(1, 0.25f).From(0).SetEase(Ease.Linear).SetAutoKill(false)
+                .Pause();
+            _loginButtonGroupTween.Restart();
+
+            emailLoginPanelGroupObj.SetActive(false);
+            loginPanelGroupObj.SetActive(false);
+            notifySendEmailObj.SetActive(false);
+            _backendManager = FindAnyObjectByType<BackendManager>();
+            blockImage.enabled = false;
+            timerBackground.enabled = false;
+            timerText.text = "";
+            oneTimeCodeField.interactable = false;
+
+            Input.multiTouchEnabled = false;
+            Time.timeScale = 1;
+            Application.targetFrameRate = 60;
+        }
+
         private void InitInputField()
         {
             idField.text = PlayerPrefs.GetString(UserEmailID);
+            if (idField.text.Contains("@") && idField.text.Contains("."))
+            {
+                sendEmailButton.interactable = true;
+                sendEmailBtnText.color = Color.red;
+            }
 
             idField.OnPointerUpEvent += () =>
             {
                 idField.ActivateInputField();
-                TouchScreenKeyboard.Open("", TouchScreenKeyboardType.EmailAddress, false, false, false);
+                TouchScreenKeyboard.hideInput = true;
                 content.DOLocalMoveY(350, 0.5f).SetEase(Ease.OutQuart);
             };
             oneTimeCodeField.OnPointerUpEvent += () =>
             {
                 oneTimeCodeField.ActivateInputField();
-                TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad, false, false, false);
+                TouchScreenKeyboard.hideInput = true;
                 content.DOLocalMoveY(350, 0.5f).SetEase(Ease.OutQuart);
             };
 
@@ -134,17 +143,16 @@ namespace ManagerControl
             appleLoginButton.onClick.AddListener(AppleLogin);
             emailLoginButton.onClick.AddListener(() =>
             {
-                loginButtonsGroup.gameObject.SetActive(false);
                 blockImage.enabled = true;
                 content.anchoredPosition = Vector2.zero;
-                emailLoginPanelGroup.gameObject.SetActive(true);
+                emailLoginPanelGroupObj.SetActive(true);
+                _loginButtonGroupTween.PlayBackwards();
             });
             goBackButton.onClick.AddListener(() =>
             {
-                loginButtonsGroup.gameObject.SetActive(true);
                 blockImage.enabled = false;
-                emailLoginPanelGroup.gameObject.SetActive(false);
-                loginButtonsGroup.DOFade(1, 0.5f).From(0);
+                emailLoginPanelGroupObj.SetActive(false);
+                _loginButtonGroupTween.Restart();
             });
             googleLoginButton.onClick.AddListener(GoogleLogin);
 
@@ -201,12 +209,10 @@ namespace ManagerControl
                         {
                             _isFederationLogin = true;
                             CustomLog.Log("Apple 로그인 성공");
-                            loginButtonsGroup.gameObject.SetActive(false);
+                            _loginButtonGroupTween.PlayBackwards();
                             CustomLog.Log("========애플로그인");
                             _backendManager.BackendInit().Forget();
-                            startButton.gameObject.SetActive(true);
-                            logOutButton.gameObject.SetActive(true);
-                            gameObject.SetActive(false);
+                            loginPanelGroupObj.SetActive(true);
                         }
                         else CustomLog.LogError("Apple 로그인 실패");
 
@@ -337,7 +343,6 @@ namespace ManagerControl
 
                 if (byte.Parse((string)jObject["value"] ?? string.Empty) >= 7)
                 {
-                    Debug.Log("비밀변호 업데이트");
                     var oldPassword = _password;
                     _password = GenerateRandomPassword();
 
@@ -349,12 +354,10 @@ namespace ManagerControl
                     form.AddField("password", _password);
                     form.AddField("count", 0);
                     await Post(form);
-                    Debug.Log("업뎃 카운트 +1");
                 }
 
                 _backendManager.BackendInit().Forget();
-                startButton.gameObject.SetActive(true);
-                logOutButton.gameObject.SetActive(true);
+                loginPanelGroupObj.SetActive(true);
 
                 idField.interactable = true;
                 oneTimeCodeField.interactable = false;
@@ -365,9 +368,7 @@ namespace ManagerControl
                 _oneTimeCode = "";
                 oneTimeCodeField.text = "";
                 content.DOLocalMoveY(0, 0.5f).SetEase(Ease.OutQuart);
-                emailLoginPanelGroup.gameObject.SetActive(false);
-                loginButtonsGroup.DOFade(1, 0.5f).From(0);
-                gameObject.SetActive(false);
+                emailLoginPanelGroupObj.SetActive(false);
             }
         }
 
@@ -433,16 +434,16 @@ namespace ManagerControl
         {
             if (_isFederationLogin)
             {
+                _isFederationLogin = false;
             }
             else
             {
                 Backend.BMember.Logout();
-                BackendChart.instance.InitItemTable();
-                startButton.gameObject.SetActive(false);
-                logOutButton.gameObject.SetActive(false);
-                gameObject.SetActive(true);
-                loginButtonsGroup.gameObject.SetActive(true);
             }
+
+            BackendChart.instance.InitItemTable();
+            loginPanelGroupObj.SetActive(false);
+            _loginButtonGroupTween.Restart();
         }
 
 #endregion

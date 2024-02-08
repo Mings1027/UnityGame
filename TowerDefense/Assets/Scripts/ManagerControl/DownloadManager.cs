@@ -35,7 +35,6 @@ namespace ManagerControl
             _downloadPanelTween = downLoadPanel.transform.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack)
                 .SetAutoKill(false).Pause();
             _patchMap = new Dictionary<string, long>();
-            startButton.gameObject.SetActive(false);
             startButton.onClick.AddListener(() => { CheckUpdateFiles().Forget(); });
             downLoadButton.onClick.AddListener(DownLoadButton);
             cancelButton.onClick.AddListener(CancelButton);

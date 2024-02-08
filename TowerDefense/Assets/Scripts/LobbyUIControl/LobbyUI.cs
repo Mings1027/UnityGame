@@ -1,6 +1,7 @@
 using System;
 using AdsControl;
 using CurrencyControl;
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using TMPro;
 using UIControl;
@@ -39,14 +40,19 @@ namespace LobbyUIControl
 
         private void Start()
         {
-            FindAnyObjectByType<AdmobManager>().BindLobbyUI(this);
-            inGameMoneyObj.SetActive(false);
-            logOutPanel.OnOkButtonEvent += () => SceneManager.LoadScene("LoginScene");
+            Init();
         }
 
         private void OnDisable()
         {
             diamondNotifySequence?.Kill();
+        }
+
+        private void Init()
+        {
+            FindAnyObjectByType<AdmobManager>().BindLobbyUI(this);
+            inGameMoneyObj.SetActive(false);
+            logOutPanel.OnOkButtonEvent += () => { SceneManager.LoadSceneAsync("LoginScene"); };
         }
 
         public void SetActiveButtons(bool active, bool inGameMoneyActive)

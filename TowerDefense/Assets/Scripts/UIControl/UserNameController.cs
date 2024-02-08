@@ -75,7 +75,6 @@ namespace UIControl
         private void GoBackPrevNickName(string arg0)
         {
             if (_isChangedNickname) return;
-            Debug.Log("=================deselect input field=================");
             userNameField.text = _curNickname;
         }
 

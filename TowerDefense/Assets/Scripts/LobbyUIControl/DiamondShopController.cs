@@ -13,7 +13,7 @@ namespace LobbyUIControl
     {
         private LobbyUI _lobbyUI;
         private AdmobManager _rewardedAds;
-        private Tween _shopTween;
+        private Sequence _shopTween;
 
         [SerializeField] private CanvasGroup shopPanelGroup;
         [SerializeField] private Image backgroundBlockImage;
@@ -28,7 +28,9 @@ namespace LobbyUIControl
             _lobbyUI = FindAnyObjectByType<LobbyUI>();
             _rewardedAds = FindAnyObjectByType<AdmobManager>();
             shopPanelGroup.blocksRaycasts = false;
-            _shopTween = shopPanelGroup.DOFade(1, 0.25f).From(0).SetEase(Ease.Linear).SetAutoKill(false).Pause();
+            _shopTween = DOTween.Sequence().SetAutoKill(false).Pause()
+                .Append(shopPanelGroup.DOFade(1, 0.25f).From(0).SetEase(Ease.Linear))
+                .Join(shopPanelGroup.GetComponent<RectTransform>().DOAnchorPosX(0, 0.25f).From(new Vector2(-100, 0)));
             diamondButton.onClick.AddListener(OpenGoldPanel);
             closeButton.onClick.AddListener(ClosePanel);
             loadingImage.localScale = Vector3.zero;
