@@ -3,7 +3,9 @@ using AdsControl;
 using CurrencyControl;
 using DG.Tweening;
 using TMPro;
+using UIControl;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 
 namespace LobbyUIControl
@@ -21,6 +23,7 @@ namespace LobbyUIControl
 
         [SerializeField] private RectTransform diaNotifyRect;
         [SerializeField] private RectTransform emeraldNotifyRect;
+        [SerializeField] private NoticePanel logOutPanel;
 
         private void Awake()
         {
@@ -38,6 +41,7 @@ namespace LobbyUIControl
         {
             FindAnyObjectByType<AdmobManager>().BindLobbyUI(this);
             inGameMoneyObj.SetActive(false);
+            logOutPanel.OnOkButtonEvent += () => SceneManager.LoadScene("LoginScene");
         }
 
         private void OnDisable()

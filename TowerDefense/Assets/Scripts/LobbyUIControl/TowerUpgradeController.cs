@@ -35,7 +35,7 @@ namespace LobbyUIControl
 
         // [SerializeField] private Image deletePanelBlockImage;
         // [SerializeField] private Transform deletePanel;
-        [SerializeField] private NotificationPanel notifyInitLevelPanel;
+        [SerializeField] private NoticePanel notifyInitLevelPanel;
 
         [SerializeField] private Transform towerButtons;
         [SerializeField] private AttackTowerData[] towerData;
@@ -88,12 +88,8 @@ namespace LobbyUIControl
                 _lobbyUI.SetActiveButtons(true, false);
             });
             notifyInitLevelPanel.OnPopUpButtonEvent += () => SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            notifyInitLevelPanel.OnOkButtonEvent += () =>
-            {
-                SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                InitTowerLevel();
-            };
-            notifyInitLevelPanel.OnCancelButtonEvent+=()=> SoundManager.PlayUISound(SoundEnum.ButtonSound);
+            notifyInitLevelPanel.OnOkButtonEvent += InitTowerLevel;
+            notifyInitLevelPanel.OnCancelButtonEvent += () => SoundManager.PlayUISound(SoundEnum.ButtonSound);
             // initLevelButton.onClick.AddListener(() =>
             // {
             //     deletePanelBlockImage.enabled = true;
@@ -182,9 +178,6 @@ namespace LobbyUIControl
 
         private void InitTowerLevel()
         {
-            // deletePanelBlockImage.enabled = false;
-            // _deletePanelTween.PlayBackwards();
-
             if (BackendGameData.userData.xp <= 0) return;
 
             var xp = BackendGameData.userData.xp = GetSpentXp();
@@ -200,7 +193,6 @@ namespace LobbyUIControl
                 towerButton.interactable = true;
                 towerCostText.text = "XP 25";
                 levelCountText.text = "Lv 0 / " + TowerMaxLevel;
-                // towerData[i].InitState();
             }
 
             foreach (var key in BackendGameData.userData.towerLevelTable.Keys.ToList())
@@ -208,13 +200,7 @@ namespace LobbyUIControl
                 BackendGameData.userData.towerLevelTable[key] = 0;
             }
 
-            // initLevelButton.interactable = false;
-            UniTask.RunOnThreadPool(() =>
-            {
-                BackendGameData.instance.GameDataUpdate();
-
-                // initLevelButton.interactable = true;
-            });
+            UniTask.RunOnThreadPool(() => { BackendGameData.instance.GameDataUpdate(); });
         }
     }
 }

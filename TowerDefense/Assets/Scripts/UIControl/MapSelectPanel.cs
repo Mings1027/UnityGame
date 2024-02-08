@@ -22,7 +22,7 @@ namespace UIControl
         // [SerializeField] private Button yesButton;
         // [SerializeField] private Button noButton;
 
-        [SerializeField] private NotificationPanel deleteSurviveWavePanel;
+        [SerializeField] private NoticePanel deleteSurviveWavePanel;
 
         // private void Awake()
         // {
@@ -83,7 +83,6 @@ namespace UIControl
             deleteSurviveWavePanel.OnPopUpButtonEvent += () => { SoundManager.PlayUISound(SoundEnum.ButtonSound); };
             deleteSurviveWavePanel.OnOkButtonEvent += () =>
             {
-                SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 var survivedWaves = BackendGameData.userData.survivedWaveList;
                 var difficultySelectButtons = transform.GetChild(0);
                 for (var i = 0; i < difficultySelectButtons.childCount; i++)

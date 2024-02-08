@@ -28,5 +28,7 @@ namespace BackendControl
                 ItemTable.Add(gameData["ItemName"].ToString(), int.Parse(gameData["ItemPrice"].ToString()));
             }
         }
+
+        public void InitItemTable() => ItemTable.Clear();
     }
 }

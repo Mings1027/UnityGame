@@ -1,4 +1,3 @@
-using System;
 using AdsControl;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
@@ -15,8 +14,8 @@ namespace LobbyUIControl
         private LobbyUI _lobbyUI;
         private AdmobManager _rewardedAds;
         private Tween _shopTween;
-        
-        [SerializeField] private RectTransform shopPanel;
+
+        [SerializeField] private CanvasGroup shopPanelGroup;
         [SerializeField] private Image backgroundBlockImage;
         [SerializeField] private Image shopBlockImage;
         [SerializeField] private Button diamondButton;
@@ -28,7 +27,8 @@ namespace LobbyUIControl
         {
             _lobbyUI = FindAnyObjectByType<LobbyUI>();
             _rewardedAds = FindAnyObjectByType<AdmobManager>();
-            _shopTween = shopPanel.DOScaleX(1, 0.25f).From(0).SetEase(Ease.OutBack).SetAutoKill(false).Pause();
+            shopPanelGroup.blocksRaycasts = false;
+            _shopTween = shopPanelGroup.DOFade(1, 0.25f).From(0).SetEase(Ease.Linear).SetAutoKill(false).Pause();
             diamondButton.onClick.AddListener(OpenGoldPanel);
             closeButton.onClick.AddListener(ClosePanel);
             loadingImage.localScale = Vector3.zero;
@@ -58,7 +58,7 @@ namespace LobbyUIControl
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
             backgroundBlockImage.enabled = true;
             shopBlockImage.enabled = false;
-            _shopTween.Restart();
+            _shopTween.OnComplete(() => shopPanelGroup.blocksRaycasts = true).Restart();
             _lobbyUI.SetActiveButtons(false, true);
             _lobbyUI.Off();
         }
@@ -68,6 +68,7 @@ namespace LobbyUIControl
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
             backgroundBlockImage.enabled = false;
             shopBlockImage.enabled = true;
+            shopPanelGroup.blocksRaycasts = false;
             _shopTween.PlayBackwards();
             _lobbyUI.SetActiveButtons(true, false);
             _lobbyUI.On();

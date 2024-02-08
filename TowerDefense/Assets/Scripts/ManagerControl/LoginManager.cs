@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using System.Net.Mail;
 using System.Text;
+using System.Threading;
 using AppleAuth;
 using AppleAuth.Enums;
 using AppleAuth.Extensions;
@@ -11,6 +12,7 @@ using BackEnd;
 using BackendControl;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using Newtonsoft.Json.Linq;
 using TMPro;
 using UIControl;
 using UnityEngine;
@@ -26,24 +28,27 @@ namespace ManagerControl
     {
         private const string UserEmailID = "User Email ID";
 
-        private string _id, _oneTimeCode;
+        private string _id, _oneTimeCode, _password;
         private string _wwwText;
 
         private bool _isFederationLogin;
 
         private Tween _loginPanelTween;
-        private Tween _logOutPanelTween;
+        private CancellationTokenSource _cts;
 
         private BackendManager _backendManager;
 #if UNITY_IPHONE
         private IAppleAuthManager _appleAuthManager;
 #endif
-        [SerializeField] private GameObject loginButtonParent;
         [SerializeField] private Button appleLoginButton;
         [SerializeField] private Button emailLoginButton;
         [SerializeField] private Button googleLoginButton;
+
         [SerializeField] private Image blockImage;
-        [SerializeField] private RectTransform loginPanel;
+
+        [SerializeField] private CanvasGroup loginButtonsGroup;
+        [SerializeField] private CanvasGroup emailLoginPanelGroup;
+        [SerializeField] private RectTransform content;
 
         [Header("=======================Email Login=======================")]
         [SerializeField] private Button goBackButton;
@@ -62,11 +67,11 @@ namespace ManagerControl
 
         [SerializeField] private Button startButton;
         [SerializeField] private Button logOutButton;
-        [SerializeField] private NotificationPanel logOutNotifyPanel;
+        [SerializeField] private NoticePanel logOutNotifyPanel;
 
         private void Awake()
         {
-            _loginPanelTween = loginPanel.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack).SetAutoKill(false).Pause();
+            emailLoginPanelGroup.gameObject.SetActive(false);
             _backendManager = FindAnyObjectByType<BackendManager>();
             blockImage.enabled = false;
             timerBackground.enabled = false;
@@ -101,11 +106,6 @@ namespace ManagerControl
 #endif
         }
 
-        private void OnDisable()
-        {
-            _loginPanelTween?.Kill();
-        }
-
         private void InitInputField()
         {
             idField.text = PlayerPrefs.GetString(UserEmailID);
@@ -114,19 +114,19 @@ namespace ManagerControl
             {
                 idField.ActivateInputField();
                 TouchScreenKeyboard.Open("", TouchScreenKeyboardType.EmailAddress, false, false, false);
-                loginPanel.DOLocalMoveY(350, 0.5f).SetEase(Ease.OutQuart);
+                content.DOLocalMoveY(350, 0.5f).SetEase(Ease.OutQuart);
             };
             oneTimeCodeField.OnPointerUpEvent += () =>
             {
                 oneTimeCodeField.ActivateInputField();
                 TouchScreenKeyboard.Open("", TouchScreenKeyboardType.NumberPad, false, false, false);
-                loginPanel.DOLocalMoveY(350, 0.5f).SetEase(Ease.OutQuart);
+                content.DOLocalMoveY(350, 0.5f).SetEase(Ease.OutQuart);
             };
 
-            idField.onSubmit.AddListener(_ => { loginPanel.DOLocalMoveY(0, 0.5f).SetEase(Ease.OutQuart); });
+            idField.onSubmit.AddListener(_ => { content.DOLocalMoveY(0, 0.5f).SetEase(Ease.OutQuart); });
             idField.onValueChanged.AddListener(_ => { CheckEmailForm(); });
 
-            oneTimeCodeField.onSubmit.AddListener(_ => { loginPanel.DOLocalMoveY(0, 0.5f).SetEase(Ease.OutQuart); });
+            oneTimeCodeField.onSubmit.AddListener(_ => { content.DOLocalMoveY(0, 0.5f).SetEase(Ease.OutQuart); });
         }
 
         private void InitButtons()
@@ -134,20 +134,22 @@ namespace ManagerControl
             appleLoginButton.onClick.AddListener(AppleLogin);
             emailLoginButton.onClick.AddListener(() =>
             {
-                loginButtonParent.SetActive(false);
+                loginButtonsGroup.gameObject.SetActive(false);
                 blockImage.enabled = true;
-                _loginPanelTween.Restart();
+                content.anchoredPosition = Vector2.zero;
+                emailLoginPanelGroup.gameObject.SetActive(true);
             });
             goBackButton.onClick.AddListener(() =>
             {
-                loginButtonParent.SetActive(true);
+                loginButtonsGroup.gameObject.SetActive(true);
                 blockImage.enabled = false;
-                _loginPanelTween.PlayBackwards();
+                emailLoginPanelGroup.gameObject.SetActive(false);
+                loginButtonsGroup.DOFade(1, 0.5f).From(0);
             });
             googleLoginButton.onClick.AddListener(GoogleLogin);
 
             sendEmailButton.onClick.AddListener(() => SendEmail().Forget());
-            loginButton.onClick.AddListener(EmailLogin);
+            loginButton.onClick.AddListener(() => EmailLogin());
 
             logOutNotifyPanel.OnOkButtonEvent += LogOut;
         }
@@ -199,7 +201,7 @@ namespace ManagerControl
                         {
                             _isFederationLogin = true;
                             CustomLog.Log("Apple 로그인 성공");
-                            loginButtonParent.SetActive(false);
+                            loginButtonsGroup.gameObject.SetActive(false);
                             CustomLog.Log("========애플로그인");
                             _backendManager.BackendInit().Forget();
                             startButton.gameObject.SetActive(true);
@@ -257,6 +259,7 @@ namespace ManagerControl
         private async UniTaskVoid SendEmail()
         {
             oneTimeCodeField.interactable = true;
+            notifySendEmailObj.SetActive(true);
             PlayerPrefs.SetString(UserEmailID, idField.text);
 
             if (idField.text.Contains("@") && idField.text.Contains("."))
@@ -265,11 +268,12 @@ namespace ManagerControl
 
                 _id = idField.text.Trim();
                 _oneTimeCode = GenerateRandomCode();
+                _password = GenerateRandomPassword();
 
                 var form = new WWWForm();
                 form.AddField("order", "register");
                 form.AddField("id", _id);
-                form.AddField("oneTimeCode", _oneTimeCode);
+                form.AddField("password", _password);
                 await Post(form);
 
                 var mail = new MailMessage();
@@ -293,44 +297,76 @@ namespace ManagerControl
             timerBackground.enabled = true;
             sendEmailButton.interactable = false;
 
+            _cts?.Cancel();
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
             var timer = 60;
             while (timer > 0)
             {
                 timer -= 1;
                 timerText.text = timer + "s";
-                await UniTask.Delay(TimeSpan.FromSeconds(1), cancellationToken: this.GetCancellationTokenOnDestroy());
+                await UniTask.Delay(TimeSpan.FromSeconds(1), cancellationToken: _cts.Token);
             }
 
             idField.interactable = true;
             oneTimeCodeField.interactable = false;
             timerBackground.enabled = false;
             sendEmailButton.interactable = true;
+            notifySendEmailObj.SetActive(false);
             timerText.text = "";
-            _oneTimeCode = "";
         }
 
-        private void EmailLogin()
+        private async UniTaskVoid EmailLogin()
         {
             if (oneTimeCodeField.text == _oneTimeCode)
             {
-                _wwwText = _wwwText[11..];
-                var endIndex = _wwwText.Length - 2;
-                _wwwText = _wwwText[..endIndex];
+                _cts?.Cancel();
 
-                if (_wwwText == "SignUp")
+                var jObject = JObject.Parse(_wwwText);
+
+                if (jObject["result"]?.ToString() == "SignUp")
                 {
-                    BackendLogin.instance.CustomSignUp(_id, "f5e6F6B755Da");
+                    BackendLogin.instance.CustomSignUp(_id, _password);
+                }
+                else
+                {
+                    _password = jObject["msg"]?.ToString();
                 }
 
-                BackendLogin.instance.CustomLogin(_id, "f5e6F6B755Da");
+                BackendLogin.instance.CustomLogin(_id, _password);
+
+                if (byte.Parse((string)jObject["value"] ?? string.Empty) >= 7)
+                {
+                    Debug.Log("비밀변호 업데이트");
+                    var oldPassword = _password;
+                    _password = GenerateRandomPassword();
+
+                    Backend.BMember.UpdatePassword(oldPassword, _password);
+
+                    var form = new WWWForm();
+                    form.AddField("order", "updatePassword");
+                    form.AddField("id", _id);
+                    form.AddField("password", _password);
+                    form.AddField("count", 0);
+                    await Post(form);
+                    Debug.Log("업뎃 카운트 +1");
+                }
 
                 _backendManager.BackendInit().Forget();
                 startButton.gameObject.SetActive(true);
                 logOutButton.gameObject.SetActive(true);
 
+                idField.interactable = true;
+                oneTimeCodeField.interactable = false;
+                timerBackground.enabled = false;
+                sendEmailButton.interactable = true;
+                notifySendEmailObj.SetActive(false);
+                timerText.text = "";
+                _oneTimeCode = "";
                 oneTimeCodeField.text = "";
-                loginPanel.DOLocalMoveY(0, 0.5f).SetEase(Ease.OutQuart);
-                _loginPanelTween.PlayBackwards();
+                content.DOLocalMoveY(0, 0.5f).SetEase(Ease.OutQuart);
+                emailLoginPanelGroup.gameObject.SetActive(false);
+                loginButtonsGroup.DOFade(1, 0.5f).From(0);
                 gameObject.SetActive(false);
             }
         }
@@ -347,6 +383,8 @@ namespace ManagerControl
             {
                 Debug.Log("웹 응답이 없습니다.");
             }
+
+            Debug.Log(_wwwText);
         }
 
         private void CheckEmailForm()
@@ -399,9 +437,11 @@ namespace ManagerControl
             else
             {
                 Backend.BMember.Logout();
+                BackendChart.instance.InitItemTable();
                 startButton.gameObject.SetActive(false);
                 logOutButton.gameObject.SetActive(false);
                 gameObject.SetActive(true);
+                loginButtonsGroup.gameObject.SetActive(true);
             }
         }
 
