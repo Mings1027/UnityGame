@@ -18,9 +18,9 @@ namespace LobbyUIControl
         private int _curQuantity;
         private const byte EmeraldAmount = 100;
         private LobbyUI _lobbyUI;
-        private Tween _panelTween;
-        private Sequence _loadingSequence;
-        [SerializeField] private RectTransform shopRectTransform;
+        private Sequence _shopPanelSequence;
+
+        [SerializeField] private CanvasGroup shopPanelGroup;
         [SerializeField] private Button emeraldButton;
         [SerializeField] private Image blockImage;
         [SerializeField] private Button closeButton;
@@ -31,21 +31,17 @@ namespace LobbyUIControl
         [SerializeField] private Button maxButton;
         [SerializeField] private TMP_Text diamondCostText;
         [SerializeField] private TMP_Text emeraldCostText;
+
         [SerializeField] private Button exchangeButton;
-        [SerializeField] private Image loadingBlockImage;
-        [SerializeField] private Image loadingImage;
 
         private void Awake()
         {
             _lobbyUI = FindAnyObjectByType<LobbyUI>();
-            _panelTween = shopRectTransform.DOScaleX(1, 0.25f).From(0).SetEase(Ease.OutBack).SetAutoKill(false).Pause();
-            _loadingSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(loadingImage.transform.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack).SetUpdate(true))
-                .Join(loadingImage.transform.DOLocalRotate(new Vector3(0, 0, -360), 1, RotateMode.FastBeyond360)
-                    .SetLoops(30));
+            shopPanelGroup.blocksRaycasts = false;
+            _shopPanelSequence = DOTween.Sequence().SetAutoKill(false).Pause()
+                .Append(shopPanelGroup.DOFade(1, 0.25f).From(0))
+                .Join(shopPanelGroup.GetComponent<RectTransform>().DOAnchorPosX(0, 0.25f).From(new Vector2(-100, 0)));
             blockImage.enabled = false;
-            loadingBlockImage.enabled = false;
-            loadingImage.enabled = false;
             emeraldButton.onClick.AddListener(OpenPanel);
             closeButton.onClick.AddListener(ClosePanel);
             minusButton.onClick.AddListener(MinusQuantity);
@@ -57,7 +53,7 @@ namespace LobbyUIControl
 
         private void OnDisable()
         {
-            _panelTween?.Kill();
+            _shopPanelSequence?.Kill();
         }
 
         private void ExchangeEmerald()
@@ -83,10 +79,6 @@ namespace LobbyUIControl
 
         private void TbcAsync(int count)
         {
-            loadingBlockImage.enabled = true;
-            loadingImage.enabled = true;
-            _loadingSequence.Restart();
-
             UniTask.RunOnThreadPool(() =>
             {
                 for (var i = 0; i < count; i++)
@@ -97,9 +89,6 @@ namespace LobbyUIControl
 
             _lobbyUI.diamondCurrency.SetText();
             _lobbyUI.emeraldCurrency.SetText();
-            _loadingSequence.Pause();
-            loadingBlockImage.enabled = false;
-            loadingImage.enabled = false;
         }
 
         private void OpenPanel()
@@ -108,7 +97,7 @@ namespace LobbyUIControl
             _lobbyUI.Off();
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
             blockImage.enabled = true;
-            _panelTween.Restart();
+            _shopPanelSequence.OnComplete(() => shopPanelGroup.blocksRaycasts = true).Restart();
 
             _curQuantity = 0;
             quantityText.text = _curQuantity.ToString();
@@ -122,7 +111,7 @@ namespace LobbyUIControl
             _lobbyUI.On();
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
             blockImage.enabled = false;
-            _panelTween.PlayBackwards();
+            _shopPanelSequence.OnRewind(() => shopPanelGroup.blocksRaycasts = false).PlayBackwards();
         }
 
         private void PlusQuantity()

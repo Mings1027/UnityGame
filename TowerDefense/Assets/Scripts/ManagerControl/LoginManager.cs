@@ -17,7 +17,6 @@ using TMPro;
 using UIControl;
 using UnityEngine;
 using UnityEngine.Networking;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Utilities;
 using Random = UnityEngine.Random;
@@ -274,12 +273,10 @@ namespace ManagerControl
 
                 _id = idField.text.Trim();
                 _oneTimeCode = GenerateRandomCode();
-                _password = GenerateRandomPassword();
 
                 var form = new WWWForm();
-                form.AddField("order", "register");
+                form.AddField("order", "checkEmail");
                 form.AddField("id", _id);
-                form.AddField("password", _password);
                 await Post(form);
 
                 var mail = new MailMessage();
@@ -332,27 +329,40 @@ namespace ManagerControl
 
                 if (jObject["result"]?.ToString() == "SignUp")
                 {
+                    var form = new WWWForm();
+                    form.AddField("order", "signup");
+                    form.AddField("id", _id);
+                    _password = GenerateRandomPassword();
+                    form.AddField("password", _password);
+                    await Post(form);
+
                     BackendLogin.instance.CustomSignUp(_id, _password);
                 }
-                else
+                else if (jObject["result"]?.ToString() == "LogIn")
                 {
+                    Debug.Log("로그인진행");
+                    var form = new WWWForm();
+                    form.AddField("order", "login");
+                    form.AddField("row", jObject["value"]?.ToString());
+                    await Post(form);
+                    Debug.Log("로그인성공");
                     _password = jObject["msg"]?.ToString();
                 }
 
                 BackendLogin.instance.CustomLogin(_id, _password);
-
-                if (byte.Parse((string)jObject["value"] ?? string.Empty) >= 7)
+                var countJson = JObject.Parse(_wwwText);
+                var curCount = byte.Parse((string)countJson["value"] ?? string.Empty);
+                Debug.Log(curCount);
+                if (curCount >= 7)
                 {
                     var oldPassword = _password;
                     _password = GenerateRandomPassword();
 
-                    Backend.BMember.UpdatePassword(oldPassword, _password);
-
+                    UniTask.RunOnThreadPool(() => { Backend.BMember.UpdatePassword(oldPassword, _password); });
                     var form = new WWWForm();
                     form.AddField("order", "updatePassword");
                     form.AddField("id", _id);
                     form.AddField("password", _password);
-                    form.AddField("count", 0);
                     await Post(form);
                 }
 
@@ -384,8 +394,6 @@ namespace ManagerControl
             {
                 Debug.Log("웹 응답이 없습니다.");
             }
-
-            Debug.Log(_wwwText);
         }
 
         private void CheckEmailForm()

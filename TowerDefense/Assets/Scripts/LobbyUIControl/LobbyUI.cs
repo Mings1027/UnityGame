@@ -1,13 +1,11 @@
-using System;
 using AdsControl;
+using BackEnd;
+using BackendControl;
 using CurrencyControl;
-using Cysharp.Threading.Tasks;
 using DG.Tweening;
-using TMPro;
 using UIControl;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
 
 namespace LobbyUIControl
 {
@@ -52,7 +50,12 @@ namespace LobbyUIControl
         {
             FindAnyObjectByType<AdmobManager>().BindLobbyUI(this);
             inGameMoneyObj.SetActive(false);
-            logOutPanel.OnOkButtonEvent += () => { SceneManager.LoadSceneAsync("LoginScene"); };
+            logOutPanel.OnOkButtonEvent += () =>
+            {
+                BackendChart.instance.InitItemTable();
+                Backend.BMember.Logout();
+                SceneManager.LoadSceneAsync("LoginScene");
+            };
         }
 
         public void SetActiveButtons(bool active, bool inGameMoneyActive)

@@ -70,8 +70,7 @@ namespace LobbyUIControl
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
             backgroundBlockImage.enabled = false;
             shopBlockImage.enabled = true;
-            shopPanelGroup.blocksRaycasts = false;
-            _shopTween.PlayBackwards();
+            _shopTween.OnRewind(() => shopPanelGroup.blocksRaycasts = false).PlayBackwards();
             _lobbyUI.SetActiveButtons(true, false);
             _lobbyUI.On();
         }

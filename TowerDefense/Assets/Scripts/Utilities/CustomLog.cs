@@ -13,7 +13,7 @@ namespace Utilities
         [Conditional("ENABLE_LOG"), Conditional("UNITY_EDITOR")]
         public static void Log(object message)
         {
-            UnityEngine.Debug.Log(message);
+            // UnityEngine.Debug.Log(message);
         }
 
         [Conditional("ENABLE_LOG"), Conditional("UNITY_EDITOR")]

@@ -6,6 +6,7 @@ using LobbyUIControl;
 using ManagerControl;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace UIControl
@@ -13,10 +14,10 @@ namespace UIControl
     public class UserRankController : MonoBehaviour
     {
         private LobbyUI _lobbyUI;
-        private Tween _panelTween;
+        private Sequence _panelSequence;
 
         [SerializeField] private Image blockImage;
-        [SerializeField] private RectTransform rankPanel;
+        [SerializeField] private CanvasGroup rankPanelGroup;
         [SerializeField] private Button rankButton;
         [SerializeField] private Button closeButton;
         [SerializeField] private RectTransform content;
@@ -25,7 +26,9 @@ namespace UIControl
         private void Awake()
         {
             _lobbyUI = FindAnyObjectByType<LobbyUI>();
-            _panelTween = rankPanel.DOScaleX(1, 0.25f).From(0).SetEase(Ease.OutBack).SetAutoKill(false).Pause();
+            _panelSequence = DOTween.Sequence().SetAutoKill(false).Pause()
+                .Append(rankPanelGroup.DOFade(1, 0.25f).From(0))
+                .Join(rankPanelGroup.GetComponent<RectTransform>().DOAnchorPosY(0, 0.25f).From(new Vector2(0, -100)));
             blockImage.enabled = false;
             rankButton.onClick.AddListener(OpenRankPanel);
             closeButton.onClick.AddListener(CloseRankPanel);
@@ -38,14 +41,14 @@ namespace UIControl
 
         private void OnDisable()
         {
-            _panelTween?.Kill();
+            _panelSequence?.Kill();
         }
 
         private void OpenRankPanel()
         {
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
             blockImage.enabled = true;
-            _panelTween.Restart();
+            _panelSequence.OnComplete(() => rankPanelGroup.blocksRaycasts = true).Restart();
             _lobbyUI.SetActiveButtons(false, false);
         }
 
@@ -53,7 +56,7 @@ namespace UIControl
         {
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
             blockImage.enabled = false;
-            _panelTween.PlayBackwards();
+            _panelSequence.OnRewind(() => rankPanelGroup.blocksRaycasts = false).PlayBackwards();
             _lobbyUI.SetActiveButtons(true, false);
         }
 

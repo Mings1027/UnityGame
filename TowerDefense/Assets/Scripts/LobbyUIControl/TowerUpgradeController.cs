@@ -27,14 +27,7 @@ namespace LobbyUIControl
         [SerializeField] private Button upgradeButton;
 
         [SerializeField] private Button closeButton;
-
-        // [SerializeField] private Button initLevelButton;
-        // [SerializeField] private Button yesButton;
-        // [SerializeField] private Button noButton;
         [SerializeField] private Transform upgradePanel;
-
-        // [SerializeField] private Image deletePanelBlockImage;
-        // [SerializeField] private Transform deletePanel;
         [SerializeField] private NoticePanel notifyInitLevelPanel;
 
         [SerializeField] private Transform towerButtons;
