@@ -18,29 +18,31 @@ namespace LobbyUIControl
     public class TowerUpgradeController : MonoBehaviour
     {
         private LobbyUI _lobbyUI;
-        private Tween _upgradePanelTween;
+        private Tween _upgradePanelGroupSequence;
         private Tween _deletePanelTween;
+        private CanvasGroup _upgradePanelGroup;
+        private const byte TowerMaxLevel = 20;
 
         [SerializeField] private TMP_Text xpText;
-        [SerializeField] private Image blockImage;
+
+        [SerializeField] private RectTransform upgradePanel;
         [SerializeField] private Button startGameButton;
         [SerializeField] private Button upgradeButton;
 
         [SerializeField] private Button closeButton;
-        [SerializeField] private Transform upgradePanel;
         [SerializeField] private NoticePanel notifyInitLevelPanel;
 
         [SerializeField] private Transform towerButtons;
-        [SerializeField] private AttackTowerData[] towerData;
-        private const byte TowerMaxLevel = 20;
 
         private void Awake()
         {
+            _upgradePanelGroup = GetComponent<CanvasGroup>();
             _lobbyUI = FindAnyObjectByType<LobbyUI>();
-            _upgradePanelTween =
-                upgradePanel.DOScaleX(1, 0.25f).From(0).SetEase(Ease.OutBack).SetAutoKill(false).Pause();
+            _upgradePanelGroupSequence = DOTween.Sequence().SetAutoKill(false).Pause()
+                .Append(_upgradePanelGroup.DOFade(1, 0.25f).From(0))
+                .Join(upgradePanel.DOAnchorPosY(0, 0.25f).From(new Vector2(0, -100)));
+            _upgradePanelGroup.blocksRaycasts = false;
             Input.multiTouchEnabled = false;
-            blockImage.enabled = false;
             ButtonInit();
         }
 
@@ -52,7 +54,7 @@ namespace LobbyUIControl
 
         private void OnDestroy()
         {
-            _upgradePanelTween?.Kill();
+            _upgradePanelGroupSequence?.Kill();
             _deletePanelTween?.Kill();
         }
 
@@ -60,8 +62,7 @@ namespace LobbyUIControl
         {
             upgradeButton.gameObject.SetActive(false);
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            blockImage.enabled = true;
-            _upgradePanelTween.Restart();
+            _upgradePanelGroupSequence.OnComplete(() => _upgradePanelGroup.blocksRaycasts = true).Restart();
         }
 
         private void ButtonInit()
@@ -75,30 +76,12 @@ namespace LobbyUIControl
             closeButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                blockImage.enabled = false;
                 upgradeButton.gameObject.SetActive(true);
-                _upgradePanelTween.PlayBackwards();
+                _upgradePanelGroupSequence.OnRewind(() => _upgradePanelGroup.blocksRaycasts = false).PlayBackwards();
                 _lobbyUI.SetActiveButtons(true, false);
             });
-            notifyInitLevelPanel.OnPopUpButtonEvent += () => SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            notifyInitLevelPanel.OnOkButtonEvent += InitTowerLevel;
+            notifyInitLevelPanel.OnConfirmButtonEvent += InitTowerLevel;
             notifyInitLevelPanel.OnCancelButtonEvent += () => SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            // initLevelButton.onClick.AddListener(() =>
-            // {
-            //     deletePanelBlockImage.enabled = true;
-            //     _deletePanelTween.Restart();
-            // });
-            // yesButton.onClick.AddListener(() =>
-            // {
-            //     SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            //     InitTowerLevel();
-            // });
-            // noButton.onClick.AddListener(() =>
-            // {
-            //     SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            //     deletePanelBlockImage.enabled = false;
-            //     _deletePanelTween.PlayBackwards();
-            // });
         }
 
         private void TowerUpgradeButtonInit()

@@ -50,10 +50,10 @@ namespace LobbyUIControl
         {
             FindAnyObjectByType<AdmobManager>().BindLobbyUI(this);
             inGameMoneyObj.SetActive(false);
-            logOutPanel.OnOkButtonEvent += () =>
+            logOutPanel.OnConfirmButtonEvent += () =>
             {
                 BackendChart.instance.InitItemTable();
-                Backend.BMember.Logout();
+                BackendLogin.instance.LogOut();
                 SceneManager.LoadSceneAsync("LoginScene");
             };
         }

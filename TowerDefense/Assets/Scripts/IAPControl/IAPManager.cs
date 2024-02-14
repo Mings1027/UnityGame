@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using BackEnd;
 using CurrencyControl;
 using DG.Tweening;
-using LobbyControl;
+using ItemControl;
 using LobbyUIControl;
 using TMPro;
 using UnityEngine;
@@ -65,7 +65,7 @@ namespace IAPControl
                 var diamondItemParent = contents.GetChild(i);
                 if (diamondItemParent.TryGetComponent(out DiamondItem diamondItem))
                 {
-                    diamondItem.transform.GetChild(2).GetComponent<Button>().onClick.AddListener(() =>
+                    diamondItem.purchaseButton.onClick.AddListener(() =>
                     {
                         Purchase(diamondItem.productId);
                     });

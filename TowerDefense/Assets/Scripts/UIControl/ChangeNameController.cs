@@ -31,10 +31,11 @@ namespace UIControl
             userIconButton.onClick.AddListener(OpenUserNamePanel);
             _changeNamePanelSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(changeNamePanelGroup.DOFade(1, 0.25f).From(0))
-                .Join(changeNamePanelGroup.GetComponent<RectTransform>().DOAnchorPosY(0, 0.25f)
-                    .From(new Vector2(0, -100)));
+                .Join(changeNamePanelGroup.GetComponent<RectTransform>().DOAnchorPosX(0, 0.25f)
+                    .From(new Vector2(-100, 0)));
 
             blockImage.enabled = false;
+            changeNamePanelGroup.blocksRaycasts = false;
             userNameField.text = BackendLogin.instance.GetUserNickName();
             userNameField.onSelect.AddListener(GetCurNickName);
             userNameField.onDeselect.AddListener(GoBackPrevNickName);

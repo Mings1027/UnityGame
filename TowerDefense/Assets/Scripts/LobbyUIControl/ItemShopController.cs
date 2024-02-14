@@ -9,6 +9,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Utilities;
 
@@ -30,24 +31,27 @@ namespace LobbyUIControl
 
         private LobbyUI _lobbyUI;
         private ItemInfo _itemInfo;
-        private Tween _shopTween;
+        private Sequence _shopPanelSequence;
+        private Sequence _purchasePanelSequence;
         private ItemType _curItemType;
 
         private Dictionary<ItemType, ItemInfo> _itemInfoTable;
         private int _curQuantity;
         private int _curEmeraldPrice;
+        private CanvasGroup _shopPanelGroup;
 
+        [SerializeField] private RectTransform shopPanel;
         [SerializeField] private Button itemShopButton;
         [SerializeField] private Button closeButton;
         [SerializeField] private Button purchaseButton;
-        [SerializeField] private Image backgroundBlockImage;
-        [SerializeField] private Image shopBlockImage;
-        [SerializeField] private Transform shopPanel;
         [SerializeField] private Transform itemParent;
-        [SerializeField] private Image explainBlockImage;
-        [SerializeField] private Button explainBlockImageButton;
-        [SerializeField] private Button closeExplainPanelButton;
-        [SerializeField] private Transform explainPanel;
+
+        [SerializeField] private CanvasGroup purchasePanelGroup;
+        
+        [SerializeField] private Button closePurchasePanelButton;
+        [SerializeField] private Button closePurchasePanelBackgroundButton;
+
+        [SerializeField] private RectTransform purchasePanel;
         [SerializeField] private Image explainImage;
         [SerializeField] private TMP_Text ownedAmountText;
         [SerializeField] private TMP_Text explainText;
@@ -60,25 +64,28 @@ namespace LobbyUIControl
         {
             _lobbyUI = FindAnyObjectByType<LobbyUI>();
             _itemInfoTable = new Dictionary<ItemType, ItemInfo>();
-            backgroundBlockImage.enabled = false;
-            _shopTween = shopPanel.DOScaleX(1, 0.25f).From(0).SetEase(Ease.OutBack).SetAutoKill(false).Pause();
-            explainBlockImage.enabled = false;
-            explainPanel.localScale = Vector3.zero;
+            _shopPanelGroup = GetComponent<CanvasGroup>();
+            _shopPanelSequence = DOTween.Sequence().SetAutoKill(false).Pause()
+                .Append(_shopPanelGroup.DOFade(1, 0.25f).From(0))
+                .Join(shopPanel.DOAnchorPosX(0, 0.25f).From(new Vector2(-100, 0)));
+            _shopPanelGroup.blocksRaycasts = false;
+
+            _purchasePanelSequence = DOTween.Sequence().SetAutoKill(false).Pause()
+                .Append(purchasePanelGroup.DOFade(1, 0.25f).From(0))
+                .Join(purchasePanel.DOAnchorPosX(0, 0.25f).From(new Vector2(-100, 0)));
+            purchasePanelGroup.blocksRaycasts = false;
+            
             itemShopButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                backgroundBlockImage.enabled = true;
-                shopBlockImage.enabled = false;
-                _shopTween.Restart();
+                _shopPanelSequence.OnComplete(() => _shopPanelGroup.blocksRaycasts = true).Restart();
                 _lobbyUI.SetActiveButtons(false, true);
                 _lobbyUI.Off();
             });
             closeButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                backgroundBlockImage.enabled = false;
-                shopBlockImage.enabled = true;
-                _shopTween.PlayBackwards();
+                _shopPanelSequence.OnRewind(() => _shopPanelGroup.blocksRaycasts = false).PlayBackwards();
                 _lobbyUI.SetActiveButtons(true, false);
                 _lobbyUI.On();
             });
@@ -86,12 +93,12 @@ namespace LobbyUIControl
             increaseButton.onClick.AddListener(IncreaseQuantity);
             decreaseButton.onClick.AddListener(DecreaseQuantity);
 
-            explainBlockImageButton.onClick.AddListener(() =>
+            closePurchasePanelButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 CloseExplainPanel();
             });
-            closeExplainPanelButton.onClick.AddListener(() =>
+            closePurchasePanelBackgroundButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 CloseExplainPanel();
@@ -107,7 +114,7 @@ namespace LobbyUIControl
 
         private void OnDisable()
         {
-            _shopTween?.Kill();
+            _shopPanelSequence?.Kill();
         }
 
         private void ItemInit()
@@ -120,7 +127,7 @@ namespace LobbyUIControl
             {
                 var item = itemParent.GetChild(i).GetComponent<GameItem>();
                 var itemPrice = BackendChart.ItemTable[item.itemType.ToString()];
-                item.OnOpenExplainPanelEvent += OpenExplainPanel;
+                item.OnOpenExplainPanelEvent += OpenPurchasePanel;
                 item.SetText(itemPrice.ToString());
 
                 _itemInfoTable.Add(item.itemType, new ItemInfo(
@@ -138,7 +145,7 @@ namespace LobbyUIControl
             });
         }
 
-        private void OpenExplainPanel(ItemType itemType, Sprite sprite)
+        private void OpenPurchasePanel(ItemType itemType, Sprite sprite)
         {
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
 
@@ -148,8 +155,7 @@ namespace LobbyUIControl
 
             explainImage.sprite = sprite;
             ownedAmountText.text = _itemInfoTable[itemType].itemCount.ToString();
-            explainBlockImage.enabled = true;
-            explainPanel.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack);
+            _purchasePanelSequence.OnComplete(() => purchasePanelGroup.blocksRaycasts = true).Restart();
             _curEmeraldPrice = BackendChart.ItemTable[_curItemType.ToString()];
             _curQuantity = 1;
             emeraldPriceText.text = _curEmeraldPrice.ToString();
@@ -158,8 +164,7 @@ namespace LobbyUIControl
 
         private void CloseExplainPanel()
         {
-            explainBlockImage.enabled = false;
-            explainPanel.DOScale(0, 0.25f).From(1).SetEase(Ease.InBack);
+            _purchasePanelSequence.OnRewind(() => purchasePanelGroup.blocksRaycasts = false).PlayBackwards();
         }
 
         private void PurchaseItem()

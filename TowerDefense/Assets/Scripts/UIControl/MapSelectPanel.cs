@@ -80,8 +80,7 @@ namespace UIControl
 
         private void ButtonInit()
         {
-            deleteSurviveWavePanel.OnPopUpButtonEvent += () => { SoundManager.PlayUISound(SoundEnum.ButtonSound); };
-            deleteSurviveWavePanel.OnOkButtonEvent += () =>
+            deleteSurviveWavePanel.OnConfirmButtonEvent += () =>
             {
                 var survivedWaves = BackendGameData.userData.survivedWaveList;
                 var difficultySelectButtons = transform.GetChild(0);
@@ -91,38 +90,6 @@ namespace UIControl
                         survivedWaves[i];
                 }
             };
-            deleteSurviveWavePanel.OnCancelButtonEvent += () => { SoundManager.PlayUISound(SoundEnum.ButtonSound); };
-            // dataDeleteButton.onClick.AddListener(() =>
-            // {
-            //     blockImage.enabled = true;
-            //     SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            //     _eventSystem.enabled = false;
-            //     _deletePanelTween.OnComplete(() => _eventSystem.enabled = true).Restart();
-            // });
-            // yesButton.onClick.AddListener(() =>
-            // {
-            //     blockImage.enabled = false;
-            //     SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            //     _eventSystem.enabled = false;
-            //     // DataManager.WaveDataInit();
-            //     _deletePanelTween.OnRewind(() => _eventSystem.enabled = true).PlayBackwards();
-            //
-            //     // DataManager.LoadData();
-            //     var survivedWaves = BackendGameData.userData.survivedWaveList;
-            //     var difficultySelectButtons = transform.GetChild(0);
-            //     for (var i = 0; i < difficultySelectButtons.childCount; i++)
-            //     {
-            //         difficultySelectButtons.GetChild(i).GetChild(3).GetComponent<TMP_Text>().text =
-            //             survivedWaves[i];
-            //     }
-            // });
-            // noButton.onClick.AddListener(() =>
-            // {
-            //     blockImage.enabled = false;
-            //     SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            //     _eventSystem.enabled = false;
-            //     _deletePanelTween.OnRewind(() => _eventSystem.enabled = true).PlayBackwards();
-            // });
         }
     }
 }

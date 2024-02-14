@@ -28,8 +28,9 @@ namespace UIControl
             _lobbyUI = FindAnyObjectByType<LobbyUI>();
             _panelSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(rankPanelGroup.DOFade(1, 0.25f).From(0))
-                .Join(rankPanelGroup.GetComponent<RectTransform>().DOAnchorPosY(0, 0.25f).From(new Vector2(0, -100)));
+                .Join(rankPanelGroup.GetComponent<RectTransform>().DOAnchorPosX(0, 0.25f).From(new Vector2(100, 0)));
             blockImage.enabled = false;
+            rankPanelGroup.blocksRaycasts = false;
             rankButton.onClick.AddListener(OpenRankPanel);
             closeButton.onClick.AddListener(CloseRankPanel);
         }

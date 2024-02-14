@@ -1,47 +1,37 @@
+using System.Collections.Generic;
+using System.Globalization;
 using CustomEnumControl;
 using DG.Tweening;
 using ManagerControl;
+using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
+using Utilities;
 
 namespace LobbyUIControl
 {
     public class LobbySetting : MonoBehaviour
     {
         private bool _isOpen;
-        private Sequence _settingPanelSequence;
-        [SerializeField] private Toggle bgmToggle;
-        [SerializeField] private Toggle sfxToggle;
-        [SerializeField] private Transform settingPanel;
+        private Tween _settingPanelSequence;
+        private Queue<TabGroupItem> _tabGroupItemQueue;
+        private TabGroupItem[] _tabGroupArray;
+        private CanvasGroup _settingPanelGroup;
+
+        [SerializeField] private Button settingButton;
+        [SerializeField] private Button closeButton;
+
+        [SerializeField] private RectTransform tabGroups;
 
         private void Start()
         {
-            _settingPanelSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(settingPanel.GetChild(0).DOLocalMoveY(0, 0.5f).From().SetEase(Ease.OutBack))
-                .Join(settingPanel.GetChild(1).DOLocalMoveY(0, 0.5f).From().SetEase(Ease.OutBack))
-                .Join(settingPanel.GetChild(2).DOLocalMoveY(0, 0.5f).From().SetEase(Ease.OutBack));
-
-            var button = GetComponent<Button>();
-            button.onClick.AddListener(() =>
-            {
-                button.transform.DOScale(1, 0.25f).From(0.5f).SetEase(Ease.OutBack);
-                SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                SettingPanel();
-            });
-            bgmToggle.isOn = !SoundManager.bgmOn;
-            bgmToggle.onValueChanged.AddListener(delegate
-            {
-                bgmToggle.transform.DOScale(1, 0.25f).From(0.5f).SetEase(Ease.OutBack);
-                SoundManager.ToggleBGM(!bgmToggle.isOn);
-                SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            });
-            sfxToggle.isOn = !SoundManager.sfxOn;
-            sfxToggle.onValueChanged.AddListener(delegate
-            {
-                sfxToggle.transform.DOScale(1, 0.25f).From(0.5f).SetEase(Ease.OutBack);
-                SoundManager.ToggleSfx(!sfxToggle.isOn);
-                if(!sfxToggle.isOn) SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            });
+            _tabGroupItemQueue = new Queue<TabGroupItem>();
+            _settingPanelGroup = GetComponent<CanvasGroup>();
+            _settingPanelGroup.blocksRaycasts = false;
+            Init();
+            InitButton();
+            InitTween();
         }
 
         private void OnDestroy()
@@ -49,17 +39,58 @@ namespace LobbyUIControl
             _settingPanelSequence?.Kill();
         }
 
-        private void SettingPanel()
+        private void Init()
         {
-            if (_isOpen)
+            _tabGroupArray = new TabGroupItem[tabGroups.childCount];
+            for (int i = 0; i < _tabGroupArray.Length; i++)
             {
-                _settingPanelSequence.PlayBackwards();
-                _isOpen = false;
+                _tabGroupArray[i] = tabGroups.GetChild(i).GetComponent<TabGroupItem>();
+                _tabGroupArray[i].OnTabEvent += ClickTab;
             }
-            else
+        }
+
+        private void ClickTab(TabGroupItem tabGroupItem)
+        {
+            _tabGroupItemQueue.Dequeue().CloseGroup();
+            _tabGroupItemQueue.Enqueue(tabGroupItem);
+            tabGroupItem.OpenGroup();
+        }
+
+        private void InitButton()
+        {
+            settingButton.onClick.AddListener(() =>
             {
-                _settingPanelSequence.Restart();
-                _isOpen = true;
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
+                OpenSetting();
+                _tabGroupArray[0].OpenGroup();
+                _tabGroupItemQueue.Enqueue(_tabGroupArray[0]);
+            });
+            closeButton.onClick.AddListener(() =>
+            {
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
+                CloseSetting();
+            });
+        }
+
+        private void InitTween()
+        {
+            _settingPanelSequence = _settingPanelGroup.DOFade(1, 0.25f).From(0).SetAutoKill(false).Pause();
+        }
+
+        private void OpenSetting()
+        {
+            _settingPanelSequence.OnComplete(() => _settingPanelGroup.blocksRaycasts = true).Restart();
+        }
+
+        private void CloseSetting()
+        {
+            _settingPanelSequence.OnRewind(() => _settingPanelGroup.blocksRaycasts = false).PlayBackwards();
+            if (_tabGroupItemQueue.Count > 0)
+            {
+                for (int i = 0; i < _tabGroupItemQueue.Count; i++)
+                {
+                    _tabGroupItemQueue.Dequeue().CloseGroup();
+                }
             }
         }
     }

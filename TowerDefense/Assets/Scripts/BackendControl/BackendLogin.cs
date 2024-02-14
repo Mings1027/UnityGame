@@ -1,6 +1,4 @@
 using BackEnd;
-using Cysharp.Threading.Tasks;
-using UnityEngine;
 using Utilities;
 
 namespace BackendControl
@@ -9,6 +7,7 @@ namespace BackendControl
     {
         private static BackendLogin _instance;
         public static BackendLogin instance => _instance ??= new BackendLogin();
+        private bool _isFederationLogin;
 
         public void CustomSignUp(string id, string pw)
         {
@@ -26,7 +25,7 @@ namespace BackendControl
             }
         }
 
-        public bool CustomLogin(string id, string pw)
+        public void CustomLogin(string id, string pw)
         {
             CustomLog.Log("로그인을 요청합니다.");
 
@@ -35,11 +34,20 @@ namespace BackendControl
             if (bro.IsSuccess())
             {
                 CustomLog.Log("로그인이 성공했습니다. : " + bro);
-                return true;
+                return;
             }
 
             CustomLog.LogError("로그인이 실패했습니다. : " + bro);
-            return false;
+        }
+
+        public void FederationLogin()
+        {
+            _isFederationLogin = true;
+        }
+        public void LogOut()
+        {
+            if (_isFederationLogin) _isFederationLogin = false;
+            else Backend.BMember.Logout();
         }
 
         public bool UpdateNickname(string nickname)
@@ -76,5 +84,13 @@ namespace BackendControl
 
             return nickName;
         }
+
+        // public void UpdatePassword(string oldPassword, string newPassword)
+        // {
+        //     Backend.BMember.UpdatePassword(oldPassword, newPassword, _ =>
+        //     {
+        //         
+        //     });
+        // }
     }
 }

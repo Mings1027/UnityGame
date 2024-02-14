@@ -91,7 +91,6 @@ namespace UIControl
             for (var i = 0; i < towerButtons.childCount; i++)
             {
                 var towerButton = towerButtons.GetChild(i).GetComponent<TowerButton>();
-                // towerButton.buttonIndex = (byte)i;
                 towerButton.OnOpenCardEvent += OpenCard;
                 towerButton.OnCamDisableEvent += CameraManager.SetCameraActive;
                 towerButton.OnCloseCardEvent += CloseTowerCard;

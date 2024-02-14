@@ -4,7 +4,6 @@ using CurrencyControl;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
-using LobbyControl;
 using ManagerControl;
 using TMPro;
 using UnityEngine;
@@ -40,7 +39,7 @@ namespace LobbyUIControl
             shopPanelGroup.blocksRaycasts = false;
             _shopPanelSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(shopPanelGroup.DOFade(1, 0.25f).From(0))
-                .Join(shopPanelGroup.GetComponent<RectTransform>().DOAnchorPosX(0, 0.25f).From(new Vector2(-100, 0)));
+                .Join(shopPanelGroup.GetComponent<RectTransform>().DOAnchorPosX(0, 0.25f).From(new Vector2(100, 0)));
             blockImage.enabled = false;
             emeraldButton.onClick.AddListener(OpenPanel);
             closeButton.onClick.AddListener(ClosePanel);

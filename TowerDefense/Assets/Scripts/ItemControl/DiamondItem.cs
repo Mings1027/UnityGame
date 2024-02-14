@@ -1,12 +1,18 @@
 using System;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.UI;
 
-namespace LobbyControl
+namespace ItemControl
 {
     public class DiamondItem : MonoBehaviour
     {
+        public Button purchaseButton { get; private set; }
+        
         [field: SerializeField] public string productId { get; private set; }
+
+        private void Awake()
+        {
+            purchaseButton = GetComponent<Button>();
+        }
     }
 }

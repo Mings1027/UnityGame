@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using CustomEnumControl;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Audio;
 using Utilities;
@@ -28,7 +29,9 @@ namespace ManagerControl
         private const string BGMKey = "BGM";
         private const string SfxKey = "SFX";
 
-        private static float _bgmVolume;
+        private const float MinValue = -80f;
+        private const float MaxValue = 0f;
+
         private static float _inverseMaxMinusMin;
 
         private static Dictionary<SoundEnum, AudioClip> _musicDictionary;
@@ -38,14 +41,14 @@ namespace ManagerControl
         private static AudioMixer _audioMixer;
         private static byte _maxDis;
 
+        private static int _bgmVolume;
+        private static int _sfxVolume;
+
         [SerializeField] private MusicSound[] musicSounds;
         [SerializeField] private EffectSound[] effectSounds;
 
         [SerializeField] private AudioMixer audioMixer;
         [SerializeField, Range(0, 255)] private byte minDistance, maxDistance;
-
-        public static bool bgmOn { get; private set; }
-        public static bool sfxOn { get; private set; }
 
         private void OnValidate()
         {
@@ -73,16 +76,7 @@ namespace ManagerControl
                 _effectDictionary.Add(effectSounds[i].effectName, effectSounds[i].effectSource);
             }
 
-            _bgmVolume = -5;
-            bgmOn = PlayerPrefs.GetInt(BGMKey, 1) == 1;
-            sfxOn = PlayerPrefs.GetInt(SfxKey, 1) == 1;
             _maxDis = maxDistance;
-        }
-
-        private void Start()
-        {
-            audioMixer.SetFloat("BGM", bgmOn ? _bgmVolume : -80);
-            audioMixer.SetFloat("SFX", sfxOn ? 0 : -80);
         }
 
         public static void MuteBGM(bool value) => _musicSource.mute = value;
@@ -108,23 +102,37 @@ namespace ManagerControl
             _effectSource.PlayOneShot(audioClip, soundScale);
         }
 
-        public static void ToggleBGM(bool active)
+        public static void SetBGMVolume(float value)
         {
-            bgmOn = active;
-            _audioMixer.SetFloat("BGM", bgmOn ? _bgmVolume : -80);
-            PlayerPrefs.SetInt(BGMKey, bgmOn ? 1 : 0);
+            var mappedValue = Mathf.Lerp(MinValue, MaxValue, value);
+            _audioMixer.SetFloat("BGM", mappedValue);
+            PlayerPrefs.SetInt(BGMKey, (int)mappedValue);
         }
 
-        public static void ToggleSfx(bool active)
+        public static void SetSfxVolume(float value)
         {
-            sfxOn = active;
-            _audioMixer.SetFloat("SFX", sfxOn ? 0 : -80);
-            PlayerPrefs.SetInt(SfxKey, sfxOn ? 1 : 0);
+            var mappedValue = Mathf.Lerp(MinValue, MaxValue, value);
+            _audioMixer.SetFloat("SFX", mappedValue);
+            PlayerPrefs.SetInt(SfxKey, (int)mappedValue);
         }
 
         public void SetCamera(Camera cam)
         {
             _cam = cam;
+        }
+
+        public static (float, float) GetVolume()
+        {
+            _bgmVolume = PlayerPrefs.GetInt(BGMKey);
+            _sfxVolume = PlayerPrefs.GetInt(SfxKey);
+
+            _audioMixer.SetFloat("BGM", _bgmVolume);
+            _audioMixer.SetFloat("SFX", _sfxVolume);
+
+            var convertBgmValue = Mathf.InverseLerp(MinValue, MaxValue, _bgmVolume);
+            var convertSfxValue = Mathf.InverseLerp(MinValue, MaxValue, _sfxVolume);
+            
+            return (convertBgmValue, convertSfxValue);
         }
     }
 }

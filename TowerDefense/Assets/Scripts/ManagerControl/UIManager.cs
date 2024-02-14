@@ -49,6 +49,8 @@ namespace ManagerControl
         private Tween _upgradeButtonTween;
         private Sequence _towerGoldTween;
         private Sequence _towerHealTween;
+        private Sequence _gameOverSequence;
+        private Sequence _gameEndSequence;
 
         private Tower _curSelectedTower;
         private SummonTower _curSummonTower;
@@ -92,14 +94,12 @@ namespace ManagerControl
         private RectTransform _towerCardPanel;
         private Transform _notEnoughGoldPanel;
 
-        private Transform _pausePanelBackground;
+        private CanvasGroup _pausePanelBackground;
+        private RectTransform _pausePanel;
         private Button _resumeButton;
         private Button _mainMenuButton;
-        private Toggle _bgmToggle;
-        private Toggle _sfxToggle;
-        private GameObject _gameOverPanel;
-        private GameObject _gameEndPanel;
-        private Image _pausePanelBlockImage;
+        private CanvasGroup _gameOverPanelGroup;
+        private CanvasGroup _gameEndPanelGroup;
 
         private MoveUnitController _moveUnitController;
 
@@ -154,8 +154,6 @@ namespace ManagerControl
         {
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
             cameraManager = _cam.GetComponentInParent<CameraManager>();
-            _gameOverPanel.SetActive(false);
-            _gameEndPanel.SetActive(false);
             GameStart();
             CheckCamPos().Forget();
             SoundManager.PlayBGM(SoundEnum.WaveEnd);
@@ -233,15 +231,15 @@ namespace ManagerControl
             _towerDescriptionCard = FindAnyObjectByType<TowerDescriptionCard>();
             _towerCardPanel = uiPanel.Find("Tower Card Panel").GetComponent<RectTransform>();
             _notEnoughGoldPanel = uiPanel.Find("Not Enough Gold Message").GetComponent<RectTransform>();
-            _pausePanelBackground = uiPanel.Find("Pause Panel Background");
-            _resumeButton = _pausePanelBackground.Find("Resume Button").GetComponent<Button>();
-            var pausePanel = _pausePanelBackground.Find("Pause Panel");
-            _mainMenuButton = pausePanel.Find("Main Menu Button").GetComponent<Button>();
-            _bgmToggle = pausePanel.Find("BGM Toggle").GetComponent<Toggle>();
-            _sfxToggle = pausePanel.Find("SFX Toggle").GetComponent<Toggle>();
-            _gameOverPanel = pausePanel.Find("Game Over Background").gameObject;
-            _gameEndPanel = pausePanel.Find("Game End Background").gameObject;
-            _pausePanelBlockImage = pausePanel.Find("BlockImage").GetComponent<Image>();
+            _pausePanelBackground = uiPanel.Find("Pause Panel Background").GetComponent<CanvasGroup>();
+            _pausePanelBackground.blocksRaycasts = false;
+            _pausePanel = _pausePanelBackground.transform.Find("Pause Panel").GetComponent<RectTransform>();
+            _resumeButton = _pausePanel.Find("Resume Button").GetComponent<Button>();
+            _mainMenuButton = _pausePanel.Find("Main Menu Button").GetComponent<Button>();
+            _gameOverPanelGroup = uiPanel.Find("Game Over Background").GetComponent<CanvasGroup>();
+            _gameOverPanelGroup.blocksRaycasts = false;
+            _gameEndPanelGroup = uiPanel.Find("Game End Background").GetComponent<CanvasGroup>();
+            _gameEndPanelGroup.blocksRaycasts = false;
             _moveUnitController = FindAnyObjectByType<MoveUnitController>();
         }
 
@@ -340,8 +338,17 @@ namespace ManagerControl
             _upgradeSellPanelTween = _towerInfoUI.transform.DOScale(1, 0.15f).From(0).SetAutoKill(false)
                 .Pause();
             _pauseSequence = DOTween.Sequence().SetAutoKill(false).SetUpdate(true).Pause()
-                .Append(_pausePanelBackground.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack))
-                .Join(_pauseButton.transform.DOScale(0, 0.2f));
+                .Append(_pausePanelBackground.DOFade(1, 0.25f).From(0))
+                .Join(_pausePanel.DOAnchorPosY(0, 0.25f).From(new Vector2(0, -100)));
+            _gameEndSequence = DOTween.Sequence().SetAutoKill(false).SetUpdate(true).Pause()
+                .Append(_gameEndPanelGroup.DOFade(1, 0.25f).From(0))
+                .Join(_gameEndPanelGroup.transform.GetChild(1).GetComponent<RectTransform>().DOAnchorPosY(0, 0.25f)
+                    .From(new Vector2(0, -100)));
+            _gameOverSequence = DOTween.Sequence().SetAutoKill(false).SetUpdate(true).Pause()
+                .Append(_gameOverPanelGroup.DOFade(1, 0.25f).From(0))
+                .Join(_gameOverPanelGroup.transform.GetChild(1).GetComponent<RectTransform>().DOAnchorPosY(0, 0.25f)
+                    .From(new Vector2(0, -100)));
+
             _notEnoughGoldSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(_notEnoughGoldPanel.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBounce))
                 .Append(_notEnoughGoldPanel.DOScale(0, 0.2f).SetDelay(0.3f));
@@ -376,18 +383,7 @@ namespace ManagerControl
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 Resume();
             });
-            _bgmToggle.isOn = !SoundManager.bgmOn;
-            _bgmToggle.onValueChanged.AddListener(delegate
-            {
-                SoundManager.ToggleBGM(!_bgmToggle.isOn);
-                SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            });
-            _sfxToggle.isOn = !SoundManager.sfxOn;
-            _sfxToggle.onValueChanged.AddListener(delegate
-            {
-                SoundManager.ToggleSfx(!_sfxToggle.isOn);
-                SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            });
+         
             _mainMenuButton.onClick.AddListener(() =>
             {
                 var curWave = WaveManager.curWave;
@@ -580,10 +576,8 @@ namespace ManagerControl
 
         public void GameEnd()
         {
-            _pausePanelBlockImage.raycastTarget = false;
             _resumeButton.interactable = false;
-            _gameEndPanel.SetActive(true);
-            _pauseSequence.Restart();
+            _gameEndSequence.OnComplete(() => _gameEndPanelGroup.blocksRaycasts = true).Restart();
             Time.timeScale = 0;
         }
 
@@ -780,9 +774,8 @@ namespace ManagerControl
         public void GameOver()
         {
             _towerCardController.SlideDown();
-            _pausePanelBlockImage.raycastTarget = false;
             _resumeButton.interactable = false;
-            _gameOverPanel.SetActive(true);
+            _gameOverSequence.OnComplete(() => _gameOverPanelGroup.blocksRaycasts = true).Restart();
             _pauseSequence.Restart();
             Time.timeScale = 0;
         }
@@ -798,16 +791,14 @@ namespace ManagerControl
         {
             Input.multiTouchEnabled = false;
             Time.timeScale = 0;
-            _pausePanelBlockImage.raycastTarget = false;
-            _pauseSequence.Restart();
+            _pauseSequence.OnComplete(() => _pausePanelBackground.blocksRaycasts = true).Restart();
         }
 
         private void Resume()
         {
             Input.multiTouchEnabled = true;
             Time.timeScale = _curTimeScale;
-            _pausePanelBlockImage.raycastTarget = true;
-            _pauseSequence.PlayBackwards();
+            _pauseSequence.OnRewind(() => _pausePanelBackground.blocksRaycasts = false).PlayBackwards();
         }
 
 #endregion

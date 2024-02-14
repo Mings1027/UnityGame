@@ -1,26 +1,38 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace UIControl
 {
     public class AutoResolution : MonoBehaviour
     {
-        private CanvasScaler _canvas;
-
         private void Start()
         {
-            _canvas = GetComponent<CanvasScaler>();
+            Debug.Log($"width : {Screen.width}");
+            Debug.Log($"height : {Screen.height}");
+            SetResolution();
         }
 
-        private void Resolution()
+        private void SetResolution()
         {
-            var fixedAspectRatio = 16f / 9;
-            var curAspectRatio = (float)Screen.width / Screen.height;
-            if (curAspectRatio > fixedAspectRatio)
+            var cam = Camera.main;
+            var rect = cam.rect;
+
+            var scaleHeight = (float)Screen.width / Screen.height / ((float)16 / 9);
+            var scaleWidth = 1f / scaleHeight;
+
+            if (scaleHeight < 1)
             {
-                _canvas.matchWidthOrHeight = 1;
+                Debug.Log("1보다 작");
+                rect.height = scaleHeight;
+                rect.y = (1f - scaleHeight) / 2f;
             }
-            else if (curAspectRatio < fixedAspectRatio) _canvas.matchWidthOrHeight = 0;
+            else
+            {
+                Debug.Log("1보다 큼");
+                // rect.width = scaleWidth;
+                // rect.x = (1f - scaleWidth) / 2f;
+            }
+
+            cam.rect = rect;
         }
     }
 }

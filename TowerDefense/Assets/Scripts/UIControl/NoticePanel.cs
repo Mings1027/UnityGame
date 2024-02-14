@@ -27,12 +27,13 @@ namespace UIControl
 
 #endregion
 
+        [SerializeField] private bool usePopUpButton;
         [SerializeField] private Button popUpButton;
 
 #region Action
 
         public event Action OnPopUpButtonEvent;
-        public event Action OnOkButtonEvent;
+        public event Action OnConfirmButtonEvent;
         public event Action OnCancelButtonEvent;
 
 #endregion
@@ -87,21 +88,28 @@ namespace UIControl
 
         private void InitButton()
         {
-            OnOkButtonEvent += () => SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            if (popUpButton != null)
+            OnConfirmButtonEvent += () => SoundManager.PlayUISound(SoundEnum.ButtonSound);
+
+            if (usePopUpButton)
             {
-                popUpButton.onClick.AddListener(OpenPopUp);
+                popUpButton.onClick.AddListener(() =>
+                {
+                    SoundManager.PlayUISound(SoundEnum.ButtonSound);
+                    OpenPopUp();
+                });
             }
 
             _confirmButton.onClick.AddListener(() =>
             {
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 _noticePanelGroup.blocksRaycasts = false;
                 _buttonGroup.blocksRaycasts = false;
                 _noticeSequence.PlayBackwards();
-                OnOkButtonEvent?.Invoke();
+                OnConfirmButtonEvent?.Invoke();
             });
             _cancelButton.onClick.AddListener(() =>
             {
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 _noticePanelGroup.blocksRaycasts = false;
                 _buttonGroup.blocksRaycasts = false;
                 _noticeSequence.PlayBackwards();

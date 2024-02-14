@@ -356,6 +356,7 @@ GameObject:
   - component: {fileID: 2432601298493362188}
   - component: {fileID: 2432601298493362186}
   - component: {fileID: 2432601298493362189}
+  - component: {fileID: 5899928571003906379}
   m_Layer: 5
   m_Name: Language Panel
   m_TagString: Untagged
@@ -423,6 +424,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 3
+--- !u!225 &5899928571003906379
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2432601298493362191}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &2432601298524705893
 GameObject:
   m_ObjectHideFlags: 0
@@ -1139,7 +1152,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   languagePanelBlockImage: {fileID: 2432601299517426789}
-  languagePanel: {fileID: 2432601298493362188}
+  languagePanel: {fileID: 5899928571003906379}
   languageButtons: {fileID: 2432601298204101638}
   openLanguagePanelButton: {fileID: 0}
   closeLanguagePanelButton: {fileID: 2432601299517426788}

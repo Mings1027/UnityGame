@@ -4,14 +4,14 @@ using ManagerControl;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace GameControl
+namespace UIControl
 {
     public class LanguageController : MonoBehaviour
     {
-        private Tween _changeLanguageTween;
+        private Sequence _panelSequence;
 
         [SerializeField] private Image languagePanelBlockImage;
-        [SerializeField] private Transform languagePanel;
+        [SerializeField] private CanvasGroup languagePanel;
         [SerializeField] private Transform languageButtons;
         [SerializeField] private Button openLanguagePanelButton;
         [SerializeField] private Button closeLanguagePanelButton;
@@ -19,10 +19,10 @@ namespace GameControl
         private void Start()
         {
             languagePanelBlockImage.enabled = false;
-            _changeLanguageTween =
-                languagePanel.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack).SetUpdate(true).SetAutoKill(false)
-                    .Pause();
-
+            _panelSequence = DOTween.Sequence().SetAutoKill(false).Pause()
+                .Append(languagePanel.DOFade(1, 0.25f).From(0).SetUpdate(true))
+                .Join(languagePanel.GetComponent<RectTransform>().DOAnchorPosX(0, 0.25f).From(new Vector2(-100, 0)));
+            languagePanel.blocksRaycasts = false;
             for (var i = 0; i < languageButtons.childCount; i++)
             {
                 var index = i;
@@ -41,19 +41,19 @@ namespace GameControl
                 openLanguagePanelButton.transform.DOScale(1, 0.25f).From(0.5f).SetEase(Ease.OutBack).SetUpdate(true);
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 languagePanelBlockImage.enabled = true;
-                _changeLanguageTween.Restart();
+                _panelSequence.OnComplete(() => languagePanel.blocksRaycasts = true).Restart();
             });
 
             closeLanguagePanelButton.onClick.AddListener(() =>
             {
                 languagePanelBlockImage.enabled = false;
-                _changeLanguageTween.PlayBackwards();
+                _panelSequence.OnRewind(() => languagePanel.blocksRaycasts = false).PlayBackwards();
             });
         }
 
         private void OnDestroy()
         {
-            _changeLanguageTween?.Kill();
+            _panelSequence?.Kill();
         }
     }
 }
