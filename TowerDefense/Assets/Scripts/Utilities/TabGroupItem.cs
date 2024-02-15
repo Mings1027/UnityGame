@@ -31,7 +31,7 @@ namespace Utilities
                 OnTabEvent?.Invoke(this);
             });
 
-            _groupTween = _canvasGroup.DOFade(1, 0.25f).From(0).SetAutoKill(false).Pause();
+            _groupTween = _canvasGroup.DOFade(1, 0.1f).From(0).SetAutoKill(false).Pause();
             _groupTween.OnComplete(() => _canvasGroup.blocksRaycasts = true);
             _groupTween.OnRewind(() => _canvasGroup.blocksRaycasts = false);
         }

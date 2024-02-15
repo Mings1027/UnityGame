@@ -47,7 +47,7 @@ namespace LobbyUIControl
         [SerializeField] private Transform itemParent;
 
         [SerializeField] private CanvasGroup purchasePanelGroup;
-        
+
         [SerializeField] private Button closePurchasePanelButton;
         [SerializeField] private Button closePurchasePanelBackgroundButton;
 
@@ -59,6 +59,7 @@ namespace LobbyUIControl
         [SerializeField] private Button increaseButton;
         [SerializeField] private Button decreaseButton;
         [SerializeField] private TMP_Text quantityText;
+        [SerializeField] private UIVerticalSplitter uiVerticalSplitter;
 
         private void Awake()
         {
@@ -74,7 +75,7 @@ namespace LobbyUIControl
                 .Append(purchasePanelGroup.DOFade(1, 0.25f).From(0))
                 .Join(purchasePanel.DOAnchorPosX(0, 0.25f).From(new Vector2(-100, 0)));
             purchasePanelGroup.blocksRaycasts = false;
-            
+
             itemShopButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
@@ -148,7 +149,7 @@ namespace LobbyUIControl
         private void OpenPurchasePanel(ItemType itemType, Sprite sprite)
         {
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
-
+            uiVerticalSplitter.VerticalSplitter();
             _curItemType = itemType;
             explainText.text = _itemInfoTable[itemType].itemExplain;
             CustomLog.Log($"아이템 설명 : {_itemInfoTable[itemType].itemExplain}");

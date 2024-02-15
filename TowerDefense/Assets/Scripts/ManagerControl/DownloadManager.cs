@@ -5,6 +5,7 @@ using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using TMPro;
+using UIControl;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.SceneManagement;
@@ -15,16 +16,11 @@ namespace ManagerControl
     public class DownloadManager : MonoBehaviour
     {
         private long _patchSize;
-        private Tween _downloadPanelTween;
         private Dictionary<string, long> _patchMap;
-        private bool _isCheckUpdate;
 
-        [SerializeField] private GameObject downLoadPanel;
-        [SerializeField] private Image blockImage;
+        [SerializeField] private NoticePanel downLoadNoticePanel;
         [SerializeField] private TMP_Text sizeInfoText;
         [SerializeField] private Button startButton;
-        [SerializeField] private Button downLoadButton;
-        [SerializeField] private Button cancelButton;
         [SerializeField] private TMP_Text downValueText;
         [SerializeField] private Slider downSlider;
 
@@ -32,25 +28,22 @@ namespace ManagerControl
 
         private void Awake()
         {
-            _downloadPanelTween = downLoadPanel.transform.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack)
-                .SetAutoKill(false).Pause();
             _patchMap = new Dictionary<string, long>();
-            startButton.onClick.AddListener(() => { CheckUpdateFiles().Forget(); });
-            downLoadButton.onClick.AddListener(DownLoadButton);
-            cancelButton.onClick.AddListener(CancelButton);
+            startButton.onClick.AddListener(async () =>
+            {
+                await CheckUpdateFiles();
+                UpdateFiles();
+            });
+
+            downLoadNoticePanel.OnConfirmButtonEvent += DownLoadButton;
+            downLoadNoticePanel.OnCancelButtonEvent += CancelButton;
         }
 
         private void Start()
         {
             Time.timeScale = 1;
-            blockImage.enabled = false;
             downSlider.gameObject.SetActive(false);
             InitAddressable().Forget();
-        }
-
-        private void OnDestroy()
-        {
-            _downloadPanelTween?.Kill();
         }
 
         private async UniTaskVoid InitAddressable()
@@ -60,39 +53,37 @@ namespace ManagerControl
 
 #region CheckDown
 
-        private async UniTaskVoid CheckUpdateFiles()
+        private async UniTask CheckUpdateFiles()
         {
-            if (_isCheckUpdate)
+            var labels = new List<string>();
+            for (var i = 0; i < assetLabels.Length; i++)
             {
-                _isCheckUpdate = true;
-                var labels = new List<string>();
-                for (var i = 0; i < assetLabels.Length; i++)
-                {
-                    labels.Add(assetLabels[i].labelString);
-                }
-
-                _patchSize = default;
-
-                foreach (var handle in labels.Select(Addressables.GetDownloadSizeAsync))
-                {
-                    await handle;
-
-                    _patchSize += handle.Result;
-                }
+                labels.Add(assetLabels[i].labelString);
             }
 
+            _patchSize = default;
+
+            foreach (var handle in labels.Select(Addressables.GetDownloadSizeAsync))
+            {
+                Debug.Log(handle);
+                await handle;
+
+                _patchSize += handle.Result;
+            }
+        }
+
+        private void UpdateFiles()
+        {
             if (_patchSize > decimal.Zero) // 다운로드 할 것이 있음
             {
-                blockImage.enabled = true;
-                _downloadPanelTween.Restart();
+                Debug.Log("다운로드다운로드다운로드다운로드다운로드");
                 sizeInfoText.text = GetFilSize(_patchSize);
-                blockImage.enabled = true;
                 startButton.gameObject.SetActive(false);
-                downLoadButton.gameObject.SetActive(true);
-                cancelButton.gameObject.SetActive(true);
+                downLoadNoticePanel.OpenPopUp();
             }
             else // 다운로드 할 것이 없음
             {
+                Debug.Log("no download");
                 downSlider.gameObject.SetActive(true);
                 startButton.gameObject.SetActive(false);
                 ProgressBarTo100();
@@ -130,23 +121,13 @@ namespace ManagerControl
 
         private void DownLoadButton()
         {
-            SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            _downloadPanelTween.PlayBackwards();
-            blockImage.enabled = false;
-            downLoadButton.gameObject.SetActive(false);
-            cancelButton.gameObject.SetActive(false);
             downSlider.gameObject.SetActive(true);
             PatchFiles().Forget();
         }
 
         private void CancelButton()
         {
-            SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            blockImage.enabled = false;
-            _downloadPanelTween.PlayBackwards();
             startButton.gameObject.SetActive(true);
-            downLoadButton.gameObject.SetActive(false);
-            cancelButton.gameObject.SetActive(false);
         }
 
         private async UniTask PatchFiles()

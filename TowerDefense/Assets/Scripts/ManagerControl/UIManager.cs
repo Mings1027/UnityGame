@@ -100,6 +100,8 @@ namespace ManagerControl
         private Button _mainMenuButton;
         private CanvasGroup _gameOverPanelGroup;
         private CanvasGroup _gameEndPanelGroup;
+        private Button _gameOverButton;
+        private Button _gameEndButton;
 
         private MoveUnitController _moveUnitController;
 
@@ -236,10 +238,26 @@ namespace ManagerControl
             _pausePanel = _pausePanelBackground.transform.Find("Pause Panel").GetComponent<RectTransform>();
             _resumeButton = _pausePanel.Find("Resume Button").GetComponent<Button>();
             _mainMenuButton = _pausePanel.Find("Main Menu Button").GetComponent<Button>();
+            
             _gameOverPanelGroup = uiPanel.Find("Game Over Background").GetComponent<CanvasGroup>();
             _gameOverPanelGroup.blocksRaycasts = false;
+            _gameOverButton = _gameOverPanelGroup.GetComponentInChildren<Button>();
+            _gameOverButton.onClick.AddListener(() =>
+            {
+                itemBagController.UpdateInventory();
+                BackendGameData.instance.GameDataUpdate();
+                SceneManager.LoadScene("Lobby");
+            });
+            
             _gameEndPanelGroup = uiPanel.Find("Game End Background").GetComponent<CanvasGroup>();
             _gameEndPanelGroup.blocksRaycasts = false;
+            _gameEndButton = _gameEndPanelGroup.GetComponentInChildren<Button>();
+            _gameEndButton.onClick.AddListener(() =>
+            {
+                itemBagController.UpdateInventory();
+                BackendGameData.instance.GameDataUpdate();
+                SceneManager.LoadScene("Lobby");
+            });
             _moveUnitController = FindAnyObjectByType<MoveUnitController>();
         }
 
@@ -250,7 +268,6 @@ namespace ManagerControl
 
             for (var i = 0; i < _towerManager.towerDataPrefabs.Length; i++)
             {
-                CustomLog.Log($"{_towerManager.towerDataPrefabs[i].towerData.towerType}  ");
                 _towerCardController.SetDictionary(_towerManager.towerDataPrefabs[i].towerData.towerType,
                     _towerManager.towerDataPrefabs[i].towerData);
             }
@@ -383,7 +400,7 @@ namespace ManagerControl
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 Resume();
             });
-         
+
             _mainMenuButton.onClick.AddListener(() =>
             {
                 var curWave = WaveManager.curWave;

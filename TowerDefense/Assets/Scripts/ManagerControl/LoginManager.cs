@@ -47,7 +47,7 @@ namespace ManagerControl
         [SerializeField] private Button appleLoginButton;
         [SerializeField] private Button emailLoginButton;
         [SerializeField] private Button googleLoginButton;
-        
+
         [SerializeField] private CanvasGroup loginButtonsGroup;
         [SerializeField] private Image checkLastLoginImage;
         [SerializeField] private GameObject emailLoginPanelGroupObj;
@@ -170,7 +170,7 @@ namespace ManagerControl
             loginButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                Login();
+                Login().Forget();
             });
 
             logOutNoticePanel.OnConfirmButtonEvent += LogOut;
@@ -313,7 +313,7 @@ namespace ManagerControl
                 smtpServer.EnableSsl = true;
                 ServicePointManager.ServerCertificateValidationCallback = (_, _, _, _) => true;
 
-                UniTask.RunOnThreadPool(() => { smtpServer.Send(mail); });
+                await UniTask.RunOnThreadPool(() => { smtpServer.Send(mail); });
             }
         }
 

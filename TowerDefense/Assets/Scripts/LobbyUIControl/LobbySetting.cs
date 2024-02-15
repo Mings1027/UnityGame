@@ -51,9 +51,10 @@ namespace LobbyUIControl
 
         private void ClickTab(TabGroupItem tabGroupItem)
         {
-            _tabGroupItemQueue.Dequeue().CloseGroup();
+            var tabItem = _tabGroupItemQueue.Dequeue();
+            if (tabItem != tabGroupItem) tabItem.CloseGroup();
             _tabGroupItemQueue.Enqueue(tabGroupItem);
-            tabGroupItem.OpenGroup();
+            if (tabItem != tabGroupItem) tabGroupItem.OpenGroup();
         }
 
         private void InitButton()

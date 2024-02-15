@@ -2,15 +2,12 @@ using System.Linq;
 using BackendControl;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
-using DataControl.TowerDataControl;
 using DG.Tweening;
 using ManagerControl;
 using TMPro;
 using UIControl;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace LobbyUIControl

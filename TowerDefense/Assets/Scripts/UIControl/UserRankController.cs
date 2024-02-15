@@ -76,9 +76,9 @@ namespace UIControl
             for (var i = 0; i < userRankInfos.Length; i++)
             {
                 var item = Instantiate(userRankItem, content).transform;
-                item.GetChild(0).GetChild(0).GetComponent<TMP_Text>().text = userRankInfos[i].rank;
-                item.GetChild(1).GetChild(0).GetComponent<TMP_Text>().text = userRankInfos[i].nickName;
-                item.GetChild(2).GetChild(0).GetComponent<TMP_Text>().text = userRankInfos[i].score;
+                item.GetChild(0).GetComponent<TMP_Text>().text = userRankInfos[i].rank;
+                item.GetChild(1).GetComponent<TMP_Text>().text = userRankInfos[i].nickName;
+                item.GetChild(2).GetComponent<TMP_Text>().text = userRankInfos[i].score;
             }
         }
     }

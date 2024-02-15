@@ -1,5 +1,6 @@
 using System;
 using Cysharp.Threading.Tasks;
+using UIControl;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Serialization;
@@ -16,21 +17,23 @@ namespace LobbyUIControl
         [SerializeField] private string appstoreURL = "itms-apps://itunes.apple.com/app/id6472429843?uo=4";
         [SerializeField] private string playStoreURL;
 
-        [SerializeField] private GameObject updateVersionPanel;
-        [SerializeField] private Button appStoreButton;
+        [SerializeField] private NoticePanel updateNoticePanel;
 
         private void Start()
         {
-            updateVersionPanel.SetActive(false);
             _curAppVersion = int.Parse(Application.version.Replace(".", ""));
-            appStoreButton.onClick.AddListener(OpenAppStore);
+            updateNoticePanel.OnConfirmButtonEvent += OpenAppStore;
+            updateNoticePanel.OnCancelButtonEvent += Application.Quit;
             CheckVersion().Forget();
         }
 
         private async UniTaskVoid CheckVersion()
         {
             await CheckAppStoreVersion();
-            updateVersionPanel.SetActive(_curAppVersion < _storeVersion);
+            if (_curAppVersion < _storeVersion)
+            {
+                updateNoticePanel.OpenPopUp();
+            }
         }
 
         private async UniTask CheckAppStoreVersion()
