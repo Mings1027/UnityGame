@@ -13,50 +13,54 @@ namespace UIControl
 {
     public class ItemBagController : MonoBehaviour
     {
-        private Sequence _inventoryTween;
+        private Sequence _itemBagSequence;
+        private Sequence _inventorySequence;
         private Dictionary<ItemType, ItemButton> _itemDic;
         private Dictionary<ItemType, int> _itemCountDic;
         private ItemType _curItemType;
-        private Button _button;
-        private bool _isInventoryOpen;
-        [SerializeField] private RectTransform itemParent;
+
+        [SerializeField] private Button bagButton;
+        [SerializeField] private CanvasGroup itemBagGroup;
+        [SerializeField] private CanvasGroup itemGroup;
+        [SerializeField] private Button closeButton;
         [SerializeField] private Image selectIcon;
 
         private void Start()
         {
-            _inventoryTween = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(itemParent.GetChild(0).DOLocalMoveY(0, 0.5f).From().SetEase(Ease.OutBack))
-                .Join(itemParent.GetChild(1).DOLocalMoveY(0, 0.5f).From().SetEase(Ease.OutBack))
-                .Join(itemParent.GetChild(2).DOLocalMoveY(0, 0.5f).From().SetEase(Ease.OutBack));
-            
-            _button = GetComponent<Button>();
             selectIcon.GetComponent<Button>().onClick.AddListener(UseItem);
             selectIcon.gameObject.SetActive(false);
-            _button.onClick.AddListener(() =>
+            bagButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                if (_isInventoryOpen)
-                {
-                    Debug.Log("배낭 닫기");
-                    _isInventoryOpen = false;
-                    selectIcon.gameObject.SetActive(false);
-                    _inventoryTween.PlayBackwards();
-                    _curItemType = ItemType.None;
-                }
-                else
-                {
-                    Debug.Log("배낭 열기");
-                    _isInventoryOpen = true;
-                    _inventoryTween.Restart();
-                }
+                OpenBag();
             });
+
+            closeButton.onClick.AddListener(() =>
+            {
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
+                CloseBag();
+            });
+            _itemBagSequence = DOTween.Sequence().SetAutoKill(false).Pause()
+                .Append(itemBagGroup.DOFade(1, 0.25f).From(0))
+                .Join(itemBagGroup.GetComponent<RectTransform>().DOAnchorPosX(150, 0.25f).From(new Vector2(-100, 0)));
+            _itemBagSequence.OnComplete(() => itemBagGroup.blocksRaycasts = true);
+            _itemBagSequence.OnRewind(() => itemBagGroup.blocksRaycasts = false);
+            itemBagGroup.blocksRaycasts = false;
+
+            _inventorySequence = DOTween.Sequence().SetAutoKill(false).Pause()
+                .Append(itemGroup.DOFade(1, 0.25f).From(0))
+                .Join(itemGroup.GetComponent<RectTransform>().DOAnchorPosX(0, 0.25f).From(new Vector2(-100, 0)));
+            _inventorySequence.OnComplete(() => itemGroup.blocksRaycasts = true);
+            _inventorySequence.OnRewind(() => itemGroup.blocksRaycasts = false);
+            itemGroup.blocksRaycasts = false;
+
             _itemDic = new Dictionary<ItemType, ItemButton>();
             _itemCountDic = new Dictionary<ItemType, int>();
             var itemInventory = BackendGameData.userData.itemInventory;
 
-            for (var i = 0; i < itemParent.childCount; i++)
+            for (var i = 0; i < itemGroup.transform.childCount; i++)
             {
-                var itemButton = itemParent.GetChild(i).GetComponent<ItemButton>();
+                var itemButton = itemGroup.transform.GetChild(0).GetChild(i).GetComponent<ItemButton>();
                 _itemDic.Add(itemButton.itemType, itemButton);
                 CustomLog.Log(itemButton.itemType);
                 itemButton.OnSetCurItemEvent += SetCurItem;
@@ -64,14 +68,11 @@ namespace UIControl
 
                 _itemCountDic.Add(itemButton.itemType, itemInventory[itemButton.itemType.ToString()]);
             }
-
-            gameObject.SetActive(false);
-            itemParent.gameObject.SetActive(false);
         }
 
         private void OnDestroy()
         {
-            _inventoryTween?.Kill();
+            _inventorySequence?.Kill();
         }
 
         private void SetCurItem(ItemType curItemType, Vector2 anchoredPos)
@@ -94,6 +95,20 @@ namespace UIControl
             _curItemType = ItemType.None;
         }
 
+        private void OpenBag()
+        {
+            _itemBagSequence.PlayBackwards();
+            _inventorySequence.Restart();
+        }
+
+        private void CloseBag()
+        {
+            selectIcon.gameObject.SetActive(false);
+            _itemBagSequence.Restart();
+            _inventorySequence.PlayBackwards();
+            _curItemType = ItemType.None;
+        }
+
         public void UpdateInventory()
         {
             var itemTypes = Enum.GetValues(typeof(ItemType));
@@ -106,8 +121,17 @@ namespace UIControl
 
         public void SetActiveItemBag(bool active)
         {
+            if (active)
+            {
+                _itemBagSequence.Restart();
+            }
+            else
+            {
+                _itemBagSequence.PlayBackwards();
+                _inventorySequence.PlayBackwards();
+            }
+
             gameObject.SetActive(active);
-            itemParent.gameObject.SetActive(active);
         }
     }
 }

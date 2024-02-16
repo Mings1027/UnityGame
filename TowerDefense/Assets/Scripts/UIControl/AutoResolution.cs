@@ -6,9 +6,15 @@ namespace UIControl
     {
         private void Start()
         {
+            SetResolution();
+            PrintResolution();
+        }
+
+        [ContextMenu("Print Resolution")]
+        private void PrintResolution()
+        {
             Debug.Log($"width : {Screen.width}");
             Debug.Log($"height : {Screen.height}");
-            SetResolution();
         }
 
         private void SetResolution()

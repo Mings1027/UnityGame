@@ -793,7 +793,6 @@ namespace ManagerControl
             _towerCardController.SlideDown();
             _resumeButton.interactable = false;
             _gameOverSequence.OnComplete(() => _gameOverPanelGroup.blocksRaycasts = true).Restart();
-            _pauseSequence.Restart();
             Time.timeScale = 0;
         }
 

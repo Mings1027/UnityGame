@@ -1,25 +1,27 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Utilities
 {
     public class UIVerticalSplitter : MonoBehaviour
     {
+        private bool _isUpdate;
+        
         public float[] ratios; // 각 자식 요소의 비율
 
-        private void Start()
-        {
-            VerticalSplitter();
-        }
+        // private void Start()
+        // {
+        //     VerticalSplitter();
+        // }
 
         [ContextMenu("Vertical Splitter")]
         public void VerticalSplitter()
         {
+            if (_isUpdate) return;
             if (ratios.Length <= 0) return;
-Debug.Log("verti splitter");
+            _isUpdate = true;
+            Debug.Log("verti splitter");
             var totalRatio = ratios.Sum();
             var parentRect = GetComponent<RectTransform>();
             var parentHeight = parentRect.rect.height;

@@ -21,7 +21,7 @@ namespace UIControl
         private TMP_Text _damageText;
         private TMP_Text _delayText;
 
-        public bool IsOpen { get; private set; }
+        public bool isOpen { get; private set; }
 
         [SerializeField] private TMP_Text towerNameText;
         [SerializeField] private TMP_Text towerDescriptionText;
@@ -50,7 +50,7 @@ namespace UIControl
         public void OpenTowerCard(TowerType towerType, Transform buttonTransform)
         {
             _cardCloseButton.SetActive(true);
-            IsOpen = true;
+            isOpen = true;
             _buttonPos = buttonTransform.position;
 
             if (!towerType.Equals(_towerType))
@@ -95,7 +95,7 @@ namespace UIControl
         public void CloseCard()
         {
             _cardCloseButton.SetActive(false);
-            IsOpen = false;
+            isOpen = false;
 
             _openCardSequence.PlayBackwards();
             _moveCardTween.ChangeStartValue(_buttonPos + new Vector3(0, 450, 0)).ChangeEndValue(_buttonPos).Restart();

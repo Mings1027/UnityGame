@@ -117,7 +117,7 @@ namespace UIControl
 
         private void CloseTowerCard()
         {
-            if (towerDescriptionCard.IsOpen)
+            if (towerDescriptionCard.isOpen)
             {
                 towerDescriptionCard.CloseCard();
             }

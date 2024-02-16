@@ -25,7 +25,7 @@ namespace UIControl
 
         private void Awake()
         {
-            _lobbyUI = FindAnyObjectByType<LobbyUI>();
+            _lobbyUI = GetComponentInParent<LobbyUI>();
             _panelSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(rankPanelGroup.DOFade(1, 0.25f).From(0))
                 .Join(rankPanelGroup.GetComponent<RectTransform>().DOAnchorPosX(0, 0.25f).From(new Vector2(100, 0)));

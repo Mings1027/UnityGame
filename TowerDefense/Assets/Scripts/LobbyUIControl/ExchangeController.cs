@@ -35,7 +35,7 @@ namespace LobbyUIControl
 
         private void Awake()
         {
-            _lobbyUI = FindAnyObjectByType<LobbyUI>();
+            _lobbyUI = GetComponentInParent<LobbyUI>();
             shopPanelGroup.blocksRaycasts = false;
             _shopPanelSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(shopPanelGroup.DOFade(1, 0.25f).From(0))

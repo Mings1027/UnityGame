@@ -25,8 +25,7 @@ namespace UIControl
         private TMP_Text _respawnText;
         private TMP_Text _damageText;
 
-        [Header("-------------Tower Status--------------")] [SerializeField]
-        private Transform followTowerUI;
+        [SerializeField] private Transform followTowerUI;
 
         [SerializeField] private Image damageImage;
         [SerializeField] private GameObject healthObj;
@@ -67,7 +66,7 @@ namespace UIControl
 
             for (var i = 0; i < _starImages.Length; i++)
             {
-                _starImages[i] = stars.GetChild(i).GetChild(0).GetComponent<Image>();
+                _starImages[i] = stars.GetChild(i).GetChild(1).GetComponent<Image>();
             }
 
             _healthText = healthObj.transform.GetChild(0).GetComponent<TMP_Text>();

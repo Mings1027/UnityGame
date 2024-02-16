@@ -25,7 +25,7 @@ namespace LobbyUIControl
 
         private void Start()
         {
-            _lobbyUI = FindAnyObjectByType<LobbyUI>();
+            _lobbyUI = GetComponentInParent<LobbyUI>();
             _rewardedAds = FindAnyObjectByType<AdmobManager>();
             shopPanelGroup.blocksRaycasts = false;
             _panelSequence = DOTween.Sequence().SetAutoKill(false).Pause()

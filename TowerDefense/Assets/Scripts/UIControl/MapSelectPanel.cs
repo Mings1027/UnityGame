@@ -1,49 +1,31 @@
-using System;
 using BackendControl;
 using CustomEnumControl;
 using DG.Tweening;
 using ManagerControl;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using Utilities;
 
 namespace UIControl
 {
     public class MapSelectPanel : MonoBehaviour
     {
-        private EventSystem _eventSystem;
-        private Tween _deletePanelTween;
+        private CanvasGroup _canvasGroup;
+        private Sequence _panelSequence;
 
-        // [SerializeField] private Transform deleteWaveDataPanel;
-        // [SerializeField] private Image blockImage;
-        // [SerializeField] private Button dataDeleteButton;
-        // [SerializeField] private Button yesButton;
-        // [SerializeField] private Button noButton;
-
+        [SerializeField] private RectTransform difficultyButtonGroup;
         [SerializeField] private NoticePanel deleteSurviveWavePanel;
-
-        // private void Awake()
-        // {
-        //     _deletePanelTween = deleteWaveDataPanel.GetChild(1).DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack)
-        //         .SetAutoKill(false).Pause();
-        // }
-
-        private void OnDestroy()
-        {
-            _deletePanelTween?.Kill();
-        }
 
         private void Start()
         {
-            // _eventSystem = EventSystem.current;
-            // _eventSystem.enabled = false;
-            // blockImage.enabled = false;
+            _canvasGroup = GetComponent<CanvasGroup>();
+            _panelSequence = DOTween.Sequence().SetAutoKill(false).Pause()
+                .Append(_canvasGroup.DOFade(1, 0.25f).From(0))
+                .Join(_canvasGroup.GetComponent<RectTransform>().DOAnchorPosY(0, 0.25f).From(new Vector2(0, -100)));
+            _canvasGroup.blocksRaycasts = false;
+            _panelSequence.OnComplete(() => _canvasGroup.blocksRaycasts = true).Restart();
 
-            transform.DOScale(1, 0.5f).From(0.7f).SetEase(Ease.OutBack).OnComplete(() => _eventSystem.enabled = true);
             var difficultySelectButtons = transform.GetChild(0);
-            CustomLog.Log("==============================================================");
             for (var i = 0; i < difficultySelectButtons.childCount; i++)
             {
                 var index = (byte)i;
@@ -51,28 +33,20 @@ namespace UIControl
                 {
                     SoundManager.PlayUISound(SoundEnum.ButtonSound);
                     UIManager.instance.MapSelectButton(index).Forget();
-                    // _eventSystem.enabled = false;
-                    transform.DOScale(0, 0.5f).SetEase(Ease.InBack).OnComplete(() =>
+                    _panelSequence.OnRewind(() =>
                     {
-                        // _eventSystem.enabled = true;
+                        _canvasGroup.blocksRaycasts = false;
                         Destroy(gameObject);
-                    });
+                    }).PlayBackwards();
                 });
-                CustomLog.Log(index);
             }
 
             var survivedWaves = BackendGameData.userData.survivedWaveList;
-            CustomLog.Log($"wave length : {survivedWaves.Count}");
-            for (int i = 0; i < survivedWaves.Count; i++)
-            {
-                CustomLog.Log($"survivedwaves : {survivedWaves[i]}");
-            }
 
             for (var i = 0; i < difficultySelectButtons.childCount; i++)
             {
-                CustomLog.Log($"text : {survivedWaves[i]}");
                 difficultySelectButtons.GetChild(i).GetChild(3).GetComponent<TMP_Text>().text =
-                    survivedWaves[i].ToString();
+                    survivedWaves[i];
             }
 
             ButtonInit();
@@ -83,10 +57,10 @@ namespace UIControl
             deleteSurviveWavePanel.OnConfirmButtonEvent += () =>
             {
                 var survivedWaves = BackendGameData.userData.survivedWaveList;
-                var difficultySelectButtons = transform.GetChild(0);
-                for (var i = 0; i < difficultySelectButtons.childCount; i++)
+
+                for (var i = 0; i < difficultyButtonGroup.childCount; i++)
                 {
-                    difficultySelectButtons.GetChild(i).GetChild(3).GetComponent<TMP_Text>().text =
+                    difficultyButtonGroup.GetChild(i).GetComponent<DifficultyButton>().survivedText.text =
                         survivedWaves[i];
                 }
             };

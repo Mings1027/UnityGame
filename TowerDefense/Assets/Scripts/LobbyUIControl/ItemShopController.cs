@@ -63,7 +63,7 @@ namespace LobbyUIControl
 
         private void Awake()
         {
-            _lobbyUI = FindAnyObjectByType<LobbyUI>();
+            _lobbyUI = GetComponentInParent<LobbyUI>();
             _itemInfoTable = new Dictionary<ItemType, ItemInfo>();
             _shopPanelGroup = GetComponent<CanvasGroup>();
             _shopPanelSequence = DOTween.Sequence().SetAutoKill(false).Pause()
@@ -201,8 +201,9 @@ namespace LobbyUIControl
         private void IncreaseQuantity()
         {
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            _curQuantity++;
             _curEmeraldPrice = BackendChart.ItemTable[_curItemType.ToString()] * _curQuantity;
+            if (BackendGameData.userData.emerald <= _curEmeraldPrice) return;
+            _curQuantity++;
             emeraldPriceText.text = _curEmeraldPrice.ToString();
             quantityText.text = _curQuantity.ToString();
         }

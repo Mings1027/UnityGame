@@ -1,11 +1,8 @@
 using System.Collections.Generic;
-using System.Globalization;
 using CustomEnumControl;
 using DG.Tweening;
 using ManagerControl;
-using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Utilities;
 

@@ -34,7 +34,7 @@ namespace LobbyUIControl
         private void Awake()
         {
             _upgradePanelGroup = GetComponent<CanvasGroup>();
-            _lobbyUI = FindAnyObjectByType<LobbyUI>();
+            _lobbyUI = GetComponentInParent<LobbyUI>();
             _upgradePanelGroupSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(_upgradePanelGroup.DOFade(1, 0.25f).From(0))
                 .Join(upgradePanel.DOAnchorPosY(0, 0.25f).From(new Vector2(0, -100)));

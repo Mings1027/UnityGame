@@ -72,8 +72,11 @@ namespace ManagerControl
         [SerializeField] private NoticePanel signUpConfirmPanel;
         [SerializeField] private NoticePanel logOutNoticePanel;
 
+        [SerializeField] private int width;
+        [SerializeField] private int height;
         private void Start()
         {
+            // Screen.SetResolution(Screen.width, Screen.width * height / width, true);
             Init();
             AppleInit();
             GoogleInit();

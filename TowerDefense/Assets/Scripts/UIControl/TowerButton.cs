@@ -18,7 +18,6 @@ namespace UIControl
         public event Action<PointerEventData> OnDragEvent;
         public event Action<PointerEventData> OnEndDragEvent;
         public static bool isOnButton { get; private set; }
-        // public byte buttonIndex { get; set; }
         
         [SerializeField] private TowerType towerType;
 
