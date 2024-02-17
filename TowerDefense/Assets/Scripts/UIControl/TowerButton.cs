@@ -9,9 +9,10 @@ namespace UIControl
     public class TowerButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler,
         IBeginDragHandler, IDragHandler, IEndDragHandler
     {
+        private RectTransform _rectTransform;
         private Tween _scaleTween;
         public event Action OnCamDisableEvent, OnCamEnableEvent;
-        public event Action<TowerType, Transform> OnOpenCardEvent;
+        public event Action<TowerType, RectTransform> OnOpenCardEvent;
         public event Action OnCloseCardEvent;
         public event Action<PointerEventData> OnBeginDragEvent;
         public event Action<TowerType> OnStartPlacement;
@@ -23,6 +24,7 @@ namespace UIControl
 
         private void Awake()
         {
+            _rectTransform = GetComponent<RectTransform>();
             _scaleTween = transform.DOScale(1.1f, 0.25f).From(1).SetEase(Ease.OutBack).SetAutoKill(false).Pause();
         }
 
@@ -36,7 +38,7 @@ namespace UIControl
         public void OnPointerUp(PointerEventData eventData)
         {
             _scaleTween.PlayBackwards();
-            OnOpenCardEvent?.Invoke(towerType, transform);
+            OnOpenCardEvent?.Invoke(towerType, _rectTransform);
             OnCamEnableEvent?.Invoke();
         }
 

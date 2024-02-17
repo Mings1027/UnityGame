@@ -95,7 +95,7 @@ namespace UIControl
                 .Join(cantMoveImage.DOFade(0, 0.5f).From(1));
         }
 
-        public void CannotMoveHere()
+        public void CannotMove()
         {
             cantMoveImage.transform.position = Input.mousePosition;
             cantMoveImage.enabled = true;

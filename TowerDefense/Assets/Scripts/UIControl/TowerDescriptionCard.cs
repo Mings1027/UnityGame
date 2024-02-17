@@ -11,15 +11,16 @@ namespace UIControl
 {
     public class TowerDescriptionCard : MonoBehaviour
     {
-        private Vector3 _buttonPos;
+        private Vector2 _buttonPos;
         private Vector3 _initPos;
         private TowerType _towerType;
         private Sequence _openCardSequence;
         private Tweener _moveCardTween;
-        private GameObject _cardCloseButton;
         private TMP_Text _healthText;
         private TMP_Text _damageText;
         private TMP_Text _delayText;
+        private CanvasGroup _canvasGroup;
+        private RectTransform _towerCardRect;
 
         public bool isOpen { get; private set; }
 
@@ -33,25 +34,29 @@ namespace UIControl
 
         private void Awake()
         {
-            _cardCloseButton = transform.GetChild(0).gameObject;
-            _cardCloseButton.SetActive(false);
+            _canvasGroup = GetComponent<CanvasGroup>();
+            _towerCardRect = transform.GetChild(1).GetComponent<RectTransform>();
+            _canvasGroup.blocksRaycasts = false;
+            transform.GetChild(0).GetComponent<Button>().onClick.AddListener(CloseCard);
             _towerType = TowerType.None;
-            _initPos = transform.position;
+
             _openCardSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(transform.GetChild(1).DOScale(1, 0.25f).From(0))
-                .Join(transform.GetChild(1).DORotate(new Vector3(0, 360, 0), 0.25f, RotateMode.FastBeyond360));
-            _moveCardTween = transform.GetChild(1).DOMove(_initPos, 0.25f).From().SetAutoKill(false);
+                .Append(_towerCardRect.DOScale(1, 0.25f).From(0))
+                .Join(_towerCardRect.DORotate(new Vector3(0, 360, 0), 0.25f, RotateMode.FastBeyond360));
+            _moveCardTween = _towerCardRect.DOAnchorPos(Vector2.zero, 0.25f).From(Vector2.zero).SetAutoKill(false)
+                .Pause();
+            _moveCardTween.OnComplete(() => _canvasGroup.blocksRaycasts = true);
+            _moveCardTween.OnRewind(() => _canvasGroup.blocksRaycasts = false);
 
             _healthText = healthObj.transform.GetChild(0).GetComponent<TMP_Text>();
             _damageText = damageImage.transform.GetChild(0).GetComponent<TMP_Text>();
             _delayText = delayObj.transform.GetChild(0).GetComponent<TMP_Text>();
         }
 
-        public void OpenTowerCard(TowerType towerType, Transform buttonTransform)
+        public void OpenTowerCard(TowerType towerType, RectTransform buttonTransform)
         {
-            _cardCloseButton.SetActive(true);
             isOpen = true;
-            _buttonPos = buttonTransform.position;
+            _buttonPos = buttonTransform.anchoredPosition;
 
             if (!towerType.Equals(_towerType))
             {
@@ -86,19 +91,17 @@ namespace UIControl
                 }
             }
 
-            gameObject.SetActive(true);
             _openCardSequence.Restart();
-            _moveCardTween.ChangeStartValue(_buttonPos)
-                .ChangeEndValue(_buttonPos + new Vector3(0, 450, 0)).Restart();
+
+            _moveCardTween.ChangeStartValue(_buttonPos + new Vector2(0, -400)).ChangeEndValue(_buttonPos).Restart();
         }
 
         public void CloseCard()
         {
-            _cardCloseButton.SetActive(false);
             isOpen = false;
 
             _openCardSequence.PlayBackwards();
-            _moveCardTween.ChangeStartValue(_buttonPos + new Vector3(0, 450, 0)).ChangeEndValue(_buttonPos).Restart();
+            _moveCardTween.PlayBackwards();
         }
 
         public void LocaleCardInfo()

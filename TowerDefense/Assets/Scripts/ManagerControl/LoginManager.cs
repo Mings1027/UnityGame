@@ -72,11 +72,8 @@ namespace ManagerControl
         [SerializeField] private NoticePanel signUpConfirmPanel;
         [SerializeField] private NoticePanel logOutNoticePanel;
 
-        [SerializeField] private int width;
-        [SerializeField] private int height;
         private void Start()
         {
-            // Screen.SetResolution(Screen.width, Screen.width * height / width, true);
             Init();
             AppleInit();
             GoogleInit();
@@ -156,14 +153,12 @@ namespace ManagerControl
             appleLoginButton.onClick.AddListener(AppleLogin);
             emailLoginButton.onClick.AddListener(() =>
             {
-                // blockImage.enabled = true;
                 content.anchoredPosition = Vector2.zero;
                 emailLoginPanelGroupObj.SetActive(true);
                 _loginButtonGroupTween.PlayBackwards();
             });
             goBackButton.onClick.AddListener(() =>
             {
-                // blockImage.enabled = false;
                 emailLoginPanelGroupObj.SetActive(false);
                 _loginButtonGroupTween.Restart();
             });

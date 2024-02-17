@@ -133,15 +133,6 @@ namespace LobbyUIControl
             emeraldCostText.text = $"+ {_curQuantity * EmeraldAmount}";
         }
 
-        private void MinQuantity()
-        {
-            SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            _curQuantity = 0;
-            quantityText.text = "0";
-            diamondCostText.text = "0";
-            emeraldCostText.text = "0";
-        }
-
         private void MaxQuantity()
         {
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
@@ -149,6 +140,15 @@ namespace LobbyUIControl
             quantityText.text = _curQuantity.ToString();
             diamondCostText.text = $"- {_curQuantity * EmeraldAmount}";
             emeraldCostText.text = $"+ {_curQuantity * EmeraldAmount}";
+        }
+
+        private void MinQuantity()
+        {
+            SoundManager.PlayUISound(SoundEnum.ButtonSound);
+            _curQuantity = 0;
+            quantityText.text = "0";
+            diamondCostText.text = "0";
+            emeraldCostText.text = "0";
         }
     }
 }

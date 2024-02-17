@@ -68,7 +68,7 @@ namespace UnitControl
             }
             else
             {
-                _uiManager.YouCannotMove();
+                _uiManager.UnitCannotMove();
             }
         }
     }

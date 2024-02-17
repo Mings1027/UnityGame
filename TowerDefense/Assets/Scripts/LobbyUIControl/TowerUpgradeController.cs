@@ -7,7 +7,6 @@ using ManagerControl;
 using TMPro;
 using UIControl;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace LobbyUIControl
@@ -23,7 +22,6 @@ namespace LobbyUIControl
         [SerializeField] private TMP_Text xpText;
 
         [SerializeField] private RectTransform upgradePanel;
-        [SerializeField] private Button startGameButton;
         [SerializeField] private Button upgradeButton;
 
         [SerializeField] private Button closeButton;
@@ -64,7 +62,6 @@ namespace LobbyUIControl
 
         private void ButtonInit()
         {
-            startGameButton.onClick.AddListener(() => { SceneManager.LoadScene("MainGameScene"); });
             upgradeButton.onClick.AddListener(() =>
             {
                 UpgradePanel();

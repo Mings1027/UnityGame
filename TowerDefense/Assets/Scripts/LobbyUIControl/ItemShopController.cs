@@ -59,7 +59,6 @@ namespace LobbyUIControl
         [SerializeField] private Button increaseButton;
         [SerializeField] private Button decreaseButton;
         [SerializeField] private TMP_Text quantityText;
-        [SerializeField] private UIVerticalSplitter uiVerticalSplitter;
 
         private void Awake()
         {
@@ -149,7 +148,6 @@ namespace LobbyUIControl
         private void OpenPurchasePanel(ItemType itemType, Sprite sprite)
         {
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            uiVerticalSplitter.VerticalSplitter();
             _curItemType = itemType;
             explainText.text = _itemInfoTable[itemType].itemExplain;
             CustomLog.Log($"아이템 설명 : {_itemInfoTable[itemType].itemExplain}");

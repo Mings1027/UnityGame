@@ -3,6 +3,7 @@ using CustomEnumControl;
 using DG.Tweening;
 using UIControl;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 using Random = UnityEngine.Random;
 
 namespace ManagerControl

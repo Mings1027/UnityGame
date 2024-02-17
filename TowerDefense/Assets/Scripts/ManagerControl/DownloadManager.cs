@@ -15,6 +15,7 @@ namespace ManagerControl
 {
     public class DownloadManager : MonoBehaviour
     {
+        private FadeController _fadeController;
         private long _patchSize;
         private Dictionary<string, long> _patchMap;
 
@@ -28,6 +29,7 @@ namespace ManagerControl
 
         private void Awake()
         {
+            _fadeController = FindAnyObjectByType<FadeController>();
             _patchMap = new Dictionary<string, long>();
             startButton.onClick.AddListener(async () =>
             {
@@ -181,7 +183,7 @@ namespace ManagerControl
 
                 if (Math.Abs(total - _patchSize) < 0.01f)
                 {
-                    SceneManager.LoadSceneAsync("Lobby");
+                    _fadeController.FadeOutScene("Lobby").Forget();
                     break;
                 }
 
@@ -196,7 +198,7 @@ namespace ManagerControl
         {
             downValueText.text = "100 %";
             downSlider.value = 1;
-            SceneManager.LoadSceneAsync("Lobby");
+            _fadeController.FadeOutScene("Lobby").Forget();
         }
     }
 }

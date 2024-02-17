@@ -36,7 +36,11 @@ namespace LobbyUIControl
             loadingImage.localScale = Vector3.zero;
 
             backgroundBlockImage.enabled = false;
-            freePurchaseButton.onClick.AddListener(() => { ShowRewardedAd().Forget(); });
+            freePurchaseButton.onClick.AddListener(() =>
+            {
+                freePurchaseButton.interactable = false;
+                ShowRewardedAd().Forget();
+            });
             SoundManager.PlayBGM(SoundEnum.GameStart);
         }
 
@@ -51,6 +55,7 @@ namespace LobbyUIControl
             loadingImage.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack).SetUpdate(true);
             loadingImage.DOLocalRotate(new Vector3(0, 0, -360), 1, RotateMode.FastBeyond360).SetLoops(2);
             await UniTask.Delay(Random.Range(5, 8) * 100);
+            freePurchaseButton.interactable = true;
             loadingImage.localScale = Vector3.zero;
             _rewardedAds.ShowRewardedAd();
         }

@@ -2,20 +2,26 @@ using AdsControl;
 using BackEnd;
 using BackendControl;
 using CurrencyControl;
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UIControl;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace LobbyUIControl
 {
     public class LobbyUI : MonoBehaviour
     {
+        private FadeController _fadeController;
+
         public Sequence diamondNotifySequence { get; private set; }
         public Sequence emeraldNotifySequence { get; private set; }
 
         [field: SerializeField] public DiamondCurrency diamondCurrency { get; private set; }
         [field: SerializeField] public EmeraldCurrency emeraldCurrency { get; private set; }
+
+        [SerializeField] private Button startGameButton;
 
         [SerializeField] private GameObject buttonsObj;
         [SerializeField] private GameObject inGameMoneyObj;
@@ -27,6 +33,8 @@ namespace LobbyUIControl
         private void Awake()
         {
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
+
+            _fadeController = FindAnyObjectByType<FadeController>();
 
             diamondNotifySequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(diaNotifyRect.DOAnchorPosX(-100, 0.25f).From(new Vector2(600, -50)))
@@ -50,11 +58,15 @@ namespace LobbyUIControl
         {
             FindAnyObjectByType<AdmobManager>().BindLobbyUI(this);
             inGameMoneyObj.SetActive(false);
+            startGameButton.onClick.AddListener(() =>
+            {
+                _fadeController.FadeOutScene("MainGameScene").Forget();
+            });
             logOutPanel.OnConfirmButtonEvent += () =>
             {
                 BackendChart.instance.InitItemTable();
                 BackendLogin.instance.LogOut();
-                SceneManager.LoadSceneAsync("LoginScene");
+                _fadeController.FadeOutScene("LoginScene").Forget();
             };
         }
 

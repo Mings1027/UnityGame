@@ -25,11 +25,10 @@ namespace UIControl
             _canvasGroup.blocksRaycasts = false;
             _panelSequence.OnComplete(() => _canvasGroup.blocksRaycasts = true).Restart();
 
-            var difficultySelectButtons = transform.GetChild(0);
-            for (var i = 0; i < difficultySelectButtons.childCount; i++)
+            for (var i = 0; i < difficultyButtonGroup.childCount; i++)
             {
                 var index = (byte)i;
-                difficultySelectButtons.GetChild(i).GetComponent<Button>().onClick.AddListener(() =>
+                difficultyButtonGroup.GetChild(i).GetComponent<Button>().onClick.AddListener(() =>
                 {
                     SoundManager.PlayUISound(SoundEnum.ButtonSound);
                     UIManager.instance.MapSelectButton(index).Forget();
@@ -43,9 +42,9 @@ namespace UIControl
 
             var survivedWaves = BackendGameData.userData.survivedWaveList;
 
-            for (var i = 0; i < difficultySelectButtons.childCount; i++)
+            for (var i = 0; i < difficultyButtonGroup.childCount; i++)
             {
-                difficultySelectButtons.GetChild(i).GetChild(3).GetComponent<TMP_Text>().text =
+                difficultyButtonGroup.GetChild(i).GetChild(4).GetComponent<TMP_Text>().text =
                     survivedWaves[i];
             }
 

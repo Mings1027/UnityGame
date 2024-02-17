@@ -4,7 +4,6 @@ using DG.Tweening;
 using ManagerControl;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace UIControl
@@ -74,10 +73,10 @@ namespace UIControl
             _noticePanelGroup.blocksRaycasts = false;
             _buttonGroup.blocksRaycasts = false;
 
-            _noticeSequence = DOTween.Sequence().SetAutoKill(false).Pause()
+            _noticeSequence = DOTween.Sequence().SetAutoKill(false).Pause().SetUpdate(true)
                 .Append(_noticePanelGroup.DOFade(0.97f, 0.25f).From(0).SetEase(Ease.Linear));
 
-            _noticeChildSequence = DOTween.Sequence().SetAutoKill(false).Pause()
+            _noticeChildSequence = DOTween.Sequence().SetAutoKill(false).Pause().SetUpdate(true)
                 .Append(_blockImage.DOFade(1, 0.2f).From(0).SetEase(Ease.Linear))
                 .Join(_noticeText.DOScale(1, 0.25f).From(0).SetEase(Ease.Linear))
                 .Join(_noticePanel.DOScaleY(0, 0.25f).From().SetEase(Ease.Linear))
