@@ -17,7 +17,6 @@ namespace UIControl
         private void Awake()
         {
             _graphicRaycaster = GetComponent<GraphicRaycaster>();
-            _graphicRaycaster.enabled = false;
             fadeInImage.DOFade(1, 0);
             fadeOutImage.DOFade(0, 0);
         }
@@ -29,7 +28,9 @@ namespace UIControl
 
         private async UniTaskVoid FadeInScene()
         {
+            _graphicRaycaster.enabled = true;
             await fadeInImage.DOFade(0, 1).From(1).SetUpdate(true).SetDelay(1);
+            _graphicRaycaster.enabled = false;
         }
 
         public async UniTaskVoid FadeOutScene(string sceneName)

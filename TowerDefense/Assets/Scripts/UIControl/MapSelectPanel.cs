@@ -52,12 +52,11 @@ namespace UIControl
         {
             deleteSurviveWavePanel.OnConfirmButtonEvent += () =>
             {
-                var survivedWaves = BackendGameData.userData.survivedWaveList;
-
                 for (var i = 0; i < difficultyButtonGroup.childCount; i++)
                 {
+                    BackendGameData.userData.survivedWaveList[i] = "0";
                     difficultyButtonGroup.GetChild(i).GetComponent<DifficultyButton>().survivedText.text =
-                        survivedWaves[i];
+                        "0";
                 }
             };
         }

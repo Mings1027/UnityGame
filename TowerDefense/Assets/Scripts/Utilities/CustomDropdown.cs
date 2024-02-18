@@ -18,7 +18,7 @@ namespace Utilities
         {
             public string itemName;
             public UnityEvent itemSelection;
-            public CustomDropDownItem customDropDownItem;
+            [HideInInspector] public CustomDropDownItem customDropDownItem;
         }
 
         private Tween _dropDownTween;

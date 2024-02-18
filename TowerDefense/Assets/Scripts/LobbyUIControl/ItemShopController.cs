@@ -95,12 +95,12 @@ namespace LobbyUIControl
             closePurchasePanelButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                CloseExplainPanel();
+                ClosePurchasePanel();
             });
             closePurchasePanelBackgroundButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                CloseExplainPanel();
+                ClosePurchasePanel();
             });
 
             LocalizationSettings.SelectedLocaleChanged += ChangeLocaleItemDic;
@@ -152,14 +152,15 @@ namespace LobbyUIControl
 
             explainImage.sprite = sprite;
             ownedAmountText.text = _itemInfoTable[itemType].itemCount.ToString();
-            _purchasePanelSequence.OnComplete(() => purchasePanelGroup.blocksRaycasts = true).Restart();
+            purchasePanelGroup.blocksRaycasts = true;
+            _purchasePanelSequence.Restart();
             _curEmeraldPrice = BackendChart.ItemTable[_curItemType.ToString()];
             _curQuantity = 1;
             emeraldPriceText.text = _curEmeraldPrice.ToString();
             quantityText.text = _curQuantity.ToString();
         }
 
-        private void CloseExplainPanel()
+        private void ClosePurchasePanel()
         {
             _purchasePanelSequence.OnRewind(() => purchasePanelGroup.blocksRaycasts = false).PlayBackwards();
         }
@@ -175,11 +176,11 @@ namespace LobbyUIControl
                 var itemCount = BackendGameData.userData.itemInventory[_curItemType.ToString()] += _curQuantity;
                 _itemInfoTable[_curItemType].itemCount = itemCount;
 
-                CloseExplainPanel();
+                ClosePurchasePanel();
             }
             else
             {
-                _lobbyUI.emeraldNotifySequence.Restart();
+                _lobbyUI.NoticeEmeraldTween();
             }
         }
 

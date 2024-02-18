@@ -57,14 +57,7 @@ public class PauseController : MonoBehaviour
         }
         else
         {
-            var curWave = WaveManager.curWave;
-            if (curWave >= 1)
-            {
-                BackendGameData.instance.UpdateSurvivedWave((byte)(_waveManager.isStartWave
-                    ? curWave - 1
-                    : curWave));
-            }
-
+            UpdateSurvivedWave();
             _itemBagController.UpdateInventory();
             BackendGameData.instance.GameDataUpdate();
             Pause();
@@ -131,12 +124,14 @@ public class PauseController : MonoBehaviour
 
         gameOverButton.onClick.AddListener(() =>
         {
+            UpdateSurvivedWave();
             _itemBagController.UpdateInventory();
             BackendGameData.instance.GameDataUpdate();
             _fadeController.FadeOutScene("Lobby").Forget();
         });
         gameEndButton.onClick.AddListener(() =>
         {
+            UpdateSurvivedWave();
             _itemBagController.UpdateInventory();
             BackendGameData.instance.GameDataUpdate();
             _fadeController.FadeOutScene("Lobby").Forget();
@@ -147,19 +142,13 @@ public class PauseController : MonoBehaviour
     {
         Input.multiTouchEnabled = false;
         Time.timeScale = 0;
-        _pauseSequence.OnComplete(() => _pauseCanvasGroup.blocksRaycasts = true).Restart();
+        _pauseCanvasGroup.blocksRaycasts = true;
+        _pauseSequence.Restart();
     }
 
     private void ExitBattle()
     {
-        var curWave = WaveManager.curWave;
-        if (curWave >= 1)
-        {
-            BackendGameData.instance.UpdateSurvivedWave((byte)(_waveManager.isStartWave
-                ? curWave - 1
-                : curWave));
-        }
-
+        UpdateSurvivedWave();
         _itemBagController.UpdateInventory();
         BackendGameData.instance.GameDataUpdate();
         _fadeController.FadeOutScene("Lobby").Forget();
@@ -185,6 +174,17 @@ public class PauseController : MonoBehaviour
         _normalSpeedImage.enabled = _curTimeScale == 1;
         _doubleSpeedImage.enabled = _curTimeScale == 2;
         _tripleSpeedImage.enabled = _curTimeScale == 3;
+    }
+
+    private void UpdateSurvivedWave()
+    {
+        var curWave = WaveManager.curWave;
+        if (curWave >= 1)
+        {
+            BackendGameData.instance.UpdateSurvivedWave((byte)(_waveManager.isStartWave
+                ? curWave - 1
+                : curWave));
+        }
     }
 
     public void GameOver()

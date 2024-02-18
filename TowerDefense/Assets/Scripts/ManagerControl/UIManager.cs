@@ -166,8 +166,6 @@ namespace ManagerControl
         public void Init()
         {
             UIManagerInit();
-            _towerInfoUI.Init();
-            _gameHUD.Init();
 
             _towerHealthRect = _gameHUD.towerHealth.GetComponent<RectTransform>();
 
@@ -194,11 +192,13 @@ namespace ManagerControl
 
             _towerRangeIndicator = FindAnyObjectByType<TowerRangeIndicator>();
             _gameHUD = FindAnyObjectByType<GameHUD>();
+            _towerInfoUI = FindAnyObjectByType<TowerInfoUI>();
+            _gameHUD.Init();
+            _towerInfoUI.Init();
             _towerManager = FindAnyObjectByType<TowerManager>();
             _towerManager.TowerManaInit(GetTowerMana());
 
             var uiPanel = transform.Find("UI Panel");
-            _towerInfoUI = FindAnyObjectByType<TowerInfoUI>();
             var followTowerInfoUI = _towerInfoUI.transform.GetChild(0);
             _upgradeButton = followTowerInfoUI.Find("Upgrade Button").gameObject;
             _sellTowerButton = followTowerInfoUI.Find("Sell Tower Button").gameObject;

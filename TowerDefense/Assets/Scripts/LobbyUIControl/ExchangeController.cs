@@ -70,7 +70,7 @@ namespace LobbyUIControl
             }
             else
             {
-                _lobbyUI.diamondNotifySequence.Restart();
+                _lobbyUI.NoticeDiaTween();
             }
         }
 

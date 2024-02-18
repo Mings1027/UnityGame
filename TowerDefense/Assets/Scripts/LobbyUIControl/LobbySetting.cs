@@ -10,6 +10,7 @@ namespace LobbyUIControl
 {
     public class LobbySetting : MonoBehaviour
     {
+        private LobbyUI _lobbyUI;
         private bool _isOpen;
         private Tween _settingPanelSequence;
         private Queue<TabGroupItem> _tabGroupItemQueue;
@@ -23,6 +24,7 @@ namespace LobbyUIControl
 
         private void Start()
         {
+            _lobbyUI = GetComponentInParent<LobbyUI>();
             _tabGroupItemQueue = new Queue<TabGroupItem>();
             _settingPanelGroup = GetComponent<CanvasGroup>();
             _settingPanelGroup.blocksRaycasts = false;
@@ -78,6 +80,7 @@ namespace LobbyUIControl
         private void OpenSetting()
         {
             _settingPanelSequence.OnComplete(() => _settingPanelGroup.blocksRaycasts = true).Restart();
+            _lobbyUI.SetActiveButtons(false, false);
         }
 
         private void CloseSetting()
@@ -90,6 +93,8 @@ namespace LobbyUIControl
                     _tabGroupItemQueue.Dequeue().CloseGroup();
                 }
             }
+
+            _lobbyUI.SetActiveButtons(true, false);
         }
     }
 }
