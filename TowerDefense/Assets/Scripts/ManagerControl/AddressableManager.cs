@@ -1,5 +1,9 @@
+using System;
 using System.Collections.Generic;
+using BackendControl;
 using Cysharp.Threading.Tasks;
+using InterfaceControl;
+using UIControl;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
@@ -18,21 +22,37 @@ namespace ManagerControl
 
         protected void Start()
         {
-            SpawnObject().Forget();
+            ObjectInit().Forget();
         }
 
-        private void OnDisable()
+        private void OnDestroy()
         {
             Release();
         }
 
-        private async UniTaskVoid SpawnObject()
+        private async UniTask SpawnObject()
         {
             for (var i = 0; i < managerObjects.Length; i++)
             {
                 var handle = managerObjects[i].InstantiateAsync();
                 await handle;
                 handle.Completed += obj => _gameObjects.Add(obj.Result);
+            }
+        }
+
+        private async UniTaskVoid ObjectInit()
+        {
+            await SpawnObject();
+            for (int i = 0; i < _gameObjects.Count; i++)
+            {
+                _gameObjects[i].GetComponent<IAddressableObject>().Init();
+            }
+
+            if (BackendGameData.isRestart)
+            {
+                BackendGameData.isRestart = false;
+                FindAnyObjectByType<UIManager>().MapSelectButton(BackendGameData.difficultyLevel).Forget();
+                Destroy(FindAnyObjectByType<MapSelectPanel>().gameObject);
             }
 
             await UniTask.Delay(2000);

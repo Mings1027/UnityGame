@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using DataControl;
 using DataControl.TowerDataControl;
+using InterfaceControl;
 using StatusControl;
 using TowerControl;
 using UnityEngine;
@@ -15,18 +16,18 @@ namespace ManagerControl
         public GameObject towerPrefab;
     }
 
-    public class TowerManager : MonoBehaviour
+    public class TowerManager : MonoBehaviour, IAddressableObject
     {
         private List<AttackTower> _towers;
         private Mana _towerMana;
 
-        [field: SerializeField] public TowerDataPrefab[] towerDataPrefabs{ get; private set; }
+        [field: SerializeField] public TowerDataPrefab[] towerDataPrefabs { get; private set; }
 
 #region Unity Event
 
         private void Start()
         {
-            enabled = false;
+            _towers = new List<AttackTower>(50);
         }
 
         private void Update()
@@ -40,6 +41,11 @@ namespace ManagerControl
         }
 
 #endregion
+
+        public void Init()
+        {
+            enabled = false;
+        }
 
 #region TowerControl
 
@@ -70,6 +76,10 @@ namespace ManagerControl
 
 #region Public Method
 
+        public void TowerManaInit(Mana towerMana)
+        {
+            _towerMana = towerMana;
+        }
         public void AddTower(AttackTower tower)
         {
             _towers.Add(tower);
@@ -78,12 +88,6 @@ namespace ManagerControl
         public void RemoveTower(AttackTower tower)
         {
             _towers.Remove(tower);
-        }
-
-        public void Init()
-        {
-            _towers = new List<AttackTower>(50);
-            _towerMana = UIManager.instance.GetTowerMana();
         }
 
 #endregion

@@ -9,7 +9,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Utilities;
 
@@ -129,7 +128,6 @@ namespace LobbyUIControl
                 var itemPrice = BackendChart.ItemTable[item.itemType.ToString()];
                 item.OnOpenExplainPanelEvent += OpenPurchasePanel;
                 item.SetText(itemPrice.ToString());
-
                 _itemInfoTable.Add(item.itemType, new ItemInfo(
                     LocaleManager.GetLocalizedString(LocaleManager.ItemTable, LocaleManager.ItemKey + item.itemType),
                     itemInventory[item.itemType.ToString()]));

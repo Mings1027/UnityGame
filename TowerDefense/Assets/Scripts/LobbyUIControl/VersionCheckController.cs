@@ -3,8 +3,6 @@ using Cysharp.Threading.Tasks;
 using UIControl;
 using UnityEngine;
 using UnityEngine.Networking;
-using UnityEngine.Serialization;
-using UnityEngine.UI;
 
 namespace LobbyUIControl
 {

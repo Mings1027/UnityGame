@@ -381,6 +381,7 @@ namespace ManagerControl
         private async UniTask StartEmailLogin()
         {
             BackendLogin.instance.CustomLogin(_id, _password);
+            
             var countJson = JObject.Parse(_wwwText);
             var curCount = byte.Parse((string)countJson["value"] ?? string.Empty);
             if (curCount >= 7)

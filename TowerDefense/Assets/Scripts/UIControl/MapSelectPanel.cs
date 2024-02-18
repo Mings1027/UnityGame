@@ -32,11 +32,8 @@ namespace UIControl
                 {
                     SoundManager.PlayUISound(SoundEnum.ButtonSound);
                     UIManager.instance.MapSelectButton(index).Forget();
-                    _panelSequence.OnRewind(() =>
-                    {
-                        _canvasGroup.blocksRaycasts = false;
-                        Destroy(gameObject);
-                    }).PlayBackwards();
+                    _canvasGroup.blocksRaycasts = false;
+                    _panelSequence.OnRewind(() => { Destroy(gameObject); }).PlayBackwards();
                 });
             }
 

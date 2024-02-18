@@ -1,9 +1,6 @@
-using CustomEnumControl;
 using DataControl.TowerDataControl;
-using DG.Tweening;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace LobbyUIControl
 {

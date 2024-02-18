@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
+using InterfaceControl;
 using ManagerControl;
 using PoolObjectControl;
 using UnityEngine;
@@ -14,7 +15,7 @@ using Random = UnityEngine.Random;
 
 namespace MapControl
 {
-    public class MapManager : MonoBehaviour
+    public class MapManager : MonoBehaviour, IAddressableObject
     {
         private MeshFilter _meshFilter;
         // private MeshRenderer _meshRenderer;
@@ -88,24 +89,6 @@ namespace MapControl
         [SerializeField] private bool generateAutoMap;
 #endif
 
-#region Unity Event
-
-        private void Awake()
-        {
-            ComponentInit();
-            MapDataInit();
-        }
-
-        private void Start()
-        {
-            _waveManager.OnBossWaveEvent += bossNavMeshSurface.BuildNavMesh;
-            transform.GetChild(2).gameObject.SetActive(false);
-#if UNITY_EDITOR
-            _cts?.Dispose();
-            _cts = new CancellationTokenSource();
-#endif
-        }
-
 #if UNITY_EDITOR
         private void OnDrawGizmos()
         {
@@ -128,9 +111,20 @@ namespace MapControl
         }
 #endif
 
-#endregion
-
 #region Init
+
+        public void Init()
+        {
+            ComponentInit();
+            MapDataInit();
+
+            _waveManager.OnBossWaveEvent += bossNavMeshSurface.BuildNavMesh;
+            transform.GetChild(2).gameObject.SetActive(false);
+#if UNITY_EDITOR
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
+#endif
+        }
 
         private void ComponentInit()
         {

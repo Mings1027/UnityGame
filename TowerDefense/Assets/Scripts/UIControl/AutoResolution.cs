@@ -11,8 +11,6 @@ namespace UIControl
 
         private void Start()
         {
-            Debug.Log(Screen.width);
-            Debug.Log(Screen.height);
             SetResolution();
             SetLetterBox();
         }
@@ -20,22 +18,15 @@ namespace UIControl
         private void SetResolution()
         {
             var cam = Camera.main;
+            if (cam == null) return;
             var rect = cam.rect;
 
             var scaleHeight = (float)Screen.width / Screen.height * (9f / 16f);
-            // var scaleWidth = 1f / scaleHeight;
 
             if (scaleHeight < 1)
             {
-                Debug.Log("1보다 작");
                 rect.height = scaleHeight;
                 rect.y = (1f - scaleHeight) / 2f;
-            }
-            else
-            {
-                Debug.Log("1보다 큼");
-                // rect.width = scaleWidth;
-                // rect.x = (1f - scaleWidth) / 2f;
             }
 
             cam.rect = rect;

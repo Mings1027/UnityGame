@@ -156,7 +156,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 960, y: -275}
+  m_AnchoredPosition: {x: 960.00006, y: -275}
   m_SizeDelta: {x: 100, y: 550}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &22102416
@@ -1452,7 +1452,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 960, y: -825}
+  m_AnchoredPosition: {x: 960.00006, y: -825}
   m_SizeDelta: {x: 100, y: 550}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &591531539
@@ -1488,7 +1488,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 960, y: -1925}
+  m_AnchoredPosition: {x: 960.00006, y: -1925}
   m_SizeDelta: {x: 100, y: 550}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &673148364
@@ -1652,9 +1652,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   downLoadNoticePanel: {fileID: 1504561692}
   sizeInfoText: {fileID: 526704123}
-  startButton: {fileID: 2034701748}
   downValueText: {fileID: 827786264}
   downSlider: {fileID: 925011601}
+  startButton: {fileID: 2034701748}
+  connectionGroup: {fileID: 77076794}
   assetLabels:
   - m_LabelString: Material
   - m_LabelString: EnemyData
@@ -1678,7 +1679,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &704117953
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3505,7 +3506,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 960, y: -1375}
+  m_AnchoredPosition: {x: 960.00006, y: -1375}
   m_SizeDelta: {x: 100, y: 550}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1136209657
@@ -5129,7 +5130,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 960, y: -1100}
+  m_AnchoredPosition: {x: 960.00006, y: -1100}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1664764228
@@ -7939,6 +7940,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Fade Controller Canvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 1556159025721748650, guid: b426e4ec8f84843aba96ba636d3a7758,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1556159025721748654, guid: b426e4ec8f84843aba96ba636d3a7758,
         type: 3}

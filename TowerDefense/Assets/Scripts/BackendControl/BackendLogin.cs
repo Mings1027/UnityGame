@@ -1,4 +1,5 @@
 using BackEnd;
+using UnityEngine;
 using Utilities;
 
 namespace BackendControl
@@ -27,17 +28,17 @@ namespace BackendControl
 
         public void CustomLogin(string id, string pw)
         {
-            CustomLog.Log("로그인을 요청합니다.");
+            Debug.Log("로그인을 요청합니다.");
 
             var bro = Backend.BMember.CustomLogin(id, pw);
 
             if (bro.IsSuccess())
             {
-                CustomLog.Log("로그인이 성공했습니다. : " + bro);
+                Debug.Log("로그인이 성공했습니다. : " + bro);
                 return;
             }
 
-            CustomLog.LogError("로그인이 실패했습니다. : " + bro);
+            Debug.LogError("로그인이 실패했습니다. : " + bro);
         }
 
         public void FederationLogin()

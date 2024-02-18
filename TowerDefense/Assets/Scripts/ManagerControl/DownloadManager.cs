@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
-using DG.Tweening;
 using TMPro;
 using UIControl;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Utilities;
 
 namespace ManagerControl
 {
@@ -21,9 +20,10 @@ namespace ManagerControl
 
         [SerializeField] private NoticePanel downLoadNoticePanel;
         [SerializeField] private TMP_Text sizeInfoText;
-        [SerializeField] private Button startButton;
         [SerializeField] private TMP_Text downValueText;
         [SerializeField] private Slider downSlider;
+        [SerializeField] private Button startButton;
+        [SerializeField] private CanvasGroup connectionGroup;
 
         [Header("Label")] [SerializeField] private AssetLabelReference[] assetLabels;
 
@@ -33,12 +33,25 @@ namespace ManagerControl
             _patchMap = new Dictionary<string, long>();
             startButton.onClick.AddListener(async () =>
             {
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
+                connectionGroup.alpha = 0;
+                connectionGroup.blocksRaycasts = false;
                 await CheckUpdateFiles();
                 UpdateFiles();
             });
 
-            downLoadNoticePanel.OnConfirmButtonEvent += DownLoadButton;
-            downLoadNoticePanel.OnCancelButtonEvent += CancelButton;
+            downLoadNoticePanel.OnConfirmButtonEvent += () =>
+            {
+                connectionGroup.alpha = 0;
+                connectionGroup.blocksRaycasts = false;
+                DownLoadButton();
+            };
+            downLoadNoticePanel.OnCancelButtonEvent += () =>
+            {
+                connectionGroup.alpha = 1;
+                connectionGroup.blocksRaycasts = true;
+                CancelButton();
+            };
         }
 
         private void Start()
@@ -78,14 +91,14 @@ namespace ManagerControl
         {
             if (_patchSize > decimal.Zero) // 다운로드 할 것이 있음
             {
-                Debug.Log("다운로드다운로드다운로드다운로드다운로드");
+                CustomLog.Log("다운로드다운로드다운로드다운로드다운로드");
                 sizeInfoText.text = GetFilSize(_patchSize);
                 startButton.gameObject.SetActive(false);
                 downLoadNoticePanel.OpenPopUp();
             }
             else // 다운로드 할 것이 없음
             {
-                Debug.Log("no download");
+                CustomLog.Log("no download");
                 downSlider.gameObject.SetActive(true);
                 startButton.gameObject.SetActive(false);
                 ProgressBarTo100();

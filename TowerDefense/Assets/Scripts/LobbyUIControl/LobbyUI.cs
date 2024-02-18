@@ -1,12 +1,9 @@
 using AdsControl;
-using BackEnd;
 using BackendControl;
 using CurrencyControl;
-using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using UIControl;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace LobbyUIControl

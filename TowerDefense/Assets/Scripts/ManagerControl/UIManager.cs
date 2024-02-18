@@ -7,8 +7,8 @@ using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DataControl.TowerDataControl;
 using DG.Tweening;
-using GameControl;
 using IndicatorControl;
+using InterfaceControl;
 using MapControl;
 using PoolObjectControl;
 using StatusControl;
@@ -17,22 +17,23 @@ using TMPro;
 using TowerControl;
 using UIControl;
 using UnitControl;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
+using Sequence = DG.Tweening.Sequence;
 
 namespace ManagerControl
 {
-    public class UIManager : Singleton<UIManager>
+    public class UIManager : MonoBehaviour, IAddressableObject
     {
 #region Private Variable
 
-        private FadeController _fadeController;
-        private WaveManager _waveManager;
+        private static UIManager _instance;
+
         private TowerManager _towerManager;
         private TowerCardController _towerCardController;
-        public ItemBagController itemBagController { get; private set; }
 
         private CancellationTokenSource _cts;
         private Camera _cam;
@@ -41,14 +42,16 @@ namespace ManagerControl
         private Dictionary<TowerType, TMP_Text> _towerGoldTextDictionary;
 
         private Tween _upgradeSellPanelTween;
-        private Sequence _pauseSequence;
+
+        // private Sequence _pauseSequence;
         private Sequence _needMoreGoldSequence;
         private Sequence _cantMoveImageSequence;
         private Sequence _camZoomSequence;
         private Sequence _towerGoldTween;
+
         private Sequence _towerHealTween;
-        private Sequence _gameOverSequence;
-        private Sequence _gameEndSequence;
+        // private Sequence _gameOverSequence;
+        // private Sequence _gameEndSequence;
 
         private Tower _curSelectedTower;
         private SummonTower _curSummonTower;
@@ -63,7 +66,7 @@ namespace ManagerControl
 
         private ushort _sellTowerGold;
         private int _towerGold;
-        private byte _curTimeScale;
+        // private byte _curTimeScale;
 
         private bool _isShowTowerBtn;
         private bool _isPanelOpen;
@@ -81,11 +84,13 @@ namespace ManagerControl
         private GameHUD _gameHUD;
         private RectTransform _towerHealthRect;
         private TextMeshProUGUI _goldText;
+
         private Button _centerButton;
-        private Button _speedButton;
-        private Image _normalSpeedImage;
-        private Image _doubleSpeedImage;
-        private Button _pauseButton;
+        // private Button _speedButton;
+        // private Image _normalSpeedImage;
+        // private Image _doubleSpeedImage;
+        // private Image _tripleSpeedImage;
+        // private Button _pauseButton;
 
         private GameObject _toggleTowerButton;
         private TowerDescriptionCard _towerDescriptionCard;
@@ -93,20 +98,23 @@ namespace ManagerControl
         private RectTransform _towerCardPanel;
         private CanvasGroup _needMoreGoldGroup;
 
-        private CanvasGroup _pausePanelBackground;
-        private RectTransform _pausePanel;
-        private Button _resumeButton;
-        private Button _mainMenuButton;
-        private CanvasGroup _gameOverPanelGroup;
-        private CanvasGroup _gameEndPanelGroup;
-        private Button _gameOverButton;
-        private Button _gameEndButton;
+        // private CanvasGroup _pausePanelBackground;
+        // private RectTransform _pausePanel;
+        // private Button _exitBattleButton;
+        // private Button _restartButton;
+        // private Button _continueButton;
+        // private CanvasGroup _gameOverPanelGroup;
+        // private CanvasGroup _gameEndPanelGroup;
+        // private Button _gameOverButton;
+        // private Button _gameEndButton;
 
         private MoveUnitController _moveUnitController;
 
 #endregion
 
 #region Property
+
+        public static UIManager instance => _instance == null ? null : _instance;
 
         public Dictionary<TowerType, TowerDataPrefab> towerDataPrefabDictionary { get; private set; }
 
@@ -133,13 +141,33 @@ namespace ManagerControl
 
 #region Unity Event
 
-        protected override void Awake()
+        private void Awake()
         {
-            base.Awake();
-            Init();
+            _instance = this;
+        }
+
+        private void OnDisable()
+        {
+            _upgradeSellPanelTween?.Kill();
+            _needMoreGoldSequence?.Kill();
+            // _pauseSequence?.Kill();
+            _cantMoveImageSequence?.Kill();
+            _camZoomSequence?.Kill();
+            _towerGoldTween?.Kill();
+            _towerHealTween?.Kill();
+            _cts?.Cancel();
+            _cts?.Dispose();
+        }
+
+#endregion
+
+#region Init
+
+        public void Init()
+        {
+            UIManagerInit();
             _towerInfoUI.Init();
             _gameHUD.Init();
-            _towerManager.Init();
 
             _towerHealthRect = _gameHUD.towerHealth.GetComponent<RectTransform>();
 
@@ -149,10 +177,7 @@ namespace ManagerControl
             TweenInit();
             MenuButtonInit();
             LocalizationSettings.SelectedLocaleChanged += ChangeLocaleTowerDictionary;
-        }
 
-        private void Start()
-        {
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
             cameraManager = _cam.GetComponentInParent<CameraManager>();
             GameStart();
@@ -160,57 +185,17 @@ namespace ManagerControl
             SoundManager.PlayBGM(SoundEnum.WaveEnd);
         }
 
-        private void OnDisable()
-        {
-            _upgradeSellPanelTween?.Kill();
-            _needMoreGoldSequence?.Kill();
-            _pauseSequence?.Kill();
-            _cantMoveImageSequence?.Kill();
-            _camZoomSequence?.Kill();
-            _towerGoldTween?.Kill();
-            _towerHealTween?.Kill();
-            _cts?.Cancel();
-            _cts?.Dispose();
-        }
-
-        private void OnApplicationFocus(bool hasFocus)
-        {
-            if (hasFocus)
-            {
-                Application.targetFrameRate = 60;
-            }
-            else
-            {
-                var curWave = WaveManager.curWave;
-                if (curWave >= 1)
-                {
-                    BackendGameData.instance.UpdateSurvivedWave((byte)(_waveManager.isStartWave
-                        ? curWave - 1
-                        : curWave));
-                }
-
-                itemBagController.UpdateInventory();
-                BackendGameData.instance.GameDataUpdate();
-                Pause();
-            }
-        }
-
-#endregion
-
-#region Init
-
-        private void Init()
+        private void UIManagerInit()
         {
             Input.multiTouchEnabled = false;
             _cam = Camera.main;
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
 
-            _fadeController = FindAnyObjectByType<FadeController>();
-            _waveManager = FindAnyObjectByType<WaveManager>();
-            _towerManager = FindAnyObjectByType<TowerManager>();
             _towerRangeIndicator = FindAnyObjectByType<TowerRangeIndicator>();
-            itemBagController = FindAnyObjectByType<ItemBagController>();
+            _gameHUD = FindAnyObjectByType<GameHUD>();
+            _towerManager = FindAnyObjectByType<TowerManager>();
+            _towerManager.TowerManaInit(GetTowerMana());
 
             var uiPanel = transform.Find("UI Panel");
             _towerInfoUI = FindAnyObjectByType<TowerInfoUI>();
@@ -219,47 +204,17 @@ namespace ManagerControl
             _sellTowerButton = followTowerInfoUI.Find("Sell Tower Button").gameObject;
             _moveUnitButton = followTowerInfoUI.Find("Move Unit Button").gameObject;
 
-            _gameHUD = FindAnyObjectByType<GameHUD>();
             var goldBackground = _gameHUD.transform.Find("Gold Background");
             _goldText = goldBackground.Find("Gold Text").GetComponent<TextMeshProUGUI>();
             var waveBackground = _gameHUD.transform.Find("Wave Background");
             waveText = waveBackground.Find("Wave Text").GetComponent<TextMeshProUGUI>();
             _centerButton = _gameHUD.transform.Find("Center Button").GetComponent<Button>();
-            _speedButton = _gameHUD.transform.Find("Speed Button").GetComponent<Button>();
-            _normalSpeedImage = _speedButton.transform.GetChild(0).GetComponent<Image>();
-            _doubleSpeedImage = _speedButton.transform.GetChild(1).GetComponent<Image>();
-            _pauseButton = _gameHUD.transform.Find("Pause Button").GetComponent<Button>();
             _toggleTowerButton = uiPanel.Find("Toggle Tower Button").GetChild(0).gameObject;
 
             _towerDescriptionCard = FindAnyObjectByType<TowerDescriptionCard>();
             _towerCardPanel = uiPanel.Find("Tower Card Panel").GetChild(0).GetComponent<RectTransform>();
             _needMoreGoldGroup = uiPanel.Find("Need More Gold").GetComponent<CanvasGroup>();
-            _pausePanelBackground = uiPanel.Find("Pause Panel Background").GetComponent<CanvasGroup>();
-            _pausePanelBackground.blocksRaycasts = false;
-            _pausePanelBackground.GetComponentInChildren<NoticePanel>().OnConfirmButtonEvent += GoToMainMenu;
-            _pausePanel = _pausePanelBackground.transform.Find("Pause Panel").GetComponent<RectTransform>();
-            _resumeButton = _pausePanel.Find("Resume Button").GetComponent<Button>();
-            _mainMenuButton = _pausePanel.Find("Main Menu Button").GetComponent<Button>();
 
-            _gameOverPanelGroup = uiPanel.Find("Game Over Background").GetComponent<CanvasGroup>();
-            _gameOverPanelGroup.blocksRaycasts = false;
-            _gameOverButton = _gameOverPanelGroup.GetComponentInChildren<Button>();
-            _gameOverButton.onClick.AddListener(() =>
-            {
-                itemBagController.UpdateInventory();
-                BackendGameData.instance.GameDataUpdate();
-                _fadeController.FadeOutScene("Lobby").Forget();
-            });
-
-            _gameEndPanelGroup = uiPanel.Find("Game End Background").GetComponent<CanvasGroup>();
-            _gameEndPanelGroup.blocksRaycasts = false;
-            _gameEndButton = _gameEndPanelGroup.GetComponentInChildren<Button>();
-            _gameEndButton.onClick.AddListener(() =>
-            {
-                itemBagController.UpdateInventory();
-                BackendGameData.instance.GameDataUpdate();
-                _fadeController.FadeOutScene("Lobby").Forget();
-            });
             _moveUnitController = FindAnyObjectByType<MoveUnitController>();
         }
 
@@ -355,17 +310,17 @@ namespace ManagerControl
             _toggleTowerBtnImage = _toggleTowerButton.transform.GetChild(0).GetComponent<Image>();
             _upgradeSellPanelTween = _towerInfoUI.transform.DOScale(1, 0.15f).From(0).SetAutoKill(false)
                 .Pause();
-            _pauseSequence = DOTween.Sequence().SetAutoKill(false).SetUpdate(true).Pause()
-                .Append(_pausePanelBackground.DOFade(1, 0.25f).From(0))
-                .Join(_pausePanel.DOAnchorPosY(0, 0.25f).From(new Vector2(0, -100)));
-            _gameEndSequence = DOTween.Sequence().SetAutoKill(false).SetUpdate(true).Pause()
-                .Append(_gameEndPanelGroup.DOFade(1, 0.25f).From(0))
-                .Join(_gameEndPanelGroup.transform.GetChild(1).GetComponent<RectTransform>().DOAnchorPosY(0, 0.25f)
-                    .From(new Vector2(0, -100)));
-            _gameOverSequence = DOTween.Sequence().SetAutoKill(false).SetUpdate(true).Pause()
-                .Append(_gameOverPanelGroup.DOFade(1, 0.25f).From(0))
-                .Join(_gameOverPanelGroup.transform.GetChild(1).GetComponent<RectTransform>().DOAnchorPosY(0, 0.25f)
-                    .From(new Vector2(0, -100)));
+            // _pauseSequence = DOTween.Sequence().SetAutoKill(false).SetUpdate(true).Pause()
+            //     .Append(_pausePanelBackground.DOFade(1, 0.25f).From(0))
+            //     .Join(_pausePanel.DOAnchorPosY(0, 0.25f).From(new Vector2(0, -100)));
+            // _gameEndSequence = DOTween.Sequence().SetAutoKill(false).SetUpdate(true).Pause()
+            //     .Append(_gameEndPanelGroup.DOFade(1, 0.25f).From(0))
+            //     .Join(_gameEndPanelGroup.transform.GetChild(1).GetComponent<RectTransform>().DOAnchorPosY(0, 0.25f)
+            //         .From(new Vector2(0, -100)));
+            // _gameOverSequence = DOTween.Sequence().SetAutoKill(false).SetUpdate(true).Pause()
+            //     .Append(_gameOverPanelGroup.DOFade(1, 0.25f).From(0))
+            //     .Join(_gameOverPanelGroup.transform.GetChild(1).GetComponent<RectTransform>().DOAnchorPosY(0, 0.25f)
+            //         .From(new Vector2(0, -100)));
 
             var needMoreGoldPanelRect = _needMoreGoldGroup.GetComponent<RectTransform>();
             _needMoreGoldSequence = DOTween.Sequence().SetAutoKill(false).Pause()
@@ -383,12 +338,12 @@ namespace ManagerControl
 
         private void MenuButtonInit()
         {
-            _curTimeScale = 1;
-            _pauseButton.onClick.AddListener(() =>
-            {
-                SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                Pause();
-            });
+            // _curTimeScale = 1;
+            // _pauseButton.onClick.AddListener(() =>
+            // {
+            //     SoundManager.PlayUISound(SoundEnum.ButtonSound);
+            //     _pauseController.Pause();
+            // });
             _centerButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
@@ -397,19 +352,24 @@ namespace ManagerControl
                 cameraManager.transform.DOMove(Vector3.zero, 0.5f).SetEase(Ease.OutCubic);
             });
             _centerButton.gameObject.SetActive(false);
-            _resumeButton.onClick.AddListener(() =>
-            {
-                SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                Resume();
-            });
-
-            _mainMenuButton.onClick.AddListener(() => { });
-            _speedButton.onClick.AddListener(() =>
-            {
-                SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                SpeedUp();
-            });
-            _doubleSpeedImage.enabled = false;
+            // _continueButton.onClick.AddListener(() =>
+            // {
+            //     SoundManager.PlayUISound(SoundEnum.ButtonSound);
+            //     _pauseController.Continue();
+            // });
+            // _restartButton.onClick.AddListener(() =>
+            // {
+            //     SoundManager.PlayUISound(SoundEnum.ButtonSound);
+            //     _pauseController.Restart();
+            // });
+            // _exitBattleButton.onClick.AddListener(() => { });
+            // _speedButton.onClick.AddListener(() =>
+            // {
+            //     SoundManager.PlayUISound(SoundEnum.ButtonSound);
+            //     SpeedUp();
+            // });
+            // _doubleSpeedImage.enabled = false;
+            // _tripleSpeedImage.enabled = false;
         }
 
         private void ChangeLocaleTowerDictionary(Locale locale)
@@ -579,12 +539,12 @@ namespace ManagerControl
             return false;
         }
 
-        public void GameEnd()
-        {
-            _resumeButton.interactable = false;
-            _gameEndSequence.OnComplete(() => _gameEndPanelGroup.blocksRaycasts = true).Restart();
-            Time.timeScale = 0;
-        }
+        // public void GameEnd()
+        // {
+        //     _continueButton.interactable = false;
+        //     _gameEndSequence.OnComplete(() => _gameEndPanelGroup.blocksRaycasts = true).Restart();
+        //     Time.timeScale = 0;
+        // }
 
 #endregion
 
@@ -776,50 +736,57 @@ namespace ManagerControl
             cameraManager.GameStartCamZoom();
         }
 
-        public void GameOver()
-        {
-            _towerCardController.SlideDown();
-            _resumeButton.interactable = false;
-            _gameOverSequence.OnComplete(() => _gameOverPanelGroup.blocksRaycasts = true).Restart();
-            Time.timeScale = 0;
-        }
+        // public void GameOver()
+        // {
+        //     // _towerCardController.SlideDown();
+        //     _continueButton.interactable = false;
+        //     _gameOverSequence.OnComplete(() => _gameOverPanelGroup.blocksRaycasts = true).Restart();
+        //     Time.timeScale = 0;
+        // }
 
-        private void SpeedUp()
-        {
-            _curTimeScale = (byte)(_curTimeScale % 2 + 1);
-            Time.timeScale = _curTimeScale;
-            _normalSpeedImage.enabled = _curTimeScale == 1;
-            _doubleSpeedImage.enabled = _curTimeScale == 2;
-        }
+        // private void SpeedUp()
+        // {
+        //     _curTimeScale = (byte)(_curTimeScale % 3 + 1);
+        //     Time.timeScale = _curTimeScale;
+        //     _normalSpeedImage.enabled = _curTimeScale == 1;
+        //     _doubleSpeedImage.enabled = _curTimeScale == 2;
+        //     _tripleSpeedImage.enabled = _curTimeScale == 3;
+        // }
 
-        private void GoToMainMenu()
-        {
-            var curWave = WaveManager.curWave;
-            if (curWave >= 1)
-            {
-                BackendGameData.instance.UpdateSurvivedWave((byte)(_waveManager.isStartWave
-                    ? curWave - 1
-                    : curWave));
-            }
+        // public void ExitBattle()
+        // {
+        //     var curWave = WaveManager.curWave;
+        //     if (curWave >= 1)
+        //     {
+        //         BackendGameData.instance.UpdateSurvivedWave((byte)(_waveManager.isStartWave
+        //             ? curWave - 1
+        //             : curWave));
+        //     }
+        //
+        //     _itemBagController.UpdateInventory();
+        //     BackendGameData.instance.GameDataUpdate();
+        //     _fadeController.FadeOutScene("Lobby").Forget();
+        // }
+        //
+        // public void ReStart()
+        // {
+        //     _fadeController.FadeOutScene("ReStartScene").Forget();
+        //     BackendGameData.isRestart = true;
+        // }
 
-            itemBagController.UpdateInventory();
-            BackendGameData.instance.GameDataUpdate();
-            _fadeController.FadeOutScene("Lobby").Forget();
-        }
-
-        private void Pause()
-        {
-            Input.multiTouchEnabled = false;
-            Time.timeScale = 0;
-            _pauseSequence.OnComplete(() => _pausePanelBackground.blocksRaycasts = true).Restart();
-        }
-
-        private void Resume()
-        {
-            Input.multiTouchEnabled = true;
-            Time.timeScale = _curTimeScale;
-            _pauseSequence.OnRewind(() => _pausePanelBackground.blocksRaycasts = false).PlayBackwards();
-        }
+        // private void Pause()
+        // {
+        //     Input.multiTouchEnabled = false;
+        //     Time.timeScale = 0;
+        //     _pauseSequence.OnComplete(() => _pausePanelBackground.blocksRaycasts = true).Restart();
+        // }
+        //
+        // private void Continue()
+        // {
+        //     Input.multiTouchEnabled = true;
+        //     Time.timeScale = _curTimeScale;
+        //     _pauseSequence.OnRewind(() => _pausePanelBackground.blocksRaycasts = false).PlayBackwards();
+        // }
 
 #endregion
     }

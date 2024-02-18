@@ -1,11 +1,12 @@
 using System;
 using CustomEnumControl;
 using DG.Tweening;
+using InterfaceControl;
 using UnityEngine;
 
 namespace ManagerControl
 {
-    public class CameraManager : MonoBehaviour
+    public class CameraManager : MonoBehaviour, IAddressableObject
     {
         private Camera _cam;
         private Tweener _snapRotateTween;
@@ -44,26 +45,9 @@ namespace ManagerControl
 
 #region Unity Method
 
-        private void Awake()
-        {
-            _cam = Camera.main;
-            _snapRotateTween = transform.DORotate(SnappedVector(), 0.5f).SetEase(Ease.OutCubic)
-                .SetAutoKill(false).Pause();
-            _shakeTween = transform.DOShakePosition(0.5f, 1, 50, 90, false, true, ShakeRandomnessMode.Harmonic)
-                .SetAutoKill(false).Pause();
-            FindAnyObjectByType<SoundManager>().SetCamera(_cam);
-        }
-
-        private void OnEnable()
-        {
-            Input.multiTouchEnabled = true;
-            _modifiedMoveSpeed = _cam.orthographicSize / modifiedDivide;
-        }
-
         private void Start()
         {
-            _camState = CamState.Idle;
-            transform.rotation = Quaternion.Euler(0, 45, 0);
+            _cam = Camera.main;
         }
 
         private void Update()
@@ -99,6 +83,25 @@ namespace ManagerControl
         {
             _snapRotateTween?.Kill();
             _shakeTween?.Kill();
+        }
+
+#endregion
+
+#region Init
+
+        public void Init()
+        {
+            _snapRotateTween = transform.DORotate(SnappedVector(), 0.5f).SetEase(Ease.OutCubic)
+                .SetAutoKill(false).Pause();
+            _shakeTween = transform.DOShakePosition(0.5f, 1, 50, 90, false, true, ShakeRandomnessMode.Harmonic)
+                .SetAutoKill(false).Pause();
+            FindAnyObjectByType<SoundManager>().SetCamera(_cam);
+
+            Input.multiTouchEnabled = true;
+            _modifiedMoveSpeed = _cam.orthographicSize / modifiedDivide;
+
+            _camState = CamState.Idle;
+            transform.rotation = Quaternion.Euler(0, 45, 0);
         }
 
 #endregion

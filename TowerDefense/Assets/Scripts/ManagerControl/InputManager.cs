@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using CustomEnumControl;
 using DG.Tweening;
+using InterfaceControl;
 using UIControl;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
@@ -8,7 +9,7 @@ using Random = UnityEngine.Random;
 
 namespace ManagerControl
 {
-    public class InputManager : MonoBehaviour
+    public class InputManager : MonoBehaviour, IAddressableObject
     {
         private Camera _cam;
         private Tween _meshScaleTween;
@@ -32,47 +33,6 @@ namespace ManagerControl
         [SerializeField] private Material cursorMaterial;
         [SerializeField] private Color[] cubeColor;
         private static readonly int Property = Shader.PropertyToID("_Placement_Color");
-
-        protected void Awake()
-        {
-            _cam = Camera.main;
-
-            _cursorMeshRenderer = cubeCursor.GetComponentInChildren<MeshRenderer>();
-            _cursorChild = cubeCursor.GetChild(0);
-            _checkDir = new[]
-            {
-                Vector3.forward, Vector3.back, Vector3.left, Vector3.right, new Vector3(1, 0, 1), new Vector3(-1, 0, -1), new Vector3(-1, 0, 1), new Vector3(1, 0, -1)
-            };
-            for (var i = 0; i < _checkDir.Length; i++)
-            {
-                _checkDir[i] *= 2;
-            }
-
-            _fourDir = new[]
-            {
-                Vector3.forward, Vector3.back, Vector3.left, Vector3.right
-            };
-            for (var i = 0; i < _fourDir.Length; i++)
-            {
-                _fourDir[i] *= 2;
-            }
-
-            _selectedTowerType = TowerType.None;
-            cubeCursor.position = Vector3.zero + Vector3.down * 5;
-            _cursorMeshRenderer.enabled = false;
-            _meshScaleTween = _cursorMeshRenderer.transform.DOScale(2, 0.25f).From(0).SetEase(Ease.OutBack)
-                .SetAutoKill(false).Pause();
-        }
-
-        private void OnEnable()
-        {
-            _cursorMeshRenderer.enabled = true;
-        }
-
-        private void Start()
-        {
-            _prevCursorPos = cubeCursor.position;
-        }
 
         private void Update()
         {
@@ -114,6 +74,40 @@ namespace ManagerControl
             }
         }
 
+        public void Init()
+        {
+            _cam = Camera.main;
+
+            _cursorMeshRenderer = cubeCursor.GetComponentInChildren<MeshRenderer>();
+            _cursorChild = cubeCursor.GetChild(0);
+            _checkDir = new[]
+            {
+                Vector3.forward, Vector3.back, Vector3.left, Vector3.right, new Vector3(1, 0, 1),
+                new Vector3(-1, 0, -1), new Vector3(-1, 0, 1), new Vector3(1, 0, -1)
+            };
+            for (var i = 0; i < _checkDir.Length; i++)
+            {
+                _checkDir[i] *= 2;
+            }
+
+            _fourDir = new[]
+            {
+                Vector3.forward, Vector3.back, Vector3.left, Vector3.right
+            };
+            for (var i = 0; i < _fourDir.Length; i++)
+            {
+                _fourDir[i] *= 2;
+            }
+
+            _selectedTowerType = TowerType.None;
+            cubeCursor.position = Vector3.zero + Vector3.down * 5;
+            _cursorMeshRenderer.enabled = false;
+            _meshScaleTween = _cursorMeshRenderer.transform.DOScale(2, 0.25f).From(0).SetEase(Ease.OutBack)
+                .SetAutoKill(false).Pause();
+
+            _prevCursorPos = cubeCursor.position;
+        }
+
         public void TryPlaceTower()
         {
             if (_canPlace && !TowerButton.isOnButton)
@@ -126,6 +120,7 @@ namespace ManagerControl
 
         public void StartPlacement(TowerType towerType, bool isUnitTower)
         {
+            _cursorMeshRenderer.enabled = true;
             _startPlacement = true;
             UIManager.instance.OffUI();
             _meshScaleTween.Restart();

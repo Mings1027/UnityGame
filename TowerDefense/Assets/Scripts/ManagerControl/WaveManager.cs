@@ -25,9 +25,11 @@ namespace ManagerControl
         public BossMonsterData bossMonsterData;
     }
 
-    public class WaveManager : MonoBehaviour
+    public class WaveManager : MonoBehaviour, IAddressableObject
     {
         private TowerManager _towerManager;
+        private ItemBagController _itemBagController;
+        private PauseController _pauseController;
         private CancellationTokenSource _cts;
         private List<MonsterUnit> _monsterList;
         private Vector3[] _wayPoints;
@@ -46,16 +48,9 @@ namespace ManagerControl
 
 #region Unity Event
 
-        private void Awake()
-        {
-            _monsterList = new List<MonsterUnit>();
-            curWave = 0;
-            _themeIndex = 0;
-        }
-
         private void Start()
         {
-            _towerManager = FindObjectOfType<TowerManager>();
+            _monsterList = new List<MonsterUnit>();
         }
 
         private void Update()
@@ -80,11 +75,22 @@ namespace ManagerControl
 
 #endregion
 
+        public void Init()
+        {
+            curWave = 0;
+            _themeIndex = 0;
+
+            _towerManager = FindObjectOfType<TowerManager>();
+            _itemBagController = FindAnyObjectByType<ItemBagController>();
+            _pauseController = FindAnyObjectByType<PauseController>();
+            _itemBagController = FindAnyObjectByType<ItemBagController>();
+        }
+
         public async UniTaskVoid WaveInit(Vector3[] wayPoints)
         {
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
-            UIManager.instance.itemBagController.SetActiveItemBag(true);
+            _itemBagController.SetActiveItemBag(true);
             PoolObjectManager.PoolCleaner().Forget();
 
             if (_isBossWave)
@@ -293,7 +299,7 @@ namespace ManagerControl
 
             if (towerHealth.IsDead)
             {
-                uiManager.GameOver();
+                _pauseController.GameOver();
                 return;
             }
 
@@ -305,11 +311,11 @@ namespace ManagerControl
 
                 WaveStop();
                 SoundManager.PlayBGM(SoundEnum.WaveEnd);
-                UIManager.instance.itemBagController.SetActiveItemBag(false);
+                _itemBagController.SetActiveItemBag(false);
 
                 if (_isLastWave)
                 {
-                    uiManager.GameEnd();
+                    _pauseController.GameEnd();
                 }
                 else
                 {

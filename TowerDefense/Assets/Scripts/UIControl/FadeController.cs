@@ -34,7 +34,6 @@ namespace UIControl
 
         public async UniTaskVoid FadeOutScene(string sceneName)
         {
-            Debug.Log("fade out scene");
             _graphicRaycaster.enabled = true;
             await fadeOutImage.DOFade(1, 1).From(0).SetUpdate(true);
             SceneManager.LoadScene(sceneName);

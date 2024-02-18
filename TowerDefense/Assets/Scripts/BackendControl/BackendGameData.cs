@@ -57,11 +57,13 @@ namespace BackendControl
         public static UserData userData { get; private set; }
         public static byte scoreMultiplier { get; set; }
         public static int curTbc { get; set; }
+        public static byte difficultyLevel { get; private set; }
+        public static bool isRestart { get; set; }
 
         public void SetLevel(byte difficulty)
         {
             _difficultyLevel = difficulty;
-            CustomLog.Log($"선택한 난이도 : {_difficultyLevel}");
+            difficultyLevel = difficulty;
         }
 
         public void UpdateSurvivedWave(byte wave)

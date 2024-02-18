@@ -6,8 +6,6 @@ namespace Utilities
 {
     public class UIVerticalSplitter : MonoBehaviour
     {
-        private bool _isUpdate;
-        
         public float[] ratios; // 각 자식 요소의 비율
 
         // private void Start()
@@ -18,9 +16,7 @@ namespace Utilities
         [ContextMenu("Vertical Splitter")]
         public void VerticalSplitter()
         {
-            if (_isUpdate) return;
             if (ratios.Length <= 0) return;
-            _isUpdate = true;
             Debug.Log("verti splitter");
             var totalRatio = ratios.Sum();
             var parentRect = GetComponent<RectTransform>();

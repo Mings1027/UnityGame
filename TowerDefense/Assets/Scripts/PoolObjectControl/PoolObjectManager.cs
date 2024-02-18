@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DataControl.MonsterDataControl;
+using InterfaceControl;
 using UnityEngine;
 
 namespace PoolObjectControl
@@ -55,7 +56,7 @@ namespace PoolObjectControl
         }
     }
 
-    public class PoolObjectManager : MonoBehaviour
+    public class PoolObjectManager : MonoBehaviour, IAddressableObject
     {
         private static PoolObjectManager _inst;
         private Camera _cam;
@@ -72,7 +73,7 @@ namespace PoolObjectControl
         [SerializeField] private UIPool[] uiPools;
         [SerializeField] private MonsterPool[] monsterPools;
 
-        private void Start()
+        public void Init()
         {
             _inst = this;
             _cam = Camera.main;
