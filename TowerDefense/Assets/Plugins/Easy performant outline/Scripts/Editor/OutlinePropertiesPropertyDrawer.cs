@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using Plugins.Easy_performant_outline.Scripts;
 using UnityEditor;
 using UnityEngine;
 

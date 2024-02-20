@@ -1,8 +1,12 @@
 using System.Collections.Generic;
+using System.Linq;
+using BackendControl;
 using CustomEnumControl;
 using DG.Tweening;
 using ManagerControl;
+using UIControl;
 using UnityEngine;
+using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 using Utilities;
 
@@ -10,6 +14,7 @@ namespace LobbyUIControl
 {
     public class LobbySetting : MonoBehaviour
     {
+        private FadeController _fadeController;
         private LobbyUI _lobbyUI;
         private bool _isOpen;
         private Tween _settingPanelSequence;
@@ -21,12 +26,14 @@ namespace LobbyUIControl
         [SerializeField] private Button closeButton;
 
         [SerializeField] private RectTransform tabGroups;
+        [SerializeField] private NoticePanel logOutPanel;
 
         private void Start()
         {
+            _fadeController = FindAnyObjectByType<FadeController>();
             _lobbyUI = GetComponentInParent<LobbyUI>();
             _tabGroupItemQueue = new Queue<TabGroupItem>();
-            _settingPanelGroup = GetComponent<CanvasGroup>();
+            _settingPanelGroup = transform.GetChild(0).GetComponent<CanvasGroup>();
             _settingPanelGroup.blocksRaycasts = false;
             Init();
             InitButton();
@@ -46,6 +53,13 @@ namespace LobbyUIControl
                 _tabGroupArray[i] = tabGroups.GetChild(i).GetComponent<TabGroupItem>();
                 _tabGroupArray[i].OnTabEvent += ClickTab;
             }
+
+            logOutPanel.OnConfirmButtonEvent += () =>
+            {
+                BackendChart.instance.InitItemTable();
+                BackendLogin.instance.LogOut();
+                _fadeController.FadeOutScene("LoginScene").Forget();
+            };
         }
 
         private void ClickTab(TabGroupItem tabGroupItem)
@@ -75,17 +89,26 @@ namespace LobbyUIControl
         private void InitTween()
         {
             _settingPanelSequence = _settingPanelGroup.DOFade(1, 0.25f).From(0).SetAutoKill(false).Pause();
+            _settingPanelSequence.OnComplete(() => _settingPanelGroup.blocksRaycasts = true);
+            _settingPanelSequence.OnRewind(() =>
+            {
+                _settingPanelGroup.blocksRaycasts = false;
+                _lobbyUI.OffBlockImage();
+            });
         }
 
         private void OpenSetting()
         {
-            _settingPanelSequence.OnComplete(() => _settingPanelGroup.blocksRaycasts = true).Restart();
+            _lobbyUI.OnBackgroundImage();
             _lobbyUI.SetActiveButtons(false, false);
+            _settingPanelSequence.Restart();
         }
 
         private void CloseSetting()
         {
-            _settingPanelSequence.OnRewind(() => _settingPanelGroup.blocksRaycasts = false).PlayBackwards();
+            _lobbyUI.OffBackgroundImage();
+            _lobbyUI.SetActiveButtons(true, false);
+            _settingPanelSequence.PlayBackwards();
             if (_tabGroupItemQueue.Count > 0)
             {
                 for (int i = 0; i < _tabGroupItemQueue.Count; i++)
@@ -93,8 +116,6 @@ namespace LobbyUIControl
                     _tabGroupItemQueue.Dequeue().CloseGroup();
                 }
             }
-
-            _lobbyUI.SetActiveButtons(true, false);
         }
     }
 }

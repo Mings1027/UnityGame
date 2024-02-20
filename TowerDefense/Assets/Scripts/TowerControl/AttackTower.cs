@@ -1,4 +1,5 @@
 using GameControl;
+using ManagerControl;
 using UnityEngine;
 
 namespace TowerControl
@@ -13,9 +14,9 @@ namespace TowerControl
         protected Cooldown attackCooldown;
         protected Cooldown patrolCooldown;
 
-        public byte TowerRange { get; private set; }
-        public int Damage { get; private set; }
-        public sbyte TowerLevel { get; private set; }
+        public byte towerRange { get; private set; }
+        public int damage { get; private set; }
+        public sbyte towerLevel { get; private set; }
 
         protected override void Awake()
         {
@@ -26,7 +27,7 @@ namespace TowerControl
         protected override void OnEnable()
         {
             base.OnEnable();
-            TowerLevel = -1;
+            towerLevel = -1;
             _meshFilter = _defaultMesh;
         }
 
@@ -48,18 +49,24 @@ namespace TowerControl
 
         public void TowerLevelUp()
         {
-            TowerLevel++;
+            towerLevel++;
         }
 
         public virtual void TowerSetting(MeshFilter towerMesh, int damageData, byte rangeData,
             float cooldownData)
         {
-            TowerRange = rangeData;
-            Damage = damageData;
+            towerRange = rangeData;
+            damage = damageData;
             attackCooldown.cooldownTime = cooldownData;
             _meshFilter.sharedMesh = towerMesh.sharedMesh;
 
             ColliderSize();
+        }
+
+        public override void DisableObject()
+        {
+            UIManager.instance.RemoveAttackTower(this);
+            base.DisableObject();
         }
 
         public abstract void TowerUpdate();

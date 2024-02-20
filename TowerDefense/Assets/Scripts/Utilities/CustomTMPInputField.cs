@@ -2,7 +2,7 @@ using System;
 using TMPro;
 using UnityEngine.EventSystems;
 
-namespace UIControl
+namespace Utilities
 {
     public class CustomTMPInputField : TMP_InputField
     {

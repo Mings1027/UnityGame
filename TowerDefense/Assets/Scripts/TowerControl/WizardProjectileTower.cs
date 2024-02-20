@@ -32,7 +32,7 @@ namespace TowerControl
             SoundManager.Play3DSound(audioClip, transform.position);
             var projectile = PoolObjectManager.Get<WizardProjectile>(projectileKey, firePos.position);
             projectile.ColorInit(effectIndex);
-            projectile.Init(Damage, target);
+            projectile.Init(damage, target);
             projectile.DeBuffInit(effectIndex);
         }
 
@@ -45,7 +45,7 @@ namespace TowerControl
 
         private void CrystalInit()
         {
-            _crystalMeshFilter.sharedMesh = crystalMesh[TowerLevel];
+            _crystalMeshFilter.sharedMesh = crystalMesh[towerLevel];
             crystal.position = transform.position + new Vector3(0, boxCollider.size.y + 0.5f, 0);
             crystal.DOScale(1, 0.5f).From(0).SetEase(Ease.OutBack);
         }

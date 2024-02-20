@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using Plugins.Easy_performant_outline.Scripts;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -63,7 +62,7 @@ namespace EPOOutline
 
         public bool UseHDR;
 
-        public bool UseInfoBuffer;
+        public bool UseInfoBuffer = false;
 
         public bool IsEditorCamera;
 
@@ -84,7 +83,7 @@ namespace EPOOutline
 
         public List<Outlinable> OutlinablesToRender = new List<Outlinable>();
 
-        private bool isInitialized;
+        private bool isInitialized = false;
         
         public Vector2Int MakeScaledVector(int x, int y)
         {

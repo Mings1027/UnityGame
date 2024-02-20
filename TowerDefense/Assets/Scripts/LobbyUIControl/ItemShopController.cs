@@ -63,7 +63,7 @@ namespace LobbyUIControl
         {
             _lobbyUI = GetComponentInParent<LobbyUI>();
             _itemInfoTable = new Dictionary<ItemType, ItemInfo>();
-            _shopPanelGroup = GetComponent<CanvasGroup>();
+            _shopPanelGroup = shopPanel.GetComponent<CanvasGroup>();
             _shopPanelSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(_shopPanelGroup.DOFade(1, 0.25f).From(0))
                 .Join(shopPanel.DOAnchorPosX(0, 0.25f).From(new Vector2(-100, 0)));
@@ -77,14 +77,20 @@ namespace LobbyUIControl
             itemShopButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                _shopPanelSequence.OnComplete(() => _shopPanelGroup.blocksRaycasts = true).Restart();
+                _lobbyUI.OnBackgroundImage();
                 _lobbyUI.SetActiveButtons(false, true);
                 _lobbyUI.Off();
+                _shopPanelSequence.OnComplete(() => _shopPanelGroup.blocksRaycasts = true).Restart();
             });
             closeButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                _shopPanelSequence.OnRewind(() => _shopPanelGroup.blocksRaycasts = false).PlayBackwards();
+                _shopPanelSequence.OnRewind(() =>
+                {
+                    _shopPanelGroup.blocksRaycasts = false;
+                    _lobbyUI.OffBlockImage();
+                }).PlayBackwards();
+                _lobbyUI.OffBackgroundImage();
                 _lobbyUI.SetActiveButtons(true, false);
                 _lobbyUI.On();
             });

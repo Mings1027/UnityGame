@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using Plugins.Easy_performant_outline.Scripts;
 using UnityEngine;
 using UnityEngine.Profiling;
 using UnityEngine.Rendering;

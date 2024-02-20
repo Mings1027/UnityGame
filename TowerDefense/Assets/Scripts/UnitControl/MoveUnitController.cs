@@ -16,7 +16,6 @@ namespace UnitControl
         private Vector3 _prevPos;
 
         [SerializeField] private float camZoomTime;
-        [SerializeField] private LayerMask unitLayer;
 
         private void Awake()
         {
@@ -60,7 +59,7 @@ namespace UnitControl
             var ray = _cam.ScreenPointToRay(Input.mousePosition);
             Physics.Raycast(ray, out var hit, int.MaxValue);
             if (hit.collider && hit.collider.CompareTag("Ground") &&
-                Vector3.Distance(_summonTower.transform.position, hit.point) <= _summonTower.TowerRange)
+                Vector3.Distance(_summonTower.transform.position, hit.point) <= _summonTower.towerRange)
             {
                 _summonTower.UnitMove(new Vector3(hit.point.x, 0, hit.point.z));
                 RewindCam();

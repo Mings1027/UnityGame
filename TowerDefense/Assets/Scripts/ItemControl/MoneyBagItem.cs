@@ -19,7 +19,7 @@ namespace ItemControl
         {
             PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.MoneyText, cameraManager.camPos).SetGoldText(500);
             SoundManager.PlayUISound(SoundEnum.HighCost);
-            UIManager.instance.towerGold += 500;
+            UIManager.instance.SetTowerGold(500);
         }
     }
 }

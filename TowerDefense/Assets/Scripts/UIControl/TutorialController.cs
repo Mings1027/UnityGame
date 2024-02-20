@@ -28,7 +28,7 @@ namespace UIControl
 
         private void BounceButton()
         {
-            _rectTransform.anchoredPosition = Vector2.zero;
+            _rectTransform.anchoredPosition = new Vector2(0, 30);
             _bounceSequence.Kill();
             _rectTransform.GetComponent<Button>().onClick.RemoveListener(BounceButton);
             Destroy(GetComponent<TutorialController>());

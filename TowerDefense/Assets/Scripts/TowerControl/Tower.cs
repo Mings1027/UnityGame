@@ -1,7 +1,6 @@
 using System;
 using CustomEnumControl;
 using EPOOutline;
-using Plugins.Easy_performant_outline.Scripts;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -10,7 +9,7 @@ namespace TowerControl
     [DisallowMultipleComponent]
     public abstract class Tower : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
-        private Outlinable _outlinable;
+        private Outlinable _towerOutline;
 
         public event Action<Tower> OnClickTowerAction;
 
@@ -20,8 +19,8 @@ namespace TowerControl
 
         protected virtual void Awake()
         {
-            _outlinable = GetComponent<Outlinable>();
-            _outlinable.enabled = false;
+            _towerOutline = GetComponent<Outlinable>();
+            _towerOutline.enabled = false;
         }
 
         protected virtual void OnEnable()
@@ -45,12 +44,12 @@ namespace TowerControl
 
         public virtual void ActiveIndicator()
         {
-            _outlinable.enabled = true;
+            _towerOutline.enabled = true;
         }
 
         public virtual void DeActiveIndicator()
         {
-            _outlinable.enabled = false;
+            _towerOutline.enabled = false;
         }
 
         public virtual void DisableObject()

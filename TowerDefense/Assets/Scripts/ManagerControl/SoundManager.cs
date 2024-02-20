@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using CustomEnumControl;
+using Cysharp.Threading.Tasks;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -24,10 +26,11 @@ namespace ManagerControl
             public AudioClip musicClip;
         }
 
+        private static CancellationTokenSource _cts;
         private static Camera _cam;
 
-        private const string BGMKey = "BGM";
-        private const string SfxKey = "SFX";
+        public const string BGMKey = "BGM";
+        public const string SfxKey = "SFX";
 
         private const float MinValue = -80f;
         private const float MaxValue = 0f;
@@ -79,6 +82,11 @@ namespace ManagerControl
             _maxDis = maxDistance;
         }
 
+        private void OnDisable()
+        {
+            _cts?.Cancel();
+        }
+
         public static void MuteBGM(bool value) => _musicSource.mute = value;
 
         public static void PlayBGM(SoundEnum clipName)
@@ -105,14 +113,14 @@ namespace ManagerControl
         public static void SetBGMVolume(float value)
         {
             var mappedValue = Mathf.Lerp(MinValue, MaxValue, value);
-            _audioMixer.SetFloat("BGM", mappedValue);
+            _audioMixer.SetFloat(BGMKey, mappedValue);
             PlayerPrefs.SetInt(BGMKey, (int)mappedValue);
         }
 
         public static void SetSfxVolume(float value)
         {
             var mappedValue = Mathf.Lerp(MinValue, MaxValue, value);
-            _audioMixer.SetFloat("SFX", mappedValue);
+            _audioMixer.SetFloat(SfxKey, mappedValue);
             PlayerPrefs.SetInt(SfxKey, (int)mappedValue);
         }
 
@@ -126,13 +134,54 @@ namespace ManagerControl
             _bgmVolume = PlayerPrefs.GetInt(BGMKey);
             _sfxVolume = PlayerPrefs.GetInt(SfxKey);
 
-            _audioMixer.SetFloat("BGM", _bgmVolume);
-            _audioMixer.SetFloat("SFX", _sfxVolume);
+            _audioMixer.SetFloat(BGMKey, _bgmVolume);
+            _audioMixer.SetFloat(SfxKey, _sfxVolume);
 
             var convertBgmValue = Mathf.InverseLerp(MinValue, MaxValue, _bgmVolume);
             var convertSfxValue = Mathf.InverseLerp(MinValue, MaxValue, _sfxVolume);
-            
+
             return (convertBgmValue, convertSfxValue);
+        }
+
+        public static async UniTaskVoid FadeOutVolume(string audioType)
+        {
+            var volume = audioType switch
+            {
+                BGMKey => _bgmVolume,
+                SfxKey => _sfxVolume,
+                _ => 0
+            };
+
+            _cts?.Cancel();
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
+            while (volume > -80 && !_cts.IsCancellationRequested)
+            {
+                volume--;
+                await UniTask.Yield(cancellationToken: _cts.Token);
+                _audioMixer.SetFloat(audioType, volume);
+            }
+        }
+
+        public static async UniTaskVoid FadeInVolume(string audioType)
+        {
+            var lowVolume = -80;
+            var volume = audioType switch
+            {
+                BGMKey => _bgmVolume,
+                SfxKey => _sfxVolume,
+                _ => 0
+            };
+
+            _cts?.Cancel();
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
+            while (lowVolume < volume && !_cts.IsCancellationRequested)
+            {
+                lowVolume++;
+                await UniTask.Yield(cancellationToken: _cts.Token);
+                _audioMixer.SetFloat(audioType, lowVolume);
+            }
         }
     }
 }

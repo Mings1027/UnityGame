@@ -66,7 +66,7 @@ namespace UIControl
 
             for (var i = 0; i < _starImages.Length; i++)
             {
-                _starImages[i] = stars.GetChild(i).GetChild(1).GetComponent<Image>();
+                _starImages[i] = stars.GetChild(i).GetChild(2).GetComponent<Image>();
             }
 
             _healthText = healthObj.transform.GetChild(0).GetComponent<TMP_Text>();
@@ -87,14 +87,14 @@ namespace UIControl
             _statusInfoPanel.gameObject.SetActive(false);
         }
 
-        public void SetTowerInfo(AttackTower tower, bool isUnitTower, sbyte level, ushort upgradeCost, ushort sellCost)
+        public void SetTowerInfo(AttackTower tower, TowerData towerData, sbyte level,
+            ushort upgradeCost, ushort sellCost, string towerName)
         {
             if (!_statusInfoPanel.gameObject.activeSelf) _statusInfoPanel.gameObject.SetActive(true);
 
-            if (UIManager.instance.towerDataPrefabDictionary[tower.towerType].towerData
-                is AttackTowerData battleTowerData)
+            if (towerData is AttackTowerData battleTowerData)
             {
-                if (isUnitTower)
+                if (towerData.isUnitTower)
                 {
                     var unitTower = (SummonTower)tower;
                     _healthText.text = (unitTower.UnitHealth * (level + 1)).ToString();
@@ -106,6 +106,7 @@ namespace UIControl
                 }
             }
 
+            var isUnitTower = towerData.isUnitTower;
             healthObj.SetActive(isUnitTower);
             rangeObj.SetActive(!isUnitTower);
             rpmObj.SetActive(!isUnitTower);
@@ -115,27 +116,26 @@ namespace UIControl
             if (!towerType.Equals(_towerType))
             {
                 _towerType = towerType;
+                towerNameText.text = towerName;
                 var uiManager = UIManager.instance;
-                towerNameText.text = uiManager.towerNameDic[towerType];
                 damageImage.sprite = uiManager.GetTowerType(towerType);
             }
 
             DisplayStarsForTowerLevel(level);
             goldText.text = upgradeCost + "G";
-            _damageText.text = tower.Damage.ToString();
-            _rangeText.text = tower.TowerRange.ToString();
+            _damageText.text = tower.damage.ToString();
+            _rangeText.text = tower.towerRange.ToString();
             sellGoldText.text = sellCost + "G";
         }
 
-        public void SetSupportTowerInfo(SupportTower tower, ushort sellCost)
+        public void SetSupportTowerInfo(SupportTower tower, ushort sellCost, string towerName)
         {
             var towerType = tower.towerType;
 
             if (!towerType.Equals(_towerType))
             {
                 _towerType = towerType;
-                var uiManager = UIManager.instance;
-                towerNameText.text = uiManager.towerNameDic[towerType];
+                towerNameText.text = towerName;
             }
 
             sellGoldText.text = sellCost + "G";

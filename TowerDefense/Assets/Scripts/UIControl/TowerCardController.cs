@@ -36,8 +36,6 @@ namespace UIControl
         {
             CameraManager.isControlActive = true;
             _isDrag = false;
-            Debug.Log(_rectTransform.anchoredPosition.y);
-            Debug.Log(_rectHeight);
             if (_rectTransform.anchoredPosition.y > -_rectHeight * 0.5f)
             {
                 _inputManager.TryPlaceTower();
@@ -81,7 +79,9 @@ namespace UIControl
 
             closeButton.onClick.AddListener(() =>
             {
-                SlideDown();
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
+               
+                _slideSequence.PlayBackwards();
                 CloseTowerCard();
                 UIManager.instance.SlideDown().Forget();
             });
@@ -116,11 +116,6 @@ namespace UIControl
         public void SlideUp()
         {
             _slideSequence.Restart();
-        }
-
-        public void SlideDown()
-        {
-            _slideSequence.PlayBackwards();
         }
     }
 }

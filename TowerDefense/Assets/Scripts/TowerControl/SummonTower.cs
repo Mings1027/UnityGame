@@ -81,7 +81,7 @@ namespace TowerControl
             for (var i = count - 1; i >= 0; i--)
             {
                 var unitData = (SummoningTowerData)UIManager.instance.towerDataPrefabDictionary[towerType].towerData;
-                _units[i].UnitUpgrade(damage, unitData.curUnitHealth * (1 + TowerLevel), delay);
+                _units[i].UnitUpgrade(damage, unitData.curUnitHealth * (1 + towerLevel), delay);
             }
         }
 
@@ -118,7 +118,7 @@ namespace TowerControl
             if (_isUnitSpawn || _isReSpawning) return;
             if (_cts.IsCancellationRequested) return;
             UnitSpawn();
-            UnitUpgrade(Damage, attackCooldown.cooldownTime);
+            UnitUpgrade(damage, attackCooldown.cooldownTime);
         }
 
         public override void ActiveIndicator()

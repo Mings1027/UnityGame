@@ -34,7 +34,7 @@ namespace TowerControl
         {
             if (patrolCooldown.IsCoolingDown) return;
             if (_towerMana.Current < _attackMana) return;
-            var size = Physics.OverlapSphereNonAlloc(transform.position, TowerRange, targetColliders, targetLayer);
+            var size = Physics.OverlapSphereNonAlloc(transform.position, towerRange, targetColliders, targetLayer);
             if (size <= 0)
             {
                 target = null;
@@ -100,7 +100,7 @@ namespace TowerControl
         protected override void Hit()
         {
             if (!target.TryGetComponent(out IDamageable damageable) || !target.enabled) return;
-            damageable.Damage((int)(_isFlyingMonster ? Damage : Damage * 0.5f));
+            damageable.Damage((int)(_isFlyingMonster ? damage : damage * 0.5f));
         }
     }
 }

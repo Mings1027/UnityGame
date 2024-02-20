@@ -27,11 +27,11 @@ namespace MapControl
 
         private void EarnCoin()
         {
-            var num = (ushort)(Random.Range(10, 30) * 10);
-            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, transform.position).SetGoldText(num);
-            SoundManager.PlayUISound(num < 100 ? SoundEnum.LowCost :
-                num < 250 ? SoundEnum.MediumCost : SoundEnum.HighCost);
-            UIManager.instance.towerGold += num;
+            var gold = (ushort)(Random.Range(10, 30) * 10);
+            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, transform.position).SetGoldText(gold);
+            SoundManager.PlayUISound(gold < 100 ? SoundEnum.LowCost :
+                gold < 250 ? SoundEnum.MediumCost : SoundEnum.HighCost);
+            UIManager.instance.SetTowerGold(gold);
         }
     }
 }

@@ -219,7 +219,7 @@ namespace ManagerControl
 
             if (!foundGround) towerForward = _checkDir[Random.Range(0, 4)];
 
-            UIManager.instance.InstantiateTower(_selectedTowerType, _worldGridPos, towerForward).Forget();
+            UIManager.instance.InstantiateTower(_selectedTowerType, _worldGridPos, towerForward);
         }
     }
 }

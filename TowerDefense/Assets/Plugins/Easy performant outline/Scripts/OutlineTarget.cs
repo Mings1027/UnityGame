@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using Plugins.Easy_performant_outline.Scripts;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Serialization;
@@ -21,7 +20,7 @@ namespace EPOOutline
     [System.Serializable]
     public class OutlineTarget
     {
-        public bool IsVisible;
+        public bool IsVisible = false;
 
         [SerializeField]
         public ColorMask CutoutMask = ColorMask.A;

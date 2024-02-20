@@ -6,7 +6,7 @@ namespace EPOOutline
 {
     public static class RenderTargetUtility
     {
-        private static RenderTextureFormat? hdrFormat;
+        private static RenderTextureFormat? hdrFormat = null;
 
         public static int GetDepthSliceForEye(StereoTargetEyeMask mask)
         {

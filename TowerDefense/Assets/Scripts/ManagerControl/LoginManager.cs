@@ -133,12 +133,16 @@ namespace ManagerControl
             {
                 idField.ActivateInputField();
                 TouchScreenKeyboard.hideInput = true;
+                TouchScreenKeyboard.Open(idField.text, TouchScreenKeyboardType.Default, false, false, false);
+
                 content.DOLocalMoveY(350, 0.5f).SetEase(Ease.OutQuart);
             };
             oneTimeCodeField.OnPointerUpEvent += () =>
             {
                 oneTimeCodeField.ActivateInputField();
                 TouchScreenKeyboard.hideInput = true;
+                TouchScreenKeyboard.Open(oneTimeCodeField.text, TouchScreenKeyboardType.Default, false, false, false);
+
                 content.DOLocalMoveY(350, 0.5f).SetEase(Ease.OutQuart);
             };
 
@@ -381,7 +385,7 @@ namespace ManagerControl
         private async UniTask StartEmailLogin()
         {
             BackendLogin.instance.CustomLogin(_id, _password);
-            
+
             var countJson = JObject.Parse(_wwwText);
             var curCount = byte.Parse((string)countJson["value"] ?? string.Empty);
             if (curCount >= 7)

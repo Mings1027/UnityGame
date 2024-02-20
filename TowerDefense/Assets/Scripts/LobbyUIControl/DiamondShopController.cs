@@ -16,7 +16,6 @@ namespace LobbyUIControl
         private Sequence _panelSequence;
 
         [SerializeField] private CanvasGroup shopPanelGroup;
-        [SerializeField] private Image backgroundBlockImage;
         [SerializeField] private Image shopBlockImage;
         [SerializeField] private Button diamondButton;
         [SerializeField] private Button closeButton;
@@ -31,11 +30,17 @@ namespace LobbyUIControl
             _panelSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(shopPanelGroup.DOFade(1, 0.25f).From(0).SetEase(Ease.Linear))
                 .Join(shopPanelGroup.GetComponent<RectTransform>().DOAnchorPosX(0, 0.25f).From(new Vector2(100, 0)));
+            _panelSequence.OnComplete(() => shopPanelGroup.blocksRaycasts = true);
+            _panelSequence.OnRewind(() =>
+            {
+                shopPanelGroup.blocksRaycasts = false;
+                _lobbyUI.OffBlockImage();
+            });
+
             diamondButton.onClick.AddListener(OpenGoldPanel);
             closeButton.onClick.AddListener(ClosePanel);
             loadingImage.localScale = Vector3.zero;
 
-            backgroundBlockImage.enabled = false;
             freePurchaseButton.onClick.AddListener(() =>
             {
                 freePurchaseButton.interactable = false;
@@ -63,21 +68,21 @@ namespace LobbyUIControl
         private void OpenGoldPanel()
         {
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            backgroundBlockImage.enabled = true;
             shopBlockImage.enabled = false;
-            _panelSequence.OnComplete(() => shopPanelGroup.blocksRaycasts = true).Restart();
+            _lobbyUI.OnBackgroundImage();
             _lobbyUI.SetActiveButtons(false, true);
             _lobbyUI.Off();
+            _panelSequence.Restart();
         }
 
         private void ClosePanel()
         {
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            backgroundBlockImage.enabled = false;
             shopBlockImage.enabled = true;
-            _panelSequence.OnRewind(() => shopPanelGroup.blocksRaycasts = false).PlayBackwards();
+            _lobbyUI.OffBackgroundImage();
             _lobbyUI.SetActiveButtons(true, false);
             _lobbyUI.On();
+            _panelSequence.PlayBackwards();
         }
     }
 }

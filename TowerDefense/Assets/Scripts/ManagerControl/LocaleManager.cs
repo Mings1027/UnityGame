@@ -11,6 +11,7 @@ namespace ManagerControl
 
         public const string TowerCardTable = "TowerCard Table";
         public const string ItemTable = "Item Table";
+        public const string LobbyUITable = "Lobby UI Table";
         public const string CardKey = "Card-";
         public const string ItemKey = "Item-";
 

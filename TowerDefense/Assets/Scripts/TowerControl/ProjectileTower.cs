@@ -28,7 +28,7 @@ namespace TowerControl
         [Conditional("UNITY_EDITOR")]
         private void OnDrawGizmos()
         {
-            Gizmos.DrawWireSphere(transform.position, TowerRange);
+            Gizmos.DrawWireSphere(transform.position, towerRange);
         }
         /*=========================================================================================================================================
         *                                               Unity Event
@@ -81,7 +81,7 @@ namespace TowerControl
         protected virtual void Detect()
         {
             if (patrolCooldown.IsCoolingDown) return;
-            var size = Physics.OverlapSphereNonAlloc(transform.position, TowerRange, _targetColliders, _targetLayer);
+            var size = Physics.OverlapSphereNonAlloc(transform.position, towerRange, _targetColliders, _targetLayer);
 
             if (size <= 0)
             {
@@ -110,7 +110,7 @@ namespace TowerControl
         {
             if (attackCooldown.IsCoolingDown) return;
 
-            if (!target || !target.enabled || Vector3.Distance(transform.position, target.bounds.center) > TowerRange)
+            if (!target || !target.enabled || Vector3.Distance(transform.position, target.bounds.center) > towerRange)
             {
                 _towerState = TowerState.Detect;
                 return;
@@ -129,7 +129,7 @@ namespace TowerControl
             SoundManager.Play3DSound(audioClip, transform.position);
             var projectile = PoolObjectManager.Get<Projectile>(projectileKey, firePos.position);
             projectile.ColorInit(effectIndex);
-            projectile.Init(Damage, target);
+            projectile.Init(damage, target);
         }
 
         #endregion
@@ -139,7 +139,7 @@ namespace TowerControl
         {
             base.TowerSetting(towerMesh, damageData, rangeData, cooldownData);
 
-            if (TowerLevel % 2 == 0)
+            if (towerLevel % 2 == 0)
             {
                 effectIndex++;
             }

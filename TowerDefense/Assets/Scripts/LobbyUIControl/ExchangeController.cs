@@ -19,7 +19,6 @@ namespace LobbyUIControl
 
         [SerializeField] private CanvasGroup shopPanelGroup;
         [SerializeField] private Button emeraldButton;
-        [SerializeField] private Image blockImage;
         [SerializeField] private Button closeButton;
         [SerializeField] private TMP_Text quantityText;
         [SerializeField] private Button minusButton;
@@ -35,10 +34,16 @@ namespace LobbyUIControl
         {
             _lobbyUI = GetComponentInParent<LobbyUI>();
             shopPanelGroup.blocksRaycasts = false;
+            var shopPanelRect = shopPanelGroup.GetComponent<RectTransform>();
             _shopPanelSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(shopPanelGroup.DOFade(1, 0.25f).From(0))
-                .Join(shopPanelGroup.GetComponent<RectTransform>().DOAnchorPosX(0, 0.25f).From(new Vector2(100, 0)));
-            blockImage.enabled = false;
+                .Join(shopPanelRect.DOAnchorPosX(0, 0.25f).From(new Vector2(100, 0)));
+            _shopPanelSequence.OnComplete(() => shopPanelGroup.blocksRaycasts = true);
+            _shopPanelSequence.OnRewind(() =>
+            {
+                shopPanelGroup.blocksRaycasts = false;
+                _lobbyUI.OffBlockImage();
+            });
             emeraldButton.onClick.AddListener(OpenPanel);
             closeButton.onClick.AddListener(ClosePanel);
             minusButton.onClick.AddListener(MinusQuantity);
@@ -90,11 +95,11 @@ namespace LobbyUIControl
 
         private void OpenPanel()
         {
+            SoundManager.PlayUISound(SoundEnum.ButtonSound);
             _lobbyUI.SetActiveButtons(false, true);
             _lobbyUI.Off();
-            SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            blockImage.enabled = true;
-            _shopPanelSequence.OnComplete(() => shopPanelGroup.blocksRaycasts = true).Restart();
+            _lobbyUI.OnBackgroundImage();
+            _shopPanelSequence.Restart();
 
             _curQuantity = 0;
             quantityText.text = _curQuantity.ToString();
@@ -104,11 +109,11 @@ namespace LobbyUIControl
 
         private void ClosePanel()
         {
+            SoundManager.PlayUISound(SoundEnum.ButtonSound);
             _lobbyUI.SetActiveButtons(true, false);
             _lobbyUI.On();
-            SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            blockImage.enabled = false;
-            _shopPanelSequence.OnRewind(() => shopPanelGroup.blocksRaycasts = false).PlayBackwards();
+            _lobbyUI.OffBackgroundImage();
+            _shopPanelSequence.PlayBackwards();
         }
 
         private void PlusQuantity()

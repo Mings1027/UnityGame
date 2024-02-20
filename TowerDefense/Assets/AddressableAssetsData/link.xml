@@ -24,6 +24,7 @@
     <type fullname="LobbyUIControl.TowerUpgradeController" preserve="all" />
     <type fullname="ManagerControl.CameraManager" preserve="all" />
     <type fullname="ManagerControl.InputManager" preserve="all" />
+    <type fullname="ManagerControl.SoundManager" preserve="all" />
     <type fullname="ManagerControl.TowerManager" preserve="all" />
     <type fullname="ManagerControl.UIManager" preserve="all" />
     <type fullname="ManagerControl.WaveManager" preserve="all" />
@@ -36,7 +37,6 @@
     <type fullname="MonsterControl.GroundMonster" preserve="all" />
     <type fullname="MonsterControl.MonsterStatus" preserve="all" />
     <type fullname="MonsterControl.TransformMonster" preserve="all" />
-    <type fullname="PauseController" preserve="all" />
     <type fullname="PoolObjectControl.MonsterPoolObject" preserve="all" />
     <type fullname="PoolObjectControl.PoolObject" preserve="all" />
     <type fullname="PoolObjectControl.PoolObjectManager" preserve="all" />
@@ -66,9 +66,9 @@
     <type fullname="UIControl.FadeController" preserve="all" />
     <type fullname="UIControl.GameHUD" preserve="all" />
     <type fullname="UIControl.ItemBagController" preserve="all" />
-    <type fullname="UIControl.LanguageController" preserve="all" />
     <type fullname="UIControl.MapSelectPanel" preserve="all" />
     <type fullname="UIControl.NoticePanel" preserve="all" />
+    <type fullname="UIControl.PauseController" preserve="all" />
     <type fullname="UIControl.StatusBarUIController" preserve="all" />
     <type fullname="UIControl.TowerButton" preserve="all" />
     <type fullname="UIControl.TowerCardController" preserve="all" />
@@ -86,6 +86,8 @@
     <type fullname="Utilities.TabGroupItem" preserve="all" />
     <type fullname="Utilities.UIHorizontalSplitter" preserve="all" />
     <type fullname="Utilities.UIVerticalSplitter" preserve="all" />
+    <type fullname="ManagerControl.SoundManager/EffectSound" preserve="nothing" serialized="true" />
+    <type fullname="ManagerControl.SoundManager/MusicSound" preserve="nothing" serialized="true" />
     <type fullname="ManagerControl.TowerDataPrefab" preserve="nothing" serialized="true" />
     <type fullname="ManagerControl.Wave" preserve="nothing" serialized="true" />
     <type fullname="PoolObjectControl.MonsterPool" preserve="nothing" serialized="true" />
@@ -94,12 +96,12 @@
     <type fullname="Utilities.CustomDropdown/DropdownItem" preserve="nothing" serialized="true" />
   </assembly>
   <assembly fullname="Assembly-CSharp-firstpass, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+    <type fullname="EPOOutline.Outlinable" preserve="all" />
     <type fullname="EPOOutline.Outliner" preserve="all" />
-    <type fullname="Plugins.Easy_performant_outline.Scripts.Outlinable" preserve="all" />
-    <type fullname="Plugins.Easy_performant_outline.Scripts.TargetStateListener" preserve="all" />
+    <type fullname="EPOOutline.TargetStateListener" preserve="all" />
+    <type fullname="EPOOutline.Outlinable/OutlineProperties" preserve="nothing" serialized="true" />
     <type fullname="EPOOutline.OutlineTarget" preserve="nothing" serialized="true" />
     <type fullname="EPOOutline.SerializedPass" preserve="nothing" serialized="true" />
-    <type fullname="Plugins.Easy_performant_outline.Scripts.Outlinable/OutlineProperties" preserve="nothing" serialized="true" />
   </assembly>
   <assembly fullname="NavMeshComponents, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
     <type fullname="UnityEngine.AI.NavMeshModifier" preserve="all" />

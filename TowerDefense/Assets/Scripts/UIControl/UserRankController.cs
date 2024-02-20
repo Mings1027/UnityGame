@@ -16,7 +16,6 @@ namespace UIControl
         private LobbyUI _lobbyUI;
         private Sequence _panelSequence;
 
-        [SerializeField] private Image blockImage;
         [SerializeField] private CanvasGroup rankPanelGroup;
         [SerializeField] private Button rankButton;
         [SerializeField] private Button closeButton;
@@ -26,10 +25,16 @@ namespace UIControl
         private void Awake()
         {
             _lobbyUI = GetComponentInParent<LobbyUI>();
+            var rankPanelRect = rankPanelGroup.GetComponent<RectTransform>();
             _panelSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(rankPanelGroup.DOFade(1, 0.25f).From(0))
-                .Join(rankPanelGroup.GetComponent<RectTransform>().DOAnchorPosX(0, 0.25f).From(new Vector2(100, 0)));
-            blockImage.enabled = false;
+                .Join(rankPanelRect.DOAnchorPosX(0, 0.25f).From(new Vector2(100, 0)));
+            _panelSequence.OnComplete(() => rankPanelGroup.blocksRaycasts = true);
+            _panelSequence.OnRewind(() =>
+            {
+                rankPanelGroup.blocksRaycasts = false;
+                _lobbyUI.OffBlockImage();
+            });
             rankPanelGroup.blocksRaycasts = false;
             rankButton.onClick.AddListener(OpenRankPanel);
             closeButton.onClick.AddListener(CloseRankPanel);
@@ -48,17 +53,17 @@ namespace UIControl
         private void OpenRankPanel()
         {
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            blockImage.enabled = true;
-            _panelSequence.OnComplete(() => rankPanelGroup.blocksRaycasts = true).Restart();
+            _lobbyUI.OnBackgroundImage();
             _lobbyUI.SetActiveButtons(false, false);
+            _panelSequence.Restart();
         }
 
         private void CloseRankPanel()
         {
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            blockImage.enabled = false;
-            _panelSequence.OnRewind(() => rankPanelGroup.blocksRaycasts = false).PlayBackwards();
+            _lobbyUI.OffBackgroundImage();
             _lobbyUI.SetActiveButtons(true, false);
+            _panelSequence.PlayBackwards();
         }
 
         public void SetRanking()

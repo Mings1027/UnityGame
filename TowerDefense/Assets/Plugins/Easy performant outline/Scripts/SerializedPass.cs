@@ -82,7 +82,7 @@ namespace EPOOutline
 
         private Material material;
 
-        private bool propertiesIsDirty;
+        private bool propertiesIsDirty = false;
 
         public Material Material
         {

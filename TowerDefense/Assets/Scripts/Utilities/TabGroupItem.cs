@@ -4,6 +4,7 @@ using DG.Tweening;
 using ManagerControl;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Utilities
@@ -17,7 +18,9 @@ namespace Utilities
         public event Action<TabGroupItem> OnTabEvent;
 
         [SerializeField] private Button groupButton;
-        [SerializeField] private Color textColor;
+        [SerializeField] private Image itemImage;
+        [SerializeField] private Color selectedColor;
+        [SerializeField] private Color unSelectedColor;
 
         private void Awake()
         {
@@ -38,13 +41,19 @@ namespace Utilities
 
         public void OpenGroup()
         {
-            _groupButtonText.color = textColor;
+            itemImage.transform.DOScale(1.2f, 0.25f).From(1);
+            itemImage.color = selectedColor;
+            _groupButtonText.DOScale(1.2f, 0.25f).From(1);
+            _groupButtonText.color = selectedColor;
             _groupTween.Restart();
         }
 
         public void CloseGroup()
         {
-            _groupButtonText.color = Color.white;
+            itemImage.transform.DOScale(1, 0.25f).From(1.2f);
+            itemImage.color = unSelectedColor;
+            _groupButtonText.DOScale(1, 0.25f).From(1.2f);
+            _groupButtonText.color = unSelectedColor;
             _groupTween.PlayBackwards();
         }
     }

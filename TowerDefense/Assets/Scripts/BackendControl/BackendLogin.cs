@@ -28,30 +28,31 @@ namespace BackendControl
 
         public void CustomLogin(string id, string pw)
         {
-            Debug.Log("로그인을 요청합니다.");
+            CustomLog.Log("로그인을 요청합니다.");
 
             var bro = Backend.BMember.CustomLogin(id, pw);
 
             if (bro.IsSuccess())
             {
-                Debug.Log("로그인이 성공했습니다. : " + bro);
+                CustomLog.Log("로그인이 성공했습니다. : " + bro);
                 return;
             }
 
-            Debug.LogError("로그인이 실패했습니다. : " + bro);
+            CustomLog.LogError("로그인이 실패했습니다. : " + bro);
         }
 
         public void FederationLogin()
         {
             _isFederationLogin = true;
         }
+
         public void LogOut()
         {
             if (_isFederationLogin) _isFederationLogin = false;
             else Backend.BMember.Logout();
         }
 
-        public bool UpdateNickname(string nickname)
+        public (bool, string) UpdateNickname(string nickname)
         {
             CustomLog.Log("닉네임 변경을 요청합니다.");
 
@@ -60,12 +61,11 @@ namespace BackendControl
             if (bro.IsSuccess())
             {
                 CustomLog.Log("닉네임 변경에 성공했습니다 : " + bro);
-
-                return true;
+                return (true, "204");
             }
 
             CustomLog.LogError("닉네임 변경에 실패했습니다 : " + bro);
-            return false;
+            return (false, bro.GetStatusCode());
         }
 
         public string GetUserNickName()

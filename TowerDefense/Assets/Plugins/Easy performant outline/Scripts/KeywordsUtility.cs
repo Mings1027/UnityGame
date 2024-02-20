@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Plugins.Easy_performant_outline.Scripts;
 
 namespace EPOOutline
 {

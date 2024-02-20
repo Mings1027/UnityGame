@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4480340227697582555}
   - component: {fileID: -362340267191676559}
   - component: {fileID: 4480340227697582556}
-  - component: {fileID: -465028825979973985}
+  - component: {fileID: 8191808040648355280}
   m_Layer: 3
   m_Name: AssassinTower
   m_TagString: Tower
@@ -49,7 +49,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6c46869e569124eb898e4dcb2448d12a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  towerType: 0
+  <towerType>k__BackingField: 0
   unitCount: 5
   unitRadius: 0.8
   unitObjectKey: 9
@@ -66,7 +66,7 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 2, y: 2, z: 2}
   m_Center: {x: 0, y: 1, z: 0}
---- !u!114 &-465028825979973985
+--- !u!114 &8191808040648355280
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -101,7 +101,7 @@ MonoBehaviour:
   renderStyle: 1
   outlineParameters:
     enabled: 1
-    color: {r: 1, g: 1, b: 1, a: 1}
+    color: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
     dilateShift: 1
     blurShift: 1
     fillPass:

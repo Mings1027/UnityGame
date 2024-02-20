@@ -18,7 +18,6 @@ namespace Utilities
         private void HorizontalSplitter()
         {
             if (ratios.Length <= 0) return;
-            Debug.Log("hori splitter");
             var totalRatio = ratios.Sum();
             var parentWidth = GetComponent<RectTransform>().rect.width;
             var childRects = new List<RectTransform>();

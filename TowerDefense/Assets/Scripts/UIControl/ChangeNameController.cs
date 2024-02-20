@@ -1,25 +1,22 @@
-using System;
 using BackendControl;
 using CustomEnumControl;
 using DG.Tweening;
+using LobbyUIControl;
 using ManagerControl;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace UIControl
 {
     public class ChangeNameController : MonoBehaviour
     {
+        private LobbyUI _lobbyUI;
         private UserRankController _userRankController;
-
         private string _curNickname;
-        private bool _isChangedNickname;
         private Sequence _changeNamePanelSequence;
 
         [SerializeField] private Button userIconButton;
-        [SerializeField] private Image blockImage;
         [SerializeField] private CanvasGroup changeNamePanelGroup;
         [SerializeField] private TMP_InputField userNameField;
         [SerializeField] private Button confirmButton;
@@ -27,18 +24,24 @@ namespace UIControl
 
         private void Awake()
         {
+            _lobbyUI = GetComponentInParent<LobbyUI>();
             _userRankController = FindAnyObjectByType<UserRankController>();
             userIconButton.onClick.AddListener(OpenUserNamePanel);
+
+            var namePanelRect = changeNamePanelGroup.GetComponent<RectTransform>();
             _changeNamePanelSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(changeNamePanelGroup.DOFade(1, 0.25f).From(0))
-                .Join(changeNamePanelGroup.GetComponent<RectTransform>().DOAnchorPosX(0, 0.25f)
-                    .From(new Vector2(-100, 0)));
+                .Join(namePanelRect.DOAnchorPosX(0, 0.25f).From(new Vector2(-100, 0)));
 
-            blockImage.enabled = false;
+            _changeNamePanelSequence.OnComplete(() => changeNamePanelGroup.blocksRaycasts = true);
+            _changeNamePanelSequence.OnRewind(() =>
+            {
+                _lobbyUI.OffBlockImage();
+                changeNamePanelGroup.blocksRaycasts = false;
+            });
             changeNamePanelGroup.blocksRaycasts = false;
             userNameField.text = BackendLogin.instance.GetUserNickName();
             userNameField.onSelect.AddListener(GetCurNickName);
-            userNameField.onDeselect.AddListener(GoBackPrevNickName);
 
             confirmButton.onClick.AddListener(SubmitNickName);
             cancelButton.onClick.AddListener(CloseUserNamePanel);
@@ -52,44 +55,43 @@ namespace UIControl
         private void OpenUserNamePanel()
         {
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            _changeNamePanelSequence.OnComplete(() => changeNamePanelGroup.blocksRaycasts = true).Restart();
-            blockImage.enabled = true;
+            _lobbyUI.OnBackgroundImage();
+            _changeNamePanelSequence.Restart();
         }
 
         private void CloseUserNamePanel()
         {
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            _changeNamePanelSequence.OnRewind(() => changeNamePanelGroup.blocksRaycasts = false).PlayBackwards();
-            blockImage.enabled = false;
+            _lobbyUI.OffBackgroundImage();
+            _changeNamePanelSequence.PlayBackwards();
         }
 
         private void GetCurNickName(string arg0)
         {
-            _isChangedNickname = false;
             _curNickname = userNameField.text;
-        }
-
-        private void GoBackPrevNickName(string arg0)
-        {
-            if (_isChangedNickname) return;
-            userNameField.text = _curNickname;
+            TouchScreenKeyboard.Open(userNameField.text, TouchScreenKeyboardType.Default, false, false, false);
         }
 
         private void SubmitNickName()
         {
             if (userNameField.text.Length > 0)
             {
-                if (BackendLogin.instance.UpdateNickname(userNameField.text))
+                userNameField.text = userNameField.text.Trim();
+                var updateNickNameState = BackendLogin.instance.UpdateNickname(userNameField.text);
+                if (updateNickNameState.Item1)
                 {
-                    _isChangedNickname = true;
-                    Debug.Log("닉넴 변경성공");
                     _userRankController.SetRanking();
+                    _lobbyUI.OffBackgroundImage();
+                    _changeNamePanelSequence.PlayBackwards();
+                    _lobbyUI.NoticeSuccessChangeNameTween();
                 }
                 else
                 {
-                    _isChangedNickname = false;
-                    Debug.Log("변경 실패");
                     userNameField.text = _curNickname;
+                    if (updateNickNameState.Item2 == "409")
+                    {
+                        _lobbyUI.NoticeDuplicateTween();
+                    }
                 }
             }
         }

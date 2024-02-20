@@ -1,5 +1,4 @@
-﻿using Plugins.Easy_performant_outline.Scripts;
-using UnityEngine;
+﻿using UnityEngine;
 
 #if EPO_DOTWEEN // MODULE_MARKER
 

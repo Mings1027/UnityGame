@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 using System;
-using Plugins.Easy_performant_outline.Scripts;
 using UnityEngine.Profiling;
 using Unity.Collections;
 
@@ -60,7 +59,7 @@ namespace EPOOutline
 
         private static Vertex[] vertices = new Vertex[4096];
         private static Matrix4x4[] matrices = new Matrix4x4[4096];
-        private static int itemsToDraw;
+        private static int itemsToDraw = 0;
 
         private static bool? supportsInstancing;
 

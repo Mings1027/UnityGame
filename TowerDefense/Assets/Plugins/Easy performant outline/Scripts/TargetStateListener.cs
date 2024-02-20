@@ -1,39 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
-using EPOOutline;
 using UnityEngine;
 
-namespace Plugins.Easy_performant_outline.Scripts
+namespace EPOOutline
 {
     [ExecuteAlways]
     public class TargetStateListener : MonoBehaviour
     {
-        private struct Callback
+        public struct Callback
         {
-            public readonly Outlinable target;
-            public readonly Action action;
+            public readonly Outlinable Target;
+            public readonly Action Action;
 
             public Callback(Outlinable target, Action action)
             {
-                this.target = target;
-                this.action = action;
+                Target = target;
+                Action = action;
             }
         }
 
-        private readonly List<Callback> _callbacks = new List<Callback>();
+        private List<Callback> callbacks = new List<Callback>();
 
         public void AddCallback(Outlinable outlinable, Action action)
         {
-            _callbacks.Add(new Callback(outlinable, action));
+            callbacks.Add(new Callback(outlinable, action));
         }
 
         public void RemoveCallback(Outlinable outlinable, Action callback)
         {
-            var found = _callbacks.FindIndex(x => x.target == outlinable && x.action == callback);
+            var found = callbacks.FindIndex(x => x.Target == outlinable && x.Action == callback);
             if (found == -1)
                 return;
             
-            _callbacks.RemoveAt(found);
+            callbacks.RemoveAt(found);
         }
 
         private void Awake()
@@ -43,9 +42,9 @@ namespace Plugins.Easy_performant_outline.Scripts
 
         public void ForceUpdate()
         {
-            _callbacks.RemoveAll(x => x.target == null);
-            foreach (var callback in _callbacks)
-                callback.action();
+            callbacks.RemoveAll(x => x.Target == null);
+            foreach (var callback in callbacks)
+                callback.Action();
         }
 
         private void OnBecameVisible()

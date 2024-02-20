@@ -4,7 +4,6 @@ using UnityEngine.Rendering;
 using EPOOutline;
 using System;
 using System.Reflection;
-using Plugins.Easy_performant_outline.Scripts;
 
 #if URP_OUTLINE && UNITY_2019_1_OR_NEWER
 #if UNITY_2019_3_OR_NEWER

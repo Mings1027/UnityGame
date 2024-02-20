@@ -29,7 +29,9 @@ namespace UIControl
         private async UniTaskVoid FadeInScene()
         {
             _graphicRaycaster.enabled = true;
-            await fadeInImage.DOFade(0, 1).From(1).SetUpdate(true).SetDelay(1);
+            await UniTask.Delay(TimeSpan.FromSeconds(1));
+            fadeInImage.DOFade(0, 1).From(1).SetUpdate(true);
+            await UniTask.Delay(TimeSpan.FromSeconds(1));
             _graphicRaycaster.enabled = false;
         }
 

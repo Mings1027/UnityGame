@@ -10,14 +10,14 @@ namespace StatusControl
     {
         private CancellationTokenSource _cts;
 
-        public ushort ManaRegenValue { get; set; }
+        public ushort manaRegenValue { get; set; }
 
         [SerializeField] private TMP_Text manaText;
 
         protected override void OnEnable()
         {
             base.OnEnable();
-            ManaRegenValue = 1;
+            manaRegenValue = 1;
         }
 
         public override void Init(float amount)
@@ -45,7 +45,7 @@ namespace StatusControl
             while (!_cts.IsCancellationRequested)
             {
                 await UniTask.Delay(1000, cancellationToken: _cts.Token);
-                Heal(ManaRegenValue);
+                Heal(manaRegenValue);
             }
         }
 

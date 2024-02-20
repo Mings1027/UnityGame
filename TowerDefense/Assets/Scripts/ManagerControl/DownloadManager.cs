@@ -33,7 +33,6 @@ namespace ManagerControl
             _patchMap = new Dictionary<string, long>();
             startButton.onClick.AddListener(async () =>
             {
-                SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 connectionGroup.alpha = 0;
                 connectionGroup.blocksRaycasts = false;
                 await CheckUpdateFiles();
