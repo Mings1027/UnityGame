@@ -31,8 +31,7 @@ namespace TowerControl
             atkSequence.Restart();
             SoundManager.Play3DSound(audioClip, transform.position);
             var projectile = PoolObjectManager.Get<WizardProjectile>(projectileKey, firePos.position);
-            projectile.ColorInit(effectIndex);
-            projectile.Init(damage, target);
+            projectile.Init(towerDamage, effectIndex, target);
             projectile.DeBuffInit(effectIndex);
         }
 

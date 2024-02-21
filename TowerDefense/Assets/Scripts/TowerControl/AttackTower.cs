@@ -15,7 +15,7 @@ namespace TowerControl
         protected Cooldown patrolCooldown;
 
         public byte towerRange { get; private set; }
-        public int damage { get; private set; }
+        public int towerDamage { get; private set; }
         public sbyte towerLevel { get; private set; }
 
         protected override void Awake()
@@ -56,7 +56,7 @@ namespace TowerControl
             float cooldownData)
         {
             towerRange = rangeData;
-            damage = damageData;
+            towerDamage = damageData;
             attackCooldown.cooldownTime = cooldownData;
             _meshFilter.sharedMesh = towerMesh.sharedMesh;
 
@@ -65,7 +65,7 @@ namespace TowerControl
 
         public override void DisableObject()
         {
-            UIManager.instance.RemoveAttackTower(this);
+            UIManager.RemoveAttackTower(this);
             base.DisableObject();
         }
 

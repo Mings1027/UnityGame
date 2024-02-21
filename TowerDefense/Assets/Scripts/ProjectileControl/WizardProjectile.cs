@@ -18,6 +18,12 @@ namespace ProjectileControl
             _slowCoolTime = _decreaseSpeed;
         }
 
+        protected override void ProjectilePath(Vector3 endPos)
+        {
+            base.ProjectilePath(endPos);
+            transform.position = curPos;
+        }
+
         protected override void Hit(Collider t)
         {
             var mainModule = PoolObjectManager.Get<ParticleSystem>(hitPoolObjectKey, transform.position).main;

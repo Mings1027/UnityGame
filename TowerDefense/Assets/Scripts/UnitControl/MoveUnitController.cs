@@ -7,7 +7,6 @@ namespace UnitControl
 {
     public class MoveUnitController : MonoBehaviour
     {
-        private UIManager _uiManager;
         private Camera _cam;
         private Transform _camArm;
         private SummonTower _summonTower;
@@ -24,7 +23,6 @@ namespace UnitControl
 
         private void Start()
         {
-            _uiManager = UIManager.instance;
             _camArm = _cam.transform.parent;
             enabled = false;
         }
@@ -63,11 +61,11 @@ namespace UnitControl
             {
                 _summonTower.UnitMove(new Vector3(hit.point.x, 0, hit.point.z));
                 RewindCam();
-                _uiManager.OffUI();
+                UIManager.OffUI();
             }
             else
             {
-                _uiManager.UnitCannotMove();
+                UIManager.UnitCannotMove();
             }
         }
     }

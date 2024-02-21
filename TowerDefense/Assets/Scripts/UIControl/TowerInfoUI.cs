@@ -82,11 +82,6 @@ namespace UIControl
             _followTowerPos = towerPos;
         }
 
-        public void SetSupportInfoUI()
-        {
-            _statusInfoPanel.gameObject.SetActive(false);
-        }
-
         public void SetTowerInfo(AttackTower tower, TowerData towerData, sbyte level,
             ushort upgradeCost, ushort sellCost, string towerName)
         {
@@ -97,8 +92,8 @@ namespace UIControl
                 if (towerData.isUnitTower)
                 {
                     var unitTower = (SummonTower)tower;
-                    _healthText.text = (unitTower.UnitHealth * (level + 1)).ToString();
-                    _respawnText.text = unitTower.UnitReSpawnTime.ToString(CultureInfo.InvariantCulture);
+                    _healthText.text = (unitTower.unitHealth * (level + 1)).ToString();
+                    _respawnText.text = unitTower.unitReSpawnTime.ToString(CultureInfo.InvariantCulture);
                 }
                 else
                 {
@@ -117,19 +112,20 @@ namespace UIControl
             {
                 _towerType = towerType;
                 towerNameText.text = towerName;
-                var uiManager = UIManager.instance;
-                damageImage.sprite = uiManager.GetTowerType(towerType);
+                damageImage.sprite = UIManager.GetTowerType(towerType);
             }
 
             DisplayStarsForTowerLevel(level);
             goldText.text = upgradeCost + "G";
-            _damageText.text = tower.damage.ToString();
+            _damageText.text = tower.towerDamage.ToString();
             _rangeText.text = tower.towerRange.ToString();
             sellGoldText.text = sellCost + "G";
         }
 
         public void SetSupportTowerInfo(SupportTower tower, ushort sellCost, string towerName)
         {
+            _statusInfoPanel.gameObject.SetActive(false);
+
             var towerType = tower.towerType;
 
             if (!towerType.Equals(_towerType))

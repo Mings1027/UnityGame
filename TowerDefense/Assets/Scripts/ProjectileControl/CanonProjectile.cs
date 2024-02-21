@@ -33,7 +33,7 @@ namespace ProjectileControl
             _isLockOnTarget = false;
         }
 
-        protected override void FixedUpdate()
+        protected override void Update()
         {
             if (isArrived) return;
             if (lerp < 1)
@@ -59,6 +59,16 @@ namespace ProjectileControl
             Gizmos.DrawWireSphere(transform.position, atkRange);
         }
 
+        protected override void ProjectilePath(Vector3 endPos)
+        {
+            base.ProjectilePath(endPos);
+            var t = transform;
+            var dir = (curPos - t.position).normalized;
+            if (dir == Vector3.zero) return;
+            transform.SetPositionAndRotation(curPos, Quaternion.LookRotation(dir));
+
+        }
+
         protected override void Hit(Collider col)
         {
             var mainModule = PoolObjectManager.Get<ParticleSystem>(hitPoolObjectKey, transform.position).main;
@@ -79,9 +89,9 @@ namespace ProjectileControl
             }
         }
 
-        public override void Init(int dmg, Collider t)
+        public override void Init(int dmg, sbyte vfxIndex, Collider t)
         {
-            base.Init(dmg, t);
+            base.Init(dmg, vfxIndex, t);
             Physics.Raycast(t.bounds.center + t.transform.forward * 2 + Vector3.up * 2, Vector3.down, out var hit, 10);
             _targetEndPos = hit.point;
             _targetEndPos.y = 0;

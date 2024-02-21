@@ -17,7 +17,6 @@ using TMPro;
 using TowerControl;
 using UIControl;
 using UnitControl;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
@@ -28,9 +27,9 @@ namespace ManagerControl
 {
     public class UIManager : MonoBehaviour, IAddressableObject
     {
-#region Private Variable
-
         private static UIManager _instance;
+
+#region Private Variable
 
         private TowerManager _towerManager;
         private TowerCardController _towerCardController;
@@ -90,14 +89,10 @@ namespace ManagerControl
 
 #region Property
 
-        public static UIManager instance => _instance == null ? null : _instance;
-
-        public Dictionary<TowerType, TowerDataPrefab> towerDataPrefabDictionary { get; private set; }
-
-        public Dictionary<TowerType, string> towerNameDic { get; private set; }
-        public Dictionary<TowerType, string> towerInfoDic { get; private set; }
-
-        public bool enableMoveUnitController => _moveUnitController.enabled;
+        public static Dictionary<TowerType, TowerDataPrefab> towerDataPrefabDictionary { get; private set; }
+        public static Dictionary<TowerType, string> towerNameDic { get; private set; }
+        public static Dictionary<TowerType, string> towerInfoDic { get; private set; }
+        public static bool enableMoveUnitController => _instance._moveUnitController.enabled;
 
 #endregion
 
@@ -138,6 +133,7 @@ namespace ManagerControl
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
             GameStart();
             SoundManager.PlayBGM(SoundEnum.WaveEnd);
+            SoundManager.FadeInVolume(SoundManager.BGMKey).Forget();
         }
 
         private void UIManagerInit()
@@ -303,7 +299,7 @@ namespace ManagerControl
 
 #region Public Method
 
-        public async UniTaskVoid MapSelectButton(byte difficultyLevel)
+        public static async UniTaskVoid MapSelectButton(byte difficultyLevel)
         {
             var mapManager = FindAnyObjectByType<MapManager>();
             mapManager.MakeMap(difficultyLevel);
@@ -311,44 +307,46 @@ namespace ManagerControl
             switch (difficultyLevel)
             {
                 case 0:
-                    _gameHUD.towerGold = 2000;
+                    _instance._gameHUD.towerGold = 2000;
                     BackendGameData.scoreMultiplier = 10;
                     break;
                 case 1:
-                    _gameHUD.towerGold = 4000;
+                    _instance._gameHUD.towerGold = 4000;
                     BackendGameData.scoreMultiplier = 20;
                     break;
                 case 2:
-                    _gameHUD.towerGold = 5000;
+                    _instance._gameHUD.towerGold = 5000;
                     BackendGameData.scoreMultiplier = 30;
                     break;
                 case 3:
-                    _gameHUD.towerGold = 6000;
+                    _instance._gameHUD.towerGold = 6000;
                     BackendGameData.scoreMultiplier = 40;
                     break;
             }
 
             BackendGameData.instance.SetLevel(difficultyLevel);
-            await UniTask.Delay(500);
-            _gameHUD.DisplayHUD();
-            await _towerCardPanel.DOAnchorPosX(0, 0.5f).SetEase(Ease.OutBack);
-            _toggleTowerBtnImage.GetComponent<TutorialController>().TutorialButton();
+            await UniTask.Delay(500, cancellationToken: _instance._cts.Token);
+            _instance._gameHUD.DisplayHUD();
+            await _instance._towerCardPanel.DOAnchorPosX(0, 0.5f).SetEase(Ease.OutBack);
+            _instance._toggleTowerBtnImage.GetComponent<TutorialController>().TutorialButton();
             Input.multiTouchEnabled = true;
             CameraManager.isControlActive = true;
         }
 
-        public Sprite GetTowerType(TowerType t) =>
-            towerDataPrefabDictionary[t].towerData.isMagicTower ? _gameHUD.magicSprite : _gameHUD.physicalSprite;
+        public static Sprite GetTowerType(TowerType t) =>
+            towerDataPrefabDictionary[t].towerData.isMagicTower
+                ? _instance._gameHUD.magicSprite
+                : _instance._gameHUD.physicalSprite;
 
-        public void InstantiateTower(TowerType towerType, Vector3 placePos, Vector3 towerForward)
+        public static void InstantiateTower(TowerType towerType, Vector3 placePos, Vector3 towerForward)
         {
             var towerObject = Instantiate(towerDataPrefabDictionary[towerType].towerPrefab, placePos,
                 Quaternion.identity);
-            var lostGold = GetBuildGold(towerType);
-            _towerCountDictionary[towerType]++;
-            _gameHUD.towerGold -= lostGold;
+            var lostGold = _instance.GetBuildGold(towerType);
+            _instance._towerCountDictionary[towerType]++;
+            _instance._gameHUD.towerGold -= lostGold;
             PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, placePos).SetGoldText(lostGold, false);
-            _towerGoldTextDictionary[towerType].text = GetBuildGold(towerType) + "G";
+            _instance._towerGoldTextDictionary[towerType].text = _instance.GetBuildGold(towerType) + "G";
             var towerTransform = towerObject.transform;
             towerTransform.GetChild(0).position = towerTransform.position + new Vector3(0, 2, 0);
             towerTransform.GetChild(0).forward = towerForward;
@@ -358,106 +356,112 @@ namespace ManagerControl
                     .OnComplete(() =>
                     {
                         PoolObjectManager.Get(PoolObjectKey.BuildSmoke, placePos);
-                        _cam.transform.DOShakePosition(0.05f);
+                        _instance._cam.transform.DOShakePosition(0.05f);
 
                         if (towerObject.TryGetComponent(out AttackTower attackTower))
                         {
                             var towerData = towerDataPrefabDictionary[towerType].towerData;
-                            BuildTower(attackTower, towerData);
+                            _instance.BuildTower(attackTower, towerData);
                         }
-                        else
+                        else if (towerObject.TryGetComponent(out SupportTower supportTower))
                         {
-                            BuildSupportTower();
+                            _instance.BuildSupportTower(supportTower);
                         }
 
                         towerObject.TryGetComponent(out Tower tower);
-                        tower.OnClickTowerAction += ClickTower;
+                        tower.OnClickTowerAction += _instance.ClickTower;
                     }));
         }
 
-        public void UIOff()
+        public static void UIOff()
         {
             OffUI();
 
-            if (!_isShowTowerBtn)
+            if (!_instance._isShowTowerBtn)
             {
-                _toggleTowerBtnImage.DOFade(1, 0.2f).OnComplete(() => _toggleTowerBtnImage.raycastTarget = true);
+                _instance._toggleTowerBtnImage.DOFade(1, 0.2f)
+                    .OnComplete(() => _instance._toggleTowerBtnImage.raycastTarget = true);
             }
 
-            _gameHUD.DisplayHUD();
+            _instance._gameHUD.DisplayHUD();
         }
 
-        public void OffUI()
+        public static void OffUI()
         {
-            if (!_isPanelOpen) return;
-            _towerInfoGroup.blocksRaycasts = false;
-            _infoGroupTween.PlayBackwards();
-            _startMoveUnit = false;
-            _isPanelOpen = false;
-            if (_curSelectedTower) _curSelectedTower.DeActiveIndicator();
-            _curSelectedTower = null;
-            _towerRangeIndicator.DisableIndicator();
+            if (!_instance._isPanelOpen) return;
+            _instance._towerInfoGroup.blocksRaycasts = false;
+            _instance._infoGroupTween.PlayBackwards();
+            _instance._startMoveUnit = false;
+            _instance._isPanelOpen = false;
+            if (_instance._curSelectedTower) _instance._curSelectedTower.DeActiveIndicator();
+            _instance._curSelectedTower = null;
+            _instance._towerRangeIndicator.DisableIndicator();
 
-            if (!_curSummonTower) return;
-            _curSummonTower = null;
+            if (!_instance._curSummonTower) return;
+            _instance._curSummonTower = null;
         }
 
-        public void ShowTowerButton() => _isShowTowerBtn = true;
+        public static void ShowTowerButton() => _instance._isShowTowerBtn = true;
 
-        public async UniTaskVoid SlideDown()
+        public static async UniTaskVoid SlideDown()
         {
-            _isShowTowerBtn = false;
-            await UniTask.Delay(2000, cancellationToken: this.GetCancellationTokenOnDestroy());
+            _instance._isShowTowerBtn = false;
+            await UniTask.Delay(2000, cancellationToken: _instance._cts.Token);
 
-            if (!_isShowTowerBtn)
+            if (!_instance._isShowTowerBtn)
             {
-                await _toggleTowerBtnImage.DOFade(0, 1);
-                _toggleTowerBtnImage.raycastTarget = false;
+                await _instance._toggleTowerBtnImage.DOFade(0, 1);
+                _instance._toggleTowerBtnImage.raycastTarget = false;
             }
         }
 
-        public void UnitCannotMove() => _gameHUD.CannotMove();
+        public static void UnitCannotMove() => _instance._gameHUD.CannotMove();
 
-        public TowerHealth GetTowerHealth() => _gameHUD.towerHealth;
+        public static TowerHealth GetTowerHealth() => _instance._gameHUD.towerHealth;
 
-        public void TowerHeal()
+        public static void TowerHeal()
         {
-            _towerHealTween.Restart();
-            _gameHUD.towerHealth.Heal(5);
+            _instance._towerHealTween.Restart();
+            _instance._gameHUD.towerHealth.Heal(5);
         }
 
-        public Mana GetTowerMana() => _gameHUD.towerMana;
+        public static Mana GetTowerMana() => _instance._gameHUD.towerMana;
 
-        public bool IsEnoughGold(TowerType towerType)
+        public static bool IsEnoughGold(TowerType towerType)
         {
-            if (_gameHUD.towerGold >= GetBuildGold(towerType))
+            if (_instance._gameHUD.towerGold >= _instance.GetBuildGold(towerType))
             {
                 return true;
             }
 
-            _needMoreGoldSequence.Restart();
+            _instance._needMoreGoldSequence.Restart();
 
             return false;
         }
 
-        public void RemoveAttackTower(AttackTower attackTower)
+        public static void RemoveAttackTower(AttackTower attackTower)
         {
-            _towerManager.RemoveTower(attackTower);
+            _instance._towerManager.RemoveTower(attackTower);
         }
 
-        public void RemoveManaTower()
+        public static void RemoveManaTower()
         {
-            _gameHUD.towerMana.manaRegenValue--;
+            _instance._gameHUD.towerMana.manaRegenValue -= 2;
         }
 
-        public void SetTowerGold(int gold)
+        public static void BuildManaTower()
         {
-            _gameHUD.towerGold += gold;
+            _instance._gameHUD.towerMana.manaRegenValue += 2;
         }
 
-        public void SetWaveText(string wave)
+        public static void SetTowerGold(int gold)
         {
-            _gameHUD.waveText.text = wave;
+            _instance._gameHUD.towerGold += gold;
+        }
+
+        public static void SetWaveText(string wave)
+        {
+            _instance._gameHUD.waveText.text = wave;
         }
 
 #endregion
@@ -480,9 +484,9 @@ namespace ManagerControl
             _towerManager.AddTower(attackTower);
         }
 
-        private void BuildSupportTower()
+        private void BuildSupportTower(SupportTower supportTower)
         {
-            _gameHUD.towerMana.manaRegenValue++;
+            supportTower.TowerSetting();
         }
 
         private void TowerUpgrade()
@@ -564,7 +568,6 @@ namespace ManagerControl
         {
             _upgradeButton.SetActive(false);
             _moveUnitButton.SetActive(false);
-            _towerInfoUI.SetSupportInfoUI();
             var supportTower = (SupportTower)_curSelectedTower;
             _towerInfoUI.SetSupportTowerInfo(supportTower, _sellTowerGold, towerNameDic[supportTower.towerType]);
         }

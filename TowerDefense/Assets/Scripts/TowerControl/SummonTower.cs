@@ -24,8 +24,8 @@ namespace TowerControl
         private ReSpawnBar _unitReSpawnBar;
         private Transform _reSpawnBarTransform;
 
-        public int UnitHealth { get; private set; }
-        public float UnitReSpawnTime { get; private set; }
+        public int unitHealth { get; private set; }
+        public float unitReSpawnTime { get; private set; }
 
         [SerializeField, Range(1, 10)] private byte unitCount;
         [SerializeField, Range(0, 2)] private float unitRadius;
@@ -75,13 +75,13 @@ namespace TowerControl
             StatusBarUIController.Remove(_reSpawnBarTransform);
         }
 
-        private void UnitUpgrade(int damage, float delay)
+        private void UnitUpgrade(int unitDamage, float attackDelay)
         {
             var count = _units.Count;
             for (var i = count - 1; i >= 0; i--)
             {
-                var unitData = (SummoningTowerData)UIManager.instance.towerDataPrefabDictionary[towerType].towerData;
-                _units[i].UnitUpgrade(damage, unitData.curUnitHealth * (1 + towerLevel), delay);
+                var unitData = (SummoningTowerData)UIManager.towerDataPrefabDictionary[towerType].towerData;
+                _units[i].UnitUpgrade(unitDamage, unitData.curUnitHealth * (1 + towerLevel), attackDelay);
             }
         }
 
@@ -106,7 +106,7 @@ namespace TowerControl
             StatusBarUIController.Add(_unitReSpawnBar, _reSpawnBarTransform);
             _unitReSpawnBar.Init();
             _unitReSpawnBar.OnRespawnEvent += UnitReSpawn;
-            _unitReSpawnBar.StartLoading(UnitReSpawnTime);
+            _unitReSpawnBar.StartLoading(unitReSpawnTime);
         }
 
         private void UnitReSpawn()
@@ -118,14 +118,14 @@ namespace TowerControl
             if (_isUnitSpawn || _isReSpawning) return;
             if (_cts.IsCancellationRequested) return;
             UnitSpawn();
-            UnitUpgrade(damage, attackCooldown.cooldownTime);
+            UnitUpgrade(towerDamage, attackCooldown.cooldownTime);
         }
 
         public override void ActiveIndicator()
         {
             base.ActiveIndicator();
             var count = _units.Count;
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 _units[i].ActiveIndicator();
             }
@@ -135,7 +135,7 @@ namespace TowerControl
         {
             base.DeActiveIndicator();
             var count = _units.Count;
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 _units[i].DeActiveIndicator();
             }
@@ -151,9 +151,9 @@ namespace TowerControl
             _reSpawnBarTransform = transform.GetChild(1);
             _units = new List<TowerUnit>(unitCount);
 
-            var unitTowerData = (SummoningTowerData)UIManager.instance.towerDataPrefabDictionary[towerType].towerData;
-            UnitHealth = unitTowerData.curUnitHealth;
-            UnitReSpawnTime = unitTowerData.initReSpawnTime;
+            var unitTowerData = (SummoningTowerData)UIManager.towerDataPrefabDictionary[towerType].towerData;
+            unitHealth = unitTowerData.curUnitHealth;
+            unitReSpawnTime = unitTowerData.initReSpawnTime;
         }
 
         public override void TowerTargetInit()

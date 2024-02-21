@@ -54,7 +54,7 @@ namespace UIControl
                 .Join(_rectTransform.DOAnchorPosY(0, 0.25f).From(new Vector2(0, -100)));
             _slideSequence.OnComplete(() =>
             {
-                UIManager.instance.ShowTowerButton();
+                UIManager.ShowTowerButton();
                 _canvasGroup.blocksRaycasts = true;
             });
             _slideSequence.OnRewind(() => _canvasGroup.blocksRaycasts = false);
@@ -83,7 +83,7 @@ namespace UIControl
                
                 _slideSequence.PlayBackwards();
                 CloseTowerCard();
-                UIManager.instance.SlideDown().Forget();
+                UIManager.SlideDown().Forget();
             });
         }
 

@@ -18,9 +18,9 @@ namespace TowerControl
         protected override void Init()
         {
             base.Init();
-            var manaTowerData = (ManaUsingTowerData)UIManager.instance.towerDataPrefabDictionary[towerType].towerData;
+            var manaTowerData = (ManaUsingTowerData)UIManager.towerDataPrefabDictionary[towerType].towerData;
             _attackMana = manaTowerData.initMana;
-            _towerMana = UIManager.instance.GetTowerMana();
+            _towerMana = UIManager.GetTowerMana();
             firePos = transform.GetChild(2);
         }
 
@@ -38,7 +38,6 @@ namespace TowerControl
             if (size <= 0)
             {
                 target = null;
-                isTargeting = false;
                 return;
             }
 
@@ -64,7 +63,6 @@ namespace TowerControl
             }
 
             _isFlyingMonster = false;
-            isTargeting = true;
             beam.enabled = true;
             towerState = TowerState.Attack;
             patrolCooldown.StartCooldown();
@@ -100,7 +98,7 @@ namespace TowerControl
         protected override void Hit()
         {
             if (!target.TryGetComponent(out IDamageable damageable) || !target.enabled) return;
-            damageable.Damage((int)(_isFlyingMonster ? damage : damage * 0.5f));
+            damageable.Damage((int)(_isFlyingMonster ? towerDamage : towerDamage * 0.5f));
         }
     }
 }

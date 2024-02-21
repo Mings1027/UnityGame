@@ -112,6 +112,10 @@ namespace CustomEnumControl
         CanonHitParticle,
         WizardHitParticle,
         NuclearBomb,
+        
+        BallistaTrailParticle,
+        CanonTrailParticle,
+        WizardTrailParticle
     }
 
     public enum UIPoolObjectKey

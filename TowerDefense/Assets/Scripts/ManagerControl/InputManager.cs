@@ -122,9 +122,9 @@ namespace ManagerControl
         {
             _cursorMeshRenderer.enabled = true;
             _startPlacement = true;
-            UIManager.instance.OffUI();
+            UIManager.OffUI();
             _meshScaleTween.Restart();
-            if (!UIManager.instance.IsEnoughGold(towerType))
+            if (!UIManager.IsEnoughGold(towerType))
             {
                 _startPlacement = false;
                 return;
@@ -219,7 +219,7 @@ namespace ManagerControl
 
             if (!foundGround) towerForward = _checkDir[Random.Range(0, 4)];
 
-            UIManager.instance.InstantiateTower(_selectedTowerType, _worldGridPos, towerForward);
+            UIManager.InstantiateTower(_selectedTowerType, _worldGridPos, towerForward);
         }
     }
 }

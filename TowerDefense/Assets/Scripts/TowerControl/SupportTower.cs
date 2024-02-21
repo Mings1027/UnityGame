@@ -1,13 +1,10 @@
-using UIManager = ManagerControl.UIManager;
-
 namespace TowerControl
 {
-    public class SupportTower : Tower
+    public abstract class SupportTower : Tower
     {
-        public override void DisableObject()
+        public virtual void TowerSetting()
         {
-            UIManager.instance.RemoveManaTower();
-            base.DisableObject();
+            
         }
     }
 }

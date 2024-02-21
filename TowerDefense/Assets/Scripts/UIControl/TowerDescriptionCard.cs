@@ -60,11 +60,10 @@ namespace UIControl
             _buttonPos = buttonTransform.anchoredPosition;
 
             _towerType = towerType;
-            var uiManager = UIManager.instance;
 
-            towerNameText.text = uiManager.towerNameDic[towerType];
-            towerDescriptionText.text = uiManager.towerInfoDic[towerType];
-            var towerDataDic = uiManager.towerDataPrefabDictionary;
+            towerNameText.text = UIManager.towerNameDic[towerType];
+            towerDescriptionText.text = UIManager.towerInfoDic[towerType];
+            var towerDataDic = UIManager.towerDataPrefabDictionary;
             healthObj.SetActive(towerDataDic[towerType].towerData.isUnitTower);
             delayObj.SetActive(!towerDataDic[towerType].towerData.isUnitTower);
 
@@ -81,7 +80,7 @@ namespace UIControl
                     _delayText.text = battleTowerData.attackCooldown.ToString(CultureInfo.InvariantCulture);
                 }
 
-                damageImage.sprite = uiManager.GetTowerType(_towerType);
+                damageImage.sprite = UIManager.GetTowerType(_towerType);
                 _damageText.text = battleTowerData.curDamage.ToString();
             }
             else
@@ -104,10 +103,9 @@ namespace UIControl
 
         public void LocaleCardInfo()
         {
-            var uiManager = UIManager.instance;
             if (_towerType == TowerType.None) return;
-            towerNameText.text = uiManager.towerNameDic[_towerType];
-            towerDescriptionText.text = uiManager.towerInfoDic[_towerType];
+            towerNameText.text = UIManager.towerNameDic[_towerType];
+            towerDescriptionText.text = UIManager.towerInfoDic[_towerType];
         }
     }
 }

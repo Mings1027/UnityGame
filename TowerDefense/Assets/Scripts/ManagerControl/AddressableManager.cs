@@ -51,7 +51,7 @@ namespace ManagerControl
             if (BackendGameData.isRestart)
             {
                 BackendGameData.isRestart = false;
-                FindAnyObjectByType<UIManager>().MapSelectButton(BackendGameData.difficultyLevel).Forget();
+                UIManager.MapSelectButton(BackendGameData.difficultyLevel).Forget();
                 Destroy(FindAnyObjectByType<MapSelectPanel>().gameObject);
             }
 

@@ -34,16 +34,16 @@ namespace TowerControl
         *                                               Unity Event
         =========================================================================================================================================*/
 
-        #region Unity Event
+#region Unity Event
 
         private void OnDestroy()
         {
             atkSequence?.Kill();
         }
 
-        #endregion
+#endregion
 
-        #region Override Function
+#region Override Function
 
         protected override void Init()
         {
@@ -52,7 +52,7 @@ namespace TowerControl
             effectIndex = -1;
             _targetColliders = new Collider[targetColliderCount];
             patrolCooldown.cooldownTime = 0.5f;
-            var towerData = (TargetingTowerData)UIManager.instance.towerDataPrefabDictionary[towerType].towerData;
+            var towerData = (TargetingTowerData)UIManager.towerDataPrefabDictionary[towerType].towerData;
             projectileKey = towerData.poolObjectKey;
         }
 
@@ -76,7 +76,7 @@ namespace TowerControl
             }
         }
 
-        #region Tower State
+#region Tower State
 
         protected virtual void Detect()
         {
@@ -128,11 +128,10 @@ namespace TowerControl
             atkSequence.Restart();
             SoundManager.Play3DSound(audioClip, transform.position);
             var projectile = PoolObjectManager.Get<Projectile>(projectileKey, firePos.position);
-            projectile.ColorInit(effectIndex);
-            projectile.Init(damage, target);
+            projectile.Init(towerDamage, effectIndex, target);
         }
 
-        #endregion
+#endregion
 
         public override void TowerSetting(MeshFilter towerMesh, int damageData, byte rangeData,
             float cooldownData)
@@ -145,6 +144,6 @@ namespace TowerControl
             }
         }
 
-        #endregion
+#endregion
     }
 }

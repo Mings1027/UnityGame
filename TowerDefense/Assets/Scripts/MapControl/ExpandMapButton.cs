@@ -29,7 +29,7 @@ namespace MapControl
         {
             if (Input.touchCount > 1) return;
             if (!Input.GetTouch(0).deltaPosition.Equals(Vector2.zero)) return;
-            if (UIManager.instance.enableMoveUnitController) return;
+            if (UIManager.enableMoveUnitController) return;
             var position = transform.position;
             PoolObjectManager.Get(PoolObjectKey.ExpandMapSmoke, position);
             OnExpandMapEvent?.Invoke(transform.position);

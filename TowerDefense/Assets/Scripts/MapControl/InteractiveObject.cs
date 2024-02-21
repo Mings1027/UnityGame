@@ -31,7 +31,7 @@ namespace MapControl
             PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, transform.position).SetGoldText(gold);
             SoundManager.PlayUISound(gold < 100 ? SoundEnum.LowCost :
                 gold < 250 ? SoundEnum.MediumCost : SoundEnum.HighCost);
-            UIManager.instance.SetTowerGold(gold);
+            UIManager.SetTowerGold(gold);
         }
     }
 }

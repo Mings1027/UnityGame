@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Threading;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
-using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Audio;
-using Utilities;
 
 namespace ManagerControl
 {
@@ -26,8 +24,9 @@ namespace ManagerControl
             public AudioClip musicClip;
         }
 
-        private static CancellationTokenSource _cts;
-        private static Camera _cam;
+        private static SoundManager _inst;
+        private CancellationTokenSource _cts;
+        private Camera _cam;
 
         public const string BGMKey = "BGM";
         public const string SfxKey = "SFX";
@@ -35,17 +34,16 @@ namespace ManagerControl
         private const float MinValue = -80f;
         private const float MaxValue = 0f;
 
-        private static float _inverseMaxMinusMin;
+        private float _inverseMaxMinusMin;
 
-        private static Dictionary<SoundEnum, AudioClip> _musicDictionary;
-        private static Dictionary<SoundEnum, AudioClip> _effectDictionary;
+        private Dictionary<SoundEnum, AudioClip> _musicDictionary;
+        private Dictionary<SoundEnum, AudioClip> _effectDictionary;
 
-        private static AudioSource _musicSource, _effectSource;
-        private static AudioMixer _audioMixer;
-        private static byte _maxDis;
+        private AudioSource _musicSource, _effectSource;
+        private byte _maxDis;
 
-        private static int _bgmVolume;
-        private static int _sfxVolume;
+        private int _bgmVolume;
+        private int _sfxVolume;
 
         [SerializeField] private MusicSound[] musicSounds;
         [SerializeField] private EffectSound[] effectSounds;
@@ -62,7 +60,7 @@ namespace ManagerControl
 
         private void Awake()
         {
-            _audioMixer = audioMixer;
+            _inst = this;
             _inverseMaxMinusMin = 1.0f / (maxDistance - minDistance);
             _musicSource = transform.Find("Music Source").GetComponent<AudioSource>();
             _effectSource = transform.Find("Effect Source").GetComponent<AudioSource>();
@@ -87,40 +85,40 @@ namespace ManagerControl
             _cts?.Cancel();
         }
 
-        public static void MuteBGM(bool value) => _musicSource.mute = value;
+        public static void MuteBGM(bool value) => _inst._musicSource.mute = value;
 
         public static void PlayBGM(SoundEnum clipName)
         {
-            _musicSource.clip = _musicDictionary[clipName];
-            _musicSource.Play();
+            _inst._musicSource.clip = _inst._musicDictionary[clipName];
+            _inst._musicSource.Play();
         }
 
         public static void PlayUISound(SoundEnum clipName)
         {
-            _effectSource.clip = _effectDictionary[clipName];
-            _effectSource.Play();
+            _inst._effectSource.clip = _inst._effectDictionary[clipName];
+            _inst._effectSource.Play();
         }
 
         public static void Play3DSound(AudioClip audioClip, Vector3 position)
         {
-            var distance = Vector3.Distance(_cam.transform.position, position);
-            if (distance > _maxDis) return;
-            var soundScale = Mathf.Clamp01((_maxDis - distance) * _inverseMaxMinusMin);
+            var distance = Vector3.Distance(_inst._cam.transform.position, position);
+            if (distance > _inst._maxDis) return;
+            var soundScale = Mathf.Clamp01((_inst._maxDis - distance) * _inst._inverseMaxMinusMin);
             soundScale *= 0.5f;
-            _effectSource.PlayOneShot(audioClip, soundScale);
+            _inst._effectSource.PlayOneShot(audioClip, soundScale);
         }
 
         public static void SetBGMVolume(float value)
         {
             var mappedValue = Mathf.Lerp(MinValue, MaxValue, value);
-            _audioMixer.SetFloat(BGMKey, mappedValue);
+            _inst.audioMixer.SetFloat(BGMKey, mappedValue);
             PlayerPrefs.SetInt(BGMKey, (int)mappedValue);
         }
 
         public static void SetSfxVolume(float value)
         {
             var mappedValue = Mathf.Lerp(MinValue, MaxValue, value);
-            _audioMixer.SetFloat(SfxKey, mappedValue);
+            _inst.audioMixer.SetFloat(SfxKey, mappedValue);
             PlayerPrefs.SetInt(SfxKey, (int)mappedValue);
         }
 
@@ -131,14 +129,14 @@ namespace ManagerControl
 
         public static (float, float) GetVolume()
         {
-            _bgmVolume = PlayerPrefs.GetInt(BGMKey);
-            _sfxVolume = PlayerPrefs.GetInt(SfxKey);
+            _inst._bgmVolume = PlayerPrefs.GetInt(BGMKey);
+            _inst._sfxVolume = PlayerPrefs.GetInt(SfxKey);
 
-            _audioMixer.SetFloat(BGMKey, _bgmVolume);
-            _audioMixer.SetFloat(SfxKey, _sfxVolume);
+            _inst.audioMixer.SetFloat(BGMKey, _inst._bgmVolume);
+            _inst.audioMixer.SetFloat(SfxKey, _inst._sfxVolume);
 
-            var convertBgmValue = Mathf.InverseLerp(MinValue, MaxValue, _bgmVolume);
-            var convertSfxValue = Mathf.InverseLerp(MinValue, MaxValue, _sfxVolume);
+            var convertBgmValue = Mathf.InverseLerp(MinValue, MaxValue, _inst._bgmVolume);
+            var convertSfxValue = Mathf.InverseLerp(MinValue, MaxValue, _inst._sfxVolume);
 
             return (convertBgmValue, convertSfxValue);
         }
@@ -147,19 +145,19 @@ namespace ManagerControl
         {
             var volume = audioType switch
             {
-                BGMKey => _bgmVolume,
-                SfxKey => _sfxVolume,
+                BGMKey => _inst._bgmVolume,
+                SfxKey => _inst._sfxVolume,
                 _ => 0
             };
 
-            _cts?.Cancel();
-            _cts?.Dispose();
-            _cts = new CancellationTokenSource();
-            while (volume > -80 && !_cts.IsCancellationRequested)
+            _inst._cts?.Cancel();
+            _inst._cts?.Dispose();
+            _inst._cts = new CancellationTokenSource();
+            while (volume > -80 && !_inst._cts.IsCancellationRequested)
             {
                 volume--;
-                await UniTask.Yield(cancellationToken: _cts.Token);
-                _audioMixer.SetFloat(audioType, volume);
+                await UniTask.Yield(cancellationToken: _inst._cts.Token);
+                _inst.audioMixer.SetFloat(audioType, volume);
             }
         }
 
@@ -168,19 +166,19 @@ namespace ManagerControl
             var lowVolume = -80;
             var volume = audioType switch
             {
-                BGMKey => _bgmVolume,
-                SfxKey => _sfxVolume,
+                BGMKey => _inst._bgmVolume,
+                SfxKey => _inst._sfxVolume,
                 _ => 0
             };
 
-            _cts?.Cancel();
-            _cts?.Dispose();
-            _cts = new CancellationTokenSource();
-            while (lowVolume < volume && !_cts.IsCancellationRequested)
+            _inst._cts?.Cancel();
+            _inst._cts?.Dispose();
+            _inst._cts = new CancellationTokenSource();
+            while (lowVolume < volume && !_inst._cts.IsCancellationRequested)
             {
                 lowVolume++;
-                await UniTask.Yield(cancellationToken: _cts.Token);
-                _audioMixer.SetFloat(audioType, lowVolume);
+                await UniTask.Yield(cancellationToken: _inst._cts.Token);
+                _inst.audioMixer.SetFloat(audioType, lowVolume);
             }
         }
     }

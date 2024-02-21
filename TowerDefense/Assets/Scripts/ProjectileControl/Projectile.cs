@@ -1,43 +1,37 @@
+using CustomEnumControl;
 using DataControl.TowerDataControl;
-using DG.Tweening;
 using InterfaceControl;
+using PoolObjectControl;
 using UnityEngine;
 
 namespace ProjectileControl
 {
     public abstract class Projectile : MonoBehaviour
     {
-        private ParticleSystemRenderer _meshParticle;
-        private ParticleSystem _trailParticle;
+        private TrailController _trailObj;
 
-        private Tween _destroyTween;
-
-        private Vector3 _curPos;
         private Vector3 _startPos;
         private Vector3 _centerPos;
 
+        protected Collider target;
+        protected Vector3 curPos;
         protected sbyte effectIndex;
         protected bool isArrived;
         protected int damage;
         protected float lerp;
-        protected Collider target;
 
         [SerializeField] protected TargetingTowerData towerData;
         [SerializeField, Range(0, 50)] private byte height;
         [SerializeField] private float speed;
+        [SerializeField] private PoolObjectKey trailPoolObjectKey;
 
         protected virtual void Awake()
         {
-            _meshParticle = transform.GetChild(0).GetComponent<ParticleSystemRenderer>();
-            _trailParticle = transform.GetChild(1).GetComponent<ParticleSystem>();
-            _destroyTween = DOVirtual.DelayedCall(2, () => gameObject.SetActive(false)).SetAutoKill(false).Pause();
         }
 
         protected virtual void OnEnable()
         {
-            _meshParticle.enabled = true;
             _startPos = transform.position;
-            _trailParticle.Play();
             lerp = 0;
         }
 
@@ -46,7 +40,7 @@ namespace ProjectileControl
             isArrived = false;
         }
 
-        protected virtual void FixedUpdate()
+        protected virtual void Update()
         {
             if (isArrived) return;
             if (lerp < 1)
@@ -63,39 +57,34 @@ namespace ProjectileControl
          *                                  Unity Event
          ============================================================================================================*/
 
-        protected void ProjectilePath(Vector3 endPos)
+        protected virtual void ProjectilePath(Vector3 endPos)
         {
             var gravity = Mathf.Lerp(0.8f, 1.5f, lerp);
             lerp += Time.deltaTime * gravity * speed;
             _centerPos = (_startPos + endPos) * 0.5f + Vector3.up * height;
-            _curPos = Vector3.Lerp(Vector3.Lerp(_startPos, _centerPos, lerp),
+            curPos = Vector3.Lerp(Vector3.Lerp(_startPos, _centerPos, lerp),
                 Vector3.Lerp(_centerPos, endPos, lerp), lerp);
-            var t = transform;
-            var dir = (_curPos - t.position).normalized;
-            if (dir == Vector3.zero) return;
-            t.position = _curPos;
-            _meshParticle.transform.rotation = Quaternion.LookRotation(dir);
         }
 
         protected void DisableProjectile()
         {
             isArrived = true;
             lerp = 0;
-            _meshParticle.enabled = false;
-            _destroyTween.Restart();
             Hit(target);
+            _trailObj.DisconnectProjectile();
+            gameObject.SetActive(false);
         }
 
-        public virtual void Init(int dmg, Collider t)
+        public virtual void Init(int dmg, sbyte vfxIndex, Collider t)
         {
             damage = dmg;
-            target = t;
-        }
-
-        public void ColorInit(sbyte vfxIndex)
-        {
             effectIndex = vfxIndex;
-            var trailColor = _trailParticle.colorOverLifetime;
+            target = t;
+
+            _trailObj = PoolObjectManager.Get<TrailController>(trailPoolObjectKey, _startPos);
+            _trailObj.SetProjectileTransform(transform);
+
+            var trailColor = _trailObj.colorOverLifetime;
             trailColor.color = towerData.projectileColor[vfxIndex];
         }
 

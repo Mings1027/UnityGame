@@ -8,7 +8,6 @@ namespace TowerControl
         protected Collider[] targetColliders;
         protected TowerState towerState;
         protected LayerMask targetLayer;
-        protected bool isTargeting;
         protected Collider target;
         protected Transform firePos;
 
@@ -40,7 +39,6 @@ namespace TowerControl
         {
             towerState = TowerState.Detect;
             target = null;
-            isTargeting = false;
         }
 
         protected virtual void Detect()
