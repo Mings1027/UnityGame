@@ -31,11 +31,7 @@ namespace LobbyUIControl
                 .Append(shopPanelGroup.DOFade(1, 0.25f).From(0).SetEase(Ease.Linear))
                 .Join(shopPanelGroup.GetComponent<RectTransform>().DOAnchorPosX(0, 0.25f).From(new Vector2(100, 0)));
             _panelSequence.OnComplete(() => shopPanelGroup.blocksRaycasts = true);
-            _panelSequence.OnRewind(() =>
-            {
-                shopPanelGroup.blocksRaycasts = false;
-                _lobbyUI.OffBlockImage();
-            });
+            _panelSequence.OnRewind(() => { _lobbyUI.OffBlockImage(); });
 
             diamondButton.onClick.AddListener(OpenGoldPanel);
             closeButton.onClick.AddListener(ClosePanel);
@@ -82,6 +78,7 @@ namespace LobbyUIControl
             _lobbyUI.OffBackgroundImage();
             _lobbyUI.SetActiveButtons(true, false);
             _lobbyUI.On();
+            shopPanelGroup.blocksRaycasts = false;
             _panelSequence.PlayBackwards();
         }
     }

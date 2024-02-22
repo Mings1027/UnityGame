@@ -5,10 +5,6 @@ namespace DataControl.MonsterDataControl
     [CreateAssetMenu(menuName = "MonsterData/Boss Monster Data")]
     public class BossMonsterData : MonsterData
     {
-        public GameObject EnemyPrefab => enemyPrefab;
-        public ushort DroppedGold => droppedGold;
-        
-        [SerializeField] private GameObject enemyPrefab;
-        [SerializeField] private ushort droppedGold;
+        [field: SerializeField] public ushort droppedGold { get; private set; }
     }
 }

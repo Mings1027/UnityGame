@@ -24,7 +24,7 @@ namespace IAPControl
         private const string Diamonds2000 = "diamonds2000";
         private const string Diamonds5000 = "diamonds5000";
         private const string Diamonds12000 = "diamonds12000";
-        private const string Diamonds50000 = "diamonds50000";
+        private const string Diamonds30000 = "diamonds30000";
         private IStoreController _storeController;
         [SerializeField] private Image blockImage;
         [SerializeField] private Image loadingImage;
@@ -53,7 +53,7 @@ namespace IAPControl
             builder.AddProduct(Diamonds2000, ProductType.Consumable);
             builder.AddProduct(Diamonds5000, ProductType.Consumable);
             builder.AddProduct(Diamonds12000, ProductType.Consumable);
-            builder.AddProduct(Diamonds50000, ProductType.Consumable);
+            builder.AddProduct(Diamonds30000, ProductType.Consumable);
 
             UnityPurchasing.Initialize(this, builder);
         }
@@ -65,10 +65,7 @@ namespace IAPControl
                 var diamondItemParent = contents.GetChild(i);
                 if (diamondItemParent.TryGetComponent(out DiamondItem diamondItem))
                 {
-                    diamondItem.purchaseButton.onClick.AddListener(() =>
-                    {
-                        Purchase(diamondItem.productId);
-                    });
+                    diamondItem.purchaseButton.onClick.AddListener(() => Purchase(diamondItem.productId));
                 }
             }
         }
@@ -92,8 +89,7 @@ namespace IAPControl
             {
                 if (contents.GetChild(i).TryGetComponent(out DiamondItem diamondItem))
                 {
-                    _priceDic.Add(diamondItem.productId,
-                        diamondItem.transform.Find("Purchase Button").GetChild(0).GetComponent<TMP_Text>());
+                    _priceDic.Add(diamondItem.productId, diamondItem.priceText);
                 }
             }
 

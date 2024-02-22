@@ -39,11 +39,7 @@ namespace LobbyUIControl
                 .Append(shopPanelGroup.DOFade(1, 0.25f).From(0))
                 .Join(shopPanelRect.DOAnchorPosX(0, 0.25f).From(new Vector2(100, 0)));
             _shopPanelSequence.OnComplete(() => shopPanelGroup.blocksRaycasts = true);
-            _shopPanelSequence.OnRewind(() =>
-            {
-                shopPanelGroup.blocksRaycasts = false;
-                _lobbyUI.OffBlockImage();
-            });
+            _shopPanelSequence.OnRewind(() => { _lobbyUI.OffBlockImage(); });
             emeraldButton.onClick.AddListener(OpenPanel);
             closeButton.onClick.AddListener(ClosePanel);
             minusButton.onClick.AddListener(MinusQuantity);
@@ -113,6 +109,7 @@ namespace LobbyUIControl
             _lobbyUI.SetActiveButtons(true, false);
             _lobbyUI.On();
             _lobbyUI.OffBackgroundImage();
+            shopPanelGroup.blocksRaycasts = false;
             _shopPanelSequence.PlayBackwards();
         }
 

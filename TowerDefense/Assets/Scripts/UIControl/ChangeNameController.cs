@@ -34,11 +34,7 @@ namespace UIControl
                 .Join(namePanelRect.DOAnchorPosX(0, 0.25f).From(new Vector2(-100, 0)));
 
             _changeNamePanelSequence.OnComplete(() => changeNamePanelGroup.blocksRaycasts = true);
-            _changeNamePanelSequence.OnRewind(() =>
-            {
-                _lobbyUI.OffBlockImage();
-                changeNamePanelGroup.blocksRaycasts = false;
-            });
+            _changeNamePanelSequence.OnRewind(() => { _lobbyUI.OffBlockImage(); });
             changeNamePanelGroup.blocksRaycasts = false;
             userNameField.text = BackendLogin.instance.GetUserNickName();
             userNameField.onSelect.AddListener(GetCurNickName);
@@ -63,6 +59,7 @@ namespace UIControl
         {
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
             _lobbyUI.OffBackgroundImage();
+            changeNamePanelGroup.blocksRaycasts = false;
             _changeNamePanelSequence.PlayBackwards();
         }
 

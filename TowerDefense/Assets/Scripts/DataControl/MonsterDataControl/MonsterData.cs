@@ -1,17 +1,14 @@
+using CustomEnumControl;
 using UnityEngine;
 
 namespace DataControl.MonsterDataControl
 {
     public abstract class MonsterData : ScriptableObject
     {
-        public float Speed => speed;
-        public float AttackDelay => attackDelay;
-        public ushort Damage => damage;
-        public int Health => health;
-
-        [Range(0, 5)] [SerializeField] private float speed;
-        [SerializeField] private float attackDelay;
-        [SerializeField] private ushort damage;
-        [SerializeField] private int health;
+        [field: SerializeField] public MonsterPoolObjectKey monsterPoolObjectKey { get; private set; }
+        [field: SerializeField, Range(0, 5)] public float speed { get; private set; }
+        [field: SerializeField, Range(0, 10)] public float attackDelay { get; private set; }
+        [field: SerializeField] public ushort damage { get; private set; }
+        [field: SerializeField] public uint health { get; private set; }
     }
 }

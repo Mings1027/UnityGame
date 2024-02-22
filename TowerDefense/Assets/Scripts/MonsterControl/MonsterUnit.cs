@@ -58,9 +58,9 @@ namespace MonsterControl
                 .Join(transform.DOScale(0, 1).From(transform.localScale))
                 .OnComplete(() =>
                 {
-                    DisableObject();
                     _childMeshTransform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
                     transform.localScale = Vector3.one;
+                    DisableObject();
                 });
         }
 
@@ -94,10 +94,10 @@ namespace MonsterControl
         {
             navMeshAgent.enabled = true;
             unitState = UnitState.Patrol;
-            navMeshAgent.speed = monsterData.Speed;
+            navMeshAgent.speed = monsterData.speed;
             SetSpeed(navMeshAgent.speed, attackCooldown.cooldownTime);
-            attackCooldown.cooldownTime = monsterData.AttackDelay;
-            damage = monsterData.Damage;
+            attackCooldown.cooldownTime = monsterData.attackDelay;
+            damage = monsterData.damage;
             if (navMeshAgent.isOnNavMesh) navMeshAgent.SetDestination(Vector3.zero);
             anim.SetBool(_isWalk, true);
         }

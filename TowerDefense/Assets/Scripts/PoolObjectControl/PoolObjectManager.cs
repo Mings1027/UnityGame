@@ -291,7 +291,7 @@ namespace PoolObjectControl
         {
             foreach (var t in monsterData)
             {
-                var monsterKey = t.MonsterPoolObjectKey;
+                var monsterKey = t.monsterPoolObjectKey;
                 var outOfRange = _inst._monsterPrefabDictionary[monsterKey].Count > 0;
                 while (outOfRange)
                 {

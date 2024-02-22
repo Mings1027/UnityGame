@@ -5,7 +5,6 @@ using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DataControl.MonsterDataControl;
 using InterfaceControl;
-using ItemControl;
 using MonsterControl;
 using PoolObjectControl;
 using StatusControl;
@@ -18,7 +17,7 @@ using Random = UnityEngine.Random;
 namespace ManagerControl
 {
     [Serializable]
-    public class Wave
+    public class MonsterThemeData
     {
         public NormalMonsterData[] normalMonsterData;
         public byte startBossWave;
@@ -44,7 +43,7 @@ namespace ManagerControl
         public static byte curWave { get; private set; }
         public bool isStartWave { get; private set; }
 
-        [SerializeField] private Wave[] monsterData;
+        [SerializeField] private MonsterThemeData[] monstersData;
 
 #region Unity Event
 
@@ -96,13 +95,13 @@ namespace ManagerControl
             if (_isBossWave)
             {
                 _isBossWave = false;
-                PoolObjectManager.MonsterPoolCleaner(monsterData[_themeIndex].normalMonsterData).Forget();
+                PoolObjectManager.MonsterPoolCleaner(monstersData[_themeIndex].normalMonsterData).Forget();
                 _themeIndex++;
             }
 
             curWave++;
-            _isBossWave = curWave == monsterData[_themeIndex].startBossWave;
-            _isLastWave = _themeIndex == monsterData.Length - 1 && _isBossWave;
+            _isBossWave = curWave == monstersData[_themeIndex].startBossWave;
+            _isLastWave = _themeIndex == monstersData.Length - 1 && _isBossWave;
 
             SoundManager.PlayBGM(_isBossWave ? SoundEnum.BossTheme : SoundEnum.WaveStart);
             await UniTask.Delay(500);
@@ -152,16 +151,16 @@ namespace ManagerControl
 
         private async UniTaskVoid SpawnEnemy(IReadOnlyList<Vector3> wayPoints)
         {
-            var normalMonsterDataLength = monsterData[_themeIndex].normalMonsterData.Length;
+            var normalMonsterDataLength = monstersData[_themeIndex].normalMonsterData.Length;
 
             for (var i = 0; i < _themeIndex + 1; i++)
             {
                 for (var normalDataIndex = 0; normalDataIndex < normalMonsterDataLength; normalDataIndex++)
                 {
                     await UniTask.Delay(500, cancellationToken: _cts.Token);
-                    var normalMonsterData = monsterData[_themeIndex].normalMonsterData[normalDataIndex];
+                    var normalMonsterData = monstersData[_themeIndex].normalMonsterData[normalDataIndex];
 
-                    if (normalMonsterData.StartSpawnWave > curWave) continue;
+                    if (normalMonsterData.startSpawnWave > curWave) continue;
                     var wayPointCount = wayPoints.Count;
 
                     for (var wayPoint = 0; wayPoint < wayPointCount; wayPoint++)
@@ -170,8 +169,9 @@ namespace ManagerControl
                         NavMesh.SamplePosition(ranPoint, out var hit, 5, NavMesh.AllAreas);
                         PoolObjectManager.Get(PoolObjectKey.TransformSmoke, hit.position);
                         var monster =
-                            PoolObjectManager.Get<MonsterUnit>(normalMonsterData.MonsterPoolObjectKey, hit.position);
+                            PoolObjectManager.Get<MonsterUnit>(normalMonsterData.monsterPoolObjectKey, hit.position);
                         MonsterInit(monster, normalMonsterData);
+                        NormalMonsterInit(monster, normalMonsterData);
                     }
                 }
             }
@@ -184,21 +184,25 @@ namespace ManagerControl
             var ranPoint = ranWayPoint + Random.insideUnitSphere * 3;
             NavMesh.SamplePosition(ranPoint, out var hit, 5, NavMesh.AllAreas);
             PoolObjectManager.Get(PoolObjectKey.TransformSmoke, hit.position);
-            Instantiate(monsterData[_themeIndex].bossMonsterData.EnemyPrefab, hit.position,
-                Quaternion.identity).TryGetComponent(out GroundBossUnit groundBossUnit);
-            BossInit(groundBossUnit, monsterData[_themeIndex].bossMonsterData);
+            var monster = PoolObjectManager.Get<MonsterUnit>(
+                monstersData[_themeIndex].bossMonsterData.monsterPoolObjectKey, hit.position);
+            MonsterInit(monster, monstersData[_themeIndex].bossMonsterData);
+            BossMonsterInit(monster, monstersData[_themeIndex].bossMonsterData);
         }
 
-        private void MonsterInit(MonsterUnit monsterUnit, NormalMonsterData normalMonsterData)
+        private void MonsterInit(MonsterUnit monsterUnit, MonsterData monsterData)
         {
             _monsterList.Add(monsterUnit);
             monsterUnit.Init();
-            monsterUnit.SpawnInit(normalMonsterData);
+            monsterUnit.SpawnInit(monsterData);
             if (monsterUnit.TryGetComponent(out MonsterStatus monsterStatus))
             {
-                monsterStatus.StatInit(normalMonsterData.Speed, normalMonsterData.AttackDelay);
+                monsterStatus.StatInit(monsterData.speed, monsterData.attackDelay);
             }
+        }
 
+        private void NormalMonsterInit(MonsterUnit monsterUnit, NormalMonsterData normalMonsterData)
+        {
             var healthBarTransform = monsterUnit.healthBarTransform;
             var healthBar = PoolObjectManager.Get<HealthBar>(UIPoolObjectKey.MonsterHealthBar,
                 healthBarTransform.position);
@@ -208,11 +212,11 @@ namespace ManagerControl
             }
 
             monsterUnit.TryGetComponent(out UnitHealth monsterHealth);
-            monsterHealth.Init(normalMonsterData.Health);
+            monsterHealth.Init(normalMonsterData.health);
             StatusBarUIController.Add(healthBar, healthBarTransform);
             monsterHealth.OnDeadEvent += () =>
             {
-                var gold = normalMonsterData.StartSpawnWave;
+                var gold = normalMonsterData.startSpawnWave;
                 PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText,
                         monsterUnit.transform.position + Random.insideUnitSphere)
                     .SetGoldText(gold);
@@ -234,16 +238,8 @@ namespace ManagerControl
             };
         }
 
-        private void BossInit(MonsterUnit monsterUnit, BossMonsterData bossMonsterData)
+        private void BossMonsterInit(MonsterUnit monsterUnit, BossMonsterData bossMonsterData)
         {
-            _monsterList.Add(monsterUnit);
-            monsterUnit.Init();
-            monsterUnit.SpawnInit(bossMonsterData);
-            if (monsterUnit.TryGetComponent(out MonsterStatus monsterStatus))
-            {
-                monsterStatus.StatInit(bossMonsterData.Speed, bossMonsterData.AttackDelay);
-            }
-
             var healthBarTransform = monsterUnit.healthBarTransform;
             var healthBar = PoolObjectManager.Get<HealthBar>(UIPoolObjectKey.BossHealthBar,
                 healthBarTransform.position);
@@ -253,11 +249,11 @@ namespace ManagerControl
             }
 
             monsterUnit.TryGetComponent(out UnitHealth monsterHealth);
-            monsterHealth.Init(bossMonsterData.Health);
+            monsterHealth.Init(bossMonsterData.health);
             StatusBarUIController.Add(healthBar, healthBarTransform);
             monsterHealth.OnDeadEvent += () =>
             {
-                var gold = bossMonsterData.DroppedGold;
+                var gold = bossMonsterData.droppedGold;
                 PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText,
                         monsterUnit.transform.position + Random.insideUnitSphere)
                     .SetGoldText(gold);
@@ -283,9 +279,10 @@ namespace ManagerControl
                 NavMesh.SamplePosition(ranPosition, out var hit, 5, NavMesh.AllAreas);
                 PoolObjectManager.Get(PoolObjectKey.TransformSmoke, hit.position);
                 var monster =
-                    PoolObjectManager.Get<MonsterUnit>(transformMonster.transformMonsterData.MonsterPoolObjectKey,
+                    PoolObjectManager.Get<MonsterUnit>(transformMonster.transformMonsterData.monsterPoolObjectKey,
                         hit.position);
                 MonsterInit(monster, transformMonster.transformMonsterData);
+                NormalMonsterInit(monster, transformMonster.transformMonsterData);
             }
         }
 

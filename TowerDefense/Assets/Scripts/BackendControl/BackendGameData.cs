@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Text;
 using BackEnd;
 using CustomEnumControl;
-using UnityEngine;
 using Utilities;
 
 namespace BackendControl
@@ -55,7 +54,6 @@ namespace BackendControl
         private byte _difficultyLevel; // 0 1 2 3
 
         public static UserData userData { get; private set; }
-        public static byte scoreMultiplier { get; set; }
         public static int curTbc { get; set; }
         public static byte difficultyLevel { get; private set; }
         public static bool isRestart { get; set; }
@@ -78,7 +76,7 @@ namespace BackendControl
 
         private void CalculateTotalScore(byte wave)
         {
-            var totalScore = wave * scoreMultiplier;
+            var totalScore = wave * (_difficultyLevel + 1) * 10;
             var userScore = userData.score;
             if (userScore < totalScore)
             {

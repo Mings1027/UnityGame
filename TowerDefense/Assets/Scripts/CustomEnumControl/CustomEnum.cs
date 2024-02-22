@@ -155,5 +155,9 @@ namespace CustomEnumControl
         Santa,
         Reindeer,
         SnowMan,
+        
+        BossOoogie,
+        BossReaperOoogie,
+        BossSphinx
     }
 }

@@ -92,7 +92,6 @@ namespace LobbyUIControl
             _settingPanelSequence.OnComplete(() => _settingPanelGroup.blocksRaycasts = true);
             _settingPanelSequence.OnRewind(() =>
             {
-                _settingPanelGroup.blocksRaycasts = false;
                 _lobbyUI.OffBlockImage();
             });
         }
@@ -108,6 +107,7 @@ namespace LobbyUIControl
         {
             _lobbyUI.OffBackgroundImage();
             _lobbyUI.SetActiveButtons(true, false);
+            _settingPanelGroup.blocksRaycasts = false;
             _settingPanelSequence.PlayBackwards();
             if (_tabGroupItemQueue.Count > 0)
             {

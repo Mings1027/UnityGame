@@ -304,25 +304,14 @@ namespace ManagerControl
             var mapManager = FindAnyObjectByType<MapManager>();
             mapManager.MakeMap(difficultyLevel);
 
-            switch (difficultyLevel)
+            _instance._gameHUD.towerGold = difficultyLevel switch
             {
-                case 0:
-                    _instance._gameHUD.towerGold = 2000;
-                    BackendGameData.scoreMultiplier = 10;
-                    break;
-                case 1:
-                    _instance._gameHUD.towerGold = 4000;
-                    BackendGameData.scoreMultiplier = 20;
-                    break;
-                case 2:
-                    _instance._gameHUD.towerGold = 5000;
-                    BackendGameData.scoreMultiplier = 30;
-                    break;
-                case 3:
-                    _instance._gameHUD.towerGold = 6000;
-                    BackendGameData.scoreMultiplier = 40;
-                    break;
-            }
+                0 => 2000,
+                1 => 4000,
+                2 => 5000,
+                3 => 6000,
+                _ => _instance._gameHUD.towerGold
+            };
 
             BackendGameData.instance.SetLevel(difficultyLevel);
             await UniTask.Delay(500, cancellationToken: _instance._cts.Token);

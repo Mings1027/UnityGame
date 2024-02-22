@@ -85,11 +85,8 @@ namespace LobbyUIControl
             closeButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                _shopPanelSequence.OnRewind(() =>
-                {
-                    _shopPanelGroup.blocksRaycasts = false;
-                    _lobbyUI.OffBlockImage();
-                }).PlayBackwards();
+                _shopPanelGroup.blocksRaycasts = false;
+                _shopPanelSequence.OnRewind(() => { _lobbyUI.OffBlockImage(); }).PlayBackwards();
                 _lobbyUI.OffBackgroundImage();
                 _lobbyUI.SetActiveButtons(true, false);
                 _lobbyUI.On();

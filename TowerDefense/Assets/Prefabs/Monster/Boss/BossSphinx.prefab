@@ -148,9 +148,10 @@ GameObject:
   - component: {fileID: 353822955059645620}
   - component: {fileID: 8142118443433824083}
   - component: {fileID: 6842556954575011779}
+  - component: {fileID: -7626953706796942403}
+  - component: {fileID: 2275392872775004728}
   - component: {fileID: 6725324555435398883}
   - component: {fileID: 4232625154139874759}
-  - component: {fileID: 2275392872775004728}
   m_Layer: 8
   m_Name: BossSphinx
   m_TagString: Untagged
@@ -213,10 +214,34 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attackTargetCount: 3
-  atkRange: 2.5
+  atkRange: 2
   sightRange: 3
-  turnSpeed: 0.3
   <baseTowerDamage>k__BackingField: 5
+--- !u!114 &-7626953706796942403
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5754955670227777866}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c332fd9c394e4e029edbc3f19d0040b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2275392872775004728
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5754955670227777866}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 918e18d0abe29439292eed8e4fc0d97d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  healAmount: 100
 --- !u!135 &6725324555435398883
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -252,19 +277,6 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 1
---- !u!114 &2275392872775004728
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5754955670227777866}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 918e18d0abe29439292eed8e4fc0d97d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  healAmount: 100
 --- !u!1001 &5920596883255833901
 PrefabInstance:
   m_ObjectHideFlags: 0

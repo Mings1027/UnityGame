@@ -30,11 +30,7 @@ namespace UIControl
                 .Append(rankPanelGroup.DOFade(1, 0.25f).From(0))
                 .Join(rankPanelRect.DOAnchorPosX(0, 0.25f).From(new Vector2(100, 0)));
             _panelSequence.OnComplete(() => rankPanelGroup.blocksRaycasts = true);
-            _panelSequence.OnRewind(() =>
-            {
-                rankPanelGroup.blocksRaycasts = false;
-                _lobbyUI.OffBlockImage();
-            });
+            _panelSequence.OnRewind(() => { _lobbyUI.OffBlockImage(); });
             rankPanelGroup.blocksRaycasts = false;
             rankButton.onClick.AddListener(OpenRankPanel);
             closeButton.onClick.AddListener(CloseRankPanel);
@@ -63,6 +59,7 @@ namespace UIControl
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
             _lobbyUI.OffBackgroundImage();
             _lobbyUI.SetActiveButtons(true, false);
+            rankPanelGroup.blocksRaycasts = false;
             _panelSequence.PlayBackwards();
         }
 

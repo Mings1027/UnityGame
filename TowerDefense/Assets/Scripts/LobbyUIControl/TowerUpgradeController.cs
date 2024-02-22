@@ -37,11 +37,7 @@ namespace LobbyUIControl
                 .Append(_upgradePanelGroup.DOFade(1, 0.25f).From(0))
                 .Join(upgradePanel.DOAnchorPosY(0, 0.25f).From(new Vector2(0, -100)));
             _upgradePanelGroupSequence.OnComplete(() => _upgradePanelGroup.blocksRaycasts = true);
-            _upgradePanelGroupSequence.OnRewind(() =>
-            {
-                _lobbyUI.OffBlockImage();
-                _upgradePanelGroup.blocksRaycasts = false;
-            });
+            _upgradePanelGroupSequence.OnRewind(() => { _lobbyUI.OffBlockImage(); });
             _upgradePanelGroup.blocksRaycasts = false;
             Input.multiTouchEnabled = false;
             ButtonInit();
@@ -80,6 +76,7 @@ namespace LobbyUIControl
                 upgradeButton.gameObject.SetActive(true);
                 _lobbyUI.OffBackgroundImage();
                 _lobbyUI.SetActiveButtons(true, false);
+                _upgradePanelGroup.blocksRaycasts = false;
                 _upgradePanelGroupSequence.PlayBackwards();
             });
             notifyInitLevelPanel.OnConfirmButtonEvent += InitTowerLevel;
