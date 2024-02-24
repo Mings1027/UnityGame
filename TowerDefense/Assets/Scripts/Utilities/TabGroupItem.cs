@@ -4,7 +4,6 @@ using DG.Tweening;
 using ManagerControl;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Utilities

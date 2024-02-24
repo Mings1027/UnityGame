@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Utilities
 {
+    [RequireComponent(typeof(VerticalLayoutGroup))]
     public class UIVerticalSplitter : MonoBehaviour
     {
         public float[] ratios; // 각 자식 요소의 비율

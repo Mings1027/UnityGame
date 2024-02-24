@@ -40,8 +40,8 @@ namespace LobbyUIControl
         private CanvasGroup _shopPanelGroup;
 
         [SerializeField] private RectTransform shopPanel;
-        [SerializeField] private Button itemShopButton;
-        [SerializeField] private Button closeButton;
+        // [SerializeField] private Button itemShopButton;
+        // [SerializeField] private Button closeButton;
         [SerializeField] private Button purchaseButton;
         [SerializeField] private Transform itemParent;
 
@@ -67,30 +67,18 @@ namespace LobbyUIControl
             _shopPanelSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(_shopPanelGroup.DOFade(1, 0.25f).From(0))
                 .Join(shopPanel.DOAnchorPosX(0, 0.25f).From(new Vector2(-100, 0)));
+            _shopPanelSequence.OnComplete(() => _shopPanelGroup.blocksRaycasts = true);
+            _shopPanelSequence.OnRewind(() => { _lobbyUI.OffBlockImage(); });
             _shopPanelGroup.blocksRaycasts = false;
 
             _purchasePanelSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(purchasePanelGroup.DOFade(1, 0.25f).From(0))
                 .Join(purchasePanel.DOAnchorPosX(0, 0.25f).From(new Vector2(-100, 0)));
+
             purchasePanelGroup.blocksRaycasts = false;
 
-            itemShopButton.onClick.AddListener(() =>
-            {
-                SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                _lobbyUI.OnBackgroundImage();
-                _lobbyUI.SetActiveButtons(false, true);
-                _lobbyUI.Off();
-                _shopPanelSequence.OnComplete(() => _shopPanelGroup.blocksRaycasts = true).Restart();
-            });
-            closeButton.onClick.AddListener(() =>
-            {
-                SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                _shopPanelGroup.blocksRaycasts = false;
-                _shopPanelSequence.OnRewind(() => { _lobbyUI.OffBlockImage(); }).PlayBackwards();
-                _lobbyUI.OffBackgroundImage();
-                _lobbyUI.SetActiveButtons(true, false);
-                _lobbyUI.On();
-            });
+            // itemShopButton.onClick.AddListener(OpenShop);
+            // closeButton.onClick.AddListener(CloseShop);
 
             increaseButton.onClick.AddListener(IncreaseQuantity);
             decreaseButton.onClick.AddListener(DecreaseQuantity);
@@ -217,5 +205,24 @@ namespace LobbyUIControl
             emeraldPriceText.text = _curEmeraldPrice.ToString();
             quantityText.text = _curQuantity.ToString();
         }
+
+        // public void OpenShop()
+        // {
+        //     SoundManager.PlayUISound(SoundEnum.ButtonSound);
+        //     _lobbyUI.OnBackgroundImage();
+        //     _lobbyUI.SetActiveButtons(false, true);
+        //     _lobbyUI.Off();
+        //     _shopPanelSequence.Restart();
+        // }
+        //
+        // public void CloseShop()
+        // {
+        //     SoundManager.PlayUISound(SoundEnum.ButtonSound);
+        //     _shopPanelGroup.blocksRaycasts = false;
+        //     _shopPanelSequence.PlayBackwards();
+        //     _lobbyUI.OffBackgroundImage();
+        //     _lobbyUI.SetActiveButtons(true, false);
+        //     _lobbyUI.On();
+        // }
     }
 }

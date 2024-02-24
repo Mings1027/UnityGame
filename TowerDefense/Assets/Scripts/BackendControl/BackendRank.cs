@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text;
 using BackEnd;
 using UnityEngine;
@@ -5,7 +6,7 @@ using Utilities;
 
 namespace BackendControl
 {
-    public struct UserRankInfo
+    public class UserRankInfo
     {
         public string rank;
         public string nickName;
@@ -16,13 +17,14 @@ namespace BackendControl
     {
         private static BackendRank _instance;
         public static BackendRank instance => _instance ??= new BackendRank();
-        public static UserRankInfo[] userRankInfos;
+
+        public static List<UserRankInfo> userRankInfos;
+
+        // [변경 필요] '복사한 UUID 값'을 '뒤끝 콘솔 > 랭킹 관리'에서 생성한 랭킹의 UUID값으로 변경해주세요.  
+        private const string RankUuid = "9c3deac0-d1ea-11ee-be47-0bf4840d0651";
 
         public void RankInsert(int score)
         {
-            // [변경 필요] '복사한 UUID 값'을 '뒤끝 콘솔 > 랭킹 관리'에서 생성한 랭킹의 UUID값으로 변경해주세요.  
-            const string
-                rankUuid = "d1f25cc0-bbf4-11ee-8df0-118b3eecd33b"; // 예시 : "4088f640-693e-11ed-ad29-ad8f0c3d4c70"
             const string tableName = "USER_DATA";
             string rowInDate;
 
@@ -61,11 +63,12 @@ namespace BackendControl
 
             Debug.Log("내 게임 정보의 rowInDate : " + rowInDate); // 추출된 rowIndate의 값은 다음과 같습니다.  
 
-            var param = new Param { { "score", score } };
+            var param = new Param();
+            param.Add("score", score);
 
             // 추출된 rowIndate를 가진 데이터에 param값으로 수정을 진행하고 랭킹에 데이터를 업데이트합니다.  
             Debug.Log("랭킹 삽입을 시도합니다.");
-            var rankBro = Backend.URank.User.UpdateUserScore(rankUuid, tableName, rowInDate, param);
+            var rankBro = Backend.URank.User.UpdateUserScore(RankUuid, tableName, rowInDate, param);
 
             if (rankBro.IsSuccess() == false)
             {
@@ -78,8 +81,7 @@ namespace BackendControl
 
         public void RankGet()
         {
-            const string rankUuid = "d1f25cc0-bbf4-11ee-8df0-118b3eecd33b";
-            var bro = Backend.URank.User.GetRankList(rankUuid);
+            var bro = Backend.URank.User.GetRankList(RankUuid);
 
             if (!bro.IsSuccess())
             {
@@ -91,14 +93,16 @@ namespace BackendControl
 
             Debug.Log("총 랭킹 등록 유저 수 : " + bro.GetFlattenJSON()["totalCount"]);
 
-            userRankInfos = new UserRankInfo[bro.FlattenRows().Count];
-            var index = 0;
+            userRankInfos = new List<UserRankInfo>();
             foreach (LitJson.JsonData jsonData in bro.FlattenRows())
             {
-                userRankInfos[index].rank = jsonData["rank"].ToString();
-                userRankInfos[index].nickName = jsonData["nickname"].ToString();
-                userRankInfos[index].score = jsonData["score"].ToString();
-                index += 1;
+                var userInfo = new UserRankInfo
+                {
+                    rank = jsonData["rank"].ToString(),
+                    nickName = jsonData["nickname"].ToString(),
+                    score = jsonData["score"].ToString()
+                };
+                userRankInfos.Add(userInfo);
             }
         }
     }

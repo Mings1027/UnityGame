@@ -61,6 +61,8 @@ namespace UIControl
             }
         }
 
+#region Init
+
         private void Init()
         {
             _curTimeScale = 1;
@@ -134,6 +136,8 @@ namespace UIControl
                 _fadeController.FadeOutScene("Lobby").Forget();
             });
         }
+
+#endregion
 
         private void Pause()
         {

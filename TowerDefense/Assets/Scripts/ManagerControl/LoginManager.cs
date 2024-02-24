@@ -31,7 +31,7 @@ namespace ManagerControl
         private const string LoginPlatformKey = "LoginPlatform";
 
         private LoginPlatform _loginPlatform;
-
+        private bool _isTestLogin;
         private string _id, _oneTimeCode, _password;
         private string _wwwText;
 
@@ -290,6 +290,13 @@ namespace ManagerControl
             oneTimeCodeField.interactable = true;
             loginButton.interactable = true;
             notifySendEmailObj.SetActive(true);
+            if (idField.text == "test@test.com")
+            {
+                _isTestLogin = true;
+                _oneTimeCode = "123456";
+                return;
+            }
+
             PlayerPrefs.SetString(UserEmailID, idField.text);
 
             if (idField.text.Contains("@") && idField.text.Contains("."))
@@ -346,6 +353,13 @@ namespace ManagerControl
 
         private async UniTaskVoid Login()
         {
+            if (_isTestLogin && oneTimeCodeField.text == "123456")
+            {
+                BackendLogin.instance.CustomLogin("test@test.com", "123456");
+                ActiveStartPanel();
+                return;
+            }
+
             if (oneTimeCodeField.text == _oneTimeCode)
             {
                 var jObject = JObject.Parse(_wwwText);
@@ -386,21 +400,29 @@ namespace ManagerControl
         {
             BackendLogin.instance.CustomLogin(_id, _password);
 
-            var countJson = JObject.Parse(_wwwText);
-            var curCount = byte.Parse((string)countJson["value"] ?? string.Empty);
-            if (curCount >= 7)
+            if (!_isTestLogin)
             {
-                var oldPassword = _password;
-                _password = GenerateRandomPassword();
+                var countJson = JObject.Parse(_wwwText);
+                var curCount = byte.Parse((string)countJson["value"] ?? string.Empty);
+                if (curCount >= 7)
+                {
+                    var oldPassword = _password;
+                    _password = GenerateRandomPassword();
 
-                Backend.BMember.UpdatePassword(oldPassword, _password, _ => { });
-                var form = new WWWForm();
-                form.AddField("order", "updatePassword");
-                form.AddField("id", _id);
-                form.AddField("password", _password);
-                await Post(form);
+                    Backend.BMember.UpdatePassword(oldPassword, _password, _ => { });
+                    var form = new WWWForm();
+                    form.AddField("order", "updatePassword");
+                    form.AddField("id", _id);
+                    form.AddField("password", _password);
+                    await Post(form);
+                }
             }
 
+            ActiveStartPanel();
+        }
+
+        private void ActiveStartPanel()
+        {
             _connectionPanelGroupTween.OnComplete(() => connectionPanelGroup.blocksRaycasts = true).Restart();
             _backendManager.BackendInit().Forget();
             SaveLoginPlatform(LoginPlatform.Custom);

@@ -75,7 +75,7 @@ namespace UIControl
             }
 
             var userRankInfos = BackendRank.userRankInfos;
-            for (var i = 0; i < userRankInfos.Length; i++)
+            for (var i = 0; i < userRankInfos.Count; i++)
             {
                 var item = Instantiate(userRankItem, content).transform;
                 item.GetChild(0).GetComponent<TMP_Text>().text = userRankInfos[i].rank;

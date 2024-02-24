@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using DG.Tweening;
 using ManagerControl;
 using TMPro;
@@ -103,6 +104,21 @@ namespace Utilities
                 _dropDownTween.Restart();
                 expandImage.rectTransform.localScale = new Vector3(1, -1, 1);
             }
+        }
+
+        [Conditional("UNITY_EDITOR"), ContextMenu("Add DropdownItem")]
+        private void AddDropdownItem()
+        {
+            var nextIndex = dropDownListGroup.transform.childCount;
+            
+            Instantiate(dropDownItemPrefab, dropDownListGroup.transform);
+        }
+
+        [Conditional("UNITY_EDITOR"), ContextMenu("Remove DropdownItem")]
+        private void RemoveDropdownItem()
+        {
+            var lastChildIndex = dropDownListGroup.transform.childCount - 1;
+            DestroyImmediate(dropDownListGroup.transform.GetChild(lastChildIndex).gameObject);
         }
     }
 }
