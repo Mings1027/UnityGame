@@ -9,19 +9,11 @@ using UnityEngine;
 
 namespace ManagerControl
 {
-    [Serializable]
-    public class TowerDataPrefab
-    {
-        public TowerData towerData;
-        public GameObject towerPrefab;
-    }
 
     public class TowerManager : MonoBehaviour, IAddressableObject
     {
         private List<AttackTower> _towers;
         private Mana _towerMana;
-
-        [field: SerializeField] public TowerDataPrefab[] towerDataPrefabs { get; private set; }
 
 #region Unity Event
 
@@ -80,6 +72,7 @@ namespace ManagerControl
         {
             _towerMana = towerMana;
         }
+
         public void AddTower(AttackTower tower)
         {
             _towers.Add(tower);

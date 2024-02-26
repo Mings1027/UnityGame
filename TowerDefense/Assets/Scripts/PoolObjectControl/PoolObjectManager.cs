@@ -272,19 +272,6 @@ namespace PoolObjectControl
                     await UniTask.Delay(100);
                 }
             }
-
-            // foreach (var key in _inst._monsterPrefabDictionary.Keys)
-            // {
-            //     var outOfRange = _inst._monsterPrefabDictionary[key].Count > _inst.poolMaxSize;
-            //
-            //     while (outOfRange)
-            //     {
-            //         print(_inst._monsterPrefabDictionary[key].Peek());
-            //         Destroy(_inst._monsterPrefabDictionary[key].Pop());
-            //         outOfRange = _inst._monsterPrefabDictionary[key].Count > _inst.poolMaxSize;
-            //         await UniTask.Delay(100);
-            //     }
-            // }
         }
 
         public static async UniTaskVoid MonsterPoolCleaner(IEnumerable<NormalMonsterData> monsterData)

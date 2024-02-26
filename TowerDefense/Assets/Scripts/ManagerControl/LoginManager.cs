@@ -40,7 +40,6 @@ namespace ManagerControl
 
         private CancellationTokenSource _cts;
 
-        private BackendManager _backendManager;
 #if UNITY_IPHONE
         private IAppleAuthManager _appleAuthManager;
 #endif
@@ -105,7 +104,6 @@ namespace ManagerControl
             connectionPanelGroup.blocksRaycasts = false;
             emailLoginPanelGroupObj.SetActive(false);
             notifySendEmailObj.SetActive(false);
-            _backendManager = FindAnyObjectByType<BackendManager>();
             timerBackground.enabled = false;
             timerText.text = "";
             oneTimeCodeField.interactable = false;
@@ -234,7 +232,7 @@ namespace ManagerControl
                             _loginButtonGroupTween.PlayBackwards();
                             _connectionPanelGroupTween.OnComplete(() => connectionPanelGroup.blocksRaycasts = true)
                                 .Restart();
-                            _backendManager.BackendInit().Forget();
+                            BackendManager.BackendInit().Forget();
                             SaveLoginPlatform(LoginPlatform.Apple);
                         }
                         else CustomLog.LogError("Apple 로그인 실패");
@@ -424,7 +422,7 @@ namespace ManagerControl
         private void ActiveStartPanel()
         {
             _connectionPanelGroupTween.OnComplete(() => connectionPanelGroup.blocksRaycasts = true).Restart();
-            _backendManager.BackendInit().Forget();
+            BackendManager.BackendInit().Forget();
             SaveLoginPlatform(LoginPlatform.Custom);
 
             idField.interactable = true;

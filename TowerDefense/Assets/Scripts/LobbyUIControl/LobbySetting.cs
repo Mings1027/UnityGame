@@ -1,12 +1,10 @@
 using System.Collections.Generic;
-using System.Linq;
 using BackendControl;
 using CustomEnumControl;
 using DG.Tweening;
 using ManagerControl;
 using UIControl;
 using UnityEngine;
-using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 using Utilities;
 
@@ -14,7 +12,6 @@ namespace LobbyUIControl
 {
     public class LobbySetting : MonoBehaviour
     {
-        private FadeController _fadeController;
         private LobbyUI _lobbyUI;
         private bool _isOpen;
         private Tween _settingPanelSequence;
@@ -30,7 +27,6 @@ namespace LobbyUIControl
 
         private void Start()
         {
-            _fadeController = FindAnyObjectByType<FadeController>();
             _lobbyUI = GetComponentInParent<LobbyUI>();
             _tabGroupItemQueue = new Queue<TabGroupItem>();
             _settingPanelGroup = transform.GetChild(0).GetComponent<CanvasGroup>();
@@ -58,7 +54,7 @@ namespace LobbyUIControl
             {
                 BackendChart.instance.InitItemTable();
                 BackendLogin.instance.LogOut();
-                _fadeController.FadeOutScene("LoginScene").Forget();
+                FadeController.FadeOutScene("LoginScene");
             };
         }
 

@@ -1,21 +1,23 @@
 using System;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using GameControl;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace UIControl
 {
-    public class FadeController : MonoBehaviour
+    public class FadeController : MonoSingleton<FadeController>
     {
         private GraphicRaycaster _graphicRaycaster;
 
         [SerializeField] private Image fadeInImage;
         [SerializeField] private Image fadeOutImage;
 
-        private void Awake()
+        protected override void Awake()
         {
+            instance = this;
             _graphicRaycaster = GetComponent<GraphicRaycaster>();
             fadeInImage.DOFade(1, 0);
             fadeOutImage.DOFade(0, 0);
@@ -24,6 +26,11 @@ namespace UIControl
         private void Start()
         {
             FadeInScene().Forget();
+        }
+
+        private void OnDestroy()
+        {
+            instance = null;
         }
 
         private async UniTaskVoid FadeInScene()
@@ -35,11 +42,16 @@ namespace UIControl
             _graphicRaycaster.enabled = false;
         }
 
-        public async UniTaskVoid FadeOutScene(string sceneName)
+        private async UniTaskVoid FadeOutSceneAsync(string sceneName)
         {
             _graphicRaycaster.enabled = true;
             await fadeOutImage.DOFade(1, 1).From(0).SetUpdate(true);
             SceneManager.LoadScene(sceneName);
+        }
+
+        public static void FadeOutScene(string sceneName)
+        {
+            instance.FadeOutSceneAsync(sceneName).Forget();
         }
     }
 }

@@ -1,20 +1,28 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using AdsControl;
 using CurrencyControl;
 using CustomEnumControl;
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using ManagerControl;
+using TMPro;
 using UIControl;
 using UnityEngine;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.UI;
 
 namespace LobbyUIControl
 {
     public class LobbyUI : MonoBehaviour
     {
-        private FadeController _fadeController;
         private bool _isSequencePlaying;
+        private Dictionary<NoticeTableEnum, string> _noticeDic;
 
-        private Sequence _diamondNoticeSequence;
+        private Sequence _noticeSequence;
         private Sequence _emeraldNoticeSequence;
         private Sequence _duplicateSequence;
         private Sequence _successChangeNameSequence;
@@ -27,10 +35,8 @@ namespace LobbyUIControl
         [SerializeField] private GameObject buttonsObj;
         [SerializeField] private GameObject inGameMoneyObj;
 
-        [SerializeField] private CanvasGroup noticeNeedMoreDiaGroup;
-        [SerializeField] private CanvasGroup noticeNeedMoreEmeraldGroup;
-        [SerializeField] private CanvasGroup noticeDuplicateNameGroup;
-        [SerializeField] private CanvasGroup noticeSuccessChangeNameGroup;
+        [SerializeField] private CanvasGroup noticeGroup;
+        [SerializeField] private TMP_Text noticeText;
         [SerializeField] private Image backgroundImage;
         [SerializeField] private Image backgroundBlockImage;
 
@@ -38,33 +44,12 @@ namespace LobbyUIControl
         {
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
 
-            _fadeController = FindAnyObjectByType<FadeController>();
+            var noticeDiaRect = noticeGroup.GetComponent<RectTransform>();
 
-            var noticeDiaRect = noticeNeedMoreDiaGroup.GetComponent<RectTransform>();
-
-            _diamondNoticeSequence = DOTween.Sequence().SetAutoKill(false).Pause()
+            _noticeSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(noticeDiaRect.DOAnchorPosX(-100, 0.25f).From(new Vector2(600, -50)))
                 .Append(noticeDiaRect.DOAnchorPosY(100, 0.25f).SetDelay(2))
-                .Join(noticeNeedMoreDiaGroup.DOFade(0, 0.25f).From(1));
-
-            var noticeEmeraldRect = noticeNeedMoreEmeraldGroup.GetComponent<RectTransform>();
-
-            _emeraldNoticeSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(noticeEmeraldRect.DOAnchorPosX(-100, 0.25f).From(new Vector2(600, -50)))
-                .Append(noticeEmeraldRect.DOAnchorPosY(100, 0.25f).SetDelay(2))
-                .Join(noticeNeedMoreEmeraldGroup.DOFade(0, 0.25f).From(1));
-
-            var duplicateRect = noticeDuplicateNameGroup.GetComponent<RectTransform>();
-            _duplicateSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(duplicateRect.DOAnchorPosX(-100, 0.25f).From(new Vector2(600, -50)))
-                .Append(duplicateRect.DOAnchorPosY(100, 0.25f).SetDelay(2))
-                .Join(noticeDuplicateNameGroup.DOFade(0, 0.25f).From(1));
-
-            var successNameRect = noticeSuccessChangeNameGroup.GetComponent<RectTransform>();
-            _successChangeNameSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(successNameRect.DOAnchorPosX(-100, 0.25f).From(new Vector2(600, -50)))
-                .Append(successNameRect.DOAnchorPosY(100, 0.25f).SetDelay(2))
-                .Join(noticeSuccessChangeNameGroup.DOFade(0, 0.25f).From(1));
+                .Join(noticeGroup.DOFade(0, 0.25f).From(1));
         }
 
         private void Start()
@@ -74,7 +59,7 @@ namespace LobbyUIControl
 
         private void OnDisable()
         {
-            _diamondNoticeSequence?.Kill();
+            _noticeSequence?.Kill();
             _emeraldNoticeSequence?.Kill();
         }
 
@@ -85,11 +70,47 @@ namespace LobbyUIControl
             startGameButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                _fadeController.FadeOutScene("MainGameScene").Forget();
+                FadeController.FadeOutScene("MainGameScene");
             });
 
             OffBackgroundImage();
             OffBlockImage();
+            SetNoticeDic().Forget();
+            LocalizationSettings.SelectedLocaleChanged += ChangeLocaleNotice;
+        }
+
+        private async UniTaskVoid SetNoticeDic()
+        {
+            _noticeDic = new Dictionary<NoticeTableEnum, string>();
+            var loadOperation = LocalizationSettings.StringDatabase.GetTableAsync(LocaleManager.NoticeTable);
+            await loadOperation;
+            if (loadOperation.Status == AsyncOperationStatus.Succeeded)
+            {
+                var dic = loadOperation.Result.ToDictionary(p => p.Value);
+
+                var noticeTable = Enum.GetValues(typeof(NoticeTableEnum));
+                foreach (NoticeTableEnum key in noticeTable)
+                {
+                    foreach (var d in dic)
+                    {
+                        if (key.ToString() == d.Key.Key)
+                        {
+                            _noticeDic.Add(key, d.Key.Value);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        private void ChangeLocaleNotice(Locale locale)
+        {
+            foreach (var noticeString in _noticeDic.Keys.ToList())
+            {
+                _noticeDic[noticeString] =
+                    LocaleManager.GetLocalizedString(LocaleManager.NoticeTable, noticeString.ToString());
+                Debug.Log($"key : {noticeString}  value : {_noticeDic[noticeString]}");
+            }
         }
 
         public void SetActiveButtons(bool active, bool inGameMoneyActive)
@@ -120,32 +141,12 @@ namespace LobbyUIControl
 
         public void OffBlockImage() => backgroundBlockImage.raycastTarget = false;
 
-        public void NoticeDiaTween()
+        public void NoticeTween(NoticeTableEnum noticeTableEnum)
         {
             if (_isSequencePlaying) return;
+            noticeText.text = _noticeDic[noticeTableEnum];
             _isSequencePlaying = true;
-            _diamondNoticeSequence.OnComplete(() => _isSequencePlaying = false).Restart();
-        }
-
-        public void NoticeEmeraldTween()
-        {
-            if (_isSequencePlaying) return;
-            _isSequencePlaying = true;
-            _emeraldNoticeSequence.OnComplete(() => _isSequencePlaying = false).Restart();
-        }
-
-        public void NoticeDuplicateTween()
-        {
-            if (_isSequencePlaying) return;
-            _isSequencePlaying = true;
-            _duplicateSequence.OnComplete(() => _isSequencePlaying = false).Restart();
-        }
-
-        public void NoticeSuccessChangeNameTween()
-        {
-            if (_isSequencePlaying) return;
-            _isSequencePlaying = true;
-            _successChangeNameSequence.OnComplete(() => _isSequencePlaying = false).Restart();
+            _noticeSequence.OnComplete(() => _isSequencePlaying = false).Restart();
         }
     }
 }

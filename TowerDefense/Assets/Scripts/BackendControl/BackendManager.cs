@@ -1,6 +1,5 @@
 using BackEnd;
 using Cysharp.Threading.Tasks;
-using ManagerControl;
 using UnityEngine;
 using Utilities;
 
@@ -22,7 +21,7 @@ namespace BackendControl
             }
         }
 
-        public async UniTaskVoid BackendInit()
+        public static async UniTaskVoid BackendInit()
         {
             await UniTask.RunOnThreadPool(() =>
             {

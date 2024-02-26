@@ -23,6 +23,7 @@ namespace TowerControl
         private List<TowerUnit> _units;
         private ReSpawnBar _unitReSpawnBar;
         private Transform _reSpawnBarTransform;
+        private SummoningTowerData _summoningTowerData;
 
         public int unitHealth { get; private set; }
         public float unitReSpawnTime { get; private set; }
@@ -31,7 +32,7 @@ namespace TowerControl
         [SerializeField, Range(0, 2)] private float unitRadius;
         [SerializeField] private PoolObjectKey unitObjectKey;
 
-        #region Unity Event
+#region Unity Event
 
         protected override void OnEnable()
         {
@@ -40,9 +41,9 @@ namespace TowerControl
             _cts = new CancellationTokenSource();
         }
 
-        #endregion
+#endregion
 
-        #region Unit Control
+#region Unit Control
 
         private void UnitSpawn()
         {
@@ -80,8 +81,7 @@ namespace TowerControl
             var count = _units.Count;
             for (var i = count - 1; i >= 0; i--)
             {
-                var unitData = (SummoningTowerData)UIManager.towerDataPrefabDictionary[towerType].towerData;
-                _units[i].UnitUpgrade(unitDamage, unitData.curUnitHealth * (1 + towerLevel), attackDelay);
+                _units[i].UnitUpgrade(unitDamage, _summoningTowerData.curUnitHealth * (1 + towerLevel), attackDelay);
             }
         }
 
@@ -141,19 +141,19 @@ namespace TowerControl
             }
         }
 
-        #endregion
+#endregion
 
-        #region Override Function
+#region Override Function
 
         protected override void Init()
         {
             base.Init();
+            _summoningTowerData = (SummoningTowerData)UIManager.towerDataDic[towerType];
             _reSpawnBarTransform = transform.GetChild(1);
             _units = new List<TowerUnit>(unitCount);
 
-            var unitTowerData = (SummoningTowerData)UIManager.towerDataPrefabDictionary[towerType].towerData;
-            unitHealth = unitTowerData.curUnitHealth;
-            unitReSpawnTime = unitTowerData.initReSpawnTime;
+            unitHealth = _summoningTowerData.curUnitHealth;
+            unitReSpawnTime = _summoningTowerData.initReSpawnTime;
         }
 
         public override void TowerTargetInit()
@@ -215,7 +215,7 @@ namespace TowerControl
             base.DisableObject();
         }
 
-        #endregion
+#endregion
 
         public void UnitMove(Vector3 touchPos)
         {

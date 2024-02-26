@@ -19,7 +19,6 @@ namespace Utilities
         public void VerticalSplitter()
         {
             if (ratios.Length <= 0) return;
-            Debug.Log("verti splitter");
             var totalRatio = ratios.Sum();
             var parentRect = GetComponent<RectTransform>();
             var parentHeight = parentRect.rect.height;

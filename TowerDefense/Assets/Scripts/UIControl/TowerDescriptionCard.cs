@@ -63,11 +63,11 @@ namespace UIControl
 
             towerNameText.text = UIManager.towerNameDic[towerType];
             towerDescriptionText.text = UIManager.towerInfoDic[towerType];
-            var towerDataDic = UIManager.towerDataPrefabDictionary;
-            healthObj.SetActive(towerDataDic[towerType].towerData.isUnitTower);
-            delayObj.SetActive(!towerDataDic[towerType].towerData.isUnitTower);
+            var towerDataDic = UIManager.towerDataDic;
+            healthObj.SetActive(towerDataDic[towerType].isUnitTower);
+            delayObj.SetActive(!towerDataDic[towerType].isUnitTower);
 
-            if (towerDataDic[towerType].towerData is AttackTowerData battleTowerData)
+            if (towerDataDic[towerType] is AttackTowerData battleTowerData)
             {
                 towerStatusPanel.SetActive(true);
                 if (battleTowerData.isUnitTower)

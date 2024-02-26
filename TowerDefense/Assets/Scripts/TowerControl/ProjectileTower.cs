@@ -52,7 +52,7 @@ namespace TowerControl
             effectIndex = -1;
             _targetColliders = new Collider[targetColliderCount];
             patrolCooldown.cooldownTime = 0.5f;
-            var towerData = (TargetingTowerData)UIManager.towerDataPrefabDictionary[towerType].towerData;
+            var towerData = (TargetingTowerData)UIManager.towerDataDic[towerType];
             projectileKey = towerData.poolObjectKey;
         }
 

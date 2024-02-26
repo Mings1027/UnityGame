@@ -18,7 +18,7 @@ namespace TowerControl
         protected override void Init()
         {
             base.Init();
-            var manaTowerData = (ManaUsingTowerData)UIManager.towerDataPrefabDictionary[towerType].towerData;
+            var manaTowerData = (ManaUsingTowerData)UIManager.towerDataDic[towerType];
             _attackMana = manaTowerData.initMana;
             _towerMana = UIManager.GetTowerMana();
             firePos = transform.GetChild(2);

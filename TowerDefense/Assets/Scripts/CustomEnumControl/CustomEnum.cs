@@ -7,12 +7,12 @@ namespace CustomEnumControl
         Custom = 3
     }
 
-    public enum Difficulty
+    public enum NoticeTableEnum 
     {
-        Single = 0,
-        Double = 1,
-        Triple = 2,
-        Quadruple = 3
+        NeedMoreDia,
+        NeedMoreEmerald,
+        DuplicateName,
+        SuccessChangedName
     }
 
     public enum TowerType

@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using BackEnd;
-using CurrencyControl;
 using DG.Tweening;
 using ItemControl;
 using LobbyUIControl;

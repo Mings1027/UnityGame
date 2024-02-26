@@ -40,8 +40,6 @@ namespace LobbyUIControl
         private CanvasGroup _shopPanelGroup;
 
         [SerializeField] private RectTransform shopPanel;
-        // [SerializeField] private Button itemShopButton;
-        // [SerializeField] private Button closeButton;
         [SerializeField] private Button purchaseButton;
         [SerializeField] private Transform itemParent;
 
@@ -76,9 +74,6 @@ namespace LobbyUIControl
                 .Join(purchasePanel.DOAnchorPosX(0, 0.25f).From(new Vector2(-100, 0)));
 
             purchasePanelGroup.blocksRaycasts = false;
-
-            // itemShopButton.onClick.AddListener(OpenShop);
-            // closeButton.onClick.AddListener(CloseShop);
 
             increaseButton.onClick.AddListener(IncreaseQuantity);
             decreaseButton.onClick.AddListener(DecreaseQuantity);
@@ -171,7 +166,7 @@ namespace LobbyUIControl
             }
             else
             {
-                _lobbyUI.NoticeEmeraldTween();
+                _lobbyUI.NoticeTween(NoticeTableEnum.NeedMoreEmerald);
             }
         }
 
@@ -205,24 +200,5 @@ namespace LobbyUIControl
             emeraldPriceText.text = _curEmeraldPrice.ToString();
             quantityText.text = _curQuantity.ToString();
         }
-
-        // public void OpenShop()
-        // {
-        //     SoundManager.PlayUISound(SoundEnum.ButtonSound);
-        //     _lobbyUI.OnBackgroundImage();
-        //     _lobbyUI.SetActiveButtons(false, true);
-        //     _lobbyUI.Off();
-        //     _shopPanelSequence.Restart();
-        // }
-        //
-        // public void CloseShop()
-        // {
-        //     SoundManager.PlayUISound(SoundEnum.ButtonSound);
-        //     _shopPanelGroup.blocksRaycasts = false;
-        //     _shopPanelSequence.PlayBackwards();
-        //     _lobbyUI.OffBackgroundImage();
-        //     _lobbyUI.SetActiveButtons(true, false);
-        //     _lobbyUI.On();
-        // }
     }
 }

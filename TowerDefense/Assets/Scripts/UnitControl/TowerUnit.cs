@@ -47,7 +47,7 @@ namespace UnitControl
         [SerializeField, Range(0, 7)] private byte atkRange;
         [SerializeField, Range(0, 10)] private byte sightRange;
 
-        #region Unity Event
+#region Unity Event
 
         private void Awake()
         {
@@ -65,12 +65,7 @@ namespace UnitControl
                 .Append(_childMeshTransform.DOLocalJump(-_childMeshTransform.forward, Random.Range(4, 7), 1, 1))
                 .Join(_childMeshTransform.DOLocalRotate(new Vector3(-360, 0, 0), 1, RotateMode.FastBeyond360))
                 .Join(transform.DOScale(0, 1).From(transform.localScale))
-                .OnComplete(() =>
-                {
-                    ObjectDisable();
-                    _childMeshTransform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
-                    transform.localScale = Vector3.one;
-                });
+                .OnComplete(DisableObject);
         }
 
         private void OnValidate()
@@ -122,9 +117,9 @@ namespace UnitControl
             Gizmos.DrawWireSphere(position, sightRange);
         }
 
-        #endregion
+#endregion
 
-        #region Unit Update
+#region Unit Update
 
         public void UnitUpdate()
         {
@@ -206,7 +201,7 @@ namespace UnitControl
 
         private void Attack()
         {
-            _anim.SetBool(IsWalk,false);
+            _anim.SetBool(IsWalk, false);
             if (!_target || !_target.enabled ||
                 Vector3.Distance(_target.transform.position, transform.position) > atkRange)
             {
@@ -237,24 +232,22 @@ namespace UnitControl
             _deadSequence.Restart();
         }
 
-        private void ObjectDisable()
-        {
-            gameObject.SetActive(false);
-        }
+#endregion
 
-        #endregion
-
-        #region Private Method
+#region Private Method
 
         public void DisableObject()
         {
+            gameObject.SetActive(false);
+            _childMeshTransform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
+            transform.localScale = Vector3.one;
             _parentTower = null;
             _thisCollider.enabled = false;
         }
 
-        #endregion
+#endregion
 
-        #region Public Method
+#region Public Method
 
         public void Init(SummonTower summonTower, Vector3 pos)
         {
@@ -298,6 +291,6 @@ namespace UnitControl
 
         public void ParentPointerUp() => _parentTower.OnPointerUp(null);
 
-        #endregion
+#endregion
     }
 }

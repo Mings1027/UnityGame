@@ -80,14 +80,14 @@ namespace UIControl
                     _userRankController.SetRanking();
                     _lobbyUI.OffBackgroundImage();
                     _changeNamePanelSequence.PlayBackwards();
-                    _lobbyUI.NoticeSuccessChangeNameTween();
+                    _lobbyUI.NoticeTween(NoticeTableEnum.SuccessChangedName);
                 }
                 else
                 {
                     userNameField.text = _curNickname;
                     if (updateNickNameState.Item2 == "409")
                     {
-                        _lobbyUI.NoticeDuplicateTween();
+                        _lobbyUI.NoticeTween(NoticeTableEnum.DuplicateName);
                     }
                 }
             }

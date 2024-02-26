@@ -9,7 +9,6 @@ namespace UIControl
 {
     public class PauseController : MonoBehaviour
     {
-        private FadeController _fadeController;
         private WaveManager _waveManager;
         private ItemBagController _itemBagController;
 
@@ -66,7 +65,6 @@ namespace UIControl
         private void Init()
         {
             _curTimeScale = 1;
-            _fadeController = FindAnyObjectByType<FadeController>();
             _waveManager = FindAnyObjectByType<WaveManager>();
             _itemBagController = FindAnyObjectByType<ItemBagController>();
 
@@ -126,14 +124,14 @@ namespace UIControl
                 UpdateSurvivedWave();
                 _itemBagController.UpdateInventory();
                 BackendGameData.instance.GameDataUpdate();
-                _fadeController.FadeOutScene("Lobby").Forget();
+                FadeController.FadeOutScene("Lobby");
             });
             gameEndButton.onClick.AddListener(() =>
             {
                 UpdateSurvivedWave();
                 _itemBagController.UpdateInventory();
                 BackendGameData.instance.GameDataUpdate();
-                _fadeController.FadeOutScene("Lobby").Forget();
+                FadeController.FadeOutScene("Lobby");
             });
         }
 
@@ -153,12 +151,12 @@ namespace UIControl
             UpdateSurvivedWave();
             _itemBagController.UpdateInventory();
             BackendGameData.instance.GameDataUpdate();
-            _fadeController.FadeOutScene("Lobby").Forget();
+            FadeController.FadeOutScene("Lobby");
         }
 
         private void Restart()
         {
-            _fadeController.FadeOutScene("ReStartScene").Forget();
+            FadeController.FadeOutScene("ReStartScene");
             BackendGameData.isRestart = true;
         }
 

@@ -4,8 +4,6 @@ namespace UIControl
 {
     public class AutoResolution : MonoBehaviour
     {
-        private float _uiHeight;
-
         [SerializeField] private RectTransform topLetterBox;
         [SerializeField] private RectTransform bottomLetterBox;
 
@@ -34,14 +32,26 @@ namespace UIControl
 
         private void SetLetterBox()
         {
-            _uiHeight = bottomLetterBox.rect.height - 1080;
-            var letterBoxHeight = _uiHeight / 2;
+            //Anchor Preset Stretch Stretch
+            topLetterBox.anchorMin = Vector2.zero;
+            topLetterBox.anchorMax = Vector2.one;
+            topLetterBox.pivot = Vector2.one * 0.5f;
 
+            //Anchor Preset Stretch Stretch
+            bottomLetterBox.anchorMin = Vector2.zero;
+            bottomLetterBox.anchorMax = Vector2.one;
+            bottomLetterBox.pivot = Vector2.one * 0.5f;
+
+            var uiHeight = bottomLetterBox.rect.height - 1080;
+            var letterBoxHeight = uiHeight / 2;
+
+            //Anchor Preset Top Stretch
             topLetterBox.anchorMin = new Vector2(0, 1);
-            topLetterBox.anchorMax = new Vector2(1, 1);
+            topLetterBox.anchorMax = Vector2.one;
             topLetterBox.pivot = new Vector2(0.5f, 1);
             topLetterBox.sizeDelta = new Vector2(Screen.width, letterBoxHeight);
-
+            
+            //Anchor Preset Bottom Stretch
             bottomLetterBox.anchorMin = Vector2.zero;
             bottomLetterBox.anchorMax = new Vector2(1, 0);
             bottomLetterBox.pivot = new Vector2(0.5f, 0);
