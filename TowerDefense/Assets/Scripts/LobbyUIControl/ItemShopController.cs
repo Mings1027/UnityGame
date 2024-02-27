@@ -30,7 +30,6 @@ namespace LobbyUIControl
 
         private LobbyUI _lobbyUI;
         private ItemInfo _itemInfo;
-        private Sequence _shopPanelSequence;
         private Sequence _purchasePanelSequence;
         private ItemType _curItemType;
 
@@ -62,11 +61,6 @@ namespace LobbyUIControl
             _lobbyUI = GetComponentInParent<LobbyUI>();
             _itemInfoTable = new Dictionary<ItemType, ItemInfo>();
             _shopPanelGroup = shopPanel.GetComponent<CanvasGroup>();
-            _shopPanelSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(_shopPanelGroup.DOFade(1, 0.25f).From(0))
-                .Join(shopPanel.DOAnchorPosX(0, 0.25f).From(new Vector2(-100, 0)));
-            _shopPanelSequence.OnComplete(() => _shopPanelGroup.blocksRaycasts = true);
-            _shopPanelSequence.OnRewind(() => { _lobbyUI.OffBlockImage(); });
             _shopPanelGroup.blocksRaycasts = false;
 
             _purchasePanelSequence = DOTween.Sequence().SetAutoKill(false).Pause()
@@ -95,11 +89,6 @@ namespace LobbyUIControl
         private void Start()
         {
             ItemInit();
-        }
-
-        private void OnDisable()
-        {
-            _shopPanelSequence?.Kill();
         }
 
         private void ItemInit()

@@ -40,18 +40,18 @@ namespace Utilities
 
         public void OpenGroup()
         {
-            itemImage.transform.DOScale(1.2f, 0.25f).From(1);
+            itemImage.transform.DOScale(1.1f, 0.25f).From(1);
             itemImage.color = selectedColor;
-            _groupButtonText.DOScale(1.2f, 0.25f).From(1);
+            _groupButtonText.DOScale(1.1f, 0.25f).From(1);
             _groupButtonText.color = selectedColor;
             _groupTween.Restart();
         }
 
         public void CloseGroup()
         {
-            itemImage.transform.DOScale(1, 0.25f).From(1.2f);
+            itemImage.transform.DOScale(1, 0.25f).From(1.1f);
             itemImage.color = unSelectedColor;
-            _groupButtonText.DOScale(1, 0.25f).From(1.2f);
+            _groupButtonText.DOScale(1, 0.25f).From(1.1f);
             _groupButtonText.color = unSelectedColor;
             _groupTween.PlayBackwards();
         }

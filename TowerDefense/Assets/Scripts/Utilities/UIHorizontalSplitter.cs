@@ -10,6 +10,14 @@ namespace Utilities
     {
         public float[] ratios; // 각 자식 요소의 비율
 
+        private void Reset()
+        {
+            var horizontalLayoutGroup = GetComponent<HorizontalLayoutGroup>();
+            horizontalLayoutGroup.childControlHeight = true;
+            horizontalLayoutGroup.childForceExpandHeight = true;
+            horizontalLayoutGroup.childForceExpandWidth = true;
+        }
+
         private void Start()
         {
             HorizontalSplitter();

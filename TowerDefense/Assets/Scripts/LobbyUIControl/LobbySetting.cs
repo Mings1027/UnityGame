@@ -52,8 +52,7 @@ namespace LobbyUIControl
 
             logOutPanel.OnConfirmButtonEvent += () =>
             {
-                BackendChart.instance.InitItemTable();
-                BackendLogin.instance.LogOut();
+                LoginManager.LogOut();
                 FadeController.FadeOutScene("LoginScene");
             };
         }

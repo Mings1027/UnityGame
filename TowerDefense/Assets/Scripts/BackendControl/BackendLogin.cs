@@ -48,7 +48,10 @@ namespace BackendControl
 
         public void LogOut()
         {
-            if (_isFederationLogin) _isFederationLogin = false;
+            if (_isFederationLogin)
+            {
+                _isFederationLogin = false;
+            }
             else Backend.BMember.Logout();
         }
 
@@ -85,13 +88,5 @@ namespace BackendControl
 
             return nickName;
         }
-
-        // public void UpdatePassword(string oldPassword, string newPassword)
-        // {
-        //     Backend.BMember.UpdatePassword(oldPassword, newPassword, _ =>
-        //     {
-        //         
-        //     });
-        // }
     }
 }

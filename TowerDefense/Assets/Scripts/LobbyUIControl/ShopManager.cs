@@ -17,6 +17,7 @@ namespace LobbyUIControl
         private CanvasGroup _shopPanelGroup;
 
         [SerializeField] private Button shopButton;
+        [SerializeField] private Button diaShopButton;
         [SerializeField] private Button closeButton;
 
         [SerializeField] private RectTransform tabGroups;
@@ -26,7 +27,7 @@ namespace LobbyUIControl
             _lobbyUI = GetComponentInParent<LobbyUI>();
             _shopPanelGroup = GetComponent<CanvasGroup>();
             var shopRect = GetComponent<RectTransform>();
-            
+
             _shopPanelSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(_shopPanelGroup.DOFade(1, 0.25f).From(0))
                 .Join(shopRect.DOAnchorPosX(0, 0.25f).From(new Vector2(-100, 0)));
@@ -68,6 +69,17 @@ namespace LobbyUIControl
                 _shopPanelSequence.Restart();
                 _tabGroupItems[0].OpenGroup();
                 _tabGroupItemQueue.Enqueue(_tabGroupItems[0]);
+            });
+
+            diaShopButton.onClick.AddListener(() =>
+            {
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
+                _lobbyUI.OnBackgroundImage();
+                _lobbyUI.SetActiveButtons(false, true);
+                _lobbyUI.Off();
+                _shopPanelSequence.Restart();
+                _tabGroupItems[1].OpenGroup();
+                _tabGroupItemQueue.Enqueue(_tabGroupItems[1]);
             });
 
             closeButton.onClick.AddListener(() =>

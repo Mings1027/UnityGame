@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -10,10 +11,18 @@ namespace Utilities
     {
         public float[] ratios; // 각 자식 요소의 비율
 
-        // private void Start()
-        // {
-        //     VerticalSplitter();
-        // }
+        private void Reset()
+        {
+            var verticalLayoutGroup = GetComponent<VerticalLayoutGroup>();
+            verticalLayoutGroup.childControlWidth = true;
+            verticalLayoutGroup.childForceExpandHeight = true;
+            verticalLayoutGroup.childForceExpandWidth = true;
+        }
+
+        private void Start()
+        {
+            VerticalSplitter();
+        }
 
         [ContextMenu("Vertical Splitter")]
         public void VerticalSplitter()

@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Mail;
 using System.Text;
@@ -13,6 +14,7 @@ using BackendControl;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using GameControl;
 using Newtonsoft.Json.Linq;
 using TMPro;
 using UIControl;
@@ -21,11 +23,12 @@ using UnityEngine.Networking;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Utilities;
+using Debug = UnityEngine.Debug;
 using Random = UnityEngine.Random;
 
 namespace ManagerControl
 {
-    public class LoginManager : MonoBehaviour
+    public class LoginManager : MonoSingleton<LoginManager>
     {
         private const string UserEmailID = "User Email ID";
         private const string LoginPlatformKey = "LoginPlatform";
@@ -70,14 +73,20 @@ namespace ManagerControl
         [SerializeField] private CanvasGroup connectionPanelGroup;
         [SerializeField] private NoticePanel signUpConfirmPanel;
         [SerializeField] private NoticePanel logOutNoticePanel;
+        protected override void Awake()
+        {
+            base.Awake();
+            instance = this;
+        }
 
         private void Start()
         {
             Init();
-            AppleInit();
-            GoogleInit();
             InitInputField();
             InitButtons();
+#if UNITY_IPHONE
+            AppleInit();
+#endif
         }
 
         private void Update()
@@ -153,6 +162,7 @@ namespace ManagerControl
         private void InitButtons()
         {
             appleLoginButton.onClick.AddListener(AppleLogin);
+
             emailLoginButton.onClick.AddListener(() =>
             {
                 content.anchoredPosition = Vector2.zero;
@@ -164,7 +174,7 @@ namespace ManagerControl
                 emailLoginPanelGroupObj.SetActive(false);
                 _loginButtonGroupTween.Restart();
             });
-            googleLoginButton.onClick.AddListener(GoogleLogin);
+            googleLoginButton.onClick.AddListener(StartGoogleLogin);
 
             sendEmailButton.onClick.AddListener(() => SendEmail().Forget());
             loginButton.onClick.AddListener(() =>
@@ -182,104 +192,6 @@ namespace ManagerControl
                 StartEmailLogin().Forget();
             };
         }
-
-#region APPLE
-
-        private void AppleInit()
-        {
-            if (AppleAuthManager.IsCurrentPlatformSupported)
-            {
-                var deserializer = new PayloadDeserializer();
-                _appleAuthManager = new AppleAuthManager(deserializer);
-            }
-
-            if (_appleAuthManager == null)
-            {
-                CustomLog.Log("#  지원 안함  #");
-                return;
-            }
-
-            _appleAuthManager.SetCredentialsRevokedCallback(result =>
-            {
-                CustomLog.Log("#  로그인 세션 삭제  #");
-                CustomLog.Log("Received revoked callback " + result);
-            });
-        }
-
-        private void AppleLogin()
-        {
-            var loginArgs = new AppleAuthLoginArgs(LoginOptions.None);
-            CustomLog.Log("#  로그인 버튼 클릭  #");
-
-            _appleAuthManager.LoginWithAppleId(loginArgs, credential =>
-                {
-                    CustomLog.Log("#  로그인 성공  #");
-                    CustomLog.Log("# userID: #");
-                    CustomLog.Log(credential.User);
-                    var appleIdCredential = credential as IAppleIDCredential;
-                    var passwordCredential = credential as IPasswordCredential;
-
-                    if (appleIdCredential.IdentityToken != null)
-                    {
-                        var identityToken = Encoding.UTF8.GetString(appleIdCredential.IdentityToken, 0,
-                            appleIdCredential.IdentityToken.Length);
-
-                        var bro = Backend.BMember.AuthorizeFederation(identityToken, FederationType.Apple);
-                        appleLoginButton.interactable = false;
-                        if (bro.IsSuccess())
-                        {
-                            BackendLogin.instance.FederationLogin();
-                            _loginButtonGroupTween.PlayBackwards();
-                            _connectionPanelGroupTween.OnComplete(() => connectionPanelGroup.blocksRaycasts = true)
-                                .Restart();
-                            BackendManager.BackendInit().Forget();
-                            SaveLoginPlatform(LoginPlatform.Apple);
-                        }
-                        else CustomLog.LogError("Apple 로그인 실패");
-
-                        appleLoginButton.interactable = true;
-                    }
-
-                    if (appleIdCredential.AuthorizationCode == null) return;
-                    CustomLog.Log("# authorizationCode:  #");
-                    CustomLog.Log(Encoding.UTF8.GetString(appleIdCredential.AuthorizationCode, 0,
-                        appleIdCredential.AuthorizationCode.Length));
-                },
-                error =>
-                {
-                    CustomLog.Log("#  로그인 실패  #");
-                    CustomLog.LogWarning("Sign in with Apple failed " + error.GetAuthorizationErrorCode() + error);
-                });
-        }
-
-        private void GameCenterLogin()
-        {
-            if (Social.localUser.authenticated)
-            {
-                CustomLog.Log("Success to true");
-            }
-            else
-            {
-                Social.localUser.Authenticate(success =>
-                {
-                    CustomLog.Log(success ? "Success to authenticate" : "Failed to login");
-                });
-            }
-        }
-
-#endregion
-
-#region GOOGLE
-
-        private void GoogleInit()
-        {
-        }
-
-        private void GoogleLogin()
-        {
-        }
-
-#endregion
 
 #region EMAIL
 
@@ -397,6 +309,7 @@ namespace ManagerControl
         private async UniTask StartEmailLogin()
         {
             BackendLogin.instance.CustomLogin(_id, _password);
+            _loginPlatform = LoginPlatform.Custom;
 
             if (!_isTestLogin)
             {
@@ -493,14 +406,6 @@ namespace ManagerControl
             return new string(randomPassword);
         }
 
-        private void LogOut()
-        {
-            BackendLogin.instance.LogOut();
-            BackendChart.instance.InitItemTable();
-            _connectionPanelGroupTween.OnRewind(() => connectionPanelGroup.blocksRaycasts = false).PlayBackwards();
-            _loginButtonGroupTween.Restart();
-        }
-
         private void LoadLoginPlatform()
         {
             var platform = (LoginPlatform)PlayerPrefs.GetInt(LoginPlatformKey);
@@ -535,5 +440,145 @@ namespace ManagerControl
         }
 
 #endregion
+
+#region Apple
+
+        private void AppleInit()
+        {
+            if (AppleAuthManager.IsCurrentPlatformSupported)
+            {
+                var deserializer = new PayloadDeserializer();
+                _appleAuthManager = new AppleAuthManager(deserializer);
+            }
+
+            if (_appleAuthManager == null)
+            {
+                Debug.Log("#  지원 안함  #");
+                return;
+            }
+
+            _appleAuthManager.SetCredentialsRevokedCallback(result =>
+            {
+                Debug.Log("#  로그인 세션 삭제  #");
+                Debug.Log("Received revoked callback " + result);
+            });
+        }
+
+        public void AppleLogin()
+        {
+            var loginArgs = new AppleAuthLoginArgs(LoginOptions.None);
+            Debug.Log("#  로그인 버튼 클릭  #");
+            Debug.Log($"authmanager : {_appleAuthManager}");
+            _appleAuthManager.LoginWithAppleId(loginArgs, credential =>
+                {
+                    Debug.Log("#  로그인 성공  #");
+                    Debug.Log("# userID: #");
+                    Debug.Log(credential.User);
+                    var appleIdCredential = credential as IAppleIDCredential;
+                    var passwordCredential = credential as IPasswordCredential;
+
+                    if (appleIdCredential.IdentityToken != null)
+                    {
+                        var identityToken = Encoding.UTF8.GetString(appleIdCredential.IdentityToken, 0,
+                            appleIdCredential.IdentityToken.Length);
+
+                        var bro = Backend.BMember.AuthorizeFederation(identityToken, FederationType.Apple);
+                        if (bro.IsSuccess())
+                        {
+                            BackendLogin.instance.FederationLogin();
+                            _loginButtonGroupTween.PlayBackwards();
+                            _connectionPanelGroupTween.OnComplete(() => connectionPanelGroup.blocksRaycasts = true)
+                                .Restart();
+                            BackendManager.BackendInit().Forget();
+                            SaveLoginPlatform(LoginPlatform.Apple);
+                            _loginPlatform = LoginPlatform.Apple;
+                        }
+                        else Debug.LogError("Apple 로그인 실패");
+                    }
+
+                    if (appleIdCredential.AuthorizationCode == null) return;
+                    Debug.Log("# authorizationCode:  #");
+                    Debug.Log(Encoding.UTF8.GetString(appleIdCredential.AuthorizationCode, 0,
+                        appleIdCredential.AuthorizationCode.Length));
+                },
+                error =>
+                {
+                    Debug.Log("#  로그인 실패  #");
+                    Debug.LogWarning("Sign in with Apple failed " + error.GetAuthorizationErrorCode() + error);
+                });
+        }
+
+#endregion
+
+#region Google
+
+        public void StartGoogleLogin()
+        {
+            TheBackend.ToolKit.GoogleLogin.iOS.GoogleLogin(GoogleLoginCallback);
+        }
+
+        private void GoogleLoginCallback(bool isSuccess, string errorMessage, string token)
+        {
+            if (isSuccess == false)
+            {
+                Debug.LogError(errorMessage);
+                return;
+            }
+
+            Debug.Log("구글 토큰 : " + token);
+            var bro = Backend.BMember.AuthorizeFederation(token, FederationType.Google);
+            Debug.Log("페데레이션 로그인 결과 : " + bro);
+            if (bro.IsSuccess())
+            {
+                _loginPlatform = LoginPlatform.Google;
+
+                BackendLogin.instance.FederationLogin();
+                _loginButtonGroupTween.PlayBackwards();
+                _connectionPanelGroupTween.OnComplete(() => connectionPanelGroup.blocksRaycasts = true)
+                    .Restart();
+                BackendManager.BackendInit().Forget();
+                SaveLoginPlatform(LoginPlatform.Google);
+            }
+        }
+
+        public void SignOutGoogleLogin()
+        {
+            TheBackend.ToolKit.GoogleLogin.iOS.GoogleSignOut(GoogleSignOutCallback);
+        }
+
+        private void GoogleSignOutCallback(bool isSuccess, string error)
+        {
+            if (isSuccess == false)
+            {
+                Debug.Log("구글 로그아웃 에러 응답 발생 : " + error);
+            }
+            else
+            {
+                Debug.Log("로그아웃 성공");
+            }
+        }
+
+#endregion
+
+        public static void LogOut()
+        {
+            switch (instance._loginPlatform)
+            {
+                case LoginPlatform.Apple:
+                    break;
+                case LoginPlatform.Google:
+                    instance.SignOutGoogleLogin();
+                    break;
+                case LoginPlatform.Custom:
+                    BackendLogin.instance.LogOut();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            BackendChart.instance.InitItemTable();
+            instance._connectionPanelGroupTween.OnRewind(() => instance.connectionPanelGroup.blocksRaycasts = false).PlayBackwards();
+            instance._loginButtonGroupTween.Restart();
+        }
     }
 }
