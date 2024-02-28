@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using AdsControl;
+using BackEnd;
+using BackendControl;
 using CurrencyControl;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
@@ -13,12 +16,14 @@ using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace LobbyUIControl
 {
     public class LobbyUI : MonoBehaviour
     {
+        private CancellationTokenSource _cts;
         private bool _isSequencePlaying;
         private Dictionary<NoticeTableEnum, string> _noticeDic;
 
@@ -39,6 +44,7 @@ namespace LobbyUIControl
         [SerializeField] private TMP_Text noticeText;
         [SerializeField] private Image backgroundImage;
         [SerializeField] private Image backgroundBlockImage;
+        [SerializeField] private AlertPanel duplicateAlertPanel;
 
         private void Awake()
         {
@@ -52,15 +58,38 @@ namespace LobbyUIControl
                 .Join(noticeGroup.DOFade(0, 0.25f).From(1));
         }
 
+        private void OnEnable()
+        {
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
+        }
+
         private void Start()
         {
             Init();
+            CheckAccessTokenAlive().Forget();
+        }
+
+        private async UniTaskVoid CheckAccessTokenAlive()
+        {
+            while (true)
+            {
+                await UniTask.Delay(3000, cancellationToken: _cts.Token);
+                var bro = Backend.BMember.IsAccessTokenAlive();
+                if (bro.IsSuccess()) continue;
+
+                duplicateAlertPanel.OpenPopUp();
+                break;
+            }
         }
 
         private void OnDisable()
         {
+            _cts?.Cancel();
+            _cts?.Dispose();
             _noticeSequence?.Kill();
             _emeraldNoticeSequence?.Kill();
+            LocalizationSettings.SelectedLocaleChanged -= ChangeLocaleNotice;
         }
 
         private void Init()
@@ -70,13 +99,14 @@ namespace LobbyUIControl
             startGameButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                FadeController.FadeOutScene("MainGameScene");
+                FadeController.FadeOutAndLoadScene("MainGameScene");
             });
 
             OffBackgroundImage();
             OffBlockImage();
             SetNoticeDic().Forget();
             LocalizationSettings.SelectedLocaleChanged += ChangeLocaleNotice;
+            duplicateAlertPanel.OnConfirmButtonEvent += () => FadeController.FadeOutAndLoadScene("LoginScene");
         }
 
         private async UniTaskVoid SetNoticeDic()

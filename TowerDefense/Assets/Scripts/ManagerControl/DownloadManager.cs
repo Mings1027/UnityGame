@@ -193,7 +193,7 @@ namespace ManagerControl
 
                 if (Math.Abs(total - _patchSize) < 0.01f)
                 {
-                    FadeController.FadeOutScene("Lobby");
+                    FadeController.FadeOutAndLoadScene("Lobby");
                     break;
                 }
 
@@ -208,7 +208,7 @@ namespace ManagerControl
         {
             downValueText.text = "100 %";
             downSlider.value = 1;
-            FadeController.FadeOutScene("Lobby");
+            FadeController.FadeOutAndLoadScene("Lobby");
         }
     }
 }

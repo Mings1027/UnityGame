@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using BackendControl;
@@ -91,11 +92,17 @@ namespace LobbyUIControl
             ItemInit();
         }
 
+        private void OnDisable()
+        {
+            LocalizationSettings.SelectedLocaleChanged -= ChangeLocaleItemDic;
+        }
+
         private void ItemInit()
         {
             CustomLog.Log($"플레이어 데이터: {BackendGameData.userData}");
             CustomLog.Log($"플레이어 아이템 테이블: {BackendGameData.userData.itemInventory}");
             var itemInventory = BackendGameData.userData.itemInventory;
+            BackendChart.instance.ChartGet();
 
             for (var i = 0; i < itemParent.childCount; i++)
             {

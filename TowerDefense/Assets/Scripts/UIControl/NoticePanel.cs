@@ -12,7 +12,7 @@ namespace UIControl
     {
 #region Private
 
-        private Sequence _noticeSequence;
+        private Tween _noticeTween;
         private Sequence _noticeChildSequence;
 
         private CanvasGroup _noticePanelGroup;
@@ -48,7 +48,7 @@ namespace UIControl
 
         private void OnDestroy()
         {
-            _noticeSequence?.Kill();
+            _noticeTween?.Kill();
             _noticeChildSequence?.Kill();
         }
 
@@ -73,8 +73,8 @@ namespace UIControl
             _noticePanelGroup.blocksRaycasts = false;
             _buttonGroup.blocksRaycasts = false;
 
-            _noticeSequence = DOTween.Sequence().SetAutoKill(false).Pause().SetUpdate(true)
-                .Append(_noticePanelGroup.DOFade(0.97f, 0.25f).From(0).SetEase(Ease.Linear));
+            _noticeTween = _noticePanelGroup.DOFade(0.97f, 0.25f).From(0).SetEase(Ease.Linear)
+                .SetAutoKill(false).Pause().SetUpdate(true);
 
             _noticeChildSequence = DOTween.Sequence().SetAutoKill(false).Pause().SetUpdate(true)
                 .Append(_blockImage.DOFade(1, 0.2f).From(0).SetEase(Ease.Linear))
@@ -88,6 +88,7 @@ namespace UIControl
         private void InitButton()
         {
             OnConfirmButtonEvent += () => SoundManager.PlayUISound(SoundEnum.ButtonSound);
+            OnCancelButtonEvent += () => SoundManager.PlayUISound(SoundEnum.ButtonSound);
 
             if (usePopUpButton)
             {
@@ -100,18 +101,16 @@ namespace UIControl
 
             _confirmButton.onClick.AddListener(() =>
             {
-                SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 _noticePanelGroup.blocksRaycasts = false;
                 _buttonGroup.blocksRaycasts = false;
-                _noticeSequence.PlayBackwards();
+                _noticeTween.PlayBackwards();
                 OnConfirmButtonEvent?.Invoke();
             });
             _cancelButton.onClick.AddListener(() =>
             {
-                SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 _noticePanelGroup.blocksRaycasts = false;
                 _buttonGroup.blocksRaycasts = false;
-                _noticeSequence.PlayBackwards();
+                _noticeTween.PlayBackwards();
                 OnCancelButtonEvent?.Invoke();
             });
         }
@@ -123,7 +122,7 @@ namespace UIControl
         public void OpenPopUp()
         {
             _noticePanelGroup.blocksRaycasts = true;
-            _noticeSequence.Restart();
+            _noticeTween.Restart();
             _noticeChildSequence.OnComplete(() => _buttonGroup.blocksRaycasts = true).Restart();
             OnPopUpButtonEvent?.Invoke();
         }

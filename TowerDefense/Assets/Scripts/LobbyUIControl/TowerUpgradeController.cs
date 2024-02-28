@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using BackendControl;
@@ -9,6 +11,8 @@ using ManagerControl;
 using TMPro;
 using UIControl;
 using UnityEngine;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 
 namespace LobbyUIControl
@@ -23,6 +27,7 @@ namespace LobbyUIControl
         private TowerUpgradeButton _curTowerButton;
         private AttackTowerData _attackTowerData;
         private TowerType _towerType;
+        private Dictionary<TowerType, string> _towerInfoDic;
         private const byte TowerMaxLevel = 20;
 
         //================= Tower Info ================
@@ -41,6 +46,7 @@ namespace LobbyUIControl
         [SerializeField] private CanvasGroup towerInfoGroup;
         [SerializeField] private Image infoGroupBackgroundImage;
         [SerializeField] private Image towerImage;
+        [SerializeField] private TMP_Text towerDescriptionText;
 
         [SerializeField] private TMP_Text xpText;
         [SerializeField] private TMP_Text towerLevelText;
@@ -63,6 +69,11 @@ namespace LobbyUIControl
             Input.multiTouchEnabled = false;
         }
 
+        private void OnEnable()
+        {
+            LocalizationSettings.SelectedLocaleChanged += ChangeLocaleTowerDic;
+        }
+
         private void Start()
         {
             _lobbyUI = GetComponentInParent<LobbyUI>();
@@ -71,6 +82,11 @@ namespace LobbyUIControl
             ButtonInit();
             TowerButtonInit();
             xpText.text = BackendGameData.userData.xp.ToString();
+        }
+
+        private void OnDisable()
+        {
+            LocalizationSettings.SelectedLocaleChanged -= ChangeLocaleTowerDic;
         }
 
         private void OnDestroy()
@@ -93,6 +109,24 @@ namespace LobbyUIControl
             _rangeText = rangeObj.transform.GetChild(1).GetComponent<TMP_Text>();
             _cooldownText = rpmObj.transform.GetChild(1).GetComponent<TMP_Text>();
             _respawnText = respawnObj.transform.GetChild(1).GetComponent<TMP_Text>();
+
+            _towerInfoDic = new Dictionary<TowerType, string>();
+            var towerTypes = Enum.GetValues(typeof(TowerType));
+            foreach (TowerType towerType in towerTypes)
+            {
+                if (towerType == TowerType.None) continue;
+                _towerInfoDic.Add(towerType,
+                    LocaleManager.GetLocalizedString(LocaleManager.TowerCardTable, LocaleManager.CardKey + towerType));
+            }
+        }
+
+        private void ChangeLocaleTowerDic(Locale locale)
+        {
+            foreach (var towerType in _towerInfoDic.Keys.ToList())
+            {
+                _towerInfoDic[towerType] =
+                    LocaleManager.GetLocalizedString(LocaleManager.TowerCardTable, LocaleManager.CardKey + towerType);
+            }
         }
 
         private void TweenInit()
@@ -134,7 +168,6 @@ namespace LobbyUIControl
                 UniTask.RunOnThreadPool(() => { BackendGameData.instance.GameDataUpdate(); });
             });
             notifyInitLevelPanel.OnConfirmButtonEvent += InitTowerLevel;
-            notifyInitLevelPanel.OnCancelButtonEvent += () => SoundManager.PlayUISound(SoundEnum.ButtonSound);
 
             closeInfoGroupButton.onClick.AddListener(() =>
             {
@@ -163,7 +196,7 @@ namespace LobbyUIControl
 
                 towerUpgradeButton.towerLevelText.text =
                     "Lv. " + towerLevelTable[towerUpgradeButton.attackTowerData.towerType.ToString()];
-                
+
                 towerUpgradeButton.upgradeButton.onClick.AddListener(() =>
                 {
                     SoundManager.PlayUISound(SoundEnum.ButtonSound);
@@ -173,7 +206,7 @@ namespace LobbyUIControl
                     _attackTowerData = towerUpgradeButton.attackTowerData;
                     _towerType = _attackTowerData.towerType;
                     towerImage.sprite = towerUpgradeButton.towerImage.sprite;
-
+                    towerDescriptionText.text = _towerInfoDic[_towerType];
                     var prevTowerLv = towerLevelTable[_towerType.ToString()];
                     if (prevTowerLv >= TowerMaxLevel) levelUpButton.interactable = false;
 

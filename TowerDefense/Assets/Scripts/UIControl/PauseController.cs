@@ -1,5 +1,9 @@
+using System;
+using System.Threading;
+using BackEnd;
 using BackendControl;
 using CustomEnumControl;
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using ManagerControl;
 using UnityEngine;
@@ -9,6 +13,7 @@ namespace UIControl
 {
     public class PauseController : MonoBehaviour
     {
+        private CancellationTokenSource _cts;
         private WaveManager _waveManager;
         private ItemBagController _itemBagController;
 
@@ -38,11 +43,26 @@ namespace UIControl
         [SerializeField] private Button gameOverButton;
         [SerializeField] private Button gameEndButton;
 
+        [SerializeField] private AlertPanel duplicateAlertPanel;
+
+        private void OnEnable()
+        {
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
+        }
+
         private void Start()
         {
             Init();
             TweenInit();
             ButtonInit();
+            CheckAccessTokenAlive().Forget();
+        }
+
+        private void OnDisable()
+        {
+            _cts?.Cancel();
+            _cts?.Dispose();
         }
 
         private void OnApplicationFocus(bool hasFocus)
@@ -80,6 +100,7 @@ namespace UIControl
 
             _doubleSpeedImage.enabled = false;
             _tripleSpeedImage.enabled = false;
+            duplicateAlertPanel.OnConfirmButtonEvent += () => FadeController.FadeOutAndLoadScene("LoginScene");
         }
 
         private void TweenInit()
@@ -124,18 +145,31 @@ namespace UIControl
                 UpdateSurvivedWave();
                 _itemBagController.UpdateInventory();
                 BackendGameData.instance.GameDataUpdate();
-                FadeController.FadeOutScene("Lobby");
+                FadeController.FadeOutAndLoadScene("Lobby");
             });
             gameEndButton.onClick.AddListener(() =>
             {
                 UpdateSurvivedWave();
                 _itemBagController.UpdateInventory();
                 BackendGameData.instance.GameDataUpdate();
-                FadeController.FadeOutScene("Lobby");
+                FadeController.FadeOutAndLoadScene("Lobby");
             });
         }
 
 #endregion
+
+        private async UniTaskVoid CheckAccessTokenAlive()
+        {
+            while (true)
+            {
+                await UniTask.Delay(3000, cancellationToken: _cts.Token);
+                var bro = Backend.BMember.IsAccessTokenAlive();
+                if (bro.IsSuccess()) continue;
+
+                duplicateAlertPanel.OpenPopUp();
+                break;
+            }
+        }
 
         private void Pause()
         {
@@ -151,12 +185,12 @@ namespace UIControl
             UpdateSurvivedWave();
             _itemBagController.UpdateInventory();
             BackendGameData.instance.GameDataUpdate();
-            FadeController.FadeOutScene("Lobby");
+            FadeController.FadeOutAndLoadScene("Lobby");
         }
 
         private void Restart()
         {
-            FadeController.FadeOutScene("ReStartScene");
+            FadeController.FadeOutAndLoadScene("ReStartScene");
             BackendGameData.isRestart = true;
         }
 

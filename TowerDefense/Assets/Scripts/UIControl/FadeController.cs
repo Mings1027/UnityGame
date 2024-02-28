@@ -49,7 +49,7 @@ namespace UIControl
             SceneManager.LoadScene(sceneName);
         }
 
-        public static void FadeOutScene(string sceneName)
+        public static void FadeOutAndLoadScene(string sceneName)
         {
             instance.FadeOutSceneAsync(sceneName).Forget();
         }

@@ -121,6 +121,7 @@ namespace ManagerControl
             _towerHealTween?.Kill();
             _cts?.Cancel();
             _cts?.Dispose();
+            LocalizationSettings.SelectedLocaleChanged -= ChangeLocaleTowerDictionary;
         }
 
         private void OnDestroy()
@@ -258,7 +259,7 @@ namespace ManagerControl
 
             foreach (TowerType towerType in towerTypes)
             {
-                if (towerType == TowerType.None) return;
+                if (towerType == TowerType.None) continue;
                 towerNameDic.Add(towerType,
                     LocaleManager.GetLocalizedString(LocaleManager.TowerCardTable, towerType.ToString()));
                 towerInfoDic.Add(towerType,

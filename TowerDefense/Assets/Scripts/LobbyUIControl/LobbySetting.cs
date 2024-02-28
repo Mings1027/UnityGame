@@ -52,8 +52,8 @@ namespace LobbyUIControl
 
             logOutPanel.OnConfirmButtonEvent += () =>
             {
-                LoginManager.LogOut();
-                FadeController.FadeOutScene("LoginScene");
+                BackendLogin.instance.LogOut();
+                FadeController.FadeOutAndLoadScene("LoginScene");
             };
         }
 
@@ -85,10 +85,7 @@ namespace LobbyUIControl
         {
             _settingPanelSequence = _settingPanelGroup.DOFade(1, 0.25f).From(0).SetAutoKill(false).Pause();
             _settingPanelSequence.OnComplete(() => _settingPanelGroup.blocksRaycasts = true);
-            _settingPanelSequence.OnRewind(() =>
-            {
-                _lobbyUI.OffBlockImage();
-            });
+            _settingPanelSequence.OnRewind(() => { _lobbyUI.OffBlockImage(); });
         }
 
         private void OpenSetting()

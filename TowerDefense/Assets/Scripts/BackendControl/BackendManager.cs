@@ -1,3 +1,4 @@
+using System;
 using BackEnd;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -21,6 +22,14 @@ namespace BackendControl
             }
         }
 
+        private void Update()
+        {
+            if (Backend.ErrorHandler.UseAsyncQueuePoll)
+            {
+                Backend.ErrorHandler.Poll();
+            }
+        }
+
         public static async UniTaskVoid BackendInit()
         {
             await UniTask.RunOnThreadPool(() =>
@@ -33,10 +42,15 @@ namespace BackendControl
                         Backend.BMember.GetUserInfo().GetReturnValuetoJSON()["row"]["gamerId"].ToString()[..7]);
                 }
 
-                BackendChart.instance.ChartGet();
-
-                CustomLog.Log("테스트를 종료합니다");
+                Debug.Log("테스트를 종료합니다");
             });
+
+            if (Backend.IsInitialized)
+            {
+                Debug.Log("여기여기여기여기여기여기여기");
+                Backend.ErrorHandler.InitializePoll(true);
+                Backend.ErrorHandler.OnOtherDeviceLoginDetectedError = () => { Debug.Log("외부 로그인 감지!!!"); };
+            }
         }
     }
 }

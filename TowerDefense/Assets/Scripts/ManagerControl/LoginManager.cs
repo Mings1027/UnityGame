@@ -28,12 +28,12 @@ using Random = UnityEngine.Random;
 
 namespace ManagerControl
 {
-    public class LoginManager : MonoSingleton<LoginManager>
+    public class LoginManager : MonoBehaviour
     {
         private const string UserEmailID = "User Email ID";
         private const string LoginPlatformKey = "LoginPlatform";
 
-        private LoginPlatform _loginPlatform;
+        // private LoginPlatform _loginPlatform;
         private bool _isTestLogin;
         private string _id, _oneTimeCode, _password;
         private string _wwwText;
@@ -73,14 +73,11 @@ namespace ManagerControl
         [SerializeField] private CanvasGroup connectionPanelGroup;
         [SerializeField] private NoticePanel signUpConfirmPanel;
         [SerializeField] private NoticePanel logOutNoticePanel;
-        protected override void Awake()
-        {
-            base.Awake();
-            instance = this;
-        }
 
         private void Start()
         {
+            LoadLoginPlatform();
+
             Init();
             InitInputField();
             InitButtons();
@@ -102,6 +99,8 @@ namespace ManagerControl
             _connectionPanelGroupTween?.Kill();
         }
 
+#region Init
+
         private void Init()
         {
             _loginButtonGroupTween = loginButtonsGroup.DOFade(1, 0.25f).From(0).SetAutoKill(false)
@@ -120,7 +119,6 @@ namespace ManagerControl
 
             var lastPlatform = PlayerPrefs.GetInt(LoginPlatformKey);
             checkLastLoginImage.enabled = lastPlatform != 0;
-            LoadLoginPlatform();
 
             Input.multiTouchEnabled = false;
             Time.timeScale = 1;
@@ -183,7 +181,15 @@ namespace ManagerControl
                 Login().Forget();
             });
 
-            logOutNoticePanel.OnConfirmButtonEvent += LogOut;
+            logOutNoticePanel.OnConfirmButtonEvent += () =>
+            {
+                BackendLogin.instance.LogOut();
+
+                BackendChart.instance.InitItemTable();
+                _connectionPanelGroupTween.OnRewind(() => connectionPanelGroup.blocksRaycasts = false)
+                    .PlayBackwards();
+                _loginButtonGroupTween.Restart();
+            };
             signUpConfirmPanel.OnConfirmButtonEvent += async () =>
             {
                 loginButton.interactable = false;
@@ -192,6 +198,8 @@ namespace ManagerControl
                 StartEmailLogin().Forget();
             };
         }
+
+#endregion
 
 #region EMAIL
 
@@ -309,7 +317,7 @@ namespace ManagerControl
         private async UniTask StartEmailLogin()
         {
             BackendLogin.instance.CustomLogin(_id, _password);
-            _loginPlatform = LoginPlatform.Custom;
+            BackendLogin.instance.loginPlatform = LoginPlatform.Custom;
 
             if (!_isTestLogin)
             {
@@ -409,20 +417,20 @@ namespace ManagerControl
         private void LoadLoginPlatform()
         {
             var platform = (LoginPlatform)PlayerPrefs.GetInt(LoginPlatformKey);
-            _loginPlatform = platform;
+            BackendLogin.instance.loginPlatform = platform;
             CheckLastPlatform();
         }
 
         private void SaveLoginPlatform(LoginPlatform loginPlatform)
         {
             PlayerPrefs.SetInt(LoginPlatformKey, (int)loginPlatform);
-            _loginPlatform = loginPlatform;
+            BackendLogin.instance.loginPlatform = loginPlatform;
             CheckLastPlatform();
         }
 
         private void CheckLastPlatform()
         {
-            switch (_loginPlatform)
+            switch (BackendLogin.instance.loginPlatform)
             {
                 case LoginPlatform.Apple:
                     checkLastLoginImage.rectTransform.anchoredPosition =
@@ -464,7 +472,7 @@ namespace ManagerControl
             });
         }
 
-        public void AppleLogin()
+        private void AppleLogin()
         {
             var loginArgs = new AppleAuthLoginArgs(LoginOptions.None);
             Debug.Log("#  로그인 버튼 클릭  #");
@@ -485,13 +493,12 @@ namespace ManagerControl
                         var bro = Backend.BMember.AuthorizeFederation(identityToken, FederationType.Apple);
                         if (bro.IsSuccess())
                         {
-                            BackendLogin.instance.FederationLogin();
                             _loginButtonGroupTween.PlayBackwards();
                             _connectionPanelGroupTween.OnComplete(() => connectionPanelGroup.blocksRaycasts = true)
                                 .Restart();
                             BackendManager.BackendInit().Forget();
                             SaveLoginPlatform(LoginPlatform.Apple);
-                            _loginPlatform = LoginPlatform.Apple;
+                            BackendLogin.instance.loginPlatform = LoginPlatform.Apple;
                         }
                         else Debug.LogError("Apple 로그인 실패");
                     }
@@ -530,9 +537,8 @@ namespace ManagerControl
             Debug.Log("페데레이션 로그인 결과 : " + bro);
             if (bro.IsSuccess())
             {
-                _loginPlatform = LoginPlatform.Google;
+                BackendLogin.instance.loginPlatform = LoginPlatform.Google;
 
-                BackendLogin.instance.FederationLogin();
                 _loginButtonGroupTween.PlayBackwards();
                 _connectionPanelGroupTween.OnComplete(() => connectionPanelGroup.blocksRaycasts = true)
                     .Restart();
@@ -541,44 +547,6 @@ namespace ManagerControl
             }
         }
 
-        public void SignOutGoogleLogin()
-        {
-            TheBackend.ToolKit.GoogleLogin.iOS.GoogleSignOut(GoogleSignOutCallback);
-        }
-
-        private void GoogleSignOutCallback(bool isSuccess, string error)
-        {
-            if (isSuccess == false)
-            {
-                Debug.Log("구글 로그아웃 에러 응답 발생 : " + error);
-            }
-            else
-            {
-                Debug.Log("로그아웃 성공");
-            }
-        }
-
 #endregion
-
-        public static void LogOut()
-        {
-            switch (instance._loginPlatform)
-            {
-                case LoginPlatform.Apple:
-                    break;
-                case LoginPlatform.Google:
-                    instance.SignOutGoogleLogin();
-                    break;
-                case LoginPlatform.Custom:
-                    BackendLogin.instance.LogOut();
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-
-            BackendChart.instance.InitItemTable();
-            instance._connectionPanelGroupTween.OnRewind(() => instance.connectionPanelGroup.blocksRaycasts = false).PlayBackwards();
-            instance._loginButtonGroupTween.Restart();
-        }
     }
 }

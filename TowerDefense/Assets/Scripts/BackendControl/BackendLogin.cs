@@ -1,4 +1,6 @@
+using System;
 using BackEnd;
+using CustomEnumControl;
 using UnityEngine;
 using Utilities;
 
@@ -8,7 +10,8 @@ namespace BackendControl
     {
         private static BackendLogin _instance;
         public static BackendLogin instance => _instance ??= new BackendLogin();
-        private bool _isFederationLogin;
+
+        public LoginPlatform loginPlatform { get; set; }
 
         public void CustomSignUp(string id, string pw)
         {
@@ -41,18 +44,38 @@ namespace BackendControl
             CustomLog.LogError("로그인이 실패했습니다. : " + bro);
         }
 
-        public void FederationLogin()
-        {
-            _isFederationLogin = true;
-        }
-
         public void LogOut()
         {
-            if (_isFederationLogin)
+            switch (loginPlatform)
             {
-                _isFederationLogin = false;
+                case LoginPlatform.Apple:
+                    break;
+                case LoginPlatform.Google:
+                    SignOutGoogleLogin();
+                    break;
+                case LoginPlatform.Custom:
+                    Backend.BMember.Logout();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
-            else Backend.BMember.Logout();
+        }
+
+        private void SignOutGoogleLogin()
+        {
+            TheBackend.ToolKit.GoogleLogin.iOS.GoogleSignOut(GoogleSignOutCallback);
+        }
+
+        private void GoogleSignOutCallback(bool isSuccess, string error)
+        {
+            if (isSuccess)
+            {
+                Debug.Log("로그아웃 성공");
+            }
+            else
+            {
+                Debug.Log("구글 로그아웃 에러 응답 발생 : " + error);
+            }
         }
 
         public (bool, string) UpdateNickname(string nickname)
