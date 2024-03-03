@@ -256,9 +256,6 @@ namespace BackendControl
             {
                 CustomLog.LogError("게임정보 데이터 수정에 실패했습니다. : " + bro);
             }
-
-            Debug.Log($"error code : {bro.GetErrorCode()}");
-            Debug.Log($"status code : {bro.GetStatusCode()}");
         }
     }
 }

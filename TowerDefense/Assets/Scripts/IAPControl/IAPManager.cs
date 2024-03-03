@@ -80,7 +80,7 @@ namespace IAPControl
             }
         }
 
-        // 초기화 시 자동 호출
+        // Automatically called on initialization
         public void OnInitialized(IStoreController controller, IExtensionProvider extensions)
         {
             _storeController = controller;
@@ -97,7 +97,6 @@ namespace IAPControl
             CustomLog.Log("initinitinitinitinitinitinitinitinitinitinitinitinitinitinit");
         }
 
-        //구매 버튼에 연결
         private void Purchase(string productId)
         {
             _storeController.InitiatePurchase(productId);

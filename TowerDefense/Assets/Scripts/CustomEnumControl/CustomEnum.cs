@@ -12,7 +12,8 @@ namespace CustomEnumControl
         NeedMoreDia,
         NeedMoreEmerald,
         DuplicateName,
-        SuccessChangedName
+        SuccessChangedName,
+        NeedMoreGearCoin
     }
 
     public enum TowerType

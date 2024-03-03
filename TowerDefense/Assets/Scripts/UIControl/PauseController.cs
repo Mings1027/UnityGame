@@ -1,5 +1,6 @@
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using BackEnd;
 using BackendControl;
 using CustomEnumControl;
@@ -56,7 +57,7 @@ namespace UIControl
             Init();
             TweenInit();
             ButtonInit();
-            CheckAccessTokenAlive().Forget();
+            CheckAccessToken().Forget();
         }
 
         private void OnDisable()
@@ -80,6 +81,11 @@ namespace UIControl
             }
         }
 
+        private void OnApplicationQuit()
+        {
+            BackendLogin.instance.LogOut();
+        }
+
 #region Init
 
         private void Init()
@@ -100,7 +106,11 @@ namespace UIControl
 
             _doubleSpeedImage.enabled = false;
             _tripleSpeedImage.enabled = false;
-            duplicateAlertPanel.OnConfirmButtonEvent += () => FadeController.FadeOutAndLoadScene("LoginScene");
+            duplicateAlertPanel.OnConfirmButtonEvent += () =>
+            {
+                BackendLogin.instance.LogOut();
+                FadeController.FadeOutAndLoadScene("LoginScene");
+            };
         }
 
         private void TweenInit()
@@ -158,16 +168,20 @@ namespace UIControl
 
 #endregion
 
-        private async UniTaskVoid CheckAccessTokenAlive()
+        private async UniTaskVoid CheckAccessToken()
         {
-            while (true)
+            var isAlive = true;
+            while (!_cts.IsCancellationRequested)
             {
                 await UniTask.Delay(3000, cancellationToken: _cts.Token);
-                var bro = Backend.BMember.IsAccessTokenAlive();
-                if (bro.IsSuccess()) continue;
-
-                duplicateAlertPanel.OpenPopUp();
-                break;
+                await UniTask.RunOnThreadPool(() =>
+                {
+                    var bro = Backend.BMember.IsAccessTokenAlive();
+                    if (bro.IsSuccess()) return;
+                    isAlive = false;
+                    duplicateAlertPanel.OpenPopUp();
+                });
+                if (!isAlive) break;
             }
         }
 

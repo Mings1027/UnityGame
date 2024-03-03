@@ -178,7 +178,16 @@ namespace LobbyUIControl
             });
             levelUpButton.onClick.AddListener(() =>
             {
-                LevelUp();
+                var userData = BackendGameData.userData;
+                var prevTowerLv = userData.towerLevelTable[_towerType.ToString()];
+
+                if (prevTowerLv >= TowerMaxLevel || userData.xp < (prevTowerLv + 1) * 25)
+                {
+                    _lobbyUI.NoticeTween(NoticeTableEnum.NeedMoreGearCoin);
+                    return;
+                }
+
+                LevelUp(userData, prevTowerLv);
                 SetTowerInfo();
             });
         }
@@ -219,13 +228,9 @@ namespace LobbyUIControl
             }
         }
 
-        private void LevelUp()
+        private void LevelUp(UserData userData, int prevTowerLv)
         {
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            var userData = BackendGameData.userData;
-            var prevTowerLv = userData.towerLevelTable[_towerType.ToString()];
-
-            if (prevTowerLv >= TowerMaxLevel || userData.xp < (prevTowerLv + 1) * 25) return;
             userData.xp -= (prevTowerLv + 1) * 25;
             xpText.text = userData.xp.ToString();
             var curTowerLv = userData.towerLevelTable[_towerType.ToString()] += 1;

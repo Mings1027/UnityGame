@@ -24,7 +24,7 @@ namespace Utilities
         }
 
         [ContextMenu("Horizontal Splitter")]
-        private void HorizontalSplitter()
+        public void HorizontalSplitter()
         {
             if (ratios.Length <= 0) return;
             var totalRatio = ratios.Sum();

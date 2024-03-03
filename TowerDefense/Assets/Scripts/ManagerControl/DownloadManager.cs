@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using TMPro;
 using UIControl;
@@ -18,8 +17,8 @@ namespace ManagerControl
         private Dictionary<string, long> _patchMap;
 
         [SerializeField] private NoticePanel downLoadNoticePanel;
-        [SerializeField] private TMP_Text sizeInfoText;
-        [SerializeField] private TMP_Text downValueText;
+        [SerializeField] private TMP_Text downloadSizeText;
+        [SerializeField] private TMP_Text downloadPercentText;
         [SerializeField] private Slider downSlider;
         [SerializeField] private Button startButton;
         [SerializeField] private CanvasGroup connectionGroup;
@@ -89,7 +88,7 @@ namespace ManagerControl
             if (_patchSize > decimal.Zero) // 다운로드 할 것이 있음
             {
                 CustomLog.Log("다운로드다운로드다운로드다운로드다운로드");
-                sizeInfoText.text = GetFilSize(_patchSize);
+                downloadSizeText.text = GetFilSize(_patchSize);
                 startButton.gameObject.SetActive(false);
                 downLoadNoticePanel.OpenPopUp();
             }
@@ -124,7 +123,7 @@ namespace ManagerControl
                 size = byteCount + " Bytes";
             }
 
-            return size;
+            return " " + size;
         }
 
 #endregion
@@ -183,13 +182,13 @@ namespace ManagerControl
         private async UniTask CheckDownLoad()
         {
             var total = 0f;
-            downValueText.text = "0 %";
+            downloadPercentText.text = "0 %";
 
             while (true)
             {
                 total += _patchMap.Sum(tmp => tmp.Value);
                 downSlider.value = total / _patchSize;
-                downValueText.text = (int)(downSlider.value * 100) + " %";
+                downloadPercentText.text = (int)(downSlider.value * 100) + " %";
 
                 if (Math.Abs(total - _patchSize) < 0.01f)
                 {
@@ -206,7 +205,7 @@ namespace ManagerControl
 
         private void ProgressBarTo100()
         {
-            downValueText.text = "100 %";
+            downloadPercentText.text = "100 %";
             downSlider.value = 1;
             FadeController.FadeOutAndLoadScene("Lobby");
         }

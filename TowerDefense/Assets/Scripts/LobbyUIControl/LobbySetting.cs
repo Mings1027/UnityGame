@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using BackEnd;
 using BackendControl;
 using CustomEnumControl;
 using DG.Tweening;
@@ -24,7 +25,10 @@ namespace LobbyUIControl
 
         [SerializeField] private RectTransform tabGroups;
         [SerializeField] private NoticePanel logOutPanel;
+        [SerializeField] private NoticePanel deleteAccountPanel;
 
+        [SerializeField] private GameObject accountDeletionObj;
+        
         private void Start()
         {
             _lobbyUI = GetComponentInParent<LobbyUI>();
@@ -34,6 +38,8 @@ namespace LobbyUIControl
             Init();
             InitButton();
             InitTween();
+            
+            accountDeletionObj.SetActive(!BackendLogin.instance.testLogin);
         }
 
         private void OnDestroy()
@@ -53,6 +59,13 @@ namespace LobbyUIControl
             logOutPanel.OnConfirmButtonEvent += () =>
             {
                 BackendLogin.instance.LogOut();
+                FadeController.FadeOutAndLoadScene("LoginScene");
+            };
+
+            deleteAccountPanel.OnConfirmButtonEvent += () =>
+            {
+                Backend.BMember.WithdrawAccount();
+                BackendLogin.instance.DeletionAccount();
                 FadeController.FadeOutAndLoadScene("LoginScene");
             };
         }

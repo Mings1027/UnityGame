@@ -1,7 +1,9 @@
 using System;
 using BackEnd;
 using CustomEnumControl;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.Networking;
 using Utilities;
 
 namespace BackendControl
@@ -12,6 +14,9 @@ namespace BackendControl
         public static BackendLogin instance => _instance ??= new BackendLogin();
 
         public LoginPlatform loginPlatform { get; set; }
+        public string customEmail { get; set; }
+        public string url { get; set; }
+        public bool testLogin { get; set; }
 
         public void CustomSignUp(string id, string pw)
         {
@@ -49,15 +54,56 @@ namespace BackendControl
             switch (loginPlatform)
             {
                 case LoginPlatform.Apple:
+                    CustomLog.Log("apple logout");
                     break;
                 case LoginPlatform.Google:
+                    CustomLog.Log("google logout");
                     SignOutGoogleLogin();
                     break;
                 case LoginPlatform.Custom:
+                    CustomLog.Log("custom logout");
                     Backend.BMember.Logout();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        public void DeletionAccount()
+        {
+            switch (loginPlatform)
+            {
+                case LoginPlatform.Apple:
+                    Debug.Log("애플 계정 삭제");
+                    break;
+                case LoginPlatform.Google:
+                    Debug.Log("구글 계정 삭제");
+                    break;
+                case LoginPlatform.Custom:
+                    Debug.Log("커스텀 계정 삭제");
+                    DeletionEmail().Forget();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        private async UniTaskVoid DeletionEmail()
+        {
+            var form = new WWWForm();
+            form.AddField("order", "deletionAccount");
+            form.AddField("id", customEmail);
+            await Post(form);
+        }
+
+        private async UniTask Post(WWWForm form)
+        {
+            using var www = UnityWebRequest.Post(url, form);
+            await www.SendWebRequest();
+            if (www.isDone)
+            {
+                Debug.Log("웹 응답 성공");
+                Debug.Log(www.downloadHandler.text);
             }
         }
 
@@ -70,11 +116,11 @@ namespace BackendControl
         {
             if (isSuccess)
             {
-                Debug.Log("로그아웃 성공");
+                CustomLog.Log("로그아웃 성공");
             }
             else
             {
-                Debug.Log("구글 로그아웃 에러 응답 발생 : " + error);
+                CustomLog.Log("구글 로그아웃 에러 응답 발생 : " + error);
             }
         }
 

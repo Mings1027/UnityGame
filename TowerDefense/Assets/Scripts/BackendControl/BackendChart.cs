@@ -13,6 +13,7 @@ namespace BackendControl
 
         public void ChartGet()
         {
+            if (ItemTable.Count > 0) return;
             const string chartId = "106985";
             CustomLog.Log($"{chartId}의 차트 불러오기를 요청합니다.");
             var bro = Backend.Chart.GetChartContents(chartId);

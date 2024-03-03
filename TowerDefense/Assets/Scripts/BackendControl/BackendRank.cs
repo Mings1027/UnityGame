@@ -94,7 +94,8 @@ namespace BackendControl
             CustomLog.Log("총 랭킹 등록 유저 수 : " + bro.GetFlattenJSON()["totalCount"]);
 
             userRankInfos = new List<UserRankInfo>();
-            foreach (LitJson.JsonData jsonData in bro.FlattenRows())
+            foreach (
+                LitJson.JsonData jsonData in bro.FlattenRows())
             {
                 var userInfo = new UserRankInfo
                 {

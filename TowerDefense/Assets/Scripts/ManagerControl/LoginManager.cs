@@ -1,5 +1,4 @@
 using System;
-using System.Diagnostics;
 using System.Net;
 using System.Net.Mail;
 using System.Text;
@@ -14,13 +13,11 @@ using BackendControl;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
-using GameControl;
 using Newtonsoft.Json.Linq;
 using TMPro;
 using UIControl;
 using UnityEngine;
 using UnityEngine.Networking;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Utilities;
 using Debug = UnityEngine.Debug;
@@ -33,8 +30,6 @@ namespace ManagerControl
         private const string UserEmailID = "User Email ID";
         private const string LoginPlatformKey = "LoginPlatform";
 
-        // private LoginPlatform _loginPlatform;
-        private bool _isTestLogin;
         private string _id, _oneTimeCode, _password;
         private string _wwwText;
 
@@ -77,7 +72,6 @@ namespace ManagerControl
         private void Start()
         {
             LoadLoginPlatform();
-
             Init();
             InitInputField();
             InitButtons();
@@ -169,6 +163,7 @@ namespace ManagerControl
             });
             goBackButton.onClick.AddListener(() =>
             {
+                CancelTimer();
                 emailLoginPanelGroupObj.SetActive(false);
                 _loginButtonGroupTween.Restart();
             });
@@ -193,7 +188,7 @@ namespace ManagerControl
             signUpConfirmPanel.OnConfirmButtonEvent += async () =>
             {
                 loginButton.interactable = false;
-                _cts?.Cancel();
+                CancelTimer();
                 await StartEmailSignUp();
                 StartEmailLogin().Forget();
             };
@@ -210,7 +205,7 @@ namespace ManagerControl
             notifySendEmailObj.SetActive(true);
             if (idField.text == "test@test.com")
             {
-                _isTestLogin = true;
+                BackendLogin.instance.testLogin = true;
                 _oneTimeCode = "123456";
                 return;
             }
@@ -261,6 +256,12 @@ namespace ManagerControl
                 await UniTask.Delay(TimeSpan.FromSeconds(1), cancellationToken: _cts.Token);
             }
 
+            CancelTimer();
+        }
+
+        private void CancelTimer()
+        {
+            _cts?.Cancel();
             idField.interactable = true;
             oneTimeCodeField.interactable = false;
             timerBackground.enabled = false;
@@ -271,7 +272,7 @@ namespace ManagerControl
 
         private async UniTaskVoid Login()
         {
-            if (_isTestLogin && oneTimeCodeField.text == "123456")
+            if (BackendLogin.instance.testLogin && oneTimeCodeField.text == "123456")
             {
                 BackendLogin.instance.CustomLogin("test@test.com", "123456");
                 ActiveStartPanel();
@@ -316,10 +317,13 @@ namespace ManagerControl
 
         private async UniTask StartEmailLogin()
         {
-            BackendLogin.instance.CustomLogin(_id, _password);
-            BackendLogin.instance.loginPlatform = LoginPlatform.Custom;
+            var backendLogin = BackendLogin.instance;
+            backendLogin.CustomLogin(_id, _password);
+            backendLogin.loginPlatform = LoginPlatform.Custom;
+            backendLogin.customEmail = _id;
+            backendLogin.url = url;
 
-            if (!_isTestLogin)
+            if (!backendLogin.testLogin)
             {
                 var countJson = JObject.Parse(_wwwText);
                 var curCount = byte.Parse((string)countJson["value"] ?? string.Empty);
@@ -346,12 +350,8 @@ namespace ManagerControl
             BackendManager.BackendInit().Forget();
             SaveLoginPlatform(LoginPlatform.Custom);
 
-            idField.interactable = true;
-            oneTimeCodeField.interactable = false;
-            timerBackground.enabled = false;
-            sendEmailButton.interactable = true;
-            notifySendEmailObj.SetActive(false);
-            timerText.text = "";
+            CancelTimer();
+
             _oneTimeCode = "";
             oneTimeCodeField.text = "";
             content.DOLocalMoveY(0, 0.5f).SetEase(Ease.OutQuart);
@@ -430,21 +430,16 @@ namespace ManagerControl
 
         private void CheckLastPlatform()
         {
-            switch (BackendLogin.instance.loginPlatform)
+            checkLastLoginImage.rectTransform.anchoredPosition = BackendLogin.instance.loginPlatform switch
             {
-                case LoginPlatform.Apple:
-                    checkLastLoginImage.rectTransform.anchoredPosition =
-                        appleLoginButton.GetComponent<RectTransform>().anchoredPosition + new Vector2(300, 0);
-                    break;
-                case LoginPlatform.Google:
-                    checkLastLoginImage.rectTransform.anchoredPosition =
-                        googleLoginButton.GetComponent<RectTransform>().anchoredPosition + new Vector2(300, 0);
-                    break;
-                case LoginPlatform.Custom:
-                    checkLastLoginImage.rectTransform.anchoredPosition =
-                        emailLoginButton.GetComponent<RectTransform>().anchoredPosition + new Vector2(300, 0);
-                    break;
-            }
+                LoginPlatform.Apple => appleLoginButton.GetComponent<RectTransform>().anchoredPosition +
+                                       new Vector2(300, 0),
+                LoginPlatform.Google => googleLoginButton.GetComponent<RectTransform>().anchoredPosition +
+                                        new Vector2(300, 0),
+                LoginPlatform.Custom => emailLoginButton.GetComponent<RectTransform>().anchoredPosition +
+                                        new Vector2(300, 0),
+                _ => checkLastLoginImage.rectTransform.anchoredPosition
+            };
         }
 
 #endregion
@@ -461,27 +456,27 @@ namespace ManagerControl
 
             if (_appleAuthManager == null)
             {
-                Debug.Log("#  지원 안함  #");
+                CustomLog.Log("#  지원 안함  #");
                 return;
             }
 
             _appleAuthManager.SetCredentialsRevokedCallback(result =>
             {
-                Debug.Log("#  로그인 세션 삭제  #");
-                Debug.Log("Received revoked callback " + result);
+                CustomLog.Log("#  로그인 세션 삭제  #");
+                CustomLog.Log("Received revoked callback " + result);
             });
         }
 
         private void AppleLogin()
         {
             var loginArgs = new AppleAuthLoginArgs(LoginOptions.None);
-            Debug.Log("#  로그인 버튼 클릭  #");
-            Debug.Log($"authmanager : {_appleAuthManager}");
+            CustomLog.Log("#  로그인 버튼 클릭  #");
+            CustomLog.Log($"authmanager : {_appleAuthManager}");
             _appleAuthManager.LoginWithAppleId(loginArgs, credential =>
                 {
-                    Debug.Log("#  로그인 성공  #");
-                    Debug.Log("# userID: #");
-                    Debug.Log(credential.User);
+                    CustomLog.Log("#  로그인 성공  #");
+                    CustomLog.Log("# userID: #");
+                    CustomLog.Log(credential.User);
                     var appleIdCredential = credential as IAppleIDCredential;
                     var passwordCredential = credential as IPasswordCredential;
 
@@ -500,18 +495,18 @@ namespace ManagerControl
                             SaveLoginPlatform(LoginPlatform.Apple);
                             BackendLogin.instance.loginPlatform = LoginPlatform.Apple;
                         }
-                        else Debug.LogError("Apple 로그인 실패");
+                        else CustomLog.LogError("Apple 로그인 실패");
                     }
 
                     if (appleIdCredential.AuthorizationCode == null) return;
-                    Debug.Log("# authorizationCode:  #");
-                    Debug.Log(Encoding.UTF8.GetString(appleIdCredential.AuthorizationCode, 0,
+                    CustomLog.Log("# authorizationCode:  #");
+                    CustomLog.Log(Encoding.UTF8.GetString(appleIdCredential.AuthorizationCode, 0,
                         appleIdCredential.AuthorizationCode.Length));
                 },
                 error =>
                 {
-                    Debug.Log("#  로그인 실패  #");
-                    Debug.LogWarning("Sign in with Apple failed " + error.GetAuthorizationErrorCode() + error);
+                    CustomLog.Log("#  로그인 실패  #");
+                    CustomLog.LogWarning("Sign in with Apple failed " + error.GetAuthorizationErrorCode() + error);
                 });
         }
 
@@ -528,13 +523,13 @@ namespace ManagerControl
         {
             if (isSuccess == false)
             {
-                Debug.LogError(errorMessage);
+                CustomLog.LogError(errorMessage);
                 return;
             }
 
-            Debug.Log("구글 토큰 : " + token);
+            CustomLog.Log("구글 토큰 : " + token);
             var bro = Backend.BMember.AuthorizeFederation(token, FederationType.Google);
-            Debug.Log("페데레이션 로그인 결과 : " + bro);
+            CustomLog.Log("페데레이션 로그인 결과 : " + bro);
             if (bro.IsSuccess())
             {
                 BackendLogin.instance.loginPlatform = LoginPlatform.Google;

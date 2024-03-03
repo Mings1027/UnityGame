@@ -35,7 +35,6 @@ namespace Utilities
 
             _groupTween = _canvasGroup.DOFade(1, 0.1f).From(0).SetAutoKill(false).Pause();
             _groupTween.OnComplete(() => _canvasGroup.blocksRaycasts = true);
-            _groupTween.OnRewind(() => _canvasGroup.blocksRaycasts = false);
         }
 
         public void OpenGroup()
@@ -53,6 +52,7 @@ namespace Utilities
             itemImage.color = unSelectedColor;
             _groupButtonText.DOScale(1, 0.25f).From(1.1f);
             _groupButtonText.color = unSelectedColor;
+            _canvasGroup.blocksRaycasts = false;
             _groupTween.PlayBackwards();
         }
     }

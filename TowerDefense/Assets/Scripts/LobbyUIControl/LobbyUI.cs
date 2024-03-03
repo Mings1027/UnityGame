@@ -67,19 +67,23 @@ namespace LobbyUIControl
         private void Start()
         {
             Init();
-            CheckAccessTokenAlive().Forget();
+            CheckAccessToken().Forget();
         }
 
-        private async UniTaskVoid CheckAccessTokenAlive()
+        private async UniTaskVoid CheckAccessToken()
         {
-            while (true)
+            var isAlive = true;
+            while (!_cts.IsCancellationRequested)
             {
                 await UniTask.Delay(3000, cancellationToken: _cts.Token);
-                var bro = Backend.BMember.IsAccessTokenAlive();
-                if (bro.IsSuccess()) continue;
-
-                duplicateAlertPanel.OpenPopUp();
-                break;
+                await UniTask.RunOnThreadPool(() =>
+                {
+                    var bro = Backend.BMember.IsAccessTokenAlive();
+                    if (bro.IsSuccess()) return;
+                    isAlive = false;
+                    duplicateAlertPanel.OpenPopUp();
+                });
+                if (!isAlive) break;
             }
         }
 
@@ -106,7 +110,11 @@ namespace LobbyUIControl
             OffBlockImage();
             SetNoticeDic().Forget();
             LocalizationSettings.SelectedLocaleChanged += ChangeLocaleNotice;
-            duplicateAlertPanel.OnConfirmButtonEvent += () => FadeController.FadeOutAndLoadScene("LoginScene");
+            duplicateAlertPanel.OnConfirmButtonEvent += () =>
+            {
+                BackendLogin.instance.LogOut();
+                FadeController.FadeOutAndLoadScene("LoginScene");
+            };
         }
 
         private async UniTaskVoid SetNoticeDic()
