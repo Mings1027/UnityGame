@@ -3,6 +3,7 @@ using DataControl;
 using ManagerControl;
 using PoolObjectControl;
 using TextControl;
+using UIControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using Random = UnityEngine.Random;
@@ -31,7 +32,7 @@ namespace MapControl
             PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, transform.position).SetGoldText(gold);
             SoundManager.PlayUISound(gold < 100 ? SoundEnum.LowCost :
                 gold < 250 ? SoundEnum.MediumCost : SoundEnum.HighCost);
-            UIManager.SetTowerGold(gold);
+            GameHUD.IncreaseTowerGold(gold);
         }
     }
 }

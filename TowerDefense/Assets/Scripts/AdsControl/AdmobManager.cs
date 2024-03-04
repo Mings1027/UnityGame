@@ -12,16 +12,15 @@ namespace AdsControl
 {
     public class AdmobManager : MonoBehaviour
     {
-        private LobbyUI _lobbyUI;
-
         private string _rewardedId;
-        
+
         [SerializeField] private string iosRewardedId = "ca-app-pub-6682177183839018/8095151824";
         [SerializeField] private string androidRewardedId = "ca-app-pub-6682177183839018/1076560711";
 
         [SerializeField] private bool isTestMode;
 
         public event Action OnAdCloseEvent;
+        public event Action OnRewardedEvent;
 
         private void Start()
         {
@@ -56,8 +55,6 @@ namespace AdsControl
         private RewardedAd _rewardedAd;
         private const string TestRewardedId = "ca-app-pub-3940256099942544/1712485313";
 
-        public void BindLobbyUI(LobbyUI lobbyUI) => _lobbyUI = lobbyUI;
-
         public void LoadRewardedAd()
         {
             if (_rewardedAd != null)
@@ -87,7 +84,7 @@ namespace AdsControl
         {
             if (_rewardedAd != null && _rewardedAd.CanShowAd())
             {
-                _rewardedAd.Show(_ => { RewardedAdRewardAsync().Forget(); });
+                _rewardedAd.Show(_ => { OnRewardedEvent?.Invoke(); });
             }
             else
             {
@@ -121,14 +118,6 @@ namespace AdsControl
             {
                 CustomLog.LogError("Rewarded ad failed to open full screen content with error : " + error);
             };
-        }
-
-        private async UniTaskVoid RewardedAdRewardAsync()
-        {
-            await UniTask.Delay(1000);
-            BackendGameData.userData.emerald += 50;
-            BackendGameData.instance.GameDataUpdate();
-            _lobbyUI.emeraldCurrency.SetText();
         }
 
 #endregion

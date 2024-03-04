@@ -12,6 +12,7 @@ namespace Utilities
     {
         private CanvasGroup _canvasGroup;
         private Tween _groupTween;
+        private Sequence _buttonSequence;
         private TMP_Text _groupButtonText;
 
         public event Action<TabGroupItem> OnTabEvent;
@@ -33,27 +34,28 @@ namespace Utilities
                 OnTabEvent?.Invoke(this);
             });
 
-            _groupTween = _canvasGroup.DOFade(1, 0.1f).From(0).SetAutoKill(false).Pause();
+            _groupTween = _canvasGroup.DOFade(1, 0.1f).From(0).SetAutoKill(false).Pause().SetUpdate(true);
             _groupTween.OnComplete(() => _canvasGroup.blocksRaycasts = true);
+            _buttonSequence = DOTween.Sequence().SetAutoKill(false).Pause().SetUpdate(true)
+                .Append(itemImage.transform.DOScale(1.1f, 0.25f).From(1))
+                .Join(_groupButtonText.DOScale(1.1f, 0.25f).From(1));
         }
 
         public void OpenGroup()
         {
-            itemImage.transform.DOScale(1.1f, 0.25f).From(1);
             itemImage.color = selectedColor;
-            _groupButtonText.DOScale(1.1f, 0.25f).From(1);
             _groupButtonText.color = selectedColor;
             _groupTween.Restart();
+            _buttonSequence.Restart();
         }
 
         public void CloseGroup()
         {
-            itemImage.transform.DOScale(1, 0.25f).From(1.1f);
             itemImage.color = unSelectedColor;
-            _groupButtonText.DOScale(1, 0.25f).From(1.1f);
             _groupButtonText.color = unSelectedColor;
             _canvasGroup.blocksRaycasts = false;
             _groupTween.PlayBackwards();
+            _buttonSequence.PlayBackwards();
         }
     }
 }

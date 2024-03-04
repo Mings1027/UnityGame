@@ -4,6 +4,7 @@ using DataControl.TowerDataControl;
 using InterfaceControl;
 using ManagerControl;
 using StatusControl;
+using UIControl;
 using UnityEngine;
 
 namespace TowerControl
@@ -20,7 +21,7 @@ namespace TowerControl
             base.Init();
             var manaTowerData = (ManaUsingTowerData)UIManager.towerDataDic[towerType];
             _attackMana = manaTowerData.initMana;
-            _towerMana = UIManager.GetTowerMana();
+            _towerMana = GameHUD.towerMana;
             firePos = transform.GetChild(2);
         }
 

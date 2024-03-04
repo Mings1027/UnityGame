@@ -38,6 +38,7 @@ namespace LobbyUIControl
         private int _curQuantity;
         private int _curEmeraldPrice;
         private CanvasGroup _shopPanelGroup;
+        private string _localizedOwnedText;
 
         [SerializeField] private RectTransform shopPanel;
         [SerializeField] private Button purchaseButton;
@@ -84,6 +85,7 @@ namespace LobbyUIControl
                 ClosePurchasePanel();
             });
 
+            _localizedOwnedText = LocaleManager.GetLocalizedString(LocaleManager.LobbyUITable, "OwnedText");
             LocalizationSettings.SelectedLocaleChanged += ChangeLocaleItemDic;
         }
 
@@ -133,7 +135,7 @@ namespace LobbyUIControl
             CustomLog.Log($"아이템 설명 : {_itemInfoTable[itemType].itemExplain}");
 
             explainImage.sprite = sprite;
-            ownedAmountText.text = _itemInfoTable[itemType].itemCount.ToString();
+            ownedAmountText.text = _localizedOwnedText + _itemInfoTable[itemType].itemCount;
             purchasePanelGroup.blocksRaycasts = true;
             _purchasePanelSequence.Restart();
             _curEmeraldPrice = BackendChart.ItemTable[_curItemType.ToString()];
@@ -175,6 +177,7 @@ namespace LobbyUIControl
             }
 
             LocaleManager.ChangeLocaleAsync(LocaleManager.ItemTable, _curItemType.ToString(), explainText).Forget();
+            _localizedOwnedText = LocaleManager.GetLocalizedString(LocaleManager.LobbyUITable, "OwnedText");
         }
 
         private void IncreaseQuantity()

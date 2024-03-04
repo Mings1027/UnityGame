@@ -1,19 +1,14 @@
-using System;
 using System.Collections.Generic;
-using DataControl;
-using DataControl.TowerDataControl;
 using InterfaceControl;
-using StatusControl;
 using TowerControl;
+using UIControl;
 using UnityEngine;
 
 namespace ManagerControl
 {
-
     public class TowerManager : MonoBehaviour, IAddressableObject
     {
         private List<AttackTower> _towers;
-        private Mana _towerMana;
 
 #region Unity Event
 
@@ -44,14 +39,14 @@ namespace ManagerControl
         public void StartTargeting()
         {
             enabled = true;
-            _towerMana.StartManaRegen();
+            GameHUD.towerMana.StartManaRegen();
         }
 
         public void StopTargeting()
         {
             enabled = false;
             TargetInit();
-            _towerMana.StopManaRegen();
+            GameHUD.towerMana.StopManaRegen();
         }
 
         private void TargetInit()
@@ -67,11 +62,6 @@ namespace ManagerControl
 #endregion
 
 #region Public Method
-
-        public void TowerManaInit(Mana towerMana)
-        {
-            _towerMana = towerMana;
-        }
 
         public void AddTower(AttackTower tower)
         {

@@ -113,7 +113,7 @@ namespace ManagerControl
         private void StartWave()
         {
             _towerManager.StartTargeting();
-            UIManager.SetWaveText(curWave.ToString());
+            GameHUD.SetWaveText(curWave.ToString());
             SpawnEnemy(_wayPoints).Forget();
 
             if (_isBossWave)
@@ -220,7 +220,7 @@ namespace ManagerControl
                 PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText,
                         monsterUnit.transform.position + Random.insideUnitSphere)
                     .SetGoldText(gold);
-                UIManager.SetTowerGold(gold);
+                GameHUD.IncreaseTowerGold(gold);
 
                 if (monsterUnit.TryGetComponent(out TransformMonster transformMonster))
                 {
@@ -257,7 +257,7 @@ namespace ManagerControl
                 PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText,
                         monsterUnit.transform.position + Random.insideUnitSphere)
                     .SetGoldText(gold);
-                UIManager.SetTowerGold(gold);
+                GameHUD.IncreaseTowerGold(gold);
                 StatusBarUIController.Remove(healthBarTransform);
             };
             monsterUnit.OnDisableEvent += () =>
@@ -290,7 +290,7 @@ namespace ManagerControl
         {
             if (!_startWave) return;
             _monsterList.Remove(monsterUnit);
-            var towerHealth = UIManager.GetTowerHealth();
+            var towerHealth = GameHUD.towerHealth;
             if (!isDead) towerHealth.Damage(monsterUnit.baseTowerDamage);
 
             if (towerHealth.IsDead)

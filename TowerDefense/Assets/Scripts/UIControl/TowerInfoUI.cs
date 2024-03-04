@@ -1,3 +1,4 @@
+using System;
 using System.Globalization;
 using CustomEnumControl;
 using DataControl.TowerDataControl;
@@ -5,19 +6,20 @@ using ManagerControl;
 using TMPro;
 using TowerControl;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace UIControl
 {
     public class TowerInfoUI : MonoBehaviour
     {
-        private Camera _cam;
         private Image[] _starImages;
-        private Vector3 _followTowerPos;
         private TowerType _towerType;
         private sbyte _prevTowerLevel;
+        private Vector3 _towerPos;
         private bool _isTargeting;
-        private Transform _statusInfoPanel;
+        private Camera _cam;
+        private Transform _towerTransform;
 
         private TMP_Text _healthText;
         private TMP_Text _rangeText;
@@ -25,28 +27,26 @@ namespace UIControl
         private TMP_Text _respawnText;
         private TMP_Text _damageText;
 
-        [SerializeField] private Transform followTowerUI;
-
+        [SerializeField] private RectTransform towerInfoCardRect;
         [SerializeField] private Image damageImage;
         [SerializeField] private GameObject healthObj;
         [SerializeField] private GameObject rangeObj;
         [SerializeField] private GameObject rpmObj;
         [SerializeField] private GameObject respawnObj;
-        [SerializeField] private Transform stars;
+        [SerializeField] private GameObject towerLevelStar;
+        [SerializeField] private CanvasGroup towerStatusPanelObj;
 
         [SerializeField] private TextMeshProUGUI towerNameText;
         [SerializeField] private TextMeshProUGUI goldText;
         [SerializeField] private TextMeshProUGUI sellGoldText;
 
-#region Unity Event
-
         private void LateUpdate()
         {
             if (!_isTargeting) return;
-            followTowerUI.position = _cam.WorldToScreenPoint(_followTowerPos);
-            _statusInfoPanel.position = followTowerUI.position.x > Screen.width * 0.5f
-                ? followTowerUI.position - new Vector3(500, 0, 0)
-                : followTowerUI.position + new Vector3(500, 0, 0);
+
+            var towerPos = _cam.WorldToScreenPoint(_towerTransform.position);
+            towerInfoCardRect.anchoredPosition =
+                towerPos.x > Screen.width * 0.5f ? new Vector2(-600, 0) : new Vector2(600, 0);
         }
 
         private void OnDisable()
@@ -54,19 +54,16 @@ namespace UIControl
             _isTargeting = false;
         }
 
-#endregion
-
         public void Init()
         {
+            _cam = Camera.main;
             _prevTowerLevel = -1;
             _towerType = TowerType.None;
-            _cam = Camera.main;
-            _starImages = new Image[stars.childCount];
-            _statusInfoPanel = transform.GetChild(1);
+            _starImages = new Image[towerLevelStar.transform.childCount];
 
             for (var i = 0; i < _starImages.Length; i++)
             {
-                _starImages[i] = stars.GetChild(i).GetChild(2).GetComponent<Image>();
+                _starImages[i] = towerLevelStar.transform.GetChild(i).GetChild(2).GetComponent<Image>();
             }
 
             _healthText = healthObj.transform.GetChild(0).GetComponent<TMP_Text>();
@@ -76,16 +73,17 @@ namespace UIControl
             _damageText = damageImage.transform.GetChild(0).GetComponent<TMP_Text>();
         }
 
-        public void SetInfoUI(Vector3 towerPos)
+        public void SetCardPos(Transform towerTransform)
         {
             _isTargeting = true;
-            _followTowerPos = towerPos;
+            _towerTransform = towerTransform;
         }
 
         public void SetTowerInfo(AttackTower tower, TowerData towerData, sbyte level,
             ushort upgradeCost, ushort sellCost, string towerName)
         {
-            if (!_statusInfoPanel.gameObject.activeSelf) _statusInfoPanel.gameObject.SetActive(true);
+            towerStatusPanelObj.alpha = 1;
+            towerLevelStar.SetActive(true);
 
             if (towerData is AttackTowerData battleTowerData)
             {
@@ -124,7 +122,8 @@ namespace UIControl
 
         public void SetSupportTowerInfo(SupportTower tower, ushort sellCost, string towerName)
         {
-            _statusInfoPanel.gameObject.SetActive(false);
+            towerStatusPanelObj.alpha = 0;
+            towerLevelStar.SetActive(false);
 
             var towerType = tower.towerType;
 
@@ -142,7 +141,7 @@ namespace UIControl
             if (_prevTowerLevel == level) return;
             _prevTowerLevel = level;
 
-            for (var i = 0; i < stars.childCount; i++)
+            for (var i = 0; i < towerLevelStar.transform.childCount; i++)
             {
                 _starImages[i].enabled = i <= level;
             }

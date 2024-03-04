@@ -17,6 +17,7 @@ namespace UIControl
 
         protected override void Awake()
         {
+            base.Awake();
             instance = this;
             _graphicRaycaster = GetComponent<GraphicRaycaster>();
             fadeInImage.DOFade(1, 0);

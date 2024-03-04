@@ -1,5 +1,6 @@
 using ManagerControl;
 using TowerControl;
+using UIControl;
 using UniTaskTweenControl;
 using UnityEngine;
 
@@ -65,7 +66,7 @@ namespace UnitControl
             }
             else
             {
-                UIManager.UnitCannotMove();
+                GameHUD.CannotMove();
             }
         }
     }

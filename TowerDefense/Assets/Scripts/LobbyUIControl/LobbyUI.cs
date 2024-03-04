@@ -49,7 +49,8 @@ namespace LobbyUIControl
         private void Awake()
         {
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
-
+            Time.timeScale = 1;
+            
             var noticeDiaRect = noticeGroup.GetComponent<RectTransform>();
 
             _noticeSequence = DOTween.Sequence().SetAutoKill(false).Pause()
@@ -70,27 +71,11 @@ namespace LobbyUIControl
             CheckAccessToken().Forget();
         }
 
-        private async UniTaskVoid CheckAccessToken()
-        {
-            var isAlive = true;
-            while (!_cts.IsCancellationRequested)
-            {
-                await UniTask.Delay(3000, cancellationToken: _cts.Token);
-                await UniTask.RunOnThreadPool(() =>
-                {
-                    var bro = Backend.BMember.IsAccessTokenAlive();
-                    if (bro.IsSuccess()) return;
-                    isAlive = false;
-                    duplicateAlertPanel.OpenPopUp();
-                });
-                if (!isAlive) break;
-            }
-        }
-
         private void OnDisable()
         {
             _cts?.Cancel();
             _cts?.Dispose();
+
             _noticeSequence?.Kill();
             _emeraldNoticeSequence?.Kill();
             LocalizationSettings.SelectedLocaleChanged -= ChangeLocaleNotice;
@@ -98,7 +83,8 @@ namespace LobbyUIControl
 
         private void Init()
         {
-            FindAnyObjectByType<AdmobManager>().BindLobbyUI(this);
+            FindAnyObjectByType<AdmobManager>().OnRewardedEvent += () => { RewardedAdRewardAsync().Forget(); };
+
             inGameMoneyObj.SetActive(false);
             startGameButton.onClick.AddListener(() =>
             {
@@ -115,6 +101,31 @@ namespace LobbyUIControl
                 BackendLogin.instance.LogOut();
                 FadeController.FadeOutAndLoadScene("LoginScene");
             };
+        }
+
+        private async UniTaskVoid RewardedAdRewardAsync()
+        {
+            await UniTask.Delay(1000);
+            BackendGameData.userData.emerald += 50;
+            BackendGameData.instance.GameDataUpdate();
+            emeraldCurrency.SetText();
+        }
+
+        private async UniTaskVoid CheckAccessToken()
+        {
+            var isAlive = true;
+            while (!_cts.IsCancellationRequested)
+            {
+                await UniTask.Delay(3000, cancellationToken: _cts.Token);
+                await UniTask.RunOnThreadPool(() =>
+                {
+                    var bro = Backend.BMember.IsAccessTokenAlive();
+                    if (bro.IsSuccess()) return;
+                    isAlive = false;
+                    duplicateAlertPanel.OpenPopUp();
+                }, cancellationToken: _cts.Token);
+                if (!isAlive) break;
+            }
         }
 
         private async UniTaskVoid SetNoticeDic()
@@ -147,9 +158,14 @@ namespace LobbyUIControl
             {
                 _noticeDic[noticeString] =
                     LocaleManager.GetLocalizedString(LocaleManager.NoticeTable, noticeString.ToString());
-                Debug.Log($"key : {noticeString}  value : {_noticeDic[noticeString]}");
             }
         }
+        //
+        // public void CancelToken()
+        // {
+        //     _cts?.Cancel();
+        //     _cts?.Dispose();
+        // }
 
         public void SetActiveButtons(bool active, bool inGameMoneyActive)
         {

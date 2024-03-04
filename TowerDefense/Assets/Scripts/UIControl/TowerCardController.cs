@@ -83,7 +83,7 @@ namespace UIControl
                
                 _slideSequence.PlayBackwards();
                 CloseTowerCard();
-                UIManager.SlideDown().Forget();
+                UIManager.SlideDown();
             });
         }
 

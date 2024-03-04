@@ -2,6 +2,7 @@ using System.Threading;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using GameControl;
 using ManagerControl;
 using StatusControl;
 using TMPro;
@@ -10,12 +11,13 @@ using UnityEngine.UI;
 
 namespace UIControl
 {
-    public class GameHUD : MonoBehaviour
+    public class GameHUD : MonoSingleton<GameHUD>
     {
         private Sequence _hudSlideTween;
         private Sequence _cantMoveImageSequence;
         private Sequence _towerGoldTween;
         private Sequence _centerButtonSequence;
+        private Tween _towerHealTween;
         private CancellationTokenSource _cts;
         private Transform _camTransform;
 
@@ -31,13 +33,10 @@ namespace UIControl
         [SerializeField] private TMP_Text goldText;
         [SerializeField, Range(0, 30)] private int playerHealth;
         [SerializeField, Range(0, 1000)] private int playerMana;
+        [SerializeField] private CanvasGroup centerButtonGroup;
+        [SerializeField] private TMP_Text waveText;
 
-        [field: Header("==================Property==================")]
-        [field: SerializeField] public CanvasGroup centerButtonGroup { get; private set; }
-
-        [field: SerializeField] public TMP_Text waveText { get; private set; }
-
-        public int towerGold
+        private int towerGold
         {
             get => _towerGold;
             set
@@ -48,15 +47,16 @@ namespace UIControl
             }
         }
 
-        public TowerHealth towerHealth { get; private set; }
-        public Mana towerMana { get; private set; }
-
-        [field: SerializeField] public Sprite physicalSprite { get; private set; }
-        [field: SerializeField] public Sprite magicSprite { get; private set; }
-        [field: SerializeField] public Sprite sellSprite { get; private set; }
-        [field: SerializeField] public Sprite checkSprite { get; private set; }
+        public static TowerHealth towerHealth { get; private set; }
+        public static Mana towerMana { get; private set; }
 
 #region Unity Event
+
+        protected override void Awake()
+        {
+            base.Awake();
+            instance = this;
+        }
 
         private void OnDisable()
         {
@@ -90,6 +90,77 @@ namespace UIControl
             ButtonInit();
             TweenInit();
             CheckCamPos().Forget();
+        }
+
+        public static int GetTowerGold()
+        {
+            return instance.towerGold;
+        }
+
+        public static void CannotMove()
+        {
+            instance.CannotMovePrivate();
+        }
+
+        public static void TowerHeal()
+        {
+            instance.TowerHealPrivate();
+        }
+
+        public static void DisplayHUD()
+        {
+            instance.DisplayHUDPrivate();
+        }
+
+        public static void RemoveManaTower()
+        {
+            towerMana.manaRegenValue -= 2;
+        }
+
+        public static void BuildManaTower()
+        {
+            towerMana.manaRegenValue += 2;
+        }
+
+        public static void SetTowerGold(byte difficultyLevel)
+        {
+            var towerGold = instance.towerGold;
+            towerGold = difficultyLevel switch
+            {
+                0 => 2000,
+                1 => 4000,
+                2 => 5000,
+                3 => 6000,
+                _ => towerGold
+            };
+
+            instance.towerGold = towerGold;
+        }
+
+        public static void IncreaseTowerGold(int gold)
+        {
+            instance.towerGold += gold;
+        }
+
+        public static void DecreaseTowerGold(int gold)
+        {
+            instance.towerGold -= gold;
+        }
+
+        public static void SetWaveText(string wave)
+        {
+            instance.waveText.text = wave;
+        }
+
+#endregion
+
+#region Private Method
+
+        private void CannotMovePrivate()
+        {
+            cantMoveImage.transform.position = Input.mousePosition;
+            cantMoveImage.enabled = true;
+            _cantMoveImageSequence.OnComplete(() => cantMoveImage.enabled = false).Restart();
         }
 
         private void ButtonInit()
@@ -133,6 +204,11 @@ namespace UIControl
             _centerButtonSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(centerBtnRect.DOAnchorPosX(150, 0.25f).From())
                 .Join(centerButtonGroup.DOFade(1, 0.25f).From(0));
+
+            var towerHealthRect = towerHealth.GetComponent<RectTransform>();
+            _towerHealTween = DOTween.Sequence().SetAutoKill(false).Pause()
+                .Append(towerHealthRect.DOScale(1.2f, 0.125f))
+                .Append(towerHealthRect.DOScale(1, 0.125f));
         }
 
         private async UniTaskVoid CheckCamPos()
@@ -153,14 +229,13 @@ namespace UIControl
             }
         }
 
-        public void CannotMove()
+        private void TowerHealPrivate()
         {
-            cantMoveImage.transform.position = Input.mousePosition;
-            cantMoveImage.enabled = true;
-            _cantMoveImageSequence.OnComplete(() => cantMoveImage.enabled = false).Restart();
+            _towerHealTween.Restart();
+            towerHealth.Heal(5);
         }
 
-        public void DisplayHUD()
+        private void DisplayHUDPrivate()
         {
             if (_isHUDVisible) return;
             _hudSlideTween.Restart();

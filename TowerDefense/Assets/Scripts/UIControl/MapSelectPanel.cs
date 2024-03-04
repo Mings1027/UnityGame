@@ -31,7 +31,7 @@ namespace UIControl
                 difficultyButtonGroup.GetChild(i).GetComponent<Button>().onClick.AddListener(() =>
                 {
                     SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                    UIManager.MapSelectButton(index).Forget();
+                    UIManager.MapSelectButton(index);
                     _canvasGroup.blocksRaycasts = false;
                     _panelSequence.OnRewind(() => { Destroy(gameObject); }).PlayBackwards();
                 });

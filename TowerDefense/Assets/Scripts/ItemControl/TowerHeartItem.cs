@@ -2,6 +2,7 @@ using CustomEnumControl;
 using ManagerControl;
 using PoolObjectControl;
 using TextControl;
+using UIControl;
 
 namespace ItemControl
 {
@@ -15,9 +16,9 @@ namespace ItemControl
 
         public override void Spawn()
         {
-            if (UIManager.GetTowerHealth().Current >= 10) return;
+            if (GameHUD.towerHealth.Current >= 10) return;
             PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.TowerHealText, cameraManager.camPos).SetHpText(5);
-            UIManager.TowerHeal();
+            GameHUD.TowerHeal();
         }
     }
 }

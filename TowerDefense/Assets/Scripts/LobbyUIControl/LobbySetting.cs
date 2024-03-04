@@ -28,7 +28,7 @@ namespace LobbyUIControl
         [SerializeField] private NoticePanel deleteAccountPanel;
 
         [SerializeField] private GameObject accountDeletionObj;
-        
+
         private void Start()
         {
             _lobbyUI = GetComponentInParent<LobbyUI>();
@@ -38,7 +38,7 @@ namespace LobbyUIControl
             Init();
             InitButton();
             InitTween();
-            
+
             accountDeletionObj.SetActive(!BackendLogin.instance.testLogin);
         }
 
@@ -56,11 +56,13 @@ namespace LobbyUIControl
                 _tabGroupArray[i].OnTabEvent += ClickTab;
             }
 
+            logOutPanel.OnPopUpButtonEvent += () => { Time.timeScale = 0; };
             logOutPanel.OnConfirmButtonEvent += () =>
             {
                 BackendLogin.instance.LogOut();
                 FadeController.FadeOutAndLoadScene("LoginScene");
             };
+            logOutPanel.OnCancelButtonEvent += () => { Time.timeScale = 1; };
 
             deleteAccountPanel.OnConfirmButtonEvent += () =>
             {
@@ -96,7 +98,8 @@ namespace LobbyUIControl
 
         private void InitTween()
         {
-            _settingPanelSequence = _settingPanelGroup.DOFade(1, 0.25f).From(0).SetAutoKill(false).Pause();
+            _settingPanelSequence =
+                _settingPanelGroup.DOFade(1, 0.25f).From(0).SetAutoKill(false).Pause().SetUpdate(true);
             _settingPanelSequence.OnComplete(() => _settingPanelGroup.blocksRaycasts = true);
             _settingPanelSequence.OnRewind(() => { _lobbyUI.OffBlockImage(); });
         }

@@ -1,10 +1,6 @@
-using System.Collections.Generic;
-using System.Linq;
 using Cysharp.Threading.Tasks;
 using TMPro;
-using UnityEngine;
 using UnityEngine.Localization.Settings;
-using UnityEngine.Localization.Tables;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace ManagerControl
@@ -16,6 +12,7 @@ namespace ManagerControl
         public const string TowerCardTable = "TowerCard Table";
         public const string ItemTable = "Item Table";
         public const string LobbyUITable = "Lobby UI Table";
+        public const string LogInUITable = "LogIn UI Table";
         public const string NoticeTable = "Notice Table";
         public const string CardKey = "Card-";
         public const string ItemKey = "Item-";

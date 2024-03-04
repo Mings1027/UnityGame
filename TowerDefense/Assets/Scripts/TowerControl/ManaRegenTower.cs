@@ -1,4 +1,5 @@
 using ManagerControl;
+using UIControl;
 
 namespace TowerControl
 {
@@ -7,12 +8,12 @@ namespace TowerControl
         public override void TowerSetting()
         {
             base.TowerSetting();
-            UIManager.BuildManaTower();
+            GameHUD.BuildManaTower();
         }
 
         public override void DisableObject()
         {
-            UIManager.RemoveManaTower();
+            GameHUD.RemoveManaTower();
             base.DisableObject();
         }
     }

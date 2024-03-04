@@ -6,6 +6,9 @@ using TMPro;
 using UIControl;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Utilities;
 
@@ -14,10 +17,11 @@ namespace ManagerControl
     public class DownloadManager : MonoBehaviour
     {
         private long _patchSize;
+        private string _updateText;
         private Dictionary<string, long> _patchMap;
 
         [SerializeField] private NoticePanel downLoadNoticePanel;
-        [SerializeField] private TMP_Text downloadSizeText;
+        [SerializeField] private TMP_Text downloadText;
         [SerializeField] private TMP_Text downloadPercentText;
         [SerializeField] private Slider downSlider;
         [SerializeField] private Button startButton;
@@ -52,14 +56,25 @@ namespace ManagerControl
 
         private void Start()
         {
-            Time.timeScale = 1;
             downSlider.gameObject.SetActive(false);
             InitAddressable().Forget();
+            _updateText = LocaleManager.GetLocalizedString(LocaleManager.LogInUITable, "UpdateNotice");
+            LocalizationSettings.SelectedLocaleChanged += ChangeLocaleUpdateText;
+        }
+
+        private void OnDisable()
+        {
+            LocalizationSettings.SelectedLocaleChanged -= ChangeLocaleUpdateText;
         }
 
         private async UniTaskVoid InitAddressable()
         {
             await Addressables.InitializeAsync();
+        }
+
+        private void ChangeLocaleUpdateText(Locale locale)
+        {
+            _updateText = LocaleManager.GetLocalizedString(LocaleManager.LogInUITable, "UpdateNotice");
         }
 
 #region CheckDown
@@ -88,7 +103,7 @@ namespace ManagerControl
             if (_patchSize > decimal.Zero) // 다운로드 할 것이 있음
             {
                 CustomLog.Log("다운로드다운로드다운로드다운로드다운로드");
-                downloadSizeText.text = GetFilSize(_patchSize);
+                downloadText.text = GetFilSize(_patchSize);
                 startButton.gameObject.SetActive(false);
                 downLoadNoticePanel.OpenPopUp();
             }
@@ -123,7 +138,7 @@ namespace ManagerControl
                 size = byteCount + " Bytes";
             }
 
-            return " " + size;
+            return _updateText + size;
         }
 
 #endregion
