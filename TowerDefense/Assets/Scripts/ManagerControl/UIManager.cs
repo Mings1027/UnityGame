@@ -46,8 +46,6 @@ namespace ManagerControl
         private Dictionary<TowerType, TMP_Text> _towerGoldTextDictionary;
         private Dictionary<TowerType, GameObject> _towerPrefabDic;
 
-        private Tween _infoGroupTween;
-
         private Sequence _needMoreGoldSequence;
         private Sequence _cantMoveImageSequence;
         private Sequence _camZoomSequence;
@@ -82,7 +80,6 @@ namespace ManagerControl
 
         [SerializeField] private RectTransform towerCardPanel;
 
-        [SerializeField] private CanvasGroup towerInfoGroup;
         [SerializeField] private CanvasGroup needMoreGoldGroup;
 
         private MoveUnitController _moveUnitController;
@@ -114,7 +111,6 @@ namespace ManagerControl
 
         private void OnDisable()
         {
-            _infoGroupTween?.Kill();
             _needMoreGoldSequence?.Kill();
             _cantMoveImageSequence?.Kill();
             _camZoomSequence?.Kill();
@@ -255,9 +251,6 @@ namespace ManagerControl
 
         private void TweenInit()
         {
-            _infoGroupTween = towerInfoGroup.DOFade(1, 0.15f).From(0).SetAutoKill(false).Pause();
-            towerInfoGroup.blocksRaycasts = false;
-
             var needMoreGoldPanelRect = needMoreGoldGroup.GetComponent<RectTransform>();
             _needMoreGoldSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(needMoreGoldGroup.DOFade(1, 0.5f).From(0))
@@ -412,8 +405,7 @@ namespace ManagerControl
         private void OffUIPrivate()
         {
             if (!_isPanelOpen) return;
-            towerInfoGroup.blocksRaycasts = false;
-            _infoGroupTween.PlayBackwards();
+            _towerInfoUI.CloseCard();
             _startMoveUnit = false;
             _isPanelOpen = false;
             if (_curSelectedTower) _curSelectedTower.DeActiveIndicator();
@@ -508,7 +500,6 @@ namespace ManagerControl
             if (clickedTower.Equals(_curSelectedTower)) return;
 
             if (_clickSellBtn) ResetSprite();
-            _infoGroupTween.OnComplete(() => towerInfoGroup.blocksRaycasts = true).Restart();
             if (_curSelectedTower) _curSelectedTower.DeActiveIndicator();
             if (_curSummonTower) _curSummonTower.DeActiveIndicator();
             var isUnitTower = towerDataDic[clickedTower.towerType].isUnitTower;
@@ -529,7 +520,8 @@ namespace ManagerControl
                 UpdateSupportTowerInfo();
             }
 
-            _towerInfoUI.SetCardPos(clickedTower.transform);
+            _towerInfoUI.OpenCard();
+            _towerInfoUI.SetCardPos(true, clickedTower.transform);
         }
 
         private void UpdateAttackTowerInfo(AttackTower attackTower, Vector3 position, bool isUnitTower)
@@ -578,14 +570,14 @@ namespace ManagerControl
         {
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
             _moveUnitController.FocusUnitTower(_curSummonTower);
-            towerInfoGroup.blocksRaycasts = false;
-            _infoGroupTween.PlayBackwards();
+            _towerInfoUI.CloseCard();
             moveUnitButton.SetActive(false);
             _startMoveUnit = true;
         }
 
         private void SellTower()
         {
+            _towerInfoUI.SetCardPos(false, null);
             SoundManager.PlayUISound(_sellTowerGold < 100 ? SoundEnum.LowCost :
                 _sellTowerGold < 250 ? SoundEnum.MediumCost : SoundEnum.HighCost);
             var towerType = _curSelectedTower.towerType;

@@ -27,8 +27,6 @@ namespace LobbyUIControl
         [SerializeField] private NoticePanel logOutPanel;
         [SerializeField] private NoticePanel deleteAccountPanel;
 
-        [SerializeField] private GameObject accountDeletionObj;
-
         private void Start()
         {
             _lobbyUI = GetComponentInParent<LobbyUI>();
@@ -38,8 +36,6 @@ namespace LobbyUIControl
             Init();
             InitButton();
             InitTween();
-
-            accountDeletionObj.SetActive(!BackendLogin.instance.testLogin);
         }
 
         private void OnDestroy()

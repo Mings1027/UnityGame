@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using CustomEnumControl;
 using DataControl.TowerDataControl;
+using DG.Tweening;
 using ManagerControl;
 using TMPro;
 using TowerControl;
@@ -20,6 +21,9 @@ namespace UIControl
         private bool _isTargeting;
         private Camera _cam;
         private Transform _towerTransform;
+        private Tween _towerDisappearTween;
+        private Tweener _towerCardMoveTween;
+        private CanvasGroup _towerCardGroup;
 
         private TMP_Text _healthText;
         private TMP_Text _rangeText;
@@ -28,6 +32,7 @@ namespace UIControl
         private TMP_Text _damageText;
 
         [SerializeField] private RectTransform towerInfoCardRect;
+
         [SerializeField] private Image damageImage;
         [SerializeField] private GameObject healthObj;
         [SerializeField] private GameObject rangeObj;
@@ -45,13 +50,18 @@ namespace UIControl
             if (!_isTargeting) return;
 
             var towerPos = _cam.WorldToScreenPoint(_towerTransform.position);
-            towerInfoCardRect.anchoredPosition =
-                towerPos.x > Screen.width * 0.5f ? new Vector2(-600, 0) : new Vector2(600, 0);
-        }
-
-        private void OnDisable()
-        {
-            _isTargeting = false;
+            // towerInfoCardRect.anchoredPosition =
+            //     towerPos.x > Screen.width * 0.5f ? new Vector2(-600, 0) : new Vector2(600, 0);
+            if (towerPos.x > Screen.width * 0.5f)
+            {
+                _towerCardMoveTween.ChangeStartValue(towerInfoCardRect.anchoredPosition)
+                    .ChangeEndValue(new Vector2(-600, 0)).Restart();
+            }
+            else
+            {
+                _towerCardMoveTween.ChangeStartValue(towerInfoCardRect.anchoredPosition)
+                    .ChangeEndValue(new Vector2(600, 0)).Restart();
+            }
         }
 
         public void Init()
@@ -60,6 +70,7 @@ namespace UIControl
             _prevTowerLevel = -1;
             _towerType = TowerType.None;
             _starImages = new Image[towerLevelStar.transform.childCount];
+            _towerCardGroup = GetComponent<CanvasGroup>();
 
             for (var i = 0; i < _starImages.Length; i++)
             {
@@ -71,12 +82,29 @@ namespace UIControl
             _cooldownText = rpmObj.transform.GetChild(0).GetComponent<TMP_Text>();
             _respawnText = respawnObj.transform.GetChild(0).GetComponent<TMP_Text>();
             _damageText = damageImage.transform.GetChild(0).GetComponent<TMP_Text>();
+
+            _towerDisappearTween = _towerCardGroup.DOFade(1, 0.2f).From(0).SetAutoKill(false).Pause();
+            _towerDisappearTween.OnComplete(() => _towerCardGroup.blocksRaycasts = true);
+            _towerCardMoveTween = towerInfoCardRect.DOAnchorPosX(towerInfoCardRect.anchoredPosition.x, 0.05f)
+                .SetAutoKill(false).Pause();
+            _towerCardGroup.blocksRaycasts = false;
         }
 
-        public void SetCardPos(Transform towerTransform)
+        public void SetCardPos(bool value, Transform towerTransform)
         {
-            _isTargeting = true;
+            _isTargeting = value;
             _towerTransform = towerTransform;
+        }
+
+        public void OpenCard()
+        {
+            _towerDisappearTween.Restart();
+        }
+
+        public void CloseCard()
+        {
+            _towerCardGroup.blocksRaycasts = false;
+            _towerDisappearTween.PlayBackwards();
         }
 
         public void SetTowerInfo(AttackTower tower, TowerData towerData, sbyte level,
