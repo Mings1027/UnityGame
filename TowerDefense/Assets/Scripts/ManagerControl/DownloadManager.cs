@@ -54,12 +54,16 @@ namespace ManagerControl
             };
         }
 
+        private void OnEnable()
+        {
+            LocalizationSettings.SelectedLocaleChanged += ChangeLocaleUpdateText;
+        }
+
         private void Start()
         {
             downSlider.gameObject.SetActive(false);
             InitAddressable().Forget();
             _updateText = LocaleManager.GetLocalizedString(LocaleManager.LogInUITable, "UpdateNotice");
-            LocalizationSettings.SelectedLocaleChanged += ChangeLocaleUpdateText;
         }
 
         private void OnDisable()

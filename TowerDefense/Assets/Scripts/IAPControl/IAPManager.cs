@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using BackEnd;
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using ItemControl;
 using LobbyUIControl;
@@ -7,6 +9,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
+using UnityEngine.Networking;
 using UnityEngine.Purchasing;
 using UnityEngine.Purchasing.Extension;
 using UnityEngine.UI;
@@ -16,7 +19,9 @@ namespace IAPControl
 {
     public class IAPManager : MonoBehaviour, IDetailedStoreListener
     {
-        private Dictionary<string, TMP_Text> _priceDic;
+        private Dictionary<string, TMP_Text> _priceTextDic;
+        private Dictionary<string, List<string>> _priceDic;
+        private string _wwwText;
         private LobbyUI _lobbyUI;
         private Sequence _loadingSequence;
         private const string Diamonds500 = "diamonds500";
@@ -28,10 +33,18 @@ namespace IAPControl
         [SerializeField] private Image blockImage;
         [SerializeField] private Image loadingImage;
         [SerializeField] private Transform contents;
+        [SerializeField] private string url;
+
+        private void OnEnable()
+        {
+            LocalizationSettings.SelectedLocaleChanged += LocalizeItemPrice;
+        }
 
         private void Start()
         {
-            _priceDic = new Dictionary<string, TMP_Text>();
+            _priceTextDic = new Dictionary<string, TMP_Text>();
+            _priceDic = new Dictionary<string, List<string>>();
+
             _lobbyUI = FindAnyObjectByType<LobbyUI>();
             blockImage.enabled = false;
             loadingImage.enabled = false;
@@ -42,7 +55,12 @@ namespace IAPControl
 
             InitIAP();
             InitDiamondButton();
-            LocalizationSettings.SelectedLocaleChanged += LocalizeItemPrice;
+            GetPrice().Forget();
+        }
+
+        private void OnDisable()
+        {
+            LocalizationSettings.SelectedLocaleChanged -= LocalizeItemPrice;
         }
 
         private void InitIAP()
@@ -71,12 +89,39 @@ namespace IAPControl
 
         private void LocalizeItemPrice(Locale locale)
         {
-            foreach (var productId in _priceDic.Keys)
+            var index = 0;
+            foreach (var productId in _priceTextDic.Keys)
             {
-                var metaData = _storeController.products.WithID(productId).metadata;
-                CustomLog.Log(
-                    $"storeController : {_storeController}   productId : {productId}  metaData.localizedPrice : {metaData.localizedPrice}  metaData.isoCurrencyCode : {metaData.isoCurrencyCode}");
-                _priceDic[productId].text = $"{metaData.localizedPrice} {metaData.isoCurrencyCode}";
+                var curLanguage = LocalizationSettings.SelectedLocale.LocaleName.Split(' ')[0];
+                _priceTextDic[productId].text = _priceDic[curLanguage][index];
+                index++;
+            }
+        }
+
+        private async UniTaskVoid GetPrice()
+        {
+            using var www = UnityWebRequest.Get(url + "/export?format=tsv");
+            await www.SendWebRequest();
+            if (www.isDone)
+            {
+                _wwwText = www.downloadHandler.text;
+
+                var lines = _wwwText.Split('\n');
+                for (var i = 0; i < lines.Length; i++)
+                {
+                    var columns = lines[i].Split('\t');
+                    var key = columns[0];
+                    var values = new List<string>();
+
+                    for (int j = 1; j < columns.Length; j++)
+                    {
+                        values.Add(columns[j]);
+                    }
+
+                    _priceDic.Add(key, values);
+                }
+
+                LocalizeItemPrice(null);
             }
         }
 
@@ -88,11 +133,9 @@ namespace IAPControl
             {
                 if (contents.GetChild(i).TryGetComponent(out DiamondItem diamondItem))
                 {
-                    _priceDic.Add(diamondItem.productId, diamondItem.priceText);
+                    _priceTextDic.Add(diamondItem.productId, diamondItem.priceText);
                 }
             }
-
-            LocalizeItemPrice(LocalizationSettings.SelectedLocale);
 
             CustomLog.Log("initinitinitinitinitinitinitinitinitinitinitinitinitinitinit");
         }

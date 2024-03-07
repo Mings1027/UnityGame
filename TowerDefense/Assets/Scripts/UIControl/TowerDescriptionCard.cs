@@ -5,59 +5,55 @@ using DG.Tweening;
 using ManagerControl;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace UIControl
 {
     public class TowerDescriptionCard : MonoBehaviour
     {
-        private Vector2 _buttonPos;
         private Vector3 _initPos;
         private TowerType _towerType;
-        private Tween _openCardTween;
-        private Tweener _moveCardTween;
-        private TMP_Text _healthText;
-        private TMP_Text _damageText;
-        private TMP_Text _delayText;
+        private Sequence _openCardSequence;
+        private TMP_Text _hpText;
+        private TMP_Text _atkText;
+        private TMP_Text _coolTimeText;
         private CanvasGroup _canvasGroup;
-        private RectTransform _towerCardRect;
 
         public bool isOpen { get; private set; }
 
+        [SerializeField] private RectTransform descriptionCardRect;
         [SerializeField] private TMP_Text towerNameText;
         [SerializeField] private TMP_Text towerDescriptionText;
 
-        [SerializeField] private Image damageImage;
+        [SerializeField] private GameObject atkObj;
         [SerializeField] private GameObject healthObj;
-        [SerializeField] private GameObject delayObj;
+        [SerializeField] private GameObject coolTimeObj;
         [SerializeField] private GameObject towerStatusPanel;
 
         private void Awake()
         {
             _canvasGroup = GetComponent<CanvasGroup>();
-            _towerCardRect = transform.GetChild(1).GetComponent<RectTransform>();
             _canvasGroup.blocksRaycasts = false;
             transform.GetChild(0).GetComponent<Button>().onClick.AddListener(CloseCard);
             _towerType = TowerType.None;
 
-            _openCardTween = _canvasGroup.DOFade(1, 0.25f).From(0).SetAutoKill(false).Pause();
+            _openCardSequence = DOTween.Sequence().SetAutoKill(false).Pause().SetUpdate(true)
+                .Append(_canvasGroup.DOFade(1, 0.25f).From(0))
+                .Join(descriptionCardRect.DOAnchorPosX(300, 0.25f).From(new Vector2(200, 0)));
+            _openCardSequence.OnRewind(() => _canvasGroup.blocksRaycasts = false);
+            _openCardSequence.OnComplete(() => _canvasGroup.blocksRaycasts = true);
 
-            _moveCardTween = _towerCardRect.DOAnchorPos(Vector2.zero, 0.25f).From(Vector2.zero)
-                .SetAutoKill(false).Pause();
-            _moveCardTween.OnComplete(() => _canvasGroup.blocksRaycasts = true);
-            _moveCardTween.OnRewind(() => _canvasGroup.blocksRaycasts = false);
-
-            _healthText = healthObj.transform.GetChild(0).GetComponent<TMP_Text>();
-            _damageText = damageImage.transform.GetChild(0).GetComponent<TMP_Text>();
-            _delayText = delayObj.transform.GetChild(0).GetComponent<TMP_Text>();
+            _atkText = atkObj.transform.GetChild(1).GetComponent<TMP_Text>();
+            _hpText = healthObj.transform.GetChild(1).GetComponent<TMP_Text>();
+            _coolTimeText = coolTimeObj.transform.GetChild(1).GetComponent<TMP_Text>();
         }
 
-        public void OpenTowerCard(TowerType towerType, RectTransform buttonTransform)
+        public void OpenTowerCard(TowerType towerType)
         {
+            UIManager.OffUI();
             if (towerType.Equals(_towerType)) return;
-
             isOpen = true;
-            _buttonPos = buttonTransform.anchoredPosition;
 
             _towerType = towerType;
 
@@ -65,7 +61,7 @@ namespace UIControl
             towerDescriptionText.text = UIManager.towerInfoDic[towerType];
             var towerDataDic = UIManager.towerDataDic;
             healthObj.SetActive(towerDataDic[towerType].isUnitTower);
-            delayObj.SetActive(!towerDataDic[towerType].isUnitTower);
+            coolTimeObj.SetActive(!towerDataDic[towerType].isUnitTower);
 
             if (towerDataDic[towerType] is AttackTowerData battleTowerData)
             {
@@ -73,23 +69,21 @@ namespace UIControl
                 if (battleTowerData.isUnitTower)
                 {
                     var unitTowerData = (SummoningTowerData)battleTowerData;
-                    _healthText.text = unitTowerData.curUnitHealth.ToString();
+                    _hpText.text = unitTowerData.curUnitHealth.ToString();
                 }
                 else
                 {
-                    _delayText.text = battleTowerData.attackCooldown.ToString(CultureInfo.InvariantCulture);
+                    _coolTimeText.text = battleTowerData.attackCooldown.ToString(CultureInfo.InvariantCulture);
                 }
 
-                damageImage.sprite = UIManager.GetTowerType(_towerType);
-                _damageText.text = battleTowerData.curDamage.ToString();
+                _atkText.text = battleTowerData.curDamage.ToString();
             }
             else
             {
                 towerStatusPanel.SetActive(false);
             }
 
-            _openCardTween.Restart();
-            _moveCardTween.ChangeStartValue(_buttonPos + new Vector2(0, -100)).ChangeEndValue(_buttonPos).Restart();
+            _openCardSequence.Restart();
         }
 
         public void CloseCard()
@@ -97,8 +91,7 @@ namespace UIControl
             isOpen = false;
             _towerType = TowerType.None;
 
-            _openCardTween.PlayBackwards();
-            _moveCardTween.PlayBackwards();
+            _openCardSequence.PlayBackwards();
         }
 
         public void LocaleCardInfo()

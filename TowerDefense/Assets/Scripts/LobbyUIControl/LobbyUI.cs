@@ -50,11 +50,11 @@ namespace LobbyUIControl
         {
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
             Time.timeScale = 1;
-            
+
             var noticeDiaRect = noticeGroup.GetComponent<RectTransform>();
 
             _noticeSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(noticeDiaRect.DOAnchorPosX(-100, 0.25f).From(new Vector2(600, -50)))
+                .Append(noticeDiaRect.DOAnchorPosX(-150, 0.25f).From(new Vector2(600, -50)))
                 .Append(noticeDiaRect.DOAnchorPosY(100, 0.25f).SetDelay(2))
                 .Join(noticeGroup.DOFade(0, 0.25f).From(1));
         }
@@ -63,6 +63,7 @@ namespace LobbyUIControl
         {
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
+            LocalizationSettings.SelectedLocaleChanged += ChangeLocaleNotice;
         }
 
         private void Start()
@@ -95,7 +96,6 @@ namespace LobbyUIControl
             OffBackgroundImage();
             OffBlockImage();
             SetNoticeDic().Forget();
-            LocalizationSettings.SelectedLocaleChanged += ChangeLocaleNotice;
             duplicateAlertPanel.OnConfirmButtonEvent += () =>
             {
                 BackendLogin.instance.LogOut();
@@ -160,12 +160,6 @@ namespace LobbyUIControl
                     LocaleManager.GetLocalizedString(LocaleManager.NoticeTable, noticeString.ToString());
             }
         }
-        //
-        // public void CancelToken()
-        // {
-        //     _cts?.Cancel();
-        //     _cts?.Dispose();
-        // }
 
         public void SetActiveButtons(bool active, bool inGameMoneyActive)
         {

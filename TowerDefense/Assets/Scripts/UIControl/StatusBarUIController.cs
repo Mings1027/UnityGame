@@ -31,6 +31,8 @@ namespace UIControl
         {
             foreach (var bar in _barDictionary.Keys)
             {
+                var viewportPos = _cam.WorldToViewportPoint(_barDictionary[bar].position);
+                if (viewportPos.x is < -0.1f or > 1.1f || viewportPos.y is < -0.1f or > 1.1f) continue;
                 bar.transform.position = _cam.WorldToScreenPoint(_barDictionary[bar].position);
             }
         }

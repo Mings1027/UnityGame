@@ -9,95 +9,76 @@ using UnityEngine.UI;
 
 namespace UIControl
 {
-    public class TowerCardController : MonoBehaviour, IBeginDragHandler, IEndDragHandler
+    public class TowerCardController : MonoBehaviour
     {
         private bool _isDrag;
-        private RectTransform _rectTransform;
-        private Sequence _slideSequence;
+        private RectTransform _towerCardGroupRect;
+        private Sequence _towerCardSequence;
         private InputManager _inputManager;
-        private CanvasGroup _canvasGroup;
-
         private Dictionary<TowerType, TowerData> _towerButtonDic;
 
-        private float _rectHeight;
+        public Tween scaleTween { get; private set; }
 
         [SerializeField] private Button closeButton;
         [SerializeField] private TowerDescriptionCard towerDescriptionCard;
-
-#region Unity Event
-
-        public void OnBeginDrag(PointerEventData eventData)
-        {
-            _isDrag = true;
-            CameraManager.isControlActive = false;
-        }
-
-        public void OnEndDrag(PointerEventData eventData)
-        {
-            CameraManager.isControlActive = true;
-            _isDrag = false;
-            if (_rectTransform.anchoredPosition.y > -_rectHeight * 0.5f)
-            {
-                _inputManager.TryPlaceTower();
-            }
-        }
-
-#endregion
+        [SerializeField] private CanvasGroup towerCardGroup;
 
         public void Init()
         {
-            _rectTransform = GetComponent<RectTransform>();
-            _canvasGroup = GetComponent<CanvasGroup>();
-            _canvasGroup.blocksRaycasts = false;
-            _slideSequence = DOTween.Sequence().SetAutoKill(false).Pause().SetUpdate(true)
-                .Append(_canvasGroup.DOFade(1, 0.25f).From(0))
-                .Join(_rectTransform.DOAnchorPosY(0, 0.25f).From(new Vector2(0, -100)));
-            _slideSequence.OnComplete(() =>
-            {
-                UIManager.ShowTowerButton();
-                _canvasGroup.blocksRaycasts = true;
-            });
-            _slideSequence.OnRewind(() => _canvasGroup.blocksRaycasts = false);
+            _towerCardGroupRect = towerCardGroup.GetComponent<RectTransform>();
+            towerCardGroup.blocksRaycasts = false;
+            _towerCardSequence = DOTween.Sequence().SetAutoKill(false).Pause().SetUpdate(true)
+                .Append(towerCardGroup.DOFade(1, 0.25f).From(0))
+                .Join(_towerCardGroupRect.DOAnchorPosX(0, 0.25f).From(new Vector2(-100, 0)));
+            _towerCardSequence.OnRewind(() => towerCardGroup.blocksRaycasts = false);
 
+            scaleTween = transform.DOScale(0.75f, 0.25f).From(1).SetAutoKill(false).Pause().SetUpdate(true);
             _inputManager = FindAnyObjectByType<InputManager>();
             _towerButtonDic = new Dictionary<TowerType, TowerData>();
 
-            _rectHeight = _rectTransform.rect.height;
-
-            var towerButtons = transform.GetChild(0);
-            for (var i = 0; i < towerButtons.childCount; i++)
+            for (var i = 0; i < towerCardGroup.transform.childCount; i++)
             {
-                var towerButton = towerButtons.GetChild(i).GetComponent<TowerButton>();
-                towerButton.OnOpenCardEvent += OpenCard;
-                towerButton.OnCamDisableEvent += CameraManager.SetCameraActive;
-                towerButton.OnCloseCardEvent += CloseTowerCard;
-                towerButton.OnCamEnableEvent += () => CameraManager.isControlActive = true;
-                towerButton.OnBeginDragEvent += OnBeginDrag;
-                towerButton.OnStartPlacement += StartPlacement;
-                towerButton.OnEndDragEvent += OnEndDrag;
+                if (towerCardGroup.transform.GetChild(i).TryGetComponent(out TowerButton towerButton))
+                {
+                    towerButton.OnOpenCardEvent += OpenCard;
+                    towerButton.OnCamDisableEvent += CameraManager.SetCameraActive;
+                    towerButton.OnCloseCardEvent += CloseTowerCard;
+                    towerButton.OnCamEnableEvent += () => CameraManager.isControlActive = true;
+                    towerButton.OnStartPlacement += StartPlacement;
+                    towerButton.OnTryPlaceTowerEvent += TryPlaceTower;
+                }
             }
 
             closeButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
-               
-                _slideSequence.PlayBackwards();
+
+                _towerCardSequence.PlayBackwards();
                 CloseTowerCard();
-                UIManager.SlideDown();
+                UIManager.DisappearToggleButton();
             });
         }
 
-        private void OpenCard(TowerType towerType, RectTransform buttonRect)
+        private void OpenCard(TowerType towerType)
         {
             if (_isDrag) return;
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            towerDescriptionCard.OpenTowerCard(_towerButtonDic[towerType].towerType, buttonRect);
+            towerDescriptionCard.OpenTowerCard(_towerButtonDic[towerType].towerType);
         }
 
         private void StartPlacement(TowerType towerType)
         {
+            _isDrag = true;
+            CameraManager.isControlActive = false;
             _inputManager.enabled = true;
             _inputManager.StartPlacement(_towerButtonDic[towerType].towerType, _towerButtonDic[towerType].isUnitTower);
+        }
+
+        private void TryPlaceTower()
+        {
+            CameraManager.isControlActive = true;
+            _isDrag = false;
+            _inputManager.TryPlaceTower();
         }
 
         private void CloseTowerCard()
@@ -113,9 +94,10 @@ namespace UIControl
             _towerButtonDic.Add(towerType, towerData);
         }
 
-        public void SlideUp()
+        public void OpenTowerCards()
         {
-            _slideSequence.Restart();
+            towerCardGroup.blocksRaycasts = true;
+            _towerCardSequence.Restart();
         }
     }
 }

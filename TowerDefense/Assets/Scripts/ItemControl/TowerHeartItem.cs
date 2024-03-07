@@ -8,12 +8,6 @@ namespace ItemControl
 {
     public class TowerHeartItem : ItemButton
     {
-        protected override void Awake()
-        {
-            base.Awake();
-            itemType = ItemType.TowerHeart;
-        }
-
         public override void Spawn()
         {
             if (GameHUD.towerHealth.Current >= 10) return;

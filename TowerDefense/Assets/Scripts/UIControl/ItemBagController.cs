@@ -13,45 +13,45 @@ namespace UIControl
 {
     public class ItemBagController : MonoBehaviour
     {
-        private Sequence _itemBagSequence;
-        private Sequence _inventorySequence;
+        private TowerCardController _towerCardController;
+        private Tween _disappearItemBagTween;
+        private Tween _itemBagTween;
         private Dictionary<ItemType, ItemButton> _itemDic;
         private Dictionary<ItemType, int> _itemCountDic;
         private ItemType _curItemType;
+        private bool _isOpenBag;
 
         [SerializeField] private Button bagButton;
         [SerializeField] private CanvasGroup itemBagGroup;
         [SerializeField] private CanvasGroup itemGroup;
-        [SerializeField] private Button closeButton;
         [SerializeField] private Image selectIcon;
 
         private void Start()
         {
+            _towerCardController = FindAnyObjectByType<TowerCardController>();
             selectIcon.GetComponent<Button>().onClick.AddListener(UseItem);
             selectIcon.gameObject.SetActive(false);
             bagButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                OpenBag();
+                if (_isOpenBag)
+                {
+                    _isOpenBag = false;
+                    CloseBag();
+                }
+                else
+                {
+                    _isOpenBag = true;
+                    OpenBag();
+                }
             });
 
-            closeButton.onClick.AddListener(() =>
-            {
-                SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                CloseBag();
-            });
-            _itemBagSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(itemBagGroup.DOFade(1, 0.25f).From(0))
-                .Join(itemBagGroup.GetComponent<RectTransform>().DOAnchorPosX(150, 0.25f).From(new Vector2(-100, 0)));
-            _itemBagSequence.OnComplete(() => itemBagGroup.blocksRaycasts = true);
-            _itemBagSequence.OnRewind(() => itemBagGroup.blocksRaycasts = false);
+            _disappearItemBagTween = itemBagGroup.DOFade(1, 0.25f).From(0).SetAutoKill(false).Pause();
+            _disappearItemBagTween.OnComplete(() => itemBagGroup.blocksRaycasts = true);
             itemBagGroup.blocksRaycasts = false;
 
-            _inventorySequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(itemGroup.DOFade(1, 0.25f).From(0))
-                .Join(itemGroup.GetComponent<RectTransform>().DOAnchorPosX(0, 0.25f).From(new Vector2(-100, 0)));
-            _inventorySequence.OnComplete(() => itemGroup.blocksRaycasts = true);
-            _inventorySequence.OnRewind(() => itemGroup.blocksRaycasts = false);
+            _itemBagTween = itemGroup.DOFade(1, 0.25f).From(0).SetAutoKill(false).Pause();
+            _itemBagTween.OnComplete(() => itemGroup.blocksRaycasts = true);
             itemGroup.blocksRaycasts = false;
 
             _itemDic = new Dictionary<ItemType, ItemButton>();
@@ -60,7 +60,7 @@ namespace UIControl
 
             for (var i = 0; i < itemGroup.transform.childCount; i++)
             {
-                var itemButton = itemGroup.transform.GetChild(0).GetChild(i).GetComponent<ItemButton>();
+                var itemButton = itemGroup.transform.GetChild(i).GetComponent<ItemButton>();
                 _itemDic.Add(itemButton.itemType, itemButton);
                 CustomLog.Log(itemButton.itemType);
                 itemButton.OnSetCurItemEvent += SetCurItem;
@@ -72,7 +72,7 @@ namespace UIControl
 
         private void OnDestroy()
         {
-            _inventorySequence?.Kill();
+            _itemBagTween?.Kill();
         }
 
         private void SetCurItem(ItemType curItemType, Vector2 anchoredPos)
@@ -97,15 +97,15 @@ namespace UIControl
 
         private void OpenBag()
         {
-            _itemBagSequence.PlayBackwards();
-            _inventorySequence.Restart();
+            _itemBagTween.Restart();
+            _towerCardController.scaleTween.Restart();
         }
 
         private void CloseBag()
         {
             selectIcon.gameObject.SetActive(false);
-            _itemBagSequence.Restart();
-            _inventorySequence.PlayBackwards();
+            _towerCardController.scaleTween.PlayBackwards();
+            _itemBagTween.PlayBackwards();
             _curItemType = ItemType.None;
         }
 
@@ -123,15 +123,18 @@ namespace UIControl
         {
             if (active)
             {
-                _itemBagSequence.Restart();
+                _disappearItemBagTween.Restart();
             }
             else
             {
-                _itemBagSequence.PlayBackwards();
-                _inventorySequence.PlayBackwards();
+                _isOpenBag = false;
+                itemBagGroup.blocksRaycasts = false;
+                itemGroup.blocksRaycasts = false;
+                _disappearItemBagTween.PlayBackwards();
+                _itemBagTween.PlayBackwards();
+                _towerCardController.scaleTween.PlayBackwards();
             }
 
-            gameObject.SetActive(active);
         }
     }
 }

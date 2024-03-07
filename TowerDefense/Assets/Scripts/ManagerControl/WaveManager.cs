@@ -90,14 +90,6 @@ namespace ManagerControl
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
             _itemBagController.SetActiveItemBag(true);
-            PoolObjectManager.PoolCleaner().Forget();
-
-            if (_isBossWave)
-            {
-                _isBossWave = false;
-                PoolObjectManager.MonsterPoolCleaner(monstersData[_themeIndex].normalMonsterData).Forget();
-                _themeIndex++;
-            }
 
             curWave++;
             _isBossWave = curWave == monstersData[_themeIndex].startBossWave;
@@ -306,8 +298,16 @@ namespace ManagerControl
                 if (_monsterList.Count > 0) return;
 
                 WaveStop();
-                SoundManager.PlayBGM(SoundEnum.WaveEnd);
                 _itemBagController.SetActiveItemBag(false);
+                SoundManager.PlayBGM(SoundEnum.WaveEnd);
+                PoolObjectManager.PoolCleaner().Forget();
+
+                if (_isBossWave)
+                {
+                    _isBossWave = false;
+                    PoolObjectManager.MonsterPoolCleaner(monstersData[_themeIndex].normalMonsterData).Forget();
+                    _themeIndex++;
+                }
 
                 if (_isLastWave)
                 {

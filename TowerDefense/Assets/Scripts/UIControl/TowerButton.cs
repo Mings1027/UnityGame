@@ -9,22 +9,19 @@ namespace UIControl
     public class TowerButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler,
         IBeginDragHandler, IDragHandler, IEndDragHandler
     {
-        private RectTransform _rectTransform;
         private Tween _scaleTween;
         public event Action OnCamDisableEvent, OnCamEnableEvent;
-        public event Action<TowerType, RectTransform> OnOpenCardEvent;
+        public event Action<TowerType> OnOpenCardEvent;
         public event Action OnCloseCardEvent;
-        public event Action<PointerEventData> OnBeginDragEvent;
         public event Action<TowerType> OnStartPlacement;
         public event Action<PointerEventData> OnDragEvent;
-        public event Action<PointerEventData> OnEndDragEvent;
+        public event Action OnTryPlaceTowerEvent;
         public static bool isOnButton { get; private set; }
         
         [SerializeField] private TowerType towerType;
 
         private void Awake()
         {
-            _rectTransform = GetComponent<RectTransform>();
             _scaleTween = transform.DOScale(1.1f, 0.25f).From(1).SetEase(Ease.OutBack).SetAutoKill(false).Pause();
         }
 
@@ -38,7 +35,7 @@ namespace UIControl
         public void OnPointerUp(PointerEventData eventData)
         {
             _scaleTween.PlayBackwards();
-            OnOpenCardEvent?.Invoke(towerType, _rectTransform);
+            OnOpenCardEvent?.Invoke(towerType);
             OnCamEnableEvent?.Invoke();
         }
 
@@ -50,7 +47,6 @@ namespace UIControl
 
         public void OnBeginDrag(PointerEventData eventData)
         {
-            OnBeginDragEvent?.Invoke(eventData);
             OnStartPlacement?.Invoke(towerType);
             OnCloseCardEvent?.Invoke();
         }
@@ -62,7 +58,8 @@ namespace UIControl
 
         public void OnEndDrag(PointerEventData eventData)
         {
-            OnEndDragEvent?.Invoke(eventData);
+            if (isOnButton) return;
+            OnTryPlaceTowerEvent?.Invoke();
         }
     }
 }

@@ -17,7 +17,7 @@ namespace ItemControl
 
         public event Action<ItemType, Vector2> OnSetCurItemEvent;
 
-        public ItemType itemType { get; protected set; }
+        [field: SerializeField] public ItemType itemType { get; protected set; }
 
         protected virtual void Awake()
         {

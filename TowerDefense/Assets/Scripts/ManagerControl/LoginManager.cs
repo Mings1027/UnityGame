@@ -64,6 +64,8 @@ namespace ManagerControl
         [SerializeField] private string myEmail;
         [SerializeField] private string myPassword;
         [SerializeField] private string url;
+        [SerializeField] private Image loadingImage;
+        [SerializeField] private Transform loadingIcon;
 
         [SerializeField] private CanvasGroup connectionPanelGroup;
         [SerializeField] private NoticePanel signUpConfirmPanel;
@@ -113,6 +115,9 @@ namespace ManagerControl
 
             var lastPlatform = PlayerPrefs.GetInt(LoginPlatformKey);
             checkLastLoginImage.enabled = lastPlatform != 0;
+
+            loadingImage.enabled = false;
+            loadingIcon.localScale = Vector3.zero;
 
             Input.multiTouchEnabled = false;
             Time.timeScale = 1;
@@ -281,6 +286,10 @@ namespace ManagerControl
 
             if (oneTimeCodeField.text == _oneTimeCode)
             {
+                loadingImage.enabled = true;
+                loadingIcon.DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack).SetUpdate(true);
+                loadingIcon.DOLocalRotate(new Vector3(0, 0, -360), 1, RotateMode.FastBeyond360).SetLoops(10);
+
                 var jObject = JObject.Parse(_wwwText);
 
                 if (jObject["result"]?.ToString() == "SignUp")
@@ -332,7 +341,7 @@ namespace ManagerControl
                     var oldPassword = _password;
                     _password = GenerateRandomPassword();
 
-                    Backend.BMember.UpdatePassword(oldPassword, _password, _ => { });
+                    UniTask.RunOnThreadPool(() => { Backend.BMember.UpdatePassword(oldPassword, _password); });
                     var form = new WWWForm();
                     form.AddField("order", "updatePassword");
                     form.AddField("id", _id);
@@ -346,6 +355,8 @@ namespace ManagerControl
 
         private void ActiveStartPanel()
         {
+            loadingImage.enabled = false;
+            loadingIcon.DOScale(0, 0.25f).From(1).SetEase(Ease.OutBack);
             _connectionPanelGroupTween.OnComplete(() => connectionPanelGroup.blocksRaycasts = true).Restart();
             BackendManager.BackendInit().Forget();
             SaveLoginPlatform(LoginPlatform.Custom);

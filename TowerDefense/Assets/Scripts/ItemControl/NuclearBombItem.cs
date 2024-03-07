@@ -15,12 +15,6 @@ namespace ItemControl
 
         [SerializeField] private AudioClip explosionAudio;
 
-        protected override void Awake()
-        {
-            base.Awake();
-            itemType = ItemType.NuclearBomb;
-        }
-
         protected override void Start()
         {
             base.Start();

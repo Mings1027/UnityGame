@@ -25,19 +25,20 @@ namespace UIControl
         private Tweener _towerCardMoveTween;
         private CanvasGroup _towerCardGroup;
 
+        private TMP_Text _atkText;
         private TMP_Text _healthText;
         private TMP_Text _rangeText;
-        private TMP_Text _cooldownText;
+        private TMP_Text _coolTimeText;
         private TMP_Text _respawnText;
-        private TMP_Text _damageText;
 
         [SerializeField] private RectTransform towerInfoCardRect;
 
-        [SerializeField] private Image damageImage;
+        [SerializeField] private GameObject atkObj;
         [SerializeField] private GameObject healthObj;
         [SerializeField] private GameObject rangeObj;
-        [SerializeField] private GameObject rpmObj;
+        [SerializeField] private GameObject coolTimeObj;
         [SerializeField] private GameObject respawnObj;
+        
         [SerializeField] private GameObject towerLevelStar;
         [SerializeField] private CanvasGroup towerStatusPanelObj;
 
@@ -50,17 +51,15 @@ namespace UIControl
             if (!_isTargeting) return;
 
             var towerPos = _cam.WorldToScreenPoint(_towerTransform.position);
-            // towerInfoCardRect.anchoredPosition =
-            //     towerPos.x > Screen.width * 0.5f ? new Vector2(-600, 0) : new Vector2(600, 0);
             if (towerPos.x > Screen.width * 0.5f)
             {
                 _towerCardMoveTween.ChangeStartValue(towerInfoCardRect.anchoredPosition)
-                    .ChangeEndValue(new Vector2(-600, 0)).Restart();
+                    .ChangeEndValue(new Vector2(-400, 0)).Restart();
             }
             else
             {
                 _towerCardMoveTween.ChangeStartValue(towerInfoCardRect.anchoredPosition)
-                    .ChangeEndValue(new Vector2(600, 0)).Restart();
+                    .ChangeEndValue(new Vector2(400, 0)).Restart();
             }
         }
 
@@ -77,16 +76,17 @@ namespace UIControl
                 _starImages[i] = towerLevelStar.transform.GetChild(i).GetChild(2).GetComponent<Image>();
             }
 
-            _healthText = healthObj.transform.GetChild(0).GetComponent<TMP_Text>();
-            _rangeText = rangeObj.transform.GetChild(0).GetComponent<TMP_Text>();
-            _cooldownText = rpmObj.transform.GetChild(0).GetComponent<TMP_Text>();
-            _respawnText = respawnObj.transform.GetChild(0).GetComponent<TMP_Text>();
-            _damageText = damageImage.transform.GetChild(0).GetComponent<TMP_Text>();
+            _atkText = atkObj.transform.GetChild(1).GetComponent<TMP_Text>();
+            _healthText = healthObj.transform.GetChild(1).GetComponent<TMP_Text>();
+            _rangeText = rangeObj.transform.GetChild(1).GetComponent<TMP_Text>();
+            _coolTimeText = coolTimeObj.transform.GetChild(1).GetComponent<TMP_Text>();
+            _respawnText = respawnObj.transform.GetChild(1).GetComponent<TMP_Text>();
 
-            _towerDisappearTween = _towerCardGroup.DOFade(1, 0.2f).From(0).SetAutoKill(false).Pause();
+            _towerDisappearTween = _towerCardGroup.DOFade(1, 0.2f).From(0).SetAutoKill(false).Pause().SetUpdate(true);
             _towerDisappearTween.OnComplete(() => _towerCardGroup.blocksRaycasts = true);
+            _towerDisappearTween.OnRewind(() => towerInfoCardRect.anchoredPosition = Vector2.zero);
             _towerCardMoveTween = towerInfoCardRect.DOAnchorPosX(towerInfoCardRect.anchoredPosition.x, 0.05f)
-                .SetAutoKill(false).Pause();
+                .SetAutoKill(false).Pause().SetUpdate(true);
             _towerCardGroup.blocksRaycasts = false;
         }
 
@@ -123,14 +123,14 @@ namespace UIControl
                 }
                 else
                 {
-                    _cooldownText.text = battleTowerData.attackCooldown.ToString(CultureInfo.InvariantCulture);
+                    _coolTimeText.text = battleTowerData.attackCooldown.ToString(CultureInfo.InvariantCulture);
                 }
             }
 
             var isUnitTower = towerData.isUnitTower;
             healthObj.SetActive(isUnitTower);
             rangeObj.SetActive(!isUnitTower);
-            rpmObj.SetActive(!isUnitTower);
+            coolTimeObj.SetActive(!isUnitTower);
             respawnObj.SetActive(isUnitTower);
             var towerType = tower.towerType;
 
@@ -138,12 +138,11 @@ namespace UIControl
             {
                 _towerType = towerType;
                 towerNameText.text = towerName;
-                damageImage.sprite = UIManager.GetTowerType(towerType);
             }
 
             DisplayStarsForTowerLevel(level);
             goldText.text = upgradeCost + "G";
-            _damageText.text = tower.towerDamage.ToString();
+            _atkText.text = tower.towerDamage.ToString();
             _rangeText.text = tower.towerRange.ToString();
             sellGoldText.text = sellCost + "G";
         }

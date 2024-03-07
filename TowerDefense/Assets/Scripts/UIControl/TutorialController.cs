@@ -1,4 +1,3 @@
-using System;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,6 +6,7 @@ namespace UIControl
 {
     public class TutorialController : MonoBehaviour
     {
+        private Vector2 _initPos;
         private Sequence _bounceSequence;
         private RectTransform _rectTransform;
         [SerializeField] private Ease ease;
@@ -14,8 +14,9 @@ namespace UIControl
         private void Awake()
         {
             _rectTransform = GetComponent<RectTransform>();
+            _initPos = _rectTransform.anchoredPosition;
             _bounceSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(_rectTransform.DOAnchorPosY(70, 0.7f).SetEase(ease));
+                .Append(_rectTransform.DOAnchorPosX(70, 0.7f).SetEase(ease));
             var toggleBtn = _rectTransform.GetComponent<Button>();
             toggleBtn.onClick.AddListener(BounceButton);
             toggleBtn.enabled = false;
@@ -28,7 +29,7 @@ namespace UIControl
 
         private void BounceButton()
         {
-            _rectTransform.anchoredPosition = new Vector2(0, 30);
+            _rectTransform.anchoredPosition = _initPos;
             _bounceSequence.Kill();
             _rectTransform.GetComponent<Button>().onClick.RemoveListener(BounceButton);
             Destroy(GetComponent<TutorialController>());
