@@ -17,6 +17,7 @@ namespace UIControl
         private InputManager _inputManager;
         private Dictionary<TowerType, TowerData> _towerButtonDic;
 
+        public float closeButtonAnchoredPosX { get; private set; }
         public Tween scaleTween { get; private set; }
 
         [SerializeField] private Button closeButton;
@@ -32,7 +33,7 @@ namespace UIControl
                 .Join(_towerCardGroupRect.DOAnchorPosX(0, 0.25f).From(new Vector2(-100, 0)));
             _towerCardSequence.OnRewind(() => towerCardGroup.blocksRaycasts = false);
 
-            scaleTween = transform.DOScale(0.75f, 0.25f).From(1).SetAutoKill(false).Pause().SetUpdate(true);
+            scaleTween = transform.DOScale(0.8f, 0.25f).From(1).SetAutoKill(false).Pause().SetUpdate(true);
             _inputManager = FindAnyObjectByType<InputManager>();
             _towerButtonDic = new Dictionary<TowerType, TowerData>();
 
@@ -57,6 +58,8 @@ namespace UIControl
                 CloseTowerCard();
                 UIManager.DisappearToggleButton();
             });
+
+            closeButtonAnchoredPosX = closeButton.GetComponent<RectTransform>().position.x;
         }
 
         private void OpenCard(TowerType towerType)
