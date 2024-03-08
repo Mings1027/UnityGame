@@ -14,26 +14,25 @@ namespace LobbyUIControl
         private Sequence _shopPanelSequence;
         private TabGroupItem[] _tabGroupItems;
         private Queue<TabGroupItem> _tabGroupItemQueue;
-        private CanvasGroup _shopPanelGroup;
 
         [SerializeField] private Button shopButton;
         [SerializeField] private Button diaShopButton;
         [SerializeField] private Button closeButton;
 
         [SerializeField] private RectTransform tabGroups;
+        [SerializeField] private CanvasGroup shopPanelGroup;
 
         private void Awake()
         {
             _lobbyUI = GetComponentInParent<LobbyUI>();
-            _shopPanelGroup = GetComponent<CanvasGroup>();
             var shopRect = GetComponent<RectTransform>();
 
             _shopPanelSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(_shopPanelGroup.DOFade(1, 0.25f).From(0))
+                .Append(shopPanelGroup.DOFade(1, 0.25f).From(0))
                 .Join(shopRect.DOAnchorPosX(0, 0.25f).From(new Vector2(-100, 0)));
-            _shopPanelSequence.OnComplete(() => _shopPanelGroup.blocksRaycasts = true);
+            _shopPanelSequence.OnComplete(() => shopPanelGroup.blocksRaycasts = true);
             _shopPanelSequence.OnRewind(() => _lobbyUI.OffBlockImage());
-            _shopPanelGroup.blocksRaycasts = false;
+            shopPanelGroup.blocksRaycasts = false;
             Init();
             ButtonInit();
         }
@@ -85,7 +84,7 @@ namespace LobbyUIControl
             closeButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                _shopPanelGroup.blocksRaycasts = false;
+                shopPanelGroup.blocksRaycasts = false;
                 _lobbyUI.OffBackgroundImage();
                 _lobbyUI.SetActiveButtons(true, false);
                 _lobbyUI.On();

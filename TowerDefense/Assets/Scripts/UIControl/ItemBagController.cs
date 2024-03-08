@@ -20,7 +20,6 @@ namespace UIControl
         private Dictionary<ItemType, int> _itemCountDic;
         private ItemType _curItemType;
         private bool _isOpenBag;
-        private bool _isOverlappingUI;
 
         [SerializeField] private Button bagButton;
         [SerializeField] private CanvasGroup itemBagGroup;
@@ -72,7 +71,6 @@ namespace UIControl
 
             var itemCount = itemGroup.transform.childCount;
             var lastItemPosX = itemGroup.transform.GetChild(itemCount - 1).GetComponent<RectTransform>().position.x;
-            _isOverlappingUI = lastItemPosX - _towerCardController.closeButtonAnchoredPosX <= 0;
         }
 
         private void OnDestroy()
@@ -103,7 +101,7 @@ namespace UIControl
         private void OpenBag()
         {
             _itemBagTween.Restart();
-            if (_isOverlappingUI)
+            if (!SafeArea.activeSafeArea)
             {
                 _towerCardController.scaleTween.Restart();
             }
@@ -114,7 +112,7 @@ namespace UIControl
             selectIcon.gameObject.SetActive(false);
             _itemBagTween.PlayBackwards();
             _curItemType = ItemType.None;
-            if (_isOverlappingUI)
+            if (!SafeArea.activeSafeArea)
             {
                 _towerCardController.scaleTween.PlayBackwards();
             }
@@ -143,7 +141,7 @@ namespace UIControl
                 itemGroup.blocksRaycasts = false;
                 _disappearItemBagTween.PlayBackwards();
                 _itemBagTween.PlayBackwards();
-                if (_isOverlappingUI)
+                if (!SafeArea.activeSafeArea)
                 {
                     _towerCardController.scaleTween.PlayBackwards();
                 }

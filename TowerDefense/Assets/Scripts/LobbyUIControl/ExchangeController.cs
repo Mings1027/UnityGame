@@ -137,6 +137,7 @@ namespace LobbyUIControl
         {
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
             _curQuantity = BackendGameData.curTbc / EmeraldAmount;
+            if (_curQuantity <= 0) return;
             quantityText.text = _curQuantity.ToString();
             diamondCostText.text = $"- {_curQuantity * EmeraldAmount}";
             emeraldCostText.text = $"+ {_curQuantity * EmeraldAmount}";

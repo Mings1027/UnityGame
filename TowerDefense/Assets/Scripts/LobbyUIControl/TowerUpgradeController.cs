@@ -23,7 +23,6 @@ namespace LobbyUIControl
         private Tween _upgradePanelGroupSequence;
         private Tween _towerInfoGroupSequence;
         private Tween _deletePanelTween;
-        private CanvasGroup _upgradePanelGroup;
         private TowerUpgradeButton _curTowerButton;
         private AttackTowerData _attackTowerData;
         private TowerType _towerType;
@@ -41,6 +40,7 @@ namespace LobbyUIControl
         [SerializeField] private Button closeInfoGroupButton;
         [SerializeField] private Button levelUpButton;
 
+        [SerializeField] private CanvasGroup upgradePanelGroup;
         [SerializeField] private NoticePanel notifyInitLevelPanel;
         [SerializeField] private Transform towerButtons;
         [SerializeField] private CanvasGroup towerInfoGroup;
@@ -131,14 +131,13 @@ namespace LobbyUIControl
 
         private void TweenInit()
         {
-            _upgradePanelGroup = GetComponent<CanvasGroup>();
             var upgradePanel = GetComponent<RectTransform>();
             _upgradePanelGroupSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(_upgradePanelGroup.DOFade(1, 0.25f).From(0))
+                .Append(upgradePanelGroup.DOFade(1, 0.25f).From(0))
                 .Join(upgradePanel.DOAnchorPosY(0, 0.25f).From(new Vector2(0, -100)));
-            _upgradePanelGroupSequence.OnComplete(() => _upgradePanelGroup.blocksRaycasts = true);
+            _upgradePanelGroupSequence.OnComplete(() => upgradePanelGroup.blocksRaycasts = true);
             _upgradePanelGroupSequence.OnRewind(() => { _lobbyUI.OffBlockImage(); });
-            _upgradePanelGroup.blocksRaycasts = false;
+            upgradePanelGroup.blocksRaycasts = false;
 
             var towerInfoRect = towerInfoGroup.GetComponent<RectTransform>();
             _towerInfoGroupSequence = DOTween.Sequence().SetAutoKill(false).Pause()
@@ -163,7 +162,7 @@ namespace LobbyUIControl
                 upgradeButton.gameObject.SetActive(true);
                 _lobbyUI.OffBackgroundImage();
                 _lobbyUI.SetActiveButtons(true, false);
-                _upgradePanelGroup.blocksRaycasts = false;
+                upgradePanelGroup.blocksRaycasts = false;
                 _upgradePanelGroupSequence.PlayBackwards();
                 UniTask.RunOnThreadPool(() => { BackendGameData.instance.GameDataUpdate(); });
             });

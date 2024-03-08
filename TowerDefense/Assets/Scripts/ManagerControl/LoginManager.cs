@@ -101,6 +101,7 @@ namespace ManagerControl
         {
             _loginButtonGroupTween = loginButtonsGroup.DOFade(1, 0.25f).From(0).SetAutoKill(false)
                 .Pause();
+            _loginButtonGroupTween.OnComplete(() => loginButtonsGroup.blocksRaycasts = true);
             _loginButtonGroupTween.Restart();
 
             _connectionPanelGroupTween = connectionPanelGroup.DOFade(1, 0.25f).From(0).SetAutoKill(false)
@@ -164,6 +165,7 @@ namespace ManagerControl
             {
                 content.anchoredPosition = Vector2.zero;
                 emailLoginPanelGroupObj.SetActive(true);
+                loginButtonsGroup.blocksRaycasts = false;
                 _loginButtonGroupTween.PlayBackwards();
             });
             goBackButton.onClick.AddListener(() =>
@@ -499,6 +501,7 @@ namespace ManagerControl
                         var bro = Backend.BMember.AuthorizeFederation(identityToken, FederationType.Apple);
                         if (bro.IsSuccess())
                         {
+                            loginButtonsGroup.blocksRaycasts = false;
                             _loginButtonGroupTween.PlayBackwards();
                             _connectionPanelGroupTween.OnComplete(() => connectionPanelGroup.blocksRaycasts = true)
                                 .Restart();
@@ -545,6 +548,7 @@ namespace ManagerControl
             {
                 BackendLogin.instance.loginPlatform = LoginPlatform.Google;
 
+                loginButtonsGroup.blocksRaycasts = false;
                 _loginButtonGroupTween.PlayBackwards();
                 _connectionPanelGroupTween.OnComplete(() => connectionPanelGroup.blocksRaycasts = true)
                     .Restart();

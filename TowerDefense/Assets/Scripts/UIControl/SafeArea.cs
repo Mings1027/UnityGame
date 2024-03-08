@@ -1,30 +1,39 @@
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace UIControl
 {
     public class SafeArea : MonoBehaviour
     {
-        [SerializeField] private Image minImage;
-        [SerializeField] private Image maxImage;
-
-        private void Start()
+        public static bool activeSafeArea { get; private set; }
+        private RectTransform GetTopParent()
         {
+            var parent = transform.parent.GetComponent<RectTransform>();
+            while (parent != null)
+            {
+                if (parent.parent == null) return parent;
+                parent = parent.parent as RectTransform;
+            }
+
+            return null;
+        }
+
+        public void Init()
+        {
+            var safeAreaMin = Screen.safeArea.min;
+            if (safeAreaMin.x <= 0) return;
+            activeSafeArea = true;
             var rect = GetComponent<RectTransform>();
+            var parentRect = GetTopParent();
+            var thisRect = parentRect.rect;
 
-            var minAnchor = Screen.safeArea.position;
-            var maxAnchor = minAnchor + Screen.safeArea.size;
+            rect.anchorMin = new Vector2(0.5f, 1);
+            rect.anchorMax = new Vector2(0.5f, 1);
+            rect.pivot = new Vector2(0.5f, 1);
 
-            minAnchor.x /= Screen.width;
-            minAnchor.y /= Screen.height;
-            maxAnchor.x /= Screen.width;
-            maxAnchor.y /= Screen.height;
+            thisRect.width -= safeAreaMin.x * 2;
+            thisRect.height -= Screen.safeArea.position.y;
 
-            rect.anchorMin = minAnchor;
-            rect.anchorMax = maxAnchor;
-
-            minImage.rectTransform.anchoredPosition = minAnchor;
-            maxImage.rectTransform.anchoredPosition = maxAnchor;
+            rect.sizeDelta = new Vector2(thisRect.width, thisRect.height);
         }
     }
 }

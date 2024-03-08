@@ -95,7 +95,6 @@ namespace ManagerControl
 
             foreach (var handle in labels.Select(Addressables.GetDownloadSizeAsync))
             {
-                Debug.Log(handle);
                 await handle;
 
                 _patchSize += handle.Result;

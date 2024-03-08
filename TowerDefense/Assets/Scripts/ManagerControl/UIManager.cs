@@ -21,6 +21,7 @@ using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
+using Utilities;
 using Sequence = DG.Tweening.Sequence;
 
 namespace ManagerControl
@@ -140,6 +141,7 @@ namespace ManagerControl
             TowerInit();
             LocaleDictionaryInit();
             TweenInit();
+            SetSafeArea();
 
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
             GameStart();
@@ -265,6 +267,27 @@ namespace ManagerControl
                 .Join(needMoreGoldGroup.DOFade(0, 0.25f).From(1));
             needMoreGoldGroup.blocksRaycasts = false;
             needMoreGoldGroup.alpha = 0;
+        }
+
+        private void SetSafeArea()
+        {
+            var safeAreas = FindObjectsByType<SafeArea>(FindObjectsSortMode.None);
+            for (var i = 0; i < safeAreas.Length; i++)
+            {
+                safeAreas[i].Init();
+            }
+
+            var uiVerticalSplitters = FindObjectsByType<UIVerticalSplitter>(FindObjectsSortMode.None);
+            for (var i = 0; i < uiVerticalSplitters.Length; i++)
+            {
+                uiVerticalSplitters[i].VerticalSplitter();
+            }
+
+            var uiHorizontalSplitters = FindObjectsByType<UIHorizontalSplitter>(FindObjectsSortMode.None);
+            for (var i = 0; i < uiHorizontalSplitters.Length; i++)
+            {
+                uiHorizontalSplitters[i].HorizontalSplitter();
+            }
         }
 
         private void ChangeLocaleTowerDictionary(Locale locale)

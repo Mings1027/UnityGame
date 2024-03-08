@@ -50,18 +50,17 @@ namespace UIControl
             topLetterBox.anchorMax = Vector2.one;
             topLetterBox.pivot = new Vector2(0.5f, 1);
             topLetterBox.sizeDelta = new Vector2(Screen.width, letterBoxHeight);
-            
+
             //Anchor Preset Bottom Stretch
             bottomLetterBox.anchorMin = Vector2.zero;
             bottomLetterBox.anchorMax = new Vector2(1, 0);
             bottomLetterBox.pivot = new Vector2(0.5f, 0);
             bottomLetterBox.sizeDelta = new Vector2(Screen.width, letterBoxHeight);
 
-            if (topLetterBox.sizeDelta.y < 1)
-            {
-                Destroy(topLetterBox.gameObject);
-                Destroy(bottomLetterBox.gameObject);
-            }
+            if (topLetterBox.sizeDelta.y >= 1) return;
+
+            Destroy(topLetterBox.gameObject);
+            Destroy(bottomLetterBox.gameObject);
         }
     }
 }

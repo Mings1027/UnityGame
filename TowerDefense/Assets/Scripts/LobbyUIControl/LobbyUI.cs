@@ -18,6 +18,7 @@ using UnityEngine.Localization.Settings;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
+using Utilities;
 
 namespace LobbyUIControl
 {
@@ -32,19 +33,19 @@ namespace LobbyUIControl
         private Sequence _duplicateSequence;
         private Sequence _successChangeNameSequence;
 
-        [field: SerializeField] public DiamondCurrency diamondCurrency { get; private set; }
-        [field: SerializeField] public EmeraldCurrency emeraldCurrency { get; private set; }
-
         [SerializeField] private Button startGameButton;
 
-        [SerializeField] private GameObject buttonsObj;
-        [SerializeField] private GameObject inGameMoneyObj;
+        [SerializeField] private CanvasGroup buttonsGroup;
+        [SerializeField] private CanvasGroup inGameMoneyGroup;
 
         [SerializeField] private CanvasGroup noticeGroup;
         [SerializeField] private TMP_Text noticeText;
         [SerializeField] private Image backgroundImage;
         [SerializeField] private Image backgroundBlockImage;
         [SerializeField] private AlertPanel duplicateAlertPanel;
+
+        [field: SerializeField] public DiamondCurrency diamondCurrency { get; private set; }
+        [field: SerializeField] public EmeraldCurrency emeraldCurrency { get; private set; }
 
         private void Awake()
         {
@@ -54,7 +55,7 @@ namespace LobbyUIControl
             var noticeDiaRect = noticeGroup.GetComponent<RectTransform>();
 
             _noticeSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(noticeDiaRect.DOAnchorPosX(-150, 0.25f).From(new Vector2(600, -50)))
+                .Append(noticeDiaRect.DOAnchorPosX(0, 0.25f).From(new Vector2(600, -50)))
                 .Append(noticeDiaRect.DOAnchorPosY(100, 0.25f).SetDelay(2))
                 .Join(noticeGroup.DOFade(0, 0.25f).From(1));
         }
@@ -86,7 +87,9 @@ namespace LobbyUIControl
         {
             FindAnyObjectByType<AdmobManager>().OnRewardedEvent += () => { RewardedAdRewardAsync().Forget(); };
 
-            inGameMoneyObj.SetActive(false);
+            backgroundBlockImage.enabled = false;
+            backgroundImage.enabled = false;
+            inGameMoneyGroup.alpha = 0;
             startGameButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
@@ -101,6 +104,29 @@ namespace LobbyUIControl
                 BackendLogin.instance.LogOut();
                 FadeController.FadeOutAndLoadScene("LoginScene");
             };
+
+            SetSafeArea();
+        }
+
+        private void SetSafeArea()
+        {
+            var safeAreas = FindObjectsByType<SafeArea>(FindObjectsSortMode.None);
+            for (var i = 0; i < safeAreas.Length; i++)
+            {
+                safeAreas[i].Init();
+            }
+
+            var uiVerticalSplitters = FindObjectsByType<UIVerticalSplitter>(FindObjectsSortMode.None);
+            for (var i = 0; i < uiVerticalSplitters.Length; i++)
+            {
+                uiVerticalSplitters[i].VerticalSplitter();
+            }
+
+            var uiHorizontalSplitters = FindObjectsByType<UIHorizontalSplitter>(FindObjectsSortMode.None);
+            for (var i = 0; i < uiHorizontalSplitters.Length; i++)
+            {
+                uiHorizontalSplitters[i].HorizontalSplitter();
+            }
         }
 
         private async UniTaskVoid RewardedAdRewardAsync()
@@ -163,8 +189,9 @@ namespace LobbyUIControl
 
         public void SetActiveButtons(bool active, bool inGameMoneyActive)
         {
-            buttonsObj.SetActive(active);
-            inGameMoneyObj.SetActive(inGameMoneyActive);
+            buttonsGroup.alpha = active ? 1 : 0;
+            buttonsGroup.blocksRaycasts = active;
+            inGameMoneyGroup.alpha = inGameMoneyActive ? 1 : 0;
         }
 
         public void On()

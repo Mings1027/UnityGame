@@ -19,11 +19,6 @@ namespace Utilities
             verticalLayoutGroup.childForceExpandWidth = true;
         }
 
-        private void Start()
-        {
-            VerticalSplitter();
-        }
-
         [ContextMenu("Vertical Splitter")]
         public void VerticalSplitter()
         {

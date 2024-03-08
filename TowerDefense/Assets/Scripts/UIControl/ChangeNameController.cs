@@ -52,6 +52,7 @@ namespace UIControl
         {
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
             _lobbyUI.OnBackgroundImage();
+            _lobbyUI.SetActiveButtons(false, false);
             _changeNamePanelSequence.Restart();
         }
 
@@ -59,6 +60,7 @@ namespace UIControl
         {
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
             _lobbyUI.OffBackgroundImage();
+            _lobbyUI.SetActiveButtons(true, false);
             changeNamePanelGroup.blocksRaycasts = false;
             _changeNamePanelSequence.PlayBackwards();
         }

@@ -18,11 +18,6 @@ namespace Utilities
             horizontalLayoutGroup.childForceExpandWidth = true;
         }
 
-        private void Start()
-        {
-            HorizontalSplitter();
-        }
-
         [ContextMenu("Horizontal Splitter")]
         public void HorizontalSplitter()
         {
