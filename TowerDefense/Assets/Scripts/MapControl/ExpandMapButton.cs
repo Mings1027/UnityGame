@@ -31,7 +31,7 @@ namespace MapControl
             if (!Input.GetTouch(0).deltaPosition.Equals(Vector2.zero)) return;
             if (UIManager.enableMoveUnitController) return;
             var position = transform.position;
-            PoolObjectManager.Get(PoolObjectKey.ExpandMapSmoke, position);
+            // PoolObjectManager.Get(PoolObjectKey.ExpandMapSmoke, position);
             OnExpandMapEvent?.Invoke(transform.position);
         }
     }

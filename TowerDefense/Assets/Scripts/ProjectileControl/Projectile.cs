@@ -82,10 +82,7 @@ namespace ProjectileControl
             target = t;
 
             _trailObj = PoolObjectManager.Get<TrailController>(trailPoolObjectKey, _startPos);
-            _trailObj.SetProjectileTransform(transform);
-
-            var trailColor = _trailObj.colorOverLifetime;
-            trailColor.color = towerData.projectileColor[vfxIndex];
+            _trailObj.SetProjectileTransform(transform, towerData.projectileColor[vfxIndex]);
         }
 
         protected virtual void Hit(Collider t)

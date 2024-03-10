@@ -136,7 +136,6 @@ namespace ManagerControl
         public void Init()
         {
             UIManagerInit();
-
             TowerButtonInit();
             TowerInit();
             LocaleDictionaryInit();

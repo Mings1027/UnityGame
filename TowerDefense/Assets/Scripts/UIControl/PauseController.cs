@@ -174,13 +174,14 @@ namespace UIControl
             while (!_cts.IsCancellationRequested)
             {
                 await UniTask.Delay(3000, cancellationToken: _cts.Token);
-                await UniTask.RunOnThreadPool(() =>
+                await UniTask.RunOnThreadPool(async () =>
                 {
                     var bro = Backend.BMember.IsAccessTokenAlive();
                     if (bro.IsSuccess()) return;
+                    await UniTask.SwitchToMainThread();
                     isAlive = false;
                     duplicateAlertPanel.OpenPopUp();
-                });
+                }, cancellationToken: _cts.Token);
                 if (!isAlive) break;
             }
         }

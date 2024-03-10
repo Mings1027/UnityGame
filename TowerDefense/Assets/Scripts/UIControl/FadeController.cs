@@ -38,15 +38,14 @@ namespace UIControl
         {
             _graphicRaycaster.enabled = true;
             await UniTask.Delay(TimeSpan.FromSeconds(1));
-            fadeInImage.DOFade(0, 1).From(1).SetUpdate(true);
-            await UniTask.Delay(TimeSpan.FromSeconds(1));
+            fadeInImage.DOFade(0, 1f).From(1).SetUpdate(true);
             _graphicRaycaster.enabled = false;
         }
 
         private async UniTaskVoid FadeOutSceneAsync(string sceneName)
         {
             _graphicRaycaster.enabled = true;
-            await fadeOutImage.DOFade(1, 1).From(0).SetUpdate(true);
+            await fadeOutImage.DOFade(1, 0.5f).From(0).SetUpdate(true);
             SceneManager.LoadScene(sceneName);
         }
 

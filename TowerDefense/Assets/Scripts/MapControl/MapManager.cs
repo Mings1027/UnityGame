@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using InterfaceControl;
 using ManagerControl;
 using PoolObjectControl;
@@ -251,7 +252,7 @@ namespace MapControl
             _waveManager.OnPlaceExpandButtonEvent += PlaceExpandButtons;
             _waveManager.enabled = false;
             PlaceStartMap((byte)(difficultyLevel + 1));
-            CombineMesh();
+            // CombineMesh();
             // CombineObstacleMesh();
 
             InitExpandButtonPosition();
@@ -533,12 +534,23 @@ namespace MapControl
         {
             var pos = center + _diagonalDir[Random.Range(0, _diagonalDir.Length)];
             var ranObstacle = Random.Range(0, obstaclePrefabs.Length);
-            Instantiate(obstaclePrefabs[ranObstacle], pos, Quaternion.Euler(0, Random.Range(0, 360), 0), obstacleMesh);
+           var obstacle= Instantiate(obstaclePrefabs[ranObstacle], pos, Quaternion.Euler(0, Random.Range(0, 360), 0), obstacleMesh);
+           obstacle.transform.DOMoveY(1, 1).From(-5).SetEase(Ease.OutBack);
         }
 
-        private void SetMap()
+        private async UniTaskVoid SetMap()
         {
-            CombineMesh();
+            var mapPos = _newMapObject.transform;
+            await _newMapObject.transform.DOMoveY(0, 1).From(new Vector3(mapPos.position.x, -3, mapPos.position.z))
+                .SetEase(Ease.OutBack);
+            // for (int i = 0; i < _neighborMapArray.Length; i++)
+            // {
+            //     if (_neighborMapArray[i] == null) continue;
+            //     DOTween.Sequence().Append(_neighborMapArray[i].transform.DOMoveY(1f, 0.3f).From(0))
+            //         .Append(_neighborMapArray[i].transform.DOMoveY(0, 0.3f).From(1f).SetEase(Ease.OutBack));
+            // }
+
+            // CombineMesh();
             // CombineObstacleMesh();
             navMeshSurface.BuildNavMesh();
             ramNavMeshSurface.BuildNavMesh();

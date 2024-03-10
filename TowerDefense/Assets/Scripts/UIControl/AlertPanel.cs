@@ -46,7 +46,7 @@ namespace UIControl
             _noticePanelGroup.blocksRaycasts = false;
             _buttonGroup.blocksRaycasts = false;
 
-            _noticeTween = _noticePanelGroup.DOFade(0.97f, 0.25f).From(0).SetEase(Ease.Linear)
+            _noticeTween = _noticePanelGroup.DOFade(1f, 0.25f).From(0).SetEase(Ease.Linear)
                 .SetAutoKill(false).Pause().SetUpdate(true);
 
             _noticeChildSequence = DOTween.Sequence().SetAutoKill(false).Pause().SetUpdate(true)
