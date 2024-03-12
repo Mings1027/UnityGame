@@ -17,7 +17,7 @@ namespace ProjectileControl
             _particleSystem = GetComponent<ParticleSystem>();
             _projectileColor = _particleSystem.colorOverLifetime;
             _destroyTween = DOVirtual.DelayedCall(_particleSystem.main.duration,
-                () => gameObject.SetActive(false)).SetAutoKill(false).Pause();
+                () => gameObject.SetActive(false), false).SetAutoKill(false).Pause();
         }
 
         private void OnDestroy()
@@ -34,7 +34,7 @@ namespace ProjectileControl
             }
         }
 
-        public void SetProjectileTransform(Transform projectileTransform, ParticleSystem.MinMaxGradient projectileColor)
+        public void SpawnProjectile(Transform projectileTransform, ParticleSystem.MinMaxGradient projectileColor)
         {
             _isConnect = true;
             _destroyTween.Restart();

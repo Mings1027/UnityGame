@@ -24,7 +24,7 @@ namespace ItemControl
             _remainingText = transform.GetChild(1).GetChild(0).GetComponent<TMP_Text>();
             _button = GetComponent<Button>();
             var rectTransform = GetComponent<RectTransform>();
-            _button.onClick.AddListener(() => { OnSetCurItemEvent?.Invoke(itemType, rectTransform.anchoredPosition); });
+            _button.onClick.AddListener(() => { OnSetCurItemEvent?.Invoke(itemType, rectTransform.localPosition); });
         }
 
         protected virtual void Start()

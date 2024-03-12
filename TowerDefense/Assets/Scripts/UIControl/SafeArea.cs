@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 namespace UIControl
@@ -5,6 +6,7 @@ namespace UIControl
     public class SafeArea : MonoBehaviour
     {
         public static bool activeSafeArea { get; private set; }
+
         private RectTransform GetTopParent()
         {
             var parent = transform.parent.GetComponent<RectTransform>();
@@ -17,7 +19,12 @@ namespace UIControl
             return null;
         }
 
-        public void Init()
+        private void Awake()
+        {
+            Init();
+        }
+
+        private void Init()
         {
             var safeAreaMin = Screen.safeArea.min;
             if (safeAreaMin.x <= 0) return;

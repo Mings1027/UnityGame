@@ -1,21 +1,21 @@
 using System.Collections.Generic;
+using GameControl;
 using ManagerControl;
 using StatusControl;
 using UnityEngine;
 
 namespace UIControl
 {
-    public class StatusBarUIController : MonoBehaviour
+    public class StatusBarUIController : MonoSingleton<StatusBarUIController>
     {
-        private static StatusBarUIController _inst;
         private Camera _cam;
         private CameraManager _cameraManager;
         private Dictionary<StatusBar, Transform> _barDictionary;
         private Dictionary<Transform, StatusBar> _inverseDic;
 
-        protected void Awake()
+        protected override void Awake()
         {
-            _inst = this;
+            base.Awake();
             _cam = Camera.main;
             _barDictionary = new Dictionary<StatusBar, Transform>();
             _inverseDic = new Dictionary<Transform, StatusBar>();
@@ -47,19 +47,28 @@ namespace UIControl
 
         public static void Add(StatusBar statusBar, Transform barPosition)
         {
-            _inst._barDictionary[statusBar] = barPosition;
-            _inst._inverseDic[barPosition] = statusBar;
-            _inst._cameraManager.ResizeUI(statusBar.transform);
-
-            statusBar.transform.position = _inst._cam.WorldToScreenPoint(barPosition.position);
+            instance.AddBar(statusBar, barPosition);
         }
 
         public static void Remove(Transform barPosition, bool removeDirectly = false)
         {
-            if (!_inst._inverseDic.ContainsKey(barPosition)) return;
-            var key = _inst._inverseDic[barPosition];
-            _inst._inverseDic.Remove(barPosition);
-            _inst._barDictionary.Remove(key);
+            instance.RemoveBar(barPosition, removeDirectly);
+        }
+
+        private void AddBar(StatusBar statusBar, Transform barPosition)
+        {
+            _barDictionary[statusBar] = barPosition;
+            _inverseDic[barPosition] = statusBar;
+            _cameraManager.ResizeUI(statusBar.transform);
+            statusBar.transform.position = _cam.WorldToScreenPoint(barPosition.position);
+        }
+
+        private void RemoveBar(Transform barPosition, bool removeDirectly = false)
+        {
+            if (!_inverseDic.ContainsKey(barPosition)) return;
+            var key = _inverseDic[barPosition];
+            _inverseDic.Remove(barPosition);
+            _barDictionary.Remove(key);
             key.RemoveEvent(removeDirectly);
         }
     }

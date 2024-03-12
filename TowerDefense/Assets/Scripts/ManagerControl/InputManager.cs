@@ -4,7 +4,6 @@ using DG.Tweening;
 using InterfaceControl;
 using UIControl;
 using UnityEngine;
-using Debug = UnityEngine.Debug;
 using Random = UnityEngine.Random;
 
 namespace ManagerControl
@@ -14,14 +13,12 @@ namespace ManagerControl
         private Camera _cam;
         private Tween _meshScaleTween;
         private Transform _cursorChild;
-        private Vector3 _prevCursorPos;
         private Vector3 _worldGridPos;
         private TowerType _selectedTowerType;
         private bool _isUnitTower;
         private bool _isGround;
         private bool _canPlace;
         private bool _startPlacement;
-        private bool _isAppeared;
         private Vector3[] _checkDir;
         private Vector3[] _fourDir;
         private MeshRenderer _cursorMeshRenderer;
@@ -32,7 +29,7 @@ namespace ManagerControl
         [SerializeField] private LayerMask groundLayer, unitLayer;
         [SerializeField] private Material cursorMaterial;
         [SerializeField] private Color[] cubeColor;
-        private static readonly int Property = Shader.PropertyToID("_Placement_Color");
+        private static readonly int Property = Shader.PropertyToID("_BaseColor");
 
         private void Update()
         {
@@ -43,7 +40,6 @@ namespace ManagerControl
             {
                 UpdateCursorPosition();
                 CheckCanPlace();
-                CursorAppear();
             }
 
             if (touch.phase.Equals(TouchPhase.Ended))
@@ -104,8 +100,6 @@ namespace ManagerControl
             _cursorMeshRenderer.enabled = false;
             _meshScaleTween = _cursorMeshRenderer.transform.DOScale(2, 0.25f).From(0).SetEase(Ease.OutBack)
                 .SetAutoKill(false).Pause();
-
-            _prevCursorPos = cubeCursor.position;
         }
 
         public void TryPlaceTower()
@@ -161,26 +155,6 @@ namespace ManagerControl
         {
             _canPlace = _isGround && CheckPlacementTile();
             cursorMaterial.SetColor(Property, _canPlace ? cubeColor[0] : cubeColor[1]);
-        }
-
-        private void CursorAppear()
-        {
-            if (_prevCursorPos == cubeCursor.position) return;
-            _prevCursorPos = cubeCursor.position;
-            if (_isGround)
-            {
-                if (!_isAppeared)
-                {
-                    _meshScaleTween.OnComplete(() => { _isAppeared = true; }).Restart();
-                }
-            }
-            else
-            {
-                if (_isAppeared)
-                {
-                    _meshScaleTween.OnRewind(() => { _isAppeared = false; }).PlayBackwards();
-                }
-            }
         }
 
         private bool CheckPlacementTile()

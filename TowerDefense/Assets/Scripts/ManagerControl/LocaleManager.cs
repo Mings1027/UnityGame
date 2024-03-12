@@ -13,7 +13,7 @@ namespace ManagerControl
         public const string ItemTable = "Item Table";
         public const string LobbyUITable = "Lobby UI Table";
         public const string LogInUITable = "LogIn UI Table";
-        public const string NoticeTable = "Notice Table";
+        public const string FloatingNotifyTable = "Floating Notify Table";
         public const string CardKey = "Card-";
         public const string ItemKey = "Item-";
 

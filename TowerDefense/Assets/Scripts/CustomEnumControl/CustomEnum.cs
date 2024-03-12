@@ -7,13 +7,14 @@ namespace CustomEnumControl
         Custom = 3
     }
 
-    public enum NoticeTableEnum 
+    public enum FloatingNotifyEnum 
     {
         NeedMoreDia,
         NeedMoreEmerald,
         DuplicateName,
         SuccessChangedName,
-        NeedMoreGearCoin
+        NeedMoreGearCoin,
+        AtLeastOneCharacter
     }
 
     public enum TowerType
@@ -93,7 +94,7 @@ namespace CustomEnumControl
 
         //==============Smoke==============
         ExpandMapSmoke,
-        BuildSmoke,
+        TowerUpgradeParticle,
         ObstacleSmoke,
 
         //==============Projectile==============
@@ -116,7 +117,8 @@ namespace CustomEnumControl
         
         BallistaTrailParticle,
         CanonTrailParticle,
-        WizardTrailParticle
+        WizardTrailParticle,
+        TowerSellParticle
     }
 
     public enum UIPoolObjectKey

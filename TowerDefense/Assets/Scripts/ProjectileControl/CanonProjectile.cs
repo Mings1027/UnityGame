@@ -18,7 +18,6 @@ namespace ProjectileControl
 
         [SerializeField] private AudioClip audioClip;
         [SerializeField] private byte atkRange;
-        [SerializeField] private PoolObjectKey hitPoolObjectKey;
 
         protected override void Awake()
         {
@@ -36,16 +35,16 @@ namespace ProjectileControl
         protected override void Update()
         {
             if (isArrived) return;
-            if (lerp < 1)
+            if (lerpTime < 1)
             {
-                if (lerp >= 0.4f && !_isLockOnTarget)
+                if (lerpTime >= 0.4f && !_isLockOnTarget)
                 {
                     _isLockOnTarget = true;
                     _targetEndPos = target.transform.position;
                     _targetEndPos.y = 0;
                 }
 
-                ProjectilePath(lerp < 0.4f ? target.transform.position : _targetEndPos);
+                ProjectilePath(lerpTime < 0.4f ? target.transform.position : _targetEndPos);
             }
             else
             {
@@ -66,18 +65,19 @@ namespace ProjectileControl
             var dir = (curPos - t.position).normalized;
             if (dir == Vector3.zero) return;
             transform.SetPositionAndRotation(curPos, Quaternion.LookRotation(dir));
-
         }
 
         protected override void Hit(Collider col)
         {
-            var mainModule = PoolObjectManager.Get<ParticleSystem>(hitPoolObjectKey, transform.position).main;
-            mainModule.startColor = towerData.projectileColor[effectIndex];
-            SoundManager.Play3DSound(audioClip, transform.position);
-            if (_targetEndPos == Vector3.zero) return;
-            var pos = transform.position;
+            var position = transform.position;
+            SoundManager.Play3DSound(audioClip, position);
 
-            var size = Physics.OverlapSphereNonAlloc(pos, atkRange, _targetColliders, _monsterLayer);
+            var mainModule = PoolObjectManager.Get<ParticleSystem>(hitParticleKey, position).main;
+            mainModule.startColor = towerData.projectileColor[effectIndex];
+
+            if (_targetEndPos == Vector3.zero) return;
+
+            var size = Physics.OverlapSphereNonAlloc(position, atkRange, _targetColliders, _monsterLayer);
 
             if (size <= 0) return;
             var dividedDamage = (int)(1.0f / size * damage);

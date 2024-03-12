@@ -182,7 +182,7 @@ namespace LobbyUIControl
 
                 if (prevTowerLv >= TowerMaxLevel || userData.xp < (prevTowerLv + 1) * 25)
                 {
-                    _lobbyUI.NoticeTween(NoticeTableEnum.NeedMoreGearCoin);
+                    _lobbyUI.NoticeTween(FloatingNotifyEnum.NeedMoreGearCoin);
                     return;
                 }
 

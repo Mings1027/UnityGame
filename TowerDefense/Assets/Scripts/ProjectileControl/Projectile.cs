@@ -18,12 +18,13 @@ namespace ProjectileControl
         protected sbyte effectIndex;
         protected bool isArrived;
         protected int damage;
-        protected float lerp;
+        protected float lerpTime;
 
         [SerializeField] protected TargetingTowerData towerData;
         [SerializeField, Range(0, 50)] private byte height;
         [SerializeField] private float speed;
         [SerializeField] private PoolObjectKey trailPoolObjectKey;
+        [SerializeField] protected PoolObjectKey hitParticleKey;
 
         protected virtual void Awake()
         {
@@ -32,7 +33,7 @@ namespace ProjectileControl
         protected virtual void OnEnable()
         {
             _startPos = transform.position;
-            lerp = 0;
+            lerpTime = 0;
         }
 
         private void OnDisable()
@@ -43,7 +44,7 @@ namespace ProjectileControl
         protected virtual void Update()
         {
             if (isArrived) return;
-            if (lerp < 1)
+            if (lerpTime < 1)
             {
                 ProjectilePath(target.bounds.center);
             }
@@ -59,17 +60,17 @@ namespace ProjectileControl
 
         protected virtual void ProjectilePath(Vector3 endPos)
         {
-            var gravity = Mathf.Lerp(0.8f, 1.5f, lerp);
-            lerp += Time.deltaTime * gravity * speed;
+            var gravity = Mathf.Lerp(0.8f, 1.5f, lerpTime);
+            lerpTime += Time.deltaTime * gravity * speed;
             _centerPos = (_startPos + endPos) * 0.5f + Vector3.up * height;
-            curPos = Vector3.Lerp(Vector3.Lerp(_startPos, _centerPos, lerp),
-                Vector3.Lerp(_centerPos, endPos, lerp), lerp);
+            curPos = Vector3.Lerp(Vector3.Lerp(_startPos, _centerPos, lerpTime),
+                Vector3.Lerp(_centerPos, endPos, lerpTime), lerpTime);
         }
 
         protected void DisableProjectile()
         {
             isArrived = true;
-            lerp = 0;
+            lerpTime = 0;
             Hit(target);
             _trailObj.DisconnectProjectile();
             gameObject.SetActive(false);
@@ -82,13 +83,9 @@ namespace ProjectileControl
             target = t;
 
             _trailObj = PoolObjectManager.Get<TrailController>(trailPoolObjectKey, _startPos);
-            _trailObj.SetProjectileTransform(transform, towerData.projectileColor[vfxIndex]);
+            _trailObj.SpawnProjectile(transform, towerData.projectileColor[vfxIndex]);
         }
 
-        protected virtual void Hit(Collider t)
-        {
-            if (!t.TryGetComponent(out IDamageable damageable) || !t.enabled) return;
-            damageable.Damage(damage);
-        }
+        protected abstract void Hit(Collider t);
     }
 }

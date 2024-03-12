@@ -1,5 +1,6 @@
 using System;
 using CustomEnumControl;
+using InterfaceControl;
 using MonsterControl;
 using PoolObjectControl;
 using UnityEngine;
@@ -10,7 +11,6 @@ namespace ProjectileControl
     {
         private byte _decreaseSpeed;
         private byte _slowCoolTime;
-        [SerializeField] private PoolObjectKey hitPoolObjectKey;
 
         public void DeBuffInit(sbyte vfxIndex)
         {
@@ -26,11 +26,14 @@ namespace ProjectileControl
 
         protected override void Hit(Collider t)
         {
-            var mainModule = PoolObjectManager.Get<ParticleSystem>(hitPoolObjectKey, transform.position).main;
+            if (!t.TryGetComponent(out IDamageable damageable) || !t.enabled) return;
+            var mainModule = PoolObjectManager.Get<ParticleSystem>(hitParticleKey, transform.position).main;
             mainModule.startColor = towerData.projectileColor[effectIndex];
+
             target.TryGetComponent(out MonsterStatus enemyStatus);
             enemyStatus.SlowEffect(_decreaseSpeed, _slowCoolTime);
-            base.Hit(t);
+
+            damageable.Damage(damage);
         }
     }
 }

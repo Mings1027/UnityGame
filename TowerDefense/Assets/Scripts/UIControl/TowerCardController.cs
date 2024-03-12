@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using CustomEnumControl;
+using Cysharp.Threading.Tasks;
 using DataControl.TowerDataControl;
 using DG.Tweening;
 using ManagerControl;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace UIControl
@@ -12,14 +12,15 @@ namespace UIControl
     public class TowerCardController : MonoBehaviour
     {
         private bool _isDrag;
+        private bool _isShowTowerBtn;
         private RectTransform _towerCardGroupRect;
         private Sequence _towerCardSequence;
         private InputManager _inputManager;
         private Dictionary<TowerType, TowerData> _towerButtonDic;
 
-        public float closeButtonAnchoredPosX { get; private set; }
         public Tween scaleTween { get; private set; }
 
+        [SerializeField] private CanvasGroup openTowerCardBtnGroup;
         [SerializeField] private Button closeButton;
         [SerializeField] private TowerDescriptionCard towerDescriptionCard;
         [SerializeField] private CanvasGroup towerCardGroup;
@@ -31,7 +32,7 @@ namespace UIControl
             _towerCardSequence = DOTween.Sequence().SetAutoKill(false).Pause().SetUpdate(true)
                 .Append(towerCardGroup.DOFade(1, 0.25f).From(0))
                 .Join(_towerCardGroupRect.DOAnchorPosX(0, 0.25f).From(new Vector2(-100, 0)));
-            _towerCardSequence.OnRewind(() => towerCardGroup.blocksRaycasts = false);
+            _towerCardSequence.OnComplete(() => towerCardGroup.blocksRaycasts = true);
 
             scaleTween = transform.DOScale(0.8f, 0.25f).From(1).SetAutoKill(false).Pause().SetUpdate(true);
             _inputManager = FindAnyObjectByType<InputManager>();
@@ -50,16 +51,27 @@ namespace UIControl
                 }
             }
 
+            openTowerCardBtnGroup.GetComponent<Button>().onClick.AddListener(() =>
+            {
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
+                if (_isShowTowerBtn) return;
+                _isShowTowerBtn = true;
+                openTowerCardBtnGroup.DOFade(0, 0);
+                openTowerCardBtnGroup.blocksRaycasts = false;
+                _towerCardSequence.Restart();
+            });
             closeButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
 
+                openTowerCardBtnGroup.DOFade(1, 0);
+                openTowerCardBtnGroup.blocksRaycasts = true;
+                    
+                towerCardGroup.blocksRaycasts = false;
                 _towerCardSequence.PlayBackwards();
                 CloseTowerCard();
-                UIManager.DisappearToggleButton();
+                DisappearToggleBtn().Forget();
             });
-
-            closeButtonAnchoredPosX = closeButton.GetComponent<RectTransform>().position.x;
         }
 
         private void OpenCard(TowerType towerType)
@@ -84,6 +96,24 @@ namespace UIControl
             _inputManager.TryPlaceTower();
         }
 
+        public void AppearToggleButton()
+        {
+            if (!_isShowTowerBtn)
+            {
+                openTowerCardBtnGroup.DOFade(1, 0.2f).OnComplete(() => openTowerCardBtnGroup.blocksRaycasts = true);
+            }
+        }
+
+        private async UniTaskVoid DisappearToggleBtn()
+        {
+            _isShowTowerBtn = false;
+            await UniTask.Delay(2000);
+            if (!_isShowTowerBtn)
+            {
+                openTowerCardBtnGroup.DOFade(0, 1).OnComplete(() => openTowerCardBtnGroup.blocksRaycasts = false);
+            }
+        }
+
         private void CloseTowerCard()
         {
             if (towerDescriptionCard.isOpen)
@@ -95,12 +125,6 @@ namespace UIControl
         public void SetDictionary(TowerType towerType, TowerData towerData)
         {
             _towerButtonDic.Add(towerType, towerData);
-        }
-
-        public void OpenTowerCards()
-        {
-            towerCardGroup.blocksRaycasts = true;
-            _towerCardSequence.Restart();
         }
     }
 }

@@ -35,8 +35,11 @@ namespace ManagerControl
 
         private Tween _loginButtonGroupTween;
         private Tween _connectionPanelGroupTween;
+        private Tween _federationGroupTween;
 
         private CancellationTokenSource _cts;
+
+        private LoginPlatform _curSelectPlatform;
 
 #if UNITY_IPHONE
         private IAppleAuthManager _appleAuthManager;
@@ -67,6 +70,13 @@ namespace ManagerControl
         [SerializeField] private Image loadingImage;
         [SerializeField] private Transform loadingIcon;
 
+        [SerializeField] private CanvasGroup federationPanelGroup;
+        [SerializeField] private Button goBackFederationButton;
+        [SerializeField] private Button federationLoginButton;
+        [SerializeField] private Image federationImage;
+        [SerializeField] private Sprite appleSprite;
+        [SerializeField] private Sprite googleSprite;
+
         [SerializeField] private CanvasGroup connectionPanelGroup;
         [SerializeField] private NoticePanel signUpConfirmPanel;
         [SerializeField] private NoticePanel logOutNoticePanel;
@@ -75,6 +85,7 @@ namespace ManagerControl
         {
             LoadLoginPlatform();
             Init();
+            InitTween();
             InitInputField();
             InitButtons();
 #if UNITY_IPHONE
@@ -99,14 +110,6 @@ namespace ManagerControl
 
         private void Init()
         {
-            _loginButtonGroupTween = loginButtonsGroup.DOFade(1, 0.25f).From(0).SetAutoKill(false)
-                .Pause();
-            _loginButtonGroupTween.OnComplete(() => loginButtonsGroup.blocksRaycasts = true);
-            _loginButtonGroupTween.Restart();
-
-            _connectionPanelGroupTween = connectionPanelGroup.DOFade(1, 0.25f).From(0).SetAutoKill(false)
-                .Pause();
-            connectionPanelGroup.blocksRaycasts = false;
             emailLoginPanelGroupObj.SetActive(false);
             notifySendEmailObj.SetActive(false);
             timerBackground.enabled = false;
@@ -125,9 +128,24 @@ namespace ManagerControl
             Application.targetFrameRate = 60;
         }
 
+        private void InitTween()
+        {
+            _loginButtonGroupTween = loginButtonsGroup.DOFade(1, 0.25f).From(0).SetAutoKill(false)
+                .Pause();
+            _loginButtonGroupTween.OnComplete(() => loginButtonsGroup.blocksRaycasts = true);
+            _loginButtonGroupTween.Restart();
+
+            _connectionPanelGroupTween = connectionPanelGroup.DOFade(1, 0.25f).From(0).SetAutoKill(false)
+                .Pause();
+            connectionPanelGroup.blocksRaycasts = false;
+
+            _federationGroupTween = federationPanelGroup.DOFade(1, 0.25f).From(0).SetAutoKill(false).Pause();
+            federationPanelGroup.blocksRaycasts = false;
+            _federationGroupTween.OnComplete(() => federationPanelGroup.blocksRaycasts = true);
+        }
+
         private void InitInputField()
         {
-            idField.text = PlayerPrefs.GetString(UserEmailID);
             if (idField.text.Contains("@") && idField.text.Contains("."))
             {
                 sendEmailButton.interactable = true;
@@ -151,22 +169,63 @@ namespace ManagerControl
                 content.DOLocalMoveY(350, 0.5f).SetEase(Ease.OutQuart);
             };
 
-            idField.onSubmit.AddListener(_ => { content.DOLocalMoveY(0, 0.5f).SetEase(Ease.OutQuart); });
-            idField.onValueChanged.AddListener(_ => { CheckEmailForm(); });
+            idField.onSubmit.AddListener(_ => content.DOLocalMoveY(0, 0.5f).SetEase(Ease.OutQuart));
+            idField.onValueChanged.AddListener(_ => CheckEmailForm());
+            // idField.onDeselect.AddListener(_ => content.DOLocalMoveY(0, 0.5f).SetEase(Ease.OutQuart));
 
-            oneTimeCodeField.onSubmit.AddListener(_ => { content.DOLocalMoveY(0, 0.5f).SetEase(Ease.OutQuart); });
+            oneTimeCodeField.onSubmit.AddListener(_ => content.DOLocalMoveY(0, 0.5f).SetEase(Ease.OutQuart));
+            // oneTimeCodeField.onDeselect.AddListener(_ => content.DOLocalMoveY(0, 0.5f).SetEase(Ease.OutQuart));
         }
 
         private void InitButtons()
         {
-            appleLoginButton.onClick.AddListener(AppleLogin);
+            appleLoginButton.onClick.AddListener(() =>
+            {
+                loginButtonsGroup.blocksRaycasts = false;
+                _loginButtonGroupTween.PlayBackwards();
+                _curSelectPlatform = LoginPlatform.Apple;
+                federationImage.sprite = appleSprite;
+                federationImage.color = Color.black;
+                _federationGroupTween.Restart();
+            });
 
             emailLoginButton.onClick.AddListener(() =>
             {
                 content.anchoredPosition = Vector2.zero;
+                idField.text = PlayerPrefs.GetString(UserEmailID);
+
                 emailLoginPanelGroupObj.SetActive(true);
                 loginButtonsGroup.blocksRaycasts = false;
                 _loginButtonGroupTween.PlayBackwards();
+            });
+            googleLoginButton.onClick.AddListener(() =>
+            {
+                loginButtonsGroup.blocksRaycasts = false;
+                _loginButtonGroupTween.PlayBackwards();
+                _curSelectPlatform = LoginPlatform.Google;
+                federationImage.sprite = googleSprite;
+                federationImage.color = Color.white;
+                _federationGroupTween.Restart();
+            });
+
+            goBackFederationButton.onClick.AddListener(() =>
+            {
+                _loginButtonGroupTween.Restart();
+                federationPanelGroup.blocksRaycasts = false;
+                _federationGroupTween.PlayBackwards();
+            });
+
+            federationLoginButton.onClick.AddListener(() =>
+            {
+                switch (_curSelectPlatform)
+                {
+                    case LoginPlatform.Apple:
+                        AppleLogin();
+                        break;
+                    case LoginPlatform.Google:
+                        StartGoogleLogin();
+                        break;
+                }
             });
             goBackButton.onClick.AddListener(() =>
             {
@@ -174,7 +233,6 @@ namespace ManagerControl
                 emailLoginPanelGroupObj.SetActive(false);
                 _loginButtonGroupTween.Restart();
             });
-            googleLoginButton.onClick.AddListener(StartGoogleLogin);
 
             sendEmailButton.onClick.AddListener(() => SendEmail().Forget());
             loginButton.onClick.AddListener(() =>
@@ -197,7 +255,7 @@ namespace ManagerControl
                 loginButton.interactable = false;
                 CancelTimer();
                 await StartEmailSignUp();
-                StartEmailLogin().Forget();
+                StartEmailLogin();
             };
         }
 
@@ -310,7 +368,7 @@ namespace ManagerControl
                     await Post(form);
                     _password = jObject["msg"]?.ToString();
 
-                    StartEmailLogin().Forget();
+                    StartEmailLogin();
                 }
             }
         }
@@ -326,7 +384,7 @@ namespace ManagerControl
             BackendLogin.instance.CustomSignUp(_id, _password);
         }
 
-        private async UniTask StartEmailLogin()
+        private void StartEmailLogin()
         {
             var backendLogin = BackendLogin.instance;
             backendLogin.CustomLogin(_id, _password);
@@ -348,7 +406,7 @@ namespace ManagerControl
                     form.AddField("order", "updatePassword");
                     form.AddField("id", _id);
                     form.AddField("password", _password);
-                    await Post(form);
+                    Post(form).Forget();
                 }
             }
 
@@ -369,6 +427,8 @@ namespace ManagerControl
             oneTimeCodeField.text = "";
             content.DOLocalMoveY(0, 0.5f).SetEase(Ease.OutQuart);
             emailLoginPanelGroupObj.SetActive(false);
+            federationPanelGroup.blocksRaycasts = false;
+            _federationGroupTween.PlayBackwards();
         }
 
         private async UniTask Post(WWWForm form)
@@ -490,32 +550,31 @@ namespace ManagerControl
                     CustomLog.Log("#  로그인 성공  #");
                     CustomLog.Log("# userID: #");
                     CustomLog.Log(credential.User);
-                    var appleIdCredential = credential as IAppleIDCredential;
-                    var passwordCredential = credential as IPasswordCredential;
 
-                    if (appleIdCredential.IdentityToken != null)
+                    if (credential is not IAppleIDCredential { IdentityToken: not null } appleIdCredential) return;
+                    var identityToken = Encoding.UTF8.GetString(appleIdCredential.IdentityToken, 0,
+                        appleIdCredential.IdentityToken.Length);
+
+                    loginButtonsGroup.blocksRaycasts = false;
+                    _loginButtonGroupTween.PlayBackwards();
+
+                    var bro = Backend.BMember.AuthorizeFederation(identityToken, FederationType.Apple);
+                    if (bro.IsSuccess())
                     {
-                        var identityToken = Encoding.UTF8.GetString(appleIdCredential.IdentityToken, 0,
-                            appleIdCredential.IdentityToken.Length);
-
-                        var bro = Backend.BMember.AuthorizeFederation(identityToken, FederationType.Apple);
-                        if (bro.IsSuccess())
-                        {
-                            loginButtonsGroup.blocksRaycasts = false;
-                            _loginButtonGroupTween.PlayBackwards();
-                            _connectionPanelGroupTween.OnComplete(() => connectionPanelGroup.blocksRaycasts = true)
-                                .Restart();
-                            BackendManager.BackendInit().Forget();
-                            SaveLoginPlatform(LoginPlatform.Apple);
-                            BackendLogin.instance.loginPlatform = LoginPlatform.Apple;
-                        }
-                        else CustomLog.LogError("Apple 로그인 실패");
+                        federationPanelGroup.blocksRaycasts = false;
+                        _federationGroupTween.PlayBackwards();
+                        _connectionPanelGroupTween.OnComplete(() => connectionPanelGroup.blocksRaycasts = true)
+                            .Restart();
+                        BackendManager.BackendInit().Forget();
+                        SaveLoginPlatform(LoginPlatform.Apple);
+                        BackendLogin.instance.loginPlatform = LoginPlatform.Apple;
                     }
+                    else CustomLog.LogError("Apple 로그인 실패");
 
-                    if (appleIdCredential.AuthorizationCode == null) return;
-                    CustomLog.Log("# authorizationCode:  #");
-                    CustomLog.Log(Encoding.UTF8.GetString(appleIdCredential.AuthorizationCode, 0,
-                        appleIdCredential.AuthorizationCode.Length));
+                    // if (appleIdCredential is { AuthorizationCode: null }) return;
+                    // CustomLog.Log("# authorizationCode:  #");
+                    // CustomLog.Log(Encoding.UTF8.GetString(appleIdCredential.AuthorizationCode, 0,
+                    //     appleIdCredential.AuthorizationCode.Length));
                 },
                 error =>
                 {
@@ -528,7 +587,7 @@ namespace ManagerControl
 
 #region Google
 
-        public void StartGoogleLogin()
+        private void StartGoogleLogin()
         {
             TheBackend.ToolKit.GoogleLogin.iOS.GoogleLogin(GoogleLoginCallback);
         }
@@ -541,6 +600,9 @@ namespace ManagerControl
                 return;
             }
 
+            loginButtonsGroup.blocksRaycasts = false;
+            _loginButtonGroupTween.PlayBackwards();
+
             CustomLog.Log("구글 토큰 : " + token);
             var bro = Backend.BMember.AuthorizeFederation(token, FederationType.Google);
             CustomLog.Log("페데레이션 로그인 결과 : " + bro);
@@ -548,8 +610,8 @@ namespace ManagerControl
             {
                 BackendLogin.instance.loginPlatform = LoginPlatform.Google;
 
-                loginButtonsGroup.blocksRaycasts = false;
-                _loginButtonGroupTween.PlayBackwards();
+                federationPanelGroup.blocksRaycasts = false;
+                _federationGroupTween.PlayBackwards();
                 _connectionPanelGroupTween.OnComplete(() => connectionPanelGroup.blocksRaycasts = true)
                     .Restart();
                 BackendManager.BackendInit().Forget();

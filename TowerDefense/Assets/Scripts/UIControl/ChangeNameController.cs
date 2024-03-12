@@ -18,6 +18,7 @@ namespace UIControl
 
         [SerializeField] private Button userIconButton;
         [SerializeField] private CanvasGroup changeNamePanelGroup;
+        [SerializeField] private TMP_Text curUserNickName;
         [SerializeField] private TMP_InputField userNameField;
         [SerializeField] private Button confirmButton;
         [SerializeField] private Button cancelButton;
@@ -36,8 +37,9 @@ namespace UIControl
             _changeNamePanelSequence.OnComplete(() => changeNamePanelGroup.blocksRaycasts = true);
             _changeNamePanelSequence.OnRewind(() => { _lobbyUI.OffBlockImage(); });
             changeNamePanelGroup.blocksRaycasts = false;
-            userNameField.text = BackendLogin.instance.GetUserNickName();
-            userNameField.onSelect.AddListener(GetCurNickName);
+            curUserNickName.text = BackendLogin.instance.GetUserNickName();
+            userNameField.onSelect.AddListener(_ => TouchScreenKeyboard.Open(userNameField.text,
+                TouchScreenKeyboardType.Default, false, false, false));
 
             confirmButton.onClick.AddListener(SubmitNickName);
             cancelButton.onClick.AddListener(CloseUserNamePanel);
@@ -51,6 +53,7 @@ namespace UIControl
         private void OpenUserNamePanel()
         {
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
+            userNameField.text = "";
             _lobbyUI.OnBackgroundImage();
             _lobbyUI.SetActiveButtons(false, false);
             _changeNamePanelSequence.Restart();
@@ -65,33 +68,32 @@ namespace UIControl
             _changeNamePanelSequence.PlayBackwards();
         }
 
-        private void GetCurNickName(string arg0)
-        {
-            _curNickname = userNameField.text;
-            TouchScreenKeyboard.Open(userNameField.text, TouchScreenKeyboardType.Default, false, false, false);
-        }
-
         private void SubmitNickName()
         {
             if (userNameField.text.Length > 0)
             {
-                userNameField.text = userNameField.text.Trim();
                 var updateNickNameState = BackendLogin.instance.UpdateNickname(userNameField.text);
                 if (updateNickNameState.Item1)
                 {
+                    curUserNickName.text = userNameField.text.Trim();
+                    userNameField.text = "";
                     _userRankController.SetRanking();
                     _lobbyUI.OffBackgroundImage();
+                    _lobbyUI.SetActiveButtons(true, false);
+                    _lobbyUI.NoticeTween(FloatingNotifyEnum.SuccessChangedName);
                     _changeNamePanelSequence.PlayBackwards();
-                    _lobbyUI.NoticeTween(NoticeTableEnum.SuccessChangedName);
                 }
                 else
                 {
-                    userNameField.text = _curNickname;
                     if (updateNickNameState.Item2 == "409")
                     {
-                        _lobbyUI.NoticeTween(NoticeTableEnum.DuplicateName);
+                        _lobbyUI.NoticeTween(FloatingNotifyEnum.DuplicateName);
                     }
                 }
+            }
+            else
+            {
+                _lobbyUI.NoticeTween(FloatingNotifyEnum.AtLeastOneCharacter);
             }
         }
     }

@@ -16,10 +16,22 @@ namespace Utilities
             horizontalLayoutGroup.childControlHeight = true;
             horizontalLayoutGroup.childForceExpandHeight = true;
             horizontalLayoutGroup.childForceExpandWidth = true;
+            ratios = null;
+            ratios = new float[transform.childCount];
+            // var ratio = ratios.Length / 10f;
+            // for (var i = 0; i < ratios.Length; i++)
+            // {
+            //     ratios[i] = ratio;
+            // }
+        }
+
+        private void Start()
+        {
+            HorizontalSplitter();
         }
 
         [ContextMenu("Horizontal Splitter")]
-        public void HorizontalSplitter()
+        private void HorizontalSplitter()
         {
             if (ratios.Length <= 0) return;
             var totalRatio = ratios.Sum();

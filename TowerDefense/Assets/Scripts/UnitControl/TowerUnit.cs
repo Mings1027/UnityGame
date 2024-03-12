@@ -5,7 +5,6 @@ using EPOOutline;
 using GameControl;
 using InterfaceControl;
 using ManagerControl;
-// using Plugins.Easy_performant_outline.Scripts;
 using StatusControl;
 using TowerControl;
 using UnityEngine;
@@ -37,8 +36,8 @@ namespace UnitControl
         private int _damage;
         private bool _startTargeting;
 
-        private readonly static int IsWalk = Animator.StringToHash("isWalk");
-        private readonly static int IsAttack = Animator.StringToHash("isAttack");
+        private static readonly int IsWalk = Animator.StringToHash("isWalk");
+        private static readonly int IsAttack = Animator.StringToHash("isAttack");
 
         public Transform healthBarTransform { get; private set; }
 
@@ -123,7 +122,7 @@ namespace UnitControl
 
         public void UnitUpdate()
         {
-            if (_health.IsDead) return;
+            if (_health.isDead) return;
             switch (_unitState)
             {
                 case UnitState.Patrol:
@@ -137,14 +136,9 @@ namespace UnitControl
                     break;
             }
 
-            // _anim.SetBool(IsWalk, _navMeshAgent.velocity != Vector3.zero);
-
             if (_target && _target.enabled)
             {
-                // var t = transform;
-                // var targetRot = Quaternion.LookRotation(_target.transform.position - t.position);
-                // t.rotation = Quaternion.Slerp(t.rotation, targetRot, turnSpeed);
-                var dir = (_target.transform.position - transform.position).normalized;
+                 var dir = (_target.transform.position - transform.position).normalized;
                 var targetRot = Quaternion.LookRotation(dir);
                 var eulerAngleDiff = targetRot.eulerAngles - transform.rotation.eulerAngles;
                 transform.Rotate(eulerAngleDiff);

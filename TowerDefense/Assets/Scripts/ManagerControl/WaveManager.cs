@@ -99,10 +99,9 @@ namespace ManagerControl
             await UniTask.Delay(500);
             _wayPoints = wayPoints;
             _startWave = true;
-            StartWave();
         }
 
-        private void StartWave()
+        public void StartWave()
         {
             _towerManager.StartTargeting();
             GameHUD.SetWaveText(curWave.ToString());
@@ -149,7 +148,6 @@ namespace ManagerControl
             {
                 for (var normalDataIndex = 0; normalDataIndex < normalMonsterDataLength; normalDataIndex++)
                 {
-                    await UniTask.Delay(500, cancellationToken: _cts.Token);
                     var normalMonsterData = monstersData[_themeIndex].normalMonsterData[normalDataIndex];
 
                     if (normalMonsterData.startSpawnWave > curWave) continue;
@@ -165,6 +163,8 @@ namespace ManagerControl
                         MonsterInit(monster, normalMonsterData);
                         NormalMonsterInit(monster, normalMonsterData);
                     }
+
+                    await UniTask.Delay(500, cancellationToken: _cts.Token);
                 }
             }
         }
@@ -223,9 +223,9 @@ namespace ManagerControl
             };
             monsterUnit.OnDisableEvent += () =>
             {
-                DecreaseEnemyCount(monsterUnit, monsterHealth.IsDead);
+                DecreaseEnemyCount(monsterUnit, monsterHealth.isDead);
 
-                if (monsterHealth.IsDead) return;
+                if (monsterHealth.isDead) return;
                 StatusBarUIController.Remove(healthBarTransform, true);
             };
         }
@@ -254,9 +254,9 @@ namespace ManagerControl
             };
             monsterUnit.OnDisableEvent += () =>
             {
-                DecreaseEnemyCount(monsterUnit, monsterHealth.IsDead);
+                DecreaseEnemyCount(monsterUnit, monsterHealth.isDead);
 
-                if (monsterHealth.IsDead) return;
+                if (monsterHealth.isDead) return;
                 StatusBarUIController.Remove(healthBarTransform, true);
             };
         }
@@ -285,7 +285,7 @@ namespace ManagerControl
             var towerHealth = GameHUD.towerHealth;
             if (!isDead) towerHealth.Damage(monsterUnit.baseTowerDamage);
 
-            if (towerHealth.IsDead)
+            if (towerHealth.isDead)
             {
                 _pauseController.GameOver();
                 return;

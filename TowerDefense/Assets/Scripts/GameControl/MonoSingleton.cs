@@ -11,6 +11,7 @@ namespace GameControl
         protected virtual void Awake()
         {
             if(dontDestroyOnLoad) DontDestroyOnLoad(this);
+            instance = this as T;
         }
 
         private void OnDestroy()

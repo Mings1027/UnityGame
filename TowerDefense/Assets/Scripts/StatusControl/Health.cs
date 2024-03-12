@@ -10,7 +10,7 @@ namespace StatusControl
 {
     public abstract class Health : Progressive, IDamageable, IHealable
     {
-        public bool IsDead => Current <= 0;
+        public bool isDead => Current <= 0;
         public event Action OnDeadEvent;
         public event Action OnShakeEvent;
 
@@ -30,7 +30,7 @@ namespace StatusControl
 
         public virtual void Heal(in ushort amount)
         {
-            if (IsDead) return;
+            if (isDead) return;
             if (Current >= Initial) return;
             Current += amount;
             PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.HealText,

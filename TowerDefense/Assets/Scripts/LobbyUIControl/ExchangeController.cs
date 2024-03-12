@@ -71,7 +71,7 @@ namespace LobbyUIControl
             }
             else
             {
-                _lobbyUI.NoticeTween(NoticeTableEnum.NeedMoreDia);
+                _lobbyUI.NoticeTween(FloatingNotifyEnum.NeedMoreDia);
             }
         }
 

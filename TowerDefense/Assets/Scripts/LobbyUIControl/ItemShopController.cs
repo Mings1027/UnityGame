@@ -138,8 +138,8 @@ namespace LobbyUIControl
             ownedAmountText.text = _localizedOwnedText + _itemInfoTable[itemType].itemCount;
             purchasePanelGroup.blocksRaycasts = true;
             _purchasePanelSequence.Restart();
-            _curEmeraldPrice = BackendChart.ItemTable[_curItemType.ToString()];
             _curQuantity = 1;
+            _curEmeraldPrice = BackendChart.ItemTable[_curItemType.ToString()];
             emeraldPriceText.text = _curEmeraldPrice.ToString();
             quantityText.text = _curQuantity.ToString();
         }
@@ -149,10 +149,36 @@ namespace LobbyUIControl
             _purchasePanelSequence.OnRewind(() => purchasePanelGroup.blocksRaycasts = false).PlayBackwards();
         }
 
+        private void IncreaseQuantity()
+        {
+            SoundManager.PlayUISound(SoundEnum.ButtonSound);
+            _curQuantity++;
+            if (BackendGameData.userData.emerald >= BackendChart.ItemTable[_curItemType.ToString()] * _curQuantity)
+            {
+                _curEmeraldPrice = BackendChart.ItemTable[_curItemType.ToString()] * _curQuantity;
+                emeraldPriceText.text = _curEmeraldPrice.ToString();
+                quantityText.text = _curQuantity.ToString();
+            }
+            else
+            {
+                _curQuantity--;
+            }
+        }
+
+        private void DecreaseQuantity()
+        {
+            SoundManager.PlayUISound(SoundEnum.ButtonSound);
+            if (_curQuantity <= 0) return;
+            _curQuantity--;
+            _curEmeraldPrice = BackendChart.ItemTable[_curItemType.ToString()] * _curQuantity;
+            emeraldPriceText.text = _curEmeraldPrice.ToString();
+            quantityText.text = _curQuantity.ToString();
+        }
+
         private void PurchaseItem()
         {
             if (_curItemType == ItemType.None || _curQuantity <= 0) return;
-            if (_curEmeraldPrice < BackendGameData.userData.emerald)
+            if (_curEmeraldPrice <= BackendGameData.userData.emerald)
             {
                 BackendGameData.userData.emerald -= _curEmeraldPrice;
                 _lobbyUI.emeraldCurrency.SetText();
@@ -164,7 +190,7 @@ namespace LobbyUIControl
             }
             else
             {
-                _lobbyUI.NoticeTween(NoticeTableEnum.NeedMoreEmerald);
+                _lobbyUI.NoticeTween(FloatingNotifyEnum.NeedMoreEmerald);
             }
         }
 
@@ -178,26 +204,6 @@ namespace LobbyUIControl
 
             LocaleManager.ChangeLocaleAsync(LocaleManager.ItemTable, _curItemType.ToString(), explainText).Forget();
             _localizedOwnedText = LocaleManager.GetLocalizedString(LocaleManager.LobbyUITable, "OwnedText");
-        }
-
-        private void IncreaseQuantity()
-        {
-            SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            _curEmeraldPrice = BackendChart.ItemTable[_curItemType.ToString()] * _curQuantity;
-            if (BackendGameData.userData.emerald <= _curEmeraldPrice) return;
-            _curQuantity++;
-            emeraldPriceText.text = _curEmeraldPrice.ToString();
-            quantityText.text = _curQuantity.ToString();
-        }
-
-        private void DecreaseQuantity()
-        {
-            SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            if (_curQuantity <= 0) return;
-            _curQuantity--;
-            _curEmeraldPrice = BackendChart.ItemTable[_curItemType.ToString()] * _curQuantity;
-            emeraldPriceText.text = _curEmeraldPrice.ToString();
-            quantityText.text = _curQuantity.ToString();
         }
     }
 }

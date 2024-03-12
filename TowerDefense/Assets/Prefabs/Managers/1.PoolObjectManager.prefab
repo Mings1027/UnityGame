@@ -63,9 +63,9 @@ MonoBehaviour:
     prefab: {fileID: 5463874844451354932, guid: c82aa05a03c904f02ad609d612c3c02e,
       type: 3}
     initSize: 10
-  - poolObjectName: BuildSmoke
+  - poolObjectName: TowerUpgradeParticle
     poolObjectKey: 3
-    prefab: {fileID: 104829970813648393, guid: d3015b7eea383f64d8b81f965cc466e7, type: 3}
+    prefab: {fileID: 131653965314820844, guid: 903c162e017b24458b17ab30bdc5dc49, type: 3}
     initSize: 1
   - poolObjectName: CanonProjectile
     poolObjectKey: 7
@@ -133,6 +133,11 @@ MonoBehaviour:
   - poolObjectName: WizardTrailParticle
     poolObjectKey: 18
     prefab: {fileID: 3659182232082306711, guid: 62bb77d15f382423f83dc9e07a23a4b6,
+      type: 3}
+    initSize: 10
+  - poolObjectName: TowerSellParticle
+    poolObjectKey: 19
+    prefab: {fileID: 3597081535152794109, guid: 4d0ff0d46f43c4208adba77d3926dda8,
       type: 3}
     initSize: 10
   uiPools:
@@ -368,3 +373,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 343e9f532d2564b76a75cc3b59e475a3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dontDestroyOnLoad: 0

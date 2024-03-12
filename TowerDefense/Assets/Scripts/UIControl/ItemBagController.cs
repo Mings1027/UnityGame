@@ -46,7 +46,7 @@ namespace UIControl
                 }
             });
 
-            _disappearItemBagTween = itemBagGroup.DOFade(1, 0.25f).From(0).SetAutoKill(false).Pause();
+            _disappearItemBagTween = GetComponent<CanvasGroup>().DOFade(1, 0.25f).From(0).SetAutoKill(false).Pause();
             _disappearItemBagTween.OnComplete(() => itemBagGroup.blocksRaycasts = true);
             itemBagGroup.blocksRaycasts = false;
 
@@ -68,9 +68,6 @@ namespace UIControl
 
                 _itemCountDic.Add(itemButton.itemType, itemInventory[itemButton.itemType.ToString()]);
             }
-
-            var itemCount = itemGroup.transform.childCount;
-            var lastItemPosX = itemGroup.transform.GetChild(itemCount - 1).GetComponent<RectTransform>().position.x;
         }
 
         private void OnDestroy()
@@ -82,8 +79,8 @@ namespace UIControl
         {
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
             if (_itemCountDic[curItemType] <= 0) return;
-            selectIcon.gameObject.SetActive(true);
             selectIcon.rectTransform.anchoredPosition = anchoredPos;
+            selectIcon.gameObject.SetActive(true);
             _curItemType = curItemType;
         }
 

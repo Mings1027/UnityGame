@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -17,10 +16,22 @@ namespace Utilities
             verticalLayoutGroup.childControlWidth = true;
             verticalLayoutGroup.childForceExpandHeight = true;
             verticalLayoutGroup.childForceExpandWidth = true;
+            ratios = null;
+            ratios = new float[transform.childCount];
+            // var ratio = ratios.Length / 10f;
+            // for (var i = 0; i < ratios.Length; i++)
+            // {
+            //     ratios[i] = ratio;
+            // }
+        }
+
+        private void Start()
+        {
+            VerticalSplitter();
         }
 
         [ContextMenu("Vertical Splitter")]
-        public void VerticalSplitter()
+        private void VerticalSplitter()
         {
             if (ratios.Length <= 0) return;
             var totalRatio = ratios.Sum();

@@ -16,9 +16,7 @@ using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 using UnityEngine.ResourceManagement.AsyncOperations;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
-using Utilities;
 
 namespace LobbyUIControl
 {
@@ -26,7 +24,7 @@ namespace LobbyUIControl
     {
         private CancellationTokenSource _cts;
         private bool _isSequencePlaying;
-        private Dictionary<NoticeTableEnum, string> _noticeDic;
+        private Dictionary<FloatingNotifyEnum, string> _noticeDic;
 
         private Sequence _noticeSequence;
         private Sequence _emeraldNoticeSequence;
@@ -55,7 +53,8 @@ namespace LobbyUIControl
             var noticeDiaRect = noticeGroup.GetComponent<RectTransform>();
 
             _noticeSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(noticeDiaRect.DOAnchorPosX(0, 0.25f).From(new Vector2(600, -50)))
+                .Append(noticeGroup.DOFade(1,0.2f).From(0))
+                .Join(noticeDiaRect.DOAnchorPosX(0, 0.25f).From(new Vector2(1000, -50)))
                 .Append(noticeDiaRect.DOAnchorPosY(100, 0.25f).SetDelay(2))
                 .Join(noticeGroup.DOFade(0, 0.25f).From(1));
         }
@@ -104,29 +103,6 @@ namespace LobbyUIControl
                 BackendLogin.instance.LogOut();
                 FadeController.FadeOutAndLoadScene("LoginScene");
             };
-
-            SetSafeArea();
-        }
-
-        private void SetSafeArea()
-        {
-            var safeAreas = FindObjectsByType<SafeArea>(FindObjectsSortMode.None);
-            for (var i = 0; i < safeAreas.Length; i++)
-            {
-                safeAreas[i].Init();
-            }
-
-            var uiVerticalSplitters = FindObjectsByType<UIVerticalSplitter>(FindObjectsSortMode.None);
-            for (var i = 0; i < uiVerticalSplitters.Length; i++)
-            {
-                uiVerticalSplitters[i].VerticalSplitter();
-            }
-
-            var uiHorizontalSplitters = FindObjectsByType<UIHorizontalSplitter>(FindObjectsSortMode.None);
-            for (var i = 0; i < uiHorizontalSplitters.Length; i++)
-            {
-                uiHorizontalSplitters[i].HorizontalSplitter();
-            }
         }
 
         private async UniTaskVoid RewardedAdRewardAsync()
@@ -157,15 +133,15 @@ namespace LobbyUIControl
 
         private async UniTaskVoid SetNoticeDic()
         {
-            _noticeDic = new Dictionary<NoticeTableEnum, string>();
-            var loadOperation = LocalizationSettings.StringDatabase.GetTableAsync(LocaleManager.NoticeTable);
+            _noticeDic = new Dictionary<FloatingNotifyEnum, string>();
+            var loadOperation = LocalizationSettings.StringDatabase.GetTableAsync(LocaleManager.FloatingNotifyTable);
             await loadOperation;
             if (loadOperation.Status == AsyncOperationStatus.Succeeded)
             {
                 var dic = loadOperation.Result.ToDictionary(p => p.Value);
 
-                var noticeTable = Enum.GetValues(typeof(NoticeTableEnum));
-                foreach (NoticeTableEnum key in noticeTable)
+                var noticeTableEnums = Enum.GetValues(typeof(FloatingNotifyEnum));
+                foreach (FloatingNotifyEnum key in noticeTableEnums)
                 {
                     foreach (var d in dic)
                     {
@@ -184,7 +160,7 @@ namespace LobbyUIControl
             foreach (var noticeString in _noticeDic.Keys.ToList())
             {
                 _noticeDic[noticeString] =
-                    LocaleManager.GetLocalizedString(LocaleManager.NoticeTable, noticeString.ToString());
+                    LocaleManager.GetLocalizedString(LocaleManager.FloatingNotifyTable, noticeString.ToString());
             }
         }
 
@@ -217,10 +193,10 @@ namespace LobbyUIControl
 
         public void OffBlockImage() => backgroundBlockImage.raycastTarget = false;
 
-        public void NoticeTween(NoticeTableEnum noticeTableEnum)
+        public void NoticeTween(FloatingNotifyEnum floatingNotifyEnum)
         {
             if (_isSequencePlaying) return;
-            noticeText.text = _noticeDic[noticeTableEnum];
+            noticeText.text = _noticeDic[floatingNotifyEnum];
             _isSequencePlaying = true;
             _noticeSequence.OnComplete(() => _isSequencePlaying = false).Restart();
         }

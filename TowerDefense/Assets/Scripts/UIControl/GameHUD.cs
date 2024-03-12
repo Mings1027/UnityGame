@@ -52,12 +52,6 @@ namespace UIControl
 
 #region Unity Event
 
-        protected override void Awake()
-        {
-            base.Awake();
-            instance = this;
-        }
-
         private void OnDisable()
         {
             _hudSlideTween?.Kill();

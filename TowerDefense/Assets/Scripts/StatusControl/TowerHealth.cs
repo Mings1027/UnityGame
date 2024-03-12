@@ -25,7 +25,7 @@ namespace StatusControl
 
         public override void Heal(in ushort amount)
         {
-            if (IsDead) return;
+            if (isDead) return;
             if (Current >= Initial) return;
             Current += amount;
 

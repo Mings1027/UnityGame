@@ -4,6 +4,7 @@ using DG.Tweening;
 using GameControl;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace UIControl
@@ -12,21 +13,21 @@ namespace UIControl
     {
         private GraphicRaycaster _graphicRaycaster;
 
-        [SerializeField] private Image fadeInImage;
+        [SerializeField] private CanvasGroup fadeInGroup;
         [SerializeField] private Image fadeOutImage;
+        [SerializeField] private Slider loadingSlider;
 
         protected override void Awake()
         {
             base.Awake();
-            instance = this;
             _graphicRaycaster = GetComponent<GraphicRaycaster>();
-            fadeInImage.DOFade(1, 0);
+            fadeInGroup.DOFade(1, 0);
             fadeOutImage.DOFade(0, 0);
         }
 
         private void Start()
         {
-            FadeInScene().Forget();
+            FadeInScene();
         }
 
         private void OnDestroy()
@@ -34,12 +35,14 @@ namespace UIControl
             instance = null;
         }
 
-        private async UniTaskVoid FadeInScene()
+        private void FadeInScene()
         {
             _graphicRaycaster.enabled = true;
-            await UniTask.Delay(TimeSpan.FromSeconds(1));
-            fadeInImage.DOFade(0, 1f).From(1).SetUpdate(true);
-            _graphicRaycaster.enabled = false;
+            loadingSlider.DOValue(1, 1).From(0).SetDelay(1).SetUpdate(true).OnComplete(() =>
+            {
+                fadeInGroup.DOFade(0, 0.5f).From(1).SetUpdate(true);
+                _graphicRaycaster.enabled = false;
+            });
         }
 
         private async UniTaskVoid FadeOutSceneAsync(string sceneName)

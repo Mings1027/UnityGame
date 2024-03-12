@@ -21,7 +21,7 @@ namespace MonsterControl
         public override void MonsterUpdate()
         {
             if (!navMeshAgent.enabled) return;
-            if (health.IsDead) return;
+            if (health.isDead) return;
             switch (unitState)
             {
                 case UnitState.Patrol:
