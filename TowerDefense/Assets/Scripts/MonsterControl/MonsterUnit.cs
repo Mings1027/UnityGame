@@ -6,6 +6,7 @@ using DG.Tweening;
 using GameControl;
 using InterfaceControl;
 using StatusControl;
+using UIControl;
 using UnityEngine;
 using UnityEngine.AI;
 using Random = UnityEngine.Random;
@@ -28,7 +29,6 @@ namespace MonsterControl
 
         protected Health health;
         protected NavMeshAgent navMeshAgent;
-        protected int damage;
 
         private readonly int _isWalk = Animator.StringToHash("isWalk");
         protected readonly int isAttack = Animator.StringToHash("isAttack");
@@ -36,10 +36,7 @@ namespace MonsterControl
         public Transform healthBarTransform { get; private set; }
         public event Action OnDisableEvent;
 
-        [SerializeField, Range(0, 5)] protected byte attackTargetCount;
-        [SerializeField, Range(0, 7)] protected byte atkRange;
-        [SerializeField, Range(0, 10)] protected byte sightRange;
-        [field: SerializeField] public byte baseTowerDamage { get; private set; }
+        [SerializeField] protected MonsterData monsterData;
 
 #region Unity Event
 
@@ -73,9 +70,9 @@ namespace MonsterControl
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(transform.position, atkRange);
+            Gizmos.DrawWireSphere(transform.position, monsterData.attackRange);
             Gizmos.color = Color.green;
-            Gizmos.DrawWireSphere(transform.position, sightRange);
+            Gizmos.DrawWireSphere(transform.position, monsterData.sightRange);
         }
 
 #endregion
@@ -87,17 +84,20 @@ namespace MonsterControl
             _thisCollider.enabled = true;
             target = null;
             health.OnDeadEvent += Dead;
+            OnDisableEvent += () =>
+            {
+                if (!health.isDead) GameHUD.towerHealth.Damage(monsterData.baseTowerDamage);
+            };
             anim.enabled = true;
         }
 
-        public virtual void SpawnInit(MonsterData monsterData)
+        public virtual void SpawnInit()
         {
             navMeshAgent.enabled = true;
             unitState = UnitState.Patrol;
             navMeshAgent.speed = monsterData.speed;
             SetSpeed(navMeshAgent.speed, attackCooldown.cooldownTime);
             attackCooldown.cooldownTime = monsterData.attackDelay;
-            damage = monsterData.damage;
             if (navMeshAgent.isOnNavMesh) navMeshAgent.SetDestination(Vector3.zero);
             anim.SetBool(_isWalk, true);
         }
@@ -124,7 +124,7 @@ namespace MonsterControl
         protected virtual void TryDamage()
         {
             if (target.enabled && target.TryGetComponent(out IDamageable damageable))
-                damageable.Damage(damage);
+                damageable.Damage(monsterData.damage);
         }
 
 #endregion

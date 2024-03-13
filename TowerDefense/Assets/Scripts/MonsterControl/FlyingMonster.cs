@@ -8,9 +8,9 @@ namespace MonsterControl
     {
         [SerializeField] private byte baseOffset;
 
-        public override void SpawnInit(MonsterData monsterData)
+        public override void SpawnInit()
         {
-            base.SpawnInit(monsterData);
+            base.SpawnInit();
             SetBaseOffset().Forget();
         }
 

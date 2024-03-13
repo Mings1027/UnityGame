@@ -7,7 +7,6 @@ namespace DataControl.TowerDataControl
     {
         [field: SerializeField] public TowerType towerType { get; private set; }
         [field: SerializeField] public bool isUnitTower { get; private set; }
-        [field: SerializeField] public bool isMagicTower { get; private set; }
 
         [field: SerializeField, Range(0, 1000)]
         public ushort towerBuildCost { get; private set; }

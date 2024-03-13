@@ -16,6 +16,7 @@ using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace LobbyUIControl
@@ -40,7 +41,7 @@ namespace LobbyUIControl
         [SerializeField] private TMP_Text noticeText;
         [SerializeField] private Image backgroundImage;
         [SerializeField] private Image backgroundBlockImage;
-        [SerializeField] private AlertPanel duplicateAlertPanel;
+        [FormerlySerializedAs("duplicateAlertPanel")] [SerializeField] private NotificationPanel duplicateNotificationPanel;
 
         [field: SerializeField] public DiamondCurrency diamondCurrency { get; private set; }
         [field: SerializeField] public EmeraldCurrency emeraldCurrency { get; private set; }
@@ -98,7 +99,7 @@ namespace LobbyUIControl
             OffBackgroundImage();
             OffBlockImage();
             SetNoticeDic().Forget();
-            duplicateAlertPanel.OnConfirmButtonEvent += () =>
+            duplicateNotificationPanel.OnConfirmButtonEvent += () =>
             {
                 BackendLogin.instance.LogOut();
                 FadeController.FadeOutAndLoadScene("LoginScene");
@@ -125,7 +126,7 @@ namespace LobbyUIControl
                     if (bro.IsSuccess()) return;
                     await UniTask.SwitchToMainThread();
                     isAlive = false;
-                    duplicateAlertPanel.OpenPopUp();
+                    duplicateNotificationPanel.OpenPopUp();
                 }, cancellationToken: _cts.Token);
                 if (!isAlive) break;
             }

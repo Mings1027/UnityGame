@@ -11,7 +11,7 @@ namespace MonsterControl
                 if (targetCollider[i] && targetCollider[i].enabled &&
                     targetCollider[i].TryGetComponent(out IDamageable damageable))
                 {
-                    damageable.Damage(damage);
+                    damageable.Damage(monsterData.damage);
                 }
             }
         }

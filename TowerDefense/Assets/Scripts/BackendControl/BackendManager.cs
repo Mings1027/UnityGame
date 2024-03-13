@@ -30,7 +30,7 @@ namespace BackendControl
                 if (BackendGameData.userData == null)
                 {
                     BackendGameData.instance.GameDataInsert();
-                    BackendLogin.instance.UpdateNickname(
+                    BackendLogin.UpdateNickname(
                         Backend.BMember.GetUserInfo().GetReturnValuetoJSON()["row"]["gamerId"].ToString()[..7]);
                 }
             });

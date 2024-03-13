@@ -55,8 +55,8 @@ namespace TowerControl
         public virtual void TowerSetting(MeshFilter towerMesh, int damageData, byte rangeData,
             float cooldownData)
         {
-            towerRange = rangeData;
             towerDamage = damageData;
+            towerRange = rangeData;
             attackCooldown.cooldownTime = cooldownData;
             _meshFilter.sharedMesh = towerMesh.sharedMesh;
 

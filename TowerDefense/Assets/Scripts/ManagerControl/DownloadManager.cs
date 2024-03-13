@@ -20,7 +20,7 @@ namespace ManagerControl
         private string _updateText;
         private Dictionary<string, long> _patchMap;
 
-        [SerializeField] private NoticePanel downLoadNoticePanel;
+        [FormerlySerializedAs("downLoadNoticePanel")] [SerializeField] private FullscreenAlert downLoadFullscreenAlert;
         [SerializeField] private TMP_Text downloadText;
         [SerializeField] private TMP_Text downloadPercentText;
         [SerializeField] private Slider downSlider;
@@ -40,13 +40,13 @@ namespace ManagerControl
                 UpdateFiles();
             });
 
-            downLoadNoticePanel.OnConfirmButtonEvent += () =>
+            downLoadFullscreenAlert.OnConfirmButtonEvent += () =>
             {
                 connectionGroup.alpha = 0;
                 connectionGroup.blocksRaycasts = false;
                 DownLoadButton();
             };
-            downLoadNoticePanel.OnCancelButtonEvent += () =>
+            downLoadFullscreenAlert.OnCancelButtonEvent += () =>
             {
                 connectionGroup.alpha = 1;
                 connectionGroup.blocksRaycasts = true;
@@ -63,7 +63,7 @@ namespace ManagerControl
         {
             downSlider.gameObject.SetActive(false);
             InitAddressable().Forget();
-            _updateText = LocaleManager.GetLocalizedString(LocaleManager.LogInUITable, "UpdateNotice");
+            _updateText = LocaleManager.GetLocalizedString(LocaleManager.FullscreenAlertTable, "Update");
         }
 
         private void OnDisable()
@@ -78,7 +78,7 @@ namespace ManagerControl
 
         private void ChangeLocaleUpdateText(Locale locale)
         {
-            _updateText = LocaleManager.GetLocalizedString(LocaleManager.LogInUITable, "UpdateNotice");
+            _updateText = LocaleManager.GetLocalizedString(LocaleManager.FullscreenAlertTable, "Update");
         }
 
 #region CheckDown
@@ -108,7 +108,7 @@ namespace ManagerControl
                 CustomLog.Log("다운로드다운로드다운로드다운로드다운로드");
                 downloadText.text = GetFilSize(_patchSize);
                 startButton.gameObject.SetActive(false);
-                downLoadNoticePanel.OpenPopUp();
+                downLoadFullscreenAlert.OpenPopUp();
             }
             else // 다운로드 할 것이 없음
             {

@@ -9,7 +9,7 @@ namespace MonsterControl
         {
             base.Awake();
             targetLayer = LayerMask.GetMask("Unit");
-            targetCollider = new Collider[attackTargetCount];
+            targetCollider = new Collider[monsterData.maxDetectedCount];
         }
 
         public override void Init()
@@ -49,7 +49,8 @@ namespace MonsterControl
         protected override void Patrol()
         {
             if (patrolCooldown.IsCoolingDown) return;
-            var size = Physics.OverlapSphereNonAlloc(transform.position, sightRange, targetCollider, targetLayer);
+            var size = Physics.OverlapSphereNonAlloc(transform.position, monsterData.sightRange, targetCollider,
+                targetLayer);
             if (size <= 0)
             {
                 target = null;
@@ -85,8 +86,9 @@ namespace MonsterControl
             }
 
             if (navMeshAgent.isOnNavMesh)
-                navMeshAgent.SetDestination(target.transform.position + Random.insideUnitSphere * atkRange);
-            if (Vector3.Distance(target.transform.position, transform.position) <= atkRange)
+                navMeshAgent.SetDestination(target.transform.position +
+                                            Random.insideUnitSphere * monsterData.attackRange);
+            if (Vector3.Distance(target.transform.position, transform.position) <= monsterData.attackRange)
             {
                 unitState = UnitState.Attack;
             }
@@ -95,7 +97,7 @@ namespace MonsterControl
         protected override void Attack()
         {
             if (!target || !target.enabled ||
-                Vector3.Distance(target.transform.position, transform.position) > atkRange)
+                Vector3.Distance(target.transform.position, transform.position) > monsterData.attackRange)
             {
                 unitState = UnitState.Patrol;
                 return;

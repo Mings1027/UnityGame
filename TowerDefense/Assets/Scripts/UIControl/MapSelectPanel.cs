@@ -14,7 +14,7 @@ namespace UIControl
         private Sequence _panelSequence;
 
         [SerializeField] private RectTransform difficultyButtonGroup;
-        [SerializeField] private NoticePanel deleteSurviveWavePanel;
+        [SerializeField] private FullscreenAlert deleteSurviveWavePanel;
 
         private void Start()
         {

@@ -1,10 +1,8 @@
-using System;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using GameControl;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace UIControl
@@ -30,15 +28,10 @@ namespace UIControl
             FadeInScene();
         }
 
-        private void OnDestroy()
-        {
-            instance = null;
-        }
-
         private void FadeInScene()
         {
             _graphicRaycaster.enabled = true;
-            loadingSlider.DOValue(1, 1).From(0).SetDelay(1).SetUpdate(true).OnComplete(() =>
+            loadingSlider.DOValue(1, 0.5f).From(0).SetDelay(1).SetUpdate(true).OnComplete(() =>
             {
                 fadeInGroup.DOFade(0, 0.5f).From(1).SetUpdate(true);
                 _graphicRaycaster.enabled = false;

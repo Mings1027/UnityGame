@@ -117,11 +117,6 @@ namespace ManagerControl
             LocalizationSettings.SelectedLocaleChanged -= ChangeLocaleTowerDictionary;
         }
 
-        private void OnDestroy()
-        {
-            instance = null;
-        }
-
 #endregion
 
 #region Init
@@ -349,7 +344,6 @@ namespace ManagerControl
                 .Append(towerObject.transform.GetChild(0).DOMoveY(placePos.y, 0.5f).SetEase(Ease.InExpo)
                     .OnComplete(() =>
                     {
-                        // PoolObjectManager.Get(PoolObjectKey.BuildSmoke, placePos);
                         _cam.transform.DOShakePosition(0.05f);
 
                         if (towerObject.TryGetComponent(out AttackTower attackTower))
@@ -419,7 +413,7 @@ namespace ManagerControl
             var attackTower = (AttackTower)_curSelectedTower;
             var towerType = attackTower.towerType;
             var towerData = towerDataDic[towerType];
-            var battleTowerData = (AttackTowerData)towerData;
+            var atkTowerData = (AttackTowerData)towerData;
             var upgradeGold = GetUpgradeGold(in towerType);
 
             if (GameHUD.GetTowerGold() < upgradeGold)
@@ -434,8 +428,8 @@ namespace ManagerControl
             PoolObjectManager.Get(PoolObjectKey.TowerUpgradeParticle, position);
             attackTower.TowerLevelUp();
             var towerLevel = attackTower.towerLevel;
-            attackTower.TowerSetting(battleTowerData.towerMeshes[towerLevel],
-                battleTowerData.curDamage * (towerLevel + 1), battleTowerData.curRange, battleTowerData.attackCooldown);
+            attackTower.TowerSetting(atkTowerData.towerMeshes[towerLevel],
+                atkTowerData.curDamage * (towerLevel + 1), atkTowerData.curRange, atkTowerData.attackCooldown);
             upgradeButton.SetActive(!towerLevel.Equals(4));
             maxLevelImage.SetActive(towerLevel.Equals(4));
             _towerRangeIndicator.SetIndicator(position, attackTower.towerRange);
@@ -485,7 +479,7 @@ namespace ManagerControl
 
             upgradeButton.SetActive(!towerLevel.Equals(4));
             maxLevelImage.SetActive(towerLevel.Equals(4));
-            
+
             _towerRangeIndicator.SetIndicator(position, attackTower.towerRange);
             var towerType = attackTower.towerType;
             var curTowerData = towerDataDic[towerType];
@@ -529,7 +523,6 @@ namespace ManagerControl
             _moveUnitController.FocusUnitTower(_curSummonTower);
             _towerInfoUI.SetCardPos(false, null);
             _towerInfoUI.CloseCard();
-            moveUnitButton.SetActive(false);
             _startMoveUnit = true;
         }
 

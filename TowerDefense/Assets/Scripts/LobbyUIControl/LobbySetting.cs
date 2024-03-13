@@ -24,8 +24,8 @@ namespace LobbyUIControl
         [SerializeField] private Button closeButton;
 
         [SerializeField] private RectTransform tabGroups;
-        [SerializeField] private NoticePanel logOutPanel;
-        [SerializeField] private NoticePanel deleteAccountPanel;
+        [SerializeField] private FullscreenAlert logOutPanel;
+        [SerializeField] private FullscreenAlert deleteAccountPanel;
 
         private void Start()
         {

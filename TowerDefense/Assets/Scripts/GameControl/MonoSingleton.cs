@@ -6,15 +6,13 @@ namespace GameControl
     public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
     {
         protected static T instance;
-        [SerializeField] protected bool dontDestroyOnLoad;
         
         protected virtual void Awake()
         {
-            if(dontDestroyOnLoad) DontDestroyOnLoad(this);
             instance = this as T;
         }
 
-        private void OnDestroy()
+        protected virtual void OnDestroy()
         {
             instance = null;
         }

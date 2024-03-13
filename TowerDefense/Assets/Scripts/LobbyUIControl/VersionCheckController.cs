@@ -1,9 +1,8 @@
 using System;
 using BackEnd;
-using Cysharp.Threading.Tasks;
 using UIControl;
 using UnityEngine;
-using UnityEngine.Networking;
+using UnityEngine.Serialization;
 using Utilities;
 
 namespace LobbyUIControl
@@ -15,14 +14,34 @@ namespace LobbyUIControl
         [SerializeField] private string appstoreURL = "itms-apps://itunes.apple.com/app/id6472429843?uo=4";
         [SerializeField] private string playStoreURL;
 
-        [SerializeField] private NoticePanel updateNoticePanel;
+        [SerializeField] private FullscreenAlert updateFullscreenAlert;
+        [SerializeField] private FullscreenAlert connectInternetAlert;
 
         private void Start()
         {
-            updateNoticePanel.OnConfirmButtonEvent += OpenAppStore;
-            updateNoticePanel.OnCancelButtonEvent += Application.Quit;
+            updateFullscreenAlert.OnConfirmButtonEvent += OpenAppStore;
+            updateFullscreenAlert.OnCancelButtonEvent += Application.Quit;
 
-            UpdateCheck();
+            connectInternetAlert.OnConfirmButtonEvent += CheckConnectInternet;
+            connectInternetAlert.OnCancelButtonEvent += Application.Quit;
+
+            CheckConnectInternet();
+        }
+
+        private void CheckConnectInternet()
+        {
+            switch (Application.internetReachability)
+            {
+                case NetworkReachability.NotReachable:
+                    connectInternetAlert.OpenPopUp();
+                    break;
+                case NetworkReachability.ReachableViaCarrierDataNetwork:
+                    UpdateCheck();
+                    break;
+                case NetworkReachability.ReachableViaLocalAreaNetwork:
+                    UpdateCheck();
+                    break;
+            }
         }
 
         private void UpdateCheck()
@@ -85,7 +104,7 @@ namespace LobbyUIControl
 
         private void OpenUpdateUI()
         {
-            updateNoticePanel.OpenPopUp();
+            updateFullscreenAlert.OpenPopUp();
         }
 
         private void OpenAppStore()

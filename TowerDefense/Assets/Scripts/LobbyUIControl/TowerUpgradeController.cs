@@ -13,6 +13,7 @@ using UIControl;
 using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace LobbyUIControl
@@ -28,12 +29,16 @@ namespace LobbyUIControl
         private TowerType _towerType;
         private Dictionary<TowerType, string> _towerInfoDic;
         private const byte TowerMaxLevel = 20;
+        private string _levelUpString;
+        private string _maxLevelString;
 
         //================= Tower Info ================
+        private TMP_Text _atkText;
         private TMP_Text _healthText;
         private TMP_Text _rangeText;
         private TMP_Text _cooldownText;
         private TMP_Text _respawnText;
+        private TMP_Text _levelUpText;
 
         [SerializeField] private Button upgradeButton;
         [SerializeField] private Button closeButton;
@@ -41,7 +46,7 @@ namespace LobbyUIControl
         [SerializeField] private Button levelUpButton;
 
         [SerializeField] private CanvasGroup upgradePanelGroup;
-        [SerializeField] private NoticePanel notifyInitLevelPanel;
+        [SerializeField] private FullscreenAlert notifyInitLevelPanel;
         [SerializeField] private Transform towerButtons;
         [SerializeField] private CanvasGroup towerInfoGroup;
         [SerializeField] private Image infoGroupBackgroundImage;
@@ -53,15 +58,11 @@ namespace LobbyUIControl
         [SerializeField] private TMP_Text upgradeCostText;
 
         [Header("================= Tower Info ================")]
-        [SerializeField] private Image damageImage;
-
-        [SerializeField] private TMP_Text damageText;
-
-        [SerializeField] private Sprite physicalSprite, magicSprite;
+        [SerializeField] private GameObject atkObj;
 
         [SerializeField] private GameObject healthObj;
         [SerializeField] private GameObject rangeObj;
-        [SerializeField] private GameObject rpmObj;
+        [SerializeField] private GameObject coolTimeObj;
         [SerializeField] private GameObject respawnObj;
 
         private void Awake()
@@ -97,7 +98,7 @@ namespace LobbyUIControl
 
         private void UpgradePanel()
         {
-            upgradeButton.gameObject.SetActive(false);
+            // upgradeButton.gameObject.SetActive(false);
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
             _lobbyUI.OnBackgroundImage();
             _upgradePanelGroupSequence.Restart();
@@ -105,10 +106,12 @@ namespace LobbyUIControl
 
         private void Init()
         {
+            _atkText = atkObj.transform.GetChild(1).GetComponent<TMP_Text>();
             _healthText = healthObj.transform.GetChild(1).GetComponent<TMP_Text>();
             _rangeText = rangeObj.transform.GetChild(1).GetComponent<TMP_Text>();
-            _cooldownText = rpmObj.transform.GetChild(1).GetComponent<TMP_Text>();
+            _cooldownText = coolTimeObj.transform.GetChild(1).GetComponent<TMP_Text>();
             _respawnText = respawnObj.transform.GetChild(1).GetComponent<TMP_Text>();
+            _levelUpText = levelUpButton.GetComponentInChildren<TMP_Text>();
 
             _towerInfoDic = new Dictionary<TowerType, string>();
             var towerTypes = Enum.GetValues(typeof(TowerType));
@@ -118,6 +121,9 @@ namespace LobbyUIControl
                 _towerInfoDic.Add(towerType,
                     LocaleManager.GetLocalizedString(LocaleManager.TowerCardTable, LocaleManager.CardKey + towerType));
             }
+
+            _levelUpString = LocaleManager.GetLocalizedString(LocaleManager.LobbyUITable, "Level Up");
+            _maxLevelString = LocaleManager.GetLocalizedString(LocaleManager.LobbyUITable, "Max Level");
         }
 
         private void ChangeLocaleTowerDic(Locale locale)
@@ -127,6 +133,9 @@ namespace LobbyUIControl
                 _towerInfoDic[towerType] =
                     LocaleManager.GetLocalizedString(LocaleManager.TowerCardTable, LocaleManager.CardKey + towerType);
             }
+
+            _levelUpString = LocaleManager.GetLocalizedString(LocaleManager.LobbyUITable, "Level Up");
+            _maxLevelString = LocaleManager.GetLocalizedString(LocaleManager.LobbyUITable, "Max Level");
         }
 
         private void TweenInit()
@@ -159,7 +168,7 @@ namespace LobbyUIControl
             closeButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                upgradeButton.gameObject.SetActive(true);
+                // upgradeButton.gameObject.SetActive(true);
                 _lobbyUI.OffBackgroundImage();
                 _lobbyUI.SetActiveButtons(true, false);
                 upgradePanelGroup.blocksRaycasts = false;
@@ -199,8 +208,10 @@ namespace LobbyUIControl
                 var towerUpgradeButton = towerButtons.GetChild(i).GetComponent<TowerUpgradeButton>();
                 var towerLevel = towerLevelTable[towerUpgradeButton.attackTowerData.towerType.ToString()];
                 towerUpgradeButton.attackTowerData.InitState();
-                if (towerLevel >= TowerMaxLevel)
-                    towerUpgradeButton.upgradeButton.interactable = false;
+                // if (towerLevel >= TowerMaxLevel)
+                // {
+                //     towerUpgradeButton.upgradeButton.interactable = false;
+                // }
 
                 towerUpgradeButton.towerLevelText.text =
                     "Lv. " + towerLevelTable[towerUpgradeButton.attackTowerData.towerType.ToString()];
@@ -216,7 +227,15 @@ namespace LobbyUIControl
                     towerImage.sprite = towerUpgradeButton.towerImage.sprite;
                     towerDescriptionText.text = _towerInfoDic[_towerType];
                     var prevTowerLv = towerLevelTable[_towerType.ToString()];
-                    if (prevTowerLv >= TowerMaxLevel) levelUpButton.interactable = false;
+                    if (prevTowerLv >= TowerMaxLevel)
+                    {
+                        levelUpButton.interactable = false;
+                        _levelUpText.text = _maxLevelString;
+                    }
+                    else
+                    {
+                        _levelUpText.text = _levelUpString;
+                    }
 
                     towerLevelText.text = prevTowerLv.ToString();
                     towerUpgradeButton.towerLevelText.text = "Lv. " + prevTowerLv;
@@ -240,18 +259,20 @@ namespace LobbyUIControl
             upgradeCostText.text = ((curTowerLv + 1) * 25).ToString();
             _attackTowerData.UpgradeData(curTowerLv);
 
-            if (curTowerLv >= TowerMaxLevel) levelUpButton.interactable = false;
+            if (curTowerLv >= TowerMaxLevel)
+            {
+                levelUpButton.interactable = false;
+                _levelUpText.text = _maxLevelString;
+            }
         }
 
         private void GetTowerInfo()
         {
             var isUnitTower = _attackTowerData.isUnitTower;
 
-            damageImage.sprite = _attackTowerData.isMagicTower ? magicSprite : physicalSprite;
-
             healthObj.SetActive(isUnitTower);
             rangeObj.SetActive(!isUnitTower);
-            rpmObj.SetActive(!isUnitTower);
+            coolTimeObj.SetActive(!isUnitTower);
             respawnObj.SetActive(isUnitTower);
         }
 
@@ -268,7 +289,7 @@ namespace LobbyUIControl
                 _cooldownText.text = _attackTowerData.attackCooldown.ToString(CultureInfo.InvariantCulture);
             }
 
-            damageText.text = _attackTowerData.curDamage.ToString();
+            _atkText.text = _attackTowerData.curDamage.ToString();
             _rangeText.text = _attackTowerData.curRange.ToString();
         }
 

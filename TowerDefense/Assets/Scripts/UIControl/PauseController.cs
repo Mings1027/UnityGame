@@ -1,6 +1,4 @@
-using System;
 using System.Threading;
-using System.Threading.Tasks;
 using BackEnd;
 using BackendControl;
 using CustomEnumControl;
@@ -8,6 +6,7 @@ using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using ManagerControl;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace UIControl
@@ -33,8 +32,8 @@ namespace UIControl
         [SerializeField] private CanvasGroup gameOverGroup;
         [SerializeField] private CanvasGroup gameEndGroup;
 
-        [SerializeField] private NoticePanel exitBattleNoticePanel;
-        [SerializeField] private NoticePanel restartNoticePanel;
+        [FormerlySerializedAs("exitBattleNoticePanel")] [SerializeField] private FullscreenAlert exitBattleFullscreenAlert;
+        [FormerlySerializedAs("restartNoticePanel")] [SerializeField] private FullscreenAlert restartFullscreenAlert;
         [SerializeField] private RectTransform pausePanel;
 
         [SerializeField] private Button pauseButton;
@@ -44,7 +43,7 @@ namespace UIControl
         [SerializeField] private Button gameOverButton;
         [SerializeField] private Button gameEndButton;
 
-        [SerializeField] private AlertPanel duplicateAlertPanel;
+        [FormerlySerializedAs("duplicateAlertPanel")] [SerializeField] private NotificationPanel duplicateNotificationPanel;
 
         private void OnEnable()
         {
@@ -106,7 +105,7 @@ namespace UIControl
 
             _doubleSpeedImage.enabled = false;
             _tripleSpeedImage.enabled = false;
-            duplicateAlertPanel.OnConfirmButtonEvent += () =>
+            duplicateNotificationPanel.OnConfirmButtonEvent += () =>
             {
                 BackendLogin.instance.LogOut();
                 FadeController.FadeOutAndLoadScene("LoginScene");
@@ -130,8 +129,8 @@ namespace UIControl
 
         private void ButtonInit()
         {
-            exitBattleNoticePanel.OnConfirmButtonEvent += ExitBattle;
-            restartNoticePanel.OnConfirmButtonEvent += Restart;
+            exitBattleFullscreenAlert.OnConfirmButtonEvent += ExitBattle;
+            restartFullscreenAlert.OnConfirmButtonEvent += Restart;
 
             pauseButton.onClick.AddListener(() =>
             {
@@ -180,7 +179,7 @@ namespace UIControl
                     if (bro.IsSuccess()) return;
                     await UniTask.SwitchToMainThread();
                     isAlive = false;
-                    duplicateAlertPanel.OpenPopUp();
+                    duplicateNotificationPanel.OpenPopUp();
                 }, cancellationToken: _cts.Token);
                 if (!isAlive) break;
             }

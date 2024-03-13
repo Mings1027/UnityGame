@@ -18,7 +18,7 @@ namespace BackendControl
         public string url { get; set; }
         public bool testLogin { get; set; }
 
-        public void CustomSignUp(string id, string pw)
+        public static void CustomSignUp(string id, string pw)
         {
             CustomLog.Log("회원가입을 요청합니다.");
 
@@ -34,7 +34,7 @@ namespace BackendControl
             }
         }
 
-        public void CustomLogin(string id, string pw)
+        public static void CustomLogin(string id, string pw)
         {
             CustomLog.Log("로그인을 요청합니다.");
 
@@ -107,12 +107,12 @@ namespace BackendControl
             }
         }
 
-        private void SignOutGoogleLogin()
+        private static void SignOutGoogleLogin()
         {
             TheBackend.ToolKit.GoogleLogin.iOS.GoogleSignOut(GoogleSignOutCallback);
         }
 
-        private void GoogleSignOutCallback(bool isSuccess, string error)
+        private static void GoogleSignOutCallback(bool isSuccess, string error)
         {
             if (isSuccess)
             {
@@ -124,7 +124,7 @@ namespace BackendControl
             }
         }
 
-        public (bool, string) UpdateNickname(string nickname)
+        public static (bool, string) UpdateNickname(string nickname)
         {
             CustomLog.Log("닉네임 변경을 요청합니다.");
 
@@ -140,7 +140,7 @@ namespace BackendControl
             return (false, bro.GetStatusCode());
         }
 
-        public string GetUserNickName()
+        public static string GetUserNickName()
         {
             var bro = Backend.BMember.GetUserInfo();
             string nickName;

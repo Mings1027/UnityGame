@@ -18,6 +18,7 @@ using TMPro;
 using UIControl;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Utilities;
 using Debug = UnityEngine.Debug;
@@ -78,8 +79,8 @@ namespace ManagerControl
         [SerializeField] private Sprite googleSprite;
 
         [SerializeField] private CanvasGroup connectionPanelGroup;
-        [SerializeField] private NoticePanel signUpConfirmPanel;
-        [SerializeField] private NoticePanel logOutNoticePanel;
+        [SerializeField] private FullscreenAlert signUpConfirmPanel;
+        [SerializeField] private FullscreenAlert logOutFullscreenAlert;
 
         private void Start()
         {
@@ -241,7 +242,7 @@ namespace ManagerControl
                 Login().Forget();
             });
 
-            logOutNoticePanel.OnConfirmButtonEvent += () =>
+            logOutFullscreenAlert.OnConfirmButtonEvent += () =>
             {
                 BackendLogin.instance.LogOut();
 
@@ -339,7 +340,7 @@ namespace ManagerControl
         {
             if (BackendLogin.instance.testLogin && oneTimeCodeField.text == "123456")
             {
-                BackendLogin.instance.CustomLogin("test@test.com", "123456");
+                BackendLogin.CustomLogin("test@test.com", "123456");
                 ActiveStartPanel();
                 return;
             }
@@ -381,13 +382,13 @@ namespace ManagerControl
             _password = GenerateRandomPassword();
             form.AddField("password", _password);
             await Post(form);
-            BackendLogin.instance.CustomSignUp(_id, _password);
+            BackendLogin.CustomSignUp(_id, _password);
         }
 
         private void StartEmailLogin()
         {
             var backendLogin = BackendLogin.instance;
-            backendLogin.CustomLogin(_id, _password);
+            BackendLogin.CustomLogin(_id, _password);
             backendLogin.loginPlatform = LoginPlatform.Custom;
             backendLogin.customEmail = _id;
             backendLogin.url = url;

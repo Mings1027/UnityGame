@@ -186,7 +186,7 @@ namespace ManagerControl
         {
             _monsterList.Add(monsterUnit);
             monsterUnit.Init();
-            monsterUnit.SpawnInit(monsterData);
+            monsterUnit.SpawnInit();
             if (monsterUnit.TryGetComponent(out MonsterStatus monsterStatus))
             {
                 monsterStatus.StatInit(monsterData.speed, monsterData.attackDelay);
@@ -223,7 +223,7 @@ namespace ManagerControl
             };
             monsterUnit.OnDisableEvent += () =>
             {
-                DecreaseEnemyCount(monsterUnit, monsterHealth.isDead);
+                DecreaseEnemyCount(monsterUnit);
 
                 if (monsterHealth.isDead) return;
                 StatusBarUIController.Remove(healthBarTransform, true);
@@ -254,7 +254,7 @@ namespace ManagerControl
             };
             monsterUnit.OnDisableEvent += () =>
             {
-                DecreaseEnemyCount(monsterUnit, monsterHealth.isDead);
+                DecreaseEnemyCount(monsterUnit);
 
                 if (monsterHealth.isDead) return;
                 StatusBarUIController.Remove(healthBarTransform, true);
@@ -278,12 +278,11 @@ namespace ManagerControl
             }
         }
 
-        private void DecreaseEnemyCount(MonsterUnit monsterUnit, bool isDead)
+        private void DecreaseEnemyCount(MonsterUnit monsterUnit)
         {
             if (!_startWave) return;
             _monsterList.Remove(monsterUnit);
             var towerHealth = GameHUD.towerHealth;
-            if (!isDead) towerHealth.Damage(monsterUnit.baseTowerDamage);
 
             if (towerHealth.isDead)
             {

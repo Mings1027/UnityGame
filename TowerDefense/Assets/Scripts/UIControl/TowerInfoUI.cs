@@ -1,4 +1,3 @@
-using System;
 using System.Globalization;
 using CustomEnumControl;
 using DataControl.TowerDataControl;
@@ -7,7 +6,6 @@ using ManagerControl;
 using TMPro;
 using TowerControl;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace UIControl
