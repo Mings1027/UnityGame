@@ -7,7 +7,7 @@ namespace CustomEnumControl
         Custom = 3
     }
 
-    public enum FloatingNotifyEnum 
+    public enum FloatingNotifyEnum
     {
         NeedMoreDia,
         NeedMoreEmerald,
@@ -15,6 +15,21 @@ namespace CustomEnumControl
         SuccessChangedName,
         NeedMoreGearCoin,
         AtLeastOneCharacter
+    }
+
+    public enum FullscreenAlertEnum
+    {
+        LogOutAlert,
+        SignUpAlert,
+        DownloadAlert,
+        UpdateVersionAlert,
+        AccountDeletionAlert,
+        TowerLevelInitAlert,
+        SurvivedWaveDeleteAlert,
+        ExitBattleAlert,
+        RestartBattleAlert,
+        ConnectInternetAlert,
+        DuplicateAccessAlert
     }
 
     public enum TowerType
@@ -114,7 +129,7 @@ namespace CustomEnumControl
         CanonHitParticle,
         WizardHitParticle,
         NuclearBomb,
-        
+
         BallistaTrailParticle,
         CanonTrailParticle,
         WizardTrailParticle,
@@ -158,7 +173,7 @@ namespace CustomEnumControl
         Santa,
         Reindeer,
         SnowMan,
-        
+
         BossOoogie,
         BossReaperOoogie,
         BossSphinx

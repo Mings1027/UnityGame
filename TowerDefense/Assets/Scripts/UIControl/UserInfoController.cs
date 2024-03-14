@@ -43,7 +43,7 @@ namespace UIControl
             _userinfoSequence.OnComplete(() => userInfoGroup.blocksRaycasts = true);
             _userinfoSequence.OnRewind(() => _lobbyUI.OffBlockImage());
             userInfoGroup.blocksRaycasts = false;
-            
+
             var namePanelRect = changeNamePanelGroup.GetComponent<RectTransform>();
             _changeNamePanelSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(changeNamePanelGroup.DOFade(1, 0.25f).From(0))
@@ -107,20 +107,20 @@ namespace UIControl
                     _userRankController.SetRanking();
                     _lobbyUI.OffBackgroundImage();
                     _lobbyUI.SetActiveButtons(true, false);
-                    _lobbyUI.NoticeTween(FloatingNotifyEnum.SuccessChangedName);
+                    FloatingNotification.FloatingNotify(FloatingNotifyEnum.SuccessChangedName);
                     _changeNamePanelSequence.PlayBackwards();
                 }
                 else
                 {
                     if (updateNickNameState.Item2 == "409")
                     {
-                        _lobbyUI.NoticeTween(FloatingNotifyEnum.DuplicateName);
+                        FloatingNotification.FloatingNotify(FloatingNotifyEnum.DuplicateName);
                     }
                 }
             }
             else
             {
-                _lobbyUI.NoticeTween(FloatingNotifyEnum.AtLeastOneCharacter);
+                FloatingNotification.FloatingNotify(FloatingNotifyEnum.AtLeastOneCharacter);
             }
         }
     }

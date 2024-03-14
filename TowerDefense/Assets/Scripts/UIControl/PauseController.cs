@@ -32,18 +32,15 @@ namespace UIControl
         [SerializeField] private CanvasGroup gameOverGroup;
         [SerializeField] private CanvasGroup gameEndGroup;
 
-        [FormerlySerializedAs("exitBattleNoticePanel")] [SerializeField] private FullscreenAlert exitBattleFullscreenAlert;
-        [FormerlySerializedAs("restartNoticePanel")] [SerializeField] private FullscreenAlert restartFullscreenAlert;
         [SerializeField] private RectTransform pausePanel;
 
         [SerializeField] private Button pauseButton;
         [SerializeField] private Button speedButton;
+        [SerializeField] private Button exitBattleButton;
         [SerializeField] private Button restartButton;
         [SerializeField] private Button continueButton;
         [SerializeField] private Button gameOverButton;
         [SerializeField] private Button gameEndButton;
-
-        [FormerlySerializedAs("duplicateAlertPanel")] [SerializeField] private NotificationPanel duplicateNotificationPanel;
 
         private void OnEnable()
         {
@@ -105,11 +102,6 @@ namespace UIControl
 
             _doubleSpeedImage.enabled = false;
             _tripleSpeedImage.enabled = false;
-            duplicateNotificationPanel.OnConfirmButtonEvent += () =>
-            {
-                BackendLogin.instance.LogOut();
-                FadeController.FadeOutAndLoadScene("LoginScene");
-            };
         }
 
         private void TweenInit()
@@ -129,9 +121,6 @@ namespace UIControl
 
         private void ButtonInit()
         {
-            exitBattleFullscreenAlert.OnConfirmButtonEvent += ExitBattle;
-            restartFullscreenAlert.OnConfirmButtonEvent += Restart;
-
             pauseButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
@@ -142,7 +131,16 @@ namespace UIControl
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 SpeedUp();
             });
-            restartButton.onClick.AddListener(() => { SoundManager.PlayUISound(SoundEnum.ButtonSound); });
+
+            exitBattleButton.onClick.AddListener(() =>
+            {
+                FullscreenAlert.NonCancelableAlert(FullscreenAlertEnum.ExitBattleAlert, ExitBattle);
+            });
+            restartButton.onClick.AddListener(() =>
+            {
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
+                FullscreenAlert.NonCancelableAlert(FullscreenAlertEnum.RestartBattleAlert, Restart);
+            });
             continueButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
@@ -179,7 +177,11 @@ namespace UIControl
                     if (bro.IsSuccess()) return;
                     await UniTask.SwitchToMainThread();
                     isAlive = false;
-                    duplicateNotificationPanel.OpenPopUp();
+                    FullscreenAlert.NonCancelableAlert(FullscreenAlertEnum.DuplicateAccessAlert, () =>
+                    {
+                        BackendLogin.instance.LogOut();
+                        FadeController.FadeOutAndLoadScene("LoginScene");
+                    });
                 }, cancellationToken: _cts.Token);
                 if (!isAlive) break;
             }

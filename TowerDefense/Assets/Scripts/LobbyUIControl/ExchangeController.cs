@@ -5,6 +5,7 @@ using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using ManagerControl;
 using TMPro;
+using UIControl;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -71,7 +72,7 @@ namespace LobbyUIControl
             }
             else
             {
-                _lobbyUI.NoticeTween(FloatingNotifyEnum.NeedMoreDia);
+                FloatingNotification.FloatingNotify(FloatingNotifyEnum.NeedMoreDia);
             }
         }
 

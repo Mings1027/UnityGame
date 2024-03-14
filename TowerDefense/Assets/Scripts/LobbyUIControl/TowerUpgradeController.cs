@@ -44,9 +44,9 @@ namespace LobbyUIControl
         [SerializeField] private Button closeButton;
         [SerializeField] private Button closeInfoGroupButton;
         [SerializeField] private Button levelUpButton;
+        [SerializeField] private Button initTowerLevelButton;
 
         [SerializeField] private CanvasGroup upgradePanelGroup;
-        [SerializeField] private FullscreenAlert notifyInitLevelPanel;
         [SerializeField] private Transform towerButtons;
         [SerializeField] private CanvasGroup towerInfoGroup;
         [SerializeField] private Image infoGroupBackgroundImage;
@@ -175,7 +175,10 @@ namespace LobbyUIControl
                 _upgradePanelGroupSequence.PlayBackwards();
                 UniTask.RunOnThreadPool(() => { BackendGameData.instance.GameDataUpdate(); });
             });
-            notifyInitLevelPanel.OnConfirmButtonEvent += InitTowerLevel;
+            initTowerLevelButton.onClick.AddListener(() =>
+            {
+                FullscreenAlert.CancelableAlert(FullscreenAlertEnum.TowerLevelInitAlert, InitTowerLevel);
+            });
 
             closeInfoGroupButton.onClick.AddListener(() =>
             {
@@ -191,7 +194,7 @@ namespace LobbyUIControl
 
                 if (prevTowerLv >= TowerMaxLevel || userData.xp < (prevTowerLv + 1) * 25)
                 {
-                    _lobbyUI.NoticeTween(FloatingNotifyEnum.NeedMoreGearCoin);
+                    FloatingNotification.FloatingNotify(FloatingNotifyEnum.NeedMoreGearCoin);
                     return;
                 }
 

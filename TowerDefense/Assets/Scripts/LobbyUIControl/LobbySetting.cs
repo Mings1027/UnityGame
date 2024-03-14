@@ -23,9 +23,12 @@ namespace LobbyUIControl
         [SerializeField] private Button settingButton;
         [SerializeField] private Button closeButton;
 
+        [SerializeField] private Button logOutButton;
+        [SerializeField] private Button deleteAccountButton;
+
         [SerializeField] private RectTransform tabGroups;
-        [SerializeField] private FullscreenAlert logOutPanel;
-        [SerializeField] private FullscreenAlert deleteAccountPanel;
+        // [SerializeField] private FullscreenAlert logOutPanel;
+        // [SerializeField] private FullscreenAlert deleteAccountPanel;
 
         private void Start()
         {
@@ -52,20 +55,20 @@ namespace LobbyUIControl
                 _tabGroupArray[i].OnTabEvent += ClickTab;
             }
 
-            logOutPanel.OnPopUpButtonEvent += () => { Time.timeScale = 0; };
-            logOutPanel.OnConfirmButtonEvent += () =>
-            {
-                BackendLogin.instance.LogOut();
-                FadeController.FadeOutAndLoadScene("LoginScene");
-            };
-            logOutPanel.OnCancelButtonEvent += () => { Time.timeScale = 1; };
+            // logOutPanel.OnPopUpButtonEvent += () => { Time.timeScale = 0; };
+            // logOutPanel.OnConfirmButtonEvent += () =>
+            // {
+            //     BackendLogin.instance.LogOut();
+            //     FadeController.FadeOutAndLoadScene("LoginScene");
+            // };
+            // logOutPanel.OnCancelButtonEvent += () => { Time.timeScale = 1; };
 
-            deleteAccountPanel.OnConfirmButtonEvent += () =>
-            {
-                Backend.BMember.WithdrawAccount();
-                BackendLogin.instance.DeletionAccount();
-                FadeController.FadeOutAndLoadScene("LoginScene");
-            };
+            // deleteAccountPanel.OnConfirmButtonEvent += () =>
+            // {
+            //     Backend.BMember.WithdrawAccount();
+            //     BackendLogin.instance.DeletionAccount();
+            //     FadeController.FadeOutAndLoadScene("LoginScene");
+            // };
         }
 
         private void ClickTab(TabGroupItem tabGroupItem)
@@ -89,6 +92,25 @@ namespace LobbyUIControl
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 CloseSetting();
+            });
+
+            logOutButton.onClick.AddListener(() =>
+            {
+                FullscreenAlert.CancelableAlert(FullscreenAlertEnum.LogOutAlert, () =>
+                {
+                    BackendLogin.instance.LogOut();
+                    FadeController.FadeOutAndLoadScene("LoginScene");
+                });
+            });
+
+            deleteAccountButton.onClick.AddListener(() =>
+            {
+                FullscreenAlert.CancelableAlert(FullscreenAlertEnum.AccountDeletionAlert, () =>
+                {
+                    Backend.BMember.WithdrawAccount();
+                    BackendLogin.instance.DeletionAccount();
+                    FadeController.FadeOutAndLoadScene("LoginScene");
+                });
             });
         }
 

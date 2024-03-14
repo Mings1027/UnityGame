@@ -1,5 +1,6 @@
 using System;
 using BackEnd;
+using CustomEnumControl;
 using UIControl;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -14,17 +15,8 @@ namespace LobbyUIControl
         [SerializeField] private string appstoreURL = "itms-apps://itunes.apple.com/app/id6472429843?uo=4";
         [SerializeField] private string playStoreURL;
 
-        [SerializeField] private FullscreenAlert updateFullscreenAlert;
-        [SerializeField] private FullscreenAlert connectInternetAlert;
-
         private void Start()
         {
-            updateFullscreenAlert.OnConfirmButtonEvent += OpenAppStore;
-            updateFullscreenAlert.OnCancelButtonEvent += Application.Quit;
-
-            connectInternetAlert.OnConfirmButtonEvent += CheckConnectInternet;
-            connectInternetAlert.OnCancelButtonEvent += Application.Quit;
-
             CheckConnectInternet();
         }
 
@@ -33,7 +25,8 @@ namespace LobbyUIControl
             switch (Application.internetReachability)
             {
                 case NetworkReachability.NotReachable:
-                    connectInternetAlert.OpenPopUp();
+                    FullscreenAlert.CancelableAlert(FullscreenAlertEnum.ConnectInternetAlert, CheckConnectInternet,
+                        Application.Quit);
                     break;
                 case NetworkReachability.ReachableViaCarrierDataNetwork:
                     UpdateCheck();
@@ -104,7 +97,7 @@ namespace LobbyUIControl
 
         private void OpenUpdateUI()
         {
-            updateFullscreenAlert.OpenPopUp();
+            FullscreenAlert.CancelableAlert(FullscreenAlertEnum.UpdateVersionAlert, OpenAppStore, Application.Quit);
         }
 
         private void OpenAppStore()

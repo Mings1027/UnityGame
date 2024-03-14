@@ -14,7 +14,7 @@ namespace UIControl
         private Sequence _panelSequence;
 
         [SerializeField] private RectTransform difficultyButtonGroup;
-        [SerializeField] private FullscreenAlert deleteSurviveWavePanel;
+        [SerializeField] private Button deleteSurvivedWaveButton;
 
         private void Start()
         {
@@ -50,15 +50,18 @@ namespace UIControl
 
         private void ButtonInit()
         {
-            deleteSurviveWavePanel.OnConfirmButtonEvent += () =>
+            deleteSurvivedWaveButton.onClick.AddListener(() =>
             {
-                for (var i = 0; i < difficultyButtonGroup.childCount; i++)
+                FullscreenAlert.CancelableAlert(FullscreenAlertEnum.SurvivedWaveDeleteAlert, () =>
                 {
-                    BackendGameData.userData.survivedWaveList[i] = "0";
-                    difficultyButtonGroup.GetChild(i).GetComponent<DifficultyButton>().survivedText.text =
-                        "0";
-                }
-            };
+                    for (var i = 0; i < difficultyButtonGroup.childCount; i++)
+                    {
+                        BackendGameData.userData.survivedWaveList[i] = "0";
+                        difficultyButtonGroup.GetChild(i).GetComponent<DifficultyButton>().survivedText.text =
+                            "0";
+                    }
+                });
+            });
         }
     }
 }

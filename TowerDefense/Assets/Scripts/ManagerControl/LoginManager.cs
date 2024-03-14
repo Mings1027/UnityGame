@@ -48,6 +48,7 @@ namespace ManagerControl
         [SerializeField] private Button appleLoginButton;
         [SerializeField] private Button emailLoginButton;
         [SerializeField] private Button googleLoginButton;
+        [SerializeField] private Button logOutButton;
 
         [SerializeField] private CanvasGroup loginButtonsGroup;
         [SerializeField] private Image checkLastLoginImage;
@@ -79,8 +80,6 @@ namespace ManagerControl
         [SerializeField] private Sprite googleSprite;
 
         [SerializeField] private CanvasGroup connectionPanelGroup;
-        [SerializeField] private FullscreenAlert signUpConfirmPanel;
-        [SerializeField] private FullscreenAlert logOutFullscreenAlert;
 
         private void Start()
         {
@@ -241,23 +240,18 @@ namespace ManagerControl
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 Login().Forget();
             });
-
-            logOutFullscreenAlert.OnConfirmButtonEvent += () =>
+            logOutButton.onClick.AddListener(() =>
             {
-                BackendLogin.instance.LogOut();
+                FullscreenAlert.CancelableAlert(FullscreenAlertEnum.LogOutAlert, () =>
+                {
+                    BackendLogin.instance.LogOut();
 
-                BackendChart.instance.InitItemTable();
-                _connectionPanelGroupTween.OnRewind(() => connectionPanelGroup.blocksRaycasts = false)
-                    .PlayBackwards();
-                _loginButtonGroupTween.Restart();
-            };
-            signUpConfirmPanel.OnConfirmButtonEvent += async () =>
-            {
-                loginButton.interactable = false;
-                CancelTimer();
-                await StartEmailSignUp();
-                StartEmailLogin();
-            };
+                    BackendChart.instance.InitItemTable();
+                    _connectionPanelGroupTween.OnRewind(() => connectionPanelGroup.blocksRaycasts = false)
+                        .PlayBackwards();
+                    _loginButtonGroupTween.Restart();
+                });
+            });
         }
 
 #endregion
@@ -355,7 +349,14 @@ namespace ManagerControl
 
                 if (jObject["result"]?.ToString() == "SignUp")
                 {
-                    signUpConfirmPanel.OpenPopUp();
+                    FullscreenAlert.NonCancelableAlert(FullscreenAlertEnum.SignUpAlert, async () =>
+                    {
+                        loginButton.interactable = false;
+                        CancelTimer();
+                        await StartEmailSignUp();
+                        StartEmailLogin();
+                    });
+
                     return;
                 }
 

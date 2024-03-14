@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using AdsControl;
 using BackEnd;
@@ -13,9 +10,6 @@ using ManagerControl;
 using TMPro;
 using UIControl;
 using UnityEngine;
-using UnityEngine.Localization;
-using UnityEngine.Localization.Settings;
-using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
@@ -24,24 +18,14 @@ namespace LobbyUIControl
     public class LobbyUI : MonoBehaviour
     {
         private CancellationTokenSource _cts;
-        private bool _isSequencePlaying;
-        private Dictionary<FloatingNotifyEnum, string> _noticeDic;
-
-        private Sequence _noticeSequence;
-        private Sequence _emeraldNoticeSequence;
-        private Sequence _duplicateSequence;
-        private Sequence _successChangeNameSequence;
 
         [SerializeField] private Button startGameButton;
 
         [SerializeField] private CanvasGroup buttonsGroup;
         [SerializeField] private CanvasGroup inGameMoneyGroup;
 
-        [SerializeField] private CanvasGroup noticeGroup;
-        [SerializeField] private TMP_Text noticeText;
         [SerializeField] private Image backgroundImage;
         [SerializeField] private Image backgroundBlockImage;
-        [FormerlySerializedAs("duplicateAlertPanel")] [SerializeField] private NotificationPanel duplicateNotificationPanel;
 
         [field: SerializeField] public DiamondCurrency diamondCurrency { get; private set; }
         [field: SerializeField] public EmeraldCurrency emeraldCurrency { get; private set; }
@@ -50,21 +34,12 @@ namespace LobbyUIControl
         {
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
             Time.timeScale = 1;
-
-            var noticeDiaRect = noticeGroup.GetComponent<RectTransform>();
-
-            _noticeSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(noticeGroup.DOFade(1,0.2f).From(0))
-                .Join(noticeDiaRect.DOAnchorPosX(0, 0.25f).From(new Vector2(1000, -50)))
-                .Append(noticeDiaRect.DOAnchorPosY(100, 0.25f).SetDelay(2))
-                .Join(noticeGroup.DOFade(0, 0.25f).From(1));
         }
 
         private void OnEnable()
         {
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
-            LocalizationSettings.SelectedLocaleChanged += ChangeLocaleNotice;
         }
 
         private void Start()
@@ -77,10 +52,6 @@ namespace LobbyUIControl
         {
             _cts?.Cancel();
             _cts?.Dispose();
-
-            _noticeSequence?.Kill();
-            _emeraldNoticeSequence?.Kill();
-            LocalizationSettings.SelectedLocaleChanged -= ChangeLocaleNotice;
         }
 
         private void Init()
@@ -98,12 +69,6 @@ namespace LobbyUIControl
 
             OffBackgroundImage();
             OffBlockImage();
-            SetNoticeDic().Forget();
-            duplicateNotificationPanel.OnConfirmButtonEvent += () =>
-            {
-                BackendLogin.instance.LogOut();
-                FadeController.FadeOutAndLoadScene("LoginScene");
-            };
         }
 
         private async UniTaskVoid RewardedAdRewardAsync()
@@ -126,42 +91,13 @@ namespace LobbyUIControl
                     if (bro.IsSuccess()) return;
                     await UniTask.SwitchToMainThread();
                     isAlive = false;
-                    duplicateNotificationPanel.OpenPopUp();
+                    FullscreenAlert.NonCancelableAlert(FullscreenAlertEnum.DuplicateAccessAlert, () =>
+                    {
+                        BackendLogin.instance.LogOut();
+                        FadeController.FadeOutAndLoadScene("LoginScene");
+                    });
                 }, cancellationToken: _cts.Token);
                 if (!isAlive) break;
-            }
-        }
-
-        private async UniTaskVoid SetNoticeDic()
-        {
-            _noticeDic = new Dictionary<FloatingNotifyEnum, string>();
-            var loadOperation = LocalizationSettings.StringDatabase.GetTableAsync(LocaleManager.FloatingNotifyTable);
-            await loadOperation;
-            if (loadOperation.Status == AsyncOperationStatus.Succeeded)
-            {
-                var dic = loadOperation.Result.ToDictionary(p => p.Value);
-
-                var noticeTableEnums = Enum.GetValues(typeof(FloatingNotifyEnum));
-                foreach (FloatingNotifyEnum key in noticeTableEnums)
-                {
-                    foreach (var d in dic)
-                    {
-                        if (key.ToString() == d.Key.Key)
-                        {
-                            _noticeDic.Add(key, d.Key.Value);
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-
-        private void ChangeLocaleNotice(Locale locale)
-        {
-            foreach (var noticeString in _noticeDic.Keys.ToList())
-            {
-                _noticeDic[noticeString] =
-                    LocaleManager.GetLocalizedString(LocaleManager.FloatingNotifyTable, noticeString.ToString());
             }
         }
 
@@ -193,13 +129,5 @@ namespace LobbyUIControl
         public void OffBackgroundImage() => backgroundImage.enabled = false;
 
         public void OffBlockImage() => backgroundBlockImage.raycastTarget = false;
-
-        public void NoticeTween(FloatingNotifyEnum floatingNotifyEnum)
-        {
-            if (_isSequencePlaying) return;
-            noticeText.text = _noticeDic[floatingNotifyEnum];
-            _isSequencePlaying = true;
-            _noticeSequence.OnComplete(() => _isSequencePlaying = false).Restart();
-        }
     }
 }

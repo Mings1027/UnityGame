@@ -7,6 +7,7 @@ using DG.Tweening;
 using ItemControl;
 using ManagerControl;
 using TMPro;
+using UIControl;
 using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
@@ -190,7 +191,7 @@ namespace LobbyUIControl
             }
             else
             {
-                _lobbyUI.NoticeTween(FloatingNotifyEnum.NeedMoreEmerald);
+                FloatingNotification.FloatingNotify(FloatingNotifyEnum.NeedMoreEmerald);
             }
         }
 

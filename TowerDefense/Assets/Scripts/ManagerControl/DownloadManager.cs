@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using TMPro;
 using UIControl;
@@ -8,7 +9,6 @@ using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Utilities;
 
@@ -20,8 +20,6 @@ namespace ManagerControl
         private string _updateText;
         private Dictionary<string, long> _patchMap;
 
-        [FormerlySerializedAs("downLoadNoticePanel")] [SerializeField] private FullscreenAlert downLoadFullscreenAlert;
-        [SerializeField] private TMP_Text downloadText;
         [SerializeField] private TMP_Text downloadPercentText;
         [SerializeField] private Slider downSlider;
         [SerializeField] private Button startButton;
@@ -39,19 +37,6 @@ namespace ManagerControl
                 await CheckUpdateFiles();
                 UpdateFiles();
             });
-
-            downLoadFullscreenAlert.OnConfirmButtonEvent += () =>
-            {
-                connectionGroup.alpha = 0;
-                connectionGroup.blocksRaycasts = false;
-                DownLoadButton();
-            };
-            downLoadFullscreenAlert.OnCancelButtonEvent += () =>
-            {
-                connectionGroup.alpha = 1;
-                connectionGroup.blocksRaycasts = true;
-                CancelButton();
-            };
         }
 
         private void OnEnable()
@@ -78,7 +63,7 @@ namespace ManagerControl
 
         private void ChangeLocaleUpdateText(Locale locale)
         {
-            _updateText = LocaleManager.GetLocalizedString(LocaleManager.FullscreenAlertTable, "Update");
+            _updateText = LocaleManager.GetLocalizedString(LocaleManager.FullscreenAlertTable, "DownloadAlert");
         }
 
 #region CheckDown
@@ -106,9 +91,19 @@ namespace ManagerControl
             if (_patchSize > decimal.Zero) // 다운로드 할 것이 있음
             {
                 CustomLog.Log("다운로드다운로드다운로드다운로드다운로드");
-                downloadText.text = GetFilSize(_patchSize);
+                // downloadText.text = GetFilSize(_patchSize);
                 startButton.gameObject.SetActive(false);
-                downLoadFullscreenAlert.OpenPopUp();
+                FullscreenAlert.CancelableAlert(FullscreenAlertEnum.DownloadAlert, () =>
+                {
+                    connectionGroup.alpha = 0;
+                    connectionGroup.blocksRaycasts = false;
+                    DownLoadButton();
+                }, () =>
+                {
+                    connectionGroup.alpha = 1;
+                    connectionGroup.blocksRaycasts = true;
+                    CancelButton();
+                });
             }
             else // 다운로드 할 것이 없음
             {

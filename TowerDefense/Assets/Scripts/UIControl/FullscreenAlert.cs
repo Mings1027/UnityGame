@@ -1,17 +1,25 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using CustomEnumControl;
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
+using GameControl;
 using ManagerControl;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.UI;
 
 namespace UIControl
 {
-    public class FullscreenAlert : MonoBehaviour
+    public class FullscreenAlert : MonoSingleton<FullscreenAlert>
     {
 #region Private
 
+        private Dictionary<FullscreenAlertEnum, string> _fullscreenAlertDic;
         private Tween _noticeTween;
         private Sequence _noticeChildSequence;
 
@@ -26,28 +34,38 @@ namespace UIControl
 
 #endregion
 
-        [SerializeField] private bool usePopUpButton;
-        [SerializeField] private Button popUpButton;
-
 #region Action
 
-        public event Action OnPopUpButtonEvent;
-        public event Action OnConfirmButtonEvent;
-        public event Action OnCancelButtonEvent;
+        public event Action OnConfirmEvent;
+        public event Action OnCancelEvent;
 
 #endregion
 
 #region Unity Event
 
-        private void Awake()
+        protected override void Awake()
         {
+            base.Awake();
+
+            Init().Forget();
             InitComponent();
             InitTween();
             InitButton();
         }
 
-        private void OnDestroy()
+        private void OnEnable()
         {
+            LocalizationSettings.SelectedLocaleChanged += ChangeAlertLocale;
+        }
+
+        private void OnRectTransformDimensionsChange()
+        {
+            LocalizationSettings.SelectedLocaleChanged -= ChangeAlertLocale;
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
             _noticeTween?.Kill();
             _noticeChildSequence?.Kill();
         }
@@ -55,6 +73,29 @@ namespace UIControl
 #endregion
 
 #region Init
+
+        private async UniTaskVoid Init()
+        {
+            _fullscreenAlertDic = new Dictionary<FullscreenAlertEnum, string>();
+
+            var tableOperation = LocalizationSettings.StringDatabase.GetTableAsync(LocaleManager.FullscreenAlertTable);
+            await tableOperation;
+            if (tableOperation.Status == AsyncOperationStatus.Succeeded)
+            {
+                var dic = tableOperation.Result.ToDictionary(v => v.Value);
+                var fullscreenAlerts = Enum.GetValues(typeof(FullscreenAlertEnum));
+
+                foreach (FullscreenAlertEnum alert in fullscreenAlerts)
+                {
+                    foreach (var kvp in dic)
+                    {
+                        if (alert.ToString() != kvp.Key.Key) continue;
+                        _fullscreenAlertDic.Add(alert, kvp.Key.Value);
+                        break;
+                    }
+                }
+            }
+        }
 
         private void InitComponent()
         {
@@ -87,44 +128,83 @@ namespace UIControl
 
         private void InitButton()
         {
-            OnConfirmButtonEvent += () => SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            OnCancelButtonEvent += () => SoundManager.PlayUISound(SoundEnum.ButtonSound);
-
-            if (usePopUpButton)
-            {
-                popUpButton.onClick.AddListener(() =>
-                {
-                    SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                    OpenPopUp();
-                });
-            }
-
             _confirmButton.onClick.AddListener(() =>
             {
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 _noticePanelGroup.blocksRaycasts = false;
                 _buttonGroup.blocksRaycasts = false;
                 _noticeTween.PlayBackwards();
-                OnConfirmButtonEvent?.Invoke();
+                OnConfirmEvent?.Invoke();
             });
             _cancelButton.onClick.AddListener(() =>
             {
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 _noticePanelGroup.blocksRaycasts = false;
                 _buttonGroup.blocksRaycasts = false;
                 _noticeTween.PlayBackwards();
-                OnCancelButtonEvent?.Invoke();
+                OnCancelEvent?.Invoke();
             });
+        }
+
+        private void ChangeAlertLocale(Locale locale)
+        {
+            foreach (var alertString in _fullscreenAlertDic.Keys.ToList())
+            {
+                _fullscreenAlertDic[alertString] =
+                    LocaleManager.GetLocalizedString(LocaleManager.FullscreenAlertTable, alertString.ToString());
+            }
+        }
+
+        private void NonCancelableAlertPrivate(FullscreenAlertEnum fullscreenAlertEnum, Action confirmAction,
+            Action cancelAction = null)
+        {
+            _noticePanelText.text = _fullscreenAlertDic[fullscreenAlertEnum];
+
+            _noticePanelGroup.blocksRaycasts = true;
+            _noticeTween.Restart();
+            _noticeChildSequence.OnComplete(() => _buttonGroup.blocksRaycasts = true).Restart();
+
+            _cancelButton.gameObject.SetActive(false);
+
+            OnConfirmEvent = null;
+            OnConfirmEvent += confirmAction;
+            if (cancelAction == null) return;
+            OnCancelEvent = null;
+            OnCancelEvent += cancelAction;
+        }
+
+        private void CancelableAlertPrivate(FullscreenAlertEnum fullscreenAlertEnum, Action confirmAction,
+            Action cancelAction = null)
+        {
+            _noticePanelText.text = _fullscreenAlertDic[fullscreenAlertEnum];
+
+            _noticePanelGroup.blocksRaycasts = true;
+            _noticeTween.Restart();
+            _noticeChildSequence.OnComplete(() => _buttonGroup.blocksRaycasts = true).Restart();
+
+            _cancelButton.gameObject.SetActive(true);
+
+            OnConfirmEvent = null;
+            OnConfirmEvent += confirmAction;
+            if (cancelAction == null) return;
+            OnCancelEvent = null;
+            OnCancelEvent += cancelAction;
         }
 
 #endregion
 
 #region Public Method
 
-        public void OpenPopUp()
+        public static void NonCancelableAlert(FullscreenAlertEnum fullscreenAlertEnum, Action confirmAction,
+            Action cancelAction = null)
         {
-            _noticePanelGroup.blocksRaycasts = true;
-            _noticeTween.Restart();
-            _noticeChildSequence.OnComplete(() => _buttonGroup.blocksRaycasts = true).Restart();
-            OnPopUpButtonEvent?.Invoke();
+            instance.NonCancelableAlertPrivate(fullscreenAlertEnum, confirmAction, cancelAction);
+        }
+
+        public static void CancelableAlert(FullscreenAlertEnum fullscreenAlertEnum, Action confirmAction,
+            Action cancelAction = null)
+        {
+            instance.CancelableAlertPrivate(fullscreenAlertEnum, confirmAction, cancelAction);
         }
 
 #endregion
