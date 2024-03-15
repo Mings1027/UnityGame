@@ -10,12 +10,11 @@ namespace ManagerControl
         private static bool _isChanging;
 
         public const string TowerCardTable = "TowerCard Table";
+        public const string TowerDescriptionTable = "Tower Description Table";
         public const string ItemTable = "Item Table";
         public const string LobbyUITable = "Lobby UI Table";
         public const string FullscreenAlertTable = "Fullscreen Alert Table";
         public const string FloatingNotifyTable = "Floating Notify Table";
-        public const string CardKey = "Card-";
-        public const string ItemKey = "Item-";
 
         public static void ChangeLocale(int index)
         {

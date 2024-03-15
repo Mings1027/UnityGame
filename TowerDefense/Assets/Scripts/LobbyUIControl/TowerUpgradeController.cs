@@ -119,7 +119,7 @@ namespace LobbyUIControl
             {
                 if (towerType == TowerType.None) continue;
                 _towerInfoDic.Add(towerType,
-                    LocaleManager.GetLocalizedString(LocaleManager.TowerCardTable, LocaleManager.CardKey + towerType));
+                    LocaleManager.GetLocalizedString(LocaleManager.TowerDescriptionTable, towerType.ToString()));
             }
 
             _levelUpString = LocaleManager.GetLocalizedString(LocaleManager.LobbyUITable, "Level Up");
@@ -131,7 +131,7 @@ namespace LobbyUIControl
             foreach (var towerType in _towerInfoDic.Keys.ToList())
             {
                 _towerInfoDic[towerType] =
-                    LocaleManager.GetLocalizedString(LocaleManager.TowerCardTable, LocaleManager.CardKey + towerType);
+                    LocaleManager.GetLocalizedString(LocaleManager.TowerDescriptionTable, towerType.ToString());
             }
 
             _levelUpString = LocaleManager.GetLocalizedString(LocaleManager.LobbyUITable, "Level Up");
@@ -168,7 +168,6 @@ namespace LobbyUIControl
             closeButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                // upgradeButton.gameObject.SetActive(true);
                 _lobbyUI.OffBackgroundImage();
                 _lobbyUI.SetActiveButtons(true, false);
                 upgradePanelGroup.blocksRaycasts = false;

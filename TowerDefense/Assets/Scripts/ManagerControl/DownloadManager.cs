@@ -7,17 +7,13 @@ using TMPro;
 using UIControl;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
-using UnityEngine.Localization;
-using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
-using Utilities;
 
 namespace ManagerControl
 {
     public class DownloadManager : MonoBehaviour
     {
         private long _patchSize;
-        private string _updateText;
         private Dictionary<string, long> _patchMap;
 
         [SerializeField] private TMP_Text downloadPercentText;
@@ -39,31 +35,15 @@ namespace ManagerControl
             });
         }
 
-        private void OnEnable()
-        {
-            LocalizationSettings.SelectedLocaleChanged += ChangeLocaleUpdateText;
-        }
-
         private void Start()
         {
             downSlider.gameObject.SetActive(false);
             InitAddressable().Forget();
-            _updateText = LocaleManager.GetLocalizedString(LocaleManager.FullscreenAlertTable, "Update");
-        }
-
-        private void OnDisable()
-        {
-            LocalizationSettings.SelectedLocaleChanged -= ChangeLocaleUpdateText;
         }
 
         private async UniTaskVoid InitAddressable()
         {
             await Addressables.InitializeAsync();
-        }
-
-        private void ChangeLocaleUpdateText(Locale locale)
-        {
-            _updateText = LocaleManager.GetLocalizedString(LocaleManager.FullscreenAlertTable, "DownloadAlert");
         }
 
 #region CheckDown
@@ -90,8 +70,6 @@ namespace ManagerControl
         {
             if (_patchSize > decimal.Zero) // 다운로드 할 것이 있음
             {
-                CustomLog.Log("다운로드다운로드다운로드다운로드다운로드");
-                // downloadText.text = GetFilSize(_patchSize);
                 startButton.gameObject.SetActive(false);
                 FullscreenAlert.CancelableAlert(FullscreenAlertEnum.DownloadAlert, () =>
                 {
@@ -103,14 +81,13 @@ namespace ManagerControl
                     connectionGroup.alpha = 1;
                     connectionGroup.blocksRaycasts = true;
                     CancelButton();
-                });
+                }, GetFilSize(_patchSize));
             }
             else // 다운로드 할 것이 없음
             {
-                CustomLog.Log("no download");
-                downSlider.gameObject.SetActive(true);
                 startButton.gameObject.SetActive(false);
-                ProgressBarTo100();
+                FadeController.FadeOutAndLoadScene("Lobby");
+
                 // 게임 시작되는 부분
             }
         }
@@ -136,7 +113,7 @@ namespace ManagerControl
                 size = byteCount + " Bytes";
             }
 
-            return _updateText + size;
+            return size;
         }
 
 #endregion
@@ -215,12 +192,5 @@ namespace ManagerControl
         }
 
 #endregion
-
-        private void ProgressBarTo100()
-        {
-            downloadPercentText.text = "100 %";
-            downSlider.value = 1;
-            FadeController.FadeOutAndLoadScene("Lobby");
-        }
     }
 }

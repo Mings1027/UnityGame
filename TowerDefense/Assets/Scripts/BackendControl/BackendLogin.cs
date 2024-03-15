@@ -69,8 +69,9 @@ namespace BackendControl
             }
         }
 
-        public void DeletionAccount()
+        public void DeleteAccount()
         {
+            Backend.BMember.WithdrawAccount();
             switch (loginPlatform)
             {
                 case LoginPlatform.Apple:
@@ -102,8 +103,8 @@ namespace BackendControl
             await www.SendWebRequest();
             if (www.isDone)
             {
-                Debug.Log("웹 응답 성공");
-                Debug.Log(www.downloadHandler.text);
+                CustomLog.Log("웹 응답 성공");
+                CustomLog.Log(www.downloadHandler.text);
             }
         }
 

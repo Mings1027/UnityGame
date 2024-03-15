@@ -37,6 +37,7 @@ namespace UnitControl
         public void FocusUnitTower(SummonTower summonTower)
         {
             enabled = true;
+            UIManager.enableMoveUnitController = true;
             _summonTower = summonTower;
             _prevSize = _cam.orthographicSize;
             _prevPos = _camArm.position;
@@ -47,6 +48,7 @@ namespace UnitControl
         private void RewindCam()
         {
             enabled = false;
+            UIManager.enableMoveUnitController = false;
             _camArm.MoveTween(_camArm.position, _prevPos, camZoomTime);
             _cam.OrthoSizeTween(_cam.orthographicSize, _prevSize, camZoomTime);
         }

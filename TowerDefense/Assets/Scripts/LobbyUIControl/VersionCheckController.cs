@@ -42,10 +42,6 @@ namespace LobbyUIControl
             var client = new Version(Application.version);
             CustomLog.Log($"clientVersion : {client}");
 
-// #if UNITY_EDITOR
-//             Debug.Log("에디터 모드에서는 버전정보 조회할 수 없습니다.");
-//             return;
-// #endif
             Backend.Utils.GetLatestVersion(callback =>
             {
                 if (callback.IsSuccess() == false)

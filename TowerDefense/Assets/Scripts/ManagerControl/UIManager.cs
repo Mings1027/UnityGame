@@ -95,7 +95,7 @@ namespace ManagerControl
         public static Dictionary<TowerType, TowerData> towerDataDic { get; private set; }
         public static Dictionary<TowerType, string> towerNameDic { get; private set; }
         public static Dictionary<TowerType, string> towerInfoDic { get; private set; }
-        public static bool enableMoveUnitController => instance._moveUnitController.enabled;
+        public static bool enableMoveUnitController { get; set; }
 
 #endregion
 
@@ -129,15 +129,16 @@ namespace ManagerControl
             LocaleDictionaryInit();
             TweenInit();
 
+            Input.multiTouchEnabled = false;
+            GameHUD.SetWaveText("0");
+            Time.timeScale = 1;
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
-            GameStart();
             SoundManager.PlayBGM(SoundEnum.WaveEnd);
             SoundManager.FadeInVolume(SoundManager.BGMKey).Forget();
         }
 
         private void UIManagerInit()
         {
-            Input.multiTouchEnabled = false;
             _cam = Camera.main;
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
@@ -234,7 +235,7 @@ namespace ManagerControl
                 towerNameDic.Add(towerType,
                     LocaleManager.GetLocalizedString(LocaleManager.TowerCardTable, towerType.ToString()));
                 towerInfoDic.Add(towerType,
-                    LocaleManager.GetLocalizedString(LocaleManager.TowerCardTable, LocaleManager.CardKey + towerType));
+                    LocaleManager.GetLocalizedString(LocaleManager.TowerDescriptionTable, towerType.ToString()));
             }
         }
 
@@ -261,7 +262,7 @@ namespace ManagerControl
             foreach (var towerType in towerInfoDic.Keys.ToList())
             {
                 towerInfoDic[towerType] =
-                    LocaleManager.GetLocalizedString(LocaleManager.TowerCardTable, LocaleManager.CardKey + towerType);
+                    LocaleManager.GetLocalizedString(LocaleManager.TowerDescriptionTable, towerType.ToString());
             }
 
             if (_towerInfoUI != null) _towerInfoUI.LocaleTowerName();
@@ -542,12 +543,6 @@ namespace ManagerControl
 
             _curSelectedTower.DisableObject();
             OffUI();
-        }
-
-        private void GameStart()
-        {
-            GameHUD.SetWaveText("0");
-            Time.timeScale = 1;
         }
 
 #endregion

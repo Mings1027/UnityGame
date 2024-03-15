@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using BackEnd;
 using BackendControl;
 using CustomEnumControl;
 using DG.Tweening;
@@ -27,9 +26,7 @@ namespace LobbyUIControl
         [SerializeField] private Button deleteAccountButton;
 
         [SerializeField] private RectTransform tabGroups;
-        // [SerializeField] private FullscreenAlert logOutPanel;
-        // [SerializeField] private FullscreenAlert deleteAccountPanel;
-
+     
         private void Start()
         {
             _lobbyUI = GetComponentInParent<LobbyUI>();
@@ -54,21 +51,6 @@ namespace LobbyUIControl
                 _tabGroupArray[i] = tabGroups.GetChild(i).GetComponent<TabGroupItem>();
                 _tabGroupArray[i].OnTabEvent += ClickTab;
             }
-
-            // logOutPanel.OnPopUpButtonEvent += () => { Time.timeScale = 0; };
-            // logOutPanel.OnConfirmButtonEvent += () =>
-            // {
-            //     BackendLogin.instance.LogOut();
-            //     FadeController.FadeOutAndLoadScene("LoginScene");
-            // };
-            // logOutPanel.OnCancelButtonEvent += () => { Time.timeScale = 1; };
-
-            // deleteAccountPanel.OnConfirmButtonEvent += () =>
-            // {
-            //     Backend.BMember.WithdrawAccount();
-            //     BackendLogin.instance.DeletionAccount();
-            //     FadeController.FadeOutAndLoadScene("LoginScene");
-            // };
         }
 
         private void ClickTab(TabGroupItem tabGroupItem)
@@ -107,8 +89,7 @@ namespace LobbyUIControl
             {
                 FullscreenAlert.CancelableAlert(FullscreenAlertEnum.AccountDeletionAlert, () =>
                 {
-                    Backend.BMember.WithdrawAccount();
-                    BackendLogin.instance.DeletionAccount();
+                    BackendLogin.instance.DeleteAccount();
                     FadeController.FadeOutAndLoadScene("LoginScene");
                 });
             });

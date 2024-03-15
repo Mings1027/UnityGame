@@ -102,8 +102,6 @@ namespace LobbyUIControl
 
         private void ItemInit()
         {
-            CustomLog.Log($"플레이어 데이터: {BackendGameData.userData}");
-            CustomLog.Log($"플레이어 아이템 테이블: {BackendGameData.userData.itemInventory}");
             var itemInventory = BackendGameData.userData.itemInventory;
             BackendChart.instance.ChartGet();
 
@@ -114,13 +112,10 @@ namespace LobbyUIControl
                 item.OnOpenExplainPanelEvent += OpenPurchasePanel;
                 item.SetText(itemPrice.ToString());
                 _itemInfoTable.Add(item.itemType, new ItemInfo(
-                    LocaleManager.GetLocalizedString(LocaleManager.ItemTable, LocaleManager.ItemKey + item.itemType),
+                    LocaleManager.GetLocalizedString(LocaleManager.ItemTable, item.itemType.ToString()),
                     itemInventory[item.itemType.ToString()]));
-
-                CustomLog.Log($"아이템 타입 : {item.itemType}   가격 : {itemPrice}");
             }
 
-            CustomLog.Log("아이템 초기화");
             purchaseButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
@@ -133,7 +128,6 @@ namespace LobbyUIControl
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
             _curItemType = itemType;
             explainText.text = _itemInfoTable[itemType].itemExplain;
-            CustomLog.Log($"아이템 설명 : {_itemInfoTable[itemType].itemExplain}");
 
             explainImage.sprite = sprite;
             ownedAmountText.text = _localizedOwnedText + _itemInfoTable[itemType].itemCount;
@@ -200,7 +194,7 @@ namespace LobbyUIControl
             foreach (var itemName in _itemInfoTable.Keys.ToList())
             {
                 _itemInfoTable[itemName].itemExplain =
-                    LocaleManager.GetLocalizedString(LocaleManager.ItemTable, LocaleManager.ItemKey + itemName);
+                    LocaleManager.GetLocalizedString(LocaleManager.ItemTable, itemName.ToString());
             }
 
             LocaleManager.ChangeLocaleAsync(LocaleManager.ItemTable, _curItemType.ToString(), explainText).Forget();

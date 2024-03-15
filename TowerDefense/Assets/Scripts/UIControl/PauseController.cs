@@ -6,7 +6,6 @@ using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using ManagerControl;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace UIControl
@@ -134,12 +133,12 @@ namespace UIControl
 
             exitBattleButton.onClick.AddListener(() =>
             {
-                FullscreenAlert.NonCancelableAlert(FullscreenAlertEnum.ExitBattleAlert, ExitBattle);
+                FullscreenAlert.CancelableAlert(FullscreenAlertEnum.ExitBattleAlert, ExitBattle);
             });
             restartButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                FullscreenAlert.NonCancelableAlert(FullscreenAlertEnum.RestartBattleAlert, Restart);
+                FullscreenAlert.CancelableAlert(FullscreenAlertEnum.RestartBattleAlert, Restart);
             });
             continueButton.onClick.AddListener(() =>
             {

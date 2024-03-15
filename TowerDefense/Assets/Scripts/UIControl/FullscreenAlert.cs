@@ -58,7 +58,7 @@ namespace UIControl
             LocalizationSettings.SelectedLocaleChanged += ChangeAlertLocale;
         }
 
-        private void OnRectTransformDimensionsChange()
+        private void OnDisable()
         {
             LocalizationSettings.SelectedLocaleChanged -= ChangeAlertLocale;
         }
@@ -94,6 +94,15 @@ namespace UIControl
                         break;
                     }
                 }
+            }
+        }
+
+        private void ChangeAlertLocale(Locale locale)
+        {
+            foreach (var alertString in _fullscreenAlertDic.Keys.ToList())
+            {
+                _fullscreenAlertDic[alertString] =
+                    LocaleManager.GetLocalizedString(LocaleManager.FullscreenAlertTable, alertString.ToString());
             }
         }
 
@@ -146,15 +155,6 @@ namespace UIControl
             });
         }
 
-        private void ChangeAlertLocale(Locale locale)
-        {
-            foreach (var alertString in _fullscreenAlertDic.Keys.ToList())
-            {
-                _fullscreenAlertDic[alertString] =
-                    LocaleManager.GetLocalizedString(LocaleManager.FullscreenAlertTable, alertString.ToString());
-            }
-        }
-
         private void NonCancelableAlertPrivate(FullscreenAlertEnum fullscreenAlertEnum, Action confirmAction,
             Action cancelAction = null)
         {
@@ -174,9 +174,9 @@ namespace UIControl
         }
 
         private void CancelableAlertPrivate(FullscreenAlertEnum fullscreenAlertEnum, Action confirmAction,
-            Action cancelAction = null)
+            Action cancelAction = null, string additionalText = null)
         {
-            _noticePanelText.text = _fullscreenAlertDic[fullscreenAlertEnum];
+            _noticePanelText.text = _fullscreenAlertDic[fullscreenAlertEnum] + additionalText;
 
             _noticePanelGroup.blocksRaycasts = true;
             _noticeTween.Restart();
@@ -202,9 +202,9 @@ namespace UIControl
         }
 
         public static void CancelableAlert(FullscreenAlertEnum fullscreenAlertEnum, Action confirmAction,
-            Action cancelAction = null)
+            Action cancelAction = null, string additionalText = null)
         {
-            instance.CancelableAlertPrivate(fullscreenAlertEnum, confirmAction, cancelAction);
+            instance.CancelableAlertPrivate(fullscreenAlertEnum, confirmAction, cancelAction, additionalText);
         }
 
 #endregion

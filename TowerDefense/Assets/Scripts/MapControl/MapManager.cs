@@ -120,7 +120,7 @@ namespace MapControl
             MapDataInit();
 
             _waveManager.OnBossWaveEvent += bossNavMeshSurface.BuildNavMesh;
-            transform.GetChild(2).gameObject.SetActive(false);
+            // transform.GetChild(2).gameObject.SetActive(false);
 #if UNITY_EDITOR
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
@@ -248,7 +248,7 @@ namespace MapControl
                 _ => _connectionProbability
             };
 
-            transform.GetChild(2).gameObject.SetActive(true);
+            // transform.GetChild(2).gameObject.SetActive(true);
             _waveManager.OnPlaceExpandButtonEvent += PlaceExpandButtons;
             _waveManager.enabled = false;
             PlaceStartMap((byte)(difficultyLevel + 1));

@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using BackendControl;
 using CustomEnumControl;
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using ManagerControl;
 using UnityEngine;
@@ -98,6 +100,8 @@ namespace LobbyUIControl
                         _tabGroupItemQueue.Dequeue().CloseGroup();
                     }
                 }
+
+                UniTask.RunOnThreadPool(() => { BackendGameData.instance.GameDataUpdate(); });
             });
         }
     }

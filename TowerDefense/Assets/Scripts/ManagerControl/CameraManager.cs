@@ -45,11 +45,6 @@ namespace ManagerControl
 
 #region Unity Method
 
-        private void Start()
-        {
-            _cam = Camera.main;
-        }
-
         private void Update()
         {
             camPos = transform.position;
@@ -91,6 +86,8 @@ namespace ManagerControl
 
         public void Init()
         {
+            _cam = Camera.main;
+
             _snapRotateTween = transform.DORotate(SnappedVector(), 0.5f).SetEase(Ease.OutCubic)
                 .SetAutoKill(false).Pause();
             _shakeTween = transform.DOShakePosition(0.5f, 1, 50, 90, false, true, ShakeRandomnessMode.Harmonic)
