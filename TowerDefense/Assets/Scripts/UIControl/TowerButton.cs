@@ -22,7 +22,7 @@ namespace UIControl
 
         private void Awake()
         {
-            _scaleTween = transform.DOScale(1.1f, 0.25f).From(1).SetEase(Ease.OutBack).SetAutoKill(false).Pause();
+            _scaleTween = transform.DOScale(1.1f, 0.25f).From(1).SetAutoKill(false).Pause();
         }
 
         public void OnPointerDown(PointerEventData eventData)

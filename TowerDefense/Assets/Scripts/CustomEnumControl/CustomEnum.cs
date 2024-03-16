@@ -13,7 +13,7 @@ namespace CustomEnumControl
         NeedMoreEmerald,
         DuplicateName,
         SuccessChangedName,
-        NeedMoreGearCoin,
+        NeedMoreTowerCoin,
         AtLeastOneCharacter
     }
 

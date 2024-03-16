@@ -54,7 +54,7 @@ namespace ManagerControl
                 Destroy(FindAnyObjectByType<MapSelectPanel>().gameObject);
             }
 
-            await UniTask.Delay(2000);
+            await UniTask.Delay(5000);
             Destroy(GameObject.Find("Plane"));
         }
 

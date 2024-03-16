@@ -22,15 +22,15 @@ namespace UIControl
         private Dictionary<FullscreenAlertEnum, string> _fullscreenAlertDic;
         private Tween _noticeTween;
         private Sequence _noticeChildSequence;
-
         private CanvasGroup _noticePanelGroup;
-        private Image _blockImage;
-        private RectTransform _noticeText;
-        private RectTransform _noticePanel;
-        private TMP_Text _noticePanelText;
-        private CanvasGroup _buttonGroup;
-        private Button _confirmButton;
-        private Button _cancelButton;
+
+        [SerializeField] private Image backgroundImage;
+        [SerializeField] private RectTransform noticeText;
+        [SerializeField] private RectTransform noticePanel;
+        [SerializeField] private TMP_Text noticeInfoText;
+        [SerializeField] private CanvasGroup buttonGroup;
+        [SerializeField] private Button confirmButton;
+        [SerializeField] private Button cancelButton;
 
 #endregion
 
@@ -109,47 +109,47 @@ namespace UIControl
         private void InitComponent()
         {
             _noticePanelGroup = GetComponent<CanvasGroup>();
-            _blockImage = transform.GetChild(0).GetComponent<Image>();
-            _noticeText = transform.GetChild(1).GetComponent<RectTransform>();
-            _noticePanel = transform.GetChild(2).GetComponent<RectTransform>();
-            _noticePanelText = _noticePanel.GetComponentInChildren<TMP_Text>();
-            _buttonGroup = transform.GetChild(3).GetComponent<CanvasGroup>();
-            _confirmButton = _buttonGroup.transform.Find("Confirm Button").GetComponent<Button>();
-            _cancelButton = _buttonGroup.transform.Find("Cancel Button").GetComponent<Button>();
+            // _blockImage = transform.GetChild(0).GetComponent<Image>();
+            // _noticeText = transform.GetChild(1).GetComponent<RectTransform>();
+            // _noticePanel = transform.GetChild(2).GetComponent<RectTransform>();
+            // _noticeInfoText = _noticePanel.GetComponentInChildren<TMP_Text>();
+            // _buttonGroup = transform.GetChild(3).GetComponent<CanvasGroup>();
+            // _confirmButton = _buttonGroup.transform.Find("Confirm Button").GetComponent<Button>();
+            // _cancelButton = _buttonGroup.transform.Find("Cancel Button").GetComponent<Button>();
         }
 
         private void InitTween()
         {
             _noticePanelGroup.blocksRaycasts = false;
-            _buttonGroup.blocksRaycasts = false;
+            buttonGroup.blocksRaycasts = false;
 
             _noticeTween = _noticePanelGroup.DOFade(1, 0.25f).From(0).SetEase(Ease.Linear)
                 .SetAutoKill(false).Pause().SetUpdate(true);
 
             _noticeChildSequence = DOTween.Sequence().SetAutoKill(false).Pause().SetUpdate(true)
-                .Append(_blockImage.DOFade(1, 0.2f).From(0).SetEase(Ease.Linear))
-                .Join(_noticeText.DOScale(1, 0.25f).From(0).SetEase(Ease.Linear))
-                .Join(_noticePanel.DOScaleY(0, 0.25f).From().SetEase(Ease.Linear))
-                .Join(_buttonGroup.DOFade(1, 0.25f).From(0).SetEase(Ease.Linear))
-                .Join(_buttonGroup.transform.DOLocalMoveY(-340, 0.25f).From().SetEase(Ease.Linear))
-                .Append(_noticePanelText.DOFade(1, 0.25f).From(0).SetEase(Ease.Linear));
+                .Append(backgroundImage.DOFade(1, 0.2f).From(0).SetEase(Ease.Linear))
+                .Join(noticeText.DOScale(1, 0.25f).From(0).SetEase(Ease.Linear))
+                .Join(noticePanel.DOScaleY(0, 0.25f).From().SetEase(Ease.Linear))
+                .Join(buttonGroup.DOFade(1, 0.25f).From(0).SetEase(Ease.Linear))
+                .Join(buttonGroup.transform.DOLocalMoveY(-340, 0.25f).From().SetEase(Ease.Linear))
+                .Append(noticeInfoText.DOFade(1, 0.25f).From(0).SetEase(Ease.Linear));
         }
 
         private void InitButton()
         {
-            _confirmButton.onClick.AddListener(() =>
+            confirmButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 _noticePanelGroup.blocksRaycasts = false;
-                _buttonGroup.blocksRaycasts = false;
+                buttonGroup.blocksRaycasts = false;
                 _noticeTween.PlayBackwards();
                 OnConfirmEvent?.Invoke();
             });
-            _cancelButton.onClick.AddListener(() =>
+            cancelButton.onClick.AddListener(() =>
             {
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 _noticePanelGroup.blocksRaycasts = false;
-                _buttonGroup.blocksRaycasts = false;
+                buttonGroup.blocksRaycasts = false;
                 _noticeTween.PlayBackwards();
                 OnCancelEvent?.Invoke();
             });
@@ -158,13 +158,13 @@ namespace UIControl
         private void NonCancelableAlertPrivate(FullscreenAlertEnum fullscreenAlertEnum, Action confirmAction,
             Action cancelAction = null)
         {
-            _noticePanelText.text = _fullscreenAlertDic[fullscreenAlertEnum];
+            noticeInfoText.text = _fullscreenAlertDic[fullscreenAlertEnum];
 
             _noticePanelGroup.blocksRaycasts = true;
             _noticeTween.Restart();
-            _noticeChildSequence.OnComplete(() => _buttonGroup.blocksRaycasts = true).Restart();
+            _noticeChildSequence.OnComplete(() => buttonGroup.blocksRaycasts = true).Restart();
 
-            _cancelButton.gameObject.SetActive(false);
+            cancelButton.gameObject.SetActive(false);
 
             OnConfirmEvent = null;
             OnConfirmEvent += confirmAction;
@@ -176,13 +176,13 @@ namespace UIControl
         private void CancelableAlertPrivate(FullscreenAlertEnum fullscreenAlertEnum, Action confirmAction,
             Action cancelAction = null, string additionalText = null)
         {
-            _noticePanelText.text = _fullscreenAlertDic[fullscreenAlertEnum] + additionalText;
+            noticeInfoText.text = _fullscreenAlertDic[fullscreenAlertEnum] + additionalText;
 
             _noticePanelGroup.blocksRaycasts = true;
             _noticeTween.Restart();
-            _noticeChildSequence.OnComplete(() => _buttonGroup.blocksRaycasts = true).Restart();
+            _noticeChildSequence.OnComplete(() => buttonGroup.blocksRaycasts = true).Restart();
 
-            _cancelButton.gameObject.SetActive(true);
+            cancelButton.gameObject.SetActive(true);
 
             OnConfirmEvent = null;
             OnConfirmEvent += confirmAction;
