@@ -23,6 +23,7 @@ namespace ManagerControl
         private Vector3[] _fourDir;
         private MeshRenderer _cursorMeshRenderer;
         private RaycastHit _hit;
+        private TowerCardController _towerCardController;
 
         [SerializeField] private Transform cubeCursor;
         [SerializeField] private Grid grid;
@@ -74,6 +75,7 @@ namespace ManagerControl
         {
             _cam = Camera.main;
 
+            _towerCardController = FindAnyObjectByType<TowerCardController>();
             _cursorMeshRenderer = cubeCursor.GetComponentInChildren<MeshRenderer>();
             _cursorChild = cubeCursor.GetChild(0);
             _checkDir = new[]
@@ -104,7 +106,7 @@ namespace ManagerControl
 
         public void TryPlaceTower()
         {
-            if (_canPlace && !TowerButton.isOnButton)
+            if (_canPlace && !_towerCardController.isPointerOver)
             {
                 PlaceTower();
             }

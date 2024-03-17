@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using BackendControl;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
@@ -9,26 +8,24 @@ using ItemControl;
 using ManagerControl;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Localization;
-using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
-using Utilities;
 
 namespace UIControl
 {
     public class ItemBagController : MonoBehaviour
     {
+        private DataManager _dataManager;
         private TowerCardController _towerCardController;
         private Tween _disappearItemBagTween;
         private Tween _itemBagTween;
         private Tween _descriptionTween;
-        private Dictionary<ItemType, string> _itemDescriptionDic;
-        private Dictionary<ItemType, ItemButton> _itemDic;
-        private Dictionary<ItemType, int> _itemCountDic;
+        private Dictionary<ItemType, ItemButton> _itemButtonTable;
         private ItemType _curItemType;
         private bool _isOpenBag;
         private bool _isOpenDescription;
-        public static bool isOnItemButton { get; set; }
+        private bool _isPointerDown;
+        private bool _isClicking;
+        private float _clickDuration;
 
         [SerializeField] private Button bagButton;
         [SerializeField] private CanvasGroup itemBagGroup;
@@ -37,22 +34,13 @@ namespace UIControl
 
         [SerializeField] private Button closeButton;
         [SerializeField] private CanvasGroup descriptionGroup;
+        [SerializeField] private TMP_Text itemNameText;
         [SerializeField] private TMP_Text itemDescriptionText;
-
-        private void OnEnable()
-        {
-            LocalizationSettings.SelectedLocaleChanged += ChangeItemDescLocale;
-        }
 
         private void Start()
         {
             Init();
             TweenInit();
-        }
-
-        private void OnDisable()
-        {
-            LocalizationSettings.SelectedLocaleChanged -= ChangeItemDescLocale;
         }
 
         private void OnDestroy()
@@ -62,6 +50,7 @@ namespace UIControl
 
         private void Init()
         {
+            _dataManager = FindAnyObjectByType<DataManager>();
             _towerCardController = FindAnyObjectByType<TowerCardController>();
             selectIcon.GetComponent<Button>().onClick.AddListener(UseItem);
             selectIcon.gameObject.SetActive(false);
@@ -81,24 +70,17 @@ namespace UIControl
                 }
             });
 
-            _itemDic = new Dictionary<ItemType, ItemButton>();
-            _itemCountDic = new Dictionary<ItemType, int>();
-            _itemDescriptionDic = new Dictionary<ItemType, string>();
+            _itemButtonTable = new Dictionary<ItemType, ItemButton>();
             var itemInventory = BackendGameData.userData.itemInventory;
 
             for (var i = 0; i < itemGroup.transform.childCount; i++)
             {
                 var itemButton = itemGroup.transform.GetChild(i).GetComponent<ItemButton>();
-                _itemDic.Add(itemButton.itemType, itemButton);
-                CustomLog.Log(itemButton.itemType);
-                itemButton.OnSetCurItemEvent += SetCurItem;
-                itemButton.OnDisplayItemDescEvent += () => DisplayItemDescription().Forget();
-                itemButton.OnClickItemEvent += ClickItem;
+                itemButton.OnPointerDownEvent += PointerDown;
+                itemButton.OnPointerUpEvent += PointerUp;
+                itemButton.OnClickEvent += ClickItem;
+                _itemButtonTable.Add(itemButton.itemType, itemButton);
                 itemButton.SetRemainingText(itemInventory[itemButton.itemType.ToString()]);
-
-                _itemCountDic.Add(itemButton.itemType, itemInventory[itemButton.itemType.ToString()]);
-                _itemDescriptionDic.Add(itemButton.itemType,
-                    LocaleManager.GetLocalizedString(LocaleManager.ItemTable, itemButton.itemType.ToString()));
             }
         }
 
@@ -113,60 +95,56 @@ namespace UIControl
             itemGroup.blocksRaycasts = false;
 
             _descriptionTween = descriptionGroup.DOFade(1, 0.25f).From(0).SetAutoKill(false).Pause();
-            _descriptionTween.OnComplete(() =>
-            {
-                descriptionGroup.blocksRaycasts = true;
-            });
+            _descriptionTween.OnComplete(() => { descriptionGroup.blocksRaycasts = true; });
             descriptionGroup.blocksRaycasts = false;
         }
 
-        private void ChangeItemDescLocale(Locale locale)
+        private void PointerDown()
         {
-            foreach (var itemType in _itemDescriptionDic.Keys.ToList())
-            {
-                _itemDescriptionDic[itemType] =
-                    LocaleManager.GetLocalizedString(LocaleManager.ItemTable, itemType.ToString());
-            }
-        }
-
-        private void SetCurItem(ItemType curItemType)
-        {
-            _curItemType = curItemType;
-        }
-
-        private async UniTaskVoid DisplayItemDescription()
-        {
+            _isPointerDown = true;
+            _clickDuration = 0f;
             CloseDescription();
-            
-            await UniTask.Delay(500);
-            if (isOnItemButton)
+            CheckClicking().Forget();
+        }
+
+        private async UniTaskVoid CheckClicking()
+        {
+            _isClicking = true;
+            while (_isClicking)
             {
-                _isOpenDescription = true;
-                SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                selectIcon.gameObject.SetActive(false);
-                itemDescriptionText.text = _itemDescriptionDic[_curItemType];
-                _descriptionTween?.Restart();
+                await UniTask.Yield();
+                _clickDuration += Time.deltaTime;
+                if (_clickDuration < 0.5f) continue;
+                _isClicking = false;
+                DisplayItemDescription();
+                break;
             }
         }
 
-        private void ClickItem(Vector2 pos)
+        private void PointerUp()
         {
-            if (!_isOpenBag) return;
-            if (_isOpenDescription) return;
+            _isPointerDown = false;
+            _isClicking = false;
+        }
+
+        private void ClickItem(ItemType curItemType, Vector2 pos)
+        {
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
+            if (_isOpenDescription) return;
+            _curItemType = curItemType;
+            if (_dataManager.itemInfoTable[_curItemType].itemCount <= 0) return;
             selectIcon.gameObject.SetActive(true);
             selectIcon.rectTransform.anchoredPosition = pos;
         }
 
-        private void UseItem()
+        private void DisplayItemDescription()
         {
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            if (_itemCountDic[_curItemType] <= 0) return;
-            _itemDic[_curItemType].Spawn();
-            _itemDic[_curItemType].DecreaseItemCount();
+            _isOpenDescription = true;
             selectIcon.gameObject.SetActive(false);
-            _itemCountDic[_curItemType] -= 1;
-            _curItemType = ItemType.None;
+            itemNameText.text = _dataManager.itemInfoTable[_curItemType].itemName;
+            itemDescriptionText.text = _dataManager.itemInfoTable[_curItemType].itemDescription;
+            _descriptionTween?.Restart();
         }
 
         private void CloseDescription()
@@ -174,6 +152,15 @@ namespace UIControl
             _isOpenDescription = false;
             descriptionGroup.blocksRaycasts = false;
             _descriptionTween?.PlayBackwards();
+        }
+
+        private void UseItem()
+        {
+            SoundManager.PlayUISound(SoundEnum.ButtonSound);
+            _itemButtonTable[_curItemType].Spawn();
+            _itemButtonTable[_curItemType].DecreaseItemCount();
+            selectIcon.gameObject.SetActive(false);
+            _dataManager.itemInfoTable[_curItemType].itemCount -= 1;
         }
 
         private void OpenBag()
@@ -189,7 +176,6 @@ namespace UIControl
         {
             selectIcon.gameObject.SetActive(false);
             _itemBagTween.PlayBackwards();
-            _curItemType = ItemType.None;
             if (!SafeArea.activeSafeArea)
             {
                 _towerCardController.scaleTween.PlayBackwards();
@@ -201,8 +187,8 @@ namespace UIControl
             var itemTypes = Enum.GetValues(typeof(ItemType));
             foreach (ItemType itemType in itemTypes)
             {
-                if (itemType == ItemType.None) continue;
-                BackendGameData.userData.itemInventory[itemType.ToString()] = _itemCountDic[itemType];
+                BackendGameData.userData.itemInventory[itemType.ToString()] =
+                    _dataManager.itemInfoTable[itemType].itemCount;
             }
         }
 

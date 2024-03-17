@@ -10,13 +10,12 @@ namespace UIControl
         IBeginDragHandler, IDragHandler, IEndDragHandler
     {
         private Tween _scaleTween;
-        public event Action OnCamDisableEvent, OnCamEnableEvent;
         public event Action<TowerType> OnOpenCardEvent;
-        public event Action OnCloseCardEvent;
         public event Action<TowerType> OnStartPlacement;
-        public event Action<PointerEventData> OnDragEvent;
+        public event Action<bool> OnPointerOverEvent; 
+        public event Action OnCamDisableEvent, OnCamEnableEvent;
+        public event Action OnCloseCardEvent;
         public event Action OnTryPlaceTowerEvent;
-        public static bool isOnButton { get; private set; }
         
         [SerializeField] private TowerType towerType;
 
@@ -28,7 +27,7 @@ namespace UIControl
         public void OnPointerDown(PointerEventData eventData)
         {
             _scaleTween.Restart();
-            isOnButton = true;
+            OnPointerOverEvent?.Invoke(true);
             OnCamDisableEvent?.Invoke();
         }
 
@@ -42,7 +41,7 @@ namespace UIControl
         public void OnPointerExit(PointerEventData eventData)
         {
             _scaleTween.PlayBackwards();
-            isOnButton = false;
+            OnPointerOverEvent?.Invoke(false);
         }
 
         public void OnBeginDrag(PointerEventData eventData)
@@ -53,12 +52,10 @@ namespace UIControl
 
         public void OnDrag(PointerEventData eventData)
         {
-            OnDragEvent?.Invoke(eventData);
         }
 
         public void OnEndDrag(PointerEventData eventData)
         {
-            if (isOnButton) return;
             OnTryPlaceTowerEvent?.Invoke();
         }
     }

@@ -139,7 +139,7 @@ namespace MonsterControl
 
 #endregion
 
-        protected virtual void DisableObject()
+        protected void DisableObject()
         {
             navMeshAgent.baseOffset = 0;
             navMeshAgent.enabled = false;

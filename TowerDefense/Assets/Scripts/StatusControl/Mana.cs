@@ -20,6 +20,12 @@ namespace StatusControl
             manaRegenValue = 1;
         }
 
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+            StopManaRegen();
+        }
+
         public override void Init(float amount)
         {
             base.Init(amount);

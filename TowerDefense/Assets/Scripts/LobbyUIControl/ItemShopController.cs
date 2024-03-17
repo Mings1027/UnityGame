@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using BackendControl;
 using CustomEnumControl;
 using DG.Tweening;
@@ -12,30 +9,16 @@ using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
-using Utilities;
 
 namespace LobbyUIControl
 {
     public class ItemShopController : MonoBehaviour
     {
-        private class ItemInfo
-        {
-            public string itemExplain;
-            public int itemCount;
-
-            public ItemInfo(string itemExplain, int itemCount)
-            {
-                this.itemExplain = itemExplain;
-                this.itemCount = itemCount;
-            }
-        }
-
+        private DataManager _dataManager;
         private LobbyUI _lobbyUI;
-        private ItemInfo _itemInfo;
         private Sequence _purchasePanelSequence;
         private ItemType _curItemType;
 
-        private Dictionary<ItemType, ItemInfo> _itemInfoTable;
         private int _curQuantity;
         private int _curEmeraldPrice;
         private CanvasGroup _shopPanelGroup;
@@ -53,7 +36,8 @@ namespace LobbyUIControl
         [SerializeField] private RectTransform purchasePanel;
         [SerializeField] private Image explainImage;
         [SerializeField] private TMP_Text ownedAmountText;
-        [SerializeField] private TMP_Text explainText;
+        [SerializeField] private TMP_Text itemNameText;
+        [SerializeField] private TMP_Text descriptionText;
         [SerializeField] private TMP_Text emeraldPriceText;
         [SerializeField] private Button increaseButton;
         [SerializeField] private Button decreaseButton;
@@ -61,8 +45,8 @@ namespace LobbyUIControl
 
         private void Awake()
         {
+            _dataManager = FindAnyObjectByType<DataManager>();
             _lobbyUI = GetComponentInParent<LobbyUI>();
-            _itemInfoTable = new Dictionary<ItemType, ItemInfo>();
             _shopPanelGroup = shopPanel.GetComponent<CanvasGroup>();
             _shopPanelGroup.blocksRaycasts = false;
 
@@ -87,7 +71,7 @@ namespace LobbyUIControl
             });
 
             _localizedOwnedText = LocaleManager.GetLocalizedString(LocaleManager.LobbyUITable, "OwnedText");
-            LocalizationSettings.SelectedLocaleChanged += ChangeLocaleItemDic;
+            LocalizationSettings.SelectedLocaleChanged += ChangeLocaleOwnedText;
         }
 
         private void Start()
@@ -97,12 +81,11 @@ namespace LobbyUIControl
 
         private void OnDisable()
         {
-            LocalizationSettings.SelectedLocaleChanged -= ChangeLocaleItemDic;
+            LocalizationSettings.SelectedLocaleChanged -= ChangeLocaleOwnedText;
         }
 
         private void ItemInit()
         {
-            var itemInventory = BackendGameData.userData.itemInventory;
             BackendChart.instance.ChartGet();
 
             for (var i = 0; i < itemParent.childCount; i++)
@@ -111,9 +94,6 @@ namespace LobbyUIControl
                 var itemPrice = BackendChart.ItemTable[item.itemType.ToString()];
                 item.OnOpenExplainPanelEvent += OpenPurchasePanel;
                 item.SetText(itemPrice.ToString());
-                _itemInfoTable.Add(item.itemType, new ItemInfo(
-                    LocaleManager.GetLocalizedString(LocaleManager.ItemTable, item.itemType.ToString()),
-                    itemInventory[item.itemType.ToString()]));
             }
 
             purchaseButton.onClick.AddListener(() =>
@@ -127,10 +107,11 @@ namespace LobbyUIControl
         {
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
             _curItemType = itemType;
-            explainText.text = _itemInfoTable[itemType].itemExplain;
+            itemNameText.text = _dataManager.itemInfoTable[itemType].itemName;
+            descriptionText.text = _dataManager.itemInfoTable[itemType].itemDescription;
 
             explainImage.sprite = sprite;
-            ownedAmountText.text = _localizedOwnedText + _itemInfoTable[itemType].itemCount;
+            ownedAmountText.text = _localizedOwnedText + _dataManager.itemInfoTable[itemType].itemCount;
             purchasePanelGroup.blocksRaycasts = true;
             _purchasePanelSequence.Restart();
             _curQuantity = 1;
@@ -172,14 +153,14 @@ namespace LobbyUIControl
 
         private void PurchaseItem()
         {
-            if (_curItemType == ItemType.None || _curQuantity <= 0) return;
+            if (_curQuantity <= 0) return;
             if (_curEmeraldPrice <= BackendGameData.userData.emerald)
             {
                 BackendGameData.userData.emerald -= _curEmeraldPrice;
                 _lobbyUI.emeraldCurrency.SetText();
 
                 var itemCount = BackendGameData.userData.itemInventory[_curItemType.ToString()] += _curQuantity;
-                _itemInfoTable[_curItemType].itemCount = itemCount;
+                _dataManager.itemInfoTable[_curItemType].itemCount = itemCount;
 
                 ClosePurchasePanel();
             }
@@ -189,15 +170,8 @@ namespace LobbyUIControl
             }
         }
 
-        private void ChangeLocaleItemDic(Locale locale)
+        private void ChangeLocaleOwnedText(Locale locale)
         {
-            foreach (var itemName in _itemInfoTable.Keys.ToList())
-            {
-                _itemInfoTable[itemName].itemExplain =
-                    LocaleManager.GetLocalizedString(LocaleManager.ItemTable, itemName.ToString());
-            }
-
-            LocaleManager.ChangeLocaleAsync(LocaleManager.ItemTable, _curItemType.ToString(), explainText).Forget();
             _localizedOwnedText = LocaleManager.GetLocalizedString(LocaleManager.LobbyUITable, "OwnedText");
         }
     }

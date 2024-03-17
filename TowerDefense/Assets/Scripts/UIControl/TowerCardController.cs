@@ -19,6 +19,7 @@ namespace UIControl
         private Dictionary<TowerType, TowerData> _towerButtonDic;
 
         public Tween scaleTween { get; private set; }
+        public bool isPointerOver { get; private set; }
 
         [SerializeField] private CanvasGroup openTowerCardBtnGroup;
         [SerializeField] private Button closeButton;
@@ -43,10 +44,11 @@ namespace UIControl
                 if (towerCardGroup.transform.GetChild(i).TryGetComponent(out TowerButton towerButton))
                 {
                     towerButton.OnOpenCardEvent += OpenCard;
-                    towerButton.OnCamDisableEvent += CameraManager.SetCameraActive;
-                    towerButton.OnCloseCardEvent += CloseTowerCard;
-                    towerButton.OnCamEnableEvent += () => CameraManager.isControlActive = true;
                     towerButton.OnStartPlacement += StartPlacement;
+                    towerButton.OnPointerOverEvent += PointerOver;
+                    towerButton.OnCamDisableEvent += CameraManager.SetCameraActive;
+                    towerButton.OnCamEnableEvent += () => CameraManager.isControlActive = true;
+                    towerButton.OnCloseCardEvent += CloseTowerCard;
                     towerButton.OnTryPlaceTowerEvent += TryPlaceTower;
                 }
             }
@@ -89,8 +91,13 @@ namespace UIControl
             _inputManager.StartPlacement(_towerButtonDic[towerType].towerType, _towerButtonDic[towerType].isUnitTower);
         }
 
+        private void PointerOver(bool value)
+        {
+            isPointerOver = value;
+        }
         private void TryPlaceTower()
         {
+            if (isPointerOver) return;
             CameraManager.isControlActive = true;
             _isDrag = false;
             _inputManager.TryPlaceTower();

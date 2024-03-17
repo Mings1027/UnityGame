@@ -3,7 +3,6 @@ using CustomEnumControl;
 using DG.Tweening;
 using ManagerControl;
 using TMPro;
-using UIControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -20,9 +19,9 @@ namespace ItemControl
 
         protected CameraManager cameraManager;
 
-        public event Action<ItemType> OnSetCurItemEvent;
-        public event Action<Vector2> OnClickItemEvent;
-        public event Action OnDisplayItemDescEvent;
+        public event Action OnPointerDownEvent;
+        public event Action OnPointerUpEvent;
+        public event Action<ItemType, Vector2> OnClickEvent;
 
         [field: SerializeField] public ItemType itemType { get; protected set; }
 
@@ -60,23 +59,19 @@ namespace ItemControl
         public void OnPointerDown(PointerEventData eventData)
         {
             _scaleTween.Restart();
-            ItemBagController.isOnItemButton = true;
-
-            OnSetCurItemEvent?.Invoke(itemType);
-            OnDisplayItemDescEvent?.Invoke();
+            OnPointerDownEvent?.Invoke();
         }
 
         public void OnPointerUp(PointerEventData eventData)
         {
             _scaleTween.PlayBackwards();
-            ItemBagController.isOnItemButton = false;
-            OnClickItemEvent?.Invoke(_rectTransform.localPosition);
+            OnPointerUpEvent?.Invoke();
+            OnClickEvent?.Invoke(itemType, _rectTransform.localPosition);
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
             _scaleTween.PlayBackwards();
-            ItemBagController.isOnItemButton = false;
         }
     }
 }

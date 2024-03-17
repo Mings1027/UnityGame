@@ -13,7 +13,6 @@ namespace UIControl
     public class PauseController : MonoBehaviour
     {
         private CancellationTokenSource _cts;
-        private WaveManager _waveManager;
         private ItemBagController _itemBagController;
 
         private CanvasGroup _pauseCanvasGroup;
@@ -69,7 +68,6 @@ namespace UIControl
             }
             else
             {
-                UpdateSurvivedWave();
                 _itemBagController.UpdateInventory();
                 BackendGameData.instance.GameDataUpdate();
                 Pause();
@@ -86,7 +84,6 @@ namespace UIControl
         private void Init()
         {
             _curTimeScale = 1;
-            _waveManager = FindAnyObjectByType<WaveManager>();
             _itemBagController = FindAnyObjectByType<ItemBagController>();
 
             _pauseCanvasGroup = GetComponent<CanvasGroup>();
@@ -146,20 +143,8 @@ namespace UIControl
                 Continue();
             });
 
-            gameOverButton.onClick.AddListener(() =>
-            {
-                UpdateSurvivedWave();
-                _itemBagController.UpdateInventory();
-                BackendGameData.instance.GameDataUpdate();
-                FadeController.FadeOutAndLoadScene("Lobby");
-            });
-            gameEndButton.onClick.AddListener(() =>
-            {
-                UpdateSurvivedWave();
-                _itemBagController.UpdateInventory();
-                BackendGameData.instance.GameDataUpdate();
-                FadeController.FadeOutAndLoadScene("Lobby");
-            });
+            gameOverButton.onClick.AddListener(ExitBattle);
+            gameEndButton.onClick.AddListener(ExitBattle);
         }
 
 #endregion
@@ -197,7 +182,6 @@ namespace UIControl
 
         private void ExitBattle()
         {
-            UpdateSurvivedWave();
             _itemBagController.UpdateInventory();
             BackendGameData.instance.GameDataUpdate();
             FadeController.FadeOutAndLoadScene("Lobby");
@@ -224,17 +208,6 @@ namespace UIControl
             _normalSpeedImage.enabled = _curTimeScale == 1;
             _doubleSpeedImage.enabled = _curTimeScale == 2;
             _tripleSpeedImage.enabled = _curTimeScale == 3;
-        }
-
-        private void UpdateSurvivedWave()
-        {
-            var curWave = WaveManager.curWave;
-            if (curWave >= 1)
-            {
-                BackendGameData.instance.UpdateSurvivedWave((byte)(_waveManager.isStartWave
-                    ? curWave - 1
-                    : curWave));
-            }
         }
 
         public void GameOver()

@@ -12,6 +12,7 @@ namespace ManagerControl
         public const string TowerCardTable = "TowerCard Table";
         public const string TowerDescriptionTable = "Tower Description Table";
         public const string ItemTable = "Item Table";
+        public const string ItemDescriptionTable = "Item Description Table";
         public const string LobbyUITable = "Lobby UI Table";
         public const string FullscreenAlertTable = "Fullscreen Alert Table";
         public const string FloatingNotifyTable = "Floating Notify Table";

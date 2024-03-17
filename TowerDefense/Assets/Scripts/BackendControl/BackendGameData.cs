@@ -121,7 +121,6 @@ namespace BackendControl
             var itemTypes = Enum.GetValues(typeof(ItemType));
             foreach (ItemType itemType in itemTypes)
             {
-                if (itemType == ItemType.None) continue;
                 userData.itemInventory.Add(itemType.ToString(), 0);
             }
 

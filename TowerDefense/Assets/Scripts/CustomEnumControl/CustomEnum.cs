@@ -46,7 +46,6 @@ namespace CustomEnumControl
 
     public enum ItemType
     {
-        None,
         NuclearBomb,
         MoneyBag,
         TowerHeart

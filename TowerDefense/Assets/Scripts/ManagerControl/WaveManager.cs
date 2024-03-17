@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using BackendControl;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DataControl.MonsterDataControl;
@@ -36,13 +37,14 @@ namespace ManagerControl
         private bool _startWave;
         private bool _isLastWave;
         private bool _isBossWave;
+        private bool _isStartWave;
         private byte _themeIndex;
 
         public event Action OnPlaceExpandButtonEvent;
         public event Action OnBossWaveEvent;
-        public static byte curWave { get; private set; }
-        public bool isStartWave { get; private set; }
+        public byte curWave { get; private set; }
 
+        [SerializeField] private AudioClip explosionAudio;
         [SerializeField] private MonsterThemeData[] monstersData;
 
 #region Unity Event
@@ -66,10 +68,33 @@ namespace ManagerControl
         {
             _monsterList.Clear();
 
+            if (curWave >= 1)
+            {
+                BackendGameData.instance.UpdateSurvivedWave((byte)(_isStartWave
+                    ? curWave - 1
+                    : curWave));
+            }
+
             if (_cts == null) return;
             if (_cts.IsCancellationRequested) return;
             _cts?.Cancel();
             _cts?.Dispose();
+        }
+
+        private void OnApplicationFocus(bool hasFocus)
+        {
+            if (hasFocus)
+            {
+            }
+            else
+            {
+                if (curWave >= 1)
+                {
+                    BackendGameData.instance.UpdateSurvivedWave((byte)(_isStartWave
+                        ? curWave - 1
+                        : curWave));
+                }
+            }
         }
 
 #endregion
@@ -82,7 +107,6 @@ namespace ManagerControl
             _towerManager = FindObjectOfType<TowerManager>();
             _itemBagController = FindAnyObjectByType<ItemBagController>();
             _pauseController = FindAnyObjectByType<PauseController>();
-            _itemBagController = FindAnyObjectByType<ItemBagController>();
         }
 
         public async UniTaskVoid WaveInit(Vector3[] wayPoints)
@@ -113,15 +137,15 @@ namespace ManagerControl
             }
 
             enabled = true;
-            isStartWave = true;
+            _isStartWave = true;
             MonsterUpdate().Forget();
         }
 
         private void WaveStop()
         {
             _startWave = false;
+            _isStartWave = false;
             enabled = false;
-            isStartWave = false;
         }
 
 #region Enemy Spawn
@@ -319,13 +343,17 @@ namespace ManagerControl
             }
         }
 
-        public void AllKill()
+        public async UniTaskVoid AllKill()
         {
             for (var i = 0; i < _monsterList.Count; i++)
             {
                 if (_monsterList[i].TryGetComponent(out IDamageable damageable))
                 {
+                    var pos = _monsterList[i].transform.position;
+                    PoolObjectManager.Get(PoolObjectKey.NuclearBomb, pos);
+                    SoundManager.Play3DSound(explosionAudio, pos);
                     damageable.Damage(int.MaxValue);
+                    await UniTask.Delay(100);
                 }
             }
         }
