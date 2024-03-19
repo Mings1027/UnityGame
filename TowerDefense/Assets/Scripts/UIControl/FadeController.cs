@@ -23,12 +23,7 @@ namespace UIControl
             fadeOutImage.DOFade(0, 0);
         }
 
-        private void Start()
-        {
-            FadeInScene();
-        }
-
-        private void FadeInScene()
+        private void FadeInScenePrivate()
         {
             _graphicRaycaster.enabled = true;
             loadingSlider.DOValue(1, 0.5f).From(0).SetDelay(1).SetUpdate(true).OnComplete(() =>
@@ -36,6 +31,11 @@ namespace UIControl
                 fadeInGroup.DOFade(0, 0.5f).From(1).SetUpdate(true);
                 _graphicRaycaster.enabled = false;
             });
+        }
+
+        public static void FadeInScene()
+        {
+            instance.FadeInScenePrivate();
         }
 
         private async UniTaskVoid FadeOutSceneAsync(string sceneName)

@@ -21,7 +21,7 @@ namespace ProjectileControl
         protected override void ProjectilePath(Vector3 endPos)
         {
             base.ProjectilePath(endPos);
-            transform.position = curPos;
+            rigid.MovePosition(curPos);
         }
 
         protected override void Hit(Collider t)

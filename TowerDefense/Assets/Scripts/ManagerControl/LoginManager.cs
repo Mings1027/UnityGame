@@ -82,6 +82,7 @@ namespace ManagerControl
 #if UNITY_IPHONE
             AppleInit();
 #endif
+            FadeController.FadeInScene();
         }
 
         private void Update()

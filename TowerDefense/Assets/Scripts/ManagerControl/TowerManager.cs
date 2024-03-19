@@ -6,16 +6,11 @@ using UnityEngine;
 
 namespace ManagerControl
 {
-    public class TowerManager : MonoBehaviour, IAddressableObject
+    public class TowerManager : MonoBehaviour, IMainGameObject
     {
         private List<AttackTower> _towers;
 
 #region Unity Event
-
-        private void Start()
-        {
-            _towers = new List<AttackTower>(50);
-        }
 
         private void Update()
         {
@@ -31,6 +26,7 @@ namespace ManagerControl
 
         public void Init()
         {
+            _towers = new List<AttackTower>(50);
             enabled = false;
         }
 

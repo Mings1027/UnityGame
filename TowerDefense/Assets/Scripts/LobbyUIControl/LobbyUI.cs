@@ -69,6 +69,8 @@ namespace LobbyUIControl
 
             OffBackgroundImage();
             OffBlockImage();
+
+            FadeController.FadeInScene();
         }
 
         private async UniTaskVoid RewardedAdRewardAsync()

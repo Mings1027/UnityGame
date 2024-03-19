@@ -6,12 +6,13 @@ namespace PoolObjectControl
 {
     public class VfxPoolObject : MonoBehaviour
     {
-        private ParticleSystem[] _particleSystem;
-        private float _maxStartLifeTime;
+        private ParticleSystem _particleSystem;
+        private float _maxDurationTime;
 
         private void Awake()
         {
-            _maxStartLifeTime = GetMaxStartLifeTime();
+            _particleSystem = GetComponent<ParticleSystem>();
+            _maxDurationTime = _particleSystem.main.duration;
         }
 
         private void OnEnable()
@@ -21,26 +22,11 @@ namespace PoolObjectControl
 
         private async UniTaskVoid DisableObject()
         {
-            for (var i = 0; i < _particleSystem.Length; i++)
-            {
-                _particleSystem[i].Play();
-            }
+            _particleSystem.Play();
 
-            await UniTask.Delay(TimeSpan.FromSeconds(_maxStartLifeTime),
+            await UniTask.Delay(TimeSpan.FromSeconds(_maxDurationTime),
                 cancellationToken: this.GetCancellationTokenOnDestroy());
             gameObject.SetActive(false);
-        }
-
-        private float GetMaxStartLifeTime()
-        {
-            _particleSystem = GetComponentsInChildren<ParticleSystem>();
-            var maxStartLifeTime = 0f;
-            for (int i = 0; i < _particleSystem.Length; i++)
-            {
-                maxStartLifeTime = Mathf.Max(maxStartLifeTime, _particleSystem[i].main.startLifetime.constant);
-            }
-
-            return maxStartLifeTime;
         }
     }
 }

@@ -1,6 +1,5 @@
 using CustomEnumControl;
 using DataControl.TowerDataControl;
-using InterfaceControl;
 using PoolObjectControl;
 using UnityEngine;
 
@@ -13,6 +12,7 @@ namespace ProjectileControl
         private Vector3 _startPos;
         private Vector3 _centerPos;
 
+        protected Rigidbody rigid;
         protected Collider target;
         protected Vector3 curPos;
         protected sbyte effectIndex;
@@ -28,6 +28,7 @@ namespace ProjectileControl
 
         protected virtual void Awake()
         {
+            rigid = GetComponent<Rigidbody>();
         }
 
         protected virtual void OnEnable()
@@ -44,14 +45,19 @@ namespace ProjectileControl
         protected virtual void Update()
         {
             if (isArrived) return;
-            if (lerpTime < 1)
+            if (lerpTime < 1.5f)
             {
                 ProjectilePath(target.bounds.center);
             }
-            else
-            {
-                DisableProjectile();
-            }
+        }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            isArrived = true;
+            lerpTime = 0;
+            Hit(target);
+            _trailObj.DisconnectProjectile();
+            gameObject.SetActive(false);
         }
 
         /*============================================================================================================
@@ -65,15 +71,6 @@ namespace ProjectileControl
             _centerPos = (_startPos + endPos) * 0.5f + Vector3.up * height;
             curPos = Vector3.Lerp(Vector3.Lerp(_startPos, _centerPos, lerpTime),
                 Vector3.Lerp(_centerPos, endPos, lerpTime), lerpTime);
-        }
-
-        protected void DisableProjectile()
-        {
-            isArrived = true;
-            lerpTime = 0;
-            Hit(target);
-            _trailObj.DisconnectProjectile();
-            gameObject.SetActive(false);
         }
 
         public virtual void Init(int dmg, sbyte vfxIndex, Collider t)

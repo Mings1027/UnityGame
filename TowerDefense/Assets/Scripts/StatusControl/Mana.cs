@@ -23,6 +23,8 @@ namespace StatusControl
         protected override void OnDisable()
         {
             base.OnDisable();
+            if (_cts == null) return;
+            if (_cts.IsCancellationRequested) return;
             StopManaRegen();
         }
 

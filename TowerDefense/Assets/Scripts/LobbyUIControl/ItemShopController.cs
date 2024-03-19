@@ -1,5 +1,6 @@
 using BackendControl;
 using CustomEnumControl;
+using DataControl;
 using DG.Tweening;
 using ItemControl;
 using ManagerControl;
@@ -28,6 +29,7 @@ namespace LobbyUIControl
         [SerializeField] private Button purchaseButton;
         [SerializeField] private Transform itemParent;
 
+        [SerializeField] private Image purchaseBackgroundBlockImage;
         [SerializeField] private CanvasGroup purchasePanelGroup;
 
         [SerializeField] private Button closePurchasePanelButton;
@@ -53,9 +55,11 @@ namespace LobbyUIControl
             _purchasePanelSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(purchasePanelGroup.DOFade(1, 0.25f).From(0))
                 .Join(purchasePanel.DOAnchorPosX(0, 0.25f).From(new Vector2(-100, 0)));
-
+            _purchasePanelSequence.OnComplete(() => purchasePanelGroup.blocksRaycasts = true);
+            
             purchasePanelGroup.blocksRaycasts = false;
-
+            purchaseBackgroundBlockImage.enabled = false;
+            
             increaseButton.onClick.AddListener(IncreaseQuantity);
             decreaseButton.onClick.AddListener(DecreaseQuantity);
 
@@ -112,7 +116,7 @@ namespace LobbyUIControl
 
             explainImage.sprite = sprite;
             ownedAmountText.text = _localizedOwnedText + _dataManager.itemInfoTable[itemType].itemCount;
-            purchasePanelGroup.blocksRaycasts = true;
+            purchaseBackgroundBlockImage.enabled = true;
             _purchasePanelSequence.Restart();
             _curQuantity = 1;
             _curEmeraldPrice = BackendChart.ItemTable[_curItemType.ToString()];
@@ -122,7 +126,9 @@ namespace LobbyUIControl
 
         private void ClosePurchasePanel()
         {
-            _purchasePanelSequence.OnRewind(() => purchasePanelGroup.blocksRaycasts = false).PlayBackwards();
+            purchaseBackgroundBlockImage.enabled = false;
+            purchasePanelGroup.blocksRaycasts = false;
+            _purchasePanelSequence.PlayBackwards();
         }
 
         private void IncreaseQuantity()

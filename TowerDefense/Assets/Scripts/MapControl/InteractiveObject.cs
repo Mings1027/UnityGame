@@ -1,5 +1,4 @@
 using CustomEnumControl;
-using DataControl;
 using ManagerControl;
 using PoolObjectControl;
 using TextControl;
@@ -10,7 +9,7 @@ using Random = UnityEngine.Random;
 
 namespace MapControl
 {
-    public class InteractiveObject : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+    public class InteractiveObject : ObstacleObject, IPointerDownHandler, IPointerUpHandler
     {
         public void OnPointerDown(PointerEventData eventData)
         {

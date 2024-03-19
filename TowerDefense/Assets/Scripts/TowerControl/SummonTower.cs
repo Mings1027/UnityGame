@@ -16,7 +16,6 @@ namespace TowerControl
 {
     public class SummonTower : AttackTower
     {
-        private CancellationTokenSource _cts;
         private bool _isUnitSpawn;
         private bool _isReSpawning;
         private Vector3 _unitCenterPosition;
@@ -31,17 +30,6 @@ namespace TowerControl
         [SerializeField, Range(1, 10)] private byte unitCount;
         [SerializeField, Range(0, 2)] private float unitRadius;
         [SerializeField] private PoolObjectKey unitObjectKey;
-
-#region Unity Event
-
-        protected override void OnEnable()
-        {
-            base.OnEnable();
-            _cts?.Dispose();
-            _cts = new CancellationTokenSource();
-        }
-
-#endregion
 
 #region Unit Control
 
@@ -116,7 +104,6 @@ namespace TowerControl
             _isReSpawning = false;
 
             if (_isUnitSpawn || _isReSpawning) return;
-            if (_cts.IsCancellationRequested) return;
             UnitSpawn();
             UnitUpgrade(towerDamage, attackCooldown.cooldownTime);
         }
@@ -191,8 +178,6 @@ namespace TowerControl
 
         public override void DisableObject()
         {
-            _cts?.Cancel();
-            _cts?.Dispose();
             if (_isReSpawning)
             {
                 _unitReSpawnBar.StopLoading();

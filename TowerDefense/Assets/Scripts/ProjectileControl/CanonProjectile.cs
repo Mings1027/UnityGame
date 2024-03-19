@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using CustomEnumControl;
 using InterfaceControl;
 using ManagerControl;
 using PoolObjectControl;
@@ -46,10 +45,6 @@ namespace ProjectileControl
 
                 ProjectilePath(lerpTime < 0.4f ? target.transform.position : _targetEndPos);
             }
-            else
-            {
-                DisableProjectile();
-            }
         }
 
         [Conditional("UNITY_EDITOR")]
@@ -61,10 +56,10 @@ namespace ProjectileControl
         protected override void ProjectilePath(Vector3 endPos)
         {
             base.ProjectilePath(endPos);
-            var t = transform;
-            var dir = (curPos - t.position).normalized;
+            var dir = (curPos - rigid.position).normalized;
             if (dir == Vector3.zero) return;
-            transform.SetPositionAndRotation(curPos, Quaternion.LookRotation(dir));
+            rigid.MovePosition(curPos);
+            rigid.MoveRotation(Quaternion.LookRotation(dir));
         }
 
         protected override void Hit(Collider col)

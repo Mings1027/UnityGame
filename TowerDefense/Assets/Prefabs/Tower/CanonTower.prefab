@@ -108,6 +108,7 @@ GameObject:
   - component: {fileID: 7895117123715481237}
   - component: {fileID: 7895117123715481243}
   - component: {fileID: -637605588915081796}
+  - component: {fileID: 3068329746383687035}
   m_Layer: 3
   m_Name: CanonTower
   m_TagString: Tower
@@ -219,6 +220,22 @@ MonoBehaviour:
     fillPass:
       shader: {fileID: 0}
       serializedProperties: []
+--- !u!54 &3068329746383687035
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7895117123715481240}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 14
+  m_CollisionDetection: 0
 --- !u!1001 &4347950391471349750
 PrefabInstance:
   m_ObjectHideFlags: 0

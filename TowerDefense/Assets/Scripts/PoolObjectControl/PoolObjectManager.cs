@@ -56,7 +56,7 @@ namespace PoolObjectControl
         }
     }
 
-    public class PoolObjectManager : MonoBehaviour, IAddressableObject
+    public class PoolObjectManager : MonoBehaviour, IMainGameObject
     {
         private static PoolObjectManager _inst;
         private Camera _cam;

@@ -20,8 +20,9 @@ namespace ItemControl
         protected CameraManager cameraManager;
 
         public event Action OnPointerDownEvent;
+        public event Action<ItemType> OnSetTypeEvent;
         public event Action OnPointerUpEvent;
-        public event Action<ItemType, Vector2> OnClickEvent;
+        public event Action<Vector2> OnClickEvent;
 
         [field: SerializeField] public ItemType itemType { get; protected set; }
 
@@ -38,7 +39,7 @@ namespace ItemControl
             cameraManager = FindAnyObjectByType<CameraManager>();
         }
 
-        public abstract void Spawn();
+        public abstract bool Spawn();
 
         public void SetRemainingText(int amount)
         {
@@ -60,13 +61,14 @@ namespace ItemControl
         {
             _scaleTween.Restart();
             OnPointerDownEvent?.Invoke();
+            OnSetTypeEvent?.Invoke(itemType);
         }
 
         public void OnPointerUp(PointerEventData eventData)
         {
             _scaleTween.PlayBackwards();
             OnPointerUpEvent?.Invoke();
-            OnClickEvent?.Invoke(itemType, _rectTransform.localPosition);
+            OnClickEvent?.Invoke(_rectTransform.localPosition);
         }
 
         public void OnPointerExit(PointerEventData eventData)

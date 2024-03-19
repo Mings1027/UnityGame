@@ -25,7 +25,7 @@ namespace ManagerControl
         public BossMonsterData bossMonsterData;
     }
 
-    public class WaveManager : MonoBehaviour, IAddressableObject
+    public class WaveManager : MonoBehaviour, IMainGameObject
     {
         private TowerManager _towerManager;
         private ItemBagController _itemBagController;
@@ -34,51 +34,34 @@ namespace ManagerControl
         private List<MonsterUnit> _monsterList;
         private Vector3[] _wayPoints;
 
-        private bool _startWave;
         private bool _isLastWave;
         private bool _isBossWave;
         private bool _isStartWave;
         private byte _themeIndex;
+        private byte _curWave;
 
         public event Action OnPlaceExpandButtonEvent;
         public event Action OnBossWaveEvent;
-        public byte curWave { get; private set; }
 
         [SerializeField] private AudioClip explosionAudio;
         [SerializeField] private MonsterThemeData[] monstersData;
 
 #region Unity Event
 
-        private void Start()
-        {
-            _monsterList = new List<MonsterUnit>();
-        }
-
-        private void Update()
-        {
-            var enemyCount = _monsterList.Count;
-
-            for (var i = enemyCount - 1; i >= 0; i--)
-            {
-                _monsterList[i].DistanceToBaseTower();
-            }
-        }
-
         private void OnDisable()
         {
             _monsterList.Clear();
 
-            if (curWave >= 1)
+            if (_curWave >= 1)
             {
                 BackendGameData.instance.UpdateSurvivedWave((byte)(_isStartWave
-                    ? curWave - 1
-                    : curWave));
+                    ? _curWave - 1
+                    : _curWave));
             }
 
             if (_cts == null) return;
             if (_cts.IsCancellationRequested) return;
-            _cts?.Cancel();
-            _cts?.Dispose();
+            StopWave();
         }
 
         private void OnApplicationFocus(bool hasFocus)
@@ -88,26 +71,33 @@ namespace ManagerControl
             }
             else
             {
-                if (curWave >= 1)
+                if (_curWave >= 1)
                 {
                     BackendGameData.instance.UpdateSurvivedWave((byte)(_isStartWave
-                        ? curWave - 1
-                        : curWave));
+                        ? _curWave - 1
+                        : _curWave));
                 }
             }
         }
 
 #endregion
 
+#region Init
+
         public void Init()
         {
-            curWave = 0;
+            _curWave = 0;
             _themeIndex = 0;
 
             _towerManager = FindObjectOfType<TowerManager>();
             _itemBagController = FindAnyObjectByType<ItemBagController>();
             _pauseController = FindAnyObjectByType<PauseController>();
+
+            _monsterList = new List<MonsterUnit>();
+            // enabled = false;
         }
+
+#endregion
 
         public async UniTaskVoid WaveInit(Vector3[] wayPoints)
         {
@@ -115,20 +105,20 @@ namespace ManagerControl
             _cts = new CancellationTokenSource();
             _itemBagController.SetActiveItemBag(true);
 
-            curWave++;
-            _isBossWave = curWave == monstersData[_themeIndex].startBossWave;
+            _curWave++;
+            _isBossWave = _curWave == monstersData[_themeIndex].startBossWave;
             _isLastWave = _themeIndex == monstersData.Length - 1 && _isBossWave;
 
             SoundManager.PlayBGM(_isBossWave ? SoundEnum.BossTheme : SoundEnum.WaveStart);
             await UniTask.Delay(500);
             _wayPoints = wayPoints;
-            _startWave = true;
         }
 
         public void StartWave()
         {
+            // enabled = true;
             _towerManager.StartTargeting();
-            GameHUD.SetWaveText(curWave.ToString());
+            GameHUD.SetWaveText(_curWave.ToString());
             SpawnEnemy(_wayPoints).Forget();
 
             if (_isBossWave)
@@ -136,16 +126,17 @@ namespace ManagerControl
                 SpawnBoss(_wayPoints[Random.Range(0, _wayPoints.Length)]).Forget();
             }
 
-            enabled = true;
             _isStartWave = true;
             MonsterUpdate().Forget();
+            DistanceToBaseTower().Forget();
         }
 
-        private void WaveStop()
+        private void StopWave()
         {
-            _startWave = false;
+            // enabled = false;
             _isStartWave = false;
-            enabled = false;
+            _cts?.Cancel();
+            _cts?.Dispose();
         }
 
 #region Enemy Spawn
@@ -164,6 +155,21 @@ namespace ManagerControl
             }
         }
 
+        private async UniTaskVoid DistanceToBaseTower()
+        {
+            while (!_cts.IsCancellationRequested)
+            {
+                await UniTask.Yield();
+
+                var enemyCount = _monsterList.Count;
+
+                for (var i = enemyCount - 1; i >= 0; i--)
+                {
+                    _monsterList[i].DistanceToBaseTower();
+                }
+            }
+        }
+
         private async UniTaskVoid SpawnEnemy(IReadOnlyList<Vector3> wayPoints)
         {
             var normalMonsterDataLength = monstersData[_themeIndex].normalMonsterData.Length;
@@ -174,7 +180,7 @@ namespace ManagerControl
                 {
                     var normalMonsterData = monstersData[_themeIndex].normalMonsterData[normalDataIndex];
 
-                    if (normalMonsterData.startSpawnWave > curWave) continue;
+                    if (normalMonsterData.startSpawnWave > _curWave) break;
                     var wayPointCount = wayPoints.Count;
 
                     for (var wayPoint = 0; wayPoint < wayPointCount; wayPoint++)
@@ -285,8 +291,6 @@ namespace ManagerControl
             };
         }
 
-#endregion
-
         private void SpawnTransformMonster(Vector3 pos, TransformMonster transformMonster)
         {
             for (var i = 0; i < transformMonster.spawnCount; i++)
@@ -302,9 +306,11 @@ namespace ManagerControl
             }
         }
 
+#endregion
+
         private void DecreaseEnemyCount(MonsterUnit monsterUnit)
         {
-            if (!_startWave) return;
+            if (!_isStartWave) return;
             _monsterList.Remove(monsterUnit);
             var towerHealth = GameHUD.towerHealth;
 
@@ -320,7 +326,7 @@ namespace ManagerControl
 
                 if (_monsterList.Count > 0) return;
 
-                WaveStop();
+                StopWave();
                 _itemBagController.SetActiveItemBag(false);
                 SoundManager.PlayBGM(SoundEnum.WaveEnd);
                 PoolObjectManager.PoolCleaner().Forget();

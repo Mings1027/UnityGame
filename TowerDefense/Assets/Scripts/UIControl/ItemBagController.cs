@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using BackendControl;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
+using DataControl;
 using DG.Tweening;
 using ItemControl;
 using ManagerControl;
@@ -23,7 +24,6 @@ namespace UIControl
         private ItemType _curItemType;
         private bool _isOpenBag;
         private bool _isOpenDescription;
-        private bool _isPointerDown;
         private bool _isClicking;
         private float _clickDuration;
 
@@ -77,6 +77,7 @@ namespace UIControl
             {
                 var itemButton = itemGroup.transform.GetChild(i).GetComponent<ItemButton>();
                 itemButton.OnPointerDownEvent += PointerDown;
+                itemButton.OnSetTypeEvent += SetItemType;
                 itemButton.OnPointerUpEvent += PointerUp;
                 itemButton.OnClickEvent += ClickItem;
                 _itemButtonTable.Add(itemButton.itemType, itemButton);
@@ -101,10 +102,36 @@ namespace UIControl
 
         private void PointerDown()
         {
-            _isPointerDown = true;
             _clickDuration = 0f;
             CloseDescription();
             CheckClicking().Forget();
+        }
+
+        private void SetItemType(ItemType itemType)
+        {
+            _curItemType = itemType;
+        }
+
+        private void PointerUp()
+        {
+            _isClicking = false;
+        }
+
+        private void ClickItem(Vector2 pos)
+        {
+            if (_isOpenDescription) return;
+            SoundManager.PlayUISound(SoundEnum.ButtonSound);
+            selectIcon.gameObject.SetActive(false);
+            if (_dataManager.itemInfoTable[_curItemType].itemCount <= 0) return;
+            selectIcon.gameObject.SetActive(true);
+            selectIcon.rectTransform.anchoredPosition = pos;
+        }
+
+        private void CloseDescription()
+        {
+            _isOpenDescription = false;
+            descriptionGroup.blocksRaycasts = false;
+            _descriptionTween?.PlayBackwards();
         }
 
         private async UniTaskVoid CheckClicking()
@@ -121,22 +148,6 @@ namespace UIControl
             }
         }
 
-        private void PointerUp()
-        {
-            _isPointerDown = false;
-            _isClicking = false;
-        }
-
-        private void ClickItem(ItemType curItemType, Vector2 pos)
-        {
-            SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            if (_isOpenDescription) return;
-            _curItemType = curItemType;
-            if (_dataManager.itemInfoTable[_curItemType].itemCount <= 0) return;
-            selectIcon.gameObject.SetActive(true);
-            selectIcon.rectTransform.anchoredPosition = pos;
-        }
-
         private void DisplayItemDescription()
         {
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
@@ -147,20 +158,16 @@ namespace UIControl
             _descriptionTween?.Restart();
         }
 
-        private void CloseDescription()
-        {
-            _isOpenDescription = false;
-            descriptionGroup.blocksRaycasts = false;
-            _descriptionTween?.PlayBackwards();
-        }
-
         private void UseItem()
         {
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            _itemButtonTable[_curItemType].Spawn();
-            _itemButtonTable[_curItemType].DecreaseItemCount();
+            if (_itemButtonTable[_curItemType].Spawn())
+            {
+                _itemButtonTable[_curItemType].DecreaseItemCount();
+                _dataManager.itemInfoTable[_curItemType].itemCount -= 1;
+            }
+
             selectIcon.gameObject.SetActive(false);
-            _dataManager.itemInfoTable[_curItemType].itemCount -= 1;
         }
 
         private void OpenBag()

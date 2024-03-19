@@ -8,6 +8,11 @@ namespace StatusControl
     {
         private float _current;
 
+        protected float Initial { get; private set; }
+        protected bool IsFull => _current >= Initial;
+
+        public float Ratio => _current / Initial;
+
         public float Current
         {
             get => _current;
@@ -19,10 +24,6 @@ namespace StatusControl
                 OnUpdateBarEvent?.Invoke();
             }
         }
-
-        protected float Initial { get; private set; }
-        public bool IsFull => _current >= Initial;
-        public float Ratio => _current / Initial;
 
         public event Action OnUpdateBarEvent;
 

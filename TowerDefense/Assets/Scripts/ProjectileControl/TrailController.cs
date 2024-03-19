@@ -1,4 +1,5 @@
-using DG.Tweening;
+using System;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace ProjectileControl
@@ -7,8 +8,10 @@ namespace ProjectileControl
     {
         private ParticleSystem _particleSystem;
         private ParticleSystem.ColorOverLifetimeModule _projectileColor;
+
         private Transform _projectileTransform;
-        private Tween _destroyTween;
+
+        private float _startLifeTime;
         private bool _isConnect;
         private const byte Interval = 3;
 
@@ -16,13 +19,12 @@ namespace ProjectileControl
         {
             _particleSystem = GetComponent<ParticleSystem>();
             _projectileColor = _particleSystem.colorOverLifetime;
-            _destroyTween = DOVirtual.DelayedCall(_particleSystem.main.duration,
-                () => gameObject.SetActive(false), false).SetAutoKill(false).Pause();
+            _startLifeTime = _particleSystem.main.duration;
         }
 
-        private void OnDestroy()
+        private void OnEnable()
         {
-            _destroyTween?.Kill();
+            DisableObject().Forget();
         }
 
         private void LateUpdate()
@@ -34,10 +36,17 @@ namespace ProjectileControl
             }
         }
 
+        private async UniTaskVoid DisableObject()
+        {
+            _particleSystem.Play();
+            await UniTask.Delay(TimeSpan.FromSeconds(_startLifeTime),
+                cancellationToken: this.GetCancellationTokenOnDestroy());
+            gameObject.SetActive(false);
+        }
+
         public void SpawnProjectile(Transform projectileTransform, ParticleSystem.MinMaxGradient projectileColor)
         {
             _isConnect = true;
-            _destroyTween.Restart();
             _projectileTransform = projectileTransform;
             _projectileColor.color = projectileColor;
             _particleSystem.Play();

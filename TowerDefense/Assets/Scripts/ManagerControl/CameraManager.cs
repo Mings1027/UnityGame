@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace ManagerControl
 {
-    public class CameraManager : MonoBehaviour, IAddressableObject
+    public class CameraManager : MonoBehaviour, IMainGameObject
     {
         private Camera _cam;
         private Tweener _snapRotateTween;

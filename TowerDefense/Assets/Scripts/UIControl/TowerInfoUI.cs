@@ -172,10 +172,5 @@ namespace UIControl
             }
         }
 
-        public void LocaleTowerName()
-        {
-            LocaleManager.ChangeLocaleAsync(LocaleManager.TowerCardTable, _towerType.ToString(), towerNameText)
-                .Forget();
-        }
     }
 }

@@ -12,9 +12,10 @@ namespace ItemControl
             _waveManager = FindAnyObjectByType<WaveManager>();
         }
 
-        public override void Spawn()
+        public override bool Spawn()
         {
             Explosion();
+            return true;
         }
 
         private void Explosion()

@@ -16,14 +16,14 @@ namespace UIControl
         [SerializeField] private RectTransform difficultyButtonGroup;
         [SerializeField] private Button deleteSurvivedWaveButton;
 
-        private void Start()
+        private void Init()
         {
             _canvasGroup = GetComponent<CanvasGroup>();
-            _panelSequence = DOTween.Sequence().SetAutoKill(false).Pause()
+            _panelSequence = DOTween.Sequence().SetAutoKill(false)
                 .Append(_canvasGroup.DOFade(1, 0.25f).From(0))
                 .Join(_canvasGroup.GetComponent<RectTransform>().DOAnchorPosY(0, 0.25f).From(new Vector2(0, -100)));
             _canvasGroup.blocksRaycasts = false;
-            _panelSequence.OnComplete(() => _canvasGroup.blocksRaycasts = true).Restart();
+            _panelSequence.OnComplete(() => _canvasGroup.blocksRaycasts = true);
 
             for (var i = 0; i < difficultyButtonGroup.childCount; i++)
             {
@@ -44,8 +44,6 @@ namespace UIControl
                 difficultyButtonGroup.GetChild(i).GetChild(4).GetComponent<TMP_Text>().text =
                     survivedWaves[i];
             }
-
-            ButtonInit();
         }
 
         private void ButtonInit()
@@ -62,6 +60,13 @@ namespace UIControl
                     }
                 });
             });
+        }
+
+        public void OpenMapSelector()
+        {
+            Init();
+            ButtonInit();
+            // _panelSequence.Restart();
         }
     }
 }

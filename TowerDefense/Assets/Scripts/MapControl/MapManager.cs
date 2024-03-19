@@ -16,7 +16,7 @@ using Random = UnityEngine.Random;
 
 namespace MapControl
 {
-    public class MapManager : MonoBehaviour, IAddressableObject
+    public class MapManager : MonoBehaviour, IMainGameObject
     {
         private MeshFilter _meshFilter;
         // private MeshRenderer _meshRenderer;
@@ -120,7 +120,7 @@ namespace MapControl
             MapDataInit();
 
             _waveManager.OnBossWaveEvent += bossNavMeshSurface.BuildNavMesh;
-            // transform.GetChild(2).gameObject.SetActive(false);
+
 #if UNITY_EDITOR
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
@@ -250,7 +250,6 @@ namespace MapControl
 
             // transform.GetChild(2).gameObject.SetActive(true);
             _waveManager.OnPlaceExpandButtonEvent += PlaceExpandButtons;
-            _waveManager.enabled = false;
             PlaceStartMap((byte)(difficultyLevel + 1));
             // CombineMesh();
             // CombineObstacleMesh();
@@ -534,18 +533,16 @@ namespace MapControl
         {
             var pos = center + _diagonalDir[Random.Range(0, _diagonalDir.Length)];
             var ranObstacle = Random.Range(0, obstaclePrefabs.Length);
-            var obstacle = Instantiate(obstaclePrefabs[ranObstacle], pos, Quaternion.Euler(0, Random.Range(0, 360), 0),
-                obstacleMesh);
-            obstacle.transform.DOMoveY(1, 1).From(-5).SetEase(Ease.OutBack);
+            Instantiate(obstaclePrefabs[ranObstacle], pos, Quaternion.Euler(0, Random.Range(0, 360), 0),
+                obstacleMesh).TryGetComponent(out ObstacleObject obstacleObject);
+            obstacleObject.FloatObstacle();
         }
 
         private async UniTaskVoid SetMap()
         {
-            var mapPos = _newMapObject.transform;
             _waveManager.WaveInit(_wayPointsHashSet.ToArray()).Forget();
 
-            await _newMapObject.transform.DOMoveY(0, 1).From(new Vector3(mapPos.position.x, -3, mapPos.position.z))
-                .SetEase(Ease.OutBack);
+            await _newMapObject.FloatMap();
 
             // CombineMesh();
             // CombineObstacleMesh();
@@ -557,8 +554,10 @@ namespace MapControl
         //Call When Wave is over
         private void PlaceExpandButtons()
         {
-            foreach (var pos in _expandBtnPosHashSet)
+            using var enumerator = _expandBtnPosHashSet.GetEnumerator();
+            while (enumerator.MoveNext())
             {
+                var pos = enumerator.Current;
                 _expandButtons.Add(PoolObjectManager.Get<ExpandMapButton>(PoolObjectKey.ExpandButton, pos));
             }
 

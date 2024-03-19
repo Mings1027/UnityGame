@@ -8,7 +8,7 @@ using Random = UnityEngine.Random;
 
 namespace ManagerControl
 {
-    public class InputManager : MonoBehaviour, IAddressableObject
+    public class InputManager : MonoBehaviour, IMainGameObject
     {
         private Camera _cam;
         private Tween _meshScaleTween;

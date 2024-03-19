@@ -5,6 +5,7 @@ using System.Threading;
 using BackendControl;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
+using DataControl;
 using DataControl.TowerDataControl;
 using DG.Tweening;
 using GameControl;
@@ -26,7 +27,7 @@ using Sequence = DG.Tweening.Sequence;
 
 namespace ManagerControl
 {
-    public class UIManager : MonoSingleton<UIManager>, IAddressableObject
+    public class UIManager : MonoSingleton<UIManager>, IMainGameObject
     {
         [Serializable]
         public class TowerDataPrefab
@@ -37,6 +38,7 @@ namespace ManagerControl
 
 #region Private Variable
 
+        private DataManager _dataManager;
         private TowerManager _towerManager;
         private TowerCardController _towerCardController;
 
@@ -93,18 +95,12 @@ namespace ManagerControl
 #region Property
 
         public static Dictionary<TowerType, TowerData> towerDataDic { get; private set; }
-        public static Dictionary<TowerType, string> towerNameDic { get; private set; }
-        public static Dictionary<TowerType, string> towerInfoDic { get; private set; }
+
         public static bool enableMoveUnitController { get; set; }
 
 #endregion
 
 #region Unity Event
-
-        private void OnEnable()
-        {
-            LocalizationSettings.SelectedLocaleChanged += ChangeLocaleTowerDictionary;
-        }
 
         private void OnDisable()
         {
@@ -114,7 +110,6 @@ namespace ManagerControl
             _towerHealTween?.Kill();
             _cts?.Cancel();
             _cts?.Dispose();
-            LocalizationSettings.SelectedLocaleChanged -= ChangeLocaleTowerDictionary;
         }
 
 #endregion
@@ -126,7 +121,6 @@ namespace ManagerControl
             UIManagerInit();
             TowerButtonInit();
             TowerInit();
-            LocaleDictionaryInit();
             TweenInit();
 
             Input.multiTouchEnabled = false;
@@ -147,6 +141,7 @@ namespace ManagerControl
             FindAnyObjectByType<GameHUD>().Init();
             _towerInfoUI = FindAnyObjectByType<TowerInfoUI>();
             _towerInfoUI.Init();
+            _dataManager = FindAnyObjectByType<DataManager>();
             _towerManager = FindAnyObjectByType<TowerManager>();
             _towerDescriptionCard = FindAnyObjectByType<TowerDescriptionCard>();
             _moveUnitController = FindAnyObjectByType<MoveUnitController>();
@@ -223,22 +218,6 @@ namespace ManagerControl
             }
         }
 
-        private void LocaleDictionaryInit()
-        {
-            towerNameDic = new Dictionary<TowerType, string>();
-            towerInfoDic = new Dictionary<TowerType, string>();
-            var towerTypes = Enum.GetValues(typeof(TowerType));
-
-            foreach (TowerType towerType in towerTypes)
-            {
-                if (towerType == TowerType.None) continue;
-                towerNameDic.Add(towerType,
-                    LocaleManager.GetLocalizedString(LocaleManager.TowerCardTable, towerType.ToString()));
-                towerInfoDic.Add(towerType,
-                    LocaleManager.GetLocalizedString(LocaleManager.TowerDescriptionTable, towerType.ToString()));
-            }
-        }
-
         private void TweenInit()
         {
             var needMoreGoldPanelRect = needMoreGoldGroup.GetComponent<RectTransform>();
@@ -249,24 +228,6 @@ namespace ManagerControl
                 .Join(needMoreGoldGroup.DOFade(0, 0.25f).From(1));
             needMoreGoldGroup.blocksRaycasts = false;
             needMoreGoldGroup.alpha = 0;
-        }
-
-        private void ChangeLocaleTowerDictionary(Locale locale)
-        {
-            foreach (var towerType in towerNameDic.Keys.ToList())
-            {
-                towerNameDic[towerType] =
-                    LocaleManager.GetLocalizedString(LocaleManager.TowerCardTable, towerType.ToString());
-            }
-
-            foreach (var towerType in towerInfoDic.Keys.ToList())
-            {
-                towerInfoDic[towerType] =
-                    LocaleManager.GetLocalizedString(LocaleManager.TowerDescriptionTable, towerType.ToString());
-            }
-
-            if (_towerInfoUI != null) _towerInfoUI.LocaleTowerName();
-            if (_towerDescriptionCard != null) _towerDescriptionCard.LocaleCardInfo();
         }
 
         private void ResetSprite()
@@ -341,7 +302,7 @@ namespace ManagerControl
             towerTransform.GetChild(0).position = towerTransform.position + new Vector3(0, 2, 0);
             towerTransform.GetChild(0).forward = towerForward;
             DOTween.Sequence()
-                .Join(towerObject.transform.GetChild(0).DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack))
+                .Append(towerObject.transform.GetChild(0).DOScale(1, 0.25f).From(0).SetEase(Ease.OutBack))
                 .Append(towerObject.transform.GetChild(0).DOMoveY(placePos.y, 0.5f).SetEase(Ease.InExpo)
                     .OnComplete(() =>
                     {
@@ -436,7 +397,7 @@ namespace ManagerControl
             _towerRangeIndicator.SetIndicator(position, attackTower.towerRange);
             _sellTowerGold = GetTowerSellGold(towerType);
             _towerInfoUI.SetTowerInfo(attackTower, towerData, towerLevel,
-                GetUpgradeGold(in towerType), _sellTowerGold, towerNameDic[towerType]);
+                GetUpgradeGold(in towerType), _sellTowerGold, _dataManager.towerInfoTable[towerType].towerName);
         }
 
         private void ClickTower(Tower clickedTower)
@@ -485,7 +446,7 @@ namespace ManagerControl
             var towerType = attackTower.towerType;
             var curTowerData = towerDataDic[towerType];
             _towerInfoUI.SetTowerInfo(attackTower, curTowerData, towerLevel,
-                GetUpgradeGold(in towerType), _sellTowerGold, towerNameDic[towerType]);
+                GetUpgradeGold(in towerType), _sellTowerGold, _dataManager.towerInfoTable[towerType].towerName);
         }
 
         private void UpdateSupportTowerInfo()
@@ -494,7 +455,8 @@ namespace ManagerControl
             maxLevelImage.SetActive(false);
             moveUnitButton.SetActive(false);
             var supportTower = (SupportTower)_curSelectedTower;
-            _towerInfoUI.SetSupportTowerInfo(supportTower, _sellTowerGold, towerNameDic[supportTower.towerType]);
+            _towerInfoUI.SetSupportTowerInfo(supportTower, _sellTowerGold,
+                _dataManager.towerInfoTable[supportTower.towerType].towerName);
         }
 
         private ushort GetBuildGold(in TowerType towerType)

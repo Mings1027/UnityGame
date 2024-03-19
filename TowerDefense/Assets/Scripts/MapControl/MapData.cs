@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using UnityEngine;
 
 namespace MapControl
@@ -14,6 +16,8 @@ namespace MapControl
             Right = 1 << 2
         }
 
+        private Rigidbody _rigid;
+
         [SerializeField] private bool isPortalMap;
         [SerializeField] private DirectionFlag wayDirectionFlag;
 
@@ -23,6 +27,7 @@ namespace MapControl
         private void Awake()
         {
             wayPointList = new List<Vector3>();
+            _rigid = GetComponent<Rigidbody>();
         }
 
         public void SetWayPoint(int halfMapSize)
@@ -80,6 +85,19 @@ namespace MapControl
                 placementTile[i] *= 4;
                 placementTile[i] += t.position + new Vector3(0, 1, 0);
             }
+        }
+
+        public void InitPosition()
+        {
+            var position = _rigid.position;
+            position = new Vector3(position.x, -3, position.z);
+            _rigid.position = position;
+        }
+
+        public async UniTask FloatMap()
+        {
+            var curPosY = transform.GetChild(0).position.y;
+            await transform.GetChild(0).DOMoveY(curPosY, 1).From(-3).SetEase(Ease.OutBack);
         }
     }
 }

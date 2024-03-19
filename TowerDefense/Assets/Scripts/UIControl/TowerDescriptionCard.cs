@@ -1,17 +1,18 @@
 using System.Globalization;
 using CustomEnumControl;
+using DataControl;
 using DataControl.TowerDataControl;
 using DG.Tweening;
 using ManagerControl;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace UIControl
 {
     public class TowerDescriptionCard : MonoBehaviour
     {
+        private DataManager _dataManager;
         private Vector3 _initPos;
         private TowerType _towerType;
         private Sequence _openCardSequence;
@@ -33,6 +34,7 @@ namespace UIControl
 
         private void Awake()
         {
+            _dataManager = FindAnyObjectByType<DataManager>();
             _canvasGroup = GetComponent<CanvasGroup>();
             _canvasGroup.blocksRaycasts = false;
             transform.GetChild(0).GetComponent<Button>().onClick.AddListener(CloseCard);
@@ -57,8 +59,8 @@ namespace UIControl
 
             _towerType = towerType;
 
-            towerNameText.text = UIManager.towerNameDic[towerType];
-            towerDescriptionText.text = UIManager.towerInfoDic[towerType];
+            towerNameText.text = _dataManager.towerInfoTable[towerType].towerName;
+            towerDescriptionText.text = _dataManager.towerInfoTable[towerType].towerDescription;
             var towerDataDic = UIManager.towerDataDic;
             healthObj.SetActive(towerDataDic[towerType].isUnitTower);
             coolTimeObj.SetActive(!towerDataDic[towerType].isUnitTower);
@@ -92,13 +94,6 @@ namespace UIControl
             _towerType = TowerType.None;
 
             _openCardSequence.PlayBackwards();
-        }
-
-        public void LocaleCardInfo()
-        {
-            if (_towerType == TowerType.None) return;
-            towerNameText.text = UIManager.towerNameDic[_towerType];
-            towerDescriptionText.text = UIManager.towerInfoDic[_towerType];
         }
     }
 }

@@ -44,18 +44,9 @@ namespace ManagerControl
             await SpawnObject();
             for (int i = 0; i < _gameObjects.Count; i++)
             {
-                _gameObjects[i].GetComponent<IAddressableObject>().Init();
+                _gameObjects[i].GetComponent<IMainGameObject>().Init();
+                Debug.Log(_gameObjects[i]);
             }
-
-            if (BackendGameData.isRestart)
-            {
-                BackendGameData.isRestart = false;
-                UIManager.MapSelectButton(BackendGameData.difficultyLevel);
-                Destroy(FindAnyObjectByType<MapSelectPanel>().gameObject);
-            }
-
-            await UniTask.Delay(5000);
-            Destroy(GameObject.Find("Plane"));
         }
 
         private void Release()

@@ -18,11 +18,6 @@ namespace Utilities
             verticalLayoutGroup.childForceExpandWidth = true;
             ratios = null;
             ratios = new float[transform.childCount];
-            // var ratio = ratios.Length / 10f;
-            // for (var i = 0; i < ratios.Length; i++)
-            // {
-            //     ratios[i] = ratio;
-            // }
         }
 
         private void Start()
