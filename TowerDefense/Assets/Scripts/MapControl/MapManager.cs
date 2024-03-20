@@ -1,17 +1,13 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
-using DG.Tweening;
 using InterfaceControl;
 using ManagerControl;
 using PoolObjectControl;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 namespace MapControl
@@ -75,7 +71,6 @@ namespace MapControl
         [SerializeField] private Transform obstacleMesh;
 
 #if UNITY_EDITOR
-        private CancellationTokenSource _cts;
         private Queue<string> _customMapQueue;
 
         [Header("==============For Test==============")]
@@ -105,11 +100,6 @@ namespace MapControl
             }
         }
 
-        private void OnDestroy()
-        {
-            _cts?.Cancel();
-            _cts?.Dispose();
-        }
 #endif
 
 #region Init
@@ -120,11 +110,6 @@ namespace MapControl
             MapDataInit();
 
             _waveManager.OnBossWaveEvent += bossNavMeshSurface.BuildNavMesh;
-
-#if UNITY_EDITOR
-            _cts?.Dispose();
-            _cts = new CancellationTokenSource();
-#endif
         }
 
         private void ComponentInit()
@@ -664,7 +649,7 @@ namespace MapControl
         {
             while (maxMapCount > _map.Count)
             {
-                await UniTask.Yield();
+                await UniTask.Yield(cancellationToken: this.GetCancellationTokenOnDestroy());
                 var expandPosArray = _expandBtnPosHashSet.ToArray();
                 ExpandMap(expandPosArray[Random.Range(0, expandPosArray.Length)]);
             }

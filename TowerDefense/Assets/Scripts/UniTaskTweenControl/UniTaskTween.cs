@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
@@ -24,7 +25,7 @@ namespace UniTaskTweenControl
         public static void OrthoSizeTween(this Camera target, float startValue, float endValue, float duration) =>
             UniTaskDoOrthoSize(target, startValue, endValue, duration).Forget();
 
-        #region Private Method
+#region Private Method
 
         private static async UniTaskVoid UniTaskDoMove(this Transform target, Vector3 endValue, float duration)
         {
@@ -35,7 +36,7 @@ namespace UniTaskTweenControl
             {
                 target.position = Vector3.Lerp(startValue, endValue, elapsedTime * inverseDuration);
                 elapsedTime += Time.deltaTime;
-                await UniTask.Yield();
+                await UniTask.Yield(cancellationToken: new CancellationToken());
             }
         }
 
@@ -48,7 +49,7 @@ namespace UniTaskTweenControl
             {
                 target.position = Vector3.Lerp(startValue, endValue, elapsedTime * inverseDuration);
                 elapsedTime += Time.deltaTime;
-                await UniTask.Yield();
+                await UniTask.Yield(cancellationToken: new CancellationToken());
             }
         }
 
@@ -61,7 +62,7 @@ namespace UniTaskTweenControl
             {
                 target.localScale = Vector3.Lerp(startValue, endValue, elapsedTime * inverseDuration);
                 elapsedTime += Time.deltaTime;
-                await UniTask.Yield();
+                await UniTask.Yield(cancellationToken: new CancellationToken());
             }
         }
 
@@ -75,7 +76,7 @@ namespace UniTaskTweenControl
             {
                 target.localScale = Vector3.Lerp(startValue, endValue, elapsedTime * inverseDuration);
                 elapsedTime += Time.deltaTime;
-                await UniTask.Yield();
+                await UniTask.Yield(cancellationToken: new CancellationToken());
             }
 
             callback?.Invoke();
@@ -90,7 +91,7 @@ namespace UniTaskTweenControl
             {
                 target.orthographicSize = Mathf.Lerp(startValue, endValue, elapsedTime * inverseDuration);
                 elapsedTime += Time.deltaTime;
-                await UniTask.Yield();
+                await UniTask.Yield(cancellationToken: new CancellationToken());
             }
         }
 
@@ -103,10 +104,10 @@ namespace UniTaskTweenControl
             {
                 target.orthographicSize = Mathf.Lerp(startValue, endValue, elapsedTime * inverseDuration);
                 elapsedTime += Time.deltaTime;
-                await UniTask.Yield();
+                await UniTask.Yield(cancellationToken: new CancellationToken());
             }
         }
 
-        #endregion
+#endregion
     }
 }

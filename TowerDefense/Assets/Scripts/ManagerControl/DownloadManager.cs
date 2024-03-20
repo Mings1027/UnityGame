@@ -162,7 +162,7 @@ namespace ManagerControl
             while (!handle.IsDone)
             {
                 _patchMap[label] = handle.GetDownloadStatus().DownloadedBytes;
-                await UniTask.Yield();
+                await UniTask.Yield(cancellationToken: this.GetCancellationTokenOnDestroy());
             }
 
             _patchMap[label] = handle.GetDownloadStatus().TotalBytes;
@@ -187,7 +187,7 @@ namespace ManagerControl
                 }
 
                 total = 0f;
-                await UniTask.Yield();
+                await UniTask.Yield(cancellationToken:this.GetCancellationTokenOnDestroy());
             }
         }
 

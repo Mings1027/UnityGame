@@ -63,7 +63,7 @@ namespace Utilities
                 Setting(data.name, data.width, data.height);
                 _recorderController.PrepareRecording();
                 _recorderController.StartRecording();
-                await UniTask.Delay(100);
+                await UniTask.Delay(100, cancellationToken: this.GetCancellationTokenOnDestroy());
             }
         }
     }

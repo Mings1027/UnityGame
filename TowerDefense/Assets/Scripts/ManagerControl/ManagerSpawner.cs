@@ -1,31 +1,54 @@
+using System.Collections.Generic;
 using BackendControl;
 using Cysharp.Threading.Tasks;
 using InterfaceControl;
 using UIControl;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 namespace ManagerControl
 {
     public class ManagerSpawner : MonoBehaviour
     {
-        [SerializeField] private GameObject[] managerObjs;
+        private List<GameObject> _managerObjs;
+
+        [SerializeField] private AssetReferenceGameObject[] managerObjs;
 
         private void Start()
         {
+            _managerObjs = new List<GameObject>();
             SpawnObject().Forget();
+        }
+
+        private void OnDestroy()
+        {
+            for (var i = 0; i < managerObjs.Length; i++)
+            {
+                if (_managerObjs.Count <= 0) return;
+                var index = _managerObjs.Count - 1;
+                if (_managerObjs[index] == null) continue;
+                Addressables.ReleaseInstance(_managerObjs[index]);
+                _managerObjs.RemoveAt(index);
+            }
+        }
+
+        private async UniTask InstantiateAsync()
+        {
+            for (var i = 0; i < managerObjs.Length; i++)
+            {
+                var handle = managerObjs[i].InstantiateAsync();
+                await handle;
+                handle.Completed += obj => _managerObjs.Add(obj.Result);
+            }
         }
 
         private async UniTaskVoid SpawnObject()
         {
-            var objs = new GameObject[managerObjs.Length];
+            await InstantiateAsync();
+            await UniTask.Yield();
             for (var i = 0; i < managerObjs.Length; i++)
             {
-                objs[i] = Instantiate(managerObjs[i]);
-            }
-
-            for (var i = 0; i < objs.Length; i++)
-            {
-                if (objs[i].TryGetComponent(out IMainGameObject addressableObject))
+                if (_managerObjs[i].TryGetComponent(out IMainGameObject addressableObject))
                 {
                     addressableObject.Init();
                 }
@@ -44,7 +67,7 @@ namespace ManagerControl
             }
 
             FadeController.FadeInScene();
-            
+
             await UniTask.Delay(5000);
             Destroy(GameObject.Find("Plane"));
         }

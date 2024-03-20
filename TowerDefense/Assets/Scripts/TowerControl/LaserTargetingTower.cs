@@ -3,6 +3,7 @@ using DataControl;
 using DataControl.TowerDataControl;
 using InterfaceControl;
 using ManagerControl;
+using MonsterControl;
 using StatusControl;
 using UIControl;
 using UnityEngine;
@@ -55,7 +56,7 @@ namespace TowerControl
 
             for (var i = 0; i < size; i++)
             {
-                if (targetColliders[i].CompareTag("Flying Monster"))
+                if (targetColliders[i].TryGetComponent(out FlyingMonster _))
                 {
                     _isFlyingMonster = true;
                     target = targetColliders[i];

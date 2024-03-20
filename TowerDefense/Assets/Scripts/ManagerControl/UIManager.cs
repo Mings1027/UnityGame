@@ -128,7 +128,7 @@ namespace ManagerControl
             Time.timeScale = 1;
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
             SoundManager.PlayBGM(SoundEnum.WaveEnd);
-            SoundManager.FadeInVolume(SoundManager.BGMKey).Forget();
+            SoundManager.FadeInVolume().Forget();
         }
 
         private void UIManagerInit()

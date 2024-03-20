@@ -94,7 +94,6 @@ namespace ManagerControl
             _pauseController = FindAnyObjectByType<PauseController>();
 
             _monsterList = new List<MonsterUnit>();
-            // enabled = false;
         }
 
 #endregion
@@ -110,13 +109,12 @@ namespace ManagerControl
             _isLastWave = _themeIndex == monstersData.Length - 1 && _isBossWave;
 
             SoundManager.PlayBGM(_isBossWave ? SoundEnum.BossTheme : SoundEnum.WaveStart);
-            await UniTask.Delay(500);
+            await UniTask.Delay(500, cancellationToken: _cts.Token);
             _wayPoints = wayPoints;
         }
 
         public void StartWave()
         {
-            // enabled = true;
             _towerManager.StartTargeting();
             GameHUD.SetWaveText(_curWave.ToString());
             SpawnEnemy(_wayPoints).Forget();
@@ -133,7 +131,6 @@ namespace ManagerControl
 
         private void StopWave()
         {
-            // enabled = false;
             _isStartWave = false;
             _cts?.Cancel();
             _cts?.Dispose();
@@ -145,7 +142,7 @@ namespace ManagerControl
         {
             while (!_cts.IsCancellationRequested)
             {
-                await UniTask.Delay(500);
+                await UniTask.Yield(cancellationToken: _cts.Token);
                 var leftEnemyCount = _monsterList.Count;
 
                 for (var i = leftEnemyCount - 1; i >= 0; i--)
@@ -159,7 +156,7 @@ namespace ManagerControl
         {
             while (!_cts.IsCancellationRequested)
             {
-                await UniTask.Yield();
+                await UniTask.Delay(500, cancellationToken: _cts.Token);
 
                 var enemyCount = _monsterList.Count;
 
@@ -359,7 +356,7 @@ namespace ManagerControl
                     PoolObjectManager.Get(PoolObjectKey.NuclearBomb, pos);
                     SoundManager.Play3DSound(explosionAudio, pos);
                     damageable.Damage(int.MaxValue);
-                    await UniTask.Delay(100);
+                    await UniTask.Delay(100, cancellationToken: _cts.Token);
                 }
             }
         }

@@ -55,8 +55,14 @@ namespace UIControl
         private void OnDisable()
         {
             _hudSlideTween?.Kill();
-            _cts?.Cancel();
-            _cts?.Dispose();
+            _cts.Cancel();
+        }
+
+        protected override void OnDestroy()
+        {
+            base.OnDestroy();
+            _cts.Cancel();
+            _cts.Dispose();
         }
 
 #endregion

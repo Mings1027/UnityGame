@@ -1,4 +1,7 @@
+using System;
 using System.Collections.Generic;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using InterfaceControl;
 using TowerControl;
 using UIControl;
@@ -8,18 +11,16 @@ namespace ManagerControl
 {
     public class TowerManager : MonoBehaviour, IMainGameObject
     {
+        private CancellationTokenSource _cts;
         private List<AttackTower> _towers;
 
 #region Unity Event
 
-        private void Update()
+        private void OnDisable()
         {
-            var towerCount = _towers.Count;
-
-            for (var i = 0; i < towerCount; i++)
-            {
-                _towers[i].TowerUpdate();
-            }
+            if (_cts == null || _cts.IsCancellationRequested) return;
+            _cts?.Cancel();
+            _cts?.Dispose();
         }
 
 #endregion
@@ -27,20 +28,22 @@ namespace ManagerControl
         public void Init()
         {
             _towers = new List<AttackTower>(50);
-            enabled = false;
         }
 
 #region TowerControl
 
         public void StartTargeting()
         {
-            enabled = true;
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
             GameHUD.towerMana.StartManaRegen();
+            TowerUpdate().Forget();
         }
 
         public void StopTargeting()
         {
-            enabled = false;
+            _cts?.Cancel();
+            _cts?.Dispose();
             TargetInit();
             GameHUD.towerMana.StopManaRegen();
         }
@@ -52,6 +55,19 @@ namespace ManagerControl
             for (var i = 0; i < towerCount; i++)
             {
                 _towers[i].TowerTargetInit();
+            }
+        }
+
+        private async UniTaskVoid TowerUpdate()
+        {
+            while (!_cts.IsCancellationRequested)
+            {
+                await UniTask.Yield(cancellationToken: _cts.Token);
+                var towerCount = _towers.Count;
+                for (int i = 0; i < towerCount; i++)
+                {
+                    _towers[i].TowerUpdate();
+                }
             }
         }
 

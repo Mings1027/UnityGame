@@ -17,6 +17,7 @@ namespace UnitControl
     [DisallowMultipleComponent]
     public sealed class TowerUnit : MonoBehaviour
     {
+        private Rigidbody _rigid;
         private Transform _childMeshTransform;
         private Sequence _deadSequence;
         private SummonTower _parentTower;
@@ -53,6 +54,7 @@ namespace UnitControl
             _outlinable = GetComponent<Outlinable>();
             _outlinable.enabled = false;
             _targetLayer = LayerMask.GetMask("Monster");
+            _rigid = GetComponent<Rigidbody>();
             _childMeshTransform = transform.GetChild(0);
             healthBarTransform = transform.GetChild(1);
             _anim = GetComponentInChildren<Animator>();
@@ -138,10 +140,9 @@ namespace UnitControl
 
             if (_target && _target.enabled)
             {
-                 var dir = (_target.transform.position - transform.position).normalized;
+                var dir = (_target.transform.position - transform.position).normalized;
                 var targetRot = Quaternion.LookRotation(dir);
-                var eulerAngleDiff = targetRot.eulerAngles - transform.rotation.eulerAngles;
-                transform.Rotate(eulerAngleDiff);
+                _rigid.MoveRotation(Quaternion.Euler(0, targetRot.eulerAngles.y, 0));
             }
         }
 

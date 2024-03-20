@@ -19,6 +19,7 @@ namespace MonsterControl
         private Transform _childMeshTransform;
         private Sequence _deadSequence;
         private Collider _thisCollider;
+        private Rigidbody _rigid;
 
         protected Animator anim;
         protected Cooldown attackCooldown;
@@ -47,10 +48,11 @@ namespace MonsterControl
             healthBarTransform = transform.GetChild(1);
             targetLayer = LayerMask.GetMask("Unit");
             targetCollider = new Collider[monsterData.maxDetectedCount];
-            
+
             anim = GetComponentInChildren<Animator>();
             navMeshAgent = GetComponent<NavMeshAgent>();
             _thisCollider = GetComponent<Collider>();
+            _rigid = GetComponent<Rigidbody>();
             health = GetComponent<Health>();
 
             _deadSequence = DOTween.Sequence().SetAutoKill(false).Pause()
@@ -133,8 +135,7 @@ namespace MonsterControl
             {
                 var dir = (target.transform.position - transform.position).normalized;
                 var targetRot = Quaternion.LookRotation(dir);
-                var eulerAngleDiff = targetRot.eulerAngles - transform.rotation.eulerAngles;
-                transform.Rotate(eulerAngleDiff);
+                _rigid.MoveRotation(Quaternion.Euler(0, targetRot.eulerAngles.y, 0));
             }
 
             anim.SetBool(_isWalk, navMeshAgent.velocity != Vector3.zero);
@@ -183,8 +184,8 @@ namespace MonsterControl
                 }
             }
 
-            unitState = UnitState.Chase;
             patrolCooldown.StartCooldown();
+            unitState = UnitState.Chase;
         }
 
         protected virtual void Chase()
@@ -255,5 +256,7 @@ namespace MonsterControl
             anim.speed = animSpeed;
             attackCooldown.cooldownTime = atkDelay;
         }
+
+        public float GetNavMeshSpeed() => navMeshAgent.speed;
     }
 }

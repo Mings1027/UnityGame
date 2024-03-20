@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using InterfaceControl;
@@ -23,9 +24,9 @@ namespace StatusControl
         protected override void OnDisable()
         {
             base.OnDisable();
-            if (_cts == null) return;
-            if (_cts.IsCancellationRequested) return;
-            StopManaRegen();
+            if (_cts == null || _cts.IsCancellationRequested) return;
+            _cts?.Cancel();
+            _cts?.Dispose();
         }
 
         public override void Init(float amount)

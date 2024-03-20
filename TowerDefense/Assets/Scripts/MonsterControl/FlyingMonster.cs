@@ -19,7 +19,7 @@ namespace MonsterControl
             var linearValue = 0f;
             while (navMeshAgent.baseOffset < baseOffset)
             {
-                await UniTask.Yield();
+                await UniTask.Yield(cancellationToken: this.GetCancellationTokenOnDestroy());
                 linearValue += Time.deltaTime;
                 var offset = Mathf.Lerp(0, baseOffset, linearValue);
                 navMeshAgent.baseOffset = offset;

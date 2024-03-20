@@ -68,9 +68,12 @@ namespace BackendControl
         public void UpdateSurvivedWave(byte wave)
         {
             var oldWave = int.Parse(userData.survivedWaveList[_difficultyLevel]);
-            userData.survivedWaveList[_difficultyLevel] = wave.ToString();
+            if (oldWave < wave)
+            {
+                userData.survivedWaveList[_difficultyLevel] = wave.ToString();
+            }
+
             var newWave = int.Parse(userData.survivedWaveList[_difficultyLevel]);
-            CustomLog.Log($"oldwave : {oldWave}  newwave : {newWave}");
             CalculateTotalScore(wave);
             CalculateXp(oldWave, newWave);
         }
@@ -95,12 +98,10 @@ namespace BackendControl
             {
                 var extraXp = 3 * (newWave - oldWave) * (newWave + oldWave + 1) / 2;
                 userData.xp = prevXp + earnedXp + extraXp;
-                CustomLog.Log($"extraxp : {extraXp}  prevxp : {prevXp}  earnedxp : {earnedXp}");
             }
             else
             {
                 userData.xp = prevXp + earnedXp;
-                CustomLog.Log($"prevxp : {prevXp}  earnedxp : {earnedXp}");
             }
         }
 

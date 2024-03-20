@@ -66,7 +66,6 @@ namespace UIControl
         {
             Init();
             ButtonInit();
-            // _panelSequence.Restart();
         }
     }
 }

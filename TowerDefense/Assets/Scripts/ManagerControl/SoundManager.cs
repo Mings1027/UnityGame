@@ -28,8 +28,9 @@ namespace ManagerControl
         private CancellationTokenSource _cts;
         private Camera _cam;
 
-        public const string BGMKey = "BGM";
-        public const string SfxKey = "SFX";
+        private const string BGM = "BGM";
+        private const string Sfx = "SFX";
+        private const string Master = "Master";
 
         private const float MinValue = -80f;
         private const float MaxValue = 0f;
@@ -111,15 +112,15 @@ namespace ManagerControl
         public static void SetBGMVolume(float value)
         {
             var mappedValue = Mathf.Lerp(MinValue, MaxValue, value);
-            _inst.audioMixer.SetFloat(BGMKey, mappedValue);
-            PlayerPrefs.SetInt(BGMKey, (int)mappedValue);
+            _inst.audioMixer.SetFloat(BGM, mappedValue);
+            PlayerPrefs.SetInt(BGM, (int)mappedValue);
         }
 
         public static void SetSfxVolume(float value)
         {
             var mappedValue = Mathf.Lerp(MinValue, MaxValue, value);
-            _inst.audioMixer.SetFloat(SfxKey, mappedValue);
-            PlayerPrefs.SetInt(SfxKey, (int)mappedValue);
+            _inst.audioMixer.SetFloat(Sfx, mappedValue);
+            PlayerPrefs.SetInt(Sfx, (int)mappedValue);
         }
 
         public void SetCamera(Camera cam)
@@ -129,11 +130,11 @@ namespace ManagerControl
 
         public static (float, float) GetVolume()
         {
-            _inst._bgmVolume = PlayerPrefs.GetInt(BGMKey);
-            _inst._sfxVolume = PlayerPrefs.GetInt(SfxKey);
+            _inst._bgmVolume = PlayerPrefs.GetInt(BGM);
+            _inst._sfxVolume = PlayerPrefs.GetInt(Sfx);
 
-            _inst.audioMixer.SetFloat(BGMKey, _inst._bgmVolume);
-            _inst.audioMixer.SetFloat(SfxKey, _inst._sfxVolume);
+            _inst.audioMixer.SetFloat(BGM, _inst._bgmVolume);
+            _inst.audioMixer.SetFloat(Sfx, _inst._sfxVolume);
 
             var convertBgmValue = Mathf.InverseLerp(MinValue, MaxValue, _inst._bgmVolume);
             var convertSfxValue = Mathf.InverseLerp(MinValue, MaxValue, _inst._sfxVolume);
@@ -141,15 +142,9 @@ namespace ManagerControl
             return (convertBgmValue, convertSfxValue);
         }
 
-        public static async UniTaskVoid FadeOutVolume(string audioType)
+        public static async UniTaskVoid FadeOutVolume()
         {
-            var volume = audioType switch
-            {
-                BGMKey => _inst._bgmVolume,
-                SfxKey => _inst._sfxVolume,
-                _ => 0
-            };
-
+            var volume = 0;
             _inst._cts?.Cancel();
             _inst._cts?.Dispose();
             _inst._cts = new CancellationTokenSource();
@@ -157,28 +152,22 @@ namespace ManagerControl
             {
                 volume--;
                 await UniTask.Yield(cancellationToken: _inst._cts.Token);
-                _inst.audioMixer.SetFloat(audioType, volume);
+                _inst.audioMixer.SetFloat(Master, volume);
             }
         }
 
-        public static async UniTaskVoid FadeInVolume(string audioType)
+        public static async UniTaskVoid FadeInVolume()
         {
             var lowVolume = -80;
-            var volume = audioType switch
-            {
-                BGMKey => _inst._bgmVolume,
-                SfxKey => _inst._sfxVolume,
-                _ => 0
-            };
 
             _inst._cts?.Cancel();
             _inst._cts?.Dispose();
             _inst._cts = new CancellationTokenSource();
-            while (lowVolume < volume && !_inst._cts.IsCancellationRequested)
+            while (lowVolume < 0 && !_inst._cts.IsCancellationRequested)
             {
                 lowVolume++;
                 await UniTask.Yield(cancellationToken: _inst._cts.Token);
-                _inst.audioMixer.SetFloat(audioType, lowVolume);
+                _inst.audioMixer.SetFloat(Master, lowVolume);
             }
         }
     }

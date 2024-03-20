@@ -9,13 +9,11 @@ namespace ProjectileControl
 {
     public sealed class WizardProjectile : Projectile
     {
-        private byte _decreaseSpeed;
         private byte _slowCoolTime;
 
         public void DeBuffInit(sbyte vfxIndex)
         {
-            _decreaseSpeed = (byte)Math.Pow(2, vfxIndex + 1); //2 4 8
-            _slowCoolTime = _decreaseSpeed;
+            _slowCoolTime = (byte)((vfxIndex + 1) * 2); //2 4 6
         }
 
         protected override void ProjectilePath(Vector3 endPos)
@@ -31,7 +29,7 @@ namespace ProjectileControl
             mainModule.startColor = towerData.projectileColor[effectIndex];
 
             target.TryGetComponent(out MonsterStatus enemyStatus);
-            enemyStatus.SlowEffect(_decreaseSpeed, _slowCoolTime);
+            enemyStatus.SlowEffect(_slowCoolTime);
 
             damageable.Damage(damage);
         }

@@ -1,3 +1,4 @@
+using System;
 using CustomEnumControl;
 using UnityEngine;
 
@@ -14,5 +15,13 @@ namespace DataControl.MonsterDataControl
         [field: SerializeField] public ushort damage { get; private set; }
         [field: SerializeField] public uint health { get; private set; }
         [field: SerializeField, Range(0, 10)] public byte baseTowerDamage { get; private set; }
+
+        private void OnValidate()
+        {
+            if (attackRange >= sightRange)
+            {
+                sightRange = attackRange;
+            }
+        }
     }
 }

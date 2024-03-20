@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using BackEnd;
 using BackendControl;
@@ -56,8 +57,13 @@ namespace UIControl
 
         private void OnDisable()
         {
-            _cts?.Cancel();
-            _cts?.Dispose();
+            _cts.Cancel();
+        }
+
+        private void OnDestroy()
+        {
+            _cts.Cancel();
+            _cts.Dispose();
         }
 
         private void OnApplicationFocus(bool hasFocus)
@@ -177,7 +183,7 @@ namespace UIControl
             Time.timeScale = 0;
             _pauseCanvasGroup.blocksRaycasts = true;
             _pauseSequence.Restart();
-            SoundManager.FadeOutVolume(SoundManager.BGMKey).Forget();
+            SoundManager.FadeOutVolume().Forget();
         }
 
         private void ExitBattle()
@@ -198,7 +204,7 @@ namespace UIControl
             Input.multiTouchEnabled = true;
             Time.timeScale = _curTimeScale;
             _pauseSequence.OnRewind(() => _pauseCanvasGroup.blocksRaycasts = false).PlayBackwards();
-            SoundManager.FadeInVolume(SoundManager.BGMKey).Forget();
+            SoundManager.FadeInVolume().Forget();
         }
 
         private void SpeedUp()

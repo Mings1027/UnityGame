@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using CustomEnumControl;
 using Cysharp.Threading.Tasks;
 using DataControl.MonsterDataControl;
@@ -58,6 +59,7 @@ namespace PoolObjectControl
 
     public class PoolObjectManager : MonoBehaviour, IMainGameObject
     {
+        private CancellationTokenSource _cancellationTokenSource;
         private static PoolObjectManager _inst;
         private Camera _cam;
         private Dictionary<PoolObjectKey, Stack<GameObject>> _prefabDictionary;
@@ -73,9 +75,17 @@ namespace PoolObjectControl
         [SerializeField] private UIPool[] uiPools;
         [SerializeField] private MonsterPool[] monsterPools;
 
+        private void OnDisable()
+        {
+            _cancellationTokenSource?.Cancel();
+            _cancellationTokenSource?.Dispose();
+        }
+
         public void Init()
         {
             _inst = this;
+            _cancellationTokenSource?.Dispose();
+            _cancellationTokenSource = new CancellationTokenSource();
             _cam = Camera.main;
             _prefabDictionary = new Dictionary<PoolObjectKey, Stack<GameObject>>();
             _poolDictionary = new Dictionary<PoolObjectKey, Pool>();
@@ -261,30 +271,42 @@ namespace PoolObjectControl
 
         public static async UniTaskVoid PoolCleaner()
         {
-            foreach (var poolKey in _inst._prefabDictionary.Keys)
+            using var enumerator = _inst._prefabDictionary.Keys.GetEnumerator();
+            while (enumerator.MoveNext())
             {
-                var outOfRange = _inst._prefabDictionary[poolKey].Count > _inst.poolMaxSize;
+                var poolKey = enumerator.Current;
 
-                while (outOfRange)
+                var pool = _inst._prefabDictionary[poolKey];
+                if (pool.Count > _inst.poolMaxSize)
                 {
-                    Destroy(_inst._prefabDictionary[poolKey].Pop());
-                    outOfRange = _inst._prefabDictionary[poolKey].Count > _inst.poolMaxSize;
-                    await UniTask.Delay(100);
+                    var itemToRemoveCount = pool.Count - _inst.poolMaxSize;
+                    for (var i = 0; i < itemToRemoveCount; i++)
+                    {
+                        Destroy(pool.Pop());
+                        await UniTask.Delay(100, cancellationToken: _inst._cancellationTokenSource.Token);
+                    }
                 }
             }
         }
 
         public static async UniTaskVoid MonsterPoolCleaner(IEnumerable<NormalMonsterData> monsterData)
         {
-            foreach (var t in monsterData)
+            using var enumerator = monsterData.GetEnumerator();
+            while (enumerator.MoveNext())
             {
-                var monsterKey = t.monsterPoolObjectKey;
-                var outOfRange = _inst._monsterPrefabDictionary[monsterKey].Count > 0;
-                while (outOfRange)
+                var t = enumerator.Current;
+                if (t != null)
                 {
-                    Destroy(_inst._monsterPrefabDictionary[monsterKey].Pop());
-                    outOfRange = _inst._monsterPrefabDictionary[monsterKey].Count > 0;
-                    await UniTask.Delay(500);
+                    var pool = _inst._monsterPrefabDictionary[t.monsterPoolObjectKey];
+                    if (pool.Count > _inst.poolMaxSize)
+                    {
+                        var itemToRemoveCount = pool.Count - _inst.poolMaxSize;
+                        for (var i = 0; i < itemToRemoveCount; i++)
+                        {
+                            Destroy(pool.Pop());
+                            await UniTask.Delay(100, cancellationToken: _inst._cancellationTokenSource.Token);
+                        }
+                    }
                 }
             }
         }

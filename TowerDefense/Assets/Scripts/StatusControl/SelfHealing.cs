@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -25,8 +26,13 @@ namespace StatusControl
 
         private void OnDisable()
         {
-            _cts?.Cancel();
-            _cts?.Dispose();
+            _cts.Cancel();
+        }
+
+        private void OnDestroy()
+        {
+            _cts.Cancel();
+            _cts.Dispose();
         }
 
         private async UniTaskVoid Healing()

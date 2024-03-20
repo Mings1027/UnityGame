@@ -114,7 +114,7 @@ namespace UIControl
         private async UniTaskVoid DisappearToggleBtn()
         {
             _isShowTowerBtn = false;
-            await UniTask.Delay(2000);
+            await UniTask.Delay(2000,cancellationToken: this.GetCancellationTokenOnDestroy());
             if (!_isShowTowerBtn)
             {
                 openTowerCardBtnGroup.DOFade(0, 1).OnComplete(() => openTowerCardBtnGroup.blocksRaycasts = false);
