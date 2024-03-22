@@ -15,7 +15,6 @@ namespace UIControl
 {
     public class ItemBagController : MonoBehaviour
     {
-        private DataManager _dataManager;
         private TowerCardController _towerCardController;
         private Tween _disappearItemBagTween;
         private Tween _itemBagTween;
@@ -50,7 +49,6 @@ namespace UIControl
 
         private void Init()
         {
-            _dataManager = FindAnyObjectByType<DataManager>();
             _towerCardController = FindAnyObjectByType<TowerCardController>();
             selectIcon.GetComponent<Button>().onClick.AddListener(UseItem);
             selectIcon.gameObject.SetActive(false);
@@ -122,7 +120,7 @@ namespace UIControl
             if (_isOpenDescription) return;
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
             selectIcon.gameObject.SetActive(false);
-            if (_dataManager.itemInfoTable[_curItemType].itemCount <= 0) return;
+            if (TowerDataManager.ItemInfoTable[_curItemType].itemCount <= 0) return;
             selectIcon.gameObject.SetActive(true);
             selectIcon.rectTransform.anchoredPosition = pos;
         }
@@ -153,8 +151,8 @@ namespace UIControl
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
             _isOpenDescription = true;
             selectIcon.gameObject.SetActive(false);
-            itemNameText.text = _dataManager.itemInfoTable[_curItemType].itemName;
-            itemDescriptionText.text = _dataManager.itemInfoTable[_curItemType].itemDescription;
+            itemNameText.text = TowerDataManager.ItemInfoTable[_curItemType].itemName;
+            itemDescriptionText.text = TowerDataManager.ItemInfoTable[_curItemType].itemDescription;
             _descriptionTween?.Restart();
         }
 
@@ -164,7 +162,7 @@ namespace UIControl
             if (_itemButtonTable[_curItemType].Spawn())
             {
                 _itemButtonTable[_curItemType].DecreaseItemCount();
-                _dataManager.itemInfoTable[_curItemType].itemCount -= 1;
+                TowerDataManager.ItemInfoTable[_curItemType].itemCount -= 1;
             }
 
             selectIcon.gameObject.SetActive(false);
@@ -195,7 +193,7 @@ namespace UIControl
             foreach (ItemType itemType in itemTypes)
             {
                 BackendGameData.userData.itemInventory[itemType.ToString()] =
-                    _dataManager.itemInfoTable[itemType].itemCount;
+                    TowerDataManager.ItemInfoTable[itemType].itemCount;
             }
         }
 

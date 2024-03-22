@@ -47,7 +47,7 @@ namespace CustomEnumControl
     public enum ItemType
     {
         NuclearBomb,
-        MoneyBag,
+        GoldBag,
         TowerHeart
     }
 
@@ -141,10 +141,10 @@ namespace CustomEnumControl
         MonsterHealthBar,
         BossHealthBar,
         ReSpawnBar,
-        FloatingText,
+        GoldText,
         HealText,
         DamageText,
-        MoneyText,
+        ItemGoldText,
         TowerHealText,
     }
 

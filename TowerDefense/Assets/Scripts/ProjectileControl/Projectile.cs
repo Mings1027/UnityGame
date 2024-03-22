@@ -8,11 +8,9 @@ namespace ProjectileControl
     public abstract class Projectile : MonoBehaviour
     {
         private TrailController _trailObj;
-
         private Vector3 _startPos;
         private Vector3 _centerPos;
 
-        protected Rigidbody rigid;
         protected Collider target;
         protected Vector3 curPos;
         protected sbyte effectIndex;
@@ -26,11 +24,6 @@ namespace ProjectileControl
         [SerializeField] private PoolObjectKey trailPoolObjectKey;
         [SerializeField] protected PoolObjectKey hitParticleKey;
 
-        protected virtual void Awake()
-        {
-            rigid = GetComponent<Rigidbody>();
-        }
-
         protected virtual void OnEnable()
         {
             _startPos = transform.position;
@@ -42,22 +35,17 @@ namespace ProjectileControl
             isArrived = false;
         }
 
-        protected virtual void Update()
+        protected virtual void FixedUpdate()
         {
             if (isArrived) return;
-            if (lerpTime < 1.5f)
+            if (lerpTime < 1f)
             {
                 ProjectilePath(target.bounds.center);
             }
-        }
-
-        private void OnTriggerEnter(Collider other)
-        {
-            isArrived = true;
-            lerpTime = 0;
-            Hit(target);
-            _trailObj.DisconnectProjectile();
-            gameObject.SetActive(false);
+            else
+            {
+                DisableObject();
+            }
         }
 
         /*============================================================================================================
@@ -81,6 +69,15 @@ namespace ProjectileControl
 
             _trailObj = PoolObjectManager.Get<TrailController>(trailPoolObjectKey, _startPos);
             _trailObj.SpawnProjectile(transform, towerData.projectileColor[vfxIndex]);
+        }
+
+        protected void DisableObject()
+        {
+            isArrived = true;
+            lerpTime = 0;
+            Hit(target);
+            _trailObj.DisconnectProjectile();
+            gameObject.SetActive(false);
         }
 
         protected abstract void Hit(Collider t);

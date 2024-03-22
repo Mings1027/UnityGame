@@ -2,7 +2,6 @@ using System.Globalization;
 using CustomEnumControl;
 using DataControl.TowerDataControl;
 using DG.Tweening;
-using ManagerControl;
 using TMPro;
 using TowerControl;
 using UnityEngine;
@@ -10,7 +9,7 @@ using UnityEngine.UI;
 
 namespace UIControl
 {
-    public class TowerInfoUI : MonoBehaviour
+    public class TowerInfoCard : MonoBehaviour
     {
         private Image[] _starImages;
         private TowerType _towerType;
@@ -31,6 +30,7 @@ namespace UIControl
 
         [SerializeField] private RectTransform towerInfoCardRect;
 
+        [SerializeField] private RectTransform starParent;
         [SerializeField] private GameObject atkObj;
         [SerializeField] private GameObject healthObj;
         [SerializeField] private GameObject rangeObj;
@@ -66,12 +66,12 @@ namespace UIControl
             _cam = Camera.main;
             _prevTowerLevel = -1;
             _towerType = TowerType.None;
-            _starImages = new Image[towerLevelStar.transform.childCount];
+            _starImages = new Image[starParent.childCount];
             _towerCardGroup = GetComponent<CanvasGroup>();
 
             for (var i = 0; i < _starImages.Length; i++)
             {
-                _starImages[i] = towerLevelStar.transform.GetChild(i).GetChild(2).GetComponent<Image>();
+                _starImages[i] = starParent.GetChild(i).GetChild(2).GetComponent<Image>();
             }
 
             _atkText = atkObj.transform.GetChild(1).GetComponent<TMP_Text>();
@@ -115,9 +115,9 @@ namespace UIControl
             {
                 if (towerData.isUnitTower)
                 {
-                    var unitTower = (SummonTower)tower;
-                    _healthText.text = (unitTower.unitHealth * (level + 1)).ToString();
-                    _respawnText.text = unitTower.unitReSpawnTime.ToString(CultureInfo.InvariantCulture);
+                    var summonTowerData = (SummoningTowerData)towerData;
+                    _healthText.text = (summonTowerData.curUnitHealth * (level + 1)).ToString();
+                    _respawnText.text = summonTowerData.initReSpawnTime.ToString(CultureInfo.InvariantCulture);
                 }
                 else
                 {
@@ -166,7 +166,7 @@ namespace UIControl
             if (_prevTowerLevel == level) return;
             _prevTowerLevel = level;
 
-            for (var i = 0; i < towerLevelStar.transform.childCount; i++)
+            for (var i = 0; i < starParent.childCount; i++)
             {
                 _starImages[i].enabled = i <= level;
             }

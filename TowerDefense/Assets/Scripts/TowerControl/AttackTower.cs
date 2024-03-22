@@ -18,6 +18,8 @@ namespace TowerControl
         public int towerDamage { get; private set; }
         public sbyte towerLevel { get; private set; }
 
+        [SerializeField] protected LayerMask targetLayer;
+        
         protected override void Awake()
         {
             base.Awake();

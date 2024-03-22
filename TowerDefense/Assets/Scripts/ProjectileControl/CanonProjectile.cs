@@ -13,15 +13,12 @@ namespace ProjectileControl
 
         private Collider[] _targetColliders;
 
-        private LayerMask _monsterLayer;
-
+        [SerializeField] private LayerMask monsterLayer;
         [SerializeField] private AudioClip audioClip;
         [SerializeField] private byte atkRange;
 
-        protected override void Awake()
+        private void Awake()
         {
-            base.Awake();
-            _monsterLayer = LayerMask.GetMask("Monster") | LayerMask.GetMask("FlyingMonster");
             _targetColliders = new Collider[5];
         }
 
@@ -31,7 +28,7 @@ namespace ProjectileControl
             _isLockOnTarget = false;
         }
 
-        protected override void Update()
+        protected override void FixedUpdate()
         {
             if (isArrived) return;
             if (lerpTime < 1)
@@ -45,6 +42,10 @@ namespace ProjectileControl
 
                 ProjectilePath(lerpTime < 0.4f ? target.transform.position : _targetEndPos);
             }
+            else
+            {
+                DisableObject();
+            }
         }
 
         [Conditional("UNITY_EDITOR")]
@@ -56,10 +57,9 @@ namespace ProjectileControl
         protected override void ProjectilePath(Vector3 endPos)
         {
             base.ProjectilePath(endPos);
-            var dir = (curPos - rigid.position).normalized;
+            var dir = (curPos - transform.position).normalized;
             if (dir == Vector3.zero) return;
-            rigid.MovePosition(curPos);
-            rigid.MoveRotation(Quaternion.LookRotation(dir));
+            transform.SetPositionAndRotation(curPos, Quaternion.LookRotation(dir));
         }
 
         protected override void Hit(Collider col)
@@ -72,7 +72,7 @@ namespace ProjectileControl
 
             if (_targetEndPos == Vector3.zero) return;
 
-            var size = Physics.OverlapSphereNonAlloc(position, atkRange, _targetColliders, _monsterLayer);
+            var size = Physics.OverlapSphereNonAlloc(position, atkRange, _targetColliders, monsterLayer);
 
             if (size <= 0) return;
             var dividedDamage = (int)(1.0f / size * damage);

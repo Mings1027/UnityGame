@@ -17,7 +17,6 @@ namespace UnitControl
     [DisallowMultipleComponent]
     public sealed class TowerUnit : MonoBehaviour
     {
-        private Rigidbody _rigid;
         private Transform _childMeshTransform;
         private Sequence _deadSequence;
         private SummonTower _parentTower;
@@ -32,7 +31,6 @@ namespace UnitControl
         private LayerMask _targetLayer;
         private UnitState _unitState;
         private Vector3 _originPos;
-
         private Cooldown _atkCooldown;
         private int _damage;
         private bool _startTargeting;
@@ -53,8 +51,7 @@ namespace UnitControl
         {
             _outlinable = GetComponent<Outlinable>();
             _outlinable.enabled = false;
-            _targetLayer = LayerMask.GetMask("Monster");
-            _rigid = GetComponent<Rigidbody>();
+            GetComponent<Rigidbody>();
             _childMeshTransform = transform.GetChild(0);
             healthBarTransform = transform.GetChild(1);
             _anim = GetComponentInChildren<Animator>();
@@ -138,12 +135,10 @@ namespace UnitControl
                     break;
             }
 
-            if (_target && _target.enabled)
-            {
-                var dir = (_target.transform.position - transform.position).normalized;
-                var targetRot = Quaternion.LookRotation(dir);
-                _rigid.MoveRotation(Quaternion.Euler(0, targetRot.eulerAngles.y, 0));
-            }
+            var dir = _navMeshAgent.desiredVelocity;
+            if (dir == Vector3.zero) return;
+            var rot = Quaternion.LookRotation(dir);
+            transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.deltaTime * 10);
         }
 
         private void Patrol()
@@ -244,10 +239,11 @@ namespace UnitControl
 
 #region Public Method
 
-        public void Init(SummonTower summonTower, Vector3 pos)
+        public void Init(SummonTower summonTower, Vector3 pos, LayerMask targetLayer)
         {
-            _originPos = pos;
             _parentTower = summonTower;
+            _originPos = pos;
+            _targetLayer = targetLayer;
             _anim.enabled = true;
             _thisCollider.enabled = true;
             _target = null;

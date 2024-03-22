@@ -12,7 +12,6 @@ namespace UIControl
 {
     public class TowerDescriptionCard : MonoBehaviour
     {
-        private DataManager _dataManager;
         private Vector3 _initPos;
         private TowerType _towerType;
         private Sequence _openCardSequence;
@@ -34,7 +33,6 @@ namespace UIControl
 
         private void Awake()
         {
-            _dataManager = FindAnyObjectByType<DataManager>();
             _canvasGroup = GetComponent<CanvasGroup>();
             _canvasGroup.blocksRaycasts = false;
             transform.GetChild(0).GetComponent<Button>().onClick.AddListener(CloseCard);
@@ -59,8 +57,8 @@ namespace UIControl
 
             _towerType = towerType;
 
-            towerNameText.text = _dataManager.towerInfoTable[towerType].towerName;
-            towerDescriptionText.text = _dataManager.towerInfoTable[towerType].towerDescription;
+            towerNameText.text = TowerDataManager.TowerInfoTable[towerType].towerName;
+            towerDescriptionText.text = TowerDataManager.TowerInfoTable[towerType].towerDescription;
             var towerDataDic = UIManager.towerDataDic;
             healthObj.SetActive(towerDataDic[towerType].isUnitTower);
             coolTimeObj.SetActive(!towerDataDic[towerType].isUnitTower);

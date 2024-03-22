@@ -13,7 +13,6 @@ namespace TowerControl
     {
         private Collider[] _targetColliders;
         private TowerState _towerState;
-        private LayerMask _targetLayer;
 
         protected sbyte effectIndex;
         protected bool isTargeting;
@@ -48,7 +47,6 @@ namespace TowerControl
         protected override void Init()
         {
             base.Init();
-            _targetLayer = LayerMask.GetMask("Monster") | LayerMask.GetMask("FlyingMonster");
             effectIndex = -1;
             _targetColliders = new Collider[targetColliderCount];
             patrolCooldown.cooldownTime = 0.5f;
@@ -81,7 +79,7 @@ namespace TowerControl
         protected virtual void Detect()
         {
             if (patrolCooldown.IsCoolingDown) return;
-            var size = Physics.OverlapSphereNonAlloc(transform.position, towerRange, _targetColliders, _targetLayer);
+            var size = Physics.OverlapSphereNonAlloc(transform.position, towerRange, _targetColliders, targetLayer);
 
             if (size <= 0)
             {

@@ -28,7 +28,7 @@ namespace MapControl
         private void EarnCoin()
         {
             var gold = (ushort)(Random.Range(10, 30) * 10);
-            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, transform.position).SetGoldText(gold);
+            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.GoldText, transform.position).SetGoldText(gold);
             SoundManager.PlayUISound(gold < 100 ? SoundEnum.LowCost :
                 gold < 250 ? SoundEnum.MediumCost : SoundEnum.HighCost);
             GameHUD.IncreaseTowerGold(gold);

@@ -8,7 +8,7 @@ using UnityEngine.AddressableAssets;
 
 namespace ManagerControl
 {
-    public class ManagerSpawner : MonoBehaviour
+    public class MainAddressableManager : MonoBehaviour
     {
         private List<GameObject> _managerObjs;
 

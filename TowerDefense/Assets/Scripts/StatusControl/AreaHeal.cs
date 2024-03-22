@@ -10,8 +10,8 @@ namespace StatusControl
     {
         private CancellationTokenSource _cts;
         private Collider[] _targetColliders;
-        private LayerMask _targetLayer;
 
+        [SerializeField] private LayerMask targetLayer;
         [SerializeField] private byte healTargetCount;
         [SerializeField] private byte healAmount;
         [SerializeField] private byte healRange;
@@ -20,7 +20,6 @@ namespace StatusControl
         private void Awake()
         {
             _targetColliders = new Collider[healTargetCount];
-            _targetLayer = LayerMask.GetMask("Monster") | LayerMask.GetMask("FlyingMonster");
         }
 
         private void OnEnable()
@@ -50,7 +49,7 @@ namespace StatusControl
             {
                 await UniTask.Delay(TimeSpan.FromSeconds(healCooldown), cancellationToken: _cts.Token);
                 var size = Physics.OverlapSphereNonAlloc(transform.position, healRange, _targetColliders,
-                    _targetLayer);
+                    targetLayer);
                 for (var i = 0; i < size; i++)
                 {
                     if (!_targetColliders[i].TryGetComponent(out Health targetHealth)) continue;

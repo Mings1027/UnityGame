@@ -7,7 +7,6 @@ namespace TowerControl
     {
         protected Collider[] targetColliders;
         protected TowerState towerState;
-        protected LayerMask targetLayer;
         protected Collider target;
         protected Transform firePos;
 
@@ -17,7 +16,6 @@ namespace TowerControl
         protected override void Init()
         {
             base.Init();
-            targetLayer = LayerMask.GetMask("Monster") | LayerMask.GetMask("FlyingMonster");
             targetColliders = new Collider[targetColliderCount];
             patrolCooldown.cooldownTime = 0.1f;
         }

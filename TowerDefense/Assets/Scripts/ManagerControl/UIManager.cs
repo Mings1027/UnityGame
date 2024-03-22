@@ -38,7 +38,6 @@ namespace ManagerControl
 
 #region Private Variable
 
-        private DataManager _dataManager;
         private TowerManager _towerManager;
         private TowerCardController _towerCardController;
 
@@ -72,8 +71,7 @@ namespace ManagerControl
 
         private Vector3 _prevPos;
 
-        private TowerInfoUI _towerInfoUI;
-        private TowerDescriptionCard _towerDescriptionCard;
+        private TowerInfoCard _towerInfoCard;
         private MoveUnitController _moveUnitController;
 
         [SerializeField] private GameObject upgradeButton;
@@ -104,6 +102,7 @@ namespace ManagerControl
 
         private void OnDisable()
         {
+            TowerDataManager.RemoveLocaleMethod();
             _needMoreGoldSequence?.Kill();
             _cantMoveImageSequence?.Kill();
             _camZoomSequence?.Kill();
@@ -128,7 +127,7 @@ namespace ManagerControl
             Time.timeScale = 1;
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
             SoundManager.PlayBGM(SoundEnum.WaveEnd);
-            SoundManager.FadeInVolume().Forget();
+            // SoundManager.FadeInVolume().Forget();
         }
 
         private void UIManagerInit()
@@ -139,11 +138,9 @@ namespace ManagerControl
 
             _towerRangeIndicator = FindAnyObjectByType<TowerRangeIndicator>();
             FindAnyObjectByType<GameHUD>().Init();
-            _towerInfoUI = FindAnyObjectByType<TowerInfoUI>();
-            _towerInfoUI.Init();
-            _dataManager = FindAnyObjectByType<DataManager>();
+            _towerInfoCard = FindAnyObjectByType<TowerInfoCard>();
+            _towerInfoCard.Init();
             _towerManager = FindAnyObjectByType<TowerManager>();
-            _towerDescriptionCard = FindAnyObjectByType<TowerDescriptionCard>();
             _moveUnitController = FindAnyObjectByType<MoveUnitController>();
         }
 
@@ -296,7 +293,7 @@ namespace ManagerControl
             var lostGold = GetBuildGold(towerType);
             _towerCountDictionary[towerType]++;
             GameHUD.DecreaseTowerGold(lostGold);
-            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, placePos).SetGoldText(lostGold, false);
+            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.GoldText, placePos).SetGoldText(lostGold, false);
             _towerGoldTextDictionary[towerType].text = GetBuildGold(towerType) + "G";
             var towerTransform = towerObject.transform;
             towerTransform.GetChild(0).position = towerTransform.position + new Vector3(0, 2, 0);
@@ -332,8 +329,8 @@ namespace ManagerControl
         private void OffUIPrivate()
         {
             if (!_isPanelOpen) return;
-            _towerInfoUI.SetCardPos(false, null);
-            _towerInfoUI.CloseCard();
+            _towerInfoCard.SetCardPos(false, null);
+            _towerInfoCard.CloseCard();
             _startMoveUnit = false;
             _isPanelOpen = false;
             if (_curSelectedTower) _curSelectedTower.DeActiveIndicator();
@@ -386,7 +383,7 @@ namespace ManagerControl
 
             GameHUD.DecreaseTowerGold(upgradeGold);
             var position = attackTower.transform.position;
-            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, position).SetGoldText(upgradeGold, false);
+            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.GoldText, position).SetGoldText(upgradeGold, false);
             PoolObjectManager.Get(PoolObjectKey.TowerUpgradeParticle, position);
             attackTower.TowerLevelUp();
             var towerLevel = attackTower.towerLevel;
@@ -396,8 +393,8 @@ namespace ManagerControl
             maxLevelImage.SetActive(towerLevel.Equals(4));
             _towerRangeIndicator.SetIndicator(position, attackTower.towerRange);
             _sellTowerGold = GetTowerSellGold(towerType);
-            _towerInfoUI.SetTowerInfo(attackTower, towerData, towerLevel,
-                GetUpgradeGold(in towerType), _sellTowerGold, _dataManager.towerInfoTable[towerType].towerName);
+            _towerInfoCard.SetTowerInfo(attackTower, towerData, towerLevel,
+                GetUpgradeGold(in towerType), _sellTowerGold, TowerDataManager.TowerInfoTable[towerType].towerName);
         }
 
         private void ClickTower(Tower clickedTower)
@@ -430,8 +427,8 @@ namespace ManagerControl
                 UpdateSupportTowerInfo();
             }
 
-            _towerInfoUI.OpenCard();
-            _towerInfoUI.SetCardPos(true, clickedTower.transform);
+            _towerInfoCard.OpenCard();
+            _towerInfoCard.SetCardPos(true, clickedTower.transform);
         }
 
         private void UpdateAttackTowerInfo(AttackTower attackTower, Vector3 position, bool isUnitTower)
@@ -445,8 +442,8 @@ namespace ManagerControl
             _towerRangeIndicator.SetIndicator(position, attackTower.towerRange);
             var towerType = attackTower.towerType;
             var curTowerData = towerDataDic[towerType];
-            _towerInfoUI.SetTowerInfo(attackTower, curTowerData, towerLevel,
-                GetUpgradeGold(in towerType), _sellTowerGold, _dataManager.towerInfoTable[towerType].towerName);
+            _towerInfoCard.SetTowerInfo(attackTower, curTowerData, towerLevel,
+                GetUpgradeGold(in towerType), _sellTowerGold, TowerDataManager.TowerInfoTable[towerType].towerName);
         }
 
         private void UpdateSupportTowerInfo()
@@ -455,8 +452,8 @@ namespace ManagerControl
             maxLevelImage.SetActive(false);
             moveUnitButton.SetActive(false);
             var supportTower = (SupportTower)_curSelectedTower;
-            _towerInfoUI.SetSupportTowerInfo(supportTower, _sellTowerGold,
-                _dataManager.towerInfoTable[supportTower.towerType].towerName);
+            _towerInfoCard.SetSupportTowerInfo(supportTower, _sellTowerGold,
+                TowerDataManager.TowerInfoTable[supportTower.towerType].towerName);
         }
 
         private ushort GetBuildGold(in TowerType towerType)
@@ -484,14 +481,14 @@ namespace ManagerControl
         private void MoveUnitButton()
         {
             _moveUnitController.FocusUnitTower(_curSummonTower);
-            _towerInfoUI.SetCardPos(false, null);
-            _towerInfoUI.CloseCard();
+            _towerInfoCard.SetCardPos(false, null);
+            _towerInfoCard.CloseCard();
             _startMoveUnit = true;
         }
 
         private void SellTower()
         {
-            _towerInfoUI.SetCardPos(false, null);
+            _towerInfoCard.SetCardPos(false, null);
             SoundManager.PlayUISound(_sellTowerGold < 100 ? SoundEnum.LowCost :
                 _sellTowerGold < 250 ? SoundEnum.MediumCost : SoundEnum.HighCost);
             var towerType = _curSelectedTower.towerType;
@@ -500,7 +497,7 @@ namespace ManagerControl
             var position = _curSelectedTower.transform.position;
             PoolObjectManager.Get(PoolObjectKey.TowerSellParticle, position);
             GameHUD.IncreaseTowerGold(_sellTowerGold);
-            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText, position).SetGoldText(_sellTowerGold);
+            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.GoldText, position).SetGoldText(_sellTowerGold);
             _sellTowerGold = 0;
 
             _curSelectedTower.DisableObject();

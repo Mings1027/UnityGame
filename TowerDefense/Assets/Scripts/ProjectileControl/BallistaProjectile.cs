@@ -9,10 +9,9 @@ namespace ProjectileControl
         protected override void ProjectilePath(Vector3 endPos)
         {
             base.ProjectilePath(endPos);
-            var dir = (curPos - rigid.position).normalized;
+            var dir = (curPos - transform.position).normalized;
             if (dir == Vector3.zero) return;
-            rigid.MovePosition(curPos);
-            rigid.MoveRotation(Quaternion.LookRotation(dir));
+            transform.SetPositionAndRotation(curPos, Quaternion.LookRotation(dir));
         }
 
         protected override void Hit(Collider t)

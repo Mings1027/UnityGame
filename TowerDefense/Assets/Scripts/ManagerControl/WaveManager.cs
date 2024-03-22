@@ -156,7 +156,7 @@ namespace ManagerControl
         {
             while (!_cts.IsCancellationRequested)
             {
-                await UniTask.Delay(500, cancellationToken: _cts.Token);
+                await UniTask.Delay(200, cancellationToken: _cts.Token);
 
                 var enemyCount = _monsterList.Count;
 
@@ -236,7 +236,7 @@ namespace ManagerControl
             monsterHealth.OnDeadEvent += () =>
             {
                 var gold = normalMonsterData.startSpawnWave;
-                PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText,
+                PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.GoldText,
                         monsterUnit.transform.position + Random.insideUnitSphere)
                     .SetGoldText(gold);
                 GameHUD.IncreaseTowerGold(gold);
@@ -273,7 +273,7 @@ namespace ManagerControl
             monsterHealth.OnDeadEvent += () =>
             {
                 var gold = bossMonsterData.droppedGold;
-                PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.FloatingText,
+                PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.GoldText,
                         monsterUnit.transform.position + Random.insideUnitSphere)
                     .SetGoldText(gold);
                 GameHUD.IncreaseTowerGold(gold);

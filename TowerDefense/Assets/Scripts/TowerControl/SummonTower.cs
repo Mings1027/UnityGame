@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using CustomEnumControl;
 using DataControl.TowerDataControl;
 using DG.Tweening;
@@ -24,9 +23,6 @@ namespace TowerControl
         private Transform _reSpawnBarTransform;
         private SummoningTowerData _summoningTowerData;
 
-        public int unitHealth { get; private set; }
-        public float unitReSpawnTime { get; private set; }
-
         [SerializeField, Range(1, 10)] private byte unitCount;
         [SerializeField, Range(0, 2)] private float unitRadius;
         [SerializeField] private PoolObjectKey unitObjectKey;
@@ -46,13 +42,19 @@ namespace TowerControl
                 var towerUnit = PoolObjectManager.Get<TowerUnit>(unitObjectKey, transform.position);
                 _units.Add(towerUnit);
                 _units[i].transform.DOJump(pos, 2, 1, 0.5f).SetEase(Ease.OutSine);
-                _units[i].Init(this, pos);
+                _units[i].Init(this, pos, targetLayer);
                 _units[i].UnitTargetInit();
-                _units[i].GetComponent<UnitHealth>().OnDeadEvent += () => DeadEvent(towerUnit);
+                if (_units[i].TryGetComponent(out UnitHealth unitHealth))
+                {
+                    unitHealth.OnDeadEvent += () => DeadEvent(towerUnit);
+                }
 
                 var healthBar = PoolObjectManager.Get<HealthBar>(UIPoolObjectKey.UnitHealthBar,
                     _units[i].healthBarTransform.position);
-                healthBar.Init(_units[i].GetComponent<Progressive>());
+                if (_units[i].TryGetComponent(out Progressive progressive))
+                {
+                    healthBar.Init(progressive);
+                }
 
                 StatusBarUIController.Add(healthBar, _units[i].healthBarTransform);
             }
@@ -94,7 +96,7 @@ namespace TowerControl
             StatusBarUIController.Add(_unitReSpawnBar, _reSpawnBarTransform);
             _unitReSpawnBar.Init();
             _unitReSpawnBar.OnRespawnEvent += UnitReSpawn;
-            _unitReSpawnBar.StartLoading(unitReSpawnTime);
+            _unitReSpawnBar.StartLoading(_summoningTowerData.initReSpawnTime);
         }
 
         private void UnitReSpawn()
@@ -139,8 +141,8 @@ namespace TowerControl
             _reSpawnBarTransform = transform.GetChild(1);
             _units = new List<TowerUnit>(unitCount);
 
-            unitHealth = _summoningTowerData.curUnitHealth;
-            unitReSpawnTime = _summoningTowerData.initReSpawnTime;
+            // unitHealth = _summoningTowerData.curUnitHealth;
+            // unitReSpawnTime = _summoningTowerData.initReSpawnTime;
         }
 
         public override void TowerTargetInit()

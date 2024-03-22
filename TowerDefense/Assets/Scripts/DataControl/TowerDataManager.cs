@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using BackendControl;
 using CustomEnumControl;
 using ManagerControl;
-using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 
 namespace DataControl
 {
-    public class DataManager : MonoBehaviour
+    public abstract class TowerDataManager
     {
         public class ItemInfo
         {
@@ -37,58 +36,56 @@ namespace DataControl
             }
         }
 
-        public readonly Dictionary<ItemType, ItemInfo> itemInfoTable = new();
-        public readonly Dictionary<TowerType, TowerInfo> towerInfoTable = new();
+        public static readonly Dictionary<ItemType, ItemInfo> ItemInfoTable = new();
+        public static readonly Dictionary<TowerType, TowerInfo> TowerInfoTable = new();
 
-        private void Awake()
+        public static void Init()
         {
-            Init();
-        }
+            var itemInventory = BackendGameData.userData.itemInventory;
+            if (ItemInfoTable.Count == 0)
+            {
+                var itemTypeArray = Enum.GetValues(typeof(ItemType));
+                foreach (ItemType itemType in itemTypeArray)
+                {
+                    ItemInfoTable.Add(itemType,
+                        new ItemInfo(
+                            LocaleManager.GetLocalizedString(LocaleManager.ItemTable, itemType.ToString()),
+                            itemInventory[itemType.ToString()],
+                            LocaleManager.GetLocalizedString(LocaleManager.ItemDescriptionTable, itemType.ToString())));
+                }
+            }
 
-        private void OnEnable()
-        {
+            if (TowerInfoTable.Count == 0)
+            {
+                var towerTypes = Enum.GetValues(typeof(TowerType));
+                foreach (TowerType towerType in towerTypes)
+                {
+                    if (towerType == TowerType.None) continue;
+                    TowerInfoTable.Add(towerType, new TowerInfo(
+                        LocaleManager.GetLocalizedString(LocaleManager.TowerCardTable, towerType.ToString()),
+                        LocaleManager.GetLocalizedString(LocaleManager.TowerDescriptionTable, towerType.ToString())));
+                }
+            }
+
             LocalizationSettings.SelectedLocaleChanged += ChangeLocaleItemTable;
         }
 
-        private void OnDisable()
+        public static void RemoveLocaleMethod()
         {
             LocalizationSettings.SelectedLocaleChanged -= ChangeLocaleItemTable;
         }
 
-        private void Init()
+        private static void ChangeLocaleItemTable(Locale locale)
         {
             var itemInventory = BackendGameData.userData.itemInventory;
             var itemTypeArray = Enum.GetValues(typeof(ItemType));
             foreach (ItemType itemType in itemTypeArray)
             {
-                itemInfoTable.Add(itemType,
-                    new ItemInfo(
-                        LocaleManager.GetLocalizedString(LocaleManager.ItemTable, itemType.ToString()),
-                        itemInventory[itemType.ToString()],
-                        LocaleManager.GetLocalizedString(LocaleManager.ItemDescriptionTable, itemType.ToString())));
-            }
-
-            var towerTypes = Enum.GetValues(typeof(TowerType));
-            foreach (TowerType towerType in towerTypes)
-            {
-                if (towerType == TowerType.None) continue;
-                towerInfoTable.Add(towerType, new TowerInfo(
-                    LocaleManager.GetLocalizedString(LocaleManager.TowerCardTable, towerType.ToString()),
-                    LocaleManager.GetLocalizedString(LocaleManager.TowerDescriptionTable, towerType.ToString())));
-            }
-        }
-
-        private void ChangeLocaleItemTable(Locale locale)
-        {
-            var itemInventory = BackendGameData.userData.itemInventory;
-            var itemTypeArray = Enum.GetValues(typeof(ItemType));
-            foreach (ItemType itemType in itemTypeArray)
-            {
-                itemInfoTable[itemType].itemName =
+                ItemInfoTable[itemType].itemName =
                     LocaleManager.GetLocalizedString(LocaleManager.ItemTable, itemType.ToString());
-                itemInfoTable[itemType].itemCount =
+                ItemInfoTable[itemType].itemCount =
                     itemInventory[itemType.ToString()];
-                itemInfoTable[itemType].itemDescription =
+                ItemInfoTable[itemType].itemDescription =
                     LocaleManager.GetLocalizedString(LocaleManager.ItemDescriptionTable, itemType.ToString());
             }
 
@@ -96,9 +93,9 @@ namespace DataControl
             foreach (TowerType towerType in towerTypes)
             {
                 if (towerType == TowerType.None) continue;
-                towerInfoTable[towerType].towerName =
+                TowerInfoTable[towerType].towerName =
                     LocaleManager.GetLocalizedString(LocaleManager.TowerCardTable, towerType.ToString());
-                towerInfoTable[towerType].towerDescription =
+                TowerInfoTable[towerType].towerDescription =
                     LocaleManager.GetLocalizedString(LocaleManager.TowerDescriptionTable, towerType.ToString());
             }
         }

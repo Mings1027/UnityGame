@@ -71,7 +71,7 @@ namespace LobbyUIControl
             OffBlockImage();
 
             FadeController.FadeInScene();
-            SoundManager.FadeInVolume().Forget();
+            // SoundManager.FadeInVolume().Forget();
         }
 
         private async UniTaskVoid RewardedAdRewardAsync()

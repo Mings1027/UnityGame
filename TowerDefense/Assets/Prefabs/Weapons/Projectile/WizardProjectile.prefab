@@ -11,8 +11,6 @@ GameObject:
   - component: {fileID: 3344106690422907792}
   - component: {fileID: 6536129085208343688}
   - component: {fileID: 2105660739628781082}
-  - component: {fileID: -2240363193480739945}
-  - component: {fileID: -374004186453982055}
   m_Layer: 10
   m_Name: WizardProjectile
   m_TagString: Untagged
@@ -64,32 +62,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6719794b54cb7466489824b89cb28c32, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!135 &-2240363193480739945
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2676114535170603306}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!54 &-374004186453982055
-Rigidbody:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2676114535170603306}
-  serializedVersion: 2
-  m_Mass: 1
-  m_Drag: 0
-  m_AngularDrag: 0.05
-  m_UseGravity: 0
-  m_IsKinematic: 1
-  m_Interpolate: 0
-  m_Constraints: 0
-  m_CollisionDetection: 0

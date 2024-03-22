@@ -142,20 +142,6 @@ namespace ManagerControl
             return (convertBgmValue, convertSfxValue);
         }
 
-        public static async UniTaskVoid FadeOutVolume()
-        {
-            var volume = 0;
-            _inst._cts?.Cancel();
-            _inst._cts?.Dispose();
-            _inst._cts = new CancellationTokenSource();
-            while (volume > -80 && !_inst._cts.IsCancellationRequested)
-            {
-                volume--;
-                await UniTask.Yield(cancellationToken: _inst._cts.Token);
-                _inst.audioMixer.SetFloat(Master, volume);
-            }
-        }
-
         public static async UniTaskVoid FadeInVolume()
         {
             var lowVolume = -80;

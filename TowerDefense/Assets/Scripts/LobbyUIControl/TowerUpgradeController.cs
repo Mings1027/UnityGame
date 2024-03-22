@@ -18,7 +18,6 @@ namespace LobbyUIControl
 {
     public class TowerUpgradeController : MonoBehaviour
     {
-        private DataManager _dataManager;
         private LobbyUI _lobbyUI;
         private Tween _upgradePanelGroupSequence;
         private Tween _towerInfoGroupSequence;
@@ -76,7 +75,6 @@ namespace LobbyUIControl
 
         private void Start()
         {
-            _dataManager = FindAnyObjectByType<DataManager>();
             _lobbyUI = GetComponentInParent<LobbyUI>();
             Init();
             TweenInit();
@@ -88,6 +86,7 @@ namespace LobbyUIControl
         private void OnDisable()
         {
             LocalizationSettings.SelectedLocaleChanged -= ChangeLocaleTowerDic;
+            TowerDataManager.RemoveLocaleMethod();
         }
 
         private void OnDestroy()
@@ -98,7 +97,6 @@ namespace LobbyUIControl
 
         private void UpgradePanel()
         {
-            // upgradeButton.gameObject.SetActive(false);
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
             _lobbyUI.OnBackgroundImage();
             _upgradePanelGroupSequence.Restart();
@@ -106,6 +104,7 @@ namespace LobbyUIControl
 
         private void Init()
         {
+            TowerDataManager.Init();
             _atkText = atkObj.transform.GetChild(1).GetComponent<TMP_Text>();
             _healthText = healthObj.transform.GetChild(1).GetComponent<TMP_Text>();
             _rangeText = rangeObj.transform.GetChild(1).GetComponent<TMP_Text>();
@@ -207,8 +206,8 @@ namespace LobbyUIControl
                     _attackTowerData = towerUpgradeButton.attackTowerData;
                     _towerType = _attackTowerData.towerType;
                     towerImage.sprite = towerUpgradeButton.towerImage.sprite;
-                    towerNameText.text = _dataManager.towerInfoTable[_towerType].towerName;
-                    towerDescriptionText.text = _dataManager.towerInfoTable[_towerType].towerDescription;
+                    towerNameText.text = TowerDataManager.TowerInfoTable[_towerType].towerName;
+                    towerDescriptionText.text = TowerDataManager.TowerInfoTable[_towerType].towerDescription;
                     var prevTowerLv = towerLevelTable[_towerType.ToString()];
                     if (prevTowerLv >= TowerMaxLevel)
                     {

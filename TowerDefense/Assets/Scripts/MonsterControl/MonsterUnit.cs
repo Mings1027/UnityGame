@@ -9,7 +9,6 @@ using StatusControl;
 using UIControl;
 using UnityEngine;
 using UnityEngine.AI;
-using Debug = UnityEngine.Debug;
 using Random = UnityEngine.Random;
 
 namespace MonsterControl
@@ -19,20 +18,18 @@ namespace MonsterControl
         private Transform _childMeshTransform;
         private Sequence _deadSequence;
         private Collider _thisCollider;
-        private Rigidbody _rigid;
+        private Cooldown _patrolCooldown;
 
+        private LayerMask _targetLayer;
+        private Health _health;
+        private readonly int _isWalk = Animator.StringToHash("isWalk");
+
+        protected NavMeshAgent navMeshAgent;
         protected Animator anim;
-        protected Cooldown attackCooldown;
-        protected Cooldown patrolCooldown;
         protected Collider target;
         protected Collider[] targetCollider;
-        protected LayerMask targetLayer;
         protected UnitState unitState;
-
-        protected Health health;
-        protected NavMeshAgent navMeshAgent;
-
-        private readonly int _isWalk = Animator.StringToHash("isWalk");
+        protected Cooldown attackCooldown;
         protected readonly int isAttack = Animator.StringToHash("isAttack");
 
         public Transform healthBarTransform { get; private set; }
@@ -46,14 +43,15 @@ namespace MonsterControl
         {
             _childMeshTransform = transform.GetChild(0);
             healthBarTransform = transform.GetChild(1);
-            targetLayer = LayerMask.GetMask("Unit");
+            _targetLayer = LayerMask.GetMask("Unit");
             targetCollider = new Collider[monsterData.maxDetectedCount];
 
             anim = GetComponentInChildren<Animator>();
             navMeshAgent = GetComponent<NavMeshAgent>();
+            navMeshAgent.updateRotation = false;
             _thisCollider = GetComponent<Collider>();
-            _rigid = GetComponent<Rigidbody>();
-            health = GetComponent<Health>();
+            GetComponent<Rigidbody>();
+            _health = GetComponent<Health>();
 
             _deadSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(_childMeshTransform.DOLocalJump(-_childMeshTransform.forward, Random.Range(4, 7), 1, 1))
@@ -76,9 +74,12 @@ namespace MonsterControl
         private void OnDrawGizmos()
         {
             Gizmos.color = Color.red;
-            Gizmos.DrawWireSphere(transform.position, monsterData.attackRange);
+            var position = transform.position;
+            var checkPos = new Vector3(position.x, 0, position.z);
+
+            Gizmos.DrawWireSphere(checkPos, monsterData.attackRange);
             Gizmos.color = Color.magenta;
-            Gizmos.DrawWireSphere(transform.position, monsterData.sightRange);
+            Gizmos.DrawWireSphere(checkPos, monsterData.sightRange);
         }
 
 #endregion
@@ -89,12 +90,12 @@ namespace MonsterControl
         {
             _thisCollider.enabled = true;
             target = null;
-            patrolCooldown.cooldownTime = 0.5f;
+            _patrolCooldown.cooldownTime = 0.5f;
 
-            health.OnDeadEvent += Dead;
+            _health.OnDeadEvent += Dead;
             OnDisableEvent += () =>
             {
-                if (!health.isDead) GameHUD.towerHealth.Damage(monsterData.baseTowerDamage);
+                if (!_health.isDead) GameHUD.towerHealth.Damage(monsterData.baseTowerDamage);
             };
             anim.enabled = true;
         }
@@ -106,7 +107,6 @@ namespace MonsterControl
             navMeshAgent.speed = monsterData.speed;
             SetSpeed(navMeshAgent.speed, attackCooldown.cooldownTime);
             attackCooldown.cooldownTime = monsterData.attackDelay;
-            if (navMeshAgent.isOnNavMesh) navMeshAgent.SetDestination(Vector3.zero);
             anim.SetBool(_isWalk, true);
         }
 
@@ -117,7 +117,7 @@ namespace MonsterControl
         public virtual void MonsterUpdate()
         {
             if (!navMeshAgent.enabled) return;
-            if (health.isDead) return;
+            if (_health.isDead) return;
             switch (unitState)
             {
                 case UnitState.Patrol:
@@ -131,18 +131,17 @@ namespace MonsterControl
                     break;
             }
 
-            if (target && target.enabled)
-            {
-                var dir = (target.transform.position - transform.position).normalized;
-                var targetRot = Quaternion.LookRotation(dir);
-                _rigid.MoveRotation(Quaternion.Euler(0, targetRot.eulerAngles.y, 0));
-            }
-
             anim.SetBool(_isWalk, navMeshAgent.velocity != Vector3.zero);
+
+            var dir = navMeshAgent.desiredVelocity;
+            if (dir == Vector3.zero) return;
+            var rot = Quaternion.LookRotation(dir);
+            transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.deltaTime * 10);
         }
 
         public void DistanceToBaseTower()
         {
+            if (unitState == UnitState.Attack) return;
             var pos = transform.position;
             pos.y = 0;
 
@@ -159,9 +158,11 @@ namespace MonsterControl
 
         protected virtual void Patrol()
         {
-            if (patrolCooldown.IsCoolingDown) return;
-            var size = Physics.OverlapSphereNonAlloc(transform.position, monsterData.sightRange, targetCollider,
-                targetLayer);
+            if (_patrolCooldown.IsCoolingDown) return;
+            var position = transform.position;
+            var checkPos = new Vector3(position.x, 0, position.z);
+            var size = Physics.OverlapSphereNonAlloc(checkPos, monsterData.sightRange, targetCollider,
+                _targetLayer);
             if (size <= 0)
             {
                 target = null;
@@ -184,7 +185,7 @@ namespace MonsterControl
                 }
             }
 
-            patrolCooldown.StartCooldown();
+            _patrolCooldown.StartCooldown();
             unitState = UnitState.Chase;
         }
 
@@ -197,9 +198,14 @@ namespace MonsterControl
             }
 
             if (navMeshAgent.isOnNavMesh)
-                navMeshAgent.SetDestination(target.transform.position +
-                                            Random.insideUnitSphere * monsterData.attackRange);
-            if (Vector3.Distance(target.transform.position, transform.position) <= monsterData.attackRange)
+            {
+                navMeshAgent.SetDestination(target.transform.position);
+            }
+
+            var position = transform.position;
+            var checkPos = new Vector3(position.x, 0, position.z);
+
+            if (Vector3.Distance(target.transform.position, checkPos) <= monsterData.attackRange)
             {
                 unitState = UnitState.Attack;
             }
@@ -207,18 +213,19 @@ namespace MonsterControl
 
         protected virtual void Attack()
         {
+            var position = transform.position;
+            var checkPos = new Vector3(position.x, 0, position.z);
+
             if (!target || !target.enabled ||
-                Vector3.Distance(target.transform.position, transform.position) > monsterData.attackRange)
+                Vector3.Distance(target.transform.position, checkPos) > monsterData.attackRange)
             {
                 unitState = UnitState.Patrol;
                 return;
             }
 
             if (attackCooldown.IsCoolingDown) return;
-
             anim.SetTrigger(isAttack);
             TryDamage();
-
             attackCooldown.StartCooldown();
         }
 

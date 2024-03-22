@@ -15,7 +15,6 @@ namespace LobbyUIControl
 {
     public class ItemShopController : MonoBehaviour
     {
-        private DataManager _dataManager;
         private LobbyUI _lobbyUI;
         private Sequence _purchasePanelSequence;
         private ItemType _curItemType;
@@ -47,7 +46,6 @@ namespace LobbyUIControl
 
         private void Awake()
         {
-            _dataManager = FindAnyObjectByType<DataManager>();
             _lobbyUI = GetComponentInParent<LobbyUI>();
             _shopPanelGroup = shopPanel.GetComponent<CanvasGroup>();
             _shopPanelGroup.blocksRaycasts = false;
@@ -111,11 +109,11 @@ namespace LobbyUIControl
         {
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
             _curItemType = itemType;
-            itemNameText.text = _dataManager.itemInfoTable[itemType].itemName;
-            descriptionText.text = _dataManager.itemInfoTable[itemType].itemDescription;
+            itemNameText.text = TowerDataManager.ItemInfoTable[itemType].itemName;
+            descriptionText.text = TowerDataManager.ItemInfoTable[itemType].itemDescription;
 
             explainImage.sprite = sprite;
-            ownedAmountText.text = _localizedOwnedText + _dataManager.itemInfoTable[itemType].itemCount;
+            ownedAmountText.text = _localizedOwnedText + TowerDataManager.ItemInfoTable[itemType].itemCount;
             purchaseBackgroundBlockImage.enabled = true;
             _purchasePanelSequence.Restart();
             _curQuantity = 1;
@@ -166,7 +164,7 @@ namespace LobbyUIControl
                 _lobbyUI.emeraldCurrency.SetText();
 
                 var itemCount = BackendGameData.userData.itemInventory[_curItemType.ToString()] += _curQuantity;
-                _dataManager.itemInfoTable[_curItemType].itemCount = itemCount;
+                TowerDataManager.ItemInfoTable[_curItemType].itemCount = itemCount;
 
                 ClosePurchasePanel();
             }

@@ -136,6 +136,7 @@ namespace UIControl
 
             exitBattleButton.onClick.AddListener(() =>
             {
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 FullscreenAlert.CancelableAlert(FullscreenAlertEnum.ExitBattleAlert, ExitBattle);
             });
             restartButton.onClick.AddListener(() =>
@@ -183,7 +184,7 @@ namespace UIControl
             Time.timeScale = 0;
             _pauseCanvasGroup.blocksRaycasts = true;
             _pauseSequence.Restart();
-            SoundManager.FadeOutVolume().Forget();
+            SoundManager.MuteBGM(true);
         }
 
         private void ExitBattle()
@@ -204,7 +205,7 @@ namespace UIControl
             Input.multiTouchEnabled = true;
             Time.timeScale = _curTimeScale;
             _pauseSequence.OnRewind(() => _pauseCanvasGroup.blocksRaycasts = false).PlayBackwards();
-            SoundManager.FadeInVolume().Forget();
+            SoundManager.MuteBGM(false);
         }
 
         private void SpeedUp()

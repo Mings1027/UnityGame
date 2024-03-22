@@ -7,11 +7,17 @@ using UnityEngine;
 
 namespace ItemControl
 {
-    public class MoneyBagItem : ItemButton
+    public class GoldBagItem : ItemButton
     {
         public override bool Spawn()
         {
-            PoolObjectManager.Get<FloatingText>(UIPoolObjectKey.MoneyText, cameraManager.camPos).SetGoldText(500);
+            for (var i = 0; i < 5; i++)
+            {
+                PoolObjectManager
+                    .Get<FloatingText>(UIPoolObjectKey.ItemGoldText, cameraManager.camPos + Random.insideUnitSphere * 3)
+                    .SetGoldText(100);
+            }
+
             SoundManager.PlayUISound(SoundEnum.HighCost);
             GameHUD.IncreaseTowerGold(500);
             return true;
