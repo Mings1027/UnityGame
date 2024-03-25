@@ -46,6 +46,7 @@ namespace LobbyUIControl
         {
             Init();
             CheckAccessToken().Forget();
+            SoundManager.PlayBGM(SoundEnum.GameStart);
         }
 
         private void OnDisable()

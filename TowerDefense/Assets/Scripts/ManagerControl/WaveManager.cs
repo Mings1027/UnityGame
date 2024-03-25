@@ -28,7 +28,6 @@ namespace ManagerControl
     public class WaveManager : MonoBehaviour, IMainGameObject
     {
         private TowerManager _towerManager;
-        private ItemBagController _itemBagController;
         private PauseController _pauseController;
         private CancellationTokenSource _cts;
         private List<MonsterUnit> _monsterList;
@@ -36,10 +35,10 @@ namespace ManagerControl
 
         private bool _isLastWave;
         private bool _isBossWave;
-        private bool _isStartWave;
         private byte _themeIndex;
         private byte _curWave;
 
+        public bool isStartWave { get; private set; }
         public event Action OnPlaceExpandButtonEvent;
         public event Action OnBossWaveEvent;
 
@@ -54,7 +53,7 @@ namespace ManagerControl
 
             if (_curWave >= 1)
             {
-                BackendGameData.instance.UpdateSurvivedWave((byte)(_isStartWave
+                BackendGameData.instance.UpdateSurvivedWave((byte)(isStartWave
                     ? _curWave - 1
                     : _curWave));
             }
@@ -73,7 +72,7 @@ namespace ManagerControl
             {
                 if (_curWave >= 1)
                 {
-                    BackendGameData.instance.UpdateSurvivedWave((byte)(_isStartWave
+                    BackendGameData.instance.UpdateSurvivedWave((byte)(isStartWave
                         ? _curWave - 1
                         : _curWave));
                 }
@@ -90,7 +89,6 @@ namespace ManagerControl
             _themeIndex = 0;
 
             _towerManager = FindObjectOfType<TowerManager>();
-            _itemBagController = FindAnyObjectByType<ItemBagController>();
             _pauseController = FindAnyObjectByType<PauseController>();
 
             _monsterList = new List<MonsterUnit>();
@@ -102,7 +100,6 @@ namespace ManagerControl
         {
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
-            _itemBagController.SetActiveItemBag(true);
 
             _curWave++;
             _isBossWave = _curWave == monstersData[_themeIndex].startBossWave;
@@ -124,14 +121,14 @@ namespace ManagerControl
                 SpawnBoss(_wayPoints[Random.Range(0, _wayPoints.Length)]).Forget();
             }
 
-            _isStartWave = true;
+            isStartWave = true;
             MonsterUpdate().Forget();
             DistanceToBaseTower().Forget();
         }
 
         private void StopWave()
         {
-            _isStartWave = false;
+            isStartWave = false;
             _cts?.Cancel();
             _cts?.Dispose();
         }
@@ -307,7 +304,7 @@ namespace ManagerControl
 
         private void DecreaseEnemyCount(MonsterUnit monsterUnit)
         {
-            if (!_isStartWave) return;
+            if (!isStartWave) return;
             _monsterList.Remove(monsterUnit);
             var towerHealth = GameHUD.towerHealth;
 
@@ -324,7 +321,6 @@ namespace ManagerControl
                 if (_monsterList.Count > 0) return;
 
                 StopWave();
-                _itemBagController.SetActiveItemBag(false);
                 SoundManager.PlayBGM(SoundEnum.WaveEnd);
                 PoolObjectManager.PoolCleaner().Forget();
 
@@ -348,6 +344,7 @@ namespace ManagerControl
 
         public async UniTaskVoid AllKill()
         {
+            
             for (var i = 0; i < _monsterList.Count; i++)
             {
                 if (_monsterList[i].TryGetComponent(out IDamageable damageable))

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using BackendControl;
 using CustomEnumControl;
@@ -19,10 +18,7 @@ using TowerControl;
 using UIControl;
 using UnitControl;
 using UnityEngine;
-using UnityEngine.Localization;
-using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
-using Utilities;
 using Sequence = DG.Tweening.Sequence;
 
 namespace ManagerControl
@@ -48,7 +44,6 @@ namespace ManagerControl
         private Dictionary<TowerType, TMP_Text> _towerGoldTextDictionary;
         private Dictionary<TowerType, GameObject> _towerPrefabDic;
 
-        private Sequence _needMoreGoldSequence;
         private Sequence _cantMoveImageSequence;
         private Sequence _camZoomSequence;
 
@@ -82,8 +77,6 @@ namespace ManagerControl
         [SerializeField] private CanvasGroup toggleTowerBtnImage;
         [SerializeField] private RectTransform towerCardPanel;
 
-        [SerializeField] private CanvasGroup needMoreGoldGroup;
-
         [SerializeField] private TowerDataPrefab[] towerDataPrefabs;
         [SerializeField] private Sprite sellSprite;
         [SerializeField] private Sprite checkSprite;
@@ -103,7 +96,6 @@ namespace ManagerControl
         private void OnDisable()
         {
             TowerDataManager.RemoveLocaleMethod();
-            _needMoreGoldSequence?.Kill();
             _cantMoveImageSequence?.Kill();
             _camZoomSequence?.Kill();
             _towerHealTween?.Kill();
@@ -120,7 +112,6 @@ namespace ManagerControl
             UIManagerInit();
             TowerButtonInit();
             TowerInit();
-            TweenInit();
 
             Input.multiTouchEnabled = false;
             GameHUD.SetWaveText("0");
@@ -213,18 +204,6 @@ namespace ManagerControl
                 _towerGoldTextDictionary[towerType].text =
                     towerDataDic[towerType].towerBuildCost + "G";
             }
-        }
-
-        private void TweenInit()
-        {
-            var needMoreGoldPanelRect = needMoreGoldGroup.GetComponent<RectTransform>();
-            _needMoreGoldSequence = DOTween.Sequence().SetAutoKill(false).Pause()
-                .Append(needMoreGoldGroup.DOFade(1, 0.5f).From(0))
-                .Join(needMoreGoldPanelRect.DOAnchorPosY(0, 0.25f).From(new Vector2(0, 100)))
-                .Append(needMoreGoldPanelRect.DOAnchorPosY(100, 0.25f).From(Vector2.zero).SetDelay(1f))
-                .Join(needMoreGoldGroup.DOFade(0, 0.25f).From(1));
-            needMoreGoldGroup.blocksRaycasts = false;
-            needMoreGoldGroup.alpha = 0;
         }
 
         private void ResetSprite()
@@ -348,7 +327,7 @@ namespace ManagerControl
                 return true;
             }
 
-            _needMoreGoldSequence.Restart();
+            FloatingNotification.FloatingNotify(FloatingNotifyEnum.NeedMoreGold);
 
             return false;
         }
@@ -377,7 +356,7 @@ namespace ManagerControl
 
             if (GameHUD.GetTowerGold() < upgradeGold)
             {
-                _needMoreGoldSequence.Restart();
+                FloatingNotification.FloatingNotify(FloatingNotifyEnum.NeedMoreGold);
                 return;
             }
 

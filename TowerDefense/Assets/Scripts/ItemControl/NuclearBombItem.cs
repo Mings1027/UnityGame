@@ -1,4 +1,6 @@
+using CustomEnumControl;
 using ManagerControl;
+using UIControl;
 
 namespace ItemControl
 {
@@ -14,14 +16,15 @@ namespace ItemControl
 
         public override bool Spawn()
         {
-            Explosion();
-            return true;
-        }
+            if (!_waveManager.isStartWave)
+            {
+                FloatingNotification.FloatingNotify(FloatingNotifyEnum.OnlyWaveStart);
+                return false;
+            }
 
-        private void Explosion()
-        {
             cameraManager.ShakeCamera();
             _waveManager.AllKill().Forget();
+            return true;
         }
     }
 }

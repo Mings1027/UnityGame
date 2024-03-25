@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using ManagerControl;
 using TMPro;
@@ -18,11 +20,13 @@ namespace Utilities
         private class DropdownItem
         {
             public string itemName;
-            public UnityEvent itemSelection;
-            [HideInInspector] public CustomDropDownItem customDropDownItem;
+            public Action itemSelection;
+            public CustomDropDownItem customDropDownItem;
         }
 
+        private CancellationTokenSource _cts;
         private Tween _dropDownTween;
+        private bool _isPressed;
         private bool _isExpand;
         private Queue<CustomDropDownItem> _dropdownItemQueue;
 
@@ -52,26 +56,20 @@ namespace Utilities
 
                 var index = i;
                 dropdownItems[i].customDropDownItem.text.text = dropdownItems[index].itemName;
-                dropdownItems[i].customDropDownItem.button.onClick
-                    .AddListener(() =>
+                dropdownItems[i].customDropDownItem.button.onClick.AddListener(() =>
+                {
+                    if (_dropdownItemQueue.Count > 0)
                     {
-                        if (_dropdownItemQueue.Count > 0)
-                        {
-                            _dropdownItemQueue.Dequeue().checkImage.enabled = false;
-                        }
+                        _dropdownItemQueue.Dequeue().checkImage.enabled = false;
+                    }
 
-                        dropdownItems[index].itemSelection?.Invoke();
-                        dropdownItems[index].customDropDownItem.checkImage.enabled = true;
-                        _dropdownItemQueue.Enqueue(dropdownItems[index].customDropDownItem);
+                    dropdownItems[index].customDropDownItem.checkImage.enabled = true;
+                    _dropdownItemQueue.Enqueue(dropdownItems[index].customDropDownItem);
 
-                        mainText.text = dropdownItems[index].customDropDownItem.text.text;
+                    mainText.text = dropdownItems[index].customDropDownItem.text.text;
 
-                        _isExpand = false;
-                        _dropDownTween.PlayBackwards();
-                        expandImage.rectTransform.localScale = new Vector3(1, 1, 1);
-
-                        LocaleManager.ChangeLocale(index);
-                    });
+                    LocaleManager.ChangeLocale(index);
+                });
             }
 
             for (var i = 0; i < dropdownItems.Length; i++)
@@ -86,31 +84,59 @@ namespace Utilities
             }
         }
 
+        private async UniTaskVoid DropdownUpdate()
+        {
+            while (!_cts.IsCancellationRequested)
+            {
+                await UniTask.Yield();
+
+                if (!_isPressed && Input.GetMouseButtonUp(0) && _isExpand)
+                {
+                    CloseDropDown();
+                }
+            }
+        }
+
+        private void OpenDropDown()
+        {
+            _cts?.Dispose();
+            _cts = new CancellationTokenSource();
+            DropdownUpdate().Forget();
+            _isExpand = true;
+            _dropDownTween.Restart();
+            expandImage.rectTransform.localScale = new Vector3(1, -1, 1);
+        }
+
+        private void CloseDropDown()
+        {
+            _cts?.Cancel();
+            _cts?.Dispose();
+            _isExpand = false;
+            _dropDownTween.PlayBackwards();
+            expandImage.rectTransform.localScale = new Vector3(1, 1, 1);
+        }
+
         public void OnPointerDown(PointerEventData eventData)
         {
+            _isPressed = true;
         }
 
         public void OnPointerUp(PointerEventData eventData)
         {
+            _isPressed = false;
             if (_isExpand)
             {
-                _isExpand = false;
-                _dropDownTween.PlayBackwards();
-                expandImage.rectTransform.localScale = new Vector3(1, 1, 1);
+                CloseDropDown();
             }
             else
             {
-                _isExpand = true;
-                _dropDownTween.Restart();
-                expandImage.rectTransform.localScale = new Vector3(1, -1, 1);
+                OpenDropDown();
             }
         }
 
         [Conditional("UNITY_EDITOR"), ContextMenu("Add DropdownItem")]
         private void AddDropdownItem()
         {
-            var nextIndex = dropDownListGroup.transform.childCount;
-            
             Instantiate(dropDownItemPrefab, dropDownListGroup.transform);
         }
 

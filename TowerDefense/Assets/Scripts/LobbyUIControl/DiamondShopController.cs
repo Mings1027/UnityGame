@@ -27,7 +27,6 @@ namespace LobbyUIControl
                 freePurchaseButton.interactable = false;
                 ShowRewardedAd().Forget();
             });
-            SoundManager.PlayBGM(SoundEnum.GameStart);
         }
 
         private void OnDisable()

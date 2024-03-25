@@ -217,6 +217,11 @@ namespace UIControl
             _tripleSpeedImage.enabled = _curTimeScale == 3;
         }
 
+        private void UpdateInventory()
+        {
+            
+        }
+
         public void GameOver()
         {
             _gameOverSequence.OnComplete(() => gameOverGroup.blocksRaycasts = true).Restart();

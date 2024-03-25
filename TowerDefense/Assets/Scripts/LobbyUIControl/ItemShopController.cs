@@ -32,7 +32,6 @@ namespace LobbyUIControl
         [SerializeField] private CanvasGroup purchasePanelGroup;
 
         [SerializeField] private Button closePurchasePanelButton;
-        [SerializeField] private Button closePurchasePanelBackgroundButton;
 
         [SerializeField] private RectTransform purchasePanel;
         [SerializeField] private Image explainImage;
@@ -49,15 +48,14 @@ namespace LobbyUIControl
             _lobbyUI = GetComponentInParent<LobbyUI>();
             _shopPanelGroup = shopPanel.GetComponent<CanvasGroup>();
             _shopPanelGroup.blocksRaycasts = false;
-
             _purchasePanelSequence = DOTween.Sequence().SetAutoKill(false).Pause()
                 .Append(purchasePanelGroup.DOFade(1, 0.25f).From(0))
                 .Join(purchasePanel.DOAnchorPosX(0, 0.25f).From(new Vector2(-100, 0)));
-            _purchasePanelSequence.OnComplete(() => purchasePanelGroup.blocksRaycasts = true);
-            
+            _purchasePanelSequence.OnComplete(() => { purchasePanelGroup.blocksRaycasts = true; });
+
             purchasePanelGroup.blocksRaycasts = false;
             purchaseBackgroundBlockImage.enabled = false;
-            
+
             increaseButton.onClick.AddListener(IncreaseQuantity);
             decreaseButton.onClick.AddListener(DecreaseQuantity);
 
@@ -66,12 +64,6 @@ namespace LobbyUIControl
                 SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 ClosePurchasePanel();
             });
-            closePurchasePanelBackgroundButton.onClick.AddListener(() =>
-            {
-                SoundManager.PlayUISound(SoundEnum.ButtonSound);
-                ClosePurchasePanel();
-            });
-
             _localizedOwnedText = LocaleManager.GetLocalizedString(LocaleManager.LobbyUITable, "OwnedText");
             LocalizationSettings.SelectedLocaleChanged += ChangeLocaleOwnedText;
         }

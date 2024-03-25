@@ -8,7 +8,7 @@ namespace Utilities
     [RequireComponent(typeof(HorizontalLayoutGroup))]
     public class UIHorizontalSplitter : MonoBehaviour
     {
-        public float[] ratios; // 각 자식 요소의 비율
+        [SerializeField] private float[] ratios; // 각 자식 요소의 비율
 
         private void Reset()
         {
@@ -18,11 +18,6 @@ namespace Utilities
             horizontalLayoutGroup.childForceExpandWidth = true;
             ratios = null;
             ratios = new float[transform.childCount];
-            // var ratio = ratios.Length / 10f;
-            // for (var i = 0; i < ratios.Length; i++)
-            // {
-            //     ratios[i] = ratio;
-            // }
         }
 
         private void Start()
@@ -48,5 +43,6 @@ namespace Utilities
                 childRects[i].sizeDelta = new Vector2(childWidth, childRects[i].sizeDelta.y);
             }
         }
+
     }
 }

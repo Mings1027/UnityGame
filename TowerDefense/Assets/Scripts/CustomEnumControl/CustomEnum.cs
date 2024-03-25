@@ -14,7 +14,10 @@ namespace CustomEnumControl
         DuplicateName,
         SuccessChangedName,
         NeedMoreTowerCoin,
-        AtLeastOneCharacter
+        AtLeastOneCharacter,
+        NeedMoreGold,
+        OnlyWaveStart,
+        FullHealth
     }
 
     public enum FullscreenAlertEnum

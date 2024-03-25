@@ -7,6 +7,7 @@ namespace UIControl
         [SerializeField] private RectTransform topLetterBox;
         [SerializeField] private RectTransform bottomLetterBox;
 
+        
         private void Start()
         {
             SetResolution();

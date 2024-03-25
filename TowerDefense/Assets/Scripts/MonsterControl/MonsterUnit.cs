@@ -65,6 +65,14 @@ namespace MonsterControl
                 });
         }
 
+        private void Update()
+        {
+            var dir = navMeshAgent.desiredVelocity;
+            if (dir == Vector3.zero) return;
+            var rot = Quaternion.LookRotation(dir);
+            transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.deltaTime * 10);
+        }
+
         private void OnDestroy()
         {
             _deadSequence?.Kill();
@@ -132,11 +140,6 @@ namespace MonsterControl
             }
 
             anim.SetBool(_isWalk, navMeshAgent.velocity != Vector3.zero);
-
-            var dir = navMeshAgent.desiredVelocity;
-            if (dir == Vector3.zero) return;
-            var rot = Quaternion.LookRotation(dir);
-            transform.rotation = Quaternion.Slerp(transform.rotation, rot, Time.deltaTime * 10);
         }
 
         public void DistanceToBaseTower()

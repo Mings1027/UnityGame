@@ -90,10 +90,12 @@ namespace IAPControl
         private void LocalizeItemPrice(Locale locale)
         {
             var index = 0;
-            foreach (var productId in _priceTextDic.Keys)
+            var pricetextDicKeys = _priceTextDic.Keys.GetEnumerator();
+            while (pricetextDicKeys.MoveNext())
             {
                 var curLanguage = LocalizationSettings.SelectedLocale.LocaleName.Split(' ')[0];
-                _priceTextDic[productId].text = _priceDic[curLanguage][index];
+                if (pricetextDicKeys.Current != null)
+                    _priceTextDic[pricetextDicKeys.Current].text = _priceDic[curLanguage][index];
                 index++;
             }
         }

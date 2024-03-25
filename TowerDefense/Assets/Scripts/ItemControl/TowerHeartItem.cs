@@ -16,6 +16,7 @@ namespace ItemControl
                 return true;
             }
 
+            FloatingNotification.FloatingNotify(FloatingNotifyEnum.FullHealth);
             return false;
         }
     }

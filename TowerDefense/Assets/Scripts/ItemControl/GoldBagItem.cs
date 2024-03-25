@@ -14,7 +14,7 @@ namespace ItemControl
             for (var i = 0; i < 5; i++)
             {
                 PoolObjectManager
-                    .Get<FloatingText>(UIPoolObjectKey.ItemGoldText, cameraManager.camPos + Random.insideUnitSphere * 3)
+                    .Get<FloatingText>(UIPoolObjectKey.ItemGoldText, cameraManager.camPos + Random.insideUnitSphere * 10)
                     .SetGoldText(100);
             }
 
