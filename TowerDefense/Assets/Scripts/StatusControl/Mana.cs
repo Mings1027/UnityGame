@@ -1,5 +1,3 @@
-using System.Threading;
-using Cysharp.Threading.Tasks;
 using InterfaceControl;
 using TMPro;
 using UnityEngine;
@@ -8,25 +6,7 @@ namespace StatusControl
 {
     public class Mana : Progressive, IDamageable, IHealable
     {
-        private CancellationTokenSource _cts;
-
-        public ushort manaRegenValue { get; set; }
-
         [SerializeField] private TMP_Text manaText;
-
-        protected override void OnEnable()
-        {
-            base.OnEnable();
-            manaRegenValue = 1;
-        }
-
-        protected override void OnDisable()
-        {
-            base.OnDisable();
-            if (_cts == null || _cts.IsCancellationRequested) return;
-            _cts?.Cancel();
-            _cts?.Dispose();
-        }
 
         public override void Init(float amount)
         {
@@ -46,28 +26,6 @@ namespace StatusControl
             Current += amount;
             if (Current > Initial) Current = Initial;
             manaText.text = Current + " / " + Initial;
-        }
-
-        private async UniTaskVoid AutoManaRegenerate()
-        {
-            while (!_cts.IsCancellationRequested)
-            {
-                await UniTask.Delay(1000, cancellationToken: _cts.Token);
-                Heal(manaRegenValue);
-            }
-        }
-
-        public void StartManaRegen()
-        {
-            _cts?.Dispose();
-            _cts = new CancellationTokenSource();
-            AutoManaRegenerate().Forget();
-        }
-
-        public void StopManaRegen()
-        {
-            _cts?.Cancel();
-            _cts?.Dispose();
         }
     }
 }

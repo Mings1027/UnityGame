@@ -1,6 +1,7 @@
 using GameControl;
 using ManagerControl;
 using UnityEngine;
+using Utilities;
 
 namespace TowerControl
 {
@@ -14,12 +15,10 @@ namespace TowerControl
         protected Cooldown attackCooldown;
         protected Cooldown patrolCooldown;
 
-        public byte towerRange { get; private set; }
         public int towerDamage { get; private set; }
-        public sbyte towerLevel { get; private set; }
 
         [SerializeField] protected LayerMask targetLayer;
-        
+
         protected override void Awake()
         {
             base.Awake();
@@ -29,7 +28,6 @@ namespace TowerControl
         protected override void OnEnable()
         {
             base.OnEnable();
-            towerLevel = -1;
             _meshFilter = _defaultMesh;
         }
 
@@ -41,37 +39,24 @@ namespace TowerControl
             boxCollider.size = size;
         }
 
-        protected virtual void Init()
+        public override void Init()
         {
+            base.Init();
             boxCollider = GetComponent<BoxCollider>();
             _meshFilter = transform.GetChild(0).GetComponent<MeshFilter>();
             _meshRenderer = transform.GetChild(0).GetComponent<MeshRenderer>();
             _defaultMesh = _meshFilter;
+            attackCooldown = new Cooldown();
+            patrolCooldown = new Cooldown();
         }
 
-        public void TowerLevelUp()
-        {
-            towerLevel++;
-        }
-
-        public virtual void TowerSetting(MeshFilter towerMesh, int damageData, byte rangeData,
-            float cooldownData)
+        public virtual void TowerSetting(int damageData, float cooldownData, MeshFilter towerMesh)
         {
             towerDamage = damageData;
-            towerRange = rangeData;
             attackCooldown.cooldownTime = cooldownData;
             _meshFilter.sharedMesh = towerMesh.sharedMesh;
 
             ColliderSize();
         }
-
-        public override void DisableObject()
-        {
-            UIManager.RemoveAttackTower(this);
-            base.DisableObject();
-        }
-
-        public abstract void TowerUpdate();
-        public abstract void TowerTargetInit();
     }
 }

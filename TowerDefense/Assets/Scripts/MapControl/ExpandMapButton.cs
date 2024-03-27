@@ -2,6 +2,7 @@ using System;
 using CustomEnumControl;
 using ManagerControl;
 using PoolObjectControl;
+using UnitControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -29,7 +30,7 @@ namespace MapControl
         {
             if (Input.touchCount > 1) return;
             if (!Input.GetTouch(0).deltaPosition.Equals(Vector2.zero)) return;
-            if (UIManager.enableMoveUnitController) return;
+            if (MoveUnitController.enableMoveUnitController) return;
             var position = transform.position;
             // PoolObjectManager.Get(PoolObjectKey.ExpandMapSmoke, position);
             OnExpandMapEvent?.Invoke(transform.position);

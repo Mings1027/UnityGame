@@ -1,20 +1,30 @@
-using ManagerControl;
 using UIControl;
+using Utilities;
 
 namespace TowerControl
 {
     public class ManaRegenTower : SupportTower
     {
-        public override void TowerSetting()
+        private byte _manaRegenValue;
+
+        public override void Init()
         {
-            base.TowerSetting();
-            GameHUD.BuildManaTower();
+            base.Init();
+            updateCooldown = new Cooldown();
+            _manaRegenValue = 1;
         }
 
-        public override void DisableObject()
+        public override void LevelUp()
         {
-            GameHUD.RemoveManaTower();
-            base.DisableObject();
+            base.LevelUp();
+            _manaRegenValue++;
+        }
+
+        public override void TowerUpdate()
+        {
+            if (updateCooldown.IsCoolingDown) return;
+            GameHUD.towerMana.Heal(_manaRegenValue);
+            updateCooldown.StartCooldown();
         }
     }
 }

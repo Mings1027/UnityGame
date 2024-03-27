@@ -233,7 +233,6 @@ namespace MapControl
                 _ => _connectionProbability
             };
 
-            // transform.GetChild(2).gameObject.SetActive(true);
             _waveManager.OnPlaceExpandButtonEvent += PlaceExpandButtons;
             PlaceStartMap((byte)(difficultyLevel + 1));
             // CombineMesh();

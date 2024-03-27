@@ -13,7 +13,7 @@ namespace ProjectileControl
 
         protected Collider target;
         protected Vector3 curPos;
-        protected sbyte effectIndex;
+        protected byte effectIndex;
         protected bool isArrived;
         protected int damage;
         protected float lerpTime;
@@ -61,7 +61,7 @@ namespace ProjectileControl
                 Vector3.Lerp(_centerPos, endPos, lerpTime), lerpTime);
         }
 
-        public virtual void Init(int dmg, sbyte vfxIndex, Collider t)
+        public virtual void Init(int dmg, byte vfxIndex, Collider t)
         {
             damage = dmg;
             effectIndex = vfxIndex;

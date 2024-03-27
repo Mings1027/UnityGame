@@ -14,7 +14,7 @@ namespace TowerControl
         private Collider[] _targetColliders;
         private TowerState _towerState;
 
-        protected sbyte effectIndex;
+        protected byte effectIndex;
         protected bool isTargeting;
         protected Sequence atkSequence;
         protected Collider target;
@@ -27,7 +27,8 @@ namespace TowerControl
         [Conditional("UNITY_EDITOR")]
         private void OnDrawGizmos()
         {
-            Gizmos.DrawWireSphere(transform.position, towerRange);
+            if (towerData == null) return;
+            Gizmos.DrawWireSphere(transform.position, towerData.curRange);
         }
         /*=========================================================================================================================================
         *                                               Unity Event
@@ -44,18 +45,24 @@ namespace TowerControl
 
 #region Override Function
 
-        protected override void Init()
+        public override void Init()
         {
             base.Init();
-            effectIndex = -1;
+            effectIndex = 0;
             _targetColliders = new Collider[targetColliderCount];
             patrolCooldown.cooldownTime = 0.5f;
-            var towerData = (TargetingTowerData)UIManager.towerDataDic[towerType];
-            projectileKey = towerData.poolObjectKey;
         }
 
-        public override void TowerTargetInit()
+        public override void SetTowerData(TowerData towerData)
         {
+            base.SetTowerData(towerData);
+            var targetTowerData = (TargetingTowerData)towerData;
+            projectileKey = targetTowerData.poolObjectKey;
+        }
+
+        public override void TowerPause()
+        {
+            base.TowerPause();
             _towerState = TowerState.Detect;
             target = null;
             isTargeting = false;
@@ -79,7 +86,8 @@ namespace TowerControl
         protected virtual void Detect()
         {
             if (patrolCooldown.IsCoolingDown) return;
-            var size = Physics.OverlapSphereNonAlloc(transform.position, towerRange, _targetColliders, targetLayer);
+            var size = Physics.OverlapSphereNonAlloc(transform.position, towerData.curRange, _targetColliders,
+                targetLayer);
 
             if (size <= 0)
             {
@@ -108,7 +116,8 @@ namespace TowerControl
         {
             if (attackCooldown.IsCoolingDown) return;
 
-            if (!target || !target.enabled || Vector3.Distance(transform.position, target.bounds.center) > towerRange)
+            if (!target || !target.enabled ||
+                Vector3.Distance(transform.position, target.bounds.center) > towerData.curRange)
             {
                 _towerState = TowerState.Detect;
                 return;
@@ -131,10 +140,10 @@ namespace TowerControl
 
 #endregion
 
-        public override void TowerSetting(MeshFilter towerMesh, int damageData, byte rangeData,
-            float cooldownData)
+        public override void TowerSetting(int damageData,
+            float cooldownData, MeshFilter towerMesh)
         {
-            base.TowerSetting(towerMesh, damageData, rangeData, cooldownData);
+            base.TowerSetting(damageData, cooldownData, towerMesh);
 
             if (towerLevel % 2 == 0)
             {

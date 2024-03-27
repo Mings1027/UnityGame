@@ -1,10 +1,8 @@
-using System;
 using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using InterfaceControl;
 using TowerControl;
-using UIControl;
 using UnityEngine;
 
 namespace ManagerControl
@@ -12,7 +10,7 @@ namespace ManagerControl
     public class TowerManager : MonoBehaviour, IMainGameObject
     {
         private CancellationTokenSource _cts;
-        private List<AttackTower> _towers;
+        private List<Tower> _towers;
 
 #region Unity Event
 
@@ -27,7 +25,7 @@ namespace ManagerControl
 
         public void Init()
         {
-            _towers = new List<AttackTower>(50);
+            _towers = new List<Tower>(50);
         }
 
 #region TowerControl
@@ -36,7 +34,6 @@ namespace ManagerControl
         {
             _cts?.Dispose();
             _cts = new CancellationTokenSource();
-            GameHUD.towerMana.StartManaRegen();
             TowerUpdate().Forget();
         }
 
@@ -45,7 +42,6 @@ namespace ManagerControl
             _cts?.Cancel();
             _cts?.Dispose();
             TargetInit();
-            GameHUD.towerMana.StopManaRegen();
         }
 
         private void TargetInit()
@@ -54,7 +50,7 @@ namespace ManagerControl
 
             for (var i = 0; i < towerCount; i++)
             {
-                _towers[i].TowerTargetInit();
+                _towers[i].TowerPause();
             }
         }
 
@@ -75,12 +71,12 @@ namespace ManagerControl
 
 #region Public Method
 
-        public void AddTower(AttackTower tower)
+        public void AddTower(Tower tower)
         {
             _towers.Add(tower);
         }
 
-        public void RemoveTower(AttackTower tower)
+        public void RemoveTower(Tower tower)
         {
             _towers.Remove(tower);
         }

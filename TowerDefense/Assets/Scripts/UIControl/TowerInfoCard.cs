@@ -1,9 +1,12 @@
+using System;
 using System.Globalization;
 using CustomEnumControl;
 using DataControl.TowerDataControl;
 using DG.Tweening;
+using ManagerControl;
 using TMPro;
 using TowerControl;
+using UnitControl;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,20 +16,30 @@ namespace UIControl
     {
         private Image[] _starImages;
         private TowerType _towerType;
-        private sbyte _prevTowerLevel;
         private Vector3 _towerPos;
-        private bool _isTargeting;
         private Camera _cam;
         private Transform _towerTransform;
         private Tween _towerDisappearTween;
         private Tweener _towerCardMoveTween;
         private CanvasGroup _towerCardGroup;
+        private MoveUnitController _moveUnitController;
+        private SummonTower _summonTower;
+        private TowerData _towerData;
 
         private TMP_Text _atkText;
         private TMP_Text _healthText;
         private TMP_Text _rangeText;
         private TMP_Text _coolTimeText;
         private TMP_Text _respawnText;
+
+        private const byte TowerMaxLevel = 5;
+        private byte _prevTowerLevel;
+        private bool _isTargeting;
+        private bool _isClickSellButton;
+
+        public bool startMoveUnit { get; private set; }
+        public event Action OnTowerUpgradeEvent;
+        public event Action OnSellTowerEvent;
 
         [SerializeField] private RectTransform towerInfoCardRect;
 
@@ -36,13 +49,25 @@ namespace UIControl
         [SerializeField] private GameObject rangeObj;
         [SerializeField] private GameObject coolTimeObj;
         [SerializeField] private GameObject respawnObj;
-        
-        [SerializeField] private GameObject towerLevelStar;
-        [SerializeField] private CanvasGroup towerStatusPanelObj;
+
+        [SerializeField] private Button upgradeButton;
+        [SerializeField] private Image maxLevelImage;
+        [SerializeField] private Button sellTowerButton;
+        [SerializeField] private Image sellButtonImage;
+        [SerializeField] private Button moveUnitButton;
+
+        [SerializeField] private Sprite sellSprite;
+        [SerializeField] private Sprite checkSprite;
 
         [SerializeField] private TextMeshProUGUI towerNameText;
         [SerializeField] private TextMeshProUGUI goldText;
         [SerializeField] private TextMeshProUGUI sellGoldText;
+
+        private void Start()
+        {
+            Init();
+            ButtonInit();
+        }
 
         private void LateUpdate()
         {
@@ -61,13 +86,13 @@ namespace UIControl
             }
         }
 
-        public void Init()
+        private void Init()
         {
             _cam = Camera.main;
-            _prevTowerLevel = -1;
-            _towerType = TowerType.None;
+            _prevTowerLevel = 0;
             _starImages = new Image[starParent.childCount];
             _towerCardGroup = GetComponent<CanvasGroup>();
+            _moveUnitController = FindAnyObjectByType<MoveUnitController>();
 
             for (var i = 0; i < _starImages.Length; i++)
             {
@@ -88,6 +113,41 @@ namespace UIControl
             _towerCardGroup.blocksRaycasts = false;
         }
 
+        private void ButtonInit()
+        {
+            upgradeButton.onClick.AddListener(() =>
+            {
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
+                if (_isClickSellButton) ResetSprite();
+                OnTowerUpgradeEvent?.Invoke();
+            });
+            sellTowerButton.onClick.AddListener(() =>
+            {
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
+                if (_isClickSellButton)
+                {
+                    _isClickSellButton = false;
+                    sellButtonImage.sprite = sellSprite;
+                    OnSellTowerEvent?.Invoke();
+                    BuildTowerManager.DeSelectTower();
+                }
+                else
+                {
+                    _isClickSellButton = true;
+                    sellButtonImage.sprite = checkSprite;
+                }
+            });
+            _moveUnitController.OnStopMoveUnit += () => { startMoveUnit = false; };
+            moveUnitButton.onClick.AddListener(() =>
+            {
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
+                _moveUnitController.FocusUnitTower(_summonTower, _towerData);
+                SetCardPos(false, null);
+                CloseCard();
+                startMoveUnit = true;
+            });
+        }
+
         public void SetCardPos(bool value, Transform towerTransform)
         {
             _isTargeting = value;
@@ -105,24 +165,31 @@ namespace UIControl
             _towerDisappearTween.PlayBackwards();
         }
 
-        public void SetTowerInfo(AttackTower tower, TowerData towerData, sbyte level,
+        public void SetTowerInfo(Tower tower, TowerData towerData, byte level,
             ushort upgradeCost, ushort sellCost, string towerName)
         {
-            towerStatusPanelObj.alpha = 1;
-            towerLevelStar.SetActive(true);
-
-            if (towerData is AttackTowerData battleTowerData)
+            if (tower is AttackTower attackTower)
             {
                 if (towerData.isUnitTower)
                 {
                     var summonTowerData = (SummoningTowerData)towerData;
-                    _healthText.text = (summonTowerData.curUnitHealth * (level + 1)).ToString();
+                    _healthText.text = (summonTowerData.curUnitHealth * level).ToString();
                     _respawnText.text = summonTowerData.initReSpawnTime.ToString(CultureInfo.InvariantCulture);
+                    _summonTower = (SummonTower)tower;
                 }
                 else
                 {
-                    _coolTimeText.text = battleTowerData.attackCooldown.ToString(CultureInfo.InvariantCulture);
+                    var atkTowerData = (AttackTowerData)towerData;
+                    _coolTimeText.text = atkTowerData.attackCooldown.ToString(CultureInfo.InvariantCulture);
                 }
+
+                _atkText.text = attackTower.towerDamage.ToString();
+            }
+            else if (tower is SupportTower supportTower)
+            {
+                _atkText.text = "-";
+                var supportTowerData = (SupportTowerData)towerData;
+                _coolTimeText.text = supportTowerData.towerUpdateCooldown.ToString(CultureInfo.InvariantCulture);
             }
 
             var isUnitTower = towerData.isUnitTower;
@@ -130,7 +197,7 @@ namespace UIControl
             rangeObj.SetActive(!isUnitTower);
             coolTimeObj.SetActive(!isUnitTower);
             respawnObj.SetActive(isUnitTower);
-            var towerType = tower.towerType;
+            var towerType = towerData.towerType;
 
             if (!towerType.Equals(_towerType))
             {
@@ -140,37 +207,30 @@ namespace UIControl
 
             DisplayStarsForTowerLevel(level);
             goldText.text = upgradeCost + "G";
-            _atkText.text = tower.towerDamage.ToString();
-            _rangeText.text = tower.towerRange.ToString();
+            _rangeText.text = towerData.curRange.ToString();
             sellGoldText.text = sellCost + "G";
+
+            upgradeButton.gameObject.SetActive(level != TowerMaxLevel);
+            maxLevelImage.gameObject.SetActive(level == TowerMaxLevel);
+            moveUnitButton.gameObject.SetActive(isUnitTower);
+            if (_isClickSellButton) ResetSprite();
         }
 
-        public void SetSupportTowerInfo(SupportTower tower, ushort sellCost, string towerName)
-        {
-            towerStatusPanelObj.alpha = 0;
-            towerLevelStar.SetActive(false);
-
-            var towerType = tower.towerType;
-
-            if (!towerType.Equals(_towerType))
-            {
-                _towerType = towerType;
-                towerNameText.text = towerName;
-            }
-
-            sellGoldText.text = sellCost + "G";
-        }
-
-        private void DisplayStarsForTowerLevel(sbyte level)
+        private void DisplayStarsForTowerLevel(byte level)
         {
             if (_prevTowerLevel == level) return;
             _prevTowerLevel = level;
 
             for (var i = 0; i < starParent.childCount; i++)
             {
-                _starImages[i].enabled = i <= level;
+                _starImages[i].enabled = i < level;
             }
         }
 
+        private void ResetSprite()
+        {
+            _isClickSellButton = false;
+            sellButtonImage.sprite = sellSprite;
+        }
     }
 }

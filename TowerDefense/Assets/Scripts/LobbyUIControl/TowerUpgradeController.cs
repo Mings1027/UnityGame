@@ -23,7 +23,7 @@ namespace LobbyUIControl
         private Tween _upgradePanelGroupSequence;
         private Tween _towerInfoGroupSequence;
         private TowerUpgradeButton _curTowerButton;
-        private AttackTowerData _curAtkTowerData;
+        private TowerData _curTowerData;
         private TMP_Text _levelUpText;
         private TowerType _curTowerType;
         private sbyte _curTowerIndex;
@@ -91,7 +91,6 @@ namespace LobbyUIControl
 
         private void UpgradePanel()
         {
-            SoundManager.PlayUISound(SoundEnum.ButtonSound);
             _lobbyUI.OnBackgroundImage();
             _upgradePanelGroupSequence.Restart();
         }
@@ -133,6 +132,7 @@ namespace LobbyUIControl
         {
             upgradeButton.onClick.AddListener(() =>
             {
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 UpgradePanel();
                 _lobbyUI.SetActiveButtons(false, false);
             });
@@ -147,6 +147,7 @@ namespace LobbyUIControl
             });
             initTowerLevelButton.onClick.AddListener(() =>
             {
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 FullscreenAlert.CancelableAlert(FullscreenAlertEnum.TowerLevelInitAlert, InitTowerLevel);
             });
 
@@ -160,6 +161,7 @@ namespace LobbyUIControl
             });
             levelUpButton.onClick.AddListener(() =>
             {
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 var userData = BackendGameData.userData;
                 var prevTowerLv = userData.towerLevelTable[_curTowerType.ToString()];
 
@@ -194,7 +196,7 @@ namespace LobbyUIControl
                     infoGroupBackgroundImage.enabled = true;
                     _towerInfoGroupSequence.Restart();
                     _curTowerButton = towerUpgradeButton;
-                    _curAtkTowerData = attackData;
+                    _curTowerData = attackData;
                     _curTowerType = towerType;
                     towerImage.sprite = towerUpgradeButton.towerImage.sprite;
                     towerNameText.text = TowerDataManager.TowerInfoTable[_curTowerType].towerName;
@@ -229,7 +231,7 @@ namespace LobbyUIControl
             _curTowerButton.towerLevelText.text = "Lv. " + curTowerLv;
 
             upgradeCostText.text = ((curTowerLv + 1) * 25).ToString();
-            _curAtkTowerData.UpgradeData(curTowerLv);
+            _curTowerData.UpgradeData(curTowerLv);
 
             if (curTowerLv >= TowerMaxLevel)
             {
@@ -240,14 +242,15 @@ namespace LobbyUIControl
 
         private void SetTowerInfo()
         {
-            atkText.text = _curAtkTowerData.curDamage.ToString();
+            var atkTowerData = (AttackTowerData)_curTowerData;
+            atkText.text = atkTowerData.curDamage.ToString();
 
-            rangeText.text = _curAtkTowerData.curRange.ToString();
-            cooldownText.text = _curAtkTowerData.attackCooldown.ToString(CultureInfo.InvariantCulture);
+            rangeText.text = atkTowerData.curRange.ToString();
+            cooldownText.text = atkTowerData.attackCooldown.ToString(CultureInfo.InvariantCulture);
 
-            if (_curAtkTowerData.isUnitTower)
+            if (atkTowerData.isUnitTower)
             {
-                var unitTower = (SummoningTowerData)_curAtkTowerData;
+                var unitTower = (SummoningTowerData)atkTowerData;
                 healthText.text = unitTower.curUnitHealth.ToString();
                 respawnText.text = unitTower.initReSpawnTime.ToString(CultureInfo.InvariantCulture);
             }

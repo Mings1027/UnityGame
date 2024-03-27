@@ -9,6 +9,7 @@ using StatusControl;
 using UIControl;
 using UnityEngine;
 using UnityEngine.AI;
+using Utilities;
 using Random = UnityEngine.Random;
 
 namespace MonsterControl
@@ -96,9 +97,13 @@ namespace MonsterControl
 
         public virtual void Init()
         {
+            _patrolCooldown = new Cooldown
+            {
+                cooldownTime = 0.5f
+            };
+            attackCooldown = new Cooldown();
             _thisCollider.enabled = true;
             target = null;
-            _patrolCooldown.cooldownTime = 0.5f;
 
             _health.OnDeadEvent += Dead;
             OnDisableEvent += () =>

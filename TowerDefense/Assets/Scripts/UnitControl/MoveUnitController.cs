@@ -1,3 +1,5 @@
+using System;
+using DataControl.TowerDataControl;
 using ManagerControl;
 using TowerControl;
 using UIControl;
@@ -11,9 +13,13 @@ namespace UnitControl
         private Camera _cam;
         private Transform _camArm;
         private SummonTower _summonTower;
+        private TowerData _towerData;
 
-        private float _prevSize;
         private Vector3 _prevPos;
+        private float _prevSize;
+
+        public static bool enableMoveUnitController { get; private set; }
+        public event Action OnStopMoveUnit;
 
         [SerializeField] private float camZoomTime;
 
@@ -34,11 +40,12 @@ namespace UnitControl
             CheckMoveUnit();
         }
 
-        public void FocusUnitTower(SummonTower summonTower)
+        public void FocusUnitTower(SummonTower summonTower, TowerData towerData)
         {
             enabled = true;
-            UIManager.enableMoveUnitController = true;
+            enableMoveUnitController = true;
             _summonTower = summonTower;
+            _towerData = towerData;
             _prevSize = _cam.orthographicSize;
             _prevPos = _camArm.position;
             _camArm.MoveTween(_prevPos, summonTower.transform.position, camZoomTime);
@@ -48,7 +55,7 @@ namespace UnitControl
         private void RewindCam()
         {
             enabled = false;
-            UIManager.enableMoveUnitController = false;
+            enableMoveUnitController = false;
             _camArm.MoveTween(_camArm.position, _prevPos, camZoomTime);
             _cam.OrthoSizeTween(_cam.orthographicSize, _prevSize, camZoomTime);
         }
@@ -60,11 +67,12 @@ namespace UnitControl
             var ray = _cam.ScreenPointToRay(Input.mousePosition);
             Physics.Raycast(ray, out var hit, int.MaxValue);
             if (hit.collider && hit.collider.CompareTag("Ground") &&
-                Vector3.Distance(_summonTower.transform.position, hit.point) <= _summonTower.towerRange)
+                Vector3.Distance(_summonTower.transform.position, hit.point) <= _towerData.curRange)
             {
                 _summonTower.UnitMove(new Vector3(hit.point.x, 0, hit.point.z));
                 RewindCam();
-                UIManager.OffUI();
+                BuildTowerManager.DeSelectTower();
+                OnStopMoveUnit?.Invoke();
             }
             else
             {

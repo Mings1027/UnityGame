@@ -8,7 +8,7 @@ namespace TowerControl
         private Transform _childObj;
         [SerializeField] private ParticleSystem canonSmoke;
 
-        protected override void Init()
+        public override void Init()
         {
             base.Init();
             firePos = canonSmoke.transform;

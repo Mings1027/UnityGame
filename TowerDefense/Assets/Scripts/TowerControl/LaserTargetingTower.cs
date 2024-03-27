@@ -17,18 +17,23 @@ namespace TowerControl
         private Mana _towerMana;
         [SerializeField] private LineRenderer beam;
 
-        protected override void Init()
+        public override void Init()
         {
             base.Init();
-            var manaTowerData = (ManaUsingTowerData)UIManager.towerDataDic[towerType];
-            _attackMana = manaTowerData.initMana;
             _towerMana = GameHUD.towerMana;
             firePos = transform.GetChild(2);
         }
 
-        public override void TowerTargetInit()
+        public override void SetTowerData(TowerData towerData)
         {
-            base.TowerTargetInit();
+            base.SetTowerData(towerData);
+            var manaTowerData = (ManaUsingTowerData)towerData;
+            _attackMana = manaTowerData.initMana;
+        }
+
+        public override void TowerPause()
+        {
+            base.TowerPause();
             beam.enabled = false;
         }
 
@@ -36,7 +41,7 @@ namespace TowerControl
         {
             if (patrolCooldown.IsCoolingDown) return;
             if (_towerMana.Current < _attackMana) return;
-            var size = Physics.OverlapSphereNonAlloc(transform.position, towerRange, targetColliders, targetLayer);
+            var size = Physics.OverlapSphereNonAlloc(transform.position, towerData.curRange, targetColliders, targetLayer);
             if (size <= 0)
             {
                 target = null;

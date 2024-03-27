@@ -13,7 +13,7 @@ namespace TowerControl
         [SerializeField] protected AudioClip audioClip;
         [SerializeField, Range(1, 5)] private byte targetColliderCount;
 
-        protected override void Init()
+        public override void Init()
         {
             base.Init();
             targetColliders = new Collider[targetColliderCount];
@@ -33,8 +33,9 @@ namespace TowerControl
             }
         }
 
-        public override void TowerTargetInit()
+        public override void TowerPause()
         {
+            base.TowerPause();
             towerState = TowerState.Detect;
             target = null;
         }

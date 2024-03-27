@@ -1,4 +1,5 @@
 using ManagerControl;
+using UnitControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -13,8 +14,9 @@ namespace UIControl
         public void OnPointerUp(PointerEventData eventData)
         {
             if (Input.GetTouch(0).deltaPosition != Vector2.zero) return;
-            if (UIManager.enableMoveUnitController) return;
-            UIManager.UIOff();
+            if (MoveUnitController.enableMoveUnitController) return;
+            BuildTowerManager.DeSelectTower();
+            UIManager.AppearUI();
         }
     }
 }

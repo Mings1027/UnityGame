@@ -10,7 +10,7 @@ namespace TowerControl
         [SerializeField] private Transform ballista;
         [SerializeField] private float smoothTurnSpeed;
 
-        protected override void Init()
+        public override void Init()
         {
             base.Init();
             firePos = ballista;
@@ -32,9 +32,9 @@ namespace TowerControl
             ballista.rotation = Quaternion.Slerp(ballista.rotation, rotGoal, smoothTurnSpeed);
         }
 
-        public override void TowerSetting(MeshFilter towerMesh, int damageData, byte rangeData, float cooldownData)
+        public override void TowerSetting(int damageData, float cooldownData, MeshFilter towerMesh)
         {
-            base.TowerSetting(towerMesh, damageData, rangeData, cooldownData);
+            base.TowerSetting(damageData, cooldownData, towerMesh);
             BallistaInit();
         }
 

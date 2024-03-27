@@ -84,7 +84,7 @@ namespace ProjectileControl
             }
         }
 
-        public override void Init(int dmg, sbyte vfxIndex, Collider t)
+        public override void Init(int dmg, byte vfxIndex, Collider t)
         {
             base.Init(dmg, vfxIndex, t);
             Physics.Raycast(t.bounds.center + t.transform.forward * 2 + Vector3.up * 2, Vector3.down, out var hit, 10);

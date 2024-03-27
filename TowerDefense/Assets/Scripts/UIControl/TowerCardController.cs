@@ -68,7 +68,7 @@ namespace UIControl
 
                 openTowerCardBtnGroup.DOFade(1, 0);
                 openTowerCardBtnGroup.blocksRaycasts = true;
-                    
+
                 towerCardGroup.blocksRaycasts = false;
                 _towerCardSequence.PlayBackwards();
                 CloseTowerCard();
@@ -80,7 +80,7 @@ namespace UIControl
         {
             if (_isDrag) return;
             SoundManager.PlayUISound(SoundEnum.ButtonSound);
-            towerDescriptionCard.OpenTowerCard(_towerButtonDic[towerType].towerType);
+            towerDescriptionCard.OpenTowerCard(_towerButtonDic[towerType]);
         }
 
         private void StartPlacement(TowerType towerType)
@@ -95,6 +95,7 @@ namespace UIControl
         {
             isPointerOver = value;
         }
+
         private void TryPlaceTower()
         {
             if (isPointerOver) return;
@@ -114,7 +115,7 @@ namespace UIControl
         private async UniTaskVoid DisappearToggleBtn()
         {
             _isShowTowerBtn = false;
-            await UniTask.Delay(2000,cancellationToken: this.GetCancellationTokenOnDestroy());
+            await UniTask.Delay(2000, cancellationToken: this.GetCancellationTokenOnDestroy());
             if (!_isShowTowerBtn)
             {
                 openTowerCardBtnGroup.DOFade(0, 1).OnComplete(() => openTowerCardBtnGroup.blocksRaycasts = false);

@@ -83,7 +83,7 @@ namespace UIControl
         {
             _itemBagTween = itemGroup.DOFade(1, 0.25f).From(0).SetAutoKill(false).Pause();
             _itemBagTween.OnComplete(() => itemGroup.blocksRaycasts = true);
-
+            itemGroup.blocksRaycasts = false;
             _descriptionTween = descriptionGroup.DOFade(1, 0.25f).From(0).SetAutoKill(false).Pause();
             _descriptionTween.OnComplete(() => { descriptionGroup.blocksRaycasts = true; });
             descriptionGroup.blocksRaycasts = false;
@@ -153,6 +153,7 @@ namespace UIControl
         private void CloseBag()
         {
             selectIcon.gameObject.SetActive(false);
+            itemGroup.blocksRaycasts = false;
             _itemBagTween.PlayBackwards();
             _descriptionTween.PlayBackwards();
             if (!SafeArea.activeSafeArea)

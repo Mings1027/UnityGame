@@ -12,7 +12,7 @@ namespace TowerControl
         [SerializeField] private Transform crystal;
         [SerializeField] private Mesh[] crystalMesh;
 
-        protected override void Init()
+        public override void Init()
         {
             base.Init();
             firePos = crystal;
@@ -35,10 +35,10 @@ namespace TowerControl
             projectile.DeBuffInit(effectIndex);
         }
 
-        public override void TowerSetting(MeshFilter towerMesh, int damageData, byte rangeData,
-            float cooldownData)
+        public override void TowerSetting(int damageData,
+            float cooldownData, MeshFilter towerMesh)
         {
-            base.TowerSetting(towerMesh, damageData, rangeData, cooldownData);
+            base.TowerSetting(damageData, cooldownData, towerMesh);
             CrystalInit();
         }
 

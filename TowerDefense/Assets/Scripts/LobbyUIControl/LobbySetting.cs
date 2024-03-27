@@ -78,6 +78,7 @@ namespace LobbyUIControl
 
             logOutButton.onClick.AddListener(() =>
             {
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 FullscreenAlert.CancelableAlert(FullscreenAlertEnum.LogOutAlert, () =>
                 {
                     BackendLogin.instance.LogOut();
@@ -87,6 +88,7 @@ namespace LobbyUIControl
 
             deleteAccountButton.onClick.AddListener(() =>
             {
+                SoundManager.PlayUISound(SoundEnum.ButtonSound);
                 FullscreenAlert.CancelableAlert(FullscreenAlertEnum.AccountDeletionAlert, () =>
                 {
                     BackendLogin.instance.DeleteAccount();

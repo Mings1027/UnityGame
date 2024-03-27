@@ -1,10 +1,10 @@
 using System;
 using UnityEngine;
 
-namespace GameControl
+namespace Utilities
 {
     [Serializable]
-    public struct Cooldown
+    public class Cooldown
     {
         private float _nextFireTime;
 

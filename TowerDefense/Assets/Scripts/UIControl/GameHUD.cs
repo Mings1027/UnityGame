@@ -112,16 +112,6 @@ namespace UIControl
             instance.DisplayHUDPrivate();
         }
 
-        public static void RemoveManaTower()
-        {
-            towerMana.manaRegenValue -= 2;
-        }
-
-        public static void BuildManaTower()
-        {
-            towerMana.manaRegenValue += 2;
-        }
-
         public static void SetTowerGold(byte difficultyLevel)
         {
             var towerGold = instance.towerGold;

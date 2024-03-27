@@ -13,7 +13,7 @@ namespace UIControl
     public class TowerDescriptionCard : MonoBehaviour
     {
         private Vector3 _initPos;
-        private TowerType _towerType;
+        private TowerData _towerData;
         private Sequence _openCardSequence;
         private TMP_Text _hpText;
         private TMP_Text _atkText;
@@ -36,8 +36,6 @@ namespace UIControl
             _canvasGroup = GetComponent<CanvasGroup>();
             _canvasGroup.blocksRaycasts = false;
             transform.GetChild(0).GetComponent<Button>().onClick.AddListener(CloseCard);
-            _towerType = TowerType.None;
-
             _openCardSequence = DOTween.Sequence().SetAutoKill(false).Pause().SetUpdate(true)
                 .Append(_canvasGroup.DOFade(1, 0.25f).From(0))
                 .Join(descriptionCardRect.DOAnchorPosX(300, 0.25f).From(new Vector2(200, 0)));
@@ -49,21 +47,20 @@ namespace UIControl
             _coolTimeText = coolTimeObj.transform.GetChild(1).GetComponent<TMP_Text>();
         }
 
-        public void OpenTowerCard(TowerType towerType)
+        public void OpenTowerCard(TowerData towerData)
         {
-            UIManager.OffUI();
-            if (towerType.Equals(_towerType)) return;
+            BuildTowerManager.DeSelectTower();
+            if (towerData.Equals(_towerData)) return;
             isOpen = true;
 
-            _towerType = towerType;
+            _towerData = towerData;
 
-            towerNameText.text = TowerDataManager.TowerInfoTable[towerType].towerName;
-            towerDescriptionText.text = TowerDataManager.TowerInfoTable[towerType].towerDescription;
-            var towerDataDic = UIManager.towerDataDic;
-            healthObj.SetActive(towerDataDic[towerType].isUnitTower);
-            coolTimeObj.SetActive(!towerDataDic[towerType].isUnitTower);
+            towerNameText.text = TowerDataManager.TowerInfoTable[towerData.towerType].towerName;
+            towerDescriptionText.text = TowerDataManager.TowerInfoTable[towerData.towerType].towerDescription;
+            healthObj.SetActive(towerData.isUnitTower);
+            coolTimeObj.SetActive(!towerData.isUnitTower);
 
-            if (towerDataDic[towerType] is AttackTowerData battleTowerData)
+            if (towerData is AttackTowerData battleTowerData)
             {
                 towerStatusPanel.SetActive(true);
                 if (battleTowerData.isUnitTower)
@@ -89,7 +86,6 @@ namespace UIControl
         public void CloseCard()
         {
             isOpen = false;
-            _towerType = TowerType.None;
 
             _openCardSequence.PlayBackwards();
         }

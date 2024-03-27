@@ -109,13 +109,6 @@ namespace UIControl
         private void InitComponent()
         {
             _noticePanelGroup = GetComponent<CanvasGroup>();
-            // _blockImage = transform.GetChild(0).GetComponent<Image>();
-            // _noticeText = transform.GetChild(1).GetComponent<RectTransform>();
-            // _noticePanel = transform.GetChild(2).GetComponent<RectTransform>();
-            // _noticeInfoText = _noticePanel.GetComponentInChildren<TMP_Text>();
-            // _buttonGroup = transform.GetChild(3).GetComponent<CanvasGroup>();
-            // _confirmButton = _buttonGroup.transform.Find("Confirm Button").GetComponent<Button>();
-            // _cancelButton = _buttonGroup.transform.Find("Cancel Button").GetComponent<Button>();
         }
 
         private void InitTween()

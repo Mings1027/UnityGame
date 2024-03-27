@@ -134,19 +134,22 @@ namespace TowerControl
 
 #region Override Function
 
-        protected override void Init()
+        public override void Init()
         {
             base.Init();
-            _summoningTowerData = (SummoningTowerData)UIManager.towerDataDic[towerType];
             _reSpawnBarTransform = transform.GetChild(1);
             _units = new List<TowerUnit>(unitCount);
-
-            // unitHealth = _summoningTowerData.curUnitHealth;
-            // unitReSpawnTime = _summoningTowerData.initReSpawnTime;
         }
 
-        public override void TowerTargetInit()
+        public override void SetTowerData(TowerData towerData)
         {
+            base.SetTowerData(towerData);
+            _summoningTowerData = (SummoningTowerData)towerData;
+        }
+
+        public override void TowerPause()
+        {
+            base.TowerPause();
             var count = _units.Count - 1;
             for (var i = count; i >= 0; i--)
             {
@@ -165,10 +168,10 @@ namespace TowerControl
             }
         }
 
-        public override void TowerSetting(MeshFilter towerMesh, int damageData, byte rangeData,
-            float cooldownData)
+        public override void TowerSetting(int damageData,
+            float cooldownData, MeshFilter towerMesh)
         {
-            base.TowerSetting(towerMesh, damageData, rangeData, cooldownData);
+            base.TowerSetting(damageData, cooldownData, towerMesh);
 
             if (!_isUnitSpawn)
             {

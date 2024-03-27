@@ -97,7 +97,6 @@ namespace ManagerControl
                 _fourDir[i] *= 2;
             }
 
-            _selectedTowerType = TowerType.None;
             cubeCursor.position = Vector3.zero + Vector3.down * 5;
             _cursorMeshRenderer.enabled = false;
             _meshScaleTween = _cursorMeshRenderer.transform.DOScale(2, 0.25f).From(0).SetEase(Ease.OutBack)
@@ -118,9 +117,9 @@ namespace ManagerControl
         {
             _cursorMeshRenderer.enabled = true;
             _startPlacement = true;
-            UIManager.OffUI();
+            BuildTowerManager.DeSelectTower();
             _meshScaleTween.Restart();
-            if (!UIManager.IsEnoughGold(towerType))
+            if (!BuildTowerManager.IsEnoughGold(towerType))
             {
                 _startPlacement = false;
                 return;
@@ -195,7 +194,8 @@ namespace ManagerControl
 
             if (!foundGround) towerForward = _checkDir[Random.Range(0, 4)];
 
-            UIManager.InstantiateTower(_selectedTowerType, _worldGridPos, towerForward);
+            BuildTowerManager.InstantiateTower(_selectedTowerType, _worldGridPos, towerForward);
+            
         }
     }
 }

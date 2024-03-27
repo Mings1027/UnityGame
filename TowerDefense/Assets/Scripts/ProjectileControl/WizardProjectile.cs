@@ -11,7 +11,7 @@ namespace ProjectileControl
     {
         private byte _slowCoolTime;
 
-        public void DeBuffInit(sbyte vfxIndex)
+        public void DeBuffInit(byte vfxIndex)
         {
             _slowCoolTime = (byte)((vfxIndex + 1) * 2); //2 4 6
         }

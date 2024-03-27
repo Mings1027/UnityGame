@@ -3,6 +3,7 @@ using Cysharp.Threading.Tasks;
 using GameControl;
 using UnityEngine;
 using UnityEngine.AI;
+using Utilities;
 
 namespace MonsterControl
 {
@@ -15,7 +16,10 @@ namespace MonsterControl
         protected override void Awake()
         {
             base.Awake();
-            _moveAroundCooldown.cooldownTime = 0.5f;
+            _moveAroundCooldown = new Cooldown
+            {
+                cooldownTime = 0.5f
+            };
         }
 
         public override void SpawnInit()

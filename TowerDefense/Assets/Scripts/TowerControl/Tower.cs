@@ -1,19 +1,22 @@
 using System;
-using CustomEnumControl;
+using DataControl.TowerDataControl;
 using EPOOutline;
+using InterfaceControl;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 namespace TowerControl
 {
     [DisallowMultipleComponent]
-    public abstract class Tower : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+    public abstract class Tower : MonoBehaviour, ITower, IPointerDownHandler, IPointerUpHandler
     {
         private Outlinable _towerOutline;
 
-        public event Action<Tower> OnClickTowerAction;
+        protected TowerData towerData;
 
-        [field: SerializeField] public TowerType towerType { get; private set; }
+        public byte towerLevel { get; private set; }
+        public event Action<Tower, TowerData> OnSelectTowerEvent;
+        public event Action<Tower> OnRemoveEvent;
 
 #region Unity Event
 
@@ -25,6 +28,7 @@ namespace TowerControl
 
         protected virtual void OnEnable()
         {
+            towerLevel = 0;
         }
 
         public void OnPointerDown(PointerEventData eventData)
@@ -35,12 +39,17 @@ namespace TowerControl
         {
             if (Input.touchCount != 1) return;
             if (!Input.GetTouch(0).deltaPosition.Equals(Vector2.zero)) return;
-            OnClickTowerAction?.Invoke(this);
+            OnSelectTowerEvent?.Invoke(this, towerData);
         }
 
 #endregion
 
 #region Public Function
+
+        public virtual void SetTowerData(TowerData towerData)
+        {
+            this.towerData = towerData;
+        }
 
         public virtual void ActiveIndicator()
         {
@@ -54,11 +63,29 @@ namespace TowerControl
 
         public virtual void DisableObject()
         {
+            OnRemoveEvent?.Invoke(this);
             var g = gameObject;
             g.SetActive(false);
             Destroy(g);
         }
 
 #endregion
+
+        public virtual void Init()
+        {
+        }
+
+        public virtual void LevelUp()
+        {
+            towerLevel++;
+        }
+
+        public virtual void TowerUpdate()
+        {
+        }
+
+        public virtual void TowerPause()
+        {
+        }
     }
 }

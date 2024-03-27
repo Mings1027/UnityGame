@@ -9,6 +9,7 @@ using StatusControl;
 using TowerControl;
 using UnityEngine;
 using UnityEngine.AI;
+using Utilities;
 using Debug = UnityEngine.Debug;
 using Random = UnityEngine.Random;
 
@@ -49,6 +50,7 @@ namespace UnitControl
 
         private void Awake()
         {
+            _atkCooldown = new Cooldown();
             _outlinable = GetComponent<Outlinable>();
             _outlinable.enabled = false;
             GetComponent<Rigidbody>();
